@@ -4,13 +4,24 @@ from litex.build.lattice.programmer import IceStormProgrammer
 
 
 _io = [
+    ("serial", 0,
+        Subsignal("rx", Pins("C3")),
+        Subsignal("tx", Pins("B3"), Misc("PULLUP")),
+        IOStandard("LVCMOS33")
+    ),
     ("rgb_led", 0,
         Subsignal("r", Pins("C5")),
         Subsignal("g", Pins("B5")),
         Subsignal("b", Pins("A5")),
         IOStandard("LVCMOS33")
     ),
+    # alias blue led
+    ("user_led_n",    0, Pins("A5"), IOStandard("LVCMOS33")),
 
+    ("user_touch_n",    0, Pins("F4"), IOStandard("LVCMOS33")),
+    ("user_touch_n",    1, Pins("E5"), IOStandard("LVCMOS33")),
+    ("user_touch_n",    2, Pins("E4"), IOStandard("LVCMOS33")),
+    ("user_touch_n",    3, Pins("F2"), IOStandard("LVCMOS33")),
 
     ("usb", 0,
         Subsignal("d_p", Pins("A4")),
@@ -30,10 +41,14 @@ _io = [
         Subsignal("clk", Pins("D1"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("F1"), IOStandard("LVCMOS33")),
         Subsignal("miso", Pins("E1"), IOStandard("LVCMOS33")),
+        Subsignal("wp",   Pins("A1"), IOStandard("LVCMOS33")),
+        Subsignal("hold", Pins("B1"), IOStandard("LVCMOS33")),
     ),
-]
-
-spiflash = [
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("C1"), IOStandard("LVCMOS33")),
+        Subsignal("clk",  Pins("D1"), IOStandard("LVCMOS33")),
+        Subsignal("dq",   Pins("E1 F1 A1 B1"), IOStandard("LVCMOS33")),
+    ),
 ]
 
 _connectors = [
@@ -42,19 +57,7 @@ _connectors = [
     # Pin 2 - E5
     # Pin 3 - E4
     # Pin 4 - F2 - Near notch on bottom
-    ("pins", "F4 E5 E4 F2"),
-]
-
-# The ICE40UP5K-B-EVN does not use the provided FT2232H chip to provide a
-# UART port. One must use their own USB-to-serial cable instead to get a UART.
-# Using the second 6-pin PMOD port. Follows Digilent PMOD Specification Type 4,
-# so e.g. PMOD USBUART can be used.
-pins_serial = [
-    ("serial", 0,
-        Subsignal("rx", Pins("pins:1")),
-        Subsignal("tx", Pins("pins:2")),
-        IOStandard("LVCMOS33"),
-    ),
+    ("touch_pins", "F4 E5 E4 F2"),
 ]
 
 class Platform(LatticePlatform):
