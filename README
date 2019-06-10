@@ -1,0 +1,24 @@
+           __   _ __      _  __    ___                   __
+          / /  (_) /____ | |/_/___/ _ )___  ___ ________/ /__
+         / /__/ / __/ -_)>  </___/ _  / _ \/ _ `/ __/ _  (_-<
+        /____/_/\__/\__/_/|_|   /____/\___/\_,_/_/  \_,_/___/
+
+                       LiteX boards files
+
+              Copyright 2012-2019 / LiteX-Hub community
+
+[> Intro
+--------
+Supported boards files (platforms/targets) for LiteX.
+
+Official:
+---------
+Platforms / Targets actively tested and included in the CI system.
+
+Partner:
+-------
+Platforms / Targets supported by other groups/partners.
+
+Community:
+----------
+Platforms / Targets supported by the community in a "best effort" manner.
