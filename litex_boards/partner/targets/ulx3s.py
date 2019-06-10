@@ -5,7 +5,7 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.official.platforms import ulx3s
+from litex_boards.partner.platforms import ulx3s
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_sdram import *

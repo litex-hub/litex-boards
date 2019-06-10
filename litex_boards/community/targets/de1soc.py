@@ -11,7 +11,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.official.platforms import de2_115
+from litex_boards.community.platforms import de1soc
 
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -71,7 +71,7 @@ class _CRG(Module):
 class BaseSoC(SoCSDRAM):
     def __init__(self, sys_clk_freq=int(50e6), **kwargs):
         assert sys_clk_freq == int(50e6)
-        platform = de2_115.Platform()
+        platform = de1soc.Platform()
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
                           integrated_rom_size=0x8000,
                           **kwargs)
@@ -89,7 +89,7 @@ class BaseSoC(SoCSDRAM):
 # Build ----------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on DE2-115")
+    parser = argparse.ArgumentParser(description="LiteX SoC on DE1-SoC")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()

@@ -4,7 +4,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.official.platforms import de10lite
+from litex_boards.community.platforms import de10lite
 
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
