@@ -7,7 +7,7 @@ from litex.build.lattice.programmer import IceStormProgrammer
 
 
 _io = [
-    ("rgb_led_n", 0,
+    ("rgb_led", 0,
         Subsignal("r", Pins("40")),
         Subsignal("g", Pins("39")),
         Subsignal("b", Pins("41")),
