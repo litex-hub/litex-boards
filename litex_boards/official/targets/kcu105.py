@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# This file is Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# License: BSD
+
 import argparse
 
 from migen import *
@@ -15,7 +18,7 @@ from litedram.modules import EDY4016A
 from litedram.phy import usddrphy
 
 from liteeth.phy.ku_1000basex import KU_1000BASEX
-from liteeth.core.mac import LiteEthMAC
+from liteeth.mac import LiteEthMAC
 
 # CRG ----------------------------------------------------------------------------------------------
 

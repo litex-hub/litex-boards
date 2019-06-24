@@ -1,3 +1,6 @@
+# This file is Copyright (c) 2019 Sean Cross <sean@xobs.io>
+# License: BSD
+
 from litex_boards.partner.platforms import netv2
 
 from migen import Module, Signal, Instance, ClockDomain, If

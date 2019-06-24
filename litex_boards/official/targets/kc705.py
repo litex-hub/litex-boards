@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# This file is Copyright (c) 2014-2015 Sebastien Bourdeauducq <sb@m-labs.hk>
+# This file is Copyright (c) 2014-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# This file is Copyright (c) 2014-2015 Yann Sionneau <ys@m-labs.hk>
+# License: BSD
+
 import argparse
 
 from migen import *
@@ -15,7 +20,7 @@ from litedram.modules import MT8JTF12864
 from litedram.phy import s7ddrphy
 
 from liteeth.phy import LiteEthPHY
-from liteeth.core.mac import LiteEthMAC
+from liteeth.mac import LiteEthMAC
 
 # CRG ----------------------------------------------------------------------------------------------
 

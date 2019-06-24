@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# This file is Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# This file is Copyright (c) 2018-2019 David Shah <dave@ds0.me>
+# License: BSD
+
 import argparse
 
 from migen import *
@@ -16,7 +20,7 @@ from litedram.modules import MT41K64M16
 from litedram.phy import ECP5DDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
-from liteeth.core.mac import LiteEthMAC
+from liteeth.mac import LiteEthMAC
 
 # CRG ----------------------------------------------------------------------------------------------
 

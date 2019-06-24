@@ -1,3 +1,7 @@
+# This file is Copyright (c) 2019 Tom Keddie <git@bronwenandtom.com>
+# This file is Copyright (c) 2019 Sean Cross <sean@xobs.io>
+# License: BSD
+
 # fomu evt board from from crowd funding
 # design files at https://github.com/im-tomu/fomu-hardware/tree/evt/hardware/pcb
 #

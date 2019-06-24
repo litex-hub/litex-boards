@@ -1,7 +1,5 @@
-# This file is Copyright (c) 2015 Yann Sionneau <yann@sionneau.net>
-# This file is Copyright (c) 2015 Florent Kermarrec <florent@enjoy-digital.fr>
-# This file is Copyright (c) 2018 William D. Jones <thor0505@comcast.net>
-# This file is Copyright (c) 2018 Caleb Jamison <cbjamo@gmail.com>
+# This file is Copyright (c) 2015 Yann Sionneau <yann.sionneau@gmail.com>
+# This file is Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
 from litex.build.generic_platform import *
@@ -79,13 +77,15 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash4x", 0,
         Subsignal("cs_n", Pins("L13")),
+        Subsignal("clk", Pins("L16")),
         Subsignal("dq", Pins("K17", "K18", "L14", "M14")),
         IOStandard("LVCMOS33")
     ),
-    ("spiflash", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash", 0,
         Subsignal("cs_n", Pins("L13")),
+        Subsignal("clk", Pins("L16")),
         Subsignal("mosi", Pins("K17")),
         Subsignal("miso", Pins("K18")),
         Subsignal("wp", Pins("L14")),
