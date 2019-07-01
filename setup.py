@@ -31,5 +31,5 @@ setup(
         "Programming Language :: Python",
     ],
     include_package_data=True,
-    packages=["litex_boards"],
+    packages=find_packages(),
 )
