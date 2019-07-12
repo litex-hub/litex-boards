@@ -70,6 +70,7 @@ class TestTargets(unittest.TestCase):
         # Lattice ECP5
         platforms += [("official", "versa_ecp5")]
         platforms += [("partner", "ulx3s")]
+        platforms += [("partner", "trellisboard")]
 
         # Microsemi PolarFire
         platforms += [("official", "avalanche")]
