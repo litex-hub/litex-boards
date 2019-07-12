@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# This file is Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# License: BSD
+
 import argparse
 
 from migen import *
@@ -7,7 +10,6 @@ from migen import *
 from litex_boards.partner.platforms import netv2
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
@@ -15,7 +17,7 @@ from litedram.modules import MT41J128M16
 from litedram.phy import s7ddrphy
 
 from liteeth.phy.rmii import LiteEthPHYRMII
-from liteeth.core.mac import LiteEthMAC
+from liteeth.mac import LiteEthMAC
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -79,7 +81,7 @@ class EthernetSoC(BaseSoC):
         self.add_csr("ethphy")
         self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32,
             interface="wishbone", endianness=self.cpu.endianness)
-        self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
+        self.add_wb_slave(self.mem_map["ethmac"], self.ethmac.bus, 0x2000)
         self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
         self.add_csr("ethmac")
         self.add_interrupt("ethmac")
