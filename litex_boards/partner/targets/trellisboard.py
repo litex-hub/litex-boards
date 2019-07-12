@@ -11,7 +11,6 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex_boards.partner.platforms import trellisboard
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
@@ -19,7 +18,7 @@ from litedram.modules import MT41J256M16
 from litedram.phy import ECP5DDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
-from liteeth.core.mac import LiteEthMAC
+from liteeth.mac import LiteEthMAC
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -101,6 +100,8 @@ class BaseSoC(SoCSDRAM):
             sdram_module.geom_settings,
             sdram_module.timing_settings)
 
+# EthernetSoC --------------------------------------------------------------------------------------
+
 class EthernetSoC(BaseSoC):
     mem_map = {
         "ethmac": 0x30000000,  # (shadow @0xb0000000)
@@ -129,7 +130,7 @@ class EthernetSoC(BaseSoC):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Versa ECP5")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Trellis Board")
     parser.add_argument("--gateware-toolchain", dest="toolchain", default="diamond",
         help='gateware toolchain to use, diamond (default) or  trellis')
     builder_args(parser)
