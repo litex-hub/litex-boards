@@ -31,4 +31,5 @@ setup(
         "Programming Language :: Python",
     ],
     include_package_data=True,
+    packages=find_packages(),
 )

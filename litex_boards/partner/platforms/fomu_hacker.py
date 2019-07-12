@@ -1,3 +1,6 @@
+# This file is Copyright (c) 2019 Tom Keddie <git@bronwenandtom.com>
+# License: BSD
+
 # fomu hacker board
 # schematic at https://github.com/im-tomu/fomu-hardware/tree/master/hacker/releases/v0.0-19-g154fecc
 #

@@ -1,3 +1,6 @@
+# This file is Copyright (c) 2019 Tom Keddie <git@bronwenandtom.com>
+# License: BSD
+
 # fomu pvt board from crowd funding
 # design files at https://github.com/im-tomu/fomu-hardware/tree/pvt/hardware/pcb
 #
