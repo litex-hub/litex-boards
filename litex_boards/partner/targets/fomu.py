@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This file is Copyright (c) 2019 Sean Cross <sean@xobs.io>
 # License: BSD
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# This file is Copyright (c) 2019 David Shah <dave@ds0.me>
+# License: BSD
+
 import argparse
 
 from migen import *
