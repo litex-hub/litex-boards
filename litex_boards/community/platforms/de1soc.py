@@ -33,7 +33,7 @@ _io = [
 
 class Platform(AlteraPlatform):
     default_clk_name = "clk50"
-    default_clk_period = 20
+    default_clk_period = 1e9/50e6
 
     def __init__(self):
         AlteraPlatform.__init__(self, "5CSEMA5F31C6", _io)

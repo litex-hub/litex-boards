@@ -57,7 +57,7 @@ _connectors = [
 
 class Platform(LatticePlatform):
     default_clk_name = "clk48"
-    default_clk_period = 20.833
+    default_clk_period = 1e9/48e6
 
     gateware_size = 0x20000
 

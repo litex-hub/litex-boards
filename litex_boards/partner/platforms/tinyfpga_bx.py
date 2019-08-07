@@ -59,10 +59,11 @@ serial = [
 
 class Platform(LatticePlatform):
     default_clk_name = "clk16"
-    default_clk_period = 62.5
+    default_clk_period = 1e9/16e6
 
     def __init__(self):
         LatticePlatform.__init__(self, "ice40-lp8k-cm81", _io, _connectors, toolchain="icestorm")
+        self.add_extension(serial)
 
     def create_programmer(self):
         return TinyProgProgrammer()

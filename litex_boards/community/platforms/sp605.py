@@ -155,7 +155,7 @@ _connectors = [
 
 class Platform(XilinxPlatform):
     default_clk_name = "clk200"
-    default_clk_period = 5.0
+    default_clk_period = 1e9/200e6
 
     def __init__(self):
         XilinxPlatform.__init__(self, "xc6slx45t-fgg484-3", _io, _connectors, toolchain="ise")
