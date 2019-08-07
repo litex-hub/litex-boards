@@ -2,25 +2,29 @@
 # This file is Copyright (c) 2019 Sean Cross <sean@xobs.io>
 # License: BSD
 
-# fomu evt board from from crowd funding
-# design files at https://github.com/im-tomu/fomu-hardware/tree/evt/hardware/pcb
-#
+# Fomu EVT board:
+# - Crowd Supply campaign: https://www.crowdsupply.com/sutajio-kosagi/fomu
+# - Design files: https://github.com/im-tomu/fomu-hardware/tree/evt/hardware/pcb
+
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
 from litex.build.lattice.programmer import IceStormProgrammer
 
+# IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    ("clk48", 0, Pins("44"), IOStandard("LVCMOS33")),
+
+    ("user_led_n", 0, Pins("41"), IOStandard("LVCMOS33")),
     ("rgb_led", 0,
         Subsignal("r", Pins("40")),
         Subsignal("g", Pins("39")),
         Subsignal("b", Pins("41")),
         IOStandard("LVCMOS33"),
     ),
-    # alias blue led
-    ("user_led_n",    0, Pins("41"), IOStandard("LVCMOS33")),
-    ("user_btn_n",    0, Pins("42"), IOStandard("LVCMOS33")),
-    ("user_btn_n",    1, Pins("38"), IOStandard("LVCMOS33")),
+
+    ("user_btn_n", 0, Pins("42"), IOStandard("LVCMOS33")),
+    ("user_btn_n", 1, Pins("38"), IOStandard("LVCMOS33")),
 
     ("serial", 0,
         Subsignal("rx", Pins("21")),
@@ -51,8 +55,9 @@ _io = [
         Subsignal("dq",   Pins("14 17 19 18"), IOStandard("LVCMOS33")),
     ),
 
-    ("clk48", 0, Pins("44"), IOStandard("LVCMOS33")),
 ]
+
+# Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
     ("touch_pins", "48 47 46 45"),
@@ -60,24 +65,14 @@ _connectors = [
     ("pmodb_n", "48 47 46 45"),
 ]
 
+# Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
     default_clk_name = "clk48"
     default_clk_period = 1e9/48e6
 
-    gateware_size = 0x20000
-
-    # FIXME: Create a "spi flash module" object in the same way we have SDRAM
-    spiflash_model = "n25q32"
-    spiflash_read_dummy_bits = 8
-    spiflash_clock_div = 2
-    spiflash_total_size = int((16/8)*1024*1024) # 16Mbit
-    spiflash_page_size = 256
-    spiflash_sector_size = 0x10000
-
     def __init__(self):
-        LatticePlatform.__init__(self, "ice40-up5k-sg48", _io, _connectors,
-                                 toolchain="icestorm")
+        LatticePlatform.__init__(self, "ice40-up5k-sg48", _io, _connectors, toolchain="icestorm")
 
     def create_programmer(self):
         return IceStormProgrammer()
