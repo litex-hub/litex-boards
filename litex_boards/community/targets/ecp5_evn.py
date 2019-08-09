@@ -62,8 +62,8 @@ def main():
         help='gateware toolchain to use, diamond (default) or  trellis')
     builder_args(parser)
     soc_core_args(parser)
-    parser.add_argument("--sys-clk-freq", default=50e6,
-                        help="system clock frequency (default=50MHz)")
+    parser.add_argument("--sys-clk-freq", default=60e6,
+                        help="system clock frequency (default=60MHz)")
     parser.add_argument("--x5-clk-freq", type=int,
                         help="use X5 oscillator as system clock at the specified frequency")
     args = parser.parse_args()
