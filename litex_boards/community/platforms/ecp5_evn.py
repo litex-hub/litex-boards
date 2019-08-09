@@ -3,8 +3,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
-from litex.build.lattice.programmer import LatticeProgrammer
-from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -128,6 +126,7 @@ class Platform(LatticePlatform):
         return LatticePlatform.request(self, *args, **kwargs)
 
     def create_programmer(self):
-        fdir = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), "prog")
-        return OpenOCD(os.path.join(fdir, "ecp5-evn.cfg"))
+        pass
+        # fdir = os.path.join(
+        #     os.path.abspath(os.path.dirname(__file__)), "prog")
+        # return OpenOCD(os.path.join(fdir, "ecp5-evn.cfg"))
