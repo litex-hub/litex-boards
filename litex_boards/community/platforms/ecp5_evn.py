@@ -1,8 +1,6 @@
 # This file is Copyright (c) 2019 Arnaud Durand <arnaud.durand@unifr.ch>
 # License: BSD
 
-import warnings
-
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
 from litex.build.lattice.programmer import LatticeProgrammer
@@ -33,10 +31,6 @@ _io = [
     ("user_dip_btn", 8, Pins("A16"), IOStandard("LVCMOS25")),
 
     ("serial", 0,
-        Subsignal("rx", Pins("P18"), IOStandard("LVCMOS33")),
-        Subsignal("tx", Pins("N20"), IOStandard("LVCMOS33")),
-    ),
-    ("serial", 1,
         Subsignal("rx", Pins("P2"), IOStandard("LVCMOS33")),
         Subsignal("tx", Pins("P3"), IOStandard("LVCMOS33")),
     ),
@@ -47,6 +41,7 @@ _io = [
         IOStandard("LVDS")
     ),
     ("ext_clk50", 0, Pins("B11"), IOStandard("LVCMOS33")),
+    ("ext_clk50_en", 0, Pins("C11"), IOStandard("LVCMOS33")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -117,16 +112,18 @@ _connectors = [
 
 class Platform(LatticePlatform):
     default_clk_name = "clk12"
-    default_clk_period = 83.33
+    default_clk_period = 1e9/12e6
 
     def __init__(self, **kwargs):
         LatticePlatform.__init__(self, "LFE5UM5G-85F-8BG381", _io, _connectors, **kwargs)
 
     def request(self, *args, **kwargs):
         if "serial" in args:
-            warnings.warn("two 0 Ω resistors shoud be populated on R34 and R35")
+            print("two 0 Ω resistors shoud be populated on R34 and R35 and "
+            "the FT2232H should be configured to UART with virtual COM on "
+            "port B")
         if "ext_clk50" in args:
-            warnings.warn("an oscillator must be populated on X5")
+            print("an oscillator must be populated on X5")
             
         return LatticePlatform.request(self, *args, **kwargs)
 
