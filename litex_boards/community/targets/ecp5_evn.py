@@ -39,7 +39,6 @@ class _CRG(Module):
         pll.register_clkin(clk, x5_clk_freq or 12e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
-        self.comb += self.cd_sys.clk.eq(clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
