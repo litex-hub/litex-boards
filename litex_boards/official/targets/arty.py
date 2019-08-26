@@ -7,7 +7,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.official.platforms import arty
+from litex_boards.platforms import arty
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_sdram import *

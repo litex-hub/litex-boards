@@ -8,7 +8,7 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.community.platforms import ecp5_evn
+from litex_boards.platforms import ecp5_evn
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *

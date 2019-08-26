@@ -8,7 +8,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.community.platforms import ac701
+from litex_boards.platforms import ac701
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import mem_decoder

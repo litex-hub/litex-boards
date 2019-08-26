@@ -11,7 +11,7 @@ from fractions import Fraction
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.official.platforms import minispartan6
+from litex_boards.platforms import minispartan6
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_sdram import *
