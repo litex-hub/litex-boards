@@ -31,22 +31,25 @@ class TestTargets(unittest.TestCase):
         platforms = []
 
         # Xilinx Spartan6
-        platforms += [("official", "minispartan6")]
+        platforms += [("official",  "minispartan6")]
         platforms += [("community", "sp605")]
 
         # Xilinx Artix7
-        platforms += [("official", "arty")]
-        platforms += [("official", "nexys4ddr")]
-        platforms += [("official", "nexys_video")]
-        platforms += [("partner", "netv2")]
+        platforms += [("official",  "arty")]
+        platforms += [("official",  "nexys4ddr")]
+        platforms += [("official",  "nexys_video")]
+        platforms += [("partner",   "netv2")]
         platforms += [("community", "ac701")]
 
         # Xilinx Kintex7
-        platforms += [("official", "kc705")]
-        platforms += [("official", "genesys2")]
+        platforms += [("official",  "kc705")]
+        platforms += [("official",  "genesys2")]
+
+        # Xilinx Kintex Ultrascale
+        platforms += [("official",  "kcu105")]
 
         # Intel Cyclone4
-        platforms += [("official", "de0nano")]
+        platforms += [("official",  "de0nano")]
         platforms += [("community", "de2_115")]
 
         # Intel Cyclone5
@@ -56,24 +59,25 @@ class TestTargets(unittest.TestCase):
         platforms += [("community", "de10lite")]
 
         # Lattice iCE40
-        platforms += [("partner", "tinyfpga_bx")]
-        platforms += [("partner", "fomu_evt")]
-        platforms += [("partner", "fomu_hacker")]
-        platforms += [("partner", "fomu_pvt")]
+        platforms += [("partner",   "tinyfpga_bx")]
+        platforms += [("partner",   "fomu_evt")]
+        platforms += [("partner",   "fomu_hacker")]
+        platforms += [("partner",   "fomu_pvt")]
 
         # Lattice MachXO2
-        platforms += [("official", "machxo3")]
+        platforms += [("official",  "machxo3")]
 
         # Lattice ECP3
-        platforms += [("official", "versa_ecp3")]
+        platforms += [("official",  "versa_ecp3")]
 
         # Lattice ECP5
-        platforms += [("official", "versa_ecp5")]
-        platforms += [("partner", "ulx3s")]
-        platforms += [("partner", "trellisboard")]
+        platforms += [("official",  "versa_ecp5")]
+        platforms += [("partner",   "ulx3s")]
+        platforms += [("partner",   "trellisboard")]
+        platforms += [("community", "ecp5_evn")]
 
         # Microsemi PolarFire
-        platforms += [("official", "avalanche")]
+        platforms += [("official",  "avalanche")]
 
         for s, p in platforms:
             with self.subTest(platform=p):
