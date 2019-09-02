@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# This file is Copyright (c) 2019 Sean Cross <sean@xobs.io>
 # This file is Copyright (c) 2018 David Shah <dave@ds0.me>
 # License: BSD
 
