@@ -1,5 +1,5 @@
-# This file is Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # This file is Copyright (c) 2018-2019 Rohit Singh <rohit@rohitksingh.in>
+# This file is Copyright (c) 2018 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
 from litex.build.generic_platform import *

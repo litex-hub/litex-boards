@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # This file is Copyright (c) 2018-2019 Rohit Singh <rohit@rohitksingh.in>
+# This file is Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
 import sys
@@ -28,8 +28,7 @@ from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 
 from litex_boards.platforms import nereid
 
-# sdram module
-# --------------------------------------------------------------------------------------------------
+# SDRAM Module -------------------------------------------------------------------------------------
 
 class MT8KTF51264(SDRAMModule):
     memtype = "DDR3"
@@ -65,7 +64,7 @@ class CRG(Module):
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_clk200)
 
-# NereidSoC ------------------------------------------------------------------------------------------
+# NereidSoC ----------------------------------------------------------------------------------------
 
 class NereidSoC(SoCSDRAM):
     SoCSDRAM.mem_map["csr"] = 0x00000000
@@ -73,9 +72,6 @@ class NereidSoC(SoCSDRAM):
 
     def __init__(self, platform, with_pcie_uart=True):
         sys_clk_freq = int(100e6)
-
-        # soc sdram
-        # ------------------------------------------------------------------------------------------
         SoCSDRAM.__init__(self, platform, sys_clk_freq,
             csr_data_width=32,
             integrated_rom_size=0x10000,
@@ -84,23 +80,19 @@ class NereidSoC(SoCSDRAM):
             ident="Nereid LiteX Test SoC", ident_version=True,
             with_uart=not with_pcie_uart)
 
-        # crg
-        # ------------------------------------------------------------------------------------------
+        # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)
         self.add_csr("crg")
 
-        # dna
-        # ------------------------------------------------------------------------------------------
+        # DNA --------------------------------------------------------------------------------------
         self.submodules.dna = dna.DNA()
         self.add_csr("dna")
 
-        # xadc
-        # ------------------------------------------------------------------------------------------
+        # XADC -------------------------------------------------------------------------------------
         self.submodules.xadc = xadc.XADC()
         self.add_csr("xadc")
 
-        # sdram
-        # ------------------------------------------------------------------------------------------
+        # SDRAM ------------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s7ddrphy.K7DDRPHY(
                 platform.request("ddram"),
@@ -112,8 +104,7 @@ class NereidSoC(SoCSDRAM):
                                 sdram_module.timing_settings)
             self.add_csr("ddrphy")
 
-        # pcie
-        # ------------------------------------------------------------------------------------------
+        # PCIe -------------------------------------------------------------------------------------
         # pcie phy
         self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"), bar0_size=0x20000)
         self.pcie_phy.cd_pcie.clk.attr.add("keep")
@@ -127,7 +118,8 @@ class NereidSoC(SoCSDRAM):
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy)
 
         # pcie wishbone bridge
-        self.submodules.pcie_wishbone = LitePCIeWishboneBridge(self.pcie_endpoint, lambda a: 1, shadow_base=self.shadow_base)
+        self.submodules.pcie_wishbone = LitePCIeWishboneBridge(self.pcie_endpoint,
+            lambda a: 1, shadow_base=self.shadow_base)
         self.add_wb_master(self.pcie_wishbone.wishbone)
 
         # pcie dma
@@ -147,8 +139,7 @@ class NereidSoC(SoCSDRAM):
             self.comb += self.pcie_msi.irqs[i].eq(v)
             self.add_constant(k + "_INTERRUPT", i)
 
-        # pcie_uart
-        # ------------------------------------------------------------------------------------------
+        # pcie uart
         if with_pcie_uart:
             class PCIeUART(Module, AutoCSR):
                 def __init__(self, uart):
@@ -189,8 +180,7 @@ class NereidSoC(SoCSDRAM):
             self.submodules.pcie_uart = PCIeUART(uart_interface)
             self.add_csr("pcie_uart")
 
-        # leds
-        # ------------------------------------------------------------------------------------------
+        # Leds -------------------------------------------------------------------------------------
         # led blinking (sys)
         sys_counter = Signal(32)
         self.sync.sys += sys_counter.eq(sys_counter + 1)
