@@ -17,7 +17,7 @@ from litex.soc.cores import dna, xadc
 from litex.soc.cores.uart import *
 from litex.soc.integration.cpu_interface import get_csr_header
 
-from litedram.modules import SDRAMModule
+from litedram.modules import MT8KTF51264
 from litedram.modules import _TechnologyTimings, _SpeedgradeTimings
 from litedram.phy import s7ddrphy
 
@@ -27,23 +27,6 @@ from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 
 from litex_boards.platforms import nereid
-
-# SDRAM Module -------------------------------------------------------------------------------------
-
-class MT8KTF51264(SDRAMModule):
-    memtype = "DDR3"
-    # geometry
-    nbanks = 8
-    nrows  = 16384
-    ncols  = 1024
-    # timings
-    technology_timings = _TechnologyTimings(tREFI=64e6/8192, tWTR=(4, 7.5), tCCD=(4, None), tRRD=(4, 10))
-    speedgrade_timings = {
-        "800": _SpeedgradeTimings(tRP=13.91, tRCD=13.91, tWR=13.91, tRFC=260, tFAW=(None, 50), tRAS=None),
-        "1066": _SpeedgradeTimings(tRP=15, tRCD=15, tWR=15, tRFC=86, tFAW=(None, 50), tRAS=None),
-        "1333": _SpeedgradeTimings(tRP=15, tRCD=15, tWR=15, tRFC=107, tFAW=(None, 45), tRAS=None),
-    }
-    speedgrade_timings["default"] = speedgrade_timings["1333"]
 
 # CRG ----------------------------------------------------------------------------------------------
 
