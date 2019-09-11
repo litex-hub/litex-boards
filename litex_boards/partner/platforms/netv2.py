@@ -18,13 +18,20 @@ _io = [
     ("user_led", 4, Pins("R19"), IOStandard("LVCMOS33")),
     ("user_led", 5, Pins("M16"), IOStandard("LVCMOS33")),
 
-    # flash
+    # spiflash
     ("flash", 0,
         Subsignal("cs_n", Pins("T19")),
         Subsignal("mosi", Pins("P22")),
         Subsignal("miso", Pins("R22")),
         Subsignal("vpp", Pins("P21")),
         Subsignal("hold", Pins("R21")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # spiflash4x
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("T19")),
+        Subsignal("dq", Pins("P22 R22 P21 R21")),
         IOStandard("LVCMOS33")
     ),
 
@@ -90,6 +97,57 @@ _io = [
         Subsignal("clk", Pins("K18")),
         IOStandard("LVCMOS33"), Misc("SLEW=FAST")
     ),
+
+    # hdmi in
+    ("hdmi_in", 0,
+        Subsignal("clk_p", Pins("L19"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("clk_n", Pins("L20"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data0_p", Pins("K21"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data0_n", Pins("K22"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data1_p", Pins("J20"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data1_n", Pins("J21"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data2_p", Pins("J22"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data2_n", Pins("H22"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("scl", Pins("T18"), IOStandard("LVCMOS33")),
+        Subsignal("sda", Pins("V18"), IOStandard("LVCMOS33")),
+    ),
+
+    ("hdmi_in", 1,
+        Subsignal("clk_p", Pins("Y18"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("clk_n", Pins("Y19"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data0_p", Pins("AA18"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("AB18"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("AA19"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data1_n", Pins("AB20"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data2_p", Pins("AB21"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data2_n", Pins("AB22"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("scl", Pins("W17"), IOStandard("LVCMOS33"), Inverted()),
+        Subsignal("sda", Pins("R17"), IOStandard("LVCMOS33")),
+    ),
+
+    # hdmi out
+    ("hdmi_out", 0,
+        Subsignal("clk_p", Pins("W19"), Inverted(), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("W20"), Inverted(), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("W21"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("W22"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("U20"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("V20"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("T21"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("U21"), IOStandard("TMDS_33"))
+    ),
+
+    ("hdmi_out", 1,
+        Subsignal("clk_p", Pins("G21"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("clk_n", Pins("G22"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data0_p", Pins("E22"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data0_n", Pins("D22"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data1_p", Pins("C22"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data1_n", Pins("B22"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data2_p", Pins("B21"), IOStandard("TMDS_33"), Inverted()),
+        Subsignal("data2_n", Pins("A21"), IOStandard("TMDS_33"), Inverted()),
+    ),
+
 ]
 
 # Platform -----------------------------------------------------------------------------------------
