@@ -164,11 +164,13 @@ class BaseSoC(SoCCore):
             raise ValueError("unrecognized fomu board: {}".format(board))
         platform = Platform()
 
+        if "cpu_type" not in kwargs:
+            kwargs["cpu_type"] = None
+            kwargs["cpu_variant"] = None
+
         clk_freq = int(12e6)
 
         SoCCore.__init__(self, platform, clk_freq,
-                cpu_type=None,
-                cpu_variant=None,
                 integrated_sram_size=0,
                 with_uart=False,
                 with_ctrl=False,
