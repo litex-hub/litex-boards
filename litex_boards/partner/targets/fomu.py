@@ -127,13 +127,8 @@ class BaseSoC(SoCCore):
         "csr":      0x60000000,  # (default shadow @0xe0000000)
     }
 
-    interrupt_map = {
-        "usb": 3,
-    }
-    interrupt_map.update(SoCCore.interrupt_map)
-
     def __init__(self, board,
-        pnr_placer=None, pnr_seed=0, usb_core="dummyusb", usb_bridge=False,
+        pnr_placer="heap", pnr_seed=0, usb_core="dummyusb", usb_bridge=False,
         **kwargs):
         """Create a basic SoC for Fomu.
 
@@ -213,6 +208,14 @@ class BaseSoC(SoCCore):
         # placer they want to use.
         if pnr_placer is not None:
             platform.toolchain.nextpnr_build_template[1] += " --placer {}".format(pnr_placer)
+
+class USBSoC(BaseSoC):
+    """A SoC for Fomu with interrupts for a softcore CPU"""
+
+    interrupt_map = {
+        "usb": 3,
+    }
+    interrupt_map.update(SoCCore.interrupt_map)
 
 
 # Build --------------------------------------------------------------------------------------------
