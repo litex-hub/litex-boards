@@ -127,13 +127,8 @@ class BaseSoC(SoCCore):
         "csr":      0x60000000,  # (default shadow @0xe0000000)
     }
 
-    interrupt_map = {
-        "usb": 3,
-    }
-    interrupt_map.update(SoCCore.interrupt_map)
-
     def __init__(self, board,
-        pnr_placer=None, pnr_seed=0, usb_core="dummyusb", usb_bridge=False,
+        pnr_placer="heap", pnr_seed=0, usb_core="dummyusb", usb_bridge=False,
         **kwargs):
         """Create a basic SoC for Fomu.
 
@@ -164,11 +159,13 @@ class BaseSoC(SoCCore):
             raise ValueError("unrecognized fomu board: {}".format(board))
         platform = Platform()
 
+        if "cpu_type" not in kwargs:
+            kwargs["cpu_type"] = None
+            kwargs["cpu_variant"] = None
+
         clk_freq = int(12e6)
 
         SoCCore.__init__(self, platform, clk_freq,
-                cpu_type=None,
-                cpu_variant=None,
                 integrated_sram_size=0,
                 with_uart=False,
                 with_ctrl=False,
@@ -180,7 +177,7 @@ class BaseSoC(SoCCore):
         # Use this as CPU RAM.
         spram_size = 128*1024
         self.submodules.spram = up5kspram.Up5kSPRAM(size=spram_size)
-        self.register_mem("sram", 0x10000000, self.spram.bus, spram_size)
+        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, spram_size)
 
         if usb_core is not None:
             # Add USB pads.  We use DummyUsb, which simply enumerates as a USB
@@ -211,6 +208,14 @@ class BaseSoC(SoCCore):
         # placer they want to use.
         if pnr_placer is not None:
             platform.toolchain.nextpnr_build_template[1] += " --placer {}".format(pnr_placer)
+
+class USBSoC(BaseSoC):
+    """A SoC for Fomu with interrupts for a softcore CPU"""
+
+    interrupt_map = {
+        "usb": 3,
+    }
+    interrupt_map.update(SoCCore.interrupt_map)
 
 
 # Build --------------------------------------------------------------------------------------------
