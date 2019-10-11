@@ -52,7 +52,7 @@ _io = [
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("16"), IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("15"), IOStandard("LVCMOS33")),
-        Subsignal("dq",   Pins("14 17 19 18"), IOStandard("LVCMOS33")),
+        Subsignal("dq",   Pins("14 17 18 19"), IOStandard("LVCMOS33")),
     ),
     ("i2c", 0,
         Subsignal("scl", Pins("12"), IOStandard("LVCMOS18")),
