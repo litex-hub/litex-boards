@@ -5,6 +5,7 @@
 # License: BSD
 
 import argparse
+import sys
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -15,7 +16,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-from litedram.modules import MT48LC16M16
+from litedram.modules import MT48LC16M16, AS4C32M16, AS4C16M16
 from litedram.phy import GENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -53,7 +54,9 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCSDRAM):
-    def __init__(self, device="LFE5U-45F", toolchain="diamond", sys_clk_freq=int(50e6), **kwargs):
+    def __init__(self, device="LFE5U-45F", toolchain="diamond",
+        sys_clk_freq=int(50e6), mem_device="MT48LC16M16", **kwargs):
+
         platform = ulx3s.Platform(device=device, toolchain=toolchain)
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
                           integrated_rom_size=0x8000,
@@ -62,8 +65,13 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         if not self.integrated_main_ram_size:
-            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), cl=2)
-            sdram_module = MT48LC16M16(sys_clk_freq, "1:1")
+            if mem_device.strip().upper() == "MT48LC16M16":
+                self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), cl=2)
+            else:
+                self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
+            
+            memcls = getattr(sys.modules[__name__], mem_device.strip().upper())
+            sdram_module = memcls(sys_clk_freq, "1:1")
             self.register_sdram(self.sdrphy,
                                 sdram_module.geom_settings,
                                 sdram_module.timing_settings)
@@ -78,12 +86,15 @@ def main():
         help='FPGA device, ULX3S can be populated with LFE5U-45F (default) or LFE5U-85F')
     parser.add_argument("--sys-clk-freq", default=50e6,
                         help="system clock frequency (default=50MHz)")
+    parser.add_argument("--mem-device", default="MT48LC16M16",
+                        help="Part number for SDRAM (default=MT48LC16M16)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(device=args.device, toolchain=args.toolchain,
         sys_clk_freq=int(float(args.sys_clk_freq)),
+        mem_device=args.mem_device,
         **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build()
