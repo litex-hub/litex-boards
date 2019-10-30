@@ -10,6 +10,8 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import trellisboard
 
+from litex.build.lattice.trellis import trellis_args, trellis_argdict
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -78,10 +80,10 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCSDRAM):
-    def __init__(self, sys_clk_freq=int(75e6), toolchain="diamond", **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), toolchain="diamond", integrated_rom_size=0x8000, **kwargs):
         platform = trellisboard.Platform(toolchain=toolchain)
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
-                          integrated_rom_size=0x8000,
+                          integrated_rom_size=integrated_rom_size,
                           **kwargs)
 
         # crg
@@ -109,7 +111,7 @@ class EthernetSoC(BaseSoC):
     mem_map.update(BaseSoC.mem_map)
 
     def __init__(self, toolchain="diamond", **kwargs):
-        BaseSoC.__init__(self, toolchain=toolchain, **kwargs)
+        BaseSoC.__init__(self, toolchain=toolchain, integrated_rom_size=0x10000, **kwargs)
 
         self.submodules.ethphy = LiteEthPHYRGMII(
             self.platform.request("eth_clocks"),
@@ -135,6 +137,7 @@ def main():
         help='gateware toolchain to use, diamond (default) or  trellis')
     builder_args(parser)
     soc_sdram_args(parser)
+    trellis_args(parser)
     parser.add_argument("--sys-clk-freq", default=75e6,
                         help="system clock frequency (default=75MHz)")
     parser.add_argument("--with-ethernet", action="store_true",
@@ -144,7 +147,7 @@ def main():
     cls = EthernetSoC if args.with_ethernet else BaseSoC
     soc = cls(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build()
+    builder.build(**trellis_argdict(args))
 
 if __name__ == "__main__":
     main()
