@@ -55,13 +55,19 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # pll
+        sys2x_clk_ecsout = Signal()
         self.submodules.pll = pll = ECP5PLL()
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         pll.create_clkout(self.cd_init, 25e6)
         self.specials += [
+            Instance("ECLKBRIDGECS",
+                i_CLK0=self.cd_sys2x_i.clk,
+                i_SEL=0,
+                o_ECSOUT=sys2x_clk_ecsout,
+            ),
             Instance("ECLKSYNCB",
-                i_ECLKI=self.cd_sys2x_i.clk,
+                i_ECLKI=sys2x_clk_ecsout,
                 i_STOP=self.stop,
                 o_ECLKO=self.cd_sys2x.clk),
             Instance("CLKDIVF",
