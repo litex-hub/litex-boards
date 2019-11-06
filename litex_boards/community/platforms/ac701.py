@@ -83,6 +83,16 @@ _io = [
         Subsignal("reset_n", Pins("N8"), IOStandard("LVCMOS15"))
     ),
 
+    ("pcie_x1", 0,
+        Subsignal("rst_n", Pins("M20"), IOStandard("LVCMOS25")),
+        Subsignal("clk_p", Pins("F11")),
+        Subsignal("clk_n", Pins("E11")),
+        Subsignal("rx_p", Pins("D12")),
+        Subsignal("rx_n", Pins("C12")),
+        Subsignal("tx_p", Pins("D10")),
+        Subsignal("tx_n", Pins("C10"))
+    ),
+
     ("vadj_on_b", 0, Pins("R16"), IOStandard("LVCMOS25")),
 
     ("gtp_refclk", 0,
