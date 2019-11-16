@@ -8,7 +8,7 @@ class Targets:
         for support in ["official", "partner", "community"]:
             try:
                 return importlib.import_module("litex_boards." + support + ".targets." + name)
-            except:
+            except ModuleNotFoundError:
                 pass
         raise ModuleNotFoundError
 

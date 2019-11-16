@@ -8,7 +8,7 @@ class Platforms:
         for support in ["official", "partner", "community"]:
             try:
                 return importlib.import_module("litex_boards." + support + ".platforms." + name)
-            except:
+            except ModuleNotFoundError:
                 pass
         raise ModuleNotFoundError
 
