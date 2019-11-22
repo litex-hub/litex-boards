@@ -36,7 +36,7 @@ _io = [
 
     ("spiflash", 0,
         Subsignal("cs_n", Pins("C1"), IOStandard("LVCMOS33")),
-        Subsignal("clk", Pins("D1"), IOStandard("LVCMOS33")),
+        Subsignal("clk",  Pins("D1"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("F1"), IOStandard("LVCMOS33")),
         Subsignal("miso", Pins("E1"), IOStandard("LVCMOS33")),
         Subsignal("wp",   Pins("F2"), IOStandard("LVCMOS33")),
@@ -45,7 +45,7 @@ _io = [
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("C1"), IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("D1"), IOStandard("LVCMOS33")),
-        Subsignal("dq",   Pins("E1 F1 F2 B1"), IOStandard("LVCMOS33")),
+        Subsignal("dq",   Pins("F1 E1 F2 B1"), IOStandard("LVCMOS33")),
     ),
 ]
 
