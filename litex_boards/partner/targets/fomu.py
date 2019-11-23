@@ -13,6 +13,7 @@ from litex.soc.cores import up5kspram
 from litex.soc.integration import SoCCore
 from litex.soc.integration.builder import Builder, builder_argdict, builder_args
 from litex.soc.integration.soc_core import soc_core_argdict, soc_core_args
+from litex.soc.integration.doc import AutoDoc
 
 from valentyusb.usbcore import io as usbio
 from valentyusb.usbcore.cpu import dummyusb, epfifo
@@ -21,7 +22,33 @@ import os, shutil, subprocess
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(Module, AutoDoc):
+    """Fomu Clock Resource Generator
+
+    Fomu is a USB device, which means it must have a 12 MHz clock.  Valentyusb
+    oversamples the clock by 4x, which drives the requirement for a 48 MHz clock.
+    The ICE40UP5k is a relatively low speed grade of FPGA that is incapable of
+    running the entire design at 48 MHz, so the majority of the logic is placed
+    in the 12 MHz domain while only critical USB logic is placed in the fast
+    48 MHz domain.
+
+    Fomu has a 48 MHz crystal on it, which provides the raw clock input.  This
+    signal is fed through the ICE40 PLL in order to divide it down into a 12 MHz
+    signal and keep the clocks within 1ns of phase.  Earlier designs used a simple
+    flop, however this proved unreliable when the FPGA became very full.
+
+    The following clock domains are available on this design:
+
+    +---------+------------+---------------------------------+
+    | Name    | Frequency  | Description                     |
+    +=========+============+=================================+
+    | usb_48  | 48 MHz     | Raw USB signals and pulse logic |
+    +---------+------------+---------------------------------+
+    | usb_12  | 12 MHz     | USB control logic               |
+    +---------+------------+---------------------------------+
+    | sys     | 12 MHz     | System CPU and wishbone bus     |
+    +---------+------------+---------------------------------+
+    """
     def __init__(self, platform):
         clk48_raw = platform.request("clk48")
         clk12 = Signal()
