@@ -27,10 +27,10 @@ from liteeth.mac import LiteEthMAC
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys       = ClockDomain()
+        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
-        self.clock_domains.cd_clk200 = ClockDomain()
+        self.clock_domains.cd_clk200    = ClockDomain()
 
         # # #
 
@@ -41,10 +41,10 @@ class _CRG(Module):
         self.submodules.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(~platform.request("cpu_reset"))
         pll.register_clkin(platform.request("clk200"), 200e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x, 4*sys_clk_freq)
+        pll.create_clkout(self.cd_sys,       sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
-        pll.create_clkout(self.cd_clk200, 200e6)
+        pll.create_clkout(self.cd_clk200,    200e6)
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_clk200)
 
@@ -53,20 +53,27 @@ class _CRG(Module):
 class BaseSoC(SoCSDRAM):
     def __init__(self, sys_clk_freq=int(100e6), **kwargs):
         platform = ac701.Platform()
-        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
-                         integrated_rom_size=0x8000,
-                         integrated_sram_size=0x8000,
-                          **kwargs)
 
+        # SoCSDRAM ---------------------------------------------------------------------------------
+        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
+            integrated_rom_size=0x8000,
+            integrated_sram_size=0x8000,
+            **kwargs)
+
+        # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
-        # sdram
-        self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"), sys_clk_freq=sys_clk_freq)
-        self.add_csr("ddrphy")
-        sdram_module = MT8JTF12864(sys_clk_freq, "1:4")
-        self.register_sdram(self.ddrphy,
-                            sdram_module.geom_settings,
-                            sdram_module.timing_settings)
+        # DDR3 SDRAM -------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
+                memtype      = "DDR3",
+                nphases      = 4,
+                sys_clk_freq = sys_clk_freq)
+            self.add_csr("ddrphy")
+            sdram_module = MT8JTF12864(sys_clk_freq, "1:4")
+            self.register_sdram(self.ddrphy,
+                geom_settings   = sdram_module.geom_settings,
+                timing_settings = sdram_module.timing_settings)
 
 # EthernetSoC --------------------------------------------------------------------------------------
 
@@ -80,6 +87,7 @@ class EthernetSoC(BaseSoC):
         assert phy in ["rgmii", "1000basex"]
         BaseSoC.__init__(self, **kwargs)
 
+        # RGMII Ethernet PHY -----------------------------------------------------------------------
         if phy == "rgmii":
             self.submodules.ethphy = LiteEthPHYRGMII(self.platform.request("eth_clocks"),
                                                      self.platform.request("eth"))
@@ -93,6 +101,7 @@ class EthernetSoC(BaseSoC):
                 self.ethphy.crg.cd_eth_rx.clk,
                 self.ethphy.crg.cd_eth_tx.clk)
 
+        # 1000BaseX Ethernet PHY -------------------------------------------------------------------
         if phy == "1000basex":
             self.comb += self.platform.request("sfp_mgt_clk_sel0", 0).eq(0)
             self.comb += self.platform.request("sfp_mgt_clk_sel1", 0).eq(0)
@@ -120,6 +129,7 @@ class EthernetSoC(BaseSoC):
                 self.ethphy.txoutclk,
                 self.ethphy.rxoutclk)
 
+        # Ethernet MAC -----------------------------------------------------------------------------
         self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32,
             interface="wishbone", endianness=self.cpu.endianness)
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)

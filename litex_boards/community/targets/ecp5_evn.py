@@ -45,11 +45,13 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), x5_clk_freq=None, toolchain="diamond", **kwargs):
         platform = ecp5_evn.Platform(toolchain=toolchain)
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq,
-                          integrated_rom_size=0x8000,
-                          **kwargs)
 
-        # crg
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq,
+            integrated_rom_size=0x8000,
+            **kwargs)
+
+        # CRG --------------------------------------------------------------------------------------
         crg = _CRG(platform, sys_clk_freq, x5_clk_freq)
         self.submodules.crg = crg
 
@@ -69,8 +71,8 @@ def main():
 
     cls = BaseSoC
     soc = cls(toolchain=args.toolchain,
-        sys_clk_freq=int(float(args.sys_clk_freq)),
-        x5_clk_freq=args.x5_clk_freq,
+        sys_clk_freq = int(float(args.sys_clk_freq)),
+        x5_clk_freq  = args.x5_clk_freq,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build()

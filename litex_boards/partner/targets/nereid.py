@@ -32,16 +32,16 @@ from litex_boards.platforms import nereid
 
 class CRG(Module):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys    = ClockDomain()
+        self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
         self.clock_domains.cd_clk200 = ClockDomain()
 
         clk100 = platform.request("clk100")
 
         self.submodules.pll = pll = S7PLL()
         pll.register_clkin(clk100, 100e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x, 4*sys_clk_freq)
+        pll.create_clkout(self.cd_sys,    sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)
         pll.create_clkout(self.cd_clk200, 200e6)
         self.comb += pll.reset.eq(platform.request("cpu_reset"))
 
@@ -55,13 +55,15 @@ class NereidSoC(SoCSDRAM):
 
     def __init__(self, platform, with_pcie_uart=True):
         sys_clk_freq = int(100e6)
+
+        # SoCSDRAM ---------------------------------------------------------------------------------
         SoCSDRAM.__init__(self, platform, sys_clk_freq,
-            csr_data_width=32,
-            integrated_rom_size=0x10000,
-            integrated_sram_size=0x10000,
-            integrated_main_ram_size=0x10000, # FIXME: keep this for initial PCIe tests
-            ident="Nereid LiteX Test SoC", ident_version=True,
-            with_uart=not with_pcie_uart)
+            csr_data_width           = 32,
+            integrated_rom_size      = 0x10000,
+            integrated_sram_size     = 0x10000,
+            integrated_main_ram_size = 0x10000, # FIXME: keep this for initial PCIe tests
+            ident                    = "Nereid LiteX Test SoC", ident_version=True,
+            with_uart                = not with_pcie_uart)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)
@@ -75,26 +77,25 @@ class NereidSoC(SoCSDRAM):
         self.submodules.xadc = xadc.XADC()
         self.add_csr("xadc")
 
-        # SDRAM ------------------------------------------------------------------------------------
+        # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.K7DDRPHY(
-                platform.request("ddram"),
-                sys_clk_freq=sys_clk_freq,
-                iodelay_clk_freq=200e6)
+            self.submodules.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
+                memtype          = "DDR3",
+                nphases          = 4,
+                sys_clk_freq     = sys_clk_freq,
+                iodelay_clk_freq = 200e6)
+            self.add_csr("ddrphy")
             sdram_module = MT8KTF51264(sys_clk_freq, "1:4", speedgrade="800")
             self.register_sdram(self.ddrphy,
-                                sdram_module.geom_settings,
-                                sdram_module.timing_settings)
-            self.add_csr("ddrphy")
+                geom_settings   = sdram_module.geom_settings,
+                timing_settings = sdram_module.timing_settings)
 
         # PCIe -------------------------------------------------------------------------------------
         # pcie phy
         self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"), bar0_size=0x20000)
         self.pcie_phy.cd_pcie.clk.attr.add("keep")
         platform.add_platform_command("create_clock -name pcie_clk -period 8 [get_nets pcie_clk]")
-        platform.add_false_path_constraints(
-            self.crg.cd_sys.clk,
-            self.pcie_phy.cd_pcie.clk)
+        platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
         self.add_csr("pcie_phy")
 
         # pcie endpoint
@@ -128,11 +129,11 @@ class NereidSoC(SoCSDRAM):
                 def __init__(self, uart):
                     self.rx_valid = CSRStatus()
                     self.rx_ready = CSR()
-                    self.rx_data = CSRStatus(8)
+                    self.rx_data  = CSRStatus(8)
 
                     self.tx_valid = CSR()
                     self.tx_ready = CSRStatus()
-                    self.tx_data = CSRStorage(8)
+                    self.tx_data  = CSRStorage(8)
 
                     # # #
 

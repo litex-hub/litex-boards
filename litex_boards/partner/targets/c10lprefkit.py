@@ -26,9 +26,9 @@ from litex.soc.cores.hyperbus import HyperRAM
 # CRG ----------------------------------------------------------------------------------------------
 class _CRG(Module):
     def __init__(self, platform):
-        self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por    = ClockDomain(reset_less=True)
 
         # # #
 
@@ -51,28 +51,28 @@ class _CRG(Module):
         clk_outs = Signal(5)
         self.specials += \
             Instance("ALTPLL",
-                p_BANDWIDTH_TYPE="AUTO",
-                p_CLK0_DIVIDE_BY=6,
-                p_CLK0_DUTY_CYCLE=50,
-                p_CLK0_MULTIPLY_BY=25,
-                p_CLK0_PHASE_SHIFT="0",
-                p_CLK1_DIVIDE_BY=6,
-                p_CLK1_DUTY_CYCLE=50,
-                p_CLK1_MULTIPLY_BY=25,
-                p_CLK1_PHASE_SHIFT="-10000",
-                p_COMPENSATE_CLOCK="CLK0",
-                p_INCLK0_INPUT_FREQUENCY=83000,
-                p_INTENDED_DEVICE_FAMILY="MAX 10",
-                p_LPM_TYPE="altpll",
-                p_OPERATION_MODE="NORMAL",
-                i_INCLK=clk12,
-                o_CLK=clk_outs,
-                i_ARESET=0,
-                i_CLKENA=0x3f,
-                i_EXTCLKENA=0xf,
-                i_FBIN=1,
-                i_PFDENA=1,
-                i_PLLENA=1,
+                p_BANDWIDTH_TYPE         = "AUTO",
+                p_CLK0_DIVIDE_BY         = 6,
+                p_CLK0_DUTY_CYCLE        = 50,
+                p_CLK0_MULTIPLY_BY       = 25,
+                p_CLK0_PHASE_SHIFT       = "0",
+                p_CLK1_DIVIDE_BY         = 6,
+                p_CLK1_DUTY_CYCLE        = 50,
+                p_CLK1_MULTIPLY_BY       = 25,
+                p_CLK1_PHASE_SHIFT       = "-10000",
+                p_COMPENSATE_CLOCK       = "CLK0",
+                p_INCLK0_INPUT_FREQUENCY = 83000,
+                p_INTENDED_DEVICE_FAMILY = "MAX 10",
+                p_LPM_TYPE               = "altpll",
+                p_OPERATION_MODE         = "NORMAL",
+                i_INCLK                  = clk12,
+                o_CLK                    = clk_outs,
+                i_ARESET                 = 0,
+                i_CLKENA                 = 0x3f,
+                i_EXTCLKENA              = 0xf,
+                i_FBIN                   = 1,
+                i_PFDENA                 = 1,
+                i_PLLENA                 = 1,
             )
         self.comb += self.cd_sys.clk.eq(clk_outs[0])
         self.comb += self.cd_sys_ps.clk.eq(clk_outs[1])
@@ -90,23 +90,29 @@ class BaseSoC(SoCSDRAM):
     def __init__(self, sys_clk_freq=int(50e6), **kwargs):
         assert sys_clk_freq == int(50e6)
         platform = c10lprefkit.Platform()
+
+        # SoCSDRAM ---------------------------------------------------------------------------------
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
             integrated_rom_size=0x8000,
             **kwargs)
 
+        # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform)
 
+        # HyperRam ---------------------------------------------------------------------------------
         self.submodules.hyperram = HyperRAM(platform.request("hyperram"))
         self.add_wb_slave(mem_decoder(self.mem_map["hyperram"]), self.hyperram.bus)
         self.add_memory_region("hyperram", self.mem_map["hyperram"], 8*1024*1024)
 
+        # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
             sdram_module = MT48LC16M16(self.clk_freq, "1:1")
             self.register_sdram(self.sdrphy,
-                                sdram_module.geom_settings,
-                                sdram_module.timing_settings)
+                geom_settings   = sdram_module.geom_settings,
+                timing_settings = sdram_module.timing_settings)
 
+# EthernetSoC --------------------------------------------------------------------------------------
 
 class EthernetSoC(BaseSoC):
     mem_map = {
