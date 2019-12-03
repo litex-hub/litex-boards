@@ -23,7 +23,7 @@ from litedram.phy import GENSDRPHY
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
 
         # # #
@@ -33,7 +33,7 @@ class _CRG(Module):
 
         # clk / rst
         clk25 = platform.request("clk25")
-        rst = platform.request("rst")
+        rst   = platform.request("rst")
         platform.add_period_constraint(clk25, 40.0)
 
         # pll
@@ -58,12 +58,15 @@ class BaseSoC(SoCSDRAM):
         sys_clk_freq=int(50e6), sdram_module_cls="MT48LC16M16", **kwargs):
 
         platform = ulx3s.Platform(device=device, toolchain=toolchain)
+        # SoCSDRAM ---------------------------------------------------------------------------------
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
-                          integrated_rom_size=0x8000,
-                          **kwargs)
+            integrated_rom_size=0x8000,
+            **kwargs)
 
+        # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), cl=2)
             sdram_module = getattr(litedram_modules, sdram_module_cls)(sys_clk_freq, "1:1")
