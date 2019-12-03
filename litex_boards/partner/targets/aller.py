@@ -50,7 +50,7 @@ class CRG(Module):
 # AllerSoC -----------------------------------------------------------------------------------------
 
 class AllerSoC(SoCSDRAM):
-    SoCSDRAM.mem_map["csr"] = 0x00000000
+    SoCSDRAM.mem_map["csr"] = 0x80000000
     SoCSDRAM.mem_map["rom"] = 0x20000000
 
     def __init__(self, platform, with_pcie_uart=True):
@@ -88,7 +88,7 @@ class AllerSoC(SoCSDRAM):
             sdram_module = MT41J128M16(sys_clk_freq, "1:4")
             self.register_sdram(self.ddrphy,
                 geom_settings   = sdram_module.geom_settings,
-                timing_settings =  sdram_module.timing_settings)
+                timing_settings = sdram_module.timing_settings)
 
         # PCIe -------------------------------------------------------------------------------------
         # pcie phy
@@ -103,7 +103,7 @@ class AllerSoC(SoCSDRAM):
 
         # pcie wishbone bridge
         self.submodules.pcie_wishbone = LitePCIeWishboneBridge(self.pcie_endpoint,
-            lambda a: 1, shadow_base=self.shadow_base)
+            lambda a: 1, shadow_base=self.mem_map["csr"])
         self.add_wb_master(self.pcie_wishbone.wishbone)
 
         # pcie dma

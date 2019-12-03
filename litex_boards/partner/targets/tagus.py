@@ -52,7 +52,7 @@ class CRG(Module):
 # TagusSoC -----------------------------------------------------------------------------------------
 
 class TagusSoC(SoCSDRAM):
-    SoCSDRAM.mem_map["csr"] = 0x00000000
+    SoCSDRAM.mem_map["csr"] = 0x80000000
     SoCSDRAM.mem_map["rom"] = 0x20000000
 
     def __init__(self, platform, with_pcie_uart=True):
@@ -97,9 +97,7 @@ class TagusSoC(SoCSDRAM):
         self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"), bar0_size=0x20000)
         self.pcie_phy.cd_pcie.clk.attr.add("keep")
         platform.add_platform_command("create_clock -name pcie_clk -period 8 [get_nets pcie_clk]")
-        platform.add_false_path_constraints(
-            self.crg.cd_sys.clk,
-            self.pcie_phy.cd_pcie.clk)
+        platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
         self.add_csr("pcie_phy")
 
         # pcie endpoint
@@ -107,7 +105,7 @@ class TagusSoC(SoCSDRAM):
 
         # pcie wishbone bridge
         self.submodules.pcie_wishbone = LitePCIeWishboneBridge(self.pcie_endpoint,
-            lambda a: 1, shadow_base=self.shadow_base)
+            lambda a: 1, shadow_base=self.mem_map["csr"])
         self.add_wb_master(self.pcie_wishbone.wishbone)
 
         # pcie dma
