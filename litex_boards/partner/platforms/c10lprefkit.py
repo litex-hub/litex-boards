@@ -119,7 +119,6 @@ class Platform(AlteraPlatform):
 
     def __init__(self):
         AlteraPlatform.__init__(self, "10CL055YU484A7G", _io)
-        self.add_platform_command("set_global_assignment -name FAMILY \"Cyclone 10 LP\"")
 
     def create_programmer(self):
         return USBBlaster()
