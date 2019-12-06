@@ -22,8 +22,6 @@ class _CRG(Module):
 
         # # #
 
-        self.cd_sys.clk.attr.add("keep")
-
         # clk / rst
         clk = clk12 = platform.request("clk12")
         rst_n = platform.request("rst_n")
