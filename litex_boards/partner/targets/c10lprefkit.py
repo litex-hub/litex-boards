@@ -77,6 +77,8 @@ class _CRG(Module):
         self.comb += self.cd_sys.clk.eq(clk_outs[0])
         self.comb += self.cd_sys_ps.clk.eq(clk_outs[1])
         self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
+        platform.add_period_constraint(self.cd_sys.clk, 1e9/50e6)
+        platform.add_period_constraint(self.cd_sys_ps.clk, 1e9/50e6)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -133,13 +135,16 @@ class EthernetSoC(BaseSoC):
         self.add_csr("ethmac")
         self.add_interrupt("ethmac")
 
-        self.platform.add_period_constraint(self.platform.lookup_request("eth_clocks").tx, 1e9/12.5e6)
-        self.platform.add_period_constraint(self.platform.lookup_request("eth_clocks").rx, 1e9/12.5e6)
+        self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
+        self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 1e9/12.5e6)
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 1e9/12.5e6)
         self.platform.add_false_path_constraints(
-            self.platform.lookup_request("clk12"),
-            self.platform.lookup_request("eth_clocks").tx,
-            self.platform.lookup_request("eth_clocks").rx
+            self.crg.cd_sys.clk,
+            self.ethphy.crg.cd_eth_tx.clk,
+            self.ethphy.crg.cd_eth_rx.clk
         )
+
 
 # Build --------------------------------------------------------------------------------------------
 
