@@ -179,8 +179,7 @@ class TagusSoC(SoCSDRAM):
     def generate_software_header(self, filename):
         csr_header = get_csr_header(self.csr_regions,
                                     self.constants,
-                                    with_access_functions=False,
-                                    with_shadow_base=False)
+                                    with_access_functions=False)
         tools.write_to_file(filename, csr_header)
 
 
