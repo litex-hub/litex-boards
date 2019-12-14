@@ -103,7 +103,7 @@ class AllerSoC(SoCSDRAM):
 
         # pcie wishbone bridge
         self.submodules.pcie_wishbone = LitePCIeWishboneBridge(self.pcie_endpoint,
-            lambda a: 1, shadow_base=self.mem_map["csr"])
+            lambda a: 1, base_address=self.mem_map["csr"])
         self.add_wb_master(self.pcie_wishbone.wishbone)
 
         # pcie dma
