@@ -188,10 +188,10 @@ class TagusSoC(SoCSDRAM):
 def main():
     platform = tagus.Platform()
     soc = TagusSoC(platform)
-    builder = Builder(soc, output_dir="../build/tagus", csr_csv="../build/tagus/csr.csv",
+    builder = Builder(soc, output_dir="tagus", csr_csv="tagus/csr.csv",
         compile_gateware=not "no-compile" in sys.argv[1:])
     vns = builder.build(build_name="tagus")
-    soc.generate_software_header("../software/kernel/csr.h")
+    soc.generate_software_header("tagus/csr.h")
 
 
 if __name__ == "__main__":

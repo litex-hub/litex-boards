@@ -190,10 +190,10 @@ class AllerSoC(SoCSDRAM):
 def main():
     platform = aller.Platform()
     soc = AllerSoC(platform)
-    builder = Builder(soc, output_dir="../build/aller", csr_csv="../build/aller/csr.csv",
+    builder = Builder(soc, output_dir="aller", csr_csv="aller/csr.csv",
         compile_gateware=not "no-compile" in sys.argv[1:])
     vns = builder.build(build_name="aller")
-    soc.generate_software_header("../software/kernel/csr.h")
+    soc.generate_software_header("aller/csr.h")
 
 
 if __name__ == "__main__":

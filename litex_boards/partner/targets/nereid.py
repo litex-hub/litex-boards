@@ -187,10 +187,10 @@ class NereidSoC(SoCSDRAM):
 def main():
     platform = nereid.Platform()
     soc = NereidSoC(platform)
-    builder = Builder(soc, output_dir="../build/nereid", csr_csv="../build/nereid/csr.csv",
+    builder = Builder(soc, output_dir="nereid", csr_csv="nereid/csr.csv",
         compile_gateware=not "no-compile" in sys.argv[1:])
     vns = builder.build(build_name="nereid")
-    soc.generate_software_header("../software/kernel/csr.h")
+    soc.generate_software_header("nereid/csr.h")
 
 
 if __name__ == "__main__":
