@@ -225,16 +225,17 @@ class BaseSoC(SoCCore):
         # "-dffe_min_ce_use 4" flag prevents Yosys from generating a
         # Clock Enable signal for a LUT that has fewer than 4 flip-flops.
         # This increases density, and lets us use the FPGA more efficiently.
-        platform.toolchain.nextpnr_yosys_template[2] += " -relut -dffe_min_ce_use 4"
+        #platform.toolchain.nextpnr_yosys_template[2] += " -relut -dffe_min_ce_use 4"
 
         # Allow us to set the nextpnr seed, because some values don't meet timing.
-        platform.toolchain.nextpnr_build_template[1] += " --seed " + str(pnr_seed)
+        #platform.toolchain.nextpnr_build_template[1] += " --seed " + str(pnr_seed)
 
         # Different placers can improve packing efficiency, however not all placers
         # are enabled on all builds of nextpnr-ice40.  Let the user override which
         # placer they want to use.
-        if pnr_placer is not None:
-            platform.toolchain.nextpnr_build_template[1] += " --placer {}".format(pnr_placer)
+        #if pnr_placer is not None:
+        #    platform.toolchain.nextpnr_build_template[1] += " --placer {}".format(pnr_placer)
+
 
 class USBSoC(BaseSoC):
     """A SoC for Fomu with interrupts for a softcore CPU"""
