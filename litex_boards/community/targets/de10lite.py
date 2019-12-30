@@ -20,37 +20,53 @@ from litedram.phy import GENSDRPHY
 class _CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys    = ClockDomain()
+        self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys_ps = ClockDomain()
         self.clock_domains.cd_por    = ClockDomain(reset_less=True)
 
         # # #
 
+        # main input clock for PLL
+        clk50 = platform.request("clk50")
+
         # power on rst
         rst_n = Signal()
         self.sync.por += rst_n.eq(1)
         self.comb += [
-            self.cd_por.clk.eq(self.cd_sys.clk),
+            self.cd_por.clk.eq(clk50),
             self.cd_sys.rst.eq(~rst_n),
             self.cd_sys_ps.rst.eq(~rst_n)
         ]
 
-        # sys clk / sdram clk
-        clk50 = platform.request("clk50")
-        self.comb += self.cd_sys.clk.eq(clk50)
+        # sys clk / sdram clk from PLL
+        pll_clk_out = Signal(6)
+
+        self.comb += self.cd_sys.clk.eq(pll_clk_out[0])
+        self.comb += self.cd_sys_ps.clk.eq(pll_clk_out[1])
+        self.comb += self.cd_vga.clk.eq(pll_clk_out[2])
+
         self.specials += \
             Instance("ALTPLL",
                 p_BANDWIDTH_TYPE         = "AUTO",
                 p_CLK0_DIVIDE_BY         = 1,
                 p_CLK0_DUTY_CYCLE        = 50,
                 p_CLK0_MULTIPLY_BY       = 1,
-                p_CLK0_PHASE_SHIFT       = "-10000",
+                p_CLK0_PHASE_SHIFT       = "0",
+                p_CLK1_DIVIDE_BY         = 1,
+                p_CLK1_DUTY_CYCLE        = 50,
+                p_CLK1_MULTIPLY_BY       = 1,
+                p_CLK1_PHASE_SHIFT       = "-10000",
+                p_CLK2_DIVIDE_BY         = 2,
+                p_CLK2_DUTY_CYCLE        = 50,
+                p_CLK2_MULTIPLY_BY       = 1,
+                p_CLK2_PHASE_SHIFT       = "0",
                 p_COMPENSATE_CLOCK       = "CLK0",
                 p_INCLK0_INPUT_FREQUENCY = 20000,
                 p_INTENDED_DEVICE_FAMILY = "MAX 10",
-                p_LPM_TYPE               =  "altpll",
-                p_OPERATION_MODE         =  "NORMAL",
+                p_LPM_TYPE               = "altpll",
+                p_OPERATION_MODE         = "NORMAL",
                 i_INCLK                  = clk50,
-                o_CLK                    = self.cd_sys_ps.clk,
+                o_CLK                    = pll_clk_out,
                 i_ARESET                 = ~rst_n,
                 i_CLKENA                 = 0x3f,
                 i_EXTCLKENA              = 0xf,
