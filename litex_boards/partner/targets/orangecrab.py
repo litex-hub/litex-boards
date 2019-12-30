@@ -8,7 +8,7 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import orange_crab
+from litex_boards.platforms import orangecrab
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -76,7 +76,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     def __init__(self, sys_clk_freq=int(48e6), toolchain="diamond", integrated_rom_size=0x8000, **kwargs):
-        platform = orange_crab.Platform(toolchain=toolchain)
+        platform = orangecrab.Platform(toolchain=toolchain)
 
         # SoCSDRAM ---------------------------------------------------------------------------------
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
