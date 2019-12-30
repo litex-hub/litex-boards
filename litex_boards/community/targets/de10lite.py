@@ -11,9 +11,12 @@ from litex_boards.platforms import de10lite
 
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.integration.soc_core import mem_decoder
 
 from litedram.modules import IS42S16320
 from litedram.phy import GENSDRPHY
+from litevideo.terminal.core import Terminal
+
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -99,15 +102,44 @@ class BaseSoC(SoCSDRAM):
                 geom_settings   = sdram_module.geom_settings,
                 timing_settings = sdram_module.timing_settings)
 
+# VideoSoC ------------------------------------------------------------------------------------------
+
+class VideoSoC(BaseSoC):
+    mem_map = {
+        "terminal": 0x30000000,
+    }
+    mem_map.update(BaseSoC.mem_map)
+
+    def __init__(self, **kwargs):
+        BaseSoC.__init__(self, **kwargs)
+
+        # create VGA terminal
+        self.submodules.terminal = terminal = Terminal()
+        self.add_wb_slave(mem_decoder(self.mem_map["terminal"]), self.terminal.bus)
+        self.add_memory_region("terminal", self.mem_map["terminal"], 0x10000)
+
+        # connect VGA pins
+        vga = self.platform.request('vga_out', 0)
+        self.comb += [
+            vga.vsync_n.eq(terminal.vsync),
+            vga.hsync_n.eq(terminal.hsync),
+            vga.r.eq(terminal.red[4:8]),
+            vga.g.eq(terminal.green[4:8]),
+            vga.b.eq(terminal.blue[4:8])
+        ]
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE10 Lite")
     builder_args(parser)
     soc_sdram_args(parser)
+    parser.add_argument("--with-vga", action="store_true",
+                        help="enable VGA support")
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_sdram_argdict(args))
+    cls = VideoSoC if args.with_vga else BaseSoC
+    soc = cls(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build()
 
