@@ -1,3 +1,9 @@
+# This file is Copyright (c) 2015 Robert Jordens <jordens@gmail.com>
+# This file is Copyright (c) 2015 Sebastien Bourdeauducq <sb@m-labs.hk>
+# This file is Copyright (c) 2015 Yann Sionneau <yann.sionneau@gmail.com>
+# This file is Copyright (c) 2016-2017 Tim 'mithro' Ansell <mithro@mithis.com>
+# License: BSD
+
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform
 from litex.build.xilinx.programmer import XC3SProg

@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# This file is Copyright (c) 2015 Robert Jordens <jordens@gmail.com>
+# This file is Copyright (c) 2015 Sebastien Bourdeauducq <sb@m-labs.hk>
+# This file is Copyright (c) 2015 Yann Sionneau <yann.sionneau@gmail.com>
+# License: BSD
+
 from fractions import Fraction
 
 from migen import *
