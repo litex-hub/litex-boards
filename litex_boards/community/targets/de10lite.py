@@ -102,9 +102,9 @@ class BaseSoC(SoCSDRAM):
                 geom_settings   = sdram_module.geom_settings,
                 timing_settings = sdram_module.timing_settings)
 
-# VideoSoC ------------------------------------------------------------------------------------------
+# VGASoC -------------------------------------------------------------------------------------------
 
-class VideoSoC(BaseSoC):
+class VGASoC(BaseSoC):
     mem_map = {
         "terminal": 0x30000000,
     }
@@ -134,11 +134,10 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE10 Lite")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--with-vga", action="store_true",
-                        help="enable VGA support")
+    parser.add_argument("--with-vga", action="store_true", help="enable VGA support")
     args = parser.parse_args()
 
-    cls = VideoSoC if args.with_vga else BaseSoC
+    cls = VGASoC if args.with_vga else BaseSoC
     soc = cls(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build()
