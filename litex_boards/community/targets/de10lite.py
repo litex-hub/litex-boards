@@ -15,17 +15,17 @@ from litex.soc.integration.soc_core import mem_decoder
 
 from litedram.modules import IS42S16320
 from litedram.phy import GENSDRPHY
-from litevideo.terminal.core import Terminal
 
+from litevideo.terminal.core import Terminal
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys_ps = ClockDomain()
         self.clock_domains.cd_por    = ClockDomain(reset_less=True)
+        self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
 
         # # #
 
@@ -41,13 +41,8 @@ class _CRG(Module):
             self.cd_sys_ps.rst.eq(~rst_n)
         ]
 
-        # sys clk / sdram clk from PLL
+        # sys clk / sdram clk  / vga_clk from PLL
         pll_clk_out = Signal(6)
-
-        self.comb += self.cd_sys.clk.eq(pll_clk_out[0])
-        self.comb += self.cd_sys_ps.clk.eq(pll_clk_out[1])
-        self.comb += self.cd_vga.clk.eq(pll_clk_out[2])
-
         self.specials += \
             Instance("ALTPLL",
                 p_BANDWIDTH_TYPE         = "AUTO",
@@ -77,6 +72,11 @@ class _CRG(Module):
                 i_PFDENA                 = 1,
                 i_PLLENA                 = 1,
             )
+        self.comb += [
+            self.cd_sys.clk.eq(pll_clk_out[0]),
+            self.cd_sys_ps.clk.eq(pll_clk_out[1]),
+            self.cd_vga.clk.eq(pll_clk_out[2])
+        ]
         self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
