@@ -220,21 +220,39 @@ class BaseSoC(SoCCore):
             if usb_bridge:
                 self.add_wb_master(self.usb.debug_bridge.wishbone)
 
+        # Override default LiteX's yosys/build templates
+        assert hasattr(platform.toolchain, "yosys_template")
+        assert hasattr(platform.toolchain, "build_template")
+        platform.toolchain.yosys_template = [
+            "{read_files}",
+            "attrmap -tocase keep -imap keep=\"true\" keep=1 -imap keep=\"false\" keep=0 -remove keep=0",
+            "synth_ice40 -json {build_name}.json -top {build_name}",
+        ]
+        platform.toolchain.build_template = [
+            "yosys -q -l {build_name}.rpt {build_name}.ys",
+            "nextpnr-ice40 --json {build_name}.json --pcf {build_name}.pcf --asc {build_name}.txt \
+            --pre-pack {build_name}_pre_pack.py --{architecture} --package {package}",
+            "icepack {build_name}.txt {build_name}.bin"
+        ]
+
         # Add "-relut -dffe_min_ce_use 4" to the synth_ice40 command.
-        # "-reult" adds an additional LUT pass to pack more stuff in, and
-        # "-dffe_min_ce_use 4" flag prevents Yosys from generating a
+        # The "-reult" adds an additional LUT pass to pack more stuff in,
+        # and the "-dffe_min_ce_use 4" flag prevents Yosys from generating a
         # Clock Enable signal for a LUT that has fewer than 4 flip-flops.
         # This increases density, and lets us use the FPGA more efficiently.
-        #platform.toolchain.nextpnr_yosys_template[2] += " -relut -dffe_min_ce_use 4"
+        platform.toolchain.yosys_template[2] += " -relut -abc2 -dffe_min_ce_use 4 -relut"
+        if use_dsp:
+            platform.toolchain.yosys_template[2] += " -dsp"
 
-        # Allow us to set the nextpnr seed, because some values don't meet timing.
-        #platform.toolchain.nextpnr_build_template[1] += " --seed " + str(pnr_seed)
+        # Disable final deep-sleep power down so firmware words are loaded
+        # onto softcore's address bus.
+        platform.toolchain.build_template[2] = "icepack -s {build_name}.txt {build_name}.bin"
 
-        # Different placers can improve packing efficiency, however not all placers
-        # are enabled on all builds of nextpnr-ice40.  Let the user override which
-        # placer they want to use.
-        #if pnr_placer is not None:
-        #    platform.toolchain.nextpnr_build_template[1] += " --placer {}".format(pnr_placer)
+        # Allow us to set the nextpnr seed
+        platform.toolchain.build_template[1] += " --seed " + str(pnr_seed)
+
+        if placer is not None:
+            platform.toolchain.build_template[1] += " --placer {}".format(placer)
 
 
 class USBSoC(BaseSoC):
