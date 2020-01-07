@@ -117,9 +117,9 @@ class Platform(LatticePlatform):
 
     def request(self, *args, **kwargs):
         if "serial" in args:
-            print("two 0 Ω resistors shoud be populated on R34 and R35 and "
-            "the FT2232H should be configured to UART with virtual COM on "
-            "port B")
+            print("R22 and R23 should be removed, two 0 Ω resistors shoud be "
+            "populated on R34 and R35 and the FT2232H should be configured to "
+            "UART with virtual COM on port B")
         if "ext_clk50" in args:
             print("an oscillator must be populated on X5")
             
