@@ -54,7 +54,6 @@ class _CRG(Module):
 class BaseSoC(SoCSDRAM):
     def __init__(self, toolchain="trellis", sys_clk_freq=int(48e6), sdram_module_cls="AS4C32M8", **kwargs):
         platform = hadbadge.Platform(toolchain=toolchain)
-        platform.toolchain.build_template[1] += " --speed 8" # Add "speed grade 8" to nextpnr-ecp5 # FIXME
 
         # SoCSDRAM ---------------------------------------------------------------------------------
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
