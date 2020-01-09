@@ -63,15 +63,16 @@ _io = [
         Subsignal("dm", Pins("AC6 AC4 AA3 U7 G1 F3 G5 H9"),
             IOStandard("SSTL15")),
         Subsignal("dq", Pins(
-          "AB6 AA8 Y8 AB5 AA5 Y5 Y6 Y7",
-          "AF4 AF5 AF3 AE3 AD3 AC3 AB4 AA4",
-          "AC2 AB2 AF2 AE2 Y1 Y2 AC1 AB1",
-          "Y3 W3 W6 V6 W4 W5 W1 V1",
-          "G2 D1 E1 E2 F2 A2 A3 C2",
-          "C3 D3 A4 B4 C4 D4 D5 E5",
-          "F4 G4 K6 K7 K8 L8 J5 J6",
-          "G6 H6 F7 F8 G8 H8 D6 E6"),
-                  IOStandard("SSTL15")),
+            "AB6 AA8 Y8 AB5 AA5 Y5 Y6 Y7",
+            "AF4 AF5 AF3 AE3 AD3 AC3 AB4 AA4",
+            "AC2 AB2 AF2 AE2 Y1 Y2 AC1 AB1",
+            "Y3 W3 W6 V6 W4 W5 W1 V1",
+            "G2 D1 E1 E2 F2 A2 A3 C2",
+            "C3 D3 A4 B4 C4 D4 D5 E5",
+            "F4 G4 K6 K7 K8 L8 J5 J6",
+            "G6 H6 F7 F8 G8 H8 D6 E6"),
+            IOStandard("SSTL15"),
+            Misc("IN_TERM=UNTUNED_SPLIT_50")),
         Subsignal("dqs_p", Pins("V8 AD5 AD1 V3 C1 B5 J4 H7"),
             IOStandard("DIFF_SSTL15")),
         Subsignal("dqs_n", Pins("W8 AE5 AE1 V2 B1 A5 H4 G7"),
@@ -80,7 +81,8 @@ _io = [
         Subsignal("clk_n", Pins("L2"), IOStandard("DIFF_SSTL15")),
         Subsignal("cke", Pins("P4"), IOStandard("SSTL15")),
         Subsignal("odt", Pins("R2"), IOStandard("SSTL15")),
-        Subsignal("reset_n", Pins("N8"), IOStandard("LVCMOS15"))
+        Subsignal("reset_n", Pins("N8"), IOStandard("LVCMOS15")),
+        Misc("SLEW=FAST"),
     ),
 
     ("pcie_x1", 0,
@@ -214,6 +216,9 @@ class Platform(XilinxPlatform):
         XilinxPlatform.__init__(self, "xc7a200t-fbg676-2", _io, _connectors, toolchain="vivado")
         self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 33]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
 
     def create_programmer(self):
         return VivadoProgrammer()
