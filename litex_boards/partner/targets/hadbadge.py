@@ -31,22 +31,18 @@ class _CRG(Module):
 
         # # #
 
-        self.cd_sys.clk.attr.add("keep")
-        self.cd_sys_ps.clk.attr.add("keep")
-
-        # clk / rst
+        # Clk / Rst
         clk8  = platform.request("clk8")
-        rst   = Signal()
         platform.add_period_constraint(clk8, 1e9/8e6)
 
-        # pll
+        # PLL
         self.submodules.pll = pll = ECP5PLL()
         pll.register_clkin(clk8, 8e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq, phase=11)
+        pll.create_clkout(self.cd_sys,    sys_clk_freq, phase=11)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=20)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, rst)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked)
 
-        # sdram clock
+        # SDRAM clock
         self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------

@@ -34,27 +34,21 @@ class _CRG(Module):
 
         # # #
 
-        self.cd_init.clk.attr.add("keep")
-        self.cd_por.clk.attr.add("keep")
-        self.cd_sys.clk.attr.add("keep")
-        self.cd_sys2x.clk.attr.add("keep")
-        self.cd_sys2x_i.clk.attr.add("keep")
-
         self.stop = Signal()
 
-        # clk / rst
+        # Clk / Rst
         clk12 = platform.request("clk12")
         rst   = platform.request("user_btn", 0)
         platform.add_period_constraint(clk12, 1e9/12e6)
 
-        # power on reset
+        # Power on reset
         por_count = Signal(16, reset=2**16-1)
         por_done  = Signal()
         self.comb += self.cd_por.clk.eq(ClockSignal())
         self.comb += por_done.eq(por_count == 0)
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
-        # pll
+        # PLL
         sys2x_clk_ecsout = Signal()
         self.submodules.pll = pll = ECP5PLL()
         pll.register_clkin(clk12, 12e6)
@@ -77,11 +71,10 @@ class _CRG(Module):
                 i_RST     = self.cd_sys2x.rst,
                 o_CDIVX   = self.cd_sys.clk),
             AsyncResetSynchronizer(self.cd_init, ~por_done | ~pll.locked | rst),
-            AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked | rst)
+            AsyncResetSynchronizer(self.cd_sys,  ~por_done | ~pll.locked | rst)
         ]
 
-        vtt_en = platform.request("dram_vtt_en")
-        self.comb += vtt_en.eq(1)
+        self.comb += platform.request("dram_vtt_en").eq(1)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

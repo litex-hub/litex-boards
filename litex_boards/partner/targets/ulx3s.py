@@ -28,28 +28,24 @@ class _CRG(Module):
 
         # # #
 
-        self.cd_sys.clk.attr.add("keep")
-        self.cd_sys_ps.clk.attr.add("keep")
-
-        # clk / rst
+        # Clk / Rst
         clk25 = platform.request("clk25")
         rst   = platform.request("rst")
-        platform.add_period_constraint(clk25, 40.0)
+        platform.add_period_constraint(clk25, 1e9/25e6)
 
-        # pll
+        # PLL
         self.submodules.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(rst)
         pll.register_clkin(clk25, 25e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq, phase=11)
+        pll.create_clkout(self.cd_sys,    sys_clk_freq, phase=11)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=20)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, rst)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll.locked | rst)
 
-        # sdram clock
+        # SDRAM clock
         self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
-        # Stop ESP32 from resetting FPGA
-        wifi_gpio0 = platform.request("wifi_gpio0")
-        self.comb += wifi_gpio0.eq(1)
+        # Prevent ESP32 from resetting FPGA
+        self.comb += platform.request("wifi_gpio0").eq(1)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
