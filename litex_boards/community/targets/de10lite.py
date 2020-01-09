@@ -29,10 +29,11 @@ class _CRG(Module):
 
         # # #
 
-        # main input clock for PLL
+        # Clk / Rst
         clk50 = platform.request("clk50")
+        platform.add_period_constraint(clk50, 1e9/50e6)
 
-        # sys clk / sdram clk  / vga_clk from PLL
+        # PLL
         pll_locked  = Signal()
         pll_clk_out = Signal(6)
         self.specials += \
@@ -52,8 +53,6 @@ class _CRG(Module):
                 p_CLK2_PHASE_SHIFT       = "0",
                 p_COMPENSATE_CLOCK       = "CLK0",
                 p_INCLK0_INPUT_FREQUENCY = 20000,
-                p_INTENDED_DEVICE_FAMILY = "MAX 10",
-                p_LPM_TYPE               = "altpll",
                 p_OPERATION_MODE         = "NORMAL",
                 i_INCLK                  = clk50,
                 o_CLK                    = pll_clk_out,
@@ -72,8 +71,10 @@ class _CRG(Module):
         self.specials += [
             AsyncResetSynchronizer(self.cd_sys,    ~pll_locked),
             AsyncResetSynchronizer(self.cd_sys_ps, ~pll_locked),
-            AsyncResetSynchronizer(self.cd_vga,    ~pll_locked),
+            AsyncResetSynchronizer(self.cd_vga,    ~pll_locked)
         ]
+
+        # SDRAM clock
         self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
