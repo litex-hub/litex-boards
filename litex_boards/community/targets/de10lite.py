@@ -6,6 +6,7 @@
 import argparse
 
 from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import de10lite
 
@@ -24,7 +25,6 @@ class _CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain()
-        self.clock_domains.cd_por    = ClockDomain(reset_less=True)
         self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
 
         # # #
@@ -32,16 +32,8 @@ class _CRG(Module):
         # main input clock for PLL
         clk50 = platform.request("clk50")
 
-        # power on rst
-        rst_n = Signal()
-        self.sync.por += rst_n.eq(1)
-        self.comb += [
-            self.cd_por.clk.eq(clk50),
-            self.cd_sys.rst.eq(~rst_n),
-            self.cd_sys_ps.rst.eq(~rst_n)
-        ]
-
         # sys clk / sdram clk  / vga_clk from PLL
+        pll_locked  = Signal()
         pll_clk_out = Signal(6)
         self.specials += \
             Instance("ALTPLL",
@@ -65,17 +57,22 @@ class _CRG(Module):
                 p_OPERATION_MODE         = "NORMAL",
                 i_INCLK                  = clk50,
                 o_CLK                    = pll_clk_out,
-                i_ARESET                 = ~rst_n,
                 i_CLKENA                 = 0x3f,
                 i_EXTCLKENA              = 0xf,
                 i_FBIN                   = 1,
                 i_PFDENA                 = 1,
                 i_PLLENA                 = 1,
+                o_LOCKED                 = pll_locked,
             )
         self.comb += [
             self.cd_sys.clk.eq(pll_clk_out[0]),
             self.cd_sys_ps.clk.eq(pll_clk_out[1]),
             self.cd_vga.clk.eq(pll_clk_out[2])
+        ]
+        self.specials += [
+            AsyncResetSynchronizer(self.cd_sys,    ~pll_locked),
+            AsyncResetSynchronizer(self.cd_sys_ps, ~pll_locked),
+            AsyncResetSynchronizer(self.cd_vga,    ~pll_locked),
         ]
         self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
