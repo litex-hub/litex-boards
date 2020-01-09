@@ -204,7 +204,7 @@ _connectors = [
 
 class Platform(LatticePlatform):
     default_clk_name = "clk12"
-    default_clk_period = 83
+    default_clk_period = 1e9/12e6
 
     def __init__(self, **kwargs):
         LatticePlatform.__init__(self, "LFE5UM5G-85F-8BG756C", _io, _connectors, **kwargs)
