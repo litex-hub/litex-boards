@@ -192,11 +192,11 @@ class BaseSoC(SoCCore):
 
         clk_freq = int(12e6)
 
+        kwargs["integrated_sram_size"] = 0
         SoCCore.__init__(self, platform, clk_freq,
-                integrated_sram_size=0,
-                with_uart=False,
-                with_ctrl=False,
-                **kwargs)
+            with_uart=False,
+            with_ctrl=False,
+            **kwargs)
 
         self.submodules.crg = _CRG(platform)
 

@@ -86,6 +86,6 @@ litex_boards/official/targets/simple.py litex_boards.{s}.platforms.{p} \
     --cpu-type=vexriscv     \
     --no-compile-software   \
     --no-compile-gateware   \
-    --uart-stub=True        \
+    --uart-name="stub"      \
 """.format(s=s, p=p)
                 subprocess.check_call(cmd, shell=True)

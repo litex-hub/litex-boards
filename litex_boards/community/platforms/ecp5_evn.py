@@ -122,7 +122,7 @@ class Platform(LatticePlatform):
             "UART with virtual COM on port B")
         if "ext_clk50" in args:
             print("an oscillator must be populated on X5")
-            
+
         return LatticePlatform.request(self, *args, **kwargs)
 
     def create_programmer(self):
