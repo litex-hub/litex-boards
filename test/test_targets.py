@@ -44,6 +44,7 @@ class TestTargets(unittest.TestCase):
         # Xilinx Kintex7
         platforms += [("official",  "kc705")]
         platforms += [("official",  "genesys2")]
+        platforms += [("community", "kx2")]
 
         # Xilinx Kintex Ultrascale
         platforms += [("official",  "kcu105")]
