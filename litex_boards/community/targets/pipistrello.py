@@ -147,15 +147,12 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCSDRAM):
-    def __init__(self, integrated_rom_size=0x8000, **kwargs):
+    def __init__(self, **kwargs):
         sys_clk_freq = (83 + Fraction(1, 3))*1000*1000
         platform     = pipistrello.Platform()
 
         # SoCSDRAM ---------------------------------------------------------------------------------
-        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
-                         integrated_rom_size=integrated_rom_size,
-                         integrated_sram_size=0x8000,
-                         **kwargs)
+        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

@@ -75,13 +75,11 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCSDRAM):
-    def __init__(self, sys_clk_freq=int(48e6), toolchain="diamond", integrated_rom_size=0x8000, **kwargs):
+    def __init__(self, sys_clk_freq=int(48e6), toolchain="diamond", **kwargs):
         platform = orangecrab.Platform(toolchain=toolchain)
 
         # SoCSDRAM ---------------------------------------------------------------------------------
-        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
-            integrated_rom_size=integrated_rom_size,
-            **kwargs)
+        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

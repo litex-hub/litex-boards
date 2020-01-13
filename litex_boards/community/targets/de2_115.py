@@ -76,9 +76,7 @@ class BaseSoC(SoCSDRAM):
         platform = de2_115.Platform()
 
         # SoCSDRAM ---------------------------------------------------------------------------------
-        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
-            integrated_rom_size=0x8000,
-            **kwargs)
+        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform)
@@ -86,7 +84,6 @@ class BaseSoC(SoCSDRAM):
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
-            # ISSI IS42S16320D-7TL
             sdram_module = IS42S16320(self.clk_freq, "1:1")
             self.register_sdram(self.sdrphy,
                 geom_settings   = sdram_module.geom_settings,

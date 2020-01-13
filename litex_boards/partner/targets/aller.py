@@ -59,8 +59,6 @@ class AllerSoC(SoCSDRAM):
         # SoCSDRAM ---------------------------------------------------------------------------------
         SoCSDRAM.__init__(self, platform, sys_clk_freq,
             csr_data_width           = 32,
-            integrated_rom_size      = 0x10000,
-            integrated_sram_size     = 0x10000,
             integrated_main_ram_size = 0x10000, # FIXME: keep this for initial PCIe tests
             ident                    = "Aller LiteX Test SoC", ident_version=True,
             with_uart=not with_pcie_uart)

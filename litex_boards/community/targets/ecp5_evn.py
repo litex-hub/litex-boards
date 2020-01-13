@@ -45,9 +45,7 @@ class BaseSoC(SoCCore):
         platform = ecp5_evn.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq,
-            integrated_rom_size=0x8000,
-            **kwargs)
+        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         crg = _CRG(platform, sys_clk_freq, x5_clk_freq)
