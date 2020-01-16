@@ -82,9 +82,12 @@ class EthernetSoC(BaseSoC):
 
         # RGMII Ethernet PHY -----------------------------------------------------------------------
         if phy == "rgmii":
-            self.submodules.ethphy = LiteEthPHYRGMII(self.platform.request("eth_clocks"),
-                                                     self.platform.request("eth"))
+            # phy
+            self.submodules.ethphy = LiteEthPHYRGMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"))
             self.add_csr("ethphy")
+            # timing constraints
             self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 1e9/125e6)
             self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 1e9/125e6)
             self.platform.add_false_path_constraints(
@@ -94,25 +97,27 @@ class EthernetSoC(BaseSoC):
 
         # 1000BaseX Ethernet PHY -------------------------------------------------------------------
         if phy == "1000basex":
+            # phy
             self.comb += self.platform.request("sfp_mgt_clk_sel0", 0).eq(0)
             self.comb += self.platform.request("sfp_mgt_clk_sel1", 0).eq(0)
             self.comb += self.platform.request("sfp_tx_disable_n", 0).eq(0)
             qpll_settings = QPLLSettings(
-                refclksel=0b001,
-                fbdiv=4,
-                fbdiv_45=5,
-                refclk_div=1)
+                refclksel  = 0b001,
+                fbdiv      = 4,
+                fbdiv_45   = 5,
+                refclk_div = 1)
             refclk125 = self.platform.request("gtp_refclk")
             refclk125_se = Signal()
             self.specials += \
                 Instance("IBUFDS_GTE2",
-                    i_CEB=0,
-                    i_I=refclk125.p,
-                    i_IB=refclk125.n,
-                    o_O=refclk125_se)
+                    i_CEB = 0,
+                    i_I   = refclk125.p,
+                    i_IB  = refclk125.n,
+                    o_O   = refclk125_se)
             qpll = QPLL(refclk125_se, qpll_settings)
             self.submodules += qpll
             self.submodules.ethphy = A7_1000BASEX(qpll.channels[0], self.platform.request("sfp", 0), self.clk_freq)
+            # timing constraints
             self.platform.add_period_constraint(self.ethphy.txoutclk, 1e9/62.5e6)
             self.platform.add_period_constraint(self.ethphy.rxoutclk, 1e9/62.5e6)
             self.platform.add_false_path_constraints(
@@ -121,8 +126,11 @@ class EthernetSoC(BaseSoC):
                 self.ethphy.rxoutclk)
 
         # Ethernet MAC -----------------------------------------------------------------------------
-        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32,
-            interface="wishbone", endianness=self.cpu.endianness)
+        self.submodules.ethmac = LiteEthMAC(
+            phy        = self.ethphy,
+            dw         = 32,
+            interface  = "wishbone",
+            endianness = self.cpu.endianness)
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"], 0x2000, type="io")
         self.add_csr("ethmac")

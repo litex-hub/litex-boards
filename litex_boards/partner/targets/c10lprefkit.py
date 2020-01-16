@@ -123,26 +123,30 @@ class EthernetSoC(BaseSoC):
     def __init__(self, eth_port=0, **kwargs):
         BaseSoC.__init__(self, **kwargs)
 
-        self.submodules.ethphy = LiteEthPHYMII(self.platform.request("eth_clocks", eth_port),
-                                               self.platform.request("eth", eth_port))
+        # Ethernet ---------------------------------------------------------------------------------
+        # phy
+        self.submodules.ethphy = LiteEthPHYMII(
+            clock_pads = self.platform.request("eth_clocks"),
+            pads       = self.platform.request("eth"))
         self.add_csr("ethphy")
-        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32,
-            interface="wishbone", endianness=self.cpu.endianness)
+        # mac
+        self.submodules.ethmac = LiteEthMAC(
+            phy        = self.ethphy,
+            dw         = 32,
+            interface  = "wishbone",
+            endianness = self.cpu.endianness)
         self.add_wb_slave(self.mem_map["ethmac"], self.ethmac.bus, 0x2000)
         self.add_memory_region("ethmac", self.mem_map["ethmac"], 0x2000, type="io")
         self.add_csr("ethmac")
         self.add_interrupt("ethmac")
-
-        self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
-        self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 1e9/12.5e6)
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 1e9/12.5e6)
+        # timing constraints
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 1e9/25e6)
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 1e9/25e6)
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
             self.ethphy.crg.cd_eth_tx.clk,
             self.ethphy.crg.cd_eth_rx.clk
         )
-
 
 # Build --------------------------------------------------------------------------------------------
 
