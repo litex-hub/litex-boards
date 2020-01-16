@@ -4,6 +4,7 @@
 # This file is Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
+import argparse
 import sys
 
 from migen import *
@@ -47,21 +48,19 @@ class CRG(Module):
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_clk200)
 
-# AllerSoC -----------------------------------------------------------------------------------------
+# PCIeSoC -----------------------------------------------------------------------------------------
 
-class AllerSoC(SoCSDRAM):
+class PCIeSoC(SoCSDRAM):
     SoCSDRAM.mem_map["csr"] = 0x80000000
     SoCSDRAM.mem_map["rom"] = 0x20000000
 
-    def __init__(self, platform, with_pcie_uart=True):
+    def __init__(self, platform, **kwargs):
         sys_clk_freq = int(100e6)
 
         # SoCSDRAM ---------------------------------------------------------------------------------
         SoCSDRAM.__init__(self, platform, sys_clk_freq,
-            csr_data_width           = 32,
-            integrated_main_ram_size = 0x10000, # FIXME: keep this for initial PCIe tests
-            ident                    = "Aller LiteX Test SoC", ident_version=True,
-            with_uart=not with_pcie_uart)
+            ident = "LiteX SoC on Tagus", ident_version=True,
+            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)
@@ -121,61 +120,6 @@ class AllerSoC(SoCSDRAM):
             self.comb += self.pcie_msi.irqs[i].eq(v)
             self.add_constant(k + "_INTERRUPT", i)
 
-        # pcie_uart
-        if with_pcie_uart:
-            class PCIeUART(Module, AutoCSR):
-                def __init__(self, uart):
-                    self.rx_valid = CSRStatus()
-                    self.rx_ready = CSR()
-                    self.rx_data  = CSRStatus(8)
-
-                    self.tx_valid = CSR()
-                    self.tx_ready = CSRStatus()
-                    self.tx_data  = CSRStorage(8)
-
-                    # # #
-
-                    # cpu to pcie
-                    self.comb += [
-                        self.rx_valid.status.eq(uart.sink.valid),
-                        uart.sink.ready.eq(self.rx_ready.re),
-                        self.rx_data.status.eq(uart.sink.data),
-                    ]
-
-                    # pcie to cpu
-                    self.sync += [
-                        If(self.tx_valid.re,
-                            uart.source.valid.eq(1)
-                        ).Elif(uart.source.ready,
-                            uart.source.valid.eq(0)
-                        )
-                    ]
-                    self.comb += [
-                        self.tx_ready.status.eq(~uart.source.valid),
-                        uart.source.data.eq(self.tx_data.storage)
-                    ]
-
-            uart_interface = RS232PHYInterface()
-            self.submodules.uart = UART(uart_interface)
-            self.add_csr("uart")
-            self.add_interrupt("uart")
-            self.submodules.pcie_uart = PCIeUART(uart_interface)
-            self.add_csr("pcie_uart")
-
-        # Leds -------------------------------------------------------------------------------------
-        # led blinking (sys)
-        sys_counter = Signal(32)
-        self.sync.sys += sys_counter.eq(sys_counter + 1)
-
-        pcie_counter = Signal(32)
-        self.sync.pcie += pcie_counter.eq(pcie_counter + 1)
-
-        self.comb += [
-            platform.request("user_led", 0).eq(~self.pcie_phy._lnk_up.status),
-            platform.request("user_led", 1).eq(~pcie_counter[26]),
-            platform.request("user_led", 2).eq(~sys_counter[26]),
-        ]
-
     def generate_software_header(self, filename):
         csr_header = get_csr_header(self.csr_regions,
                                     self.constants,
@@ -186,13 +130,19 @@ class AllerSoC(SoCSDRAM):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    platform = aller.Platform()
-    soc = AllerSoC(platform)
-    builder = Builder(soc, output_dir="aller", csr_csv="aller/csr.csv",
-        compile_gateware=not "no-compile" in sys.argv[1:])
-    vns = builder.build(build_name="aller")
-    soc.generate_software_header("aller/csr.h")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Tagus")
+    builder_args(parser)
+    soc_sdram_args(parser)
+    args = parser.parse_args()
 
+    args.uart_name = "crossover"
+    args.csr_data_width = 32
+
+    platform = aller.Platform()
+    soc      = PCIeSoC(platform, **soc_sdram_argdict(args))
+    builder  = Builder(soc, **builder_argdict(args))
+    vns = builder.build()
+    soc.generate_software_header("csr.h")
 
 if __name__ == "__main__":
     main()
