@@ -35,44 +35,39 @@ _io = [
 
     ("cpu_reset", 0, Pins("M2"), IOStandard("LVCMOS33")),
 
-    # Not usable unless EEPROM is reprogrammed to set Channel A of FT2232H to ASYNC Serial (UART) mode
-    # ("serial", 0,
-    #     Subsignal("tx", Pins("Y22")),
-    #     Subsignal("rx", Pins("Y21")),
-    #     IOStandard("LVCMOS33")
-    # ),
+    ("serial", 0, # Can be used when FT2232H's Channel A configured to ASYNC Serial (UART) mode
+        Subsignal("tx", Pins("Y21")),
+        Subsignal("rx", Pins("Y22")),
+        IOStandard("LVCMOS33")
+    ),
 
-    # Not usable unless EEPROM is reprogrammed to set Channel A of FT2232H to ASYNC FIFO 245 mode
-    # Host can interface with this as if it were UART--See issue https://github.com/enjoy-digital/litex/issues/231 for more info
-    ("usb_fifo", 0,
-        Subsignal("data", Pins("Y22 Y21 AB22 AA21 AB21 AA20 AB20 AA18")),
+    ("usb_fifo", 0, # Can be used when FT2232H's Channel A configured to ASYNC FIFO 245 mode
+        Subsignal("data",  Pins("Y22 Y21 AB22 AA21 AB21 AA20 AB20 AA18")),
         Subsignal("rxf_n", Pins("W21")),
         Subsignal("txe_n", Pins("V22")),
-        Subsignal("rd_n", Pins("AA19")),
-        Subsignal("wr_n", Pins("W22")),
+        Subsignal("rd_n",  Pins("AA19")),
+        Subsignal("wr_n",  Pins("W22")),
         Subsignal("siwua", Pins("U21")),
-        Subsignal("oe_n", Pins("T21")),
+        Subsignal("oe_n",  Pins("T21")),
         IOStandard("LVCMOS33"), Drive(8), Misc("SLEW=FAST")
     ),
 
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("T19")),
-        Subsignal("clk", Pins("L12")),
-        Subsignal("dq", Pins("P22", "R22", "P21", "R21")),
+        Subsignal("clk",  Pins("L12")),
+        Subsignal("dq",   Pins("P22", "R22", "P21", "R21")),
         IOStandard("LVCMOS33")
     ),
     ("spiflash", 0,
         Subsignal("cs_n", Pins("T19")),
-        Subsignal("clk", Pins("L12")),
+        Subsignal("clk",  Pins("L12")),
         Subsignal("mosi", Pins("P22")),
         Subsignal("miso", Pins("R22")),
-        Subsignal("wp", Pins("P21")),
+        Subsignal("wp",   Pins("P21")),
         Subsignal("hold", Pins("R21")),
         IOStandard("LVCMOS33"),
     ),
 
-    # DDR3 MT41J128M16XX-125
-    # freq: 400MHz, data width: 16
     ("ddram", 0,
         Subsignal("a", Pins(
             "U6 T5 Y6 T6 V2 T4 Y2 R2",
@@ -82,48 +77,43 @@ _io = [
         Subsignal("ras_n", Pins("V5"), IOStandard("SSTL15")),
         Subsignal("cas_n", Pins("T1"), IOStandard("SSTL15")),
         Subsignal("we_n", Pins("R3"), IOStandard("SSTL15")),
-        Subsignal("cs_n", Pins("T3"), IOStandard("SSTL15")),
         Subsignal("dm", Pins("Y7 AA1"), IOStandard("SSTL15")),
         Subsignal("dq", Pins(
-            "Y8 AB6 W9 AA8 AB7 V7 AB8 W7",
-            "V4 AB2 AA5 AB3 AB5 W4 AB1 AA4"),
-            IOStandard("SSTL15")),
+            "Y8  AB6  W9   AA8  AB7  V7  AB8  W7",
+            "V4  AB2  AA5  AB3  AB5  W4  AB1  AA4"),
+            IOStandard("SSTL15"),
+            Misc("IN_TERM=UNTUNED_SPLIT_40")),
         Subsignal("dqs_p", Pins("V9 Y3"), IOStandard("DIFF_SSTL15")),
         Subsignal("dqs_n", Pins("V8 AA3"), IOStandard("DIFF_SSTL15")),
         Subsignal("clk_p", Pins("U3"), IOStandard("DIFF_SSTL15")),
         Subsignal("clk_n", Pins("V3"), IOStandard("DIFF_SSTL15")),
         Subsignal("cke", Pins("U1"), IOStandard("SSTL15")),
         Subsignal("odt", Pins("W2"), IOStandard("SSTL15")),
+        Subsignal("cs_n", Pins("T3"), IOStandard("SSTL15")),
         Subsignal("reset_n", Pins("U7"), IOStandard("SSTL15")),
         Misc("SLEW=FAST"),
     ),
 
-    # Seven Seg display not yet mapped here
-
-    # 24AA02E48T EEPROM
     ("eeprom", 0,
         Subsignal("scl", Pins("N5")),
         Subsignal("sda", Pins("P6")),
         IOStandard("LVCMOS33")
     ),
 
-    # Micro SD not yet mapped here
-
-    # FIXME not sure how to map ethernet. Is this RGMII?
     ("eth_clocks", 0,
         Subsignal("tx", Pins("U20")),
         Subsignal("rx", Pins("W19")),
         IOStandard("LVCMOS33")
     ),
     ("eth", 0,
-        Subsignal("rst_n", Pins("R14")),
-        # Subsignal("int_n", Pins("Y14")), # usually RGMII has the int_n pin
-        Subsignal("mdio", Pins("P16"), Misc("SLEW=FAST")),
-        Subsignal("mdc", Pins("R19"), Misc("SLEW=FAST")),
-        Subsignal("rx_ctl", Pins("Y19")),
+        Subsignal("rst_n",   Pins("R14"), IOStandard("LVCMOS33")),
+        Subsignal("int_n",   Pins("V19")),
+        Subsignal("mdio",    Pins("P16")),
+        Subsignal("mdc",     Pins("R19")),
+        Subsignal("rx_ctl",  Pins("Y19")),
         Subsignal("rx_data", Pins("AB18 W20 W17 V20")),
-        Subsignal("tx_ctl", Pins("T20"), Misc("SLEW=FAST")),
-        Subsignal("tx_data", Pins("V18 U18 V17 U17"), Misc("SLEW=FAST")),
+        Subsignal("tx_ctl",  Pins("T20")),
+        Subsignal("tx_data", Pins("V18 U18 V17 U17")),
         IOStandard("LVCMOS33")
     ),
 
@@ -138,9 +128,9 @@ _io = [
         Subsignal("data2_n", Pins("N2"), IOStandard("TMDS_33")),
         Subsignal("scl", Pins("J2"), IOStandard("LVCMOS33")),
         Subsignal("sda", Pins("H2"), IOStandard("LVCMOS33")),
-        Subsignal("hpd_en", Pins("G2"), IOStandard("LVCMOS33")), # FIXME not sure if this is the hdmi_rx_hpa pin
-        Subsignal("cec", Pins("K2"), IOStandard("LVCMOS33")),
-        # Subsignal("txen", Pins("R3"), IOStandard("LVCMOS33")),  # not sure if we need this
+        Subsignal("hpd_en", Pins("G2"), IOStandard("LVCMOS33")),
+        Subsignal("cec", Pins("K2"), IOStandard("LVCMOS33")),     # FIXME
+        # Subsignal("txen", Pins("R3"), IOStandard("LVCMOS33")),  # FIXME
     ),
 
     ("hdmi_out", 0,
@@ -154,11 +144,9 @@ _io = [
         Subsignal("data2_n", Pins("F1"), IOStandard("TMDS_33")),
         Subsignal("scl", Pins("D2"), IOStandard("LVCMOS33")),
         Subsignal("sda", Pins("C2"), IOStandard("LVCMOS33")),
-        Subsignal("cec", Pins("E2"), IOStandard("LVCMOS33")),
-        Subsignal("hdp", Pins("B2"), IOStandard("LVCMOS25")), # FIXME should this be hpd?
+        Subsignal("cec", Pins("E2"), IOStandard("LVCMOS33")),  # FIXME
+        Subsignal("hdp", Pins("B2"), IOStandard("LVCMOS33")),  # FIXME
     ),
-
-    # Mini display ports not yet mapped here
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -174,11 +162,8 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 1e9/100e6
 
-    def __init__(self, variant="50t"):
-        device = {
-            "50t":  "xc7a50tfgg484-1"
-        }[variant]
-        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain="vivado")
+    def __init__(self):
+        XilinxPlatform.__init__(self, "xc7a50tfgg484-1", _io, _connectors, toolchain="vivado")
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = \
