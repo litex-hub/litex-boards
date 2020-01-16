@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# This file is Copyright (c) 2018-2019 Rohit Singh <rohit@rohitksingh.in>
 # This file is Copyright (c) 2020 Feliks Montez <feliks.montez@gmail.com>
 # License: BSD
 
