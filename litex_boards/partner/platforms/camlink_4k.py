@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # This file is Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
