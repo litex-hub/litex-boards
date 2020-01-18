@@ -39,16 +39,15 @@ _io = [
     ),
 
     ("eth", 0,
-     Subsignal("rx_ctl", Pins("U14")),
-     Subsignal("rx_data", Pins("U17 V17 V16 V14")),
-     Subsignal("tx_ctl", Pins("T15")),
-     Subsignal("tx_data", Pins("U16 U15 T18 T17")),
-     Subsignal("rst_n", Pins("V18")),
-     Subsignal("mdc", Pins("W18")),
-     Subsignal("mdio", Pins("T14")),
-     IOStandard("LVCMOS18"), Misc("SLEW=FAST"), Drive(16)
+        Subsignal("rx_ctl", Pins("U14")),
+        Subsignal("rx_data", Pins("U17 V17 V16 V14")),
+        Subsignal("tx_ctl", Pins("T15")),
+        Subsignal("tx_data", Pins("U16 U15 T18 T17")),
+        Subsignal("rst_n", Pins("V18")),
+        Subsignal("mdc", Pins("W18")),
+        Subsignal("mdio", Pins("T14")),
+        IOStandard("LVCMOS18"), Misc("SLEW=FAST"), Drive(16)
     ),
-
 
     ("ddram", 0,
         Subsignal("a", Pins(
