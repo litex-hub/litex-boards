@@ -91,8 +91,6 @@ class PCIeSoC(SoCSDRAM):
         # PCIe -------------------------------------------------------------------------------------
         # pcie phy
         self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"), bar0_size=0x20000)
-        self.pcie_phy.cd_pcie.clk.attr.add("keep")
-        platform.add_platform_command("create_clock -name pcie_clk -period 8 [get_nets pcie_clk]")
         platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
         self.add_csr("pcie_phy")
 
