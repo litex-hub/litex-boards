@@ -118,7 +118,7 @@ _io_v7_0 = [ # Documented by @miek
     # ethernet (B50612D)
     ("eth_clocks", 0,
         Subsignal("tx", Pins("M2")),
-        Subsignal("rx", Pins("P5")), # FIXME: already used for rst_n
+        Subsignal("rx", Pins("M1")),
         IOStandard("LVCMOS33")
     ),
     ("eth", 0,
