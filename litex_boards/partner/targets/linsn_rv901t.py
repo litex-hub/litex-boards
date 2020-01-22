@@ -102,10 +102,8 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Linsn RV901T")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true",
-                        help="enable Ethernet support")
-    parser.add_argument("--eth-phy", default=0, type=int,
-                        help="Ethernet PHY 0 or 1 (default=0)")
+    parser.add_argument("--with-ethernet", action="store_true", help="enable Ethernet support")
+    parser.add_argument("--eth-phy", default=0, type=int, help="Ethernet PHY 0 or 1 (default=0)")
     args = parser.parse_args()
 
     if args.with_ethernet:
