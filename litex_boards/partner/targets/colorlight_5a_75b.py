@@ -41,13 +41,13 @@ class _CRG(Module):
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
-class BaseSoC(SoCMini):
+class BaseSoC(SoCCore):
     def __init__(self, revision, **kwargs):
         platform     = colorlight_5a_75b.Platform(revision=revision)
         sys_clk_freq = int(125e6)
 
-        # SoCMini ----------------------------------------------------------------------------------
-        SoCMini.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
