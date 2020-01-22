@@ -13,6 +13,12 @@ _io_v6_1 = [ # Documented by @smunaut
     # clock
     ("clk25", 0, Pins("P3"), IOStandard("LVCMOS33")),
 
+    # led
+    ("user_led_n", 0, Pins("D2"), IOStandard("LVCMOS33")),
+
+    # btn
+    ("user_btn_n", 0, Pins("J28"), IOStandard("LVCMOS33")),
+
     # spi flash (GD25Q16CSIG)
     ("spiflash", 0,
         Subsignal("cs_n", Pins("R2")),
@@ -31,7 +37,7 @@ _io_v6_1 = [ # Documented by @smunaut
         Subsignal("dq", Pins(
             "D15 E14 E13 D12 E12 D11 C10 B17",
             "B8  A8  C7  A7  A6  B6  A5  B5",
-            "D5  C5  D6  C6  E7  D7  E8  D8", # FIXME: D8 was D9
+            "D5  C5  D6  C6  E7  D7  E8  D8",
             "E9  D9  E11 C11 C12 D13 D14 C15")),
         Subsignal("we_n",  Pins("A10")),
         Subsignal("ras_n", Pins("B10")),
