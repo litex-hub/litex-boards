@@ -14,10 +14,10 @@ _io_v6_1 = [ # Documented by @smunaut
     ("clk25", 0, Pins("P3"), IOStandard("LVCMOS33")),
 
     # led
-    ("user_led_n", 0, Pins("D2"), IOStandard("LVCMOS33")),
+    ("user_led_n", 0, Pins("U16"), IOStandard("LVCMOS33")),
 
     # btn
-    ("user_btn_n", 0, Pins("J28"), IOStandard("LVCMOS33")),
+    ("user_btn_n", 0, Pins("R16"), IOStandard("LVCMOS33")),
 
     # spi flash (GD25Q16CSIG)
     ("spiflash", 0,
