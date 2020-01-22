@@ -29,7 +29,7 @@ class _CRG(Module):
 
         # Clk / Rst
         clk25 = platform.request("clk25")
-        rst_n.eq(platform.request("user_btn_n", 0))
+        rst_n = platform.request("user_btn_n", 0)
         platform.add_period_constraint(clk25, 1e9/25e6)
 
         # PLL
