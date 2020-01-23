@@ -67,7 +67,9 @@ class EtherboneSoC(BaseSoC):
         # phy
         self.submodules.ethphy = LiteEthPHYRGMII(
             clock_pads = self.platform.request("eth_clocks", eth_phy),
-            pads       = self.platform.request("eth", eth_phy))
+            pads       = self.platform.request("eth", eth_phy),
+            tx_delay   = 0e-9, # No FPGA delay (Clk/Data delay added by PCB/PHY)
+            rx_delay   = 0e-9) # No FPGA delay (Clk/Data delay added by PCB/PHY)
         self.add_csr("ethphy")
         # core
         self.submodules.ethcore = LiteEthUDPIPCore(
