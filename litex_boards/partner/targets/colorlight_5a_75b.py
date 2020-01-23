@@ -3,6 +3,10 @@
 # This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
+# Disclaimer: This SoC is still a Proof of Concept with large timings violations on the IP/UDP and
+# Etherbone stack that need to be optimized. It was initially just used to validate the reversed
+# pinout but happens to work on hardware...
+
 import argparse
 import sys
 
