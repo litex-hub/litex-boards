@@ -11,8 +11,11 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex_boards.platforms import de10nano
 
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
+from litedram.modules import AS4C16M16
+from litedram.phy import GENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -71,21 +74,52 @@ class BaseSoC(SoCCore):
         assert sys_clk_freq == int(50e6)
         platform = de10nano.Platform()
 
-        # SoCSDRAM ---------------------------------------------------------------------------------
+        # SoCCore ---------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform)
 
+
+# SDRAMSoC ------------------------------------------------------------------------------------------
+
+class SDRAMSoC(SoCSDRAM):
+    def __init__(self, sys_clk_freq=int(50e6), **kwargs):
+        assert sys_clk_freq == int(50e6)
+        platform = de10nano.Platform()
+
+        # SoCSDRAM ---------------------------------------------------------------------------------
+        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform)
+
+
+        # SDR SDRAM --------------------------------------------------------------------------------
+
+        self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
+        sdram_module = AS4C16M16(self.clk_freq, "1:1")
+        self.register_sdram(self.sdrphy,
+            geom_settings   = sdram_module.geom_settings,
+            timing_settings = sdram_module.timing_settings)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE10 Nano")
+    parser.add_argument("--with-sdram", action="store_true",
+                        help="enable MiSTer SDRAM expansion board")
     builder_args(parser)
-    soc_core_args(parser)
+    #soc_core_args(parser) # TODO figure out how to get args for both
+                           # core and sdram SoCs without breaking shit
+    soc_sdram_args(parser)
     args = parser.parse_args()
+    soc = None
+    if args.with_sdram:
+        soc = SDRAMSoC(**soc_sdram_argdict(args)) 
+    else:
+        soc = BaseSoC(**soc_sdram_argdict(args)) 
 
-    soc = BaseSoC(**soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build()
 
