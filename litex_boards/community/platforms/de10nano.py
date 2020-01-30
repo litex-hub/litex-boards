@@ -95,13 +95,11 @@ _mister_sdram_module_io = [
             "E8 V12 D11 W12 AH13 D8 AH14 AF7 AE24 AD23 AE6 AE23 AG14 AD5 AF4 AH3")),
         Subsignal("ba", Pins(
             "Y17 AB25")),
-        Subsignal("dqmh", Pins("AF13")),
-        Subsignal("dqml", Pins("AG13")),
         Subsignal("cas_n", Pins("AA18")),
         Subsignal("cs_n", Pins("Y18")),
         Subsignal("ras_n", Pins("W14")),
         Subsignal("we_n", Pins("AA19")),
-        IOStandard("3.3-V LVTTL"), Misc("SLEWRATE=FAST")
+        IOStandard("3.3-V LVTTL")
     ),
 ]
 
@@ -112,8 +110,8 @@ class Platform(AlteraPlatform):
     default_clk_period = 1e9/50e6
 
     def __init__(self):
-        # TODO uncancerify
-        AlteraPlatform.__init__(self, "5CSEBA6U23I7", _io+_mister_sdram_module_io)
+        AlteraPlatform.__init__(self, "5CSEBA6U23I7", _io)
+        self.add_extension(_mister_sdram_module_io)
 
     def create_programmer(self):
         return USBBlaster()

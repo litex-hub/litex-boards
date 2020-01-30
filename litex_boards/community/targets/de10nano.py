@@ -66,6 +66,7 @@ class _CRG(Module):
             AsyncResetSynchronizer(self.cd_sys_ps, ~pll_locked)
         ]
 
+        self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -94,7 +95,6 @@ class SDRAMSoC(SoCSDRAM):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform)
 
-
         # SDR SDRAM --------------------------------------------------------------------------------
 
         self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
@@ -110,8 +110,6 @@ def main():
     parser.add_argument("--with-sdram", action="store_true",
                         help="enable MiSTer SDRAM expansion board")
     builder_args(parser)
-    #soc_core_args(parser) # TODO figure out how to get args for both
-                           # core and sdram SoCs without breaking shit
     soc_sdram_args(parser)
     args = parser.parse_args()
     soc = None
@@ -119,7 +117,6 @@ def main():
         soc = SDRAMSoC(**soc_sdram_argdict(args)) 
     else:
         soc = BaseSoC(**soc_sdram_argdict(args)) 
-
     builder = Builder(soc, **builder_argdict(args))
     builder.build()
 
