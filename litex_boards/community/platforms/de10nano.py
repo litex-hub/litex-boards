@@ -22,10 +22,10 @@ _io = [
     ("key", 0, Pins("AH17"), IOStandard("3.3-V LVTTL")),
     ("key", 1, Pins("AH16"), IOStandard("3.3-V LVTTL")),
 
-    ("sw", 0, Pins("Y24"), IOStandard("3.3-V LVTTL")),
-    ("sw", 1, Pins("W24"), IOStandard("3.3-V LVTTL")),
-    ("sw", 2, Pins("W21"), IOStandard("3.3-V LVTTL")),
-    ("sw", 3, Pins("W20"), IOStandard("3.3-V LVTTL")),
+    ("user_sw", 0, Pins("Y24"), IOStandard("3.3-V LVTTL")),
+    ("user_sw", 1, Pins("W24"), IOStandard("3.3-V LVTTL")),
+    ("user_sw", 2, Pins("W21"), IOStandard("3.3-V LVTTL")),
+    ("user_sw", 3, Pins("W20"), IOStandard("3.3-V LVTTL")),
 
     ("serial", 0,
         Subsignal("tx", Pins("AF13"), IOStandard("3.3-V LVTTL")), # Arduino_IO1
