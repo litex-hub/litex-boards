@@ -20,7 +20,7 @@ from litedram.phy import GENSDRPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform):
+    def __init__(self, platform, with_sdram=False):
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain()
 
@@ -66,7 +66,8 @@ class _CRG(Module):
             AsyncResetSynchronizer(self.cd_sys_ps, ~pll_locked)
         ]
 
-        self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
+        if with_sdram:
+            self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -81,10 +82,9 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform)
 
+# MiSTerSDRAMSoC -----------------------------------------------------------------------------------
 
-# SDRAMSoC ------------------------------------------------------------------------------------------
-
-class SDRAMSoC(SoCSDRAM):
+class MiSTerSDRAMSoC(SoCSDRAM):
     def __init__(self, sys_clk_freq=int(50e6), **kwargs):
         assert sys_clk_freq == int(50e6)
         platform = de10nano.Platform()
@@ -93,28 +93,28 @@ class SDRAMSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform)
+        self.submodules.crg = _CRG(platform, with_sdram=True)
 
         # SDR SDRAM --------------------------------------------------------------------------------
-
-        self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
-        sdram_module = AS4C16M16(self.clk_freq, "1:1")
-        self.register_sdram(self.sdrphy,
-            geom_settings   = sdram_module.geom_settings,
-            timing_settings = sdram_module.timing_settings)
+        if not self.integrated_main_ram_size:
+            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
+            sdram_module = AS4C16M16(self.clk_freq, "1:1")
+            self.register_sdram(self.sdrphy,
+                geom_settings   = sdram_module.geom_settings,
+                timing_settings = sdram_module.timing_settings)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE10 Nano")
-    parser.add_argument("--with-sdram", action="store_true",
+    parser.add_argument("--with-mister-sdram", action="store_true",
                         help="enable MiSTer SDRAM expansion board")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
     soc = None
-    if args.with_sdram:
-        soc = SDRAMSoC(**soc_sdram_argdict(args))
+    if args.with_mister_sdram:
+        soc = MiSTerSDRAMSoC(**soc_sdram_argdict(args))
     else:
         soc = BaseSoC(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
