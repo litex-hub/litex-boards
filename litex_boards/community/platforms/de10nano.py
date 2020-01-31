@@ -1,4 +1,4 @@
-# This file is Copyright (c) 2014-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# This file is Copyright (c) 2020 Paul Sajna <sajattack@gmail.com>
 # License: BSD
 
 from litex.build.generic_platform import *
@@ -72,7 +72,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
     ("gpio_1", 0,
-        Pins("Y15 AC24 AA15 AD26 AG28 AF28 AE25 AF27 AG26 AH27 AG25 AH26 AH24", 
+        Pins("Y15 AC24 AA15 AD26 AG28 AF28 AE25 AF27 AG26 AH27 AG25 AH26 AH24",
             "AF25 AG23 AF24 AG24 AH22 AH21 AG21 AH23 AA20 AF22 AE22 AG20 AF21",
             "AH23 AA20 AF22 AE22 AG20 AF21 AG19 AH19 AG18 AH18 AF18 AF20 AG15",
             "AE20 AE19 AE17"),

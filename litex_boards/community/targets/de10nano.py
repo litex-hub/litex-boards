@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# This file is Copyright (c) 2020 Paul Sajna <sajattack@gmail.com>
 # License: BSD
 
 import argparse
@@ -114,9 +114,9 @@ def main():
     args = parser.parse_args()
     soc = None
     if args.with_sdram:
-        soc = SDRAMSoC(**soc_sdram_argdict(args)) 
+        soc = SDRAMSoC(**soc_sdram_argdict(args))
     else:
-        soc = BaseSoC(**soc_sdram_argdict(args)) 
+        soc = BaseSoC(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build()
 
