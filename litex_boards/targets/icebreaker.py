@@ -149,7 +149,7 @@ class BaseSoC(SoCCore):
         # The litex SPI module supports memory-mapped reads, as well as a bit-banged mode
         # for doing writes.
         spi_pads = platform.request("spiflash4x")
-        self.submodules.lxspi = spi_flash.SpiFlashDualQuad(spi_pads, dummy=6, endianness="little")
+        self.submodules.lxspi = spi_flash.SpiFlash(spi_pads, dummy=6, endianness="little")
         self.register_mem("spiflash", self.mem_map["spiflash"], self.lxspi.bus, size=16 * 1024 * 1024)
         self.add_csr("lxspi")
 
