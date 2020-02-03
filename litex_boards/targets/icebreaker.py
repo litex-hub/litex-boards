@@ -109,9 +109,13 @@ class BaseSoC(SoCCore):
 
         # Force the SRAM size to 0, because we add our own SRAM with SPRAM
         kwargs["integrated_sram_size"] = 0
+        kwargs["integrated_rom_size"] = 0
 
         if debug:
             kwargs["uart_name"] = "crossover"
+            if kwargs["cpu_type"] == "vexriscv":
+                kwargs["cpu_variant"] = kwargs["cpu_variant"] + "+debug"
+
         SoCCore.__init__(self, platform, clk_freq,
                          with_uart=True,
                          with_ctrl=True,
@@ -188,10 +192,10 @@ def main():
 
     if args.cpu:
         kwargs["cpu_type"] = "vexriscv"
-        kwargs["cpu_variant"]="min"
+        kwargs["cpu_variant"] = "min"
 
     soc = BaseSoC(pnr_placer=args.placer, pnr_seed=args.seed,
-                  debug=True, **soc_core_argdict(args))
+                  debug=True, **kwargs)
     builder = Builder(soc, **builder_argdict(args))
     builder.build()
 
