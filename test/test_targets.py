@@ -31,20 +31,26 @@ class TestTargets(unittest.TestCase):
         platforms = []
 
         # Xilinx Spartan6
+        platforms.append("linsn_rv901t")
         platforms.append("minispartan6")
+        platforms.append("pipistrello")
         platforms.append("sp605")
 
         # Xilinx Artix7
+        platforms.append("ac701")
+        platforms.append("aller")
         platforms.append("arty")
+        platforms.append("mimas_a7")
+        platforms.append("netv2")
         platforms.append("nexys4ddr")
         platforms.append("nexys_video")
-        platforms.append("netv2")
-        platforms.append("ac701")
+        platforms.append("tagus")
 
         # Xilinx Kintex7
-        platforms.append("kc705")
         platforms.append("genesys2")
+        platforms.append("kc705")
         platforms.append("kx2")
+        platforms.append("nereid")
 
         # Xilinx Kintex Ultrascale
         platforms.append("kcu105")
@@ -55,15 +61,16 @@ class TestTargets(unittest.TestCase):
 
         # Intel Cyclone5
         platforms.append("de1soc")
+        platforms.append("de10nano")
 
         # Intel Max10
         platforms.append("de10lite")
 
         # Lattice iCE40
-        platforms.append("tinyfpga_bx")
         platforms.append("fomu_evt")
         platforms.append("fomu_hacker")
         platforms.append("fomu_pvt")
+        platforms.append("tinyfpga_bx")
 
         # Lattice MachXO2
         platforms.append("machxo3")
@@ -72,10 +79,12 @@ class TestTargets(unittest.TestCase):
         platforms.append("versa_ecp3")
 
         # Lattice ECP5
-        platforms.append("versa_ecp5")
-        platforms.append("ulx3s")
-        platforms.append("trellisboard")
         platforms.append("ecp5_evn")
+        platforms.append("hadbadge")
+        platforms.append("orangecrab")
+        platforms.append("trellisboard")
+        platforms.append("ulx3s")
+        platforms.append("versa_ecp5")
 
         # Microsemi PolarFire
         platforms.append("avalanche")
