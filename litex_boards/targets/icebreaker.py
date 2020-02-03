@@ -20,132 +20,62 @@ from litex.soc.integration.doc import AutoDoc
 
 from litex_boards.partner.platforms.icebreaker import Platform
 
+from litex.soc.cores.uart import UARTWishboneBridge
+import litex.soc.cores.cpu
+
 import os, shutil, subprocess
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module, AutoDoc):
-    """Fomu Clock Resource Generator
-
-    Fomu is a USB device, which means it must have a 12 MHz clock.  Valentyusb
-    oversamples the clock by 4x, which drives the requirement for a 48 MHz clock.
-    The ICE40UP5k is a relatively low speed grade of FPGA that is incapable of
-    running the entire design at 48 MHz, so the majority of the logic is placed
-    in the 12 MHz domain while only critical USB logic is placed in the fast
-    48 MHz domain.
-
-    Fomu has a 48 MHz crystal on it, which provides the raw clock input.  This
-    signal is fed through the ICE40 PLL in order to divide it down into a 12 MHz
-    signal and keep the clocks within 1ns of phase.  Earlier designs used a simple
-    flop, however this proved unreliable when the FPGA became very full.
+    """Icebreaker Clock Resource Generator
 
     The following clock domains are available on this design:
 
     +---------+------------+---------------------------------+
     | Name    | Frequency  | Description                     |
     +=========+============+=================================+
-    | usb_48  | 48 MHz     | Raw USB signals and pulse logic |
     +---------+------------+---------------------------------+
-    | usb_12  | 12 MHz     | USB control logic               |
+    | clk_12  | 12 MHz     | Main control logic              |
     +---------+------------+---------------------------------+
     | sys     | 12 MHz     | System CPU and wishbone bus     |
     +---------+------------+---------------------------------+
     """
     def __init__(self, platform):
-        pass
-        # clk12 = platform.request("clk12")
-        # clk12 = Signal()
+        clk12 = platform.request("clk12")
 
-        # reset_delay = Signal(12, reset=4095)
-        # self.clock_domains.cd_por = ClockDomain()
-        # self.reset = Signal()
+        reset_delay = Signal(12, reset=4095)
+        self.clock_domains.cd_por = ClockDomain()
+        self.reset = Signal()
 
-        # self.clock_domains.cd_sys = ClockDomain()
-        # self.clock_domains.cd_usb_12 = ClockDomain()
-        # self.clock_domains.cd_usb_48 = ClockDomain()
+        self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_clk_12 = ClockDomain()
 
-        # platform.add_period_constraint(self.cd_usb_48.clk, 1e9/48e6)
-        # platform.add_period_constraint(self.cd_sys.clk, 1e9/12e6)
-        # platform.add_period_constraint(self.cd_usb_12.clk, 1e9/12e6)
-        # platform.add_period_constraint(clk48_raw, 1e9/48e6)
+        platform.add_period_constraint(self.cd_sys.clk, 1e9/12e6)
+        platform.add_period_constraint(self.cd_clk_12.clk, 1e9/12e6)
 
-        # # POR reset logic- POR generated from sys clk, POR logic feeds sys clk
-        # # reset.
-        # self.comb += [
-        #     self.cd_por.clk.eq(self.cd_sys.clk),
-        #     self.cd_sys.rst.eq(reset_delay != 0),
-        #     self.cd_usb_12.rst.eq(reset_delay != 0),
-        # ]
+        # POR reset logic- POR generated from sys clk, POR logic feeds sys clk
+        # reset.
+        self.comb += [
+            self.cd_por.clk.eq(self.cd_sys.clk),
+            self.cd_sys.rst.eq(reset_delay != 0),
+            self.cd_clk_12.rst.eq(reset_delay != 0),
+        ]
 
-        # # POR reset logic- POR generated from sys clk, POR logic feeds sys clk
-        # # reset.
-        # self.comb += [
-        #     self.cd_usb_48.rst.eq(reset_delay != 0),
-        # ]
+        self.comb += self.cd_sys.clk.eq(clk12)
+        self.comb += self.cd_clk_12.clk.eq(clk12)
 
-        # self.comb += self.cd_usb_48.clk.eq(clk48_raw)
-
-        # self.specials += Instance(
-        #     "SB_PLL40_CORE",
-        #     # Parameters
-        #     p_DIVR = 0,
-        #     p_DIVF = 15,
-        #     p_DIVQ = 5,
-        #     p_FILTER_RANGE = 1,
-        #     p_FEEDBACK_PATH = "SIMPLE",
-        #     p_DELAY_ADJUSTMENT_MODE_FEEDBACK = "FIXED",
-        #     p_FDA_FEEDBACK = 15,
-        #     p_DELAY_ADJUSTMENT_MODE_RELATIVE = "FIXED",
-        #     p_FDA_RELATIVE = 0,
-        #     p_SHIFTREG_DIV_MODE = 1,
-        #     p_PLLOUT_SELECT = "GENCLK_HALF",
-        #     p_ENABLE_ICEGATE = 0,
-        #     # IO
-        #     i_REFERENCECLK = clk48_raw,
-        #     o_PLLOUTCORE = clk12,
-        #     # o_PLLOUTGLOBAL = clk12,
-        #     #i_EXTFEEDBACK,
-        #     #i_DYNAMICDELAY,
-        #     #o_LOCK,
-        #     i_BYPASS = 0,
-        #     i_RESETB = 1,
-        #     #i_LATCHINPUTVALUE,
-        #     #o_SDO,
-        #     #i_SDI,
-        # )
-
-        # self.comb += self.cd_sys.clk.eq(clk12)
-        # self.comb += self.cd_usb_12.clk.eq(clk12)
-
-        # self.sync.por += \
-        #     If(reset_delay != 0,
-        #         reset_delay.eq(reset_delay - 1)
-        #     )
-        # self.specials += AsyncResetSynchronizer(self.cd_por, self.reset)
+        self.sync.por += \
+            If(reset_delay != 0,
+                reset_delay.eq(reset_delay - 1)
+            )
+        self.specials += AsyncResetSynchronizer(self.cd_por, self.reset)
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     """A SoC on iCEBreaker, optionally with a softcore CPU"""
-
-    # Create a default CSR map to prevent values from getting reassigned.
-    # This increases consistency across litex versions.
-    SoCCore.csr_map = {
-        "ctrl":           0,  # provided by default (optional)
-        "crg":            1,  # user
-        "uart_phy":       2,  # provided by default (optional)
-        "uart":           3,  # provided by default (optional)
-        "identifier_mem": 4,  # provided by default (optional)
-        "timer0":         5,  # provided by default (optional)
-        "cpu_or_bridge":  8,
-        "usb":            9,
-        "picorvspi":      10,
-        "touch":          11,
-        "reboot":         12,
-        "rgb":            13,
-        "version":        14,
-    }
 
     # Statically-define the memory map, to prevent it from shifting across
     # various litex versions.
@@ -157,9 +87,8 @@ class BaseSoC(SoCCore):
         "csr":      0xe0000000,  # (default shadow @0x60000000)
     }
 
-    def __init__(self,
-                 pnr_placer="heap", pnr_seed=0, usb_core="dummyusb", usb_bridge=False,
-                 **kwargs):
+    def __init__(self, pnr_placer="heap", pnr_seed=0, debug=True,
+                **kwargs):
         """Create a basic SoC for iCEBraker.
 
         Create a basic SoC for iCEBraker.  The `sys` frequency will run at 12 MHz.
@@ -178,7 +107,11 @@ class BaseSoC(SoCCore):
 
         clk_freq = int(12e6)
 
+        # Force the SRAM size to 0, because we add our own SRAM with SPRAM
         kwargs["integrated_sram_size"] = 0
+
+        if debug:
+            kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, clk_freq,
                          with_uart=True,
                          with_ctrl=True,
@@ -191,6 +124,12 @@ class BaseSoC(SoCCore):
         spram_size = 128 * 1024
         self.submodules.spram = up5kspram.Up5kSPRAM(size=spram_size)
         self.register_mem("sram", self.mem_map["sram"], self.spram.bus, spram_size)
+
+        if debug:
+            self.submodules.uart_bridge = UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200)
+            self.add_wb_master(self.uart_bridge.wishbone)
+            if hasattr(self, "cpu") and self.cpu.name == "vexriscv":
+                self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
 
         # Override default LiteX's yosys/build templates
         assert hasattr(platform.toolchain, "yosys_template")
@@ -229,12 +168,6 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------
 
-def add_dfu_suffix(fn):
-    fn_base, _ext = os.path.splitext(fn)
-    fn_dfu = fn_base + '.dfu'
-    shutil.copyfile(fn, fn_dfu)
-    subprocess.check_call(['dfu-suffix', '--pid', '1209', '--vid', '5bf0', '--add', fn_dfu])
-
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
@@ -244,9 +177,18 @@ def main():
     parser.add_argument(
         "--placer", default="heap", choices=["sa", "heap"], help="which placer to use in nextpnr"
     )
+    parser.add_argument(
+        "--cpu", action="store_true", help="Add a CPU to the build"
+    )
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
+
+    kwargs = builder_argdict(args)
+
+    if args.cpu:
+        kwargs["cpu_type"] = "vexriscv"
+        kwargs["cpu_variant"]="min"
 
     soc = BaseSoC(pnr_placer=args.placer, pnr_seed=args.seed,
                   debug=True, **soc_core_argdict(args))
