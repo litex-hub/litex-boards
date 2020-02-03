@@ -18,14 +18,16 @@ from litex.soc.integration.builder import Builder, builder_argdict, builder_args
 from litex.soc.integration.soc_core import soc_core_argdict, soc_core_args
 from litex.soc.integration.doc import AutoDoc
 
+from litex.soc.integration.common import SoCMemRegion
+
 from litex_boards.partner.platforms.icebreaker import Platform
 
+from litex.soc.interconnect import wishbone
 from litex.soc.cores.uart import UARTWishboneBridge
 import litex.soc.cores.cpu
 
 import os, shutil, subprocess
 
-from litex.soc.interconnect import wishbone
 class JumpToAddressROM(wishbone.SRAM):
     def __init__(self, size, addr):
         data = [
@@ -195,6 +197,9 @@ class BaseSoC(SoCCore):
         if pnr_placer is not None:
             platform.toolchain.build_template[1] += " --placer {}".format(pnr_placer)
 
+        self.mem_regions["rom"] = SoCMemRegion(0x2001a000, 16 * 1024 * 1024 - 0x1a000, "cached")
+        self.mem_regions["boot"] = SoCMemRegion(0, 16, "cached")
+
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -227,7 +232,7 @@ def main():
 
     # Don't build software -- we don't include it since we just jump
     # to SPI flash.
-    kwargs["compile_software"] = False
+    kwargs["compile_software"] = True
     builder = Builder(soc, **kwargs)
     builder.build()
 
