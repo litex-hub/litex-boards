@@ -117,6 +117,8 @@ class BaseSoC(SoCCore):
         if "cpu_type" not in kwargs:
             kwargs["cpu_type"] = None
             kwargs["cpu_variant"] = None
+        else:
+            kwargs["cpu_reset_address"] = boot_vector
 
         clk_freq = int(12e6)
 
