@@ -31,62 +31,61 @@ class TestTargets(unittest.TestCase):
         platforms = []
 
         # Xilinx Spartan6
-        platforms += [("official",  "minispartan6")]
-        platforms += [("community", "sp605")]
+        platforms.append("minispartan6")
+        platforms.append("sp605")
 
         # Xilinx Artix7
-        platforms += [("official",  "arty")]
-        platforms += [("official",  "nexys4ddr")]
-        platforms += [("official",  "nexys_video")]
-        platforms += [("partner",   "netv2")]
-        platforms += [("community", "ac701")]
+        platforms.append("arty")
+        platforms.append("nexys4ddr")
+        platforms.append("nexys_video")
+        platforms.append("netv2")
+        platforms.append("ac701")
 
         # Xilinx Kintex7
-        platforms += [("official",  "kc705")]
-        platforms += [("official",  "genesys2")]
-        platforms += [("community", "kx2")]
+        platforms.append("kc705")
+        platforms.append("genesys2")
+        platforms.append("kx2")
 
         # Xilinx Kintex Ultrascale
-        platforms += [("official",  "kcu105")]
+        platforms.append("kcu105")
 
         # Intel Cyclone4
-        platforms += [("official",  "de0nano")]
-        platforms += [("community", "de2_115")]
+        platforms.append("de0nano")
+        platforms.append("de2_115")
 
         # Intel Cyclone5
-        platforms += [("community", "de1soc")]
+        platforms.append("de1soc")
 
         # Intel Max10
-        platforms += [("community", "de10lite")]
+        platforms.append("de10lite")
 
         # Lattice iCE40
-        platforms += [("partner",   "tinyfpga_bx")]
-        platforms += [("partner",   "fomu_evt")]
-        platforms += [("partner",   "fomu_hacker")]
-        platforms += [("partner",   "fomu_pvt")]
+        platforms.append("tinyfpga_bx")
+        platforms.append("fomu_evt")
+        platforms.append("fomu_hacker")
+        platforms.append("fomu_pvt")
 
         # Lattice MachXO2
-        platforms += [("official",  "machxo3")]
+        platforms.append("machxo3")
 
         # Lattice ECP3
-        platforms += [("official",  "versa_ecp3")]
+        platforms.append("versa_ecp3")
 
         # Lattice ECP5
-        platforms += [("official",  "versa_ecp5")]
-        platforms += [("partner",   "ulx3s")]
-        platforms += [("partner",   "trellisboard")]
-        platforms += [("community", "ecp5_evn")]
+        platforms.append("versa_ecp5")
+        platforms.append("ulx3s")
+        platforms.append("trellisboard")
+        platforms.append("ecp5_evn")
 
         # Microsemi PolarFire
-        platforms += [("official",  "avalanche")]
+        platforms.append("avalanche")
 
-        for s, p in platforms:
-            with self.subTest(platform=p):
+        for name in platforms:
+            with self.subTest(platform=name):
                 cmd = """\
-litex_boards/official/targets/simple.py litex_boards.{s}.platforms.{p} \
-    --cpu-type=vexriscv     \
+litex_boards/targets/simple.py litex_boards.platforms.{} \
     --no-compile-software   \
     --no-compile-gateware   \
     --uart-name="stub"      \
-""".format(s=s, p=p)
+""".format(name)
                 subprocess.check_call(cmd, shell=True)
