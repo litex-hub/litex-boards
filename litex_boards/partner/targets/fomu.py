@@ -16,7 +16,7 @@ from litex.soc.integration.soc_core import soc_core_argdict, soc_core_args
 from litex.soc.integration.doc import AutoDoc
 
 from valentyusb.usbcore import io as usbio
-from valentyusb.usbcore.cpu import dummyusb, epfifo
+from valentyusb.usbcore.cpu import dummyusb, epfifo, eptri
 
 import os, shutil, subprocess
 
@@ -151,12 +151,12 @@ class BaseSoC(SoCCore):
         "sram":     0x10000000,  # (default shadow @0xa0000000)
         "spiflash": 0x20000000,  # (default shadow @0xa0000000)
         "main_ram": 0x40000000,  # (default shadow @0xc0000000)
-        "csr":      0x60000000,  # (default shadow @0xe0000000)
+        "csr":      0xe0000000,  # (default shadow @0x60000000)
     }
 
     def __init__(self, board,
         pnr_placer="heap", pnr_seed=0, usb_core="dummyusb", usb_bridge=False,
-        **kwargs):
+        use_dsp=True, **kwargs):
         """Create a basic SoC for Fomu.
 
         Create a basic SoC for Fomu, including a 48 MHz and 12 MHz clock
@@ -169,7 +169,7 @@ class BaseSoC(SoCCore):
             board (str): Which Fomu board to build for: pvt, evt, or hacker
             pnr_placer (str): Which placer to use in nextpnr
             pnr_seed (int): Which seed to use in nextpnr
-            usb_core (str): The name of the USB core to use, if any: dummyusb, epfifo
+            usb_core (str): The name of the USB core to use, if any: dummyusb, epfifo, eptri
             usb_bridge (bool): Whether to include a USB-to-Wishbone bridge
         Raises:
             ValueError: If either the `usb_core` or `board` are unrecognized
@@ -192,11 +192,14 @@ class BaseSoC(SoCCore):
 
         clk_freq = int(12e6)
 
+        if "with_uart" not in kwargs:
+            kwargs["with_uart"] = False
+
+        if "with_ctrl" not in kwargs:
+            kwargs["with_ctrl"] = False
+
         kwargs["integrated_sram_size"] = 0
-        SoCCore.__init__(self, platform, clk_freq,
-            with_uart=False,
-            with_ctrl=False,
-            **kwargs)
+        SoCCore.__init__(self, platform, clk_freq, **kwargs)
 
         self.submodules.crg = _CRG(platform)
 
@@ -215,8 +218,10 @@ class BaseSoC(SoCCore):
                 self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=usb_bridge)
             elif usb_core == "epfifo":
                 self.submodules.usb = epfifo.PerEndpointFifo(usb_iobuf, debug=usb_bridge)
+            elif usb_core == "eptri":
+                self.submodules.usb = eptri.TriEndpointInterface(usb_iobuf, debug=usb_bridge)
             else:
-                raise ValueError("unrecognized usb_core: {}".args(usb_core))
+                raise ValueError("unrecognized usb_core: {}".format(usb_core))
             if usb_bridge:
                 self.add_wb_master(self.usb.debug_bridge.wishbone)
 
@@ -251,8 +256,8 @@ class BaseSoC(SoCCore):
         # Allow us to set the nextpnr seed
         platform.toolchain.build_template[1] += " --seed " + str(pnr_seed)
 
-        if placer is not None:
-            platform.toolchain.build_template[1] += " --placer {}".format(placer)
+        if pnr_placer is not None:
+            platform.toolchain.build_template[1] += " --placer {}".format(pnr_placer)
 
 
 class USBSoC(BaseSoC):
