@@ -12,7 +12,7 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.soc.cores import up5kspram
+from litex.soc.cores import up5kspram, spi_flash
 from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.builder import Builder, builder_argdict, builder_args
 from litex.soc.integration.soc_core import soc_core_argdict, soc_core_args
@@ -24,6 +24,16 @@ from litex.soc.cores.uart import UARTWishboneBridge
 import litex.soc.cores.cpu
 
 import os, shutil, subprocess
+
+from litex.soc.interconnect import wishbone
+class JumpToAddressROM(wishbone.SRAM):
+    def __init__(self, size, addr):
+        data = [
+            0x00000537 | ((addr & 0xfffff000) << 0 ), # lui   a0,%hi(addr)
+            0x00052503 | ((addr & 0x00000fff) << 20), # lw    a0,%lo(addr)(a0)
+            0x000500e7,                               # jalr  a0
+        ]
+        wishbone.SRAM.__init__(self, size, read_only=True, init=data)
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -80,14 +90,15 @@ class BaseSoC(SoCCore):
     # Statically-define the memory map, to prevent it from shifting across
     # various litex versions.
     SoCCore.mem_map = {
-        "rom":      0x00000000,  # (default shadow @0x80000000)
-        "sram":     0x10000000,  # (default shadow @0xa0000000)
-        "spiflash": 0x20000000,  # (default shadow @0xa0000000)
-        "main_ram": 0x40000000,  # (default shadow @0xc0000000)
-        "csr":      0xe0000000,  # (default shadow @0x60000000)
+        "rom":              0x00000000,  # (default shadow @0x80000000)
+        "sram":             0x10000000,  # (default shadow @0xa0000000)
+        "spiflash":         0x20000000,  # (default shadow @0xa0000000)
+        "csr":              0xe0000000,  # (default shadow @0x60000000)
+        "vexriscv_debug":   0xf00f0000,
     }
 
     def __init__(self, pnr_placer="heap", pnr_seed=0, debug=True,
+                 boot_vector = 0x2001a000,
                 **kwargs):
         """Create a basic SoC for iCEBraker.
 
@@ -121,6 +132,12 @@ class BaseSoC(SoCCore):
                          with_ctrl=True,
                          **kwargs)
 
+        # If there is a VexRiscv CPU, add a fake ROM that simply tells the CPU
+        # to jump to the given address.
+        if hasattr(self, "cpu") and self.cpu.name == "vexriscv":
+            self.add_memory_region("rom", 0, 16)
+            self.submodules.rom = JumpToAddressROM(16, boot_vector)
+
         self.submodules.crg = _CRG(platform)
 
         # UP5K has single port RAM, which is a dedicated 128 kilobyte block.
@@ -129,6 +146,15 @@ class BaseSoC(SoCCore):
         self.submodules.spram = up5kspram.Up5kSPRAM(size=spram_size)
         self.register_mem("sram", self.mem_map["sram"], self.spram.bus, spram_size)
 
+        # The litex SPI module supports memory-mapped reads, as well as a bit-banged mode
+        # for doing writes.
+        spi_pads = platform.request("spiflash4x")
+        self.submodules.lxspi = spi_flash.SpiFlashDualQuad(spi_pads, dummy=6, endianness="little")
+        self.register_mem("spiflash", self.mem_map["spiflash"], self.lxspi.bus, size=16 * 1024 * 1024)
+        self.add_csr("lxspi")
+
+        # In debug mode, add a UART bridge.  This takes over from the normal UART bridge,
+        # however you can use the "crossover" UART to communicate with this over the bridge.
         if debug:
             self.submodules.uart_bridge = UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200)
             self.add_wb_master(self.uart_bridge.wishbone)
@@ -196,7 +222,13 @@ def main():
 
     soc = BaseSoC(pnr_placer=args.placer, pnr_seed=args.seed,
                   debug=True, **kwargs)
-    builder = Builder(soc, **builder_argdict(args))
+
+    kwargs = builder_argdict(args)
+
+    # Don't build software -- we don't include it since we just jump
+    # to SPI flash.
+    kwargs["compile_software"] = False
+    builder = Builder(soc, **kwargs)
     builder.build()
 
 
