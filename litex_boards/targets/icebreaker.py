@@ -28,16 +28,18 @@ import litex.soc.cores.cpu
 
 import os, shutil, subprocess
 
+
 class JumpToAddressROM(wishbone.SRAM):
     def __init__(self, size, addr):
         data = [
-            0x00000537 | ((addr & 0xfffff000) << 0 ), # lui   a0,%hi(addr)
-            0x00052503 | ((addr & 0x00000fff) << 20), # lw    a0,%lo(addr)(a0)
-            0x000500e7,                               # jalr  a0
+            0x00000537 | ((addr & 0xfffff000) << 0),   # lui   a0,%hi(addr)
+            0x00052503 | ((addr & 0x00000fff) << 20),  # lw    a0,%lo(addr)(a0)
+            0x000500e7,                                # jalr  a0
         ]
         wishbone.SRAM.__init__(self, size, read_only=True, init=data)
 
 # CRG ----------------------------------------------------------------------------------------------
+
 
 class _CRG(Module, AutoDoc):
     """Icebreaker Clock Resource Generator
@@ -63,8 +65,8 @@ class _CRG(Module, AutoDoc):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_clk_12 = ClockDomain()
 
-        platform.add_period_constraint(self.cd_sys.clk, 1e9/12e6)
-        platform.add_period_constraint(self.cd_clk_12.clk, 1e9/12e6)
+        platform.add_period_constraint(self.cd_sys.clk, 1e9 / 12e6)
+        platform.add_period_constraint(self.cd_clk_12.clk, 1e9 / 12e6)
 
         # POR reset logic- POR generated from sys clk, POR logic feeds sys clk
         # reset.
@@ -79,8 +81,7 @@ class _CRG(Module, AutoDoc):
 
         self.sync.por += \
             If(reset_delay != 0,
-                reset_delay.eq(reset_delay - 1)
-            )
+                reset_delay.eq(reset_delay - 1))
         self.specials += AsyncResetSynchronizer(self.cd_por, self.reset)
 
 
@@ -100,8 +101,8 @@ class BaseSoC(SoCCore):
     }
 
     def __init__(self, pnr_placer="heap", pnr_seed=0, debug=True,
-                 boot_vector = 0x2001a000,
-                **kwargs):
+                 boot_vector=0x2001a000,
+                 **kwargs):
         """Create a basic SoC for iCEBraker.
 
         Create a basic SoC for iCEBraker.  The `sys` frequency will run at 12 MHz.
@@ -186,8 +187,8 @@ class BaseSoC(SoCCore):
         # Clock Enable signal for a LUT that has fewer than 4 flip-flops.
         # This increases density, and lets us use the FPGA more efficiently.
         platform.toolchain.yosys_template[2] += " -relut -abc2 -dffe_min_ce_use 4 -relut"
-        #if use_dsp:
-        #    platform.toolchain.yosys_template[2] += " -dsp"
+        # if use_dsp:
+        #     platform.toolchain.yosys_template[2] += " -dsp"
 
         # Disable final deep-sleep power down so firmware words are loaded
         # onto softcore's address bus.
