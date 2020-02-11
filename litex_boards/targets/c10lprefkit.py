@@ -101,7 +101,7 @@ class BaseSoC(SoCSDRAM):
 
         # HyperRam ---------------------------------------------------------------------------------
         self.submodules.hyperram = HyperRAM(platform.request("hyperram"))
-        self.add_wb_slave(mem_decoder(self.mem_map["hyperram"]), self.hyperram.bus)
+        self.add_wb_slave(self.mem_map["hyperram"], self.hyperram.bus)
         self.add_memory_region("hyperram", self.mem_map["hyperram"], 8*1024*1024)
 
         # SDR SDRAM --------------------------------------------------------------------------------

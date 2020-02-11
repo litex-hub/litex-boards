@@ -12,7 +12,6 @@ from litex_boards.platforms import de10lite
 
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.soc.integration.soc_core import mem_decoder
 
 from litedram.modules import IS42S16320
 from litedram.phy import GENSDRPHY
@@ -111,7 +110,7 @@ class VGASoC(BaseSoC):
 
         # create VGA terminal
         self.submodules.terminal = terminal = Terminal()
-        self.add_wb_slave(mem_decoder(self.mem_map["terminal"]), self.terminal.bus)
+        self.add_wb_slave(self.mem_map["terminal"], self.terminal.bus)
         self.add_memory_region("terminal", self.mem_map["terminal"], 0x10000)
 
         # connect VGA pins
