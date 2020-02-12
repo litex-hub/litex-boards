@@ -177,11 +177,11 @@ class BaseSoC(SoCCore):
             Newly-constructed SoC
         """
         if board == "pvt":
-            from litex_boards.partner.platforms.fomu_pvt import Platform
+            from litex_boards.platforms.fomu_pvt import Platform
         elif board == "hacker":
-            from litex_boards.partner.platforms.fomu_hacker import Platform
+            from litex_boards.platforms.fomu_hacker import Platform
         elif board == "evt":
-            from litex_boards.partner.platforms.fomu_evt import Platform
+            from litex_boards.platforms.fomu_evt import Platform
         else:
             raise ValueError("unrecognized fomu board: {}".format(board))
         platform = Platform()
