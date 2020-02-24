@@ -94,10 +94,10 @@ _io_v7_0 = [ # Documented by @miek
     ("user_btn_n", 0, Pins("M13"), IOStandard("LVCMOS33")),
 
     # sdram (M12616161A)
-    ("sdram_clock", 0, Pins("B9"), IOStandard("LVCMOS33")),
+    ("sdram_clock", 0, Pins("C6"), IOStandard("LVCMOS33")),
     ("sdram", 0,
         Subsignal("a", Pins(
-            "A9 E10 B12 D13 C1 D11 D10 E9",
+            "A9 E10 B12 D13 C12 D11 D10 E9",
             "D9 B7 C8")),
         Subsignal("dq", Pins(
             "B13 C11 C10 A11 C9 E8  B6  B9",
