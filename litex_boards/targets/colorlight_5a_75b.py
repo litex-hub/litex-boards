@@ -7,6 +7,14 @@
 # Etherbone stack that need to be optimized. It was initially just used to validate the reversed
 # pinout but happens to work on hardware...
 
+# Build/Use:
+# ./colorlight_5a_75b.py --uart-name=crossover --with-etherbone --csr-csv=csr.csv
+# ./colorlight_5a_75b.py --load
+# ping 192.168.1.50
+# Get and install wishbone tool from: https://github.com/litex-hub/wishbone-utils/releases
+# wishbone-tool --ethernet-host 192.168.1.50 --server terminal --csr-csv csr.csv
+# You should see the LiteX BIOS and be able to interact with it.
+
 import argparse
 import sys
 
@@ -92,6 +100,24 @@ class EtherboneSoC(BaseSoC):
             self.ethphy.crg.cd_eth_rx.clk,
             self.ethphy.crg.cd_eth_tx.clk)
 
+# Load ---------------------------------------------------------------------------------------------
+
+def load():
+    import os
+    f = open("openocd.cfg", "w")
+    f.write(
+"""
+interface ftdi
+ftdi_vid_pid 0x0403 0x6011
+ftdi_channel 0
+ftdi_layout_init 0x0098 0x008b
+reset_config none
+adapter_khz 25000
+jtag newtap ecp5 tap -irlen 8 -expected-id 0x41111043
+""")
+    f.close()
+    os.system("openocd -f openocd.cfg -c \"transport select jtag; init; svf soc_etherbonesoc_colorlight_5a_75b/gateware/top.svf; exit\"")
+    exit()
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -102,7 +128,11 @@ def main():
     parser.add_argument("--revision", default="7.0", type=str, help="Board revision 7.0 (default) or 6.1")
     parser.add_argument("--with-etherbone", action="store_true", help="enable Etherbone support")
     parser.add_argument("--eth-phy", default=0, type=int, help="Ethernet PHY 0 or 1 (default=0)")
+    parser.add_argument("--load", action="store_true", help="load bitstream")
     args = parser.parse_args()
+
+    if args.load:
+        load()
 
     if args.with_etherbone:
         soc = EtherboneSoC(eth_phy=args.eth_phy, revision=args.revision, **soc_core_argdict(args))
