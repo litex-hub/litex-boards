@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
 
 # This file is Copyright (c) 2020 Fei Gao <feig@princeton.edu>
+# This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
 import argparse
 
 from migen import *
 
-from litex.boards.platforms import vcu118
+from litex_boards.platforms import vcu118
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import EDY4016A
-from litedram.phy import uspddrphy
-
-from liteeth.phy.ku_1000basex import KU_1000BASEX
-from liteeth.mac import LiteEthMAC
+from litedram.phy import usddrphy
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -88,65 +86,26 @@ class BaseSoC(SoCSDRAM):
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = uspddrphy.USPDDRPHY(platform.request("ddram"),
+            self.submodules.ddrphy = usddrphy.USDDRPHY(platform.request("ddram"),
                 memtype      = "DDR4",
-                sys_clk_freq = sys_clk_freq)
+                sys_clk_freq = sys_clk_freq,
+                sim_device   = "ULTRASCALE_PLUS")
             self.add_csr("ddrphy")
-            self.add_constant("USPDDRPHY", None)
+            self.add_constant("USDDRPHY", None)
             sdram_module = EDY4016A(sys_clk_freq, "1:4")
             self.register_sdram(self.ddrphy,
                 geom_settings       = sdram_module.geom_settings,
                 timing_settings     = sdram_module.timing_settings)
 
-# EthernetSoC --------------------------------------------------------------------------------------
-
-class EthernetSoC(BaseSoC):
-    mem_map = {
-        "ethmac": 0xb0000000,
-    }
-    mem_map.update(BaseSoC.mem_map)
-
-    def __init__(self, **kwargs):
-        BaseSoC.__init__(self, **kwargs)
-
-        # Ethernet ---------------------------------------------------------------------------------
-        # phy
-        self.submodules.ethphy = KU_1000BASEX(self.crg.cd_clk200.clk,
-            data_pads    = self.platform.request("sfp", 0),
-            sys_clk_freq = self.clk_freq)
-        self.add_csr("ethphy")
-        self.comb += self.platform.request("sfp_tx_disable_n", 0).eq(1)
-        self.platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-1753]")
-        # mac
-        self.submodules.ethmac = LiteEthMAC(
-            phy        = self.ethphy,
-            dw         = 32,
-            interface  = "wishbone",
-            endianness = self.cpu.endianness)
-        self.add_memory_region("ethmac", self.mem_map["ethmac"], 0x2000, type="io")
-        self.add_wb_slave(self.mem_regions["ethmac"].origin, self.ethmac.bus, 0x2000)
-        self.add_csr("ethmac")
-        self.add_interrupt("ethmac")
-        # timing constraints
-        self.platform.add_period_constraint(self.ethphy.cd_eth_rx.clk, 1e9/125e6)
-        self.platform.add_period_constraint(self.ethphy.cd_eth_tx.clk, 1e9/125e6)
-        self.platform.add_false_path_constraints(
-            self.crg.cd_sys.clk,
-            self.ethphy.cd_eth_rx.clk,
-            self.ethphy.cd_eth_tx.clk)
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on KCU105")
+    parser = argparse.ArgumentParser(description="LiteX SoC on VCU118")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true",
-                        help="enable Ethernet support")
     args = parser.parse_args()
 
-    cls = EthernetSoC if args.with_ethernet else BaseSoC
-    soc = cls(**soc_sdram_argdict(args))
+    soc = BaseSoC(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build()
 
