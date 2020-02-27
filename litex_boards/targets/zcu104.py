@@ -85,7 +85,7 @@ class BaseSoC(SoCSDRAM):
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USDDRPHY(platform.request("ddram"),
+            self.submodules.ddrphy = usddrphy.USDDRPHY(platform.request("ddram_32"), # FIXME: use ddram_64
                 memtype          = "DDR4",
                 sim_device       = "ULTRASCALE_PLUS",
                 iodelay_clk_freq = 500e6,

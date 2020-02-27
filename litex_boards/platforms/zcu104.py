@@ -43,50 +43,74 @@ _io = [
         IOStandard("LVCMOS18")
     ),
 
-    ("ddram", 0,
-        Subsignal("a", Pins(
+    ("ddram_32", 0,
+        Subsignal("a",       Pins(
             "AH16 AG14 AG15 AF15 AF16 AJ14 AH14 AF17",
             "AK17 AJ17 AK14 AK15 AL18 AK18"),
             IOStandard("SSTL12_DCI")),
-        Subsignal("ba", Pins("AL15 AL16"), IOStandard("SSTL12_DCI")),
-        Subsignal("bg", Pins("AC16 AB16"), IOStandard("SSTL12_DCI")),
-        Subsignal("ras_n", Pins("AD15"), IOStandard("SSTL12_DCI")),  # A16
-        Subsignal("cas_n", Pins("AA14"), IOStandard("SSTL12_DCI")),  # A15
-        Subsignal("we_n", Pins("AA16"), IOStandard("SSTL12_DCI")),   # A14
-        Subsignal("cs_n", Pins("AA15"), IOStandard("SSTL12_DCI")), # also AL17 AN17 AN16 for larger SODIMMs
-        Subsignal("act_n", Pins("AC17"), IOStandard("SSTL12_DCI")),
+        Subsignal("ba",      Pins("AL15 AL16"), IOStandard("SSTL12_DCI")),
+        Subsignal("bg",      Pins("AC16 AB16"), IOStandard("SSTL12_DCI")),
+        Subsignal("ras_n",   Pins("AD15"), IOStandard("SSTL12_DCI")), # A16
+        Subsignal("cas_n",   Pins("AA14"), IOStandard("SSTL12_DCI")), # A15
+        Subsignal("we_n",    Pins("AA16"), IOStandard("SSTL12_DCI")), # A14
+        Subsignal("cs_n",    Pins("AA15"), IOStandard("SSTL12_DCI")), # also AL17 AN17 AN16 for larger SODIMMs
+        Subsignal("act_n",   Pins("AC17"), IOStandard("SSTL12_DCI")),
         #Subsignal("alert_n", Pins("AB15"), IOStandard("SSTL12_DCI")),
-        #Subsignal("par", Pins("AD16"), IOStandard("SSTL12_DCI")),
-        #FIXME: Use full bus width
-        #Subsignal("dm", Pins("AH22 AE18 AL20 AP19 AF11 AH12 AK13 AN12"),
-        Subsignal("dm", Pins("AF11 AH12 AK13 AN12"),
+        #Subsignal("par",     Pins("AD16"), IOStandard("SSTL12_DCI")),
+        Subsignal("dm",      Pins("AF11 AH12 AK13 AN12"),
             IOStandard("POD12_DCI")),
-        Subsignal("dq", Pins(
-#                "AE24 AE23 AF22 AF21 AG20 AG19 AH21 AG21",
-#                "AA20 AA19 AD19 AC18 AE20 AD20 AC19 AB19",
+        Subsignal("dq",      Pins(
+            "AC13 AB13 AF12 AE12 AF13 AE13 AE14 AD14",
+            "AG8  AF8  AG10 AG11 AH13 AG13 AJ11 AH11",
+            "AK9  AJ9  AK10 AJ10 AL12 AK12 AL10 AL11",
+            "AM8  AM9  AM10 AM11 AP11 AN11 AP9  AP10"),
+            IOStandard("POD12_DCI")),
+        Subsignal("dqs_p",   Pins("AC12 AG9 AK8 AN9"),
+            IOStandard("DIFF_POD12_DCI")),
+        Subsignal("dqs_n",   Pins("AD12 AH9 AL8 AN8"),
+            IOStandard("DIFF_POD12_DCI")),
+        Subsignal("clk_p",   Pins("AF18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ16 for larger SODIMMs
+        Subsignal("clk_n",   Pins("AG18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ15 for larger SODIMMs
+        Subsignal("cke",     Pins("AD17"), IOStandard("SSTL12_DCI")), # also AM15 for larger SODIMMs
+        Subsignal("odt",     Pins("AE15"), IOStandard("SSTL12_DCI")), # also AM16 for larger SODIMMs
+        Subsignal("reset_n", Pins("AB14"), IOStandard("LVCMOS12")),
+        Misc("SLEW=FAST"),
+    ),
 
-#                "AJ22 AJ21 AK20 AJ20 AK19 AJ19 AL23 AL22",
-#                "AN23 AM23 AP23 AN22 AP22 AP21 AN19 AM19",
-
+    ("ddram_64", 0, # FIXME: not yet working
+        Subsignal("a",       Pins(
+            "AH16 AG14 AG15 AF15 AF16 AJ14 AH14 AF17",
+            "AK17 AJ17 AK14 AK15 AL18 AK18"),
+            IOStandard("SSTL12_DCI")),
+        Subsignal("ba",      Pins("AL15 AL16"), IOStandard("SSTL12_DCI")),
+        Subsignal("bg",      Pins("AC16 AB16"), IOStandard("SSTL12_DCI")),
+        Subsignal("ras_n",   Pins("AD15"), IOStandard("SSTL12_DCI")), # A16
+        Subsignal("cas_n",   Pins("AA14"), IOStandard("SSTL12_DCI")), # A15
+        Subsignal("we_n",    Pins("AA16"), IOStandard("SSTL12_DCI")), # A14
+        Subsignal("cs_n",    Pins("AA15"), IOStandard("SSTL12_DCI")), # also AL17 AN17 AN16 for larger SODIMMs
+        Subsignal("act_n",   Pins("AC17"), IOStandard("SSTL12_DCI")),
+        #Subsignal("alert_n", Pins("AB15"), IOStandard("SSTL12_DCI")),
+        #Subsignal("par",     Pins("AD16"), IOStandard("SSTL12_DCI")),
+        Subsignal("dm",      Pins("AH22 AE18 AL20 AP19 AF11 AH12 AK13 AN12"),
+            IOStandard("POD12_DCI")),
+        Subsignal("dq",      Pins(
+                "AE24 AE23 AF22 AF21 AG20 AG19 AH21 AG21",
+                "AA20 AA19 AD19 AC18 AE20 AD20 AC19 AB19",
+                "AJ22 AJ21 AK20 AJ20 AK19 AJ19 AL23 AL22",
+                "AN23 AM23 AP23 AN22 AP22 AP21 AN19 AM19",
                 "AC13 AB13 AF12 AE12 AF13 AE13 AE14 AD14",
                 "AG8  AF8  AG10 AG11 AH13 AG13 AJ11 AH11",
-
                 "AK9  AJ9  AK10 AJ10 AL12 AK12 AL10 AL11",
-                "AM8  AM9  AM10 AM11 AP11 AN11 AP9  AP10"
-            ),
+                "AM8  AM9  AM10 AM11 AP11 AN11 AP9  AP10"),
             IOStandard("POD12_DCI")),
-        #Subsignal("dqs_p", Pins("AF23 AA18 AK22 AM21 AC12 AG9 AK8 AN9"),
-        #    IOStandard("DIFF_POD12_DCI")),
-        Subsignal("dqs_p", Pins("AC12 AG9 AK8 AN9"),
+        Subsignal("dqs_p",   Pins("AF23 AA18 AK22 AM21 AC12 AG9 AK8 AN9"),
             IOStandard("DIFF_POD12_DCI")),
-        #Subsignal("dqs_n", Pins("AG23 AB18 AK23 AN21 AD12 AH9 AL8 AN8"),
-        #    IOStandard("DIFF_POD12_DCI")),
-        Subsignal("dqs_n", Pins("AD12 AH9 AL8 AN8"),
+        Subsignal("dqs_n",   Pins("AG23 AB18 AK23 AN21 AD12 AH9 AL8 AN8"),
             IOStandard("DIFF_POD12_DCI")),
-        Subsignal("clk_p", Pins("AF18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ16 for larger SODIMMs
-        Subsignal("clk_n", Pins("AG18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ15 for larger SODIMMs
-        Subsignal("cke", Pins("AD17"), IOStandard("SSTL12_DCI")), # also AM15 for larger SODIMMs
-        Subsignal("odt", Pins("AE15"), IOStandard("SSTL12_DCI")), # also AM16 for larger SODIMMs
+        Subsignal("clk_p",   Pins("AF18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ16 for larger SODIMMs
+        Subsignal("clk_n",   Pins("AG18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ15 for larger SODIMMs
+        Subsignal("cke",     Pins("AD17"), IOStandard("SSTL12_DCI")), # also AM15 for larger SODIMMs
+        Subsignal("odt",     Pins("AE15"), IOStandard("SSTL12_DCI")), # also AM16 for larger SODIMMs
         Subsignal("reset_n", Pins("AB14"), IOStandard("LVCMOS12")),
         Misc("SLEW=FAST"),
     ),
@@ -95,7 +119,7 @@ _io = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    default_clk_name = "clk125"
+    default_clk_name   = "clk125"
     default_clk_period = 1e9/125e6
 
     def __init__(self):
