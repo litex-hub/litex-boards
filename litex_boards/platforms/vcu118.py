@@ -82,9 +82,7 @@ _io = [
         #Subsignal("par",       Pins("G10"), IOStandard("SSTL12_DCI")),
         Subsignal("dm",        Pins(
             "G11 R18 K17 G18 B18 P20 L23 G22"),
-            IOStandard("POD12_DCI"),
-            Misc("PRE_EMPHASIS=RDRV_240"),
-            Misc("EQUALIZATION=EQ_LEVEL2")),
+            IOStandard("POD12_DCI")),
         Subsignal("dq",        Pins(
             "F11 E11 F10  F9 H12 G12  E9  D9",
             "R19 P19 M18 M17 N19 N18 N17 M16",
@@ -131,9 +129,7 @@ _io = [
         #Subsignal("par",     Pins("BF29"), IOStandard("SSTL12_DCI")),
         Subsignal("dm",      Pins(
             "BE32 BB31 AV33 AR32 BC34 BE40 AY37 AV35 BE29 BA29"),
-            IOStandard("POD12_DCI"),
-            Misc("PRE_EMPHASIS=RDRV_240"),
-            Misc("EQUALIZATION=EQ_LEVEL2")),
+            IOStandard("POD12_DCI")),
         Subsignal("dq",      Pins(
             "BD30 BE30 BD32 BE33 BC33 BD33 BC31 BD31",
             "BA32 BB33 BA30 BA31 AW31 AW32 AY32 AY33",
