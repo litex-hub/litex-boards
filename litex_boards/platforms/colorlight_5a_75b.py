@@ -151,6 +151,9 @@ _io_v7_0 = [ # Documented by @miek
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
+    default_clk_name   = "clk25"
+    default_clk_period = 1e9/25e6
+
     def __init__(self, revision="7.0"):
         assert revision in ["6.1", "7.0"]
         self.revision = revision
