@@ -1,3 +1,7 @@
+# This file is Copyright (c) 2020 Piotr Binkowski <pbinkowski@antmicro.com>
+# This file is Copyright (c) 2019 David Shah <dave@ds0.me>
+# License: BSD
+
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
