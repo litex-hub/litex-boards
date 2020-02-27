@@ -52,8 +52,17 @@ class TestTargets(unittest.TestCase):
         platforms.append("kx2")
         platforms.append("nereid")
 
+        # Xilinx Virtex7
+        platforms.append("vc707")
+
         # Xilinx Kintex Ultrascale
         platforms.append("kcu105")
+
+        # Xilinx Zynq Ultrascale+
+        platforms.append("zcu104")
+
+        # Xilinx Virtex Ultrascale+
+        platforms.append("vcu118")
 
         # Intel Cyclone4
         platforms.append("de0nano")
@@ -85,6 +94,7 @@ class TestTargets(unittest.TestCase):
         platforms.append("trellisboard")
         platforms.append("ulx3s")
         platforms.append("versa_ecp5")
+        platforms.append("colorlight_5a_75b")
 
         # Microsemi PolarFire
         platforms.append("avalanche")
