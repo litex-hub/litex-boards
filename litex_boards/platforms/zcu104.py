@@ -64,11 +64,17 @@ _io = [
             "AG8  AF8  AG10 AG11 AH13 AG13 AJ11 AH11",
             "AK9  AJ9  AK10 AJ10 AL12 AK12 AL10 AL11",
             "AM8  AM9  AM10 AM11 AP11 AN11 AP9  AP10"),
-            IOStandard("POD12_DCI")),
+            IOStandard("POD12_DCI"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
+            Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p",   Pins("AC12 AG9 AK8 AN9"),
-            IOStandard("DIFF_POD12_DCI")),
+            IOStandard("DIFF_POD12_DCI"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
+            Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n",   Pins("AD12 AH9 AL8 AN8"),
-            IOStandard("DIFF_POD12_DCI")),
+            IOStandard("DIFF_POD12_DCI"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
+            Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("clk_p",   Pins("AF18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ16 for larger SODIMMs
         Subsignal("clk_n",   Pins("AG18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ15 for larger SODIMMs
         Subsignal("cke",     Pins("AD17"), IOStandard("SSTL12_DCI")), # also AM15 for larger SODIMMs
@@ -102,11 +108,17 @@ _io = [
                 "AG8  AF8  AG10 AG11 AH13 AG13 AJ11 AH11",
                 "AK9  AJ9  AK10 AJ10 AL12 AK12 AL10 AL11",
                 "AM8  AM9  AM10 AM11 AP11 AN11 AP9  AP10"),
-            IOStandard("POD12_DCI")),
+            IOStandard("POD12_DCI"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
+            Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p",   Pins("AF23 AA18 AK22 AM21 AC12 AG9 AK8 AN9"),
-            IOStandard("DIFF_POD12_DCI")),
+            IOStandard("DIFF_POD12_DCI"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
+            Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n",   Pins("AG23 AB18 AK23 AN21 AD12 AH9 AL8 AN8"),
-            IOStandard("DIFF_POD12_DCI")),
+            IOStandard("DIFF_POD12_DCI"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
+            Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("clk_p",   Pins("AF18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ16 for larger SODIMMs
         Subsignal("clk_n",   Pins("AG18"), IOStandard("DIFF_SSTL12_DCI")), # also AJ15 for larger SODIMMs
         Subsignal("cke",     Pins("AD17"), IOStandard("SSTL12_DCI")), # also AM15 for larger SODIMMs
