@@ -148,6 +148,32 @@ _io_v7_0 = [ # Documented by @miek
     ),
 ]
 
+# from https://github.com/miek/chubby75/blob/5a-75b-v7_pinout/5a-75b/hardware_V6.1.md
+_connectors_v6_1 = [
+    ("j1", "B3  A2  B2   - B1  C2  C1  J17 F1  E2  E1  F2  C18 J18 H16 -"),
+    ("j2", "D2  H3  H4   - J4  B4  A3  J17 F1  E2  E1  F2  C18 J18 H16 -"),
+    ("j3", "D1  J5  K4   - K5  K3  E5  J17 F1  E2  E1  F2  C18 J18 H16 -"),
+    ("j4", "N3  N4  R3   - T3  R1  T1  J17 F1  E2  E1  F2  C18 J18 H16 -"),
+    ("j5", "U17 U18 T17  - T18 K20 L20 J17 F1  E2  E1  F2  C18 J18 H16 -"),
+    ("j6", "J20 K19 J19  - G20 H20 G19 J17 F1  E2  E1  F2  C18 J18 H16 -"),
+    ("j7", "F19 F20 E20  - D20 E19 D19 J17 F1  E2  E1  F2  C18 J18 H16 -"),
+    ("j8", "B20 C20 B19  - B18 A19 A18 J17 F1  E2  E1  F2  C18 J18 H16 -"),
+]
+
+# from https://github.com/miek/chubby75/blob/5a-75b-v7_pinout/5a-75b/hardware_V7.0.md
+_connectors_v7_0 = [
+    ("j1", "F3  F1  G3  - G2  H3  H5  F15 L2 K1 J5 K2 B16 J14 F12 -"),
+    ("j2", "J4  K3  G1  - K4  C2  E3  F15 L2 K1 J5 K2 B16 J14 F12 -"),
+    ("j3", "H4  K5  P1  - R1  L5  F2  F15 L2 K1 J5 K2 B16 J14 F12 -"),
+    ("j4", "P4  R2  M8  - -   T6  R6  F15 L2 K1 J5 K2 B16 J14 F12 -"),
+    ("j5", "M11 N11 P12 - K15 N12 L16 F15 L2 K1 J5 K2 B16 J14 F12 -"),
+    ("j6", "K16 J15 J16 - J12 H15 G16 F15 L2 K1 J5 K2 B16 J14 F12 -"),
+    ("j7", "H13 J13 H12 - G14 H14 G15 F15 L2 K1 J5 K2 B16 J14 F12 -"),
+    ("j8", "A15 F16 A14 - E13 B14 A13 F15 L2 K1 J5 K2 B16 J14 F12 -"),
+]
+
+
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
@@ -157,6 +183,7 @@ class Platform(LatticePlatform):
     def __init__(self, revision="7.0"):
         assert revision in ["6.1", "7.0"]
         self.revision = revision
-        device = {"6.1": "LFE5U-25F-6BG381C", "7.0": "LFE5U-25F-6BG256C"}[revision]
-        io     = {"6.1": _io_v6_1,            "7.0": _io_v7_0}[revision]
-        LatticePlatform.__init__(self, device, io, toolchain="trellis")
+        device     = {"6.1": "LFE5U-25F-6BG381C", "7.0": "LFE5U-25F-6BG256C"}[revision]
+        io         = {"6.1": _io_v6_1,            "7.0": _io_v7_0}[revision]
+        connectors = {"6.1": _connectors_v6_1,            "7.0": _connectors_v7_0}[revision]
+        LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain="trellis")
