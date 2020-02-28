@@ -11,6 +11,8 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import camlink_4k
 
+from litex.build.lattice.trellis import trellis_args, trellis_argdict
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -93,15 +95,17 @@ class BaseSoC(SoCSDRAM):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Cam Link 4K")
-    parser.add_argument("--gateware-toolchain", dest="toolchain", default="diamond",
-        help='gateware toolchain to use, diamond (default) or  trellis')
+    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
+        help='gateware toolchain to use, trellis (default) or diamond')
     builder_args(parser)
     soc_sdram_args(parser)
+    trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(toolchain=args.toolchain, **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(toolchain_path="/usr/local/diamond/3.10_x64/bin/lin64")
+    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder.build(**builder_kargs)
 
 if __name__ == "__main__":
     main()

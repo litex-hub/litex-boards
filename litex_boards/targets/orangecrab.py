@@ -75,7 +75,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCSDRAM):
-    def __init__(self, sys_clk_freq=int(48e6), toolchain="diamond", **kwargs):
+    def __init__(self, sys_clk_freq=int(48e6), toolchain="trellis", **kwargs):
         platform = orangecrab.Platform(toolchain=toolchain)
 
         # SoCSDRAM ---------------------------------------------------------------------------------
@@ -100,8 +100,8 @@ class BaseSoC(SoCSDRAM):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on OrangeCrab")
-    parser.add_argument("--gateware-toolchain", dest="toolchain", default="diamond",
-        help='gateware toolchain to use, diamond (default) or  trellis')
+    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
+        help="gateware toolchain to use, diamond (default) or  trellis")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
@@ -111,7 +111,8 @@ def main():
 
     soc = BaseSoC(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**trellis_argdict(args))
+    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder.build(**builder_kargs)
 
 if __name__ == "__main__":
     main()

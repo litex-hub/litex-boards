@@ -108,7 +108,7 @@ class EthernetSoC(BaseSoC):
     }
     mem_map.update(BaseSoC.mem_map)
 
-    def __init__(self, toolchain="diamond", **kwargs):
+    def __init__(self, toolchain="trellis", **kwargs):
         BaseSoC.__init__(self, toolchain=toolchain, **kwargs)
 
         # Ethernet ---------------------------------------------------------------------------------
@@ -136,8 +136,8 @@ class EthernetSoC(BaseSoC):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Trellis Board")
-    parser.add_argument("--gateware-toolchain", dest="toolchain", default="diamond",
-        help='gateware toolchain to use, diamond (default) or  trellis')
+    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
+        help="gateware toolchain to use, trellis (default) or diamond")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
@@ -150,7 +150,8 @@ def main():
     cls = EthernetSoC if args.with_ethernet else BaseSoC
     soc = cls(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**trellis_argdict(args))
+    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder.build(**builder_kargs)
 
 if __name__ == "__main__":
     main()

@@ -14,6 +14,8 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import hadbadge
 
+from litex.build.lattice.trellis import trellis_args, trellis_argdict
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -70,18 +72,20 @@ class BaseSoC(SoCSDRAM):
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Hackaday Badge")
     parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
-        help='gateware toolchain to use, diamond or trellis (default)')
+        help='gateware toolchain to use, trellis (default) or diamond')
     parser.add_argument("--sys-clk-freq", default=48e6,
                         help="system clock frequency (default=48MHz)")
     builder_args(parser)
     soc_sdram_args(parser)
+    trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(toolchain=args.toolchain,
         sys_clk_freq=int(float(args.sys_clk_freq)),
         **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build()
+    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder.build(**builder_kargs)
 
 if __name__ == "__main__":
     main()

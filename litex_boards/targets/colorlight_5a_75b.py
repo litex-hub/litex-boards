@@ -23,6 +23,8 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import colorlight_5a_75b
 
+from litex.build.lattice.trellis import trellis_args, trellis_argdict
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -125,6 +127,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight 5A-75B")
     builder_args(parser)
     soc_core_args(parser)
+    trellis_args(parser)
     parser.add_argument("--revision", default="7.0", type=str, help="Board revision 7.0 (default) or 6.1")
     parser.add_argument("--with-etherbone", action="store_true", help="enable Etherbone support")
     parser.add_argument("--eth-phy", default=0, type=int, help="Ethernet PHY 0 or 1 (default=0)")
@@ -139,7 +142,7 @@ def main():
     else:
         soc = BaseSoC(args.revision, **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build()
+    builder.build(**trellis_argdict(args))
 
 if __name__ == "__main__":
     main()
