@@ -101,7 +101,7 @@ class BaseSoC(SoCSDRAM):
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on OrangeCrab")
     parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
-        help="gateware toolchain to use, diamond (default) or  trellis")
+        help="gateware toolchain to use, trellis (default) or diamond")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)

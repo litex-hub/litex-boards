@@ -68,7 +68,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCSDRAM):
-    def __init__(self, toolchain="diamond", **kwargs):
+    def __init__(self, toolchain="trellis", **kwargs):
         platform     = camlink_4k.Platform(toolchain=toolchain)
         sys_clk_freq = int(81e6)
 
@@ -96,7 +96,7 @@ class BaseSoC(SoCSDRAM):
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Cam Link 4K")
     parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
-        help='gateware toolchain to use, trellis (default) or diamond')
+        help="gateware toolchain to use, trellis (default) or diamond")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)

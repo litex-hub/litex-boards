@@ -41,7 +41,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), x5_clk_freq=None, toolchain="diamond", **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), x5_clk_freq=None, toolchain="trellis", **kwargs):
         platform = ecp5_evn.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -55,8 +55,8 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ECP5 Evaluation Board")
-    parser.add_argument("--gateware-toolchain", dest="toolchain", default="diamond",
-        help='gateware toolchain to use, diamond (default) or  trellis')
+    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
+        help="gateware toolchain to use, trellis (default) or diamond")
     builder_args(parser)
     soc_core_args(parser)
     parser.add_argument("--sys-clk-freq", default=60e6,

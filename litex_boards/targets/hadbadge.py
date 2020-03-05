@@ -72,7 +72,7 @@ class BaseSoC(SoCSDRAM):
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Hackaday Badge")
     parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
-        help='gateware toolchain to use, trellis (default) or diamond')
+        help="gateware toolchain to use, trellis (default) or diamond")
     parser.add_argument("--sys-clk-freq", default=48e6,
                         help="system clock frequency (default=48MHz)")
     builder_args(parser)

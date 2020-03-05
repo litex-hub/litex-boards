@@ -72,7 +72,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCSDRAM):
-    def __init__(self, sys_clk_freq=int(75e6), toolchain="diamond", **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), toolchain="trellis", **kwargs):
         platform = versa_ecp5.Platform(toolchain=toolchain)
 
         # SoCSDRAM ---------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ class EthernetSoC(BaseSoC):
     }
     mem_map.update(BaseSoC.mem_map)
 
-    def __init__(self, toolchain="diamond", **kwargs):
+    def __init__(self, toolchain="trellis", **kwargs):
         BaseSoC.__init__(self, toolchain=toolchain, **kwargs)
 
         # Ethernet ---------------------------------------------------------------------------------
