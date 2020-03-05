@@ -18,15 +18,11 @@ from litex.soc.integration.builder import Builder, builder_argdict, builder_args
 from litex.soc.integration.soc_core import soc_core_argdict, soc_core_args
 from litex.soc.integration.doc import AutoDoc
 
-from litex.soc.integration.common import SoCMemRegion
-
-from litex_boards.partner.platforms.icebreaker import Platform
+from litex_boards.platforms.icebreaker import Platform
 
 from litex.soc.interconnect import wishbone
 from litex.soc.cores.uart import UARTWishboneBridge
-import litex.soc.cores.cpu
-
-import os, shutil, subprocess
+from litex.soc.cores.gpio import GPIOOut
 
 
 class JumpToAddressROM(wishbone.SRAM):
@@ -103,9 +99,9 @@ class BaseSoC(SoCCore):
     def __init__(self, pnr_placer="heap", pnr_seed=0, debug=True,
                  boot_vector=0x2001a000,
                  **kwargs):
-        """Create a basic SoC for iCEBraker.
+        """Create a basic SoC for iCEBreaker.
 
-        Create a basic SoC for iCEBraker.  The `sys` frequency will run at 12 MHz.
+        Create a basic SoC for iCEBreaker.  The `sys` frequency will run at 12 MHz.
 
         Args:
             pnr_placer (str): Which placer to use in nextpnr
@@ -166,6 +162,12 @@ class BaseSoC(SoCCore):
             if hasattr(self, "cpu") and self.cpu.name == "vexriscv":
                 self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
 
+        ledsignals = Signal(2)
+        self.submodules.leds = GPIOOut(ledsignals)
+        self.comb += platform.request("user_ledr_n").eq(ledsignals[0])
+        self.comb += platform.request("user_ledg_n").eq(ledsignals[1])
+        self.add_csr("leds")
+
         # Override default LiteX's yosys/build templates
         assert hasattr(platform.toolchain, "yosys_template")
         assert hasattr(platform.toolchain, "build_template")
@@ -200,8 +202,10 @@ class BaseSoC(SoCCore):
         if pnr_placer is not None:
             platform.toolchain.build_template[1] += " --placer {}".format(pnr_placer)
 
-        self.mem_regions["rom"] = SoCMemRegion(0x2001a000, 16 * 1024 * 1024 - 0x1a000, "cached")
-        self.mem_regions["boot"] = SoCMemRegion(0, 16, "cached")
+        # self.add_memory_region("rom", 0x2001a000, 16 * 1024 * 1024 - 0x1a000, type="cached+linker")
+        # self.add_memory_region("boot", 0, 16, type="cached+linker")
+        # self.mem_regions["rom"] = SoCMemRegion(0x2001a000, 16 * 1024 * 1024 - 0x1a000, "cached")
+        # self.mem_regions["boot"] = SoCMemRegion(0, 16, "cached")
 
 
 # Build --------------------------------------------------------------------------------------------
@@ -226,7 +230,7 @@ def main():
 
     if args.cpu:
         kwargs["cpu_type"] = "vexriscv"
-        kwargs["cpu_variant"] = "min"
+        kwargs["cpu_variant"] = "lite"
 
     soc = BaseSoC(pnr_placer=args.placer, pnr_seed=args.seed,
                   debug=True, **kwargs)
@@ -235,7 +239,7 @@ def main():
 
     # Don't build software -- we don't include it since we just jump
     # to SPI flash.
-    kwargs["compile_software"] = True
+    kwargs["compile_software"] = False
     builder = Builder(soc, **kwargs)
     builder.build()
 
