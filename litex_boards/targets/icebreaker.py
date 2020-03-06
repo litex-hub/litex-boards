@@ -96,16 +96,11 @@ class BaseSoC(SoCCore):
         "vexriscv_debug":   0xf00f0000,
     }
 
-    def __init__(self, pnr_placer="heap", pnr_seed=0, debug=True,
-                 boot_vector=0x2001a000,
-                 **kwargs):
+    def __init__(self, debug=True, boot_vector=0x2001a000, **kwargs):
         """Create a basic SoC for iCEBreaker.
 
         Create a basic SoC for iCEBreaker.  The `sys` frequency will run at 12 MHz.
 
-        Args:
-            pnr_placer (str): Which placer to use in nextpnr
-            pnr_seed (int): Which seed to use in nextpnr
         Returns:
             Newly-constructed SoC
         """
@@ -168,57 +163,44 @@ class BaseSoC(SoCCore):
         self.comb += platform.request("user_ledg_n").eq(ledsignals[1])
         self.add_csr("leds")
 
-        # Override default LiteX's yosys/build templates
-        assert hasattr(platform.toolchain, "yosys_template")
-        assert hasattr(platform.toolchain, "build_template")
-        platform.toolchain.yosys_template = [
-            "{read_files}",
-            "attrmap -tocase keep -imap keep=\"true\" keep=1 -imap keep=\"false\" keep=0 -remove keep=0",
-            "synth_ice40 -json {build_name}.json -top {build_name}",
-        ]
-        platform.toolchain.build_template = [
-            "yosys -q -l {build_name}.rpt {build_name}.ys",
-            "nextpnr-ice40 --json {build_name}.json --pcf {build_name}.pcf --asc {build_name}.txt \
-            --pre-pack {build_name}_pre_pack.py --{architecture} --package {package}",
-            "icepack {build_name}.txt {build_name}.bin"
-        ]
-
-        # Add "-relut -dffe_min_ce_use 4" to the synth_ice40 command.
-        # The "-reult" adds an additional LUT pass to pack more stuff in,
-        # and the "-dffe_min_ce_use 4" flag prevents Yosys from generating a
-        # Clock Enable signal for a LUT that has fewer than 4 flip-flops.
-        # This increases density, and lets us use the FPGA more efficiently.
-        platform.toolchain.yosys_template[2] += " -relut -abc2 -dffe_min_ce_use 4 -relut"
-        # if use_dsp:
-        #     platform.toolchain.yosys_template[2] += " -dsp"
-
-        # Disable final deep-sleep power down so firmware words are loaded
-        # onto softcore's address bus.
-        platform.toolchain.build_template[2] = "icepack -s {build_name}.txt {build_name}.bin"
-
-        # Allow us to set the nextpnr seed
-        platform.toolchain.build_template[1] += " --seed " + str(pnr_seed)
-
-        if pnr_placer is not None:
-            platform.toolchain.build_template[1] += " --placer {}".format(pnr_placer)
-
         # self.add_memory_region("rom", 0x2001a000, 16 * 1024 * 1024 - 0x1a000, type="cached+linker")
         # self.add_memory_region("boot", 0, 16, type="cached+linker")
         # self.mem_regions["rom"] = SoCMemRegion(0x2001a000, 16 * 1024 * 1024 - 0x1a000, "cached")
         # self.mem_regions["boot"] = SoCMemRegion(0, 16, "cached")
 
+    def set_yosys_nextpnr_settings(self, nextpnr_seed=0, nextpnr_placer="heap"):
+        """Set Yosys/Nextpnr settings by overriding default LiteX's settings.
+        Args:
+            nextpnr_seed   (int): Seed to use in Nextpnr
+            nextpnr_placer (str): Placer to use in Nextpnr
+        """
+        assert hasattr(self.platform.toolchain, "yosys_template")
+        assert hasattr(self.platform.toolchain, "build_template")
+        self.platform.toolchain.yosys_template = [
+            "{read_files}",
+            "attrmap -tocase keep -imap keep=\"true\" keep=1 -imap keep=\"false\" keep=0 -remove keep=0",
+            # Use "-relut -dffe_min_ce_use 4" to the synth_ice40 command. The "-reult" adds an additional
+            # LUT pass to pack more stuff in, and the "-dffe_min_ce_use 4" flag prevents Yosys from
+            # generating a Clock Enable signal for a LUT that has fewer than 4 flip-flops. This increases
+            # density, and lets us use the FPGA more efficiently.
+            "synth_ice40 -json {build_name}.json -top {build_name} -relut -abc2 -dffe_min_ce_use 4 -relut",
+        ]
+        self.platform.toolchain.build_template = [
+            "yosys -q -l {build_name}.rpt {build_name}.ys",
+            "nextpnr-ice40 --json {build_name}.json --pcf {build_name}.pcf --asc {build_name}.txt"
+            + " --pre-pack {build_name}_pre_pack.py --{architecture} --package {package}"
+            + " --seed {}".format(nextpnr_seed)
+            + " --placer {}".format(nextpnr_placer),
+            # Disable final deep-sleep power down so firmware words are loaded onto softcore's address bus.
+            "icepack -s {build_name}.txt {build_name}.bin"
+        ]
 
 # Build --------------------------------------------------------------------------------------------
 
-
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
-    parser.add_argument(
-        "--seed", default=0, help="seed to use in nextpnr"
-    )
-    parser.add_argument(
-        "--placer", default="heap", choices=["sa", "heap"], help="which placer to use in nextpnr"
-    )
+    parser.add_argument("--nextpnr-seed", default=0, help="Seed to use in Nextpnr")
+    parser.add_argument("--nextpnr-placer", default="heap", choices=["sa", "heap"], help="Placer implementation to use in Nextpnr")
     parser.add_argument(
         "--cpu", action="store_true", help="Add a CPU to the build"
     )
@@ -232,8 +214,8 @@ def main():
         kwargs["cpu_type"] = "vexriscv"
         kwargs["cpu_variant"] = "lite"
 
-    soc = BaseSoC(pnr_placer=args.placer, pnr_seed=args.seed,
-                  debug=True, **kwargs)
+    soc = BaseSoC(debug=True, **kwargs)
+    soc.set_yosys_nextpnr_settings(nextpnr_seed=args.nextpnr_seed, nextpnr_placer=args.nextpnr_placer)
 
     kwargs = builder_argdict(args)
 
