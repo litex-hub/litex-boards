@@ -86,8 +86,7 @@ class _CRG(Module, AutoDoc):
 class BaseSoC(SoCCore):
     """A SoC on iCEBreaker, optionally with a softcore CPU"""
 
-    # Statically-define the memory map, to prevent it from shifting across
-    # various litex versions.
+    # Statically-define the memory map, to prevent it from shifting across various litex versions.
     SoCCore.mem_map = {
         "rom":              0x00000000,  # (default shadow @0x80000000)
         "sram":             0x10000000,  # (default shadow @0xa0000000)
@@ -106,27 +105,19 @@ class BaseSoC(SoCCore):
         """
         platform = Platform()
 
-        if "cpu_type" not in kwargs:
-            kwargs["cpu_type"] = None
-            kwargs["cpu_variant"] = None
-        else:
-            kwargs["cpu_reset_address"] = boot_vector
+        kwargs["cpu_variant"]       = "lite"
+        kwargs["cpu_reset_address"] = boot_vector
+        if debug:
+            kwargs["uart_name"]   = "crossover"
+            kwargs["cpu_variant"] = "lite+debug"
 
         clk_freq = int(12e6)
 
         # Force the SRAM size to 0, because we add our own SRAM with SPRAM
         kwargs["integrated_sram_size"] = 0
-        kwargs["integrated_rom_size"] = 0
+        kwargs["integrated_rom_size"]  = 0
 
-        if debug:
-            kwargs["uart_name"] = "crossover"
-            if kwargs["cpu_type"] == "vexriscv":
-                kwargs["cpu_variant"] = kwargs["cpu_variant"] + "+debug"
-
-        SoCCore.__init__(self, platform, clk_freq,
-                         with_uart=True,
-                         with_ctrl=True,
-                         **kwargs)
+        SoCCore.__init__(self, platform, clk_freq, **kwargs)
 
         # If there is a VexRiscv CPU, add a fake ROM that simply tells the CPU
         # to jump to the given address.
@@ -198,30 +189,19 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
-    parser.add_argument("--nextpnr-seed", default=0, help="Seed to use in Nextpnr")
+    parser.add_argument("--nextpnr-seed",   default=0, help="Seed to use in Nextpnr")
     parser.add_argument("--nextpnr-placer", default="heap", choices=["sa", "heap"], help="Placer implementation to use in Nextpnr")
-    parser.add_argument(
-        "--cpu", action="store_true", help="Add a CPU to the build"
-    )
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    kwargs = builder_argdict(args)
-
-    if args.cpu:
-        kwargs["cpu_type"] = "vexriscv"
-        kwargs["cpu_variant"] = "lite"
-
-    soc = BaseSoC(debug=True, **kwargs)
+    soc = BaseSoC(debug=True, **soc_core_argdict(args))
     soc.set_yosys_nextpnr_settings(nextpnr_seed=args.nextpnr_seed, nextpnr_placer=args.nextpnr_placer)
 
-    kwargs = builder_argdict(args)
-
-    # Don't build software -- we don't include it since we just jump
-    # to SPI flash.
-    kwargs["compile_software"] = False
-    builder = Builder(soc, **kwargs)
+    # Don't build software -- we don't include it since we just jump to SPI flash.
+    builder_kwargs = builder_argdict(args)
+    builder_kwargs["compile_software"] = False
+    builder = Builder(soc, **builder_kwargs)
     builder.build()
 
 
