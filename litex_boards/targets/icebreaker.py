@@ -36,50 +36,27 @@ class JumpToAddressROM(wishbone.SRAM):
 
 # CRG ----------------------------------------------------------------------------------------------
 
-
-class _CRG(Module, AutoDoc):
-    """Icebreaker Clock Resource Generator
-
-    The following clock domains are available on this design:
-
-    +---------+------------+---------------------------------+
-    | Name    | Frequency  | Description                     |
-    +=========+============+=================================+
-    +---------+------------+---------------------------------+
-    | clk_12  | 12 MHz     | Main control logic              |
-    +---------+------------+---------------------------------+
-    | sys     | 12 MHz     | System CPU and wishbone bus     |
-    +---------+------------+---------------------------------+
-    """
+class _CRG(Module):
     def __init__(self, platform):
-        clk12 = platform.request("clk12")
-
-        reset_delay = Signal(12, reset=4095)
+        self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain()
+
         self.reset = Signal()
 
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_clk_12 = ClockDomain()
+        # # #
 
-        platform.add_period_constraint(self.cd_sys.clk, 1e9 / 12e6)
-        platform.add_period_constraint(self.cd_clk_12.clk, 1e9 / 12e6)
+        reset_delay = Signal(12, reset=4095)
 
-        # POR reset logic- POR generated from sys clk, POR logic feeds sys clk
-        # reset.
-        self.comb += [
-            self.cd_por.clk.eq(self.cd_sys.clk),
-            self.cd_sys.rst.eq(reset_delay != 0),
-            self.cd_clk_12.rst.eq(reset_delay != 0),
-        ]
-
+        # Clocks
+        clk12 = platform.request("clk12")
+        platform.add_period_constraint(clk12, 1e9/12e6)
         self.comb += self.cd_sys.clk.eq(clk12)
-        self.comb += self.cd_clk_12.clk.eq(clk12)
+        self.comb += self.cd_por.clk.eq(clk12)
+        self.comb += self.cd_sys.rst.eq(reset_delay != 0)
 
-        self.sync.por += \
-            If(reset_delay != 0,
-                reset_delay.eq(reset_delay - 1))
+        # Power On Reset
+        self.sync.por += If(reset_delay != 0, reset_delay.eq(reset_delay - 1))
         self.specials += AsyncResetSynchronizer(self.cd_por, self.reset)
-
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
