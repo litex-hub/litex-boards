@@ -182,10 +182,10 @@ class Platform(XilinxPlatform):
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
         # DDR4 memory channel C1 Internal Vref
-        self.add_platform_command("set_property INTERNAL_VREF {{0.84}} [get_iobanks 71]")
-        self.add_platform_command("set_property INTERNAL_VREF {{0.84}} [get_iobanks 72]")
-        self.add_platform_command("set_property INTERNAL_VREF {{0.84}} [get_iobanks 73]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 71]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 72]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 73]")
         # DDR4 memory channel C2 Internal Vref
-        self.add_platform_command("set_property INTERNAL_VREF {{0.84}} [get_iobanks 40]")
-        self.add_platform_command("set_property INTERNAL_VREF {{0.84}} [get_iobanks 41]")
-        self.add_platform_command("set_property INTERNAL_VREF {{0.84}} [get_iobanks 42]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 40]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 41]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 42]")
