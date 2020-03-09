@@ -143,4 +143,4 @@ class Platform(XilinxPlatform):
         XilinxPlatform.do_finalize(self, fragment)
         self.add_platform_command("set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]")
         self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN PULLNONE [current_design]")
-        self.add_platform_command("set_property INTERNAL_VREF 0.600 [get_iobanks 64]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
