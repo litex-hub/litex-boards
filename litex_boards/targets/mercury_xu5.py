@@ -84,12 +84,11 @@ class BaseSoC(SoCSDRAM):
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USDDRPHY(platform.request("ddram"),
+            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram"),
                 memtype          = "DDR4",
-                sim_device       = "ULTRASCALE_PLUS",
+                sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 200e6,
-                cmd_latency      = 0,
-                sys_clk_freq     = sys_clk_freq)
+                cmd_latency      = 0)
             self.add_csr("ddrphy")
             self.add_constant("USDDRPHY", None)
             sdram_module = MT40A256M16(sys_clk_freq, "1:4")

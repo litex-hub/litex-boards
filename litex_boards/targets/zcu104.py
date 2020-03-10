@@ -85,12 +85,11 @@ class BaseSoC(SoCSDRAM):
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USDDRPHY(platform.request("ddram_32"), # FIXME: use ddram_64
+            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram_32"), # FIXME: use ddram_64
                 memtype          = "DDR4",
-                sim_device       = "ULTRASCALE_PLUS",
+                sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6,
-                cmd_latency      = 1,
-                sys_clk_freq     = sys_clk_freq)
+                cmd_latency      = 1)
             self.add_csr("ddrphy")
             self.add_constant("USDDRPHY", None)
             sdram_module = KVR21SE15S84(sys_clk_freq, "1:4")
