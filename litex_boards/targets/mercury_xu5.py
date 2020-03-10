@@ -24,14 +24,14 @@ class _CRG(Module):
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
         self.clock_domains.cd_pll4x  = ClockDomain(reset_less=True)
-        self.clock_domains.cd_clk400 = ClockDomain()
+        self.clock_domains.cd_clk200 = ClockDomain()
         self.clock_domains.cd_ic     = ClockDomain()
 
         self.submodules.pll = pll = USMMCM(speedgrade=-1)
         pll.register_clkin(platform.request("clk100"), 100e6)
 
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
-        pll.create_clkout(self.cd_clk400, 400e6, with_reset=False)
+        pll.create_clkout(self.cd_clk200, 200e6, with_reset=False)
 
         self.specials += [
             Instance("BUFGCE_DIV", name="main_bufgce_div",
@@ -39,12 +39,12 @@ class _CRG(Module):
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys.clk),
             Instance("BUFGCE", name="main_bufgce",
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
-            AsyncResetSynchronizer(self.cd_clk400, ~pll.locked),
+            AsyncResetSynchronizer(self.cd_clk200, ~pll.locked),
         ]
 
         ic_reset_counter = Signal(max=64, reset=63)
         ic_reset = Signal(reset=1)
-        self.sync.clk400 += \
+        self.sync.clk200 += \
             If(ic_reset_counter != 0,
                 ic_reset_counter.eq(ic_reset_counter - 1)
             ).Else(
@@ -65,7 +65,7 @@ class _CRG(Module):
         ]
         self.specials += [
             Instance("IDELAYCTRL", p_SIM_DEVICE="ULTRASCALE",
-                     i_REFCLK=ClockSignal("clk400"), i_RST=ic_reset,
+                     i_REFCLK=ClockSignal("clk200"), i_RST=ic_reset,
                      o_RDY=ic_rdy),
             AsyncResetSynchronizer(self.cd_ic, ic_reset)
         ]
@@ -73,7 +73,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCSDRAM):
-    def __init__(self, sys_clk_freq=int(100e6), **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), **kwargs):
         platform = mercury_xu5.Platform()
 
         # SoCSDRAM ---------------------------------------------------------------------------------
@@ -87,8 +87,8 @@ class BaseSoC(SoCSDRAM):
             self.submodules.ddrphy = usddrphy.USDDRPHY(platform.request("ddram"),
                 memtype          = "DDR4",
                 sim_device       = "ULTRASCALE_PLUS",
-                iodelay_clk_freq = 400e6,
-                cmd_latency      = 1,
+                iodelay_clk_freq = 200e6,
+                cmd_latency      = 0,
                 sys_clk_freq     = sys_clk_freq)
             self.add_csr("ddrphy")
             self.add_constant("USDDRPHY", None)
