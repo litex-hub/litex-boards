@@ -101,6 +101,15 @@ _mister_sdram_module_io = [
         Subsignal("we_n", Pins("AA19")),
         IOStandard("3.3-V LVTTL")
     ),
+
+    # SPI SD CARD HARDWARE BITBANGING
+    ("spi",0,
+        Subsignal("clk", Pins("AH26")),                                      
+        Subsignal("mosi", Pins("AF27")),                                    
+        Subsignal("cs_n", Pins("AF28")),                                    
+        Subsignal("miso", Pins("AF25")),                                    
+        IOStandard("3.3-V LVTTL")
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
