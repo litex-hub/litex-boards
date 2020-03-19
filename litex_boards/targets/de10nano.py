@@ -17,9 +17,6 @@ from litex.soc.integration.builder import *
 from litedram.modules import AS4C16M16
 from litedram.phy import GENSDRPHY
 
-#SPI SD CARD HARDWARE BITBANGING
-from litex.soc.cores.spi import SPIMaster
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -105,12 +102,6 @@ class MiSTerSDRAMSoC(SoCSDRAM):
             self.register_sdram(self.sdrphy,
                 geom_settings   = sdram_module.geom_settings,
                 timing_settings = sdram_module.timing_settings)
-
-        # SPI SDCARD HARDWARE BITBANGING
-        spi_pads = self.platform.request("spi")
-        self.add_csr("spi")
-        spi_clk_freq = 400e3
-        self.submodules.spi = SPIMaster(spi_pads, 8, sys_clk_freq, spi_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
