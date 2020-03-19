@@ -140,11 +140,19 @@ _io = [
         Subsignal("uart_cts_n", Pins("P7"), IOStandard("LVCMOS33"))
     ),
 
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("AK3")),
+        Subsignal("mosi", Pins("AH3"), Misc("PULLMODE=UP")),
+        Subsignal("cs_n", Pins("AK1"), Misc("PULLMODE=UP")),
+        Subsignal("miso", Pins("AG1"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+    ),
+
     ("sdcard", 0,
-        Subsignal("data", Pins("AG1 AJ1 AH1 AK1")),
         Subsignal("clk", Pins("AK3")),
-        Subsignal("cmd", Pins("AH3")),
-        IOStandard("LVCMOS33")
+        Subsignal("cmd", Pins("AH3"), Misc("PULLMODE=UP")),
+        Subsignal("data", Pins("AG1 AJ1 AH1 AK1"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
     ),
 
     ("spiflash4x", 0,
