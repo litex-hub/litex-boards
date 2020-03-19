@@ -24,6 +24,14 @@ _io = [
         Subsignal("rx", Pins("M1"), IOStandard("LVCMOS33"))
     ),
 
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("J1")),
+        Subsignal("mosi", Pins("J3"), Misc("PULLMODE=UP")),
+        Subsignal("cs_n", Pins("H1"), Misc("PULLMODE=UP")),
+        Subsignal("miso", Pins("K2"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+    ),
+
     ("sdram_clock", 0, Pins("F19"), IOStandard("LVCMOS33")),
     ("sdram", 0,
         Subsignal("a", Pins("M20 M19 L20 L19 K20 K19 K18 J20 J19 H20 N19 G20 G19")),
