@@ -126,11 +126,15 @@ def main():
                         help="system clock frequency (default=75MHz)")
     parser.add_argument("--with-ethernet", action="store_true",
                         help="enable Ethernet support")
+    parser.add_argument("--with-spi-sdcard", action="store_true",
+                        help="enable SPI-mode SDCard support")
     args = parser.parse_args()
 
     soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)),
         with_ethernet=args.with_ethernet,
         **soc_sdram_argdict(args))
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs)
