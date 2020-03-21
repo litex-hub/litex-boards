@@ -41,7 +41,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_etherbone=False, **kwargs):
         platform = genesys2.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -75,17 +75,27 @@ class BaseSoC(SoCCore):
             self.add_csr("ethphy")
             self.add_ethernet(phy=self.ethphy)
 
+        # Etherbone --------------------------------------------------------------------------------
+        if with_etherbone:
+            self.submodules.ethphy = LiteEthPHYRGMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"))
+            self.add_csr("ethphy")
+            self.add_etherbone(phy=self.ethphy)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Genesys2")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true",
-                        help="enable Ethernet support")
+    parser.add_argument("--with-ethernet",  action="store_true", help="enable Ethernet support")
+    parser.add_argument("--with-etherbone", action="store_true", help="enable Etherbone support")
     args = parser.parse_args()
 
-    soc = BaseSoC(with_ethernet=args.with_ethernet, **soc_sdram_argdict(args))
+    assert not (args.with_ethernet and args.with_etherbone)
+    soc = BaseSoC(with_ethernet=args.with_ethernet, with_etherbone=args.with_etherbone,
+        **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build()
 
