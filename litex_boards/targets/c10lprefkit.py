@@ -31,10 +31,6 @@ class _CRG(Module):
 
         # # #
 
-        self.cd_sys.clk.attr.add("keep")
-        self.cd_sys_ps.clk.attr.add("keep")
-        self.cd_por.clk.attr.add("keep")
-
         clk12 = platform.request("clk12")
 
         # power on rst
