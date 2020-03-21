@@ -14,6 +14,7 @@ from litex_boards.platforms import camlink_4k
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
 from litex.soc.cores.clock import *
+from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
@@ -67,13 +68,13 @@ class _CRG(Module):
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
-class BaseSoC(SoCSDRAM):
+class BaseSoC(SoCCore):
     def __init__(self, toolchain="trellis", **kwargs):
         platform     = camlink_4k.Platform(toolchain=toolchain)
         sys_clk_freq = int(81e6)
 
-        # SoCSDRAM ---------------------------------------------------------------------------------
-        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -86,10 +87,15 @@ class BaseSoC(SoCSDRAM):
             self.add_csr("ddrphy")
             self.add_constant("ECP5DDRPHY", None)
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
-            sdram_module = MT41K64M16(sys_clk_freq, "1:2")
-            self.register_sdram(self.ddrphy,
-                geom_settings   = sdram_module.geom_settings,
-                timing_settings = sdram_module.timing_settings)
+            self.add_sdram("sdram",
+                phy                     = self.ddrphy,
+                module                  = MT41K64M16(sys_clk_freq, "1:2"),
+                origin                  = self.mem_map["main_ram"],
+                size                    = kwargs.get("max_sdram_size", 0x40000000),
+                l2_cache_size           = kwargs.get("l2_size", 8192),
+                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
+                l2_cache_reverse        = True
+            )
 
 # Build --------------------------------------------------------------------------------------------
 

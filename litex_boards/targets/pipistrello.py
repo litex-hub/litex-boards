@@ -16,6 +16,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import pipistrello
 
+from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
@@ -146,33 +147,39 @@ class _CRG(Module):
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
-class BaseSoC(SoCSDRAM):
+class BaseSoC(SoCCore):
     def __init__(self, **kwargs):
         sys_clk_freq = (83 + Fraction(1, 3))*1000*1000
         platform     = pipistrello.Platform()
 
-        # SoCSDRAM ---------------------------------------------------------------------------------
-        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        # SoCCore -----------------------------------------------------------------_----------------
+        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
 
         # LPDDR SDRAM ------------------------------------------------------------------------------
-        self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(platform.request("ddram"),
-            memtype           = "LPDDR",
-            rd_bitslip        = 1,
-            wr_bitslip        = 3,
-            dqs_ddr_alignment = "C1")
-        self.comb += [
-            self.ddrphy.clk4x_wr_strb.eq(self.crg.clk4x_wr_strb),
-            self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
-        ]
-        self.add_csr("ddrphy")
-        sdram_module = MT46H32M16(sys_clk_freq, "1:2")
-        self.register_sdram(self.ddrphy,
-             geom_settings   = sdram_module.geom_settings,
-             timing_settings = sdram_module.timing_settings)
+        if not self.integrated_main_ram_size:
+            self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(platform.request("ddram"),
+                memtype           = "LPDDR",
+                rd_bitslip        = 1,
+                wr_bitslip        = 3,
+                dqs_ddr_alignment = "C1")
+            self.comb += [
+                self.ddrphy.clk4x_wr_strb.eq(self.crg.clk4x_wr_strb),
+                self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
+            ]
+            self.add_csr("ddrphy")
+            self.add_sdram("sdram",
+                phy                     = self.ddrphy,
+                module                  = MT46H32M16(sys_clk_freq, "1:2"),
+                origin                  = self.mem_map["main_ram"],
+                size                    = kwargs.get("max_sdram_size", 0x40000000),
+                l2_cache_size           = kwargs.get("l2_size", 8192),
+                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
+                l2_cache_reverse        = True
+            )
 
 # Build --------------------------------------------------------------------------------------------
 

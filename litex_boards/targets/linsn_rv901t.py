@@ -9,6 +9,7 @@ from migen import *
 
 from litex_boards.platforms import linsn_rv901t
 
+from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.clock import S6PLL
@@ -45,21 +46,29 @@ class _CRG(Module):
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
-class BaseSoC(SoCSDRAM):
+class BaseSoC(SoCCore):
     def __init__(self, **kwargs):
         platform     = linsn_rv901t.Platform()
         sys_clk_freq = int(75e6)
 
-        # SoCSDRAM ---------------------------------------------------------------------------------
-        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SDR SDRAM --------------------------------------------------------------------------------
-        self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
-        sdram_module = M12L64322A(sys_clk_freq, "1:1")
-        self.register_sdram(self.sdrphy, sdram_module.geom_settings, sdram_module.timing_settings)
+        if not self.integrated_main_ram_size:
+            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
+            self.add_sdram("sdram",
+                phy                     = self.sdrphy,
+                module                  = M12L64322A(sys_clk_freq, "1:1"),
+                origin                  = self.mem_map["main_ram"],
+                size                    = kwargs.get("max_sdram_size", 0x40000000),
+                l2_cache_size           = kwargs.get("l2_size", 8192),
+                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
+                l2_cache_reverse        = True
+            )
 
 # EthernetSoC --------------------------------------------------------------------------------------
 

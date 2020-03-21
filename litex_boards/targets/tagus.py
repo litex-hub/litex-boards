@@ -51,15 +51,15 @@ class CRG(Module):
 
 # PCIeSoC -----------------------------------------------------------------------------------------
 
-class PCIeSoC(SoCSDRAM):
-    SoCSDRAM.mem_map["csr"] = 0x80000000
-    SoCSDRAM.mem_map["rom"] = 0x20000000
+class PCIeSoC(SoCCore):
+    SoCCore.mem_map["csr"] = 0x80000000
+    SoCCore.mem_map["rom"] = 0x20000000
 
     def __init__(self, platform, **kwargs):
         sys_clk_freq = int(100e6)
 
-        # SoCSDRAM ---------------------------------------------------------------------------------
-        SoCSDRAM.__init__(self, platform, sys_clk_freq,
+        # SoCCore ---------------------------------------------------_------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on Tagus", ident_version=True,
             **kwargs)
 
@@ -83,10 +83,15 @@ class PCIeSoC(SoCSDRAM):
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
             self.add_csr("ddrphy")
-            sdram_module = MT41J128M16(sys_clk_freq, "1:4")
-            self.register_sdram(self.ddrphy,
-                geom_settings   = sdram_module.geom_settings,
-                timing_settings = sdram_module.timing_settings)
+            self.add_sdram("sdram",
+                phy                     = self.ddrphy,
+                module                  = MT41J128M16(sys_clk_freq, "1:4"),
+                origin                  = self.mem_map["main_ram"],
+                size                    = kwargs.get("max_sdram_size", 0x40000000),
+                l2_cache_size           = kwargs.get("l2_size", 8192),
+                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
+                l2_cache_reverse        = True
+            )
 
         # PCIe -------------------------------------------------------------------------------------
         # pcie phy
