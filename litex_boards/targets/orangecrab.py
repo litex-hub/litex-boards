@@ -17,7 +17,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-from litedram.modules import MT41K64M16
+from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16
 from litedram.phy import ECP5DDRPHY
 
 # _CRG ---------------------------------------------------------------------------------------------
@@ -90,6 +90,15 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
+            available_sdram_modules = {
+                'MT41K64M16': MT41K64M16,
+                'MT41K128M16': MT41K128M16,
+                'MT41K256M16': MT41K256M16,
+#                'MT41K512M16': MT41K512M16
+            }
+            sdram_module = available_sdram_modules.get(
+                kwargs.get("sdram_device", "MT41K64M16"))
+
             self.submodules.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
@@ -98,7 +107,7 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
-                module                  = MT41K64M16(sys_clk_freq, "1:2"),
+                module                  = sdram_module(sys_clk_freq, "1:2"),
                 origin                  = self.mem_map["main_ram"],
                 size                    = kwargs.get("max_sdram_size", 0x40000000),
                 l2_cache_size           = kwargs.get("l2_size", 8192),
@@ -119,6 +128,8 @@ def main():
                         help="system clock frequency (default=48MHz)")
     parser.add_argument("--device", default="25F",
                         help="ECP5 device (default=25F)")
+    parser.add_argument("--sdram-device", default="MT41K64M16",
+                        help="ECP5 device (default=MT41K64M16)")
     args = parser.parse_args()
 
     soc = BaseSoC(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
