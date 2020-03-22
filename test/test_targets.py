@@ -90,7 +90,8 @@ class TestTargets(unittest.TestCase):
         # Lattice ECP5
         platforms.append("ecp5_evn")
         platforms.append("hadbadge")
-        platforms.append("orangecrab")
+        platforms.append("orangecrab_r0_1")
+        platforms.append("orangecrab_r0_2")
         platforms.append("trellisboard")
         platforms.append("ulx3s")
         platforms.append("versa_ecp5")
