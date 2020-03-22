@@ -1,4 +1,4 @@
-# This file is Copyright (c) 2019 Greg Davill <greg.davill@gmail.com>
+# This file is Copyright (c) Greg Davill <greg.davill@gmail.com>
 # License: BSD
 
 from litex.build.generic_platform import *
@@ -10,14 +10,9 @@ _io = [
     ("clk48", 0,  Pins("A9"),  IOStandard("LVCMOS33")),
 
     ("rgb_led", 0,
-        Subsignal("r", Pins("V17"), IOStandard("LVCMOS25")),
-        Subsignal("g", Pins("T17"), IOStandard("LVCMOS25")),
+        Subsignal("r", Pins("V17"), IOStandard("LVCMOS33")),
+        Subsignal("g", Pins("T17"), IOStandard("LVCMOS33")),
         Subsignal("b", Pins("J3"),  IOStandard("LVCMOS33")),
-    ),
-
-    ("serial", 0,
-        Subsignal("tx", Pins("N17"), IOStandard("LVCMOS25")),
-        Subsignal("rx", Pins("M18"), IOStandard("LVCMOS25")),
     ),
 
     ("ddram", 0,
@@ -48,9 +43,49 @@ _io = [
         Subsignal("cs_n", Pins("U17")),
         Subsignal("clk", Pins("U16")),
         Subsignal("dq", Pins("U18", "T18", "R18", "N18")),
-        IOStandard("LVCMOS25")
+        IOStandard("LVCMOS33")
+    ),
+
+    ("spi-internal", 0,
+        Subsignal("cs_n", Pins("B11"), Misc("PULLMODE=UP")),
+        Subsignal("clk",  Pins("C11")),
+        Subsignal("miso",   Pins("A11"), Misc("PULLMODE=UP")),
+        Subsignal("mosi",   Pins("A10"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"), Misc("SLEWRATE=SLOW")
     ),
 ]
+
+# Connectors ---------------------------------------------------------------------------------------
+
+_connectors = [
+    # Feather 0.1" Header Pin Numbers, 
+    # Note: Pin nubering is not continuous.
+    ("GPIO", "N17 M18 C10 C9 - B10 B9 - - C8 B8 A8 H2 J2 N15 R17 N16 - - - - - - - -"),
+]
+
+# Standard Feather Pins
+feather_serial = [
+    ("serial", 0,
+        Subsignal("tx", Pins("GPIO:1"), IOStandard("LVCMOS33")),
+        Subsignal("rx", Pins("GPIO:0"), IOStandard("LVCMOS33"))
+    )
+]
+
+feather_i2c = [
+    ("i2c", 0,
+        ("sda", Pins("GPIO:2"), IOStandard("LVCMOS33")),
+        ("scl", Pins("GPIO:3"), IOStandard("LVCMOS33"))
+    )
+]
+
+feather_spi = [
+    ("spi",0,
+        ("miso", Pins("GPIO:14"), IOStandard("LVCMOS33")),
+        ("mosi", Pins("GPIO:16"), IOStandard("LVCMOS33")),
+        ("sck", Pins("GPIO:15"), IOStandard("LVCMOS33"))
+    )
+]
+
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -58,5 +93,5 @@ class Platform(LatticePlatform):
     default_clk_name = "clk48"
     default_clk_period = 1e9/48e6
 
-    def __init__(self, **kwargs):
-        LatticePlatform.__init__(self, "LFE5U-25F-8MG285C", _io, **kwargs)
+    def __init__(self, device='25F', **kwargs):
+        LatticePlatform.__init__(self, f"LFE5U-{device}-8MG285C", _io, _connectors, **kwargs)

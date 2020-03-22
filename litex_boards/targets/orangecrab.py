@@ -57,8 +57,7 @@ class _CRG(Module):
             Instance("ECLKBRIDGECS",
                 i_CLK0   = self.cd_sys2x_i.clk,
                 i_SEL    = 0,
-                o_ECSOUT = sys2x_clk_ecsout,
-            ),
+                o_ECSOUT = sys2x_clk_ecsout),
             Instance("ECLKSYNCB",
                 i_ECLKI = sys2x_clk_ecsout,
                 i_STOP  = self.stop,
@@ -78,12 +77,16 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(48e6), toolchain="trellis", **kwargs):
         platform = orangecrab.Platform(toolchain=toolchain)
+        
+        # Serial -----------------------------------------------------------------------------------
+        platform.add_extension(orangecrab.feather_serial)
 
-        # SoCCore ----------------------------------------------------------------_-----------------
+        # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -114,6 +117,8 @@ def main():
     trellis_args(parser)
     parser.add_argument("--sys-clk-freq", default=48e6,
                         help="system clock frequency (default=48MHz)")
+    parser.add_argument("--device", default="25F",
+                        help="ECP5 device (default=25F)")
     args = parser.parse_args()
 
     soc = BaseSoC(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
