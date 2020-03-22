@@ -8,7 +8,7 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import orangecrab
+from litex_boards.platforms import orangecrab_r0_1, orangecrab_r0_2
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -76,6 +76,13 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(48e6), toolchain="trellis", **kwargs):
+        # Board Revision ---------------------------------------------------------------------------
+        revision = kwargs.get("revision", "r0.2")
+        boards = {
+            'r0.1': orangecrab_r0_1,
+            'r0.2': orangecrab_r0_2
+        }
+        orangecrab = boards.get(revision)
         platform = orangecrab.Platform(toolchain=toolchain)
         
         # Serial -----------------------------------------------------------------------------------
@@ -126,6 +133,8 @@ def main():
     trellis_args(parser)
     parser.add_argument("--sys-clk-freq", default=48e6,
                         help="system clock frequency (default=48MHz)")
+    parser.add_argument("--revision", default="r0.2",
+                        help="Board Revision {r0.1, r0.2} (default=r0.2)")
     parser.add_argument("--device", default="25F",
                         help="ECP5 device (default=25F)")
     parser.add_argument("--sdram-device", default="MT41K64M16",
