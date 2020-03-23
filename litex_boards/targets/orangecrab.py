@@ -17,7 +17,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-from litedram.modules import MT41K64M16
+from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16
 from litedram.phy import ECP5DDRPHY
 
 # _CRG ---------------------------------------------------------------------------------------------
@@ -57,8 +57,7 @@ class _CRG(Module):
             Instance("ECLKBRIDGECS",
                 i_CLK0   = self.cd_sys2x_i.clk,
                 i_SEL    = 0,
-                o_ECSOUT = sys2x_clk_ecsout,
-            ),
+                o_ECSOUT = sys2x_clk_ecsout),
             Instance("ECLKSYNCB",
                 i_ECLKI = sys2x_clk_ecsout,
                 i_STOP  = self.stop,
@@ -77,16 +76,32 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(48e6), toolchain="trellis", **kwargs):
-        platform = orangecrab.Platform(toolchain=toolchain)
+        # Board Revision ---------------------------------------------------------------------------
+        revision = kwargs.get("revision", "0.2")
+        device = kwargs.get("device", "25F")
+        platform = orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
+        
+        # Serial -----------------------------------------------------------------------------------
+        platform.add_extension(orangecrab.feather_serial)
 
-        # SoCCore ----------------------------------------------------------------_-----------------
+        # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
+            available_sdram_modules = {
+                'MT41K64M16': MT41K64M16,
+                'MT41K128M16': MT41K128M16,
+                'MT41K256M16': MT41K256M16,
+#                'MT41K512M16': MT41K512M16
+            }
+            sdram_module = available_sdram_modules.get(
+                kwargs.get("sdram_device", "MT41K64M16"))
+
             self.submodules.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
@@ -95,7 +110,7 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
-                module                  = MT41K64M16(sys_clk_freq, "1:2"),
+                module                  = sdram_module(sys_clk_freq, "1:2"),
                 origin                  = self.mem_map["main_ram"],
                 size                    = kwargs.get("max_sdram_size", 0x40000000),
                 l2_cache_size           = kwargs.get("l2_size", 8192),
@@ -114,6 +129,12 @@ def main():
     trellis_args(parser)
     parser.add_argument("--sys-clk-freq", default=48e6,
                         help="system clock frequency (default=48MHz)")
+    parser.add_argument("--revision", default="0.2",
+                        help="Board Revision {0.1, 0.2} (default=0.2)")
+    parser.add_argument("--device", default="25F",
+                        help="ECP5 device (default=25F)")
+    parser.add_argument("--sdram-device", default="MT41K64M16",
+                        help="ECP5 device (default=MT41K64M16)")
     args = parser.parse_args()
 
     soc = BaseSoC(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
