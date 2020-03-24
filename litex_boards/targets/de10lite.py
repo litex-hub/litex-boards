@@ -24,7 +24,7 @@ from litevideo.terminal.core import Terminal
 class _CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys_ps = ClockDomain()
+        self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
         self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
 
         # # #
@@ -46,7 +46,7 @@ class _CRG(Module):
                 p_CLK1_DIVIDE_BY         = 1,
                 p_CLK1_DUTY_CYCLE        = 50,
                 p_CLK1_MULTIPLY_BY       = 1,
-                p_CLK1_PHASE_SHIFT       = "-10000",
+                p_CLK1_PHASE_SHIFT       = "5000", # 90°
                 p_CLK2_DIVIDE_BY         = 2,
                 p_CLK2_DUTY_CYCLE        = 50,
                 p_CLK2_MULTIPLY_BY       = 1,
@@ -70,8 +70,7 @@ class _CRG(Module):
         ]
         self.specials += [
             AsyncResetSynchronizer(self.cd_sys,    ~pll_locked),
-            AsyncResetSynchronizer(self.cd_sys_ps, ~pll_locked),
-            AsyncResetSynchronizer(self.cd_vga,    ~pll_locked)
+            AsyncResetSynchronizer(self.cd_vga,    ~pll_locked),
         ]
 
         # SDRAM clock

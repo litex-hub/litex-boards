@@ -6,6 +6,7 @@
 import argparse
 
 from migen import *
+from migen.genlib.io import DDROutput
 
 from litex_boards.platforms import linsn_rv901t
 
@@ -35,14 +36,10 @@ class _CRG(Module):
         self.submodules.pll = pll = S6PLL(speedgrade=-2)
         pll.register_clkin(clk25, 25e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
-        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=270)
+        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
 
-        self.specials += Instance("ODDR2",
-            p_DDR_ALIGNMENT="NONE",
-            p_INIT=0, p_SRTYPE="SYNC",
-            i_D0=0, i_D1=1, i_S=0, i_R=0, i_CE=1,
-            i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
-            o_Q=platform.request("sdram_clock"))
+        # SDRAM clock
+        self.specials += DDROutput(0, 1, platform.request("sdram_clock"), ClockSignal("sys_ps"))
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -59,7 +56,7 @@ class BaseSoC(SoCCore):
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
+            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), cmd_latency=2)
             self.add_sdram("sdram",
                 phy                     = self.sdrphy,
                 module                  = M12L64322A(sys_clk_freq, "1:1"),
