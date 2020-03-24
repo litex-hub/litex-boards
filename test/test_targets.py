@@ -84,9 +84,6 @@ class TestTargets(unittest.TestCase):
         # Lattice MachXO2
         platforms.append("machxo3")
 
-        # Lattice ECP3
-        platforms.append("versa_ecp3")
-
         # Lattice ECP5
         platforms.append("ecp5_evn")
         platforms.append("hadbadge")
