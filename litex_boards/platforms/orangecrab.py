@@ -53,6 +53,14 @@ _io_r0_1 = [
         Subsignal("mosi",   Pins("A10"), Misc("PULLMODE=UP")),
         IOStandard("LVCMOS33"), Misc("SLEWRATE=SLOW")
     ),
+
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("K1")),
+        Subsignal("mosi", Pins("K2"), Misc("PULLMODE=UP")),
+        Subsignal("cs_n", Pins("M1"), Misc("PULLMODE=UP")),
+        Subsignal("miso", Pins("J1"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+    ),
 ]
 
 _io_r0_2 = [
@@ -64,7 +72,7 @@ _io_r0_2 = [
     ("rgb_led", 0,
         Subsignal("r", Pins("K4"), IOStandard("LVCMOS33")),
         Subsignal("g", Pins("M3"), IOStandard("LVCMOS33")),
-        Subsignal("b", Pins("J3"), IOStandard("LVCMOS33")),    
+        Subsignal("b", Pins("J3"), IOStandard("LVCMOS33")),
     ),
 
     ("ddram", 0,
@@ -112,18 +120,26 @@ _io_r0_2 = [
         Subsignal("wp",   Pins("R18"), IOStandard("LVCMOS33")),
         Subsignal("hold", Pins("N18"), IOStandard("LVCMOS33")),
     ),
+
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("K1")),
+        Subsignal("mosi", Pins("K2"), Misc("PULLMODE=UP")),
+        Subsignal("cs_n", Pins("M1"), Misc("PULLMODE=UP")),
+        Subsignal("miso", Pins("J1"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors_r0_1 = [
-    # Feather 0.1" Header Pin Numbers, 
+    # Feather 0.1" Header Pin Numbers,
     # Note: Pin nubering is not continuous.
     ("GPIO", "N17 M18 C10 C9 - B10 B9 - - C8 B8 A8 H2 J2 N15 R17 N16 - - - - - - - -"),
 ]
 
 _connectors_r0_2 = [
-    # Feather 0.1" Header Pin Numbers, 
+    # Feather 0.1" Header Pin Numbers,
     # Note: Pin nubering is not continuous.
     ("GPIO", "N17 M18 C10 C9 - B10 B9 - - C8 B8 A8 H2 J2 N15 R17 N16 - L4 N3 N4 H4 G4 T17"),
 ]
