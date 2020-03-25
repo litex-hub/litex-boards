@@ -9,14 +9,20 @@ import sys
 
 from migen import *
 
-from litex.build.generic_platform import *
+from litex.build import tools
+
+from litex_boards.platforms import tagus
+
+from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.integration.export import *
+
 from litex.soc.cores.clock import *
-from litex.soc.cores import dna, xadc
-from litex.soc.cores.uart import *
-from litex.soc.integration.cpu_interface import get_csr_header
+from litex.soc.cores.dna import DNA
+from litex.soc.cores.xadc import XADC
+from litex.soc.cores.icap import ICAP
 
 from litedram.modules import MT41J128M16
 from litedram.phy import s7ddrphy
@@ -26,18 +32,19 @@ from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 
-from litex_boards.platforms import tagus
-
 # CRG ----------------------------------------------------------------------------------------------
 
-class CRG(Module):
+class CRG(Module, AutoCSR):
     def __init__(self, platform, sys_clk_freq):
+        self.reset = CSR() # FIXME: not used for now
+
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_clk200    = ClockDomain()
 
         clk100 = platform.request("clk100")
+        platform.add_period_constraint(clk100, 1e9/100e6)
 
         self.submodules.pll = pll = S7PLL()
         self.comb += pll.reset.eq(platform.request("rst"))
@@ -52,15 +59,13 @@ class CRG(Module):
 # PCIeSoC -----------------------------------------------------------------------------------------
 
 class PCIeSoC(SoCCore):
-    SoCCore.mem_map["csr"] = 0x80000000
-    SoCCore.mem_map["rom"] = 0x20000000
-
     def __init__(self, platform, **kwargs):
         sys_clk_freq = int(100e6)
 
-        # SoCCore ---------------------------------------------------_------------------------------
+        # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Tagus", ident_version=True,
+            ident          = "LiteX SoC on Tagus",
+            ident_version  = True,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -68,12 +73,18 @@ class PCIeSoC(SoCCore):
         self.add_csr("crg")
 
         # DNA --------------------------------------------------------------------------------------
-        self.submodules.dna = dna.DNA()
+        self.submodules.dna = DNA()
+        self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
         self.add_csr("dna")
 
         # XADC -------------------------------------------------------------------------------------
-        self.submodules.xadc = xadc.XADC()
+        self.submodules.xadc = XADC()
         self.add_csr("xadc")
+
+        # ICAP -------------------------------------------------------------------------------------
+        self.submodules.icap = ICAP(platform)
+        self.icap.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
+        self.add_csr("icap")
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -94,42 +105,56 @@ class PCIeSoC(SoCCore):
             )
 
         # PCIe -------------------------------------------------------------------------------------
-        # pcie phy
-        self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"), bar0_size=0x20000)
+        # PHY
+        self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"),
+            data_width = 64,
+            bar0_size  = 0x20000)
         platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
         self.add_csr("pcie_phy")
 
-        # pcie endpoint
+        # Endpoint
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy)
 
-        # pcie wishbone bridge
-        self.submodules.pcie_wishbone = LitePCIeWishboneBridge(self.pcie_endpoint,
-            lambda a: 1, base_address=self.mem_map["csr"])
-        self.add_wb_master(self.pcie_wishbone.wishbone)
+        # Wishbone bridge
+        self.submodules.pcie_bridge = LitePCIeWishboneBridge(self.pcie_endpoint,
+            base_address = self.mem_map["csr"])
+        self.add_wb_master(self.pcie_bridge.wishbone)
 
-        # pcie dma
-        self.submodules.pcie_dma = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
-            with_buffering=True, buffering_depth=1024, with_loopback=True)
-        self.add_csr("pcie_dma")
+        # DMA0
+        self.submodules.pcie_dma0 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
+            with_buffering = True, buffering_depth=1024,
+            with_loopback  = True)
+        self.add_csr("pcie_dma0")
 
-        # pcie msi
+        # DMA1
+        self.submodules.pcie_dma1 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
+            with_buffering = True, buffering_depth=1024,
+            with_loopback  = True)
+        self.add_csr("pcie_dma1")
+
+        self.add_constant("DMA_CHANNELS", 2)
+
+        # MSI
         self.submodules.pcie_msi = LitePCIeMSI()
         self.add_csr("pcie_msi")
         self.comb += self.pcie_msi.source.connect(self.pcie_phy.msi)
-        self.msis = {
-            "DMA_WRITER": self.pcie_dma.writer.irq,
-            "DMA_READER": self.pcie_dma.reader.irq
+        self.interrupts = {
+            "PCIE_DMA0_WRITER":    self.pcie_dma0.writer.irq,
+            "PCIE_DMA0_READER":    self.pcie_dma0.reader.irq,
+            "PCIE_DMA1_WRITER":    self.pcie_dma1.writer.irq,
+            "PCIE_DMA1_READER":    self.pcie_dma1.reader.irq,
         }
-        for i, (k, v) in enumerate(sorted(self.msis.items())):
+        for i, (k, v) in enumerate(sorted(self.interrupts.items())):
             self.comb += self.pcie_msi.irqs[i].eq(v)
             self.add_constant(k + "_INTERRUPT", i)
 
-    def generate_software_header(self, filename):
-        csr_header = get_csr_header(self.csr_regions,
-                                    self.constants,
-                                    with_access_functions=False)
-        tools.write_to_file(filename, csr_header)
-
+    def generate_software_headers(self):
+        csr_header = get_csr_header(self.csr_regions, self.constants, with_access_functions=False)
+        tools.write_to_file("csr.h", csr_header)
+        soc_header = get_soc_header(self.constants, with_access_functions=False)
+        tools.write_to_file("soc.h", soc_header)
+        mem_header = get_mem_header(self.mem_regions)
+        tools.write_to_file("mem.h", mem_header)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -139,14 +164,15 @@ def main():
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    args.uart_name = "crossover"
+    # Enforce arguments
+    args.uart_name      = "crossover"
     args.csr_data_width = 32
 
     platform = tagus.Platform()
     soc      = PCIeSoC(platform, **soc_sdram_argdict(args))
     builder  = Builder(soc, **builder_argdict(args))
     vns = builder.build()
-    soc.generate_software_header("csr.h")
+    soc.generate_software_headers()
 
 if __name__ == "__main__":
     main()
