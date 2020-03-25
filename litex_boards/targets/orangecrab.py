@@ -23,7 +23,7 @@ from litedram.phy import ECP5DDRPHY
 # _CRG ---------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
         self.clock_domains.cd_init     = ClockDomain()
         self.clock_domains.cd_por      = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys      = ClockDomain()
@@ -72,6 +72,16 @@ class _CRG(Module):
             AsyncResetSynchronizer(self.cd_sys,  ~por_done | ~pll.locked)
         ]
 
+        # USB PLL
+        if with_usb_pll:
+            self.clock_domains.cd_usb_12 = ClockDomain()
+            self.clock_domains.cd_usb_48 = ClockDomain()
+            usb_pll = ECP5PLL()
+            self.submodules += usb_pll
+            usb_pll.register_clkin(clk48, 48e6)
+            usb_pll.create_clkout(self.cd_usb_48, 48e6)
+            usb_pll.create_clkout(self.cd_usb_12, 12e6)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -80,7 +90,7 @@ class BaseSoC(SoCCore):
         revision = kwargs.get("revision", "0.2")
         device = kwargs.get("device", "25F")
         platform = orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
-        
+
         # Serial -----------------------------------------------------------------------------------
         platform.add_extension(orangecrab.feather_serial)
 
@@ -88,8 +98,8 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
-
+        with_usb_pll = kwargs.get("uart_name", None) == "usb_cdc"
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
