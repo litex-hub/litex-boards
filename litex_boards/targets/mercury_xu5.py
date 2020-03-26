@@ -67,6 +67,7 @@ class BaseSoC(SoCCore):
                 cmd_latency      = 0)
             self.add_csr("ddrphy")
             self.add_constant("USDDRPHY", None)
+            self.add_constant("USDDRPHY_DEBUG", None)
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MT40A256M16(sys_clk_freq, "1:4"),
