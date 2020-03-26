@@ -15,7 +15,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-from litedram.modules import KVR21SE15S84
+from litedram.modules import MTA4ATF51264HZ
 from litedram.phy import usddrphy
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ class BaseSoC(SoCCore):
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram_32"), # FIXME: use ddram_64
+            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram"),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6,
@@ -69,7 +69,7 @@ class BaseSoC(SoCCore):
             self.add_constant("USDDRPHY_DEBUG")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
-                module                  = KVR21SE15S84(sys_clk_freq, "1:4"),
+                module                  = MTA4ATF51264HZ(sys_clk_freq, "1:4"),
                 origin                  = self.mem_map["main_ram"],
                 size                    = kwargs.get("max_sdram_size", 0x40000000),
                 l2_cache_size           = kwargs.get("l2_size", 8192),
