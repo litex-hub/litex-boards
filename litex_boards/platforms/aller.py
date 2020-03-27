@@ -51,16 +51,6 @@ _io = [
     ),
 
     # pcie
-    ("pcie", 0,
-        Subsignal("rst_n", Pins("AB20"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
-        Subsignal("clk_p", Pins("F6")),
-        Subsignal("clk_n", Pins("E6")),
-        Subsignal("rx_p", Pins("B8 D11 B10 D9")),
-        Subsignal("rx_n", Pins("A8 C11 A10 C9")),
-        Subsignal("tx_p", Pins("B4 D5 B6 D7")),
-        Subsignal("tx_n", Pins("A4 C5 A6 C7"))
-    ),
-
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("AB20"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
@@ -69,6 +59,16 @@ _io = [
         Subsignal("rx_n", Pins("A8")),
         Subsignal("tx_p", Pins("B4")),
         Subsignal("tx_n", Pins("A4"))
+    ),
+
+    ("pcie_x4", 0,
+        Subsignal("rst_n", Pins("AB20"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+        Subsignal("clk_p", Pins("F6")),
+        Subsignal("clk_n", Pins("E6")),
+        Subsignal("rx_p", Pins("B8 D11 B10 D9")),
+        Subsignal("rx_n", Pins("A8 C11 A10 C9")),
+        Subsignal("tx_p", Pins("B4 D5 B6 D7")),
+        Subsignal("tx_n", Pins("A4 C5 A6 C7"))
     ),
 
     # dram
