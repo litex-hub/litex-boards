@@ -3,6 +3,9 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
+from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
+
+import os
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -126,7 +129,5 @@ class Platform(LatticePlatform):
         return LatticePlatform.request(self, *args, **kwargs)
 
     def create_programmer(self):
-        pass
-        # fdir = os.path.join(
-        #     os.path.abspath(os.path.dirname(__file__)), "prog")
-        # return OpenOCD(os.path.join(fdir, "ecp5-evn.cfg"))
+        trellis = os.environ.get("TRELLIS", "/usr/share/trellis")
+        return OpenOCDJTAGProgrammer(os.path.join(trellis, "misc", "openocd", "ecp5-evn.cfg"), "bscan_spi_lfe5um5g85f.svf")
