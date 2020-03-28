@@ -31,9 +31,16 @@ _io = [
     ("user_dip_btn", 7, Pins("C16"), IOStandard("LVCMOS25")),
     ("user_dip_btn", 8, Pins("A16"), IOStandard("LVCMOS25")),
 
+    ("button_1", 0, Pins("P4"), IOStandard("LVCMOS25")),
+
     ("serial", 0,
         Subsignal("rx", Pins("P2"), IOStandard("LVCMOS33")),
         Subsignal("tx", Pins("P3"), IOStandard("LVCMOS33")),
+    ),
+
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("R2"), IOStandard("LVCMOS33")),
+        Subsignal("dq",   Pins("W2 V2 Y2 W1"), IOStandard("LVCMOS33")),
     ),
 
     ("clk200", 0,
