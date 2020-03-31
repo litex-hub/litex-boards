@@ -52,8 +52,8 @@ class _CRG(Module):
         self.submodules.pll = pll = ECP5PLL()
 
         pll.register_clkin(clk25, 25e6)
-        pll.create_clkout(self.cd_sys,    sys_clk_freq, phase=11)
-        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=20)
+        pll.create_clkout(self.cd_sys,    sys_clk_freq)
+        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll.locked | ~rst_n)
 
         # SDRAM clock
