@@ -3,17 +3,25 @@
 # This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
-# Disclaimer: This SoC is still a Proof of Concept with large timings violations on the IP/UDP and
-# Etherbone stack that need to be optimized. It was initially just used to validate the reversed
-# pinout but happens to work on hardware...
-
-# Build/Use:
+# Build/Use ----------------------------------------------------------------------------------------
+#
+# 1) SoC with regular UART and optional Ethernet connected to the CPU:
+# Connect a USB/UART to J19: TX of the FPGA is DATA_LED-, RX of the FPGA is KEY+.
+# ./colorlight_5a_75b.py (add --with-ethernet to add Ethernet capability)
+# ./colorlight_5a_75b.py --load
+# You should see the LiteX BIOS and be able to interact with it.
+#
+# 2) SoC with UART in crossover mode over Etherbone:
 # ./colorlight_5a_75b.py --uart-name=crossover --with-etherbone --csr-csv=csr.csv
 # ./colorlight_5a_75b.py --load
 # ping 192.168.1.50
 # Get and install wishbone tool from: https://github.com/litex-hub/wishbone-utils/releases
 # wishbone-tool --ethernet-host 192.168.1.50 --server terminal --csr-csv csr.csv
 # You should see the LiteX BIOS and be able to interact with it.
+#
+# Disclaimer: SoC 2) is still a Proof of Concept with large timings violations on the IP/UDP and
+# Etherbone stack that need to be optimized. It was initially just used to validate the reversed
+# pinout but happens to work on hardware...
 
 import argparse
 import sys
@@ -37,7 +45,7 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_rst=True):
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain()
 
@@ -45,7 +53,7 @@ class _CRG(Module):
 
         # Clk / Rst
         clk25 = platform.request("clk25")
-        rst_n = platform.request("user_btn_n", 0)
+        rst_n = 1 if not with_rst else platform.request("user_btn_n", 0)
         platform.add_period_constraint(clk25, 1e9/25e6)
 
         # PLL
@@ -64,13 +72,14 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, revision, with_ethernet=False, with_etherbone=False, **kwargs):
         platform     = colorlight_5a_75b.Platform(revision=revision)
-        sys_clk_freq = int(125e6)
+        sys_clk_freq = int(125e6) if with_etherbone else int(60e6)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        with_rst = kwargs["uart_name"] not in ["serial", "bridge"] # serial_rx shared with user_btn_n.
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_rst=with_rst)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -101,11 +110,6 @@ class BaseSoC(SoCCore):
             self.add_csr("ethphy")
             self.add_etherbone(phy=self.ethphy)
 
-        # Led --------------------------------------------------------------------------------------
-        led_counter = Signal(32)
-        self.sync += led_counter.eq(led_counter + 1)
-        self.comb += platform.request("user_led_n", 0).eq(led_counter[26])
-
 # Load ---------------------------------------------------------------------------------------------
 
 def load():
@@ -122,7 +126,7 @@ adapter_khz 25000
 jtag newtap ecp5 tap -irlen 8 -expected-id 0x41111043
 """)
     f.close()
-    os.system("openocd -f openocd.cfg -c \"transport select jtag; init; svf soc_etherbonesoc_colorlight_5a_75b/gateware/top.svf; exit\"")
+    os.system("openocd -f openocd.cfg -c \"transport select jtag; init; svf soc_basesoc_colorlight_5a_75b/gateware/top.svf; exit\"")
     exit()
 
 # Build --------------------------------------------------------------------------------------------

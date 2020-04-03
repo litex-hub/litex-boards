@@ -93,6 +93,13 @@ _io_v7_0 = [ # Documented by @miek
     # btn
     ("user_btn_n", 0, Pins("M13"), IOStandard("LVCMOS33")),
 
+    # serial
+    ("serial", 0,
+        Subsignal("tx", Pins("P11")), # led (J19 DATA_LED-)
+        Subsignal("rx", Pins("M13")), # btn (J19 KEY+)
+        IOStandard("LVCMOS33")
+    ),
+
     # spiflash (W25Q32JV)
     ("spiflash", 0,
         # clk
