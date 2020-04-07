@@ -33,7 +33,7 @@ class _CRG(Module):
         self.comb += pll.reset.eq(platform.request("cpu_reset"))
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
-        pll.create_clkout(self.cd_clk500, 200e6, with_reset=False)
+        pll.create_clkout(self.cd_clk500, 500e6, with_reset=False)
 
         self.specials += [
             Instance("BUFGCE_DIV", name="main_bufgce_div",
@@ -52,7 +52,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), **kwargs):
         platform = vcu118.Platform()
 
-        # SoCCore ----------------------------------------------------------_-----------------------
+        # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
