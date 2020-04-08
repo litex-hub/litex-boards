@@ -11,6 +11,7 @@ from migen import *
 
 from litex_boards.platforms import c10lprefkit
 
+from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -23,57 +24,27 @@ from liteeth.phy.mii import LiteEthPHYMII
 from litex.soc.cores.hyperbus import HyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
+
 class _CRG(Module):
-    def __init__(self, platform):
+    def __init__(self, platform, sys_clk_freq):
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys_ps = ClockDomain()
-        self.clock_domains.cd_por    = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
 
         # # #
 
+        # Clk / Rst
         clk12 = platform.request("clk12")
+        platform.add_period_constraint(clk12, 1e9/12e6)
 
-        # power on rst
-        rst_n = Signal()
-        self.sync.por += rst_n.eq(platform.request("cpu_reset"))
-        self.comb += [
-            self.cd_por.clk.eq(clk12),
-            self.cd_sys.rst.eq(~rst_n),
-            self.cd_sys_ps.rst.eq(~rst_n)
-        ]
+        # PLL
+        self.submodules.pll = pll = Cyclone10LPPLL(speedgrade="-A7")
+        self.comb += pll.reset.eq(~platform.request("cpu_reset"))
+        pll.register_clkin(clk12, 12e6)
+        pll.create_clkout(self.cd_sys,    sys_clk_freq)
+        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
 
-        # sys clk / sdram clk
-        clk_outs = Signal(5)
-        self.specials += \
-            Instance("ALTPLL",
-                p_BANDWIDTH_TYPE         = "AUTO",
-                p_CLK0_DIVIDE_BY         = 6,
-                p_CLK0_DUTY_CYCLE        = 50,
-                p_CLK0_MULTIPLY_BY       = 25,
-                p_CLK0_PHASE_SHIFT       = "0",
-                p_CLK1_DIVIDE_BY         = 6,
-                p_CLK1_DUTY_CYCLE        = 50,
-                p_CLK1_MULTIPLY_BY       = 25,
-                p_CLK1_PHASE_SHIFT       = "-10000",
-                p_COMPENSATE_CLOCK       = "CLK0",
-                p_INCLK0_INPUT_FREQUENCY = 83000,
-                p_INTENDED_DEVICE_FAMILY = "MAX 10",
-                p_LPM_TYPE               = "altpll",
-                p_OPERATION_MODE         = "NORMAL",
-                i_INCLK                  = clk12,
-                o_CLK                    = clk_outs,
-                i_ARESET                 = 0,
-                i_CLKENA                 = 0x3f,
-                i_EXTCLKENA              = 0xf,
-                i_FBIN                   = 1,
-                i_PFDENA                 = 1,
-                i_PLLENA                 = 1,
-            )
-        self.comb += self.cd_sys.clk.eq(clk_outs[0])
-        self.comb += self.cd_sys_ps.clk.eq(clk_outs[1])
+        # SDRAM clock
         self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
-        platform.add_period_constraint(self.cd_sys.clk, 1e9/50e6)
-        platform.add_period_constraint(self.cd_sys_ps.clk, 1e9/50e6)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -84,14 +55,13 @@ class BaseSoC(SoCCore):
     mem_map.update(SoCCore.mem_map)
 
     def __init__(self, sys_clk_freq=int(50e6), with_ethernet=False, **kwargs):
-        assert sys_clk_freq == int(50e6)
         platform = c10lprefkit.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform)
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # HyperRam ---------------------------------------------------------------------------------
         self.submodules.hyperram = HyperRAM(platform.request("hyperram"))
