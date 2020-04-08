@@ -72,6 +72,9 @@ class TestTargets(unittest.TestCase):
         platforms.append("de1soc")
         platforms.append("de10nano")
 
+        # Intel Cyclone10
+        platform.append("c10lprefkit")
+
         # Intel Max10
         platforms.append("de10lite")
 
