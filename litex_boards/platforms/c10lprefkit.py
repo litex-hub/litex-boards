@@ -9,7 +9,7 @@ from litex.build.altera.programmer import USBBlaster
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    ("clk12", 0, Pins("G21"), IOStandard("3.3-V LVTTL")),
+    ("clk12", 0, Pins("G21"),  IOStandard("3.3-V LVTTL")),
     ("clk25", 0, Pins("AA12"), IOStandard("3.3-V LVTTL")),
 
     ("user_led", 0, Pins("C18"), IOStandard("3.3-V LVTTL")),
@@ -35,17 +35,17 @@ _io = [
     ("sdram_clock", 0, Pins("AA3"), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
         Subsignal("a", Pins(
-            "V5 Y3 W6 Y4 AB5 AB6 AA6 AA7",
+            "V5   Y3 W6  Y4 AB5 AB6 AA6 AA7",
             "AB7 AA5 V6 AA8 AB8")),
-        Subsignal("ba", Pins("Y6 V7")),
-        Subsignal("cs_n", Pins("W7")),
-        Subsignal("cke", Pins("AA4")),
+        Subsignal("ba",    Pins("Y6 V7")),
+        Subsignal("cs_n",  Pins("W7")),
+        Subsignal("cke",   Pins("AA4")),
         Subsignal("ras_n", Pins("V8")),
         Subsignal("cas_n", Pins("Y7")),
-        Subsignal("we_n", Pins("W8")),
+        Subsignal("we_n",  Pins("W8")),
         Subsignal("dq", Pins(
             "AB16 Y17 AA16 AA19 AB18 AA20 AB19 AB20",
-            "Y13 Y15 AA13 AB15 AB13 AA15 AA14 AB14")),
+            "Y13  Y15 AA13 AB15 AB13 AA15 AA14 AB14")),
         Subsignal("dm", Pins("Y14 W13")),
         IOStandard("3.3-V LVTTL")
     ),
@@ -59,11 +59,11 @@ _io = [
     ),
 
     ("hyperram", 0,
-        Subsignal("clk", Pins("T16")),
+        Subsignal("clk",   Pins("T16")),
         Subsignal("rst_n", Pins("U12")),
-        Subsignal("dq", Pins("T15 W17 U14 R15 R14 V16 U16 U17")),
-        Subsignal("cs_n", Pins("V13")),
-        Subsignal("rwds", Pins("U13")),
+        Subsignal("dq",    Pins("T15 W17 U14 R15 R14 V16 U16 U17")),
+        Subsignal("cs_n",  Pins("V13")),
+        Subsignal("rwds",  Pins("U13")),
         IOStandard("3.3-V LVTTL")
     ),
 
@@ -78,16 +78,16 @@ _io = [
         IOStandard("3.3-V LVTTL"),
     ),
     ("eth", 0,
-        Subsignal("rst_n", Pins("R19")),
-        Subsignal("mdio", Pins("AA21")),
-        Subsignal("mdc", Pins("AA22")),
-        Subsignal("rx_dv", Pins("W21")),
-        Subsignal("rx_er", Pins("V21")),
+        Subsignal("rst_n",   Pins("R19")),
+        Subsignal("mdio",    Pins("AA21")),
+        Subsignal("mdc",     Pins("AA22")),
+        Subsignal("rx_dv",   Pins("W21")),
+        Subsignal("rx_er",   Pins("V21")),
         Subsignal("rx_data", Pins("W22 W20 Y21 Y22")),
-        Subsignal("tx_en", Pins("T18")),
+        Subsignal("tx_en",   Pins("T18")),
         Subsignal("tx_data", Pins("T17 U20 U19 T20")),
-        Subsignal("col", Pins("T19")),
-        Subsignal("crs", Pins("R20")),
+        Subsignal("col",     Pins("T19")),
+        Subsignal("crs",     Pins("R20")),
         IOStandard("3.3-V LVTTL"),
     ),
 
@@ -97,16 +97,16 @@ _io = [
         IOStandard("3.3-V LVTTL"),
     ),
     ("eth", 1,
-        Subsignal("rst_n", Pins("M21")),
-        Subsignal("mdio", Pins("N20")),
-        Subsignal("mdc", Pins("N18")),
-        Subsignal("rx_dv", Pins("R18")),
-        Subsignal("rx_er", Pins("P17")),
+        Subsignal("rst_n",   Pins("M21")),
+        Subsignal("mdio",    Pins("N20")),
+        Subsignal("mdc",     Pins("N18")),
+        Subsignal("rx_dv",   Pins("R18")),
+        Subsignal("rx_er",   Pins("P17")),
         Subsignal("rx_data", Pins("M20 M19 M16 N19")),
-        Subsignal("tx_en", Pins("R22")),
+        Subsignal("tx_en",   Pins("R22")),
         Subsignal("tx_data", Pins("R21 N21 M22 N22")),
-        Subsignal("col", Pins("P21")),
-        Subsignal("crs", Pins("P22")),
+        Subsignal("col",     Pins("P21")),
+        Subsignal("crs",     Pins("P22")),
         IOStandard("3.3-V LVTTL"),
     ),
 ]
@@ -114,7 +114,7 @@ _io = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(AlteraPlatform):
-    default_clk_name = "clk12"
+    default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
     def __init__(self):

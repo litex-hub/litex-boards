@@ -58,7 +58,7 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name = "clk48"
+    default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
     def __init__(self):

@@ -204,7 +204,7 @@ _genio_gpio = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name = "clk8"
+    default_clk_name   = "clk8"
     default_clk_period = 1e9/8e6
 
     def __init__(self, toolchain="trellis", **kwargs):

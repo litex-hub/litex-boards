@@ -31,9 +31,9 @@ _io = [
         IOStandard("LVCMOS33")
     ),
     ("eth", 0,
-        Subsignal("rx_ctl", Pins("H1")),
+        Subsignal("rx_ctl",  Pins("H1")),
         Subsignal("rx_data", Pins("F2 F4 G1 G3")),
-        Subsignal("tx_ctl", Pins("E4")),
+        Subsignal("tx_ctl",  Pins("E4")),
         Subsignal("tx_data", Pins("E3 E2 E1 F3")),
         IOStandard("LVCMOS33")
     ),
@@ -44,9 +44,9 @@ _io = [
         IOStandard("LVCMOS33")
     ),
     ("eth", 1,
-        Subsignal("rx_ctl", Pins("M3")),
+        Subsignal("rx_ctl",  Pins("M3")),
         Subsignal("rx_data", Pins("L1 L3 M1 M2")),
-        Subsignal("tx_ctl", Pins("H2")),
+        Subsignal("tx_ctl",  Pins("H2")),
         Subsignal("tx_data", Pins("J3 K1 K2 H3")),
         IOStandard("LVCMOS33")
     ),
@@ -55,18 +55,21 @@ _io = [
     ("sdram_clock", 0, Pins("K11"), IOStandard("LVCMOS33"), Misc("SLEW=FAST")),
     ("sdram_clock", 1, Pins("K12"), IOStandard("LVCMOS33"), Misc("SLEW=FAST")),
     ("sdram", 0,
-        Subsignal("a", Pins("L16 M14 M16 K14 J12 J13 J11 H13 H11 G12 L14")),
+        Subsignal("a", Pins(
+            "L16 M14 M16 K14 J12 J13 J11 H13",
+            "H11 G12 L14")),
         Subsignal("dq", Pins(
             "C15 C16 D14 E15 E16 F14 F16 G14",
             "G11 E12 H14 G16 F15 D16 B16 B15",
             "N16 P16 P15 R15 R16 R14 T14 R12",
             "T12 T13 T15 M13 N14 M15 L12 L13")),
-        Subsignal("we_n", Pins("H16")),
+        Subsignal("we_n",  Pins("H16")),
         Subsignal("ras_n", Pins("J14")),
         Subsignal("cas_n", Pins("H15")),
-        Subsignal("cs_n", Pins("J16")),
-        Subsignal("ba", Pins("K16 K15")),
-        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+        Subsignal("cs_n",  Pins("J16")),
+        Subsignal("ba",    Pins("K16 K15")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
     ),
 
     # Direction pin for buffers U600 to U607. 1 is input, 0 is output.
@@ -80,14 +83,14 @@ _connectors = [
     # alternating through the two rows of the connector.
     ("J600", {
         # Buffered through U610, shared with J601
-        4: "J6",
+        4:  "J6",
         # Buffered through U608, shared with J601
-        6: "A11",
+        6:  "A11",
 
         # Buffered through U600
-        7: "P4",
-        8: "R1",
-        9: "M4",
+        7:  "P4",
+        8:  "R1",
+        9:  "M4",
         10: "L5",
         11: "M5",
         12: "K6",
@@ -139,14 +142,14 @@ _connectors = [
     # Upper connector on board. Same numbering as J600.
     ("J601", {
         # Buffered through U610, shared with J601
-        4: "J6",
+        4:  "J6",
         # Buffered through U609, shared with J601
-        6: "A11",
+        6:  "A11",
 
         # Buffered through U603
-        7: "D3",
-        8: "C3",
-        9: "B3",
+        7:  "D3",
+        8:  "C3",
+        9:  "B3",
         10: "D5",
         11: "A4",
         12: "B2",
@@ -202,9 +205,9 @@ hub75e = [
     ("hub75_control", 0,
         # bank select (a, b, c, d, e)
         Subsignal("bank", Pins("J601:42 J601:41 J601:40 J601:39 J600:6")),
-        Subsignal("oe", Pins("J600:45")),
-        Subsignal("stb", Pins("J601:43")),
-        Subsignal("clk", Pins("J601:44")),
+        Subsignal("oe",   Pins("J600:45")),
+        Subsignal("stb",  Pins("J601:43")),
+        Subsignal("clk",  Pins("J601:44")),
         IOStandard("LVCMOS33"),
     ),
     # J1

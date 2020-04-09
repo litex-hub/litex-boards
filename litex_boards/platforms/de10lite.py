@@ -7,7 +7,7 @@ from litex.build.altera.programmer import USBBlaster
 
 
 _io = [
-    ("clk10", 0, Pins("N5"), IOStandard("3.3-V LVTTL")),
+    ("clk10", 0, Pins("N5"),  IOStandard("3.3-V LVTTL")),
     ("clk50", 0, Pins("P11"), IOStandard("3.3-V LVTTL")),
     ("clk50", 1, Pins("N14"), IOStandard("3.3-V LVTTL")),
 
@@ -16,8 +16,8 @@ _io = [
         Subsignal("rx", Pins("W10"), IOStandard("3.3-V LVTTL"))  # JP1 GPIO[1]
     ),
 
-    ("user_led", 0, Pins("A8"), IOStandard("3.3-V LVTTL")),
-    ("user_led", 1, Pins("A9"), IOStandard("3.3-V LVTTL")),
+    ("user_led", 0, Pins("A8"),  IOStandard("3.3-V LVTTL")),
+    ("user_led", 1, Pins("A9"),  IOStandard("3.3-V LVTTL")),
     ("user_led", 2, Pins("A10"), IOStandard("3.3-V LVTTL")),
     ("user_led", 3, Pins("B10"), IOStandard("3.3-V LVTTL")),
     ("user_led", 4, Pins("D13"), IOStandard("3.3-V LVTTL")),
@@ -50,12 +50,18 @@ _io = [
     ("seven_seg", 5, Pins("J20 K20 L18 N18 M20 N19 N20 L19"), IOStandard("3.3-V LVTTL")),
 
 
-    ("gpio_0", 0,
-        Pins("V9 W9 V8 W8 V7 W7 W6 V5 W5 AA15 AA14 W13 W12 AB13 AB12 Y11 AB11 W11 AB10 AA10 AA9 Y8 AA8 Y7 AA7 Y6 AA6 Y5 AA5 Y4 AB3 Y3 AB2 AA2"),
+    ("gpio_0", 0, Pins(
+        "V9     W9   V8   W8  V7   W7   W6  V5",
+        "W5   AA15 AA14  W13 W12 AB13 AB12 Y11",
+        "AB11  W11 AB10 AA10 AA9   Y8  AA8  Y7",
+        "AA7    Y6  AA6   Y5 AA5   Y4  AB3  Y3",
+        "AB2  AA2"),
         IOStandard("3.3-V LVTTL")
     ),
-    ("gpio_1", 0,
-        Pins("AB5 AB6 AB7 AB8 AB9 Y10 AA11 AA12 AB17 AA17 AB19 AA19 Y19 AB20 AB21 AA20 F16"),
+    ("gpio_1", 0, Pins(
+        "AB5   AB6  AB7  AB8 AB9  Y10 AA11 AA12",
+        "AB17 AA17 AB19 AA19 Y19 AB20 AB21 AA20",
+        "F16"),
         IOStandard("3.3-V LVTTL")
     ),
 
@@ -70,14 +76,18 @@ _io = [
 
     ("sdram_clock", 0, Pins("L14"), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
-        Subsignal("a", Pins("U17 W19 V18 U18 U19 T18 T19 R18 P18 P19 T20 P20 R20")),
-        Subsignal("ba", Pins("T21 T22")),
-        Subsignal("cs_n", Pins("U20")),
-        Subsignal("cke", Pins("N22")),
+        Subsignal("a",     Pins(
+            "U17 W19 V18 U18 U19 T18 T19 R18",
+            "P18 P19 T20 P20 R20")),
+        Subsignal("ba",    Pins("T21 T22")),
+        Subsignal("cs_n",  Pins("U20")),
+        Subsignal("cke",   Pins("N22")),
         Subsignal("ras_n", Pins("U22")),
         Subsignal("cas_n", Pins("U21")),
-        Subsignal("we_n", Pins("V20")),
-        Subsignal("dq", Pins("Y21 Y20 AA22 AA21 Y22 W22 W20 V21 P21 J22 H21 H22 G22 G20 G19 F22")),
+        Subsignal("we_n",  Pins("V20")),
+        Subsignal("dq", Pins(
+            "Y21 Y20 AA22 AA21 Y22 W22 W20 V21",
+            "P21 J22  H21  H22 G22 G20 G19 F22")),
         Subsignal("dm", Pins("V22 J21")),
         IOStandard("3.3-V LVTTL")
     ),
@@ -87,7 +97,7 @@ _io = [
         Subsignal("int1", Pins("Y13")),
         Subsignal("mosi", Pins("V11")),
         Subsignal("miso", Pins("V12")),
-        Subsignal("clk", Pins("AB15")),
+        Subsignal("clk",  Pins("AB15")),
         Subsignal("cs_n", Pins("AB16")),
         IOStandard("3.3-V LVTTL")
     )
@@ -95,9 +105,9 @@ _io = [
 
 
 class Platform(AlteraPlatform):
-    default_clk_name = "clk50"
+    default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
-    create_rbf = False
+    create_rbf         = False
 
     def __init__(self):
         AlteraPlatform.__init__(self, "10M50DAF484C7G", _io)

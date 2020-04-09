@@ -18,7 +18,7 @@ _io = [
     # Color-specific aliases
     ("user_ledr_n",   0, Pins("11"), IOStandard("LVCMOS33")),
     ("user_ledg_n",   0, Pins("37"), IOStandard("LVCMOS33")),
-    ("user_btn_n", 0, Pins("10"), IOStandard("LVCMOS33")),
+    ("user_btn_n",    0, Pins("10"), IOStandard("LVCMOS33")),
 
     ("serial", 0,
         Subsignal("rx", Pins("6")),
@@ -27,11 +27,11 @@ _io = [
     ),
 
     ("spiflash", 0,
-        Subsignal("cs_n",      Pins("16"), IOStandard("LVCMOS33")),
-        Subsignal("clk",       Pins("15"), IOStandard("LVCMOS33")),
-        Subsignal("miso",        Pins("17"), IOStandard("LVCMOS33")),
-        Subsignal("mosi",        Pins("14"), IOStandard("LVCMOS33")),
-        Subsignal("wp",      Pins("12"), IOStandard("LVCMOS33")),
+        Subsignal("cs_n", Pins("16"), IOStandard("LVCMOS33")),
+        Subsignal("clk",  Pins("15"), IOStandard("LVCMOS33")),
+        Subsignal("miso", Pins("17"), IOStandard("LVCMOS33")),
+        Subsignal("mosi", Pins("14"), IOStandard("LVCMOS33")),
+        Subsignal("wp",   Pins("12"), IOStandard("LVCMOS33")),
         Subsignal("hold", Pins("13"), IOStandard("LVCMOS33")),
     ),
 
@@ -47,7 +47,7 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    ("PMOD1A", "4 2 47 45 3 48 46 44"),
+    ("PMOD1A", "4   2 47 45  3 48 46 44"),
     ("PMOD1B", "43 38 34 31 42 36 32 28"),
     ("PMOD2",  "27 25 21 19 26 23 20 18")
 ]
@@ -78,12 +78,11 @@ break_off_pmod = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name = "clk12"
-    default_clk_period = 1e9 / 12e6
+    default_clk_name   = "clk12"
+    default_clk_period = 1e9/12e6
 
     def __init__(self):
-        LatticePlatform.__init__(self, "ice40-up5k-sg48", _io, _connectors,
-                                 toolchain="icestorm")
+        LatticePlatform.__init__(self, "ice40-up5k-sg48", _io, _connectors, toolchain="icestorm")
 
     def create_programmer(self):
         return IceStormProgrammer()

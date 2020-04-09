@@ -35,7 +35,7 @@ _io = [
     ("usb", 0,
         Subsignal("d_p", Pins("34")),
         Subsignal("d_n", Pins("37")),
-        Subsignal("pullup", Pins("35")),
+        Subsignal("pullup",   Pins("35")),
         Subsignal("pulldown", Pins("36")),
         IOStandard("LVCMOS33")
     ),
@@ -64,15 +64,15 @@ _io = [
 
 _connectors = [
     ("touch_pins", "48 47 46 45"),
-    ("pmoda_n", "28 27 26 23"),
-    ("pmodb_n", "48 47 46 45"),
-    ("dbg", "20 12 11 25 10 9"),
+    ("pmoda_n",    "28 27 26 23"),
+    ("pmodb_n",    "48 47 46 45"),
+    ("dbg",        "20 12 11 25 10 9"),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name = "clk48"
+    default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
     def __init__(self):

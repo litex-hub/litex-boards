@@ -49,7 +49,9 @@ _io = [
         Subsignal("wr_n",  Pins("W22")),
         Subsignal("siwua", Pins("U21")),
         Subsignal("oe_n",  Pins("T21")),
-        IOStandard("LVCMOS33"), Drive(8), Misc("SLEW=FAST")
+        Misc("SLEW=FAST"),
+        Drive(8),
+        IOStandard("LVCMOS33"),
     ),
 
     ("spiflash4x", 0,
@@ -73,23 +75,23 @@ _io = [
             "U6 T5 Y6 T6 V2 T4 Y2 R2",
             "Y1 R4 W5 W1 AA6 U2"),
             IOStandard("SSTL15")),
-        Subsignal("ba", Pins("W6 U5 R6"), IOStandard("SSTL15")),
-        Subsignal("ras_n", Pins("V5"), IOStandard("SSTL15")),
-        Subsignal("cas_n", Pins("T1"), IOStandard("SSTL15")),
-        Subsignal("we_n", Pins("R3"), IOStandard("SSTL15")),
+        Subsignal("ba",    Pins("W6 U5 R6"), IOStandard("SSTL15")),
+        Subsignal("ras_n", Pins("V5"),  IOStandard("SSTL15")),
+        Subsignal("cas_n", Pins("T1"),  IOStandard("SSTL15")),
+        Subsignal("we_n",  Pins("R3"),  IOStandard("SSTL15")),
         Subsignal("dm", Pins("Y7 AA1"), IOStandard("SSTL15")),
         Subsignal("dq", Pins(
-            "Y8  AB6  W9   AA8  AB7  V7  AB8  W7",
-            "V4  AB2  AA5  AB3  AB5  W4  AB1  AA4"),
+            "Y8 AB6 W9  AA8 AB7 V7 AB8 W7",
+            "V4 AB2 AA5 AB3 AB5 W4 AB1 AA4"),
             IOStandard("SSTL15"),
             Misc("IN_TERM=UNTUNED_SPLIT_40")),
-        Subsignal("dqs_p", Pins("V9 Y3"), IOStandard("DIFF_SSTL15")),
+        Subsignal("dqs_p", Pins("V9 Y3"),  IOStandard("DIFF_SSTL15")),
         Subsignal("dqs_n", Pins("V8 AA3"), IOStandard("DIFF_SSTL15")),
         Subsignal("clk_p", Pins("U3"), IOStandard("DIFF_SSTL15")),
         Subsignal("clk_n", Pins("V3"), IOStandard("DIFF_SSTL15")),
-        Subsignal("cke", Pins("U1"), IOStandard("SSTL15")),
-        Subsignal("odt", Pins("W2"), IOStandard("SSTL15")),
-        Subsignal("cs_n", Pins("T3"), IOStandard("SSTL15")),
+        Subsignal("cke",   Pins("U1"), IOStandard("SSTL15")),
+        Subsignal("odt",   Pins("W2"), IOStandard("SSTL15")),
+        Subsignal("cs_n",  Pins("T3"), IOStandard("SSTL15")),
         Subsignal("reset_n", Pins("U7"), IOStandard("SSTL15")),
         Misc("SLEW=FAST"),
     ),
@@ -118,48 +120,56 @@ _io = [
     ),
 
     ("hdmi_in", 0,
-        Subsignal("clk_p", Pins("K4"), IOStandard("TMDS_33")),
-        Subsignal("clk_n", Pins("J4"), IOStandard("TMDS_33")),
+        Subsignal("clk_p",   Pins("K4"), IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("J4"), IOStandard("TMDS_33")),
         Subsignal("data0_p", Pins("K1"), IOStandard("TMDS_33")),
         Subsignal("data0_n", Pins("J1"), IOStandard("TMDS_33")),
         Subsignal("data1_p", Pins("M1"), IOStandard("TMDS_33")),
         Subsignal("data1_n", Pins("L1"), IOStandard("TMDS_33")),
         Subsignal("data2_p", Pins("P2"), IOStandard("TMDS_33")),
         Subsignal("data2_n", Pins("N2"), IOStandard("TMDS_33")),
-        Subsignal("scl", Pins("J2"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("H2"), IOStandard("LVCMOS33")),
-        Subsignal("hpd_en", Pins("G2"), IOStandard("LVCMOS33")),
-        Subsignal("cec", Pins("K2"), IOStandard("LVCMOS33")),     # FIXME
+        Subsignal("scl",     Pins("J2"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("H2"), IOStandard("LVCMOS33")),
+        Subsignal("hpd_en",  Pins("G2"), IOStandard("LVCMOS33")),
+        Subsignal("cec",     Pins("K2"), IOStandard("LVCMOS33")), # FIXME
         # Subsignal("txen", Pins("R3"), IOStandard("LVCMOS33")),  # FIXME
     ),
 
     ("hdmi_out", 0,
-        Subsignal("clk_p", Pins("L3"), IOStandard("TMDS_33")),
-        Subsignal("clk_n", Pins("K3"), IOStandard("TMDS_33")),
+        Subsignal("clk_p",   Pins("L3"), IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("K3"), IOStandard("TMDS_33")),
         Subsignal("data0_p", Pins("B1"), IOStandard("TMDS_33")),
         Subsignal("data0_n", Pins("A1"), IOStandard("TMDS_33")),
         Subsignal("data1_p", Pins("E1"), IOStandard("TMDS_33")),
         Subsignal("data1_n", Pins("D1"), IOStandard("TMDS_33")),
         Subsignal("data2_p", Pins("G1"), IOStandard("TMDS_33")),
         Subsignal("data2_n", Pins("F1"), IOStandard("TMDS_33")),
-        Subsignal("scl", Pins("D2"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("C2"), IOStandard("LVCMOS33")),
-        Subsignal("cec", Pins("E2"), IOStandard("LVCMOS33")),  # FIXME
-        Subsignal("hdp", Pins("B2"), IOStandard("LVCMOS33")),  # FIXME
+        Subsignal("scl",     Pins("D2"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("C2"), IOStandard("LVCMOS33")),
+        Subsignal("cec",     Pins("E2"), IOStandard("LVCMOS33")), # FIXME
+        Subsignal("hdp",     Pins("B2"), IOStandard("LVCMOS33")), # FIXME
     ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    ("P12", "J20 J21 K21 K22 H20 G20 J19 H19 J22 H22 K18 K19 L19 L20 M21 N22 N20 M20 M18 L18 N18 N19 H17 H18 G17 G18 G15 G16 J15 H15 K13 K14 M13 K14 M13 L13 J14 H14 H13 G13"),
-    ("P13", "F19 F20 E19 D19 D20 C20 C22 B22 F18 E18 C18 C19 D17 C17 B20 A20 B17 B18 A18 A19 E16 D16 B15 B16 A15 A16 C14 C15 A13 A14 C13 B13 D14 D15 E13 E14 F13 F14 F16 E17")
+    ("P12", "J20 J21 K21 K22 H20 G20 J19 H19",
+            "J22 H22 K18 K19 L19 L20 M21 N22",
+            "N20 M20 M18 L18 N18 N19 H17 H18",
+            "G17 G18 G15 G16 J15 H15 K13 K14",
+            "M13 K14 M13 L13 J14 H14 H13 G13"),
+    ("P13", "F19 F20 E19 D19 D20 C20 C22 B22",
+            "F18 E18 C18 C19 D17 C17 B20 A20",
+            "B17 B18 A18 A19 E16 D16 B15 B16",
+            "A15 A16 C14 C15 A13 A14 C13 B13",
+            "D14 D15 E13 E14 F13 F14 F16 E17")
 ]
 
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    default_clk_name = "clk100"
+    default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
     def __init__(self):

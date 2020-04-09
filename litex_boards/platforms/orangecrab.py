@@ -20,38 +20,40 @@ _io_r0_1 = [
             "A4 D2 C3 C7 D3 D4 D1 B2",
             "C1 A2 A7 C2 C4"),
             IOStandard("SSTL135_I")),
-        Subsignal("ba", Pins("B6 B7 A6"), IOStandard("SSTL135_I")),
-        Subsignal("ras_n", Pins("C12"), IOStandard("SSTL135_I")),
-        Subsignal("cas_n", Pins("D13"), IOStandard("SSTL135_I")),
-        Subsignal("we_n", Pins("B12"), IOStandard("SSTL135_I")),
-        Subsignal("cs_n", Pins("A12"), IOStandard("SSTL135_I")),
+        Subsignal("ba",    Pins("B6 B7 A6"), IOStandard("SSTL135_I")),
+        Subsignal("ras_n", Pins("C12"),  IOStandard("SSTL135_I")),
+        Subsignal("cas_n", Pins("D13"),  IOStandard("SSTL135_I")),
+        Subsignal("we_n",  Pins("B12"),  IOStandard("SSTL135_I")),
+        Subsignal("cs_n",  Pins("A12"),  IOStandard("SSTL135_I")),
         Subsignal("dm", Pins("D16 G16"), IOStandard("SSTL135_I")),
         Subsignal("dq", Pins(
             "C17 D15 B17 C16 A15 B13 A17 A13",
             "F17 F16 G15 F15 J16 C18 H16 F18"),
             IOStandard("SSTL135_I"),
             Misc("TERMINATION=75")),
-        Subsignal("dqs_p", Pins("B15 G18"), IOStandard("SSTL135D_I"), Misc("TERMINATION=OFF DIFFRESISTOR=100")),
+        Subsignal("dqs_p", Pins("B15 G18"), IOStandard("SSTL135D_I"),
+            Misc("TERMINATION=OFF DIFFRESISTOR=100")),
         Subsignal("clk_p", Pins("J18"), IOStandard("SSTL135D_I")),
-        Subsignal("cke", Pins("D6"), IOStandard("SSTL135_I")),
-        Subsignal("odt", Pins("C13"), IOStandard("SSTL135_I")),
+        Subsignal("cke",   Pins("D6"),  IOStandard("SSTL135_I")),
+        Subsignal("odt",   Pins("C13"), IOStandard("SSTL135_I")),
         Subsignal("reset_n", Pins("B1"), IOStandard("SSTL135_I")),
         Misc("SLEWRATE=FAST")
     ),
 
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("U17")),
-        Subsignal("clk", Pins("U16")),
-        Subsignal("dq", Pins("U18", "T18", "R18", "N18")),
+        Subsignal("clk",  Pins("U16")),
+        Subsignal("dq",   Pins("U18 T18 R18 N18")),
         IOStandard("LVCMOS33")
     ),
 
     ("spi-internal", 0,
-        Subsignal("cs_n", Pins("B11"), Misc("PULLMODE=UP")),
-        Subsignal("clk",  Pins("C11")),
+        Subsignal("cs_n",   Pins("B11"), Misc("PULLMODE=UP")),
+        Subsignal("clk",    Pins("C11")),
         Subsignal("miso",   Pins("A11"), Misc("PULLMODE=UP")),
         Subsignal("mosi",   Pins("A10"), Misc("PULLMODE=UP")),
-        IOStandard("LVCMOS33"), Misc("SLEWRATE=SLOW")
+        Misc("SLEWRATE=SLOW"),
+        IOStandard("LVCMOS33"),
     ),
 
     ("spisdcard", 0,
@@ -59,15 +61,16 @@ _io_r0_1 = [
         Subsignal("mosi", Pins("K2"), Misc("PULLMODE=UP")),
         Subsignal("cs_n", Pins("M1"), Misc("PULLMODE=UP")),
         Subsignal("miso", Pins("J1"), Misc("PULLMODE=UP")),
-        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
     ),
 ]
 
 _io_r0_2 = [
-    ("clk48", 0, Pins("A9"), IOStandard("LVCMOS33")),
+    ("clk48", 0, Pins("A9"),  IOStandard("LVCMOS33")),
     ("rst_n", 0, Pins("V17"), IOStandard("LVCMOS33")),
 
-    ("usr_btn", 0, Pins("J17"),IOStandard("SSTL135_I")),
+    ("usr_btn", 0, Pins("J17"), IOStandard("SSTL135_I")),
 
     ("rgb_led", 0,
         Subsignal("r", Pins("K4"), IOStandard("LVCMOS33")),
@@ -79,25 +82,28 @@ _io_r0_2 = [
         Subsignal("a", Pins(
             "C4 D2 D3 A3 A4 D4 C3 B2",
             "B1 D1 A7 C2 B6 C1 A2 C7"),
-            IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
-        Subsignal("ba", Pins("D6 B7 A6"), IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
-        Subsignal("ras_n", Pins("C12"), IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
-        Subsignal("cas_n", Pins("D13"), IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
-        Subsignal("we_n", Pins("B12"), IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
-        Subsignal("cs_n", Pins("A12"), IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
-        Subsignal("dm", Pins("D16 G16"), IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
+            IOStandard("SSTL135_I")),
+        Subsignal("ba",    Pins("D6 B7 A6"), IOStandard("SSTL135_I"),),
+        Subsignal("ras_n", Pins("C12"), IOStandard("SSTL135_I")),
+        Subsignal("cas_n", Pins("D13"), IOStandard("SSTL135_I")),
+        Subsignal("we_n",  Pins("B12"), IOStandard("SSTL135_I")),
+        Subsignal("cs_n",  Pins("A12"), IOStandard("SSTL135_I")),
+        Subsignal("dm", Pins("D16 G16"), IOStandard("SSTL135_I")),
         Subsignal("dq", Pins(
             "C17 D15 B17 C16 A15 B13 A17 A13",
             "F17 F16 G15 F15 J16 C18 H16 F18"),
             IOStandard("SSTL135_I"),
-            Misc("TERMINATION=75 SLEWRATE=FAST")),
-        Subsignal("dqs_p", Pins("B15 G18"), IOStandard("SSTL135D_I"), Misc("TERMINATION=OFF DIFFRESISTOR=100 SLEWRATE=FAST")),
-        Subsignal("clk_p", Pins("J18"), IOStandard("SSTL135D_I"),Misc("SLEWRATE=FAST")),
-        Subsignal("cke", Pins("D18"), IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
-        Subsignal("odt", Pins("C13"), IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
-        Subsignal("reset_n", Pins("L18"), IOStandard("SSTL135_I"),Misc("SLEWRATE=FAST")),
+            Misc("TERMINATION=75")),
+        Subsignal("dqs_p", Pins("B15 G18"), IOStandard("SSTL135D_I"),
+            Misc("TERMINATION=OFF"),
+            Misc("DIFFRESISTOR=100")),
+        Subsignal("clk_p", Pins("J18"), IOStandard("SSTL135D_I")),
+        Subsignal("cke",   Pins("D18"), IOStandard("SSTL135_I")),
+        Subsignal("odt",   Pins("C13"), IOStandard("SSTL135_I")),
+        Subsignal("reset_n", Pins("L18"), IOStandard("SSTL135_I")),
         Subsignal("vccio", Pins("K16 D17 K15 K17 B18 C6"), IOStandard("SSTL135_II")),
-        Subsignal("gnd", Pins("L15 L16"), IOStandard("SSTL135_II")),
+        Subsignal("gnd",   Pins("L15 L16"), IOStandard("SSTL135_II")),
+        Misc("SLEWRATE=FAST")
     ),
 
     ("usb", 0,
@@ -126,7 +132,8 @@ _io_r0_2 = [
         Subsignal("mosi", Pins("K2"), Misc("PULLMODE=UP")),
         Subsignal("cs_n", Pins("M1"), Misc("PULLMODE=UP")),
         Subsignal("miso", Pins("J1"), Misc("PULLMODE=UP")),
-        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
     ),
 ]
 
@@ -164,7 +171,7 @@ feather_spi = [
     ("spi",0,
         ("miso", Pins("GPIO:14"), IOStandard("LVCMOS33")),
         ("mosi", Pins("GPIO:16"), IOStandard("LVCMOS33")),
-        ("sck", Pins("GPIO:15"), IOStandard("LVCMOS33"))
+        ("sck",  Pins("GPIO:15"), IOStandard("LVCMOS33"))
     )
 ]
 
@@ -172,7 +179,7 @@ feather_spi = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name = "clk48"
+    default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
     def __init__(self, revision="0.2", device="25F", **kwargs):

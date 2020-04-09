@@ -45,31 +45,31 @@ _io = [
     ("ddram", 0,
         Subsignal("a",       Pins(
             "AC4 AC3 AB4 AB3 AB2 AC2 AB1 AC1",
-            "AB5 AG4 AH4 AG3 AH3 AE3"),         IOStandard("SSTL12_DCI")),
-        Subsignal("we_n",    Pins("AF3"),       IOStandard("SSTL12_DCI")),  # A14
-        Subsignal("cas_n",   Pins("AE2"),       IOStandard("SSTL12_DCI")),  # A15
-        Subsignal("ras_n",   Pins("AF2"),       IOStandard("SSTL12_DCI")),  # A16
-        Subsignal("ba",      Pins("AH1 AF1"),   IOStandard("SSTL12_DCI")),
-        Subsignal("bg",      Pins("AG1"),       IOStandard("SSTL12_DCI")),
-        Subsignal("cs_n",    Pins("AH9"),       IOStandard("SSTL12_DCI")),
-        Subsignal("act_n",   Pins("AH2"),       IOStandard("SSTL12_DCI")),
-        Subsignal("dm",      Pins("AC9 AG9"),   IOStandard("POD12_DCI")),
+            "AB5 AG4 AH4 AG3 AH3 AE3"),       IOStandard("SSTL12_DCI")),
+        Subsignal("we_n",    Pins("AF3"),     IOStandard("SSTL12_DCI")),  # A14
+        Subsignal("cas_n",   Pins("AE2"),     IOStandard("SSTL12_DCI")),  # A15
+        Subsignal("ras_n",   Pins("AF2"),     IOStandard("SSTL12_DCI")),  # A16
+        Subsignal("ba",      Pins("AH1 AF1"), IOStandard("SSTL12_DCI")),
+        Subsignal("bg",      Pins("AG1"),     IOStandard("SSTL12_DCI")),
+        Subsignal("cs_n",    Pins("AH9"),     IOStandard("SSTL12_DCI")),
+        Subsignal("act_n",   Pins("AH2"),     IOStandard("SSTL12_DCI")),
+        Subsignal("dm",      Pins("AC9 AG9"), IOStandard("POD12_DCI")),
         Subsignal("dq",      Pins(
             "AB6 AC6 AE9 AE8 AB8 AC8 AB7 AC7",
             "AE5 AF5 AF8 AG8 AH8 AH7 AF7 AF6"), IOStandard("POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
-        Subsignal("dqs_p",   Pins("AD7 AG6"),   IOStandard("DIFF_POD12_DCI"),
+        Subsignal("dqs_p",   Pins("AD7 AG6"), IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
-        Subsignal("dqs_n",   Pins("AE7 AG5"),   IOStandard("DIFF_POD12_DCI"),
+        Subsignal("dqs_n",   Pins("AE7 AG5"), IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
-        Subsignal("clk_p",   Pins("AD2"),       IOStandard("DIFF_SSTL12_DCI")),
-        Subsignal("clk_n",   Pins("AD1"),       IOStandard("DIFF_SSTL12_DCI")),
-        Subsignal("cke",     Pins("AH6"),       IOStandard("SSTL12_DCI")),
-        Subsignal("odt",     Pins("AE4"),       IOStandard("SSTL12_DCI")),
-        Subsignal("reset_n", Pins("G4"),        IOStandard("LVCMOS18")),
+        Subsignal("clk_p",   Pins("AD2"), IOStandard("DIFF_SSTL12_DCI")),
+        Subsignal("clk_n",   Pins("AD1"), IOStandard("DIFF_SSTL12_DCI")),
+        Subsignal("cke",     Pins("AH6"), IOStandard("SSTL12_DCI")),
+        Subsignal("odt",     Pins("AE4"), IOStandard("SSTL12_DCI")),
+        Subsignal("reset_n", Pins("G4"),  IOStandard("LVCMOS18")),
         Misc("SLEW=FAST"),
     ),
 ]
@@ -81,7 +81,7 @@ _connectors = []
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    default_clk_name = "clk100"
+    default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
     def __init__(self):

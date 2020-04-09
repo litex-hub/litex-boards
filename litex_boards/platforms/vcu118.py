@@ -58,9 +58,9 @@ _io = [
     ("i2c_mux_reset_n", 0, Pins("AL25"), IOStandard("LVCMOS18")),
 
     ("serial", 0,
-        Subsignal("rx", Pins("AW25"), IOStandard("LVCMOS18")),
+        Subsignal("rx",  Pins("AW25"), IOStandard("LVCMOS18")),
         Subsignal("rts", Pins("BB22"), IOStandard("LVCMOS18")),
-        Subsignal("tx", Pins("BB21"), IOStandard("LVCMOS18")),
+        Subsignal("tx",  Pins("BB21"), IOStandard("LVCMOS18")),
         Subsignal("cts", Pins("AY25"), IOStandard("LVCMOS18")),
     ),
 

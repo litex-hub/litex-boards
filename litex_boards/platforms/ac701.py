@@ -27,8 +27,8 @@ _io = [
     ("serial", 0,
         Subsignal("cts", Pins("V19")),
         Subsignal("rts", Pins("W19")),
-        Subsignal("tx", Pins("U19")),
-        Subsignal("rx", Pins("T19")),
+        Subsignal("tx",  Pins("U19")),
+        Subsignal("rx",  Pins("T19")),
         IOStandard("LVCMOS18")
     ),
 
@@ -39,14 +39,16 @@ _io = [
     ),
 
     ("eth", 0,
-        Subsignal("rx_ctl", Pins("U14")),
+        Subsignal("rx_ctl",  Pins("U14")),
         Subsignal("rx_data", Pins("U17 V17 V16 V14")),
-        Subsignal("tx_ctl", Pins("T15")),
+        Subsignal("tx_ctl",  Pins("T15")),
         Subsignal("tx_data", Pins("U16 U15 T18 T17")),
-        Subsignal("rst_n", Pins("V18")),
-        Subsignal("mdc", Pins("W18")),
-        Subsignal("mdio", Pins("T14")),
-        IOStandard("LVCMOS18"), Misc("SLEW=FAST"), Drive(16)
+        Subsignal("rst_n",   Pins("V18")),
+        Subsignal("mdc",     Pins("W18")),
+        Subsignal("mdio",    Pins("T14")),
+        Misc("SLEW=FAST"),
+        Drive(16),
+        IOStandard("LVCMOS18"),
     ),
 
     ("ddram", 0,
@@ -54,22 +56,22 @@ _io = [
             "M4 J3 J1 L4 K5 M7 K1 M6",
             "H1 K3 N7 L5 L7 N6 L3 K2"),
             IOStandard("SSTL15")),
-        Subsignal("ba", Pins("N1 M1 H2"), IOStandard("SSTL15")),
+        Subsignal("ba",    Pins("N1 M1 H2"), IOStandard("SSTL15")),
         Subsignal("ras_n", Pins("P1"), IOStandard("SSTL15")),
         Subsignal("cas_n", Pins("T4"), IOStandard("SSTL15")),
-        Subsignal("we_n", Pins("R1"), IOStandard("SSTL15")),
-        Subsignal("cs_n", Pins("T3"), IOStandard("SSTL15")),
+        Subsignal("we_n",  Pins("R1"), IOStandard("SSTL15")),
+        Subsignal("cs_n",  Pins("T3"), IOStandard("SSTL15")),
         Subsignal("dm", Pins("AC6 AC4 AA3 U7 G1 F3 G5 H9"),
             IOStandard("SSTL15")),
         Subsignal("dq", Pins(
-            "AB6 AA8 Y8 AB5 AA5 Y5 Y6 Y7",
+            "AB6 AA8  Y8 AB5 AA5  Y5  Y6  Y7",
             "AF4 AF5 AF3 AE3 AD3 AC3 AB4 AA4",
-            "AC2 AB2 AF2 AE2 Y1 Y2 AC1 AB1",
-            "Y3 W3 W6 V6 W4 W5 W1 V1",
-            "G2 D1 E1 E2 F2 A2 A3 C2",
-            "C3 D3 A4 B4 C4 D4 D5 E5",
-            "F4 G4 K6 K7 K8 L8 J5 J6",
-            "G6 H6 F7 F8 G8 H8 D6 E6"),
+            "AC2 AB2 AF2 AE2  Y1  Y2 AC1 AB1",
+            "Y3   W3  W6  V6  W4  W5  W1  V1",
+            "G2   D1  E1  E2  F2  A2  A3  C2",
+            "C3   D3  A4  B4  C4  D4  D5  E5",
+            "F4   G4  K6  K7  K8  L8  J5  J6",
+            "G6   H6  F7  F8  G8  H8  D6  E6"),
             IOStandard("SSTL15"),
             Misc("IN_TERM=UNTUNED_SPLIT_50")),
         Subsignal("dqs_p", Pins("V8 AD5 AD1 V3 C1 B5 J4 H7"),
@@ -78,8 +80,8 @@ _io = [
             IOStandard("DIFF_SSTL15")),
         Subsignal("clk_p", Pins("M2"), IOStandard("DIFF_SSTL15")),
         Subsignal("clk_n", Pins("L2"), IOStandard("DIFF_SSTL15")),
-        Subsignal("cke", Pins("P4"), IOStandard("SSTL15")),
-        Subsignal("odt", Pins("R2"), IOStandard("SSTL15")),
+        Subsignal("cke",   Pins("P4"), IOStandard("SSTL15")),
+        Subsignal("odt",   Pins("R2"), IOStandard("SSTL15")),
         Subsignal("reset_n", Pins("N8"), IOStandard("LVCMOS15")),
         Misc("SLEW=FAST"),
     ),
@@ -88,10 +90,10 @@ _io = [
         Subsignal("rst_n", Pins("M20"), IOStandard("LVCMOS25")),
         Subsignal("clk_p", Pins("F11")),
         Subsignal("clk_n", Pins("E11")),
-        Subsignal("rx_p", Pins("D12")),
-        Subsignal("rx_n", Pins("C12")),
-        Subsignal("tx_p", Pins("D10")),
-        Subsignal("tx_n", Pins("C10"))
+        Subsignal("rx_p",  Pins("D12")),
+        Subsignal("rx_n",  Pins("C12")),
+        Subsignal("tx_p",  Pins("D10")),
+        Subsignal("tx_n",  Pins("C10"))
     ),
 
     ("vadj_on_b", 0, Pins("R16"), IOStandard("LVCMOS25")),
@@ -110,7 +112,7 @@ _io = [
     ("sfp_mgt_clk_sel0", 0, Pins("B26"), IOStandard("LVCMOS25")),
     ("sfp_mgt_clk_sel1", 0, Pins("C24"), IOStandard("LVCMOS25")),
     ("sfp_tx_disable_n", 0, Pins("R18"), IOStandard("LVCMOS33")),
-    ("sfp_rx_los", 0, Pins("R23"), IOStandard("LVCMOS33")),
+    ("sfp_rx_los",       0, Pins("R23"), IOStandard("LVCMOS33")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -208,7 +210,7 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    default_clk_name = "clk156"
+    default_clk_name   = "clk156"
     default_clk_period = 1e9/156.5e6
 
     def __init__(self):

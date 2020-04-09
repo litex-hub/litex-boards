@@ -11,7 +11,7 @@ import os
 
 _io = [
     ("clk12", 0, Pins("A10"), IOStandard("LVCMOS33")),
-    ("rst_n", 0, Pins("G2"), IOStandard("LVCMOS33")),
+    ("rst_n", 0, Pins("G2"),  IOStandard("LVCMOS33")),
 
     ("user_led", 0, Pins("A13"), IOStandard("LVCMOS25")),
     ("user_led", 1, Pins("A12"), IOStandard("LVCMOS25")),
@@ -22,9 +22,9 @@ _io = [
     ("user_led", 6, Pins("A17"), IOStandard("LVCMOS25")),
     ("user_led", 7, Pins("B17"), IOStandard("LVCMOS25")),
 
-    ("user_dip_btn", 1, Pins("J1"), IOStandard("LVCMOS33")),
-    ("user_dip_btn", 2, Pins("H1"), IOStandard("LVCMOS33")),
-    ("user_dip_btn", 3, Pins("K1"), IOStandard("LVCMOS33")),
+    ("user_dip_btn", 1, Pins("J1"),  IOStandard("LVCMOS33")),
+    ("user_dip_btn", 2, Pins("H1"),  IOStandard("LVCMOS33")),
+    ("user_dip_btn", 3, Pins("K1"),  IOStandard("LVCMOS33")),
     ("user_dip_btn", 4, Pins("E15"), IOStandard("LVCMOS25")),
     ("user_dip_btn", 5, Pins("D16"), IOStandard("LVCMOS25")),
     ("user_dip_btn", 6, Pins("B16"), IOStandard("LVCMOS25")),
@@ -39,7 +39,7 @@ _io = [
     ),
 
     ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("R2"), IOStandard("LVCMOS33")),
+        Subsignal("cs_n", Pins("R2"),          IOStandard("LVCMOS33")),
         Subsignal("dq",   Pins("W2 V2 Y2 W1"), IOStandard("LVCMOS33")),
     ),
 
@@ -48,7 +48,7 @@ _io = [
         Subsignal("n", Pins("W20")),
         IOStandard("LVDS")
     ),
-    ("ext_clk50", 0, Pins("B11"), IOStandard("LVCMOS33")),
+    ("ext_clk50",    0, Pins("B11"), IOStandard("LVCMOS33")),
     ("ext_clk50_en", 0, Pins("C11"), IOStandard("LVCMOS33")),
 ]
 
@@ -119,7 +119,7 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name = "clk12"
+    default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
     def __init__(self, **kwargs):
