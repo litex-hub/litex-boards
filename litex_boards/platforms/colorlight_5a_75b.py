@@ -20,11 +20,10 @@ _io_v6_1 = [ # Documented by @smunaut
     ("user_btn_n", 0, Pins("R16"), IOStandard("LVCMOS33")),
 
     # serial
+    # There seems to be some capacitance on KEY+ pin, so high baudrates may not work (>9600bps).
     ("serial", 0,
         Subsignal("tx", Pins("U16")), # led (J19 DATA_LED-)
         Subsignal("rx", Pins("R16")), # btn (J19 KEY+)
-        # It seems there's some capacitance on the KEY+ pin, so bigger baudrates
-        # may not work
         IOStandard("LVCMOS33")
     ),
 

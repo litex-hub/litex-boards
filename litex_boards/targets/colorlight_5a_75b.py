@@ -7,12 +7,13 @@
 #
 # 1) SoC with regular UART and optional Ethernet connected to the CPU:
 # Connect a USB/UART to J19: TX of the FPGA is DATA_LED-, RX of the FPGA is KEY+.
-# ./colorlight_5a_75b.py --uart-baudrate 9600 (add --with-ethernet to add Ethernet capability)
+# ./colorlight_5a_75b.py --revision=7.0 (or 6.1) (--with-ethernet to add Ethernet capability)
+# Note: on revision 6.1, add --uart-baudrate=9600 to lower the baudrate.
 # ./colorlight_5a_75b.py --load
 # You should see the LiteX BIOS and be able to interact with it.
 #
 # 2) SoC with UART in crossover mode over Etherbone:
-# ./colorlight_5a_75b.py --uart-name=crossover --with-etherbone --csr-csv=csr.csv
+# ./colorlight_5a_75b.py --revision=7.0 (or 6.1) --uart-name=crossover --with-etherbone --csr-csv=csr.csv
 # ./colorlight_5a_75b.py --load
 # ping 192.168.1.50
 # Get and install wishbone tool from: https://github.com/litex-hub/wishbone-utils/releases
