@@ -7,7 +7,7 @@
 #
 # 1) SoC with regular UART and optional Ethernet connected to the CPU:
 # Connect a USB/UART to J19: TX of the FPGA is DATA_LED-, RX of the FPGA is KEY+.
-# ./colorlight_5a_75b.py (add --with-ethernet to add Ethernet capability)
+# ./colorlight_5a_75b.py --uart-baudrate 9600 (add --with-ethernet to add Ethernet capability)
 # ./colorlight_5a_75b.py --load
 # You should see the LiteX BIOS and be able to interact with it.
 #
