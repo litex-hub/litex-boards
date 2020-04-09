@@ -33,7 +33,7 @@ _io_v6_1 = [ # Documented by @smunaut
     ("sdram", 0,
         Subsignal("a", Pins(
             "B13 C14 A16 A17 B16 B15 A14 A13",
-            "A12 A11 B12 A11")),
+            "A12 A11 B12")),
         Subsignal("dq", Pins(
             "D15 E14 E13 D12 E12 D11 C10 B17",
             "B8  A8  C7  A7  A6  B6  A5  B5",
@@ -44,6 +44,7 @@ _io_v6_1 = [ # Documented by @smunaut
         Subsignal("cas_n", Pins("A9")),
         #Subsignal("cs_n", Pins("")), # gnd
         #Subsignal("cke",  Pins("")), # 3v3
+        Subsignal("ba",    Pins("B11")), # sdram pin a11 is ba
         #Subsignal("dm",   Pins("")), # gnd
         IOStandard("LVCMOS33"),
         Misc("SLEWRATE=FAST")
