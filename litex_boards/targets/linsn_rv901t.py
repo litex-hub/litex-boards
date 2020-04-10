@@ -6,7 +6,8 @@
 import argparse
 
 from migen import *
-from migen.genlib.io import DDROutput
+
+from litex.build.io import DDROutput
 
 from litex_boards.platforms import linsn_rv901t
 
