@@ -8,6 +8,8 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.build.io import DDROutput
+
 from litex_boards.platforms import de10nano
 
 from litex.soc.cores.clock import CycloneVPLL
@@ -37,9 +39,9 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
 
-        # SDRAM
+        # SDRAM clock
         if with_sdram:
-            self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
+            self.specials += DDROutput(1, 0, platform.request("sdram_clock"), ClockSignal("sys_ps"))
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

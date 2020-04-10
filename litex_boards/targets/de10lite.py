@@ -8,6 +8,8 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.build.io import DDROutput
+
 from litex_boards.platforms import de10lite
 
 from litex.soc.cores.clock import Max10PLL
@@ -42,7 +44,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_vga,    25e6)
 
         # SDRAM clock
-        self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
+        self.specials += DDROutput(1, 0, platform.request("sdram_clock"), ClockSignal("sys_ps"))
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

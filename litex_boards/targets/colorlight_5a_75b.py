@@ -30,6 +30,8 @@ import sys
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.build.io import DDROutput
+
 from litex_boards.platforms import colorlight_5a_75b
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
@@ -66,7 +68,7 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll.locked | ~rst_n)
 
         # SDRAM clock
-        self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
+        self.specials += DDROutput(1, 0, platform.request("sdram_clock"), ClockSignal("sys_ps"))
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
