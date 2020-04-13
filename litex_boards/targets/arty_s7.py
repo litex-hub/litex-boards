@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 
 # This file is Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>,
-# Copyright (c) 2020 Staf Verhaegen <staf@fibraservi.eu>
+# This file is Copyright (c) 2020 Staf Verhaegen <staf@fibraservi.eu>
 # License: BSD
 
 import argparse
 
-from migen import Module, ClockDomain
+from migen import *
 
-from ..platforms import artys7
+from litex_boards.platforms import arty_s7
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
-from litex.soc.cores.clock import S7PLL, S7IDELAYCTRL
-from litex.soc.integration.soc_core import SoCCore
-from litex.soc.integration.soc_sdram import soc_sdram_args, soc_sdram_argdict
-from litex.soc.integration.builder import Builder, builder_args, builder_argdict
+from litex.soc.cores.clock import *
+from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc_sdram import *
+from litex.soc.integration.builder import *
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
@@ -46,7 +46,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), **kwargs):
-        platform = artys7.Platform()
+        platform = arty_s7.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
@@ -81,8 +81,7 @@ def main():
     vivado_build_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(with_ethernet=False, with_etherbone=False,
-        **soc_sdram_argdict(args))
+    soc = BaseSoC(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**vivado_build_argdict(args))
 

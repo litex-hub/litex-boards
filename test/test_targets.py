@@ -36,6 +36,9 @@ class TestTargets(unittest.TestCase):
         platforms.append("pipistrello")
         platforms.append("sp605")
 
+        # Xilinx Spartan7
+        platforms.append("arty_s7")
+
         # Xilinx Artix7
         platforms.append("ac701")
         platforms.append("aller")
