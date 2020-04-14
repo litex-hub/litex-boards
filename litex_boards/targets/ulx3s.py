@@ -42,16 +42,18 @@ class _CRG(Module):
         self.submodules.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(rst)
         pll.register_clkin(clk25, 25e6)
-        pll.create_clkout(self.cd_sys,    sys_clk_freq, margin=0)
+        pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll.locked | rst)
 
         # USB PLL
         if with_usb_pll:
+            self.submodules.usb_pll = usb_pll = ECP5PLL()
+            usb_pll.register_clkin(clk25, 25e6)
             self.clock_domains.cd_usb_12 = ClockDomain()
             self.clock_domains.cd_usb_48 = ClockDomain()
-            pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
-            self.comb += self.cd_usb_48.clk.eq(self.cd_sys.clk)
+            usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
+            usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
 
         # SDRAM clock
         self.specials += DDROutput(1, 0, platform.request("sdram_clock"), ClockSignal("sys_ps"))
@@ -95,8 +97,8 @@ def main():
         help="gateware toolchain to use, trellis (default) or diamond")
     parser.add_argument("--device", dest="device", default="LFE5U-45F",
         help="FPGA device, ULX3S can be populated with LFE5U-45F (default) or LFE5U-85F")
-    parser.add_argument("--sys-clk-freq", default=48e6,
-                        help="system clock frequency (default=48MHz)")
+    parser.add_argument("--sys-clk-freq", default=50e6,
+                        help="system clock frequency (default=50MHz)")
     parser.add_argument("--sdram-module", default="MT48LC16M16",
                         help="SDRAM module: MT48LC16M16, AS4C32M16 or AS4C16M16 (default=MT48LC16M16)")
     builder_args(parser)

@@ -20,6 +20,16 @@
 # wishbone-tool --ethernet-host 192.168.1.50 --server terminal --csr-csv csr.csv
 # You should see the LiteX BIOS and be able to interact with it.
 #
+# 3) SoC with USB-ACM UART (on V7.0):
+# - Replace U23 with a SN74CBT3245APWR or remove U23 and place jumper wires to make the ports bi-directional.
+# - Place a 15K resistor between J4 pin 2 and J4 pin 4.
+# - Place a 15K resistor between J4 pin 3 and J4 pin 4.
+# - Place a 1.5K resistor between J4 pin 1 and J4 pin 3.
+# - Connect USB DP (Green) to J4 pin 3, USB DN (White) to J4 pin 2.
+# ./colorlight_5a_75b.py --revision=7.0 --uart-name=usb_cdcc
+# ./colorlight_5a_75b.py --load
+# You should see the LiteX BIOS and be able to interact with it.
+#
 # Disclaimer: SoC 2) is still a Proof of Concept with large timings violations on the IP/UDP and
 # Etherbone stack that need to be optimized. It was initially just used to validate the reversed
 # pinout but happens to work on hardware...
@@ -75,7 +85,6 @@ class _CRG(Module):
             self.clock_domains.cd_usb_48 = ClockDomain()
             usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
             usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
-            #self.comb += self.cd_usb_48.clk.eq(self.cd_sys.clk)
 
         # SDRAM clock
         self.specials += DDROutput(1, 0, platform.request("sdram_clock"), ClockSignal("sys_ps"))
@@ -127,44 +136,23 @@ class BaseSoC(SoCCore):
 
 # Load ---------------------------------------------------------------------------------------------
 
-def openocd_run_svf(filename, iface="ftdi"):
+def load():
     import os
     f = open("openocd.cfg", "w")
-    if (iface == "ftdi"):
-        f.write(
-"""adapter driver ftdi
+    f.write(
+"""
+interface ftdi
 ftdi_vid_pid 0x0403 0x6011
 ftdi_channel 0
 ftdi_layout_init 0x0098 0x008b
 reset_config none
-adapter speed 25000
+adapter_khz 25000
 jtag newtap ecp5 tap -irlen 8 -expected-id 0x41111043
 """)
-    elif (iface=="jlink"):
-        f.write("""adapter driver jlink
-transport select jtag
-reset_config none
-telnet_port 4444
-adapter speed 10000
-jtag newtap lfe5u25 tap -irlen 8 -irmask 0xFF -ircapture 0x5 -expected-id 0x41111043
-""")
-    else:
-        print("Unrecognised jtag interface")
-        exit()
-
     f.close()
-    os.system("openocd -d0 -f openocd.cfg -c \"transport select jtag; init; svf -tap lfe5u25.tap {} -quiet -progress; exit\"".format(filename))
-    os.system("rm openocd.cfg")
+    os.system("openocd -f openocd.cfg -c \"transport select jtag; init; svf soc_basesoc_colorlight_5a_75b/gateware/top.svf; exit\"")
     exit()
 
-def load(iface="ftdi"):
-    openocd_run_svf("soc_basesoc_colorlight_5a_75b/gateware/top.svf",iface=iface)
-
-def flash(iface="ftdi"):
-    import os
-    os.system("./bit_to_flash.py soc_basesoc_colorlight_5a_75b/gateware/top.bit soc_basesoc_colorlight_5a_75b/gateware/top.svf.flash")
-    openocd_run_svf("soc_basesoc_colorlight_5a_75b/gateware/top.svf.flash",iface=iface)
-    
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -177,18 +165,11 @@ def main():
     parser.add_argument("--with-etherbone", action="store_true", help="enable Etherbone support")
     parser.add_argument("--eth-phy", default=0, type=int, help="Ethernet PHY 0 or 1 (default=0)")
     parser.add_argument("--load", action="store_true", help="load bitstream")
-    parser.add_argument("--flash", action="store_true", help="flash bitstream")    
-    parser.add_argument("--iface", default="ftdi", help="loading jtag interface")
-    parser.add_argument("--sys-clk-freq", default=60e6,
-                        help="system clock frequency (default=60MHz)")
-
+    parser.add_argument("--sys-clk-freq", default=60e6, help="system clock frequency (default=60MHz)")
     args = parser.parse_args()
 
     if args.load:
-        load(iface=args.iface)
-
-    if args.flash:
-        flash(iface=args.iface)
+        load()
 
     assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(revision=args.revision,
