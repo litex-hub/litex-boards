@@ -127,7 +127,7 @@ class BaseSoC(SoCCore):
 
 # Load ---------------------------------------------------------------------------------------------
 
-def load(iface="ftdi"):
+def openocd_run_svf(filename, iface="ftdi"):
     import os
     f = open("openocd.cfg", "w")
     if (iface == "ftdi"):
@@ -153,9 +153,18 @@ jtag newtap lfe5u25 tap -irlen 8 -irmask 0xFF -ircapture 0x5 -expected-id 0x4111
         exit()
 
     f.close()
-    os.system("openocd -f openocd.cfg -c \"transport select jtag; init; svf -tap lfe5u25.tap -quiet -progress soc_basesoc_colorlight_5a_75b/gateware/top.svf; exit\"")
+    os.system("openocd -d0 -f openocd.cfg -c \"transport select jtag; init; svf -tap lfe5u25.tap {} -quiet -progress; exit\"".format(filename))
+    os.system("rm openocd.cfg")
     exit()
 
+def load(iface="ftdi"):
+    openocd_run_svf("soc_basesoc_colorlight_5a_75b/gateware/top.svf",iface=iface)
+
+def flash(iface="ftdi"):
+    import os
+    os.system("./bit_to_flash.py soc_basesoc_colorlight_5a_75b/gateware/top.bit soc_basesoc_colorlight_5a_75b/gateware/top.svf.flash")
+    openocd_run_svf("soc_basesoc_colorlight_5a_75b/gateware/top.svf.flash",iface=iface)
+    
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -168,6 +177,7 @@ def main():
     parser.add_argument("--with-etherbone", action="store_true", help="enable Etherbone support")
     parser.add_argument("--eth-phy", default=0, type=int, help="Ethernet PHY 0 or 1 (default=0)")
     parser.add_argument("--load", action="store_true", help="load bitstream")
+    parser.add_argument("--flash", action="store_true", help="flash bitstream")    
     parser.add_argument("--iface", default="ftdi", help="loading jtag interface")
     parser.add_argument("--sys-clk-freq", default=60e6,
                         help="system clock frequency (default=60MHz)")
@@ -176,6 +186,9 @@ def main():
 
     if args.load:
         load(iface=args.iface)
+
+    if args.flash:
+        flash(iface=args.iface)
 
     assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(revision=args.revision,
