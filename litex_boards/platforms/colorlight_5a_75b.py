@@ -172,6 +172,13 @@ _io_v7_0 = [ # Documented by @miek
         Subsignal("tx_data", Pins("T14 R12 R13 R14")),
         IOStandard("LVCMOS33")
     ),
+
+    ("usb", 0,
+        Subsignal("d_p", Pins("M8")),
+        Subsignal("d_n", Pins("R2")),
+        Subsignal("pullup", Pins("P4")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 # from https://github.com/miek/chubby75/blob/5a-75b-v7_pinout/5a-75b/hardware_V6.1.md
