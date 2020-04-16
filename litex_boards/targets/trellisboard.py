@@ -94,7 +94,6 @@ class BaseSoC(SoCCore):
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
             self.add_csr("ddrphy")
-            self.add_constant("ECP5DDRPHY")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MT41J256M16(sys_clk_freq, "1:2"),
