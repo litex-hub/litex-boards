@@ -42,6 +42,31 @@ _io = [
         Subsignal("rx", Pins("R26"), IOStandard("LVCMOS33")),
         Subsignal("tx", Pins("R24"), IOStandard("LVCMOS33")),
     ),
+
+    # ddram
+    ("ddram", 0,
+        Subsignal("a", Pins(
+            "T5 M3 L3 V6 K2 W6 K3 L1",
+            "H2 L2 N1 J1 M1 K1"),
+            IOStandard("SSTL15_I")),
+        Subsignal("ba",    Pins("U6 N3 N4"), IOStandard("SSTL15_I")),
+        Subsignal("ras_n", Pins("T3"), IOStandard("SSTL15_I")),
+        Subsignal("cas_n", Pins("P2"), IOStandard("SSTL15_I")),
+        Subsignal("we_n",  Pins("R3"), IOStandard("SSTL15_I")),
+        Subsignal("dm", Pins("U4 U1"), IOStandard("SSTL15_I")),
+        Subsignal("dq", Pins(
+            "T4 W4 R4 W5 R6 P6 P5 P4",
+            "R1 W3 T2 V3 U3 W1 T1 W2",),
+            IOStandard("SSTL15_I"),
+            Misc("TERMINATION=75")),
+        Subsignal("dqs_p", Pins("V4 V1"), IOStandard("SSTL15D_I"),
+            Misc("TERMINATION=OFF"),
+            Misc("DIFFRESISTOR=100")),
+        Subsignal("clk_p", Pins("H3"), IOStandard("SSTL15D_I")),
+        Subsignal("cke",   Pins("P1"), IOStandard("SSTL15_I")),
+        Subsignal("odt",   Pins("P3"), IOStandard("SSTL15_I")),
+        Misc("SLEWRATE=FAST"),
+    ),
 ]
 
 _connectors = []
