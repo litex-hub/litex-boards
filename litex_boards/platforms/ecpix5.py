@@ -67,6 +67,23 @@ _io = [
         Subsignal("odt",   Pins("P3"), IOStandard("SSTL15_I")),
         Misc("SLEWRATE=FAST"),
     ),
+
+    # ethernet
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("A12")),
+        Subsignal("rx", Pins("E11")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("C13")),
+        Subsignal("mdio",    Pins("A13")),
+        Subsignal("mdc",     Pins("C11")),
+        Subsignal("rx_ctl",  Pins("A11")),
+        Subsignal("rx_data", Pins("B11 A10 B10 A9")),
+        Subsignal("tx_ctl",  Pins("C9")),
+        Subsignal("tx_data", Pins("D8 C8 B8 A8")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 _connectors = []

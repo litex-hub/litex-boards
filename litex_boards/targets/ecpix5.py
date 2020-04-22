@@ -20,6 +20,8 @@ from litex.soc.integration.builder import *
 from litedram.modules import MT41K256M16
 from litedram.phy import ECP5DDRPHY
 
+from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -69,7 +71,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, **kwargs):
         platform = ecpix5.Platform(toolchain="trellis")
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -94,6 +96,14 @@ class BaseSoC(SoCCore):
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
             )
+
+        # Ethernet ---------------------------------------------------------------------------------
+        if with_ethernet:
+            self.submodules.ethphy = LiteEthPHYRGMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"))
+            self.add_csr("ethphy")
+            self.add_ethernet(phy=self.ethphy)
 
         # Leds (Disable...) ------------------------------------------------------------------------
         for i in range(4):
@@ -127,13 +137,14 @@ def main():
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
+    parser.add_argument("--with-ethernet", action="store_true", help="enable Ethernet support")
     parser.add_argument("--load", action="store_true", help="load bitstream")
     args = parser.parse_args()
 
     if args.load:
         load()
 
-    soc     = BaseSoC(**soc_core_argdict(args))
+    soc     = BaseSoC(with_ethernet=with_ethernet, **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**trellis_argdict(args))
 
