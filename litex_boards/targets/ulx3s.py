@@ -73,7 +73,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll = kwargs.get("uart_name", None) == "usb_cdc"
+        with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll)
 
         # SDR SDRAM --------------------------------------------------------------------------------

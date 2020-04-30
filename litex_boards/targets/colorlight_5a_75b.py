@@ -26,7 +26,7 @@
 # - Place a 15K resistor between J4 pin 3 and J4 pin 4.
 # - Place a 1.5K resistor between J4 pin 1 and J4 pin 3.
 # - Connect USB DP (Green) to J4 pin 3, USB DN (White) to J4 pin 2.
-# ./colorlight_5a_75b.py --revision=7.0 --uart-name=usb_cdcc
+# ./colorlight_5a_75b.py --revision=7.0 --uart-name=usb_acm
 # ./colorlight_5a_75b.py --load
 # You should see the LiteX BIOS and be able to interact with it.
 #
@@ -102,7 +102,7 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_rst = kwargs["uart_name"] not in ["serial", "bridge"] # serial_rx shared with user_btn_n.
-        with_usb_pll = kwargs.get("uart_name", None) == "usb_cdc"
+        with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_pll,with_rst=with_rst)
 
         # SDR SDRAM --------------------------------------------------------------------------------
