@@ -65,9 +65,8 @@ class BaseSoC(SoCCore):
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6,
-                cmd_latency      = 0)
+                cmd_latency      = 1)
             self.add_csr("ddrphy")
-            self.add_constant("USDDRPHY_DEBUG")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MT40A256M16(sys_clk_freq, "1:4"),

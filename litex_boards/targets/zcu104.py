@@ -66,7 +66,6 @@ class BaseSoC(SoCCore):
                 iodelay_clk_freq = 500e6,
                 cmd_latency      = 1)
             self.add_csr("ddrphy")
-            self.add_constant("USDDRPHY_DEBUG")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MTA4ATF51264HZ(sys_clk_freq, "1:4"),
