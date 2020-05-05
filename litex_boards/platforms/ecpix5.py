@@ -104,3 +104,4 @@ class Platform(LatticePlatform):
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
