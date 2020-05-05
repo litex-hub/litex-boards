@@ -1,10 +1,11 @@
 # This file is Copyright (c) 2019 Michael Betz <michibetz@gmail.com>
 # License: BSD
 
-
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform
 from litex.build.openocd import OpenOCD
+
+# IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     ("user_led", 0, Pins("D17"), IOStandard("LVCMOS25")),
@@ -55,6 +56,8 @@ _io = [
         IOStandard("LVCMOS25")
     ),
 ]
+
+# Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
     ("LPC", {
@@ -153,6 +156,8 @@ _connectors = [
         "N": "D11"
     }),
 ]
+
+# Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
     default_clk_name   = "clk200"

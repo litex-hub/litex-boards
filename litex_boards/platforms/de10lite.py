@@ -5,6 +5,7 @@ from litex.build.generic_platform import *
 from litex.build.altera import AlteraPlatform
 from litex.build.altera.programmer import USBBlaster
 
+# IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     ("clk10", 0, Pins("N5"),  IOStandard("3.3-V LVTTL")),
@@ -103,6 +104,7 @@ _io = [
     )
 ]
 
+# Platform -----------------------------------------------------------------------------------------
 
 class Platform(AlteraPlatform):
     default_clk_name   = "clk50"
