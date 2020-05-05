@@ -112,7 +112,7 @@ _io = [
     ),
 
     # DDR4 memory channel C2.
-    ("ddram_second_channel", 0,
+    ("ddram", 1,
         Subsignal("a", Pins(
             "AM27 AL27 AP26 AP25 AN28 AM28 AP28 AP27",
             "AN26 AM26 AR28 AR27 AV25 AT25"),
