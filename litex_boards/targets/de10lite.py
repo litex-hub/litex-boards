@@ -3,6 +3,7 @@
 # This file is Copyright (c) 2019 msloniewski <marcin.sloniewski@gmail.com>
 # License: BSD
 
+import os
 import argparse
 
 from migen import *
@@ -100,16 +101,21 @@ class VGASoC(BaseSoC):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE10 Lite")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--with-vga", action="store_true", help="enable VGA support")
+    parser.add_argument("--with-vga", action="store_true", help="Enable VGA support")
     args = parser.parse_args()
 
     cls = VGASoC if args.with_vga else BaseSoC
     soc = cls(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build()
+    builder.build(run=args.build)
 
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.sof"))
 
 if __name__ == "__main__":
     main()

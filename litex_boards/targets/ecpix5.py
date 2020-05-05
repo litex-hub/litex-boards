@@ -3,6 +3,7 @@
 # This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
+import os
 import argparse
 import sys
 
@@ -110,42 +111,25 @@ class BaseSoC(SoCCore):
             for c in "rgb":
                 self.comb += getattr(rgb_led_pads, c).eq(1)
 
-# Load ---------------------------------------------------------------------------------------------
-
-def load():
-    import os
-    f = open("openocd.cfg", "w")
-    f.write(
-"""
-interface ftdi
-ftdi_vid_pid 0x0403 0x6010
-ftdi_channel 0
-ftdi_layout_init 0x00e8 0x60eb
-reset_config none
-adapter_khz 25000
-jtag newtap ecp5 tap -irlen 8 -expected-id 0x41111043
-""")
-    f.close()
-    os.system("openocd -f openocd.cfg -c \"transport select jtag; init; svf soc_basesoc_ecpix5/gateware/top.svf; exit\"")
-    exit()
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ECPIX-5")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true", help="enable Ethernet support")
-    parser.add_argument("--load", action="store_true", help="load bitstream")
+    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
     args = parser.parse_args()
-
-    if args.load:
-        load()
 
     soc     = BaseSoC(with_ethernet=args.with_ethernet, **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**trellis_argdict(args))
+    builder.build(**trellis_argdict(args), run=args.build)
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.svf"))
 
 if __name__ == "__main__":
     main()

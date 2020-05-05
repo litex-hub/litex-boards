@@ -4,6 +4,7 @@
 # This file is Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
+import os
 import argparse
 import sys
 
@@ -167,6 +168,8 @@ class PCIeSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Tagus")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
@@ -178,8 +181,12 @@ def main():
     platform = tagus.Platform()
     soc      = PCIeSoC(platform, **soc_sdram_argdict(args))
     builder  = Builder(soc, **builder_argdict(args))
-    vns = builder.build()
+    vns = builder.build(run=args.build)
     soc.generate_software_headers()
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.bit"))
 
 if __name__ == "__main__":
     main()

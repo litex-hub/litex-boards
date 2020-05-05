@@ -3,6 +3,7 @@
 # This file is Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
+import os
 import argparse
 
 from migen import *
@@ -104,10 +105,12 @@ class EthernetSoC(BaseSoC):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Linsn RV901T")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true", help="enable Ethernet support")
-    parser.add_argument("--eth-phy", default=0, type=int, help="Ethernet PHY 0 or 1 (default=0)")
+    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--eth-phy",       default=0, type=int, help="Ethernet PHY 0 or 1 (default=0)")
     args = parser.parse_args()
 
     if args.with_ethernet:
@@ -115,8 +118,11 @@ def main():
     else:
         soc = BaseSoC(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build()
+    builder.build(run=args.build)
 
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.bit"))
 
 if __name__ == "__main__":
     main()

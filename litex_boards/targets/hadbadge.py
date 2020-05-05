@@ -6,6 +6,7 @@
 # This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
+import os
 import argparse
 import sys
 
@@ -78,21 +79,18 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Hackaday Badge")
-    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
-        help="gateware toolchain to use, trellis (default) or diamond")
-    parser.add_argument("--sys-clk-freq", default=48e6,
-                        help="system clock frequency (default=48MHz)")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis", help="Gateware toolchain to use, trellis (default) or diamond")
+    parser.add_argument("--sys-clk-freq", default=48e6, help="System clock frequency (default=48MHz)")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(toolchain=args.toolchain,
-        sys_clk_freq=int(float(args.sys_clk_freq)),
-        **soc_sdram_argdict(args))
+    soc = BaseSoC(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
-    builder.build(**builder_kargs)
+    builder.build(**builder_kargs, run=args.build)
 
 if __name__ == "__main__":
     main()

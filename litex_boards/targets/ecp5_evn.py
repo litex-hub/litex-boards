@@ -3,6 +3,7 @@
 # This file is Copyright (c) 2019 Arnaud Durand <arnaud.durand@unifr.ch>
 # License: BSD
 
+import os
 import argparse
 
 from migen import *
@@ -54,23 +55,25 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ECP5 Evaluation Board")
-    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
-        help="gateware toolchain to use, trellis (default) or diamond")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis", help="Gateware toolchain to use, trellis (default) or diamond")
     builder_args(parser)
     soc_core_args(parser)
-    parser.add_argument("--sys-clk-freq", default=60e6,
-                        help="system clock frequency (default=60MHz)")
-    parser.add_argument("--x5-clk-freq", type=int,
-                        help="use X5 oscillator as system clock at the specified frequency")
+    parser.add_argument("--sys-clk-freq", default=60e6, help="System clock frequency (default=60MHz)")
+    parser.add_argument("--x5-clk-freq",  type=int,     help="Use X5 oscillator as system clock at the specified frequency")
     args = parser.parse_args()
 
-    cls = BaseSoC
-    soc = cls(toolchain=args.toolchain,
+    soc = BaseSoC(toolchain=args.toolchain,
         sys_clk_freq = int(float(args.sys_clk_freq)),
         x5_clk_freq  = args.x5_clk_freq,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build()
+    builder.build(run=args.build)
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.svf"))
 
 if __name__ == "__main__":
     main()

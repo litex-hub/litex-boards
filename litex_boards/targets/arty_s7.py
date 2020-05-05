@@ -4,6 +4,7 @@
 # This file is Copyright (c) 2020 Staf Verhaegen <staf@fibraservi.eu>
 # License: BSD
 
+import os
 import argparse
 
 from migen import *
@@ -75,7 +76,9 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Arty")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Arty S7")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     vivado_build_args(parser)
@@ -83,8 +86,11 @@ def main():
 
     soc = BaseSoC(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**vivado_build_argdict(args))
+    builder.build(**vivado_build_argdict(args), run=args.build)
 
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.bit"))
 
 if __name__ == "__main__":
     main()

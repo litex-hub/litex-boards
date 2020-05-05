@@ -4,6 +4,7 @@
 # This file is Copyright (c) 2018 David Shah <dave@ds0.me>
 # License: BSD
 
+import os
 import argparse
 
 from migen import *
@@ -279,24 +280,17 @@ def add_dfu_suffix(fn):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Fomu")
-    parser.add_argument(
-        "--board", choices=["evt", "pvt", "hacker"], required=True,
-        help="build for a particular hardware board"
-    )
-    parser.add_argument(
-        "--seed", default=0, help="seed to use in nextpnr"
-    )
-    parser.add_argument(
-        "--placer", default="heap", choices=["sa", "heap"], help="which placer to use in nextpnr"
-    )
+    parser.add_argument("--build",  action="store_true", help="Build bitstream")
+    parser.add_argument("--board",  choices=["evt", "pvt", "hacker"], required=True, help="Build for a particular hardware board")
+    parser.add_argument("--seed",   default=0, help="Seed to use in Nextpnr")
+    parser.add_argument("--placer", default="heap", choices=["sa", "heap"], help="Which placer to use in Nextpnr")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(board=args.board, pnr_placer=args.placer, pnr_seed=args.seed,
-                debug=True, **soc_core_argdict(args))
+    soc = BaseSoC(board=args.board, pnr_placer=args.placer, pnr_seed=args.seed, debug=True, **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build()
+    builder.build(run=args.build)
 
 if __name__ == "__main__":
     main()

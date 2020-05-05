@@ -34,6 +34,7 @@
 # Etherbone stack that need to be optimized. It was initially just used to validate the reversed
 # pinout but happens to work on hardware...
 
+import os
 import argparse
 import sys
 
@@ -133,25 +134,6 @@ class BaseSoC(SoCCore):
             self.add_csr("ethphy")
             self.add_etherbone(phy=self.ethphy)
 
-# Load ---------------------------------------------------------------------------------------------
-
-def load():
-    import os
-    f = open("openocd.cfg", "w")
-    f.write(
-"""
-interface ftdi
-ftdi_vid_pid 0x0403 0x6011
-ftdi_channel 0
-ftdi_layout_init 0x0098 0x008b
-reset_config none
-adapter_khz 25000
-jtag newtap ecp5 tap -irlen 8 -expected-id 0x41111043
-""")
-    f.close()
-    os.system("openocd -f openocd.cfg -c \"transport select jtag; init; svf soc_basesoc_colorlight_5a_75b/gateware/top.svf; exit\"")
-    exit()
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -159,16 +141,14 @@ def main():
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
-    parser.add_argument("--revision", default="7.0", type=str, help="Board revision 7.0 (default) or 6.1")
-    parser.add_argument("--with-ethernet",  action="store_true", help="enable Ethernet support")
-    parser.add_argument("--with-etherbone", action="store_true", help="enable Etherbone support")
-    parser.add_argument("--eth-phy", default=0, type=int, help="Ethernet PHY 0 or 1 (default=0)")
-    parser.add_argument("--load", action="store_true", help="load bitstream")
-    parser.add_argument("--sys-clk-freq", default=60e6, help="system clock frequency (default=60MHz)")
+    parser.add_argument("--build",          action="store_true",     help="Build bitstream")
+    parser.add_argument("--load",           action="store_true",     help="Load bitstream")
+    parser.add_argument("--revision",       default="7.0", type=str, help="Board revision 7.0 (default) or 6.1")
+    parser.add_argument("--with-ethernet",  action="store_true",     help="Enable Ethernet support")
+    parser.add_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support")
+    parser.add_argument("--eth-phy",        default=0, type=int,     help="Ethernet PHY 0 or 1 (default=0)")
+    parser.add_argument("--sys-clk-freq",   default=60e6,            help="System clock frequency (default=60MHz)")
     args = parser.parse_args()
-
-    if args.load:
-        load()
 
     assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(revision=args.revision,
@@ -177,7 +157,11 @@ def main():
         sys_clk_freq = args.sys_clk_freq,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**trellis_argdict(args))
+    builder.build(**trellis_argdict(args), run=args.build)
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.svf"))
 
 if __name__ == "__main__":
     main()

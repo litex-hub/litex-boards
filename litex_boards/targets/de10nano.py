@@ -3,6 +3,7 @@
 # This file is Copyright (c) 2020 Paul Sajna <sajattack@gmail.com>
 # License: BSD
 
+import os
 import argparse
 
 from migen import *
@@ -83,19 +84,22 @@ class MiSTerSDRAMSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE10 Nano")
-    parser.add_argument("--with-mister-sdram", action="store_true",
-                        help="enable MiSTer SDRAM expansion board")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
+ parser.add_argument("--with-mister-sdram", action="store_true", help="Enable MiSTer SDRAM expansion board")
     args = parser.parse_args()
-    soc = None
     if args.with_mister_sdram:
         soc = MiSTerSDRAMSoC(**soc_sdram_argdict(args))
     else:
         soc = BaseSoC(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build()
+    builder.build(run=args.build)
 
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.sof"))
 
 if __name__ == "__main__":
     main()

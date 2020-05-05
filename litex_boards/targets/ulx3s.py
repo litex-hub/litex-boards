@@ -4,6 +4,7 @@
 # This file is Copyright (c) 2018 David Shah <dave@ds0.me>
 # License: BSD
 
+import os
 import argparse
 import sys
 
@@ -92,14 +93,12 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ULX3S")
-    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
-        help="gateware toolchain to use, trellis (default) or diamond")
-    parser.add_argument("--device", dest="device", default="LFE5U-45F",
-        help="FPGA device, ULX3S can be populated with LFE5U-45F (default) or LFE5U-85F")
-    parser.add_argument("--sys-clk-freq", default=50e6,
-                        help="system clock frequency (default=50MHz)")
-    parser.add_argument("--sdram-module", default="MT48LC16M16",
-                        help="SDRAM module: MT48LC16M16, AS4C32M16 or AS4C16M16 (default=MT48LC16M16)")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",   help="Gateware toolchain to use, trellis (default) or diamond")
+    parser.add_argument("--device",             dest="device",    default="LFE5U-45F", help="FPGA device, ULX3S can be populated with LFE5U-45F (default) or LFE5U-85F")
+    parser.add_argument("--sys-clk-freq", default=50e6,          help="System clock frequency (default=50MHz)")
+    parser.add_argument("--sdram-module", default="MT48LC16M16", help="SDRAM module: MT48LC16M16, AS4C32M16 or AS4C16M16 (default=MT48LC16M16)")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
@@ -111,7 +110,11 @@ def main():
         **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
-    builder.build(**builder_kargs)
+    builder.build(**builder_kargs, run=args.build)
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.svf"))
 
 if __name__ == "__main__":
     main()

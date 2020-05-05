@@ -3,6 +3,7 @@
 # This file is Copyright (c) Greg Davill <greg.davill@gmail.com>
 # License: BSD
 
+import os
 import argparse
 
 from migen import *
@@ -130,25 +131,21 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on OrangeCrab")
-    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis",
-        help="gateware toolchain to use, trellis (default) or diamond")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--gateware-toolchain", dest="toolchain", default="trellis", help="Gateware toolchain to use, trellis (default) or diamond")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
-    parser.add_argument("--sys-clk-freq", default=48e6,
-                        help="system clock frequency (default=48MHz)")
-    parser.add_argument("--revision", default="0.2",
-                        help="Board Revision {0.1, 0.2} (default=0.2)")
-    parser.add_argument("--device", default="25F",
-                        help="ECP5 device (default=25F)")
-    parser.add_argument("--sdram-device", default="MT41K64M16",
-                        help="ECP5 device (default=MT41K64M16)")
+    parser.add_argument("--sys-clk-freq", default=48e6,         help="System clock frequency (default=48MHz)")
+    parser.add_argument("--revision",     default="0.2",        help="Board Revision {0.1, 0.2} (default=0.2)")
+    parser.add_argument("--device",       default="25F",        help="ECP5 device (default=25F)")
+    parser.add_argument("--sdram-device", default="MT41K64M16", help="ECP5 device (default=MT41K64M16)")
     args = parser.parse_args()
 
     soc = BaseSoC(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
-    builder.build(**builder_kargs)
+    builder.build(**builder_kargs, run=args.build)
 
 if __name__ == "__main__":
     main()
