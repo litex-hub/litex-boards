@@ -3,6 +3,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
+from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -219,6 +220,9 @@ class Platform(LatticePlatform):
 
     def __init__(self, **kwargs):
         LatticePlatform.__init__(self, "LFE5UM5G-85F-8BG756C", _io, _connectors, **kwargs)
+
+    def create_programmer(self):
+        return OpenOCDJTAGProgrammer("openocd_trellisboard.cfg")
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)

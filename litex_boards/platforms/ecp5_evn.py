@@ -136,8 +136,7 @@ class Platform(LatticePlatform):
         return LatticePlatform.request(self, *args, **kwargs)
 
     def create_programmer(self):
-        trellis = os.environ.get("TRELLIS", "/usr/share/trellis")
-        return OpenOCDJTAGProgrammer(os.path.join(trellis, "misc", "openocd", "ecp5-evn.cfg"), "bscan_spi_lfe5um5g85f.svf")
+        return OpenOCDJTAGProgrammer("openocd_evn_ecp5.cfg")
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)

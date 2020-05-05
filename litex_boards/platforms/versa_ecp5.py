@@ -4,6 +4,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
+from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -222,6 +223,9 @@ class Platform(LatticePlatform):
 
     def __init__(self, **kwargs):
         LatticePlatform.__init__(self, "LFE5UM5G-45F-8BG381C", _io, _connectors, **kwargs)
+
+    def create_programmer(self):
+        return OpenOCDJTAGProgrammer("openocd_versa_ecp5.cfg")
 
     def do_finalize(self, fragment):
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)

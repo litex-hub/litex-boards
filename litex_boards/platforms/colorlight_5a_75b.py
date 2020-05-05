@@ -6,6 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
+from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -220,6 +221,9 @@ class Platform(LatticePlatform):
         io         = {"6.1": _io_v6_1,            "7.0": _io_v7_0}[revision]
         connectors = {"6.1": _connectors_v6_1,            "7.0": _connectors_v7_0}[revision]
         LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain="trellis")
+
+    def create_programmer(self):
+        return OpenOCDJTAGProgrammer("openocd_colorlight_5a_75b.cfg")
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)

@@ -3,6 +3,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
+from litex.build.lattice.programmer import UJProg
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -101,6 +102,9 @@ class Platform(LatticePlatform):
 
     def __init__(self, device="LFE5U-45F", **kwargs):
         LatticePlatform.__init__(self, device + "-6BG381C", _io, **kwargs)
+
+    def create_programmer(self):
+        return UJProg()
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)
