@@ -137,3 +137,8 @@ class Platform(XilinxPlatform):
 
     def create_programmer(self):
         return FpgaProg()
+
+    def do_finalize(self, fragment):
+        XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk32", loose=True), 1e9/32e6)
+        self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)

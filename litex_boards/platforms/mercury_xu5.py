@@ -92,6 +92,10 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk100",     loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request("clk100_gtr", loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request("clk27_gtr",  loose=True), 1e9/27e6)
+        self.add_period_constraint(self.lookup_request("clk33",      loose=True), 1e9/33e6)
         self.add_platform_command("set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]")
         self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN PULLNONE [current_design]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")

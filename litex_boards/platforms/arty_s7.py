@@ -213,3 +213,7 @@ class Platform(XilinxPlatform):
     def create_programmer(self):
         bscan_spi = "bscan_spi_xc7s50.bit" if "xc7s50" in self.device else "bscan_spi_xc7a25.bit"
         return OpenOCD("openocd_xilinx.cfg", bscan_spi)
+
+    def do_finalize(self, fragment):
+        XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)

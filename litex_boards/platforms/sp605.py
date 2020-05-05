@@ -168,3 +168,7 @@ class Platform(XilinxPlatform):
 
     def create_programmer(self):
         return OpenOCD("openocd_xilinx_xc6.cfg", "bscan_spi_xc6slx45.bit")
+
+    def do_finalize(self, fragment):
+        XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)

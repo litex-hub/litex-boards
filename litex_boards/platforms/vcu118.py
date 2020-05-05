@@ -12,11 +12,11 @@ _io = [
         Subsignal("p", Pins("G31"), IOStandard("DIFF_SSTL12")),
         Subsignal("n", Pins("F31"), IOStandard("DIFF_SSTL12")),
     ),
-    ("clk250_1", 0,
+    ("clk250", 0,
         Subsignal("p", Pins("E12"), IOStandard("DIFF_SSTL12")),
         Subsignal("n", Pins("D12"), IOStandard("DIFF_SSTL12")),
     ),
-    ("clk250_2", 0,
+    ("clk250", 1,
         Subsignal("p", Pins("AW26"), IOStandard("DIFF_SSTL12")),
         Subsignal("n", Pins("AW27"), IOStandard("DIFF_SSTL12")),
     ),
@@ -181,6 +181,11 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk300",    loose=True), 1e9/300e6)
+        self.add_period_constraint(self.lookup_request("clk250", 0, loose=True), 1e9/250e6)
+        self.add_period_constraint(self.lookup_request("clk250", 1, loose=True), 1e9/250e6)
+        self.add_period_constraint(self.lookup_request("clk125",    loose=True), 1e9/125e6)
+        self.add_period_constraint(self.lookup_request("clk156",    loose=True), 1e9/156e6)
         # DDR4 memory channel C1 Internal Vref
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 71]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 72]")

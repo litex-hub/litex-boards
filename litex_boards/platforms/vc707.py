@@ -648,11 +648,5 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        try:
-            self.add_period_constraint(self.lookup_request("clk200").p, 1e9/200e6)
-        except ConstraintError:
-            pass
-        try:
-            self.add_period_constraint(self.lookup_request("sgmii_clock").p, 1e9/125e6)
-        except ConstraintError:
-            pass
+        self.add_period_constraint(self.lookup_request("clk200",      loose=True), 1e9/200e6)
+        self.add_period_constraint(self.lookup_request("sgmii_clock", loose=True), 1e9/125e6)

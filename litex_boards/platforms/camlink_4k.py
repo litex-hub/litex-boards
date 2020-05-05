@@ -60,3 +60,7 @@ class Platform(LatticePlatform):
 
     def __init__(self, **kwargs):
         LatticePlatform.__init__(self, "LFE5U-25F-8BG381C", _io, **kwargs)
+
+    def do_finalize(self, fragment):
+        LatticePlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk27", loose=True), 1e9/27e6)

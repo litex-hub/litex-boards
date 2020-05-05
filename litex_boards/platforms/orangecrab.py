@@ -188,3 +188,7 @@ class Platform(LatticePlatform):
         io         = {"0.1": _io_r0_1,            "0.2": _io_r0_2        }[revision]
         connectors = {"0.1": _connectors_r0_1,    "0.2": _connectors_r0_2}[revision]
         LatticePlatform.__init__(self, f"LFE5U-{device}-8MG285C", io, connectors, **kwargs)
+
+    def do_finalize(self, fragment):
+        LatticePlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk48", loose=True), 1e9/48e6)

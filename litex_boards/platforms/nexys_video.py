@@ -240,3 +240,8 @@ class Platform(XilinxPlatform):
             self.add_period_constraint(self.lookup_request("eth_clocks").rx, 1e9/125e6)
         except ConstraintError:
             pass
+
+    def do_finalize(self, fragment):
+        XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk100",     loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks", loose=True), 1e9/125e6)

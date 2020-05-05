@@ -221,7 +221,7 @@ class Platform(LatticePlatform):
         LatticePlatform.__init__(self, "LFE5UM5G-85F-8BG756C", _io, _connectors, **kwargs)
 
     def do_finalize(self, fragment):
-        try:
-            self.add_period_constraint(self.lookup_request("eth_clocks", 0).rx, 1e9/125e6)
-        except ConstraintError:
-            pass
+        LatticePlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk100",        loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request("clk12",         loose=True), 1e9/12e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks:rx", loose=True), 1e9/125e6)

@@ -220,3 +220,7 @@ class Platform(LatticePlatform):
         io         = {"6.1": _io_v6_1,            "7.0": _io_v7_0}[revision]
         connectors = {"6.1": _connectors_v6_1,            "7.0": _connectors_v7_0}[revision]
         LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain="trellis")
+
+    def do_finalize(self, fragment):
+        LatticePlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)

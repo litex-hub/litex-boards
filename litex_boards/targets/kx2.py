@@ -7,7 +7,7 @@ import argparse
 
 from migen import *
 
-from litex.boards.platforms import kx2
+from litex_boards.platforms import kx2
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *

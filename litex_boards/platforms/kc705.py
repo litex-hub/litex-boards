@@ -553,16 +553,7 @@ set_property CONFIG_VOLTAGE 2.5 [current_design]
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        try:
-            self.add_period_constraint(self.lookup_request("clk200").p, 1e9/200e6)
-        except ConstraintError:
-            pass
-        try:
-            self.add_period_constraint(self.lookup_request("eth_clocks").rx, 1e9/125e6)
-        except ConstraintError:
-            pass
-        try:
-            self.add_period_constraint(self.lookup_request("eth_clocks").tx, 1e9/125e6)
-        except ConstraintError:
-            pass
+        self.add_period_constraint(self.lookup_request("clk200",        loose=True), 1e9/200e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks:rx", loose=True), 1e9/125e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks:tx", loose=True), 1e9/125e6)
         self.add_platform_command("set_property DCI_CASCADE {{32 34}} [get_iobanks 33]")

@@ -144,7 +144,7 @@ def main():
     if args.load:
         load()
 
-    soc     = BaseSoC(with_ethernet=with_ethernet, **soc_core_argdict(args))
+    soc     = BaseSoC(with_ethernet=args.with_ethernet, **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**trellis_argdict(args))
 
