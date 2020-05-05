@@ -3,7 +3,8 @@
 # License: BSD
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.xilinx import XilinxPlatform
+from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -210,4 +211,5 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 34]")
 
     def create_programmer(self):
-        return VivadoProgrammer(flash_part="n25q128-3.3v-spi-x1_x2_x4")
+        bscan_spi = "bscan_spi_xc7s50.bit" if "xc7s50" in self.device else "bscan_spi_xc7a25.bit"
+        return OpenOCD("openocd_xilinx.cfg", bscan_spi)

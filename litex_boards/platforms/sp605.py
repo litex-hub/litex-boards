@@ -3,7 +3,8 @@
 
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, iMPACT
+from litex.build.xilinx import XilinxPlatform
+from litex.build.openocd import OpenOCD
 
 _io = [
     ("user_led", 0, Pins("D17"), IOStandard("LVCMOS25")),
@@ -161,4 +162,4 @@ class Platform(XilinxPlatform):
         XilinxPlatform.__init__(self, "xc6slx45t-fgg484-3", _io, _connectors, toolchain="ise")
 
     def create_programmer(self):
-        return iMPACT()
+        return OpenOCD("openocd_xilinx_xc6.cfg", "bscan_spi_xc6slx45.bit")

@@ -4,7 +4,8 @@
 # License: BSD
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer, XC3SProg
+from litex.build.xilinx import XilinxPlatform
+from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -643,7 +644,7 @@ class Platform(XilinxPlatform):
         self.add_platform_command("""set_property CONFIG_VOLTAGE 2.5 [current_design]""")
 
     def create_programmer(self):
-        return VivadoProgrammer()
+        return OpenOCD("openocd_xilinx_xc7.cfg", "xc7vx485t.bit")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)

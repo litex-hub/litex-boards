@@ -3,6 +3,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.altera import AlteraPlatform
+from litex.build.altera.programmer import USBBlaster
 
 # IOs ------------------------------------------------------------------
 
@@ -41,3 +42,6 @@ class Platform(AlteraPlatform):
 
     def __init__(self):
         AlteraPlatform.__init__(self, "EP4CE115F29C7", _io)
+
+    def create_programmer(self):
+        return USBBlaster()

@@ -3,7 +3,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
-from litex.build.lattice.programmer import LatticeProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 

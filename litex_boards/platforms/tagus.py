@@ -4,6 +4,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform
+from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -165,3 +166,6 @@ class Platform(XilinxPlatform):
         self.toolchain.additional_commands = \
             ["write_cfgmem -force -format bin -interface spix4 -size 16 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
+
+    def create_programmer(self):
+        return OpenOCD("openocd_xilinx_xc7.cfg", "bscan_spi_xc7a200t.bit")

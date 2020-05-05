@@ -2,7 +2,8 @@
 # License: BSD
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.xilinx import XilinxPlatform
+from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -72,4 +73,4 @@ class Platform(XilinxPlatform):
         XilinxPlatform.__init__(self, " xc7k160tffg676-2", _io, toolchain="vivado")
 
     def create_programmer(self):
-        return VivadoProgrammer()
+        return OpenOCD("openocd_xilinx_xc7.cfg", "bscan_spi_xc7k160t.bit")

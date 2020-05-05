@@ -7,7 +7,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform
-from litex.build.xilinx.programmer import XC3SProg
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -151,3 +150,6 @@ class Platform(XilinxPlatform):
     def __init__(self):
         XilinxPlatform.__init__(self, "xc6slx45-csg324-3", _io, _connectors)
         self.toolchain.bitgen_opt += " -g Compress -g ConfigRate:6"
+
+    def create_programmer(self):
+        return OpenOCD("openocd_xilinx_xc6.cfg", "bscan_spi_xc6slx45.bit")
