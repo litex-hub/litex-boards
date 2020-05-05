@@ -25,7 +25,6 @@ class _CRG(Module):
         # clk / rst
         clk = clk12 = platform.request("clk12")
         rst_n = platform.request("rst_n")
-        platform.add_period_constraint(clk12, 1e9/12e6)
         if x5_clk_freq is not None:
             clk = clk50 = platform.request("ext_clk50")
             self.comb += platform.request("ext_clk50_en").eq(1)

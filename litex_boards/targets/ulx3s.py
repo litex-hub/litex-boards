@@ -36,7 +36,6 @@ class _CRG(Module):
         # Clk / Rst
         clk25 = platform.request("clk25")
         rst   = platform.request("rst")
-        platform.add_period_constraint(clk25, 1e9/25e6)
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()

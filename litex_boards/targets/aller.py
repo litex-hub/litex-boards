@@ -48,7 +48,6 @@ class CRG(Module, AutoCSR):
 
         # Clk/Rst
         clk100 = platform.request("clk100")
-        platform.add_period_constraint(clk100, 1e9/100e6)
 
         # Delay software reset by 10us to ensure write has been acked on PCIe.
         rst_delay = WaitTimer(int(10e-6*sys_clk_freq))

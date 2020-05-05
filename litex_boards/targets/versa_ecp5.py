@@ -40,7 +40,6 @@ class _CRG(Module):
         # Clk / Rst
         clk100 = platform.request("clk100")
         rst_n  = platform.request("rst_n")
-        platform.add_period_constraint(clk100, 1e9/100e6)
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)

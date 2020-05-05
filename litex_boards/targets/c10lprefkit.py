@@ -34,7 +34,6 @@ class _CRG(Module):
 
         # Clk / Rst
         clk12 = platform.request("clk12")
-        platform.add_period_constraint(clk12, 1e9/12e6)
 
         # PLL
         self.submodules.pll = pll = Cyclone10LPPLL(speedgrade="-A7")

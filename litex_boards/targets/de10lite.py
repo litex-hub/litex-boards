@@ -34,7 +34,6 @@ class _CRG(Module):
 
         # Clk / Rst
         clk50 = platform.request("clk50")
-        platform.add_period_constraint(clk50, 1e9/50e6)
 
         # PLL
         self.submodules.pll = pll = Max10PLL(speedgrade="-7")

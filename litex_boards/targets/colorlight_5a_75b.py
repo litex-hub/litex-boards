@@ -67,7 +67,6 @@ class _CRG(Module):
         # Clk / Rst
         clk25 = platform.request("clk25")
         rst_n = 1 if not with_rst else platform.request("user_btn_n", 0)
-        platform.add_period_constraint(clk25, 1e9/25e6)
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()
