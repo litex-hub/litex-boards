@@ -80,7 +80,7 @@ _io = [
         Subsignal("mdio",    Pins("A13")),
         Subsignal("mdc",     Pins("C11")),
         Subsignal("rx_ctl",  Pins("A11")),
-        Subsignal("rx_data", Pins("B11 A10 B10 A9")),
+        Subsignal("rx_data", Pins("B11 A10 B10 A9"), Misc("PULLMODE=UP")), # RGMII mode - Advertise all capabilities.
         Subsignal("tx_ctl",  Pins("C9")),
         Subsignal("tx_data", Pins("D8 C8 B8 A8")),
         IOStandard("LVCMOS33")
