@@ -42,7 +42,7 @@ _io = [
         Subsignal("rx_p",  Pins("B10 B8 D11 D9")),
         Subsignal("rx_n",  Pins("A10 A8 C11 C9")),
         Subsignal("tx_p",  Pins("B6 B4 D5 D7")),
-        Subsignal("tx_n",  Pins("A6 A4 C5 C7"))
+        Subsignal("tx_n",  Pins("A6 A4 C5 C7")),
     ),
 
     # dram
@@ -82,6 +82,15 @@ class Platform(XilinxPlatform):
     def __init__(self):
         XilinxPlatform.__init__(self, "xc7a200t-fbg484-2", _io, toolchain="vivado")
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
+
+        self.toolchain.bitstream_commands = [
+            "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
+            "set_property BITSTREAM.CONFIG.CONFIGRATE 16 [current_design]",
+            "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]"
+        ]
+        self.toolchain.additional_commands = \
+            ["write_cfgmem -force -format bin -interface spix4 -size 16 "
+             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
     def create_programmer(self):
         return OpenOCD("openocd_xilinx_xc7.cfg", "bscan_spi_xc7a200t.bit")

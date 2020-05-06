@@ -120,6 +120,7 @@ class PCIeSoC(SoCCore):
             bar0_size  = 0x20000)
         platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
         self.add_csr("pcie_phy")
+        self.comb += platform.request("pcie_clkreq_n").eq(0)
 
         # Endpoint
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy)
@@ -171,6 +172,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on LiteX SoC on Acorn CLE 215+")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--flash", action="store_true", help="Flash bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
@@ -188,6 +190,10 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(os.path.join(builder.gateware_dir, "top.bit"))
+
+    if args.flash:
+        prog = soc.platform.create_programmer()
+        prog.flash(0, os.path.join(builder.gateware_dir, "top.bin"))
 
 if __name__ == "__main__":
     main()
