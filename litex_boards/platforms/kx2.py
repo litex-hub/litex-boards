@@ -73,7 +73,7 @@ class Platform(XilinxPlatform):
         XilinxPlatform.__init__(self, " xc7k160tffg676-2", _io, toolchain="vivado")
 
     def create_programmer(self):
-        return OpenOCD("openocd_xilinx_xc7.cfg", "bscan_spi_xc7k160t.bit")
+        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7k160t.bit")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)

@@ -93,7 +93,7 @@ class Platform(XilinxPlatform):
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
     def create_programmer(self):
-        return OpenOCD("openocd_xilinx_xc7.cfg", "bscan_spi_xc7a200t.bit")
+        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a200t.bit")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)

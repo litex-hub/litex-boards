@@ -293,7 +293,7 @@ class Platform(XilinxPlatform):
         XilinxPlatform.__init__(self, "xc6slx16-2-ftg256", _io, _connectors)
 
     def create_programmer(self):
-        return OpenOCD("openocd_xilinx_xc6.cfg", "bscan_spi_xc6slx16.bit")
+        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc6slx16.bit")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
