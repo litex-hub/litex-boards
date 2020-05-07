@@ -117,6 +117,7 @@ class PCIeSoC(SoCCore):
         self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"),
             data_width = 64,
             bar0_size  = 0x20000)
+        self.pcie_phy.add_timing_constraints(platform)
         platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
         self.add_csr("pcie_phy")
 
