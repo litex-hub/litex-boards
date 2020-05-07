@@ -1,3 +1,7 @@
+# This file is Copyright (c) 2019 Tom Keddie <git@bronwenandtom.com>
+# This file is Copyright (c) 2020 Antmicro <www.antmicro.com>
+# License: BSD
+
 # Support for the Pano Logic Zero Client G2
 # More information about the board and the reverse engineering results
 # can be found here https://github.com/tomverbeure/panologic-g2

@@ -1,3 +1,7 @@
+# This file is Copyright (c) 2019 Tom Keddie <git@bronwenandtom.com>
+# This file is Copyright (c) 2020 Antmicro <www.antmicro.com>
+# License: BSD
+
 # Support for the Pano Logic Zero Client G2
 from migen import *
 
