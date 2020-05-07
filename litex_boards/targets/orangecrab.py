@@ -85,10 +85,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(48e6), toolchain="trellis", **kwargs):
-        # Board Revision ---------------------------------------------------------------------------
-        revision = kwargs.get("revision", "0.2")
-        device = kwargs.get("device", "25F")
+    def __init__(self, revision = "0.2", device = "25F", sdram_device = "MT41K64M16",
+                 sys_clk_freq=int(48e6), toolchain="trellis", **kwargs):
         platform = orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # Serial -----------------------------------------------------------------------------------
@@ -109,8 +107,7 @@ class BaseSoC(SoCCore):
                 'MT41K256M16': MT41K256M16,
 #                'MT41K512M16': MT41K512M16
             }
-            sdram_module = available_sdram_modules.get(
-                kwargs.get("sdram_device", "MT41K64M16"))
+            sdram_module = available_sdram_modules.get(sdram_device)
 
             self.submodules.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
@@ -142,7 +139,12 @@ def main():
     parser.add_argument("--sdram-device", default="MT41K64M16", help="ECP5 device (default=MT41K64M16)")
     args = parser.parse_args()
 
-    soc = BaseSoC(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
+    soc = BaseSoC(toolchain=args.toolchain,
+                  revision=args.revision,
+                  device=args.device,
+                  sdram_device=args.sdram_device,
+                  sys_clk_freq=int(float(args.sys_clk_freq)),
+                  **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)
