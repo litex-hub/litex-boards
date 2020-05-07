@@ -114,7 +114,7 @@ class PCIeSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         # PHY
-        self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"),
+        self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
             data_width = 64,
             bar0_size  = 0x20000)
         self.pcie_phy.add_timing_constraints(platform)
