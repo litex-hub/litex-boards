@@ -15,8 +15,8 @@ from litex.build.lattice import LatticePlatform
 _io = [
     ("clk27", 0, Pins("B11"), IOStandard("LVCMOS25")),
 
-    ("led",   0, Pins("A6"), IOStandard("LVCMOS25")),
-    ("led",   1, Pins("A9"), IOStandard("LVCMOS25")),
+    ("user_led", 0, Pins("A6"), IOStandard("LVCMOS25")),
+    ("user_led", 1, Pins("A9"), IOStandard("LVCMOS25")),
 
     ("serial", 0,
         Subsignal("tx", Pins("A6")), # led0

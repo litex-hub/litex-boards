@@ -18,7 +18,6 @@ _io = [
     ("user_led", 3, Pins("C17"), IOStandard("3.3-V LVTTL")),
     ("user_led", 4, Pins("D18"), IOStandard("3.3-V LVTTL")),
 
-
     ("cpu_reset", 0, Pins("V15"), IOStandard("3.3-V LVTTL")),
 
     ("sw", 0, Pins("U10"), IOStandard("3.3-V LVTTL")),

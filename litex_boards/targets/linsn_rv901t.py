@@ -16,6 +16,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.clock import S6PLL
+from litex.soc.cores.led import LedChaser
 
 from litedram.modules import M12L64322A
 from litedram.phy import GENSDRPHY
@@ -67,6 +68,12 @@ class BaseSoC(SoCCore):
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
             )
+
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = Cat(*[platform.request("user_led", i) for i in range(1)]),
+            sys_clk_freq = sys_clk_freq)
+        self.add_csr("leds")
 
 # EthernetSoC --------------------------------------------------------------------------------------
 

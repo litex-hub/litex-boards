@@ -24,6 +24,7 @@ from litex.soc.cores.clock import *
 from litex.soc.cores.dna import DNA
 from litex.soc.cores.xadc import XADC
 from litex.soc.cores.icap import ICAP
+from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT41K256M16
 from litedram.phy import s7ddrphy
@@ -32,8 +33,6 @@ from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
-
-
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -158,6 +157,12 @@ class PCIeSoC(SoCCore):
         for i, (k, v) in enumerate(sorted(self.interrupts.items())):
             self.comb += self.pcie_msi.irqs[i].eq(v)
             self.add_constant(k + "_INTERRUPT", i)
+
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = Cat(*[platform.request("user_led", i) for i in range(4)]),
+            sys_clk_freq = sys_clk_freq)
+        self.add_csr("leds")
 
     def generate_software_headers(self):
         csr_header = get_csr_header(self.csr_regions, self.constants, with_access_functions=False)

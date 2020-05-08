@@ -17,6 +17,7 @@ from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.led import LedChaser
 
 from litedram.modules import AS4C16M16
 from litedram.phy import GENSDRPHY
@@ -54,6 +55,12 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = Cat(*[platform.request("user_led", i) for i in range(6)]),
+            sys_clk_freq = sys_clk_freq)
+        self.add_csr("leds")
 
 # MiSTerSDRAMSoC -----------------------------------------------------------------------------------
 
