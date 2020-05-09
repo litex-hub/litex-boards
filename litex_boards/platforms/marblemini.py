@@ -1,5 +1,6 @@
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -14,15 +15,18 @@ _io = [
     ("mgt_clk_0", 0,
      Subsignal("p", Pins("F6")),
      Subsignal("n", Pins("E6"))),
+
     ("mgt_clk_1", 0,
      Subsignal("p", Pins("F10")),
      Subsignal("n", Pins("E10"))),
+
     ("serial", 0,
         Subsignal("rts", Pins("W9")),
         Subsignal("rx", Pins("U7")),
         Subsignal("tx", Pins("Y9")),
         IOStandard("LVCMOS25")
     ),
+
     ("eth_clocks", 0,
      Subsignal("tx", Pins("J15"), Misc("SLEW=FAST")),
      Subsignal("rx", Pins("L19")),
@@ -33,16 +37,19 @@ _io = [
      Subsignal("tx_data", Pins("G15 G16 G13 H13"), Misc("SLEW=FAST")),
      Subsignal("rst_n", Pins("M17")), IOStandard("LVCMOS25"),
      ),
+
     ("pmod", 0,
      Subsignal("pmod", Pins("C18 D22 E22 G21 D21 E21 F21 G22"), IOStandard("LVCMOS33"))),
     ("pmod", 1,
      Subsignal("pmod", Pins("F13 C14 C15 D16 F14 F15 F16 E16"), IOStandard("LVCMOS33"))),
+
     # ("sfp", 0,
     #     Subsignal("txp", Pins("AC10")),
     #     Subsignal("txn", Pins("AD10")),
     #     Subsignal("rxp", Pins("AC12")),
     #     Subsignal("rxn", Pins("AD12")),
     # ),
+
     ("ddram",
         0,
         Subsignal("a",
@@ -52,7 +59,7 @@ _io = [
         Subsignal("ras_n", Pins("J4"), IOStandard("SSTL135")),
         Subsignal("cas_n", Pins("J6"), IOStandard("SSTL135")),
         Subsignal("we_n", Pins("K3"),  IOStandard("SSTL135")),
-     # Subsignal("cs_n", Pins("T3"), IOStandard("SSTL135")),  # TODO: couldn't find chip select on Marble
+        # Subsignal("cs_n", Pins(""), IOStandard("SSTL135")),  # TODO: couldn't find chip select on Marble
         Subsignal("dm", Pins("G2 E2"), IOStandard("SSTL135")),
         Subsignal("dq",
                   Pins("G3 J1 H4 H5 H2 K1 H3 J5", "G1 B1 F1 F3 C2 A1 D2 B2"),
@@ -236,18 +243,9 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property CONFIG_VOLTAGE 3.3 [current_design]")
 
     def create_programmer(self):
-        # TODO: Should be changed to xc3sprog if confirmed so
-        return VivadoProgrammer()
+        return OpenOCD("openocd_marblemini.cfg")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        try:
-            self.add_period_constraint(
-                self.lookup_request("clk20_vcxo"), 1e9 / 20e6)
-        except ConstraintError:
-            pass
-        try:
-            self.add_period_constraint(
-                self.lookup_request("mgt_clk_0"), 1e9 / 125e6)
-        except ConstraintError:
-            pass
+        self.add_period_constraint(self.lookup_request("clk20_vcxo", loose=True), 1e9 / 20e6)
+        self.add_period_constraint(self.lookup_request("mgt_clk_0", loose=True), 1e9 / 125e6)
