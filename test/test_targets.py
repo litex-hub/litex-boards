@@ -48,6 +48,8 @@ class TestTargets(unittest.TestCase):
         platforms.append("nexys4ddr")
         platforms.append("nexys_video")
         platforms.append("tagus")
+        platforms.append("acorn_cle_215")
+        platforms.append("marblemini")
 
         # Xilinx Kintex7
         platforms.append("genesys2")
