@@ -26,7 +26,7 @@ from litex.soc.cores.xadc import XADC
 from litex.soc.cores.icap import ICAP
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT41K256M16
+from litedram.modules import MT41K512M16
 from litedram.phy import s7ddrphy
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
@@ -104,7 +104,7 @@ class PCIeSoC(SoCCore):
             self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
-                module                  = MT41K256M16(sys_clk_freq, "1:4"),
+                module                  = MT41K512M16(sys_clk_freq, "1:4"),
                 origin                  = self.mem_map["main_ram"],
                 size                    = kwargs.get("max_sdram_size", 0x40000000),
                 l2_cache_size           = kwargs.get("l2_size", 8192),
