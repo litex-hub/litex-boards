@@ -3,6 +3,28 @@
 # This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
+# Build/Use ----------------------------------------------------------------------------------------
+# Build/Load bitstream:
+# ./acorn_cle_215.py --build
+# ./acorn_cle_215.py --load (or --flash)
+#
+# Get Linux driver/utilities from:
+# https://github.com/enjoy-digital/litex_playground/tree/master/004_litepcie_aller_test/software
+# Copy generated csr.h/soc.h/mem.h to software/kernel.
+#
+#.Build the kernel and load it:
+# cd software/kernel
+# make
+# sudo ./init.sh
+#
+# Test userspace utilities:
+# cd software/user
+# make
+# ./litepcie_util info
+# ./litepcie_util scratch_test
+# ./litepcie_util dma_test
+# ./litepcie_util uart_test
+
 import os
 import argparse
 import sys
