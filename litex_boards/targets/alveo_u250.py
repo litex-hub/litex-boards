@@ -17,6 +17,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
+from litex.soc.cores.led import LedChaser
 from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy import usddrphy
 
@@ -32,7 +33,7 @@ class _CRG(Module):
         # # #
 
         self.submodules.pll = pll = USMMCM(speedgrade=-2)
-        self.comb += pll.reset.eq(0)
+        self.comb += pll.reset.eq(0) # FIXME
         pll.register_clkin(platform.request("clk300", 0), 300e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
         pll.create_clkout(self.cd_clk500, 500e6, with_reset=False)
@@ -69,7 +70,6 @@ class BaseSoC(SoCCore):
                 cmd_latency      = 1,
                 is_rdimm         = True)
             self.add_csr("ddrphy")
-            self.add_constant("USDDRPHY_DEBUG")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MTA18ASF2G72PZ(sys_clk_freq, "1:4"),
@@ -80,20 +80,32 @@ class BaseSoC(SoCCore):
                 l2_cache_reverse        = True
             )
 
+        # Firmware RAM (To ease initial LiteDRAM calibration support) ------------------------------
         self.add_ram("firmware_ram", 0x20000000, 0x8000)
+
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = Cat(*[platform.request("user_led", i) for i in range(3)]),
+            sys_clk_freq = sys_clk_freq)
+        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Alveo U250")
+    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build()
+    builder.build(run=args.build)
 
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "top.bit"))
 
 if __name__ == "__main__":
     main()
