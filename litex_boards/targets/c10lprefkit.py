@@ -23,7 +23,7 @@ from litedram.phy import GENSDRPHY
 
 from liteeth.phy.mii import LiteEthPHYMII
 
-from litex.soc.cores.hyperbus import HyperRAM
+from litehyperbus.core.hyperbus import HyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 
