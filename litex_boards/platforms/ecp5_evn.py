@@ -4,7 +4,6 @@
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
-from litex.soc.cores.spi_flash import SpiFlash
 
 import os
 
@@ -39,17 +38,17 @@ _io = [
         Subsignal("tx", Pins("P3"), IOStandard("LVCMOS33")),
     ),
 
-    ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("R2"),          IOStandard("LVCMOS33")),
-        Subsignal("dq",   Pins("W2 V2 Y2 W1"), IOStandard("LVCMOS33")),
-    ),
-
-    ("spiflash1x", 0,
+    ("spiflashx", 0,
         Subsignal("cs_n", Pins("R2"), IOStandard("LVCMOS33")),
         Subsignal("mosi",   Pins("W2"), IOStandard("LVCMOS33")),
         Subsignal("miso",   Pins("V2"), IOStandard("LVCMOS33")),
         Subsignal("wp",     Pins("Y2"), IOStandard("LVCMOS33")),
         Subsignal("hold",   Pins("W1"), IOStandard("LVCMOS33")),
+    ),
+
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("R2"),          IOStandard("LVCMOS33")),
+        Subsignal("dq",   Pins("W2 V2 Y2 W1"), IOStandard("LVCMOS33")),
     ),
 
     ("clk200", 0,
@@ -134,22 +133,17 @@ class Platform(LatticePlatform):
     def __init__(self, **kwargs):
         LatticePlatform.__init__(self, "LFE5UM5G-85F-8BG381", _io, _connectors, **kwargs)
 
-    def make_spiflash(self):
-        flash_pads = self.request("spiflash1x")
-
-        spiflash = SpiFlash(flash_pads, endianness="little", div=2, dummy=8)
-        spiflash.add_clk_primitive(self.device)
-        return spiflash
-
     def request(self, *args, **kwargs):
+        import time
         if "serial" in args:
-            print("R22 and R23 should be removed, two 0 Ω resistors shoud be "
-            "populated on R34 and R35 and the FT2232H should be configured to "
-            "UART with virtual COM on port B")
-            print("Make sure your on-board FT2232H can properly talk UART.")
-            print("Follow instructions here: https://github.com/trabucayre/fixFT2232_ecp5evn")
+            msg =  "FT2232H will be used as serial, make sure that:\n"
+            msg += " -the hardware has been modified: R22 and R23 should be removed, two 0 Ω resistors shoud be populated on R34 and R35.\n"
+            msg += " -the chip is configured as UART with virtual COM on port B (With FTProg or https://github.com/trabucayre/fixFT2232_ecp5evn)."
+            print(msg)
+            time.sleep(2)
         if "ext_clk50" in args:
-            print("an oscillator must be populated on X5")
+            print("An oscillator must be populated on X5.")
+            time.sleep(2)
 
         return LatticePlatform.request(self, *args, **kwargs)
 
