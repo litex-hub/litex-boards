@@ -8,6 +8,10 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    ("clk100", 0, Pins("R4"), IOStandard("LVCMOS33")),
+
+    ("cpu_reset", 0, Pins("G4"), IOStandard("LVCMOS15")),
+
     ("user_led", 0, Pins("T14"), IOStandard("LVCMOS25")),
     ("user_led", 1, Pins("T15"), IOStandard("LVCMOS25")),
     ("user_led", 2, Pins("T16"), IOStandard("LVCMOS25")),
@@ -46,13 +50,18 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    ("clk100", 0, Pins("R4"), IOStandard("LVCMOS33")),
-
-    ("cpu_reset", 0, Pins("G4"), IOStandard("LVCMOS15")),
-
     ("serial", 0,
         Subsignal("tx", Pins("AA19")),
         Subsignal("rx", Pins("V18")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    ("sdcard", 0,
+        Subsignal("rst",  Pins("V20"),             Misc("PULLUP True")),
+        Subsignal("data", Pins("V19 T21 T20 U18"), Misc("PULLUP True")),
+        Subsignal("cmd",  Pins("W20"),             Misc("PULLUP True")),
+        Subsignal("clk",  Pins("W19")),
+        Misc("SLEW=FAST"),
         IOStandard("LVCMOS33"),
     ),
 
