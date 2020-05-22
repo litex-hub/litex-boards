@@ -56,6 +56,19 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    ("usb_fifo", 0, # Can be used when FT2232H's Channel A configured to ASYNC FIFO 245 mode
+        Subsignal("data",  Pins("U20 P14 P15 U17 R17 P16 R18 N14")),
+        Subsignal("rxf_n", Pins("N17")),
+        Subsignal("txe_n", Pins("Y19")),
+        Subsignal("rd_n",  Pins("P19")),
+        Subsignal("wr_n",  Pins("R19")),
+        Subsignal("siwua", Pins("P17")),
+        Subsignal("oe_n",  Pins("V17")),
+        Misc("SLEW=FAST"),
+        Drive(8),
+        IOStandard("LVCMOS33"),
+    ),
+
     ("sdcard", 0,
         Subsignal("rst",  Pins("V20"),             Misc("PULLUP True")),
         Subsignal("data", Pins("V19 T21 T20 U18"), Misc("PULLUP True")),
