@@ -46,6 +46,12 @@ class BaseSoC(SoCCore):
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
 
+        # Take Ethernet Phy out of reset for SYSCLK of 125 Mhz
+        gmii_rst_n = platform.request("gmii_rst_n")
+        self.comb += [
+            gmii_rst_n.eq(1)
+        ]
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
