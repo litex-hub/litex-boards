@@ -97,6 +97,10 @@ _io = [
         Subsignal("cke", Pins("D2"), IOStandard("SSTL18_II")),
         Subsignal("odt", Pins("J6"), IOStandard("SSTL18_II")),
     ),
+    # Ethernet phy reset (clk125 is 25 Mhz instead of 125 Mhz if reset is active)
+    # See https://github.com/tomverbeure/panologic-g2#fpga-external-clocking-architecture
+    ("gmii_rst_n", 0, Pins("R11"), IOStandard("LVCMOS33")),
+
 ]
 
 # Platform -----------------------------------------------------------------------------------------
