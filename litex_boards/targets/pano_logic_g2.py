@@ -24,6 +24,10 @@ class _CRG(Module):
 
         # # #
 
+        # Take Ethernet PHY out of reset to enable clk125 (25MHz otherwise).
+        gmii_rst_n = platform.request("gmii_rst_n")
+        self.comb += gmii_rst_n.eq(1)
+
         self.submodules.pll = pll = S6PLL(speedgrade=-2)
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_sys, clk_freq)
@@ -45,12 +49,6 @@ class BaseSoC(SoCCore):
             pads         = Cat(*[platform.request("user_led", i) for i in range(3)]),
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
-
-        # Take Ethernet Phy out of reset for SYSCLK of 125 Mhz
-        gmii_rst_n = platform.request("gmii_rst_n")
-        self.comb += [
-            gmii_rst_n.eq(1)
-        ]
 
 # Build --------------------------------------------------------------------------------------------
 
