@@ -94,7 +94,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, revision, with_ethernet=False, with_etherbone=False, sys_clk_freq=60e6, **kwargs):
         platform     = colorlight_5a_75b.Platform(revision=revision)
-        if (with_etherbone):
+        if with_etherbone:
             sys_clk_freq = int(125e6)
 
         # SoCCore ----------------------------------------------------------------------------------
