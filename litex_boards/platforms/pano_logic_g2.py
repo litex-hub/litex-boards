@@ -9,6 +9,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform
+from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -33,7 +34,7 @@ _io = [
     ),
 
     # serial
-    ("serial", 0, # dvi
+    ("serial", 1, # dvi
         Subsignal("tx", Pins("C14")),
         Subsignal("rx", Pins("C17")),
         IOStandard("LVCMOS33")
@@ -109,7 +110,12 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk125"
     default_clk_period = 1e9/125e6
 
-    def __init__(self, programmer="impact", device="xc6slx150"):
-        XilinxPlatform.__init__(self, "xc6slx150-2-fgg484", _io)
+    def __init__(self, revision="c"):
+        assert revision in ["b", "c"]
+        device = {"b": "xc6slx150-2-fgg484", "c": "xc6slx100-2-fgg484"}[revision]
+        XilinxPlatform.__init__(self, device, _io)
         self.add_platform_command("""CONFIG VCCAUX="2.5";""")
         self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
+
+    def create_programmer(self):
+        return OpenOCD("openocd_xc6_ft232.cfg")

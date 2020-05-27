@@ -35,8 +35,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), **kwargs):
-        platform = pano_logic_g2.Platform()
+    def __init__(self, revision, sys_clk_freq=int(50e6), **kwargs):
+        platform = pano_logic_g2.Platform(revision=revision)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
@@ -54,13 +54,14 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Pano Logic G2")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--build",    action="store_true", help="Build bitstream")
+    parser.add_argument("--load",     action="store_true", help="Load bitstream")
+    parser.add_argument("--revision", default="c",         help="Board revision c (default) or b")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_core_argdict(args))
+    soc = BaseSoC(revision=args.revision, **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
