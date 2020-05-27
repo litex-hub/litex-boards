@@ -16,33 +16,59 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from liteeth.phy import LiteEthPHYGMII
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, clk_freq):
+    def __init__(self, platform, clk_freq, with_ethernet=False):
         self.clock_domains.cd_sys    = ClockDomain()
 
         # # #
 
-        # Take Ethernet PHY out of reset to enable clk125 (25MHz otherwise).
-        gmii_rst_n = platform.request("gmii_rst_n")
-        self.comb += gmii_rst_n.eq(1)
+        if not with_ethernet:
+            # Take Ethernet PHY out of reset to enable 125MHz on clk125 (25MHz otherwise).
+            # See https://github.com/tomverbeure/panologic-g2#fpga-external-clocking-architecture
+            self.comb += platform.request("eth_rst_n").eq(1)
 
         self.submodules.pll = pll = S6PLL(speedgrade=-2)
+        self.comb += pll.reset.eq(~platform.request("user_btn_n"))
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_sys, clk_freq)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, revision, sys_clk_freq=int(50e6), **kwargs):
+    def __init__(self, revision, sys_clk_freq=int(50e6), with_ethernet=False, with_etherbone=False, **kwargs):
         platform = pano_logic_g2.Platform(revision=revision)
+        if with_etherbone:
+            sys_clk_freq = int(125e6)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_ethernet or with_etherbone)
+
+        # Ethernet ---------------------------------------------------------------------------------
+        if with_ethernet:
+            self.submodules.ethphy = LiteEthPHYGMII(
+                clock_pads         = self.platform.request("eth_clocks"),
+                pads               = self.platform.request("eth"),
+                with_hw_init_reset = False)
+            platform.add_platform_command("""NET "eth_clocks_rx" CLOCK_DEDICATED_ROUTE = FALSE;""")
+            self.add_csr("ethphy")
+            self.add_ethernet(phy=self.ethphy)
+
+        # Etherbone --------------------------------------------------------------------------------
+        if with_etherbone:
+            self.submodules.ethphy = LiteEthPHYGMII(
+                clock_pads         = self.platform.request("eth_clocks"),
+                pads               = self.platform.request("eth"),
+                with_hw_init_reset = False)
+            platform.add_platform_command("""NET "eth_clocks_rx" CLOCK_DEDICATED_ROUTE = FALSE;""")
+            self.add_csr("ethphy")
+            self.add_etherbone(phy=self.ethphy)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -59,9 +85,16 @@ def main():
     parser.add_argument("--revision", default="c",         help="Board revision c (default) or b")
     builder_args(parser)
     soc_core_args(parser)
+    parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
     args = parser.parse_args()
 
-    soc = BaseSoC(revision=args.revision, **soc_core_argdict(args))
+    assert not (args.with_ethernet and args.with_etherbone)
+    soc = BaseSoC(
+        revision       = args.revision,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
