@@ -78,7 +78,7 @@ class BaseSoC(SoCCore):
                 l2_cache_reverse        = True
             )
 
-            self.submodules.i2c = I2CMaster(platform.request("i2c", 1))
+            self.submodules.i2c = I2CMaster(platform.request("i2c"))
             self.add_csr("i2c")
 
         # Leds -------------------------------------------------------------------------------------
