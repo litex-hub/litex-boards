@@ -16,6 +16,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.bitbang import I2CMaster
 
 from litedram.modules import MTA4ATF51264HZ
 from litedram.phy import usddrphy
@@ -76,6 +77,9 @@ class BaseSoC(SoCCore):
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
             )
+
+            self.submodules.i2c = I2CMaster(platform.request("i2c"))
+            self.add_csr("i2c")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(

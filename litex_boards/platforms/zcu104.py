@@ -43,6 +43,12 @@ _io = [
         IOStandard("LVCMOS18")
     ),
 
+    ("i2c", 0,
+        Subsignal("sda", Pins("P12")),
+        Subsignal("scl", Pins("N12")),
+        IOStandard("LVCMOS33")
+    ),
+
     ("ddram", 0,
         Subsignal("a",       Pins(
             "AH16 AG14 AG15 AF15 AF16 AJ14 AH14 AF17",
