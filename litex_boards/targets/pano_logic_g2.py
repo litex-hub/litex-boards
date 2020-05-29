@@ -16,7 +16,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from liteeth.phy import LiteEthPHYGMII
+from liteeth.phy import LiteEthPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -50,25 +50,18 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_ethernet or with_etherbone)
 
-        # Ethernet ---------------------------------------------------------------------------------
-        if with_ethernet:
-            self.submodules.ethphy = LiteEthPHYGMII(
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.submodules.ethphy = LiteEthPHY(
                 clock_pads         = self.platform.request("eth_clocks"),
                 pads               = self.platform.request("eth"),
+                clk_freq           = sys_clk_freq,
                 with_hw_init_reset = False)
-            platform.add_platform_command("""NET "eth_clocks_rx" CLOCK_DEDICATED_ROUTE = FALSE;""")
             self.add_csr("ethphy")
-            self.add_ethernet(phy=self.ethphy)
-
-        # Etherbone --------------------------------------------------------------------------------
-        if with_etherbone:
-            self.submodules.ethphy = LiteEthPHYGMII(
-                clock_pads         = self.platform.request("eth_clocks"),
-                pads               = self.platform.request("eth"),
-                with_hw_init_reset = False)
-            platform.add_platform_command("""NET "eth_clocks_rx" CLOCK_DEDICATED_ROUTE = FALSE;""")
-            self.add_csr("ethphy")
-            self.add_etherbone(phy=self.ethphy)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
