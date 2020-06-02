@@ -8,10 +8,6 @@
 # ./acorn_cle_215.py --build
 # ./acorn_cle_215.py --load (or --flash)
 #
-# Get Linux driver/utilities from:
-# https://github.com/enjoy-digital/litex_playground/tree/master/004_litepcie_aller_test/software
-# Copy generated csr.h/soc.h/mem.h to software/kernel.
-#
 #.Build the kernel and load it:
 # cd software/kernel
 # make
@@ -186,13 +182,15 @@ class PCIeSoC(SoCCore):
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
 
-    def generate_software_headers(self):
+    def generate_software(self, dst="software"):
+        from litepcie.software import copy_litepcie_software
+        copy_litepcie_software(dst)
         csr_header = get_csr_header(self.csr_regions, self.constants, with_access_functions=False)
-        tools.write_to_file("csr.h", csr_header)
+        tools.write_to_file(os.path.join(dst, "kernel", "csr.h"), csr_header)
         soc_header = get_soc_header(self.constants, with_access_functions=False)
-        tools.write_to_file("soc.h", soc_header)
+        tools.write_to_file(os.path.join(dst, "kernel", "soc.h"), soc_header)
         mem_header = get_mem_header(self.mem_regions)
-        tools.write_to_file("mem.h", mem_header)
+        tools.write_to_file(os.path.join(dst, "kernel", "mem.h"), mem_header)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -213,7 +211,7 @@ def main():
     soc      = PCIeSoC(platform, **soc_sdram_argdict(args))
     builder  = Builder(soc, **builder_argdict(args))
     vns = builder.build(run=args.build)
-    soc.generate_software_headers()
+    soc.generate_software()
 
     if args.load:
         prog = soc.platform.create_programmer()
