@@ -5,16 +5,16 @@
 
 # Build/Use ----------------------------------------------------------------------------------------
 # Build/Load bitstream:
-# ./acorn_cle_215.py --build
+# ./acorn_cle_215.py --build --driver
 # ./acorn_cle_215.py --load (or --flash)
 #
 #.Build the kernel and load it:
-# cd software/kernel
+# cd build/<platform>/driver/kernel
 # make
 # sudo ./init.sh
 #
 # Test userspace utilities:
-# cd software/user
+# cd build/<platform>/driver/user
 # make
 # ./litepcie_util info
 # ./litepcie_util scratch_test
@@ -28,15 +28,12 @@ import sys
 from migen import *
 from migen.genlib.misc import WaitTimer
 
-from litex.build import tools
-
 from litex_boards.platforms import acorn_cle_215
 
 from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.soc.integration.export import *
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.dna import DNA
@@ -51,6 +48,7 @@ from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
+from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -182,23 +180,14 @@ class PCIeSoC(SoCCore):
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
 
-    def generate_software(self, dst="software"):
-        from litepcie.software import copy_litepcie_software
-        copy_litepcie_software(dst)
-        csr_header = get_csr_header(self.csr_regions, self.constants, with_access_functions=False)
-        tools.write_to_file(os.path.join(dst, "kernel", "csr.h"), csr_header)
-        soc_header = get_soc_header(self.constants, with_access_functions=False)
-        tools.write_to_file(os.path.join(dst, "kernel", "soc.h"), soc_header)
-        mem_header = get_mem_header(self.mem_regions)
-        tools.write_to_file(os.path.join(dst, "kernel", "mem.h"), mem_header)
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Acorn CLE 215+")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    parser.add_argument("--flash", action="store_true", help="Flash bitstream")
+    parser.add_argument("--build",  action="store_true", help="Build bitstream")
+    parser.add_argument("--driver", action="store_true", help="Generate LitePCIe driver")
+    parser.add_argument("--load",   action="store_true", help="Load bitstream")
+    parser.add_argument("--flash",  action="store_true", help="Flash bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
@@ -210,8 +199,10 @@ def main():
     platform = acorn_cle_215.Platform()
     soc      = PCIeSoC(platform, **soc_sdram_argdict(args))
     builder  = Builder(soc, **builder_argdict(args))
-    vns = builder.build(run=args.build)
-    soc.generate_software()
+    builder.build(run=args.build)
+
+    if args.driver:
+        generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()
