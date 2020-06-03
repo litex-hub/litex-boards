@@ -33,6 +33,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys     = ClockDomain()
         self.clock_domains.cd_sys2x   = ClockDomain()
         self.clock_domains.cd_sys2x_i = ClockDomain(reset_less=True)
+        self.clock_domains.cd_clk10   = ClockDomain() # FIXME: LiteSDCard test
 
         # # #
 
@@ -55,6 +56,7 @@ class _CRG(Module):
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         pll.create_clkout(self.cd_init, 25e6)
+        pll.create_clkout(self.cd_clk10, 10e6)
         self.specials += [
             Instance("ECLKBRIDGECS",
                 i_CLK0   = self.cd_sys2x_i.clk,
@@ -71,8 +73,9 @@ class _CRG(Module):
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.cd_sys2x.rst,
                 o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_init, ~por_done | ~pll.locked | rst),
-            AsyncResetSynchronizer(self.cd_sys,  ~por_done | ~pll.locked | rst)
+            AsyncResetSynchronizer(self.cd_init,  ~por_done | ~pll.locked | rst),
+            AsyncResetSynchronizer(self.cd_sys,   ~por_done | ~pll.locked | rst),
+            AsyncResetSynchronizer(self.cd_clk10, ~por_done | ~pll.locked | rst)
         ]
 
         self.comb += platform.request("dram_vtt_en").eq(1)
@@ -132,13 +135,17 @@ def main():
     parser.add_argument("--sys-clk-freq",    default=75e6,        help="system clock frequency (default=75MHz)")
     parser.add_argument("--with-ethernet",   action="store_true", help="enable Ethernet support")
     parser.add_argument("--with-spi-sdcard", action="store_true", help="enable SPI-mode SDCard support")
+    parser.add_argument("--with-sdcard",     action="store_true", help="enable SDCard support")
     args = parser.parse_args()
 
     soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)),
         with_ethernet=args.with_ethernet,
         **soc_sdram_argdict(args))
+    assert not (args.with_spi_sdcard and args.with_sdcard)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)
