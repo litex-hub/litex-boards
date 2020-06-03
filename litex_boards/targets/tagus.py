@@ -11,15 +11,12 @@ import sys
 from migen import *
 from migen.genlib.misc import WaitTimer
 
-from litex.build import tools
-
 from litex_boards.platforms import tagus
 
 from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.soc.integration.export import *
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.dna import DNA
@@ -34,6 +31,7 @@ from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
+from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -164,20 +162,13 @@ class PCIeSoC(SoCCore):
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
 
-    def generate_software_headers(self):
-        csr_header = get_csr_header(self.csr_regions, self.constants, with_access_functions=False)
-        tools.write_to_file("csr.h", csr_header)
-        soc_header = get_soc_header(self.constants, with_access_functions=False)
-        tools.write_to_file("soc.h", soc_header)
-        mem_header = get_mem_header(self.mem_regions)
-        tools.write_to_file("mem.h", mem_header)
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Tagus")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--build",  action="store_true", help="Build bitstream")
+    parser.add_argument("--driver", action="store_true", help="Generate LitePCIe driver")
+    parser.add_argument("--load",   action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
@@ -189,8 +180,10 @@ def main():
     platform = tagus.Platform()
     soc      = PCIeSoC(platform, **soc_sdram_argdict(args))
     builder  = Builder(soc, **builder_argdict(args))
-    vns = builder.build(run=args.build)
-    soc.generate_software_headers()
+    builder.build(run=args.build)
+
+    if args.driver:
+        generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()
