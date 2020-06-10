@@ -18,7 +18,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16
+from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
 from litedram.phy import ECP5DDRPHY
 
 # _CRG ---------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, revision = "0.2", device = "25F", sdram_device = "MT41K64M16",
+    def __init__(self, revision="0.2", device="25F", sdram_device="MT41K64M16",
                  sys_clk_freq=int(48e6), toolchain="trellis", **kwargs):
         platform = orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
 
@@ -102,10 +102,10 @@ class BaseSoC(SoCCore):
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             available_sdram_modules = {
-                'MT41K64M16': MT41K64M16,
-                'MT41K128M16': MT41K128M16,
-                'MT41K256M16': MT41K256M16,
-#                'MT41K512M16': MT41K512M16
+                "MT41K64M16":  MT41K64M16,
+                "MT41K128M16": MT41K128M16,
+                "MT41K256M16": MT41K256M16,
+                "MT41K512M16": MT41K512M16
             }
             sdram_module = available_sdram_modules.get(sdram_device)
 
