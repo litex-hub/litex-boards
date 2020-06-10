@@ -194,12 +194,12 @@ _connectors_v6_1 = [
     ("j8", "B20 C20 B19  - B18 A19 A18 J17 F1  E2  E1  F2  C18 J18 H16 -"),
 ]
 
-# from https://github.com/miek/chubby75/blob/5a-75b-v7_pinout/5a-75b/hardware_V7.0.md
+# from https://github.com/q3k/chubby75/blob/master/5a-75b/hardware_V7.0.md
 _connectors_v7_0 = [
     ("j1", "F3  F1  G3  - G2  H3  H5  F15 L2 K1 J5 K2 B16 J14 F12 -"),
     ("j2", "J4  K3  G1  - K4  C2  E3  F15 L2 K1 J5 K2 B16 J14 F12 -"),
     ("j3", "H4  K5  P1  - R1  L5  F2  F15 L2 K1 J5 K2 B16 J14 F12 -"),
-    ("j4", "P4  R2  M8  - -   T6  R6  F15 L2 K1 J5 K2 B16 J14 F12 -"),
+    ("j4", "P4  R2  M8  - M9  T6  R6  F15 L2 K1 J5 K2 B16 J14 F12 -"),
     ("j5", "M11 N11 P12 - K15 N12 L16 F15 L2 K1 J5 K2 B16 J14 F12 -"),
     ("j6", "K16 J15 J16 - J12 H15 G16 F15 L2 K1 J5 K2 B16 J14 F12 -"),
     ("j7", "H13 J13 H12 - G14 H14 G15 F15 L2 K1 J5 K2 B16 J14 F12 -"),
