@@ -14,55 +14,16 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import de10nano
 
 from litex.soc.cores.clock import CycloneVPLL
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-
-# de10nano specific
 from litex.soc.cores.led import LedChaser
 
-# de10nano 128MB sdram
-from litedram.modules import SDRAMModule
-from litedram.modules import _TechnologyTimings
-from litedram.modules import _SpeedgradeTimings
+from litedram.modules import AS4C32M16
 from litedram.phy import GENSDRPHY
 
-# de10nano buses
-from litex.soc.interconnect.axi import *
-from litex.soc.interconnect import wishbone
-
-# VGA terminal
 from litevideo.terminal.core import Terminal
-
-# MiSTer I/O definitions
-
-# Light up the top user leds on the mister i/o board
-class MiSTerOutputs(Module):
-    def __init__(self, pads):
-        if hasattr(pads, 'led_power'):
-            led_power_pin = Signal()
-            self.comb += pads.led_power.eq(0)
-        if hasattr(pads, 'led_user'):
-            led_user_pin = Signal()
-            self.comb += pads.led_user.eq(0)
-        if hasattr(pads, 'led_hdd'):
-            led_hdd_pin = Signal()
-            self.comb += pads.led_hdd.eq(0)
-
-        led_power_pin.eq(1)
-        led_user_pin.eq(0)
-        led_hdd_pin.eq(0)
-
-# MiSTer 128MB SDRAM
-class MiSTer128SDRAM(SDRAMModule):                                                                                          #4 x AS4C32M16 32MB=4*8192*512 (hopefully 128MB=4*32768*512 or 16*8192*512)
-    memtype = "SDR"
-    # geometry
-    nbanks = 4
-    nrows  = 16384
-    ncols  = 1024
-    # timings
-    technology_timings = _TechnologyTimings(tREFI=64e6/8192, tWTR=(2, None), tCCD=(1, None), tRRD=None)
-    speedgrade_timings = {"default": _SpeedgradeTimings(tRP=18, tRCD=18, tWR=12, tRFC=(None, 60), tFAW=None, tRAS=None)}
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -82,7 +43,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_vga,    25e6)
-        
+
         # SDRAM clock
         if with_sdram:
             self.specials += DDROutput(1, 0, platform.request("sdram_clock"), ClockSignal("sys_ps"))
@@ -90,49 +51,21 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), **kwargs):
-        platform = de10nano.Platform()
-
-        # SoCCore ---------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
-
-        # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = Cat(*[platform.request("user_led", i) for i in range(8)]),
-            sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
-
-# MiSTerSDRAMSoC -----------------------------------------------------------------------------------
-
-class MiSTerSDRAMSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_mister_sdram=False, with_mister_vga=False, **kwargs):
         platform = de10nano.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=True)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=with_mister_sdram)
 
-        # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = Cat(*[platform.request("user_led", i) for i in range(8)]),
-            sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
-
-        # mister user leds
-        self.submodules.mister_outputs = mister_outputs = MiSTerOutputs(platform.request("mister_outputs",0))
-        self.add_csr("mister_outputs")
-        
         # SDR SDRAM --------------------------------------------------------------------------------
-        if not self.integrated_main_ram_size:
+        if with_mister_sdram and not self.integrated_main_ram_size:
             self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
             self.add_sdram("sdram",
                 phy                     = self.sdrphy,
-                module                  = MiSTer128SDRAM(self.clk_freq, "1:1"),
+                module                  = AS4C32M16(self.clk_freq, "1:1"),
                 origin                  = self.mem_map["main_ram"],
                 size                    = kwargs.get("max_sdram_size", 0x40000000),
                 l2_cache_size           = kwargs.get("l2_size", 8192),
@@ -140,27 +73,24 @@ class MiSTerSDRAMSoC(SoCCore):
                 l2_cache_reverse        = True
             )
 
-        # VGA terminal
-        self.mem_map["terminal"] = 0x30000000
-        self.submodules.terminal = terminal = Terminal()
-        self.add_wb_slave(self.mem_map["terminal"], self.terminal.bus, 8896)
-        self.add_memory_region("terminal", self.mem_map["terminal"], 8896, type="cached+linker")        
+        # VGA terminal -----------------------------------------------------------------------------
+        if with_mister_vga:
+            self.submodules.terminal = terminal = Terminal()
+            self.bus.add_slave("terminal", self.terminal.bus, region=SoCRegion(origin=0x30000000, size=0x10000))
+            vga_pads = platform.request("vga")
+            self.comb += [
+                vga_pads.vsync.eq(terminal.vsync),
+                vga_pads.hsync.eq(terminal.hsync),
+                vga_pads.red.eq(terminal.red[2:8]),
+                vga_pads.green.eq(terminal.green[2:8]),
+                vga_pads.blue.eq(terminal.blue[2:8])
+            ]
 
-        # Connect VGA pins
-        vga = platform.request("vga", 0)
-        self.comb += [
-            vga.vsync.eq(terminal.vsync),
-            vga.hsync.eq(terminal.hsync),
-            vga.red.eq(terminal.red[2:8]),
-            vga.green.eq(terminal.green[2:8]),
-            vga.blue.eq(terminal.blue[2:8])
-        ]
-        vga.en.eq(1)
-
-#        self.add_csr("terminal")
-     
-         # AXI Bus
-#        axibus = AXILiteInterface()
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = Cat(*[platform.request("user_led", i) for i in range(8)]),
+            sys_clk_freq = sys_clk_freq)
+        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -170,12 +100,13 @@ def main():
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--with-mister-sdram", action="store_true", help="Enable MiSTer SDRAM expansion board")
+    parser.add_argument("--with-mister-sdram", action="store_true", help="Enable SDRAM with MiSTer expansion board")
+    parser.add_argument("--with-mister-vga",   action="store_true", help="Enable VGA with Mister expansion board")
     args = parser.parse_args()
-    if args.with_mister_sdram:
-        soc = MiSTerSDRAMSoC(**soc_sdram_argdict(args))
-    else:
-        soc = BaseSoC(**soc_sdram_argdict(args))
+    soc = BaseSoC(
+        with_mister_sdram = args.with_mister_sdram,
+        with_mister_vga   = args.with_mister_vga,
+        **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 

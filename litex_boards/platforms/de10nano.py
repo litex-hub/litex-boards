@@ -29,16 +29,15 @@ _io = [
     ("user_sw", 2, Pins("W21"), IOStandard("3.3-V LVTTL")),
     ("user_sw", 3, Pins("W20"), IOStandard("3.3-V LVTTL")),
 
-# uncomment appropriate serial for board
     ("serial", 0,
-        Subsignal("tx", Pins("AH9"), IOStandard("3.3-V LVTTL")),    # user i/o port on mister i/o board
-        Subsignal("rx", Pins("AG11"), IOStandard("3.3-V LVTTL"))    # user i/o port on mister i/o board
+        Subsignal("tx", Pins("AH9"), IOStandard("3.3-V LVTTL")), # User I/O port on Mister
+        Subsignal("rx", Pins("AG11"), IOStandard("3.3-V LVTTL")) # User I/O port on Mister
     ),
 
-#    ("serial", 0,
-#        Subsignal("tx", Pins("AF13"), IOStandard("3.3-V LVTTL")),  # Arduino_IO1
-#        Subsignal("rx", Pins("AG13"), IOStandard("3.3-V LVTTL"))   # Arduino_IO0
-#    ),
+    ("serial", 1,
+        Subsignal("tx", Pins("AF13"), IOStandard("3.3-V LVTTL")),  # Arduino_IO1
+        Subsignal("rx", Pins("AG13"), IOStandard("3.3-V LVTTL"))   # Arduino_IO0
+    ),
 
     ("g_sensor", 0,
         Subsignal("int",  Pins("A17")),
@@ -55,7 +54,6 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    # HDMI consists of HDMI + I2C for control + I2S for audio
     ("hdmi", 0,
         Subsignal("tx_d_r", Pins("AS12 AE12 W8 Y8 AD11 AD10 AE11 Y5")),
         Subsignal("tx_d_g", Pins("AF10 Y4 AE9 AB4 AE7 AF6 AF8 AF5")),
