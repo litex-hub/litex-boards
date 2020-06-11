@@ -4,6 +4,7 @@
 # License: BSD
 
 import os
+import sys
 import argparse
 
 from migen import *
@@ -91,7 +92,12 @@ class BaseSoC(SoCCore):
         platform = orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # Serial -----------------------------------------------------------------------------------
-        platform.add_extension(orangecrab.feather_serial)
+        if kwargs["uart_name"] == "usb_acm":
+            # FIXME: do proper install of ValentyUSB.
+            os.system("git clone https://github.com/gregdavill/valentyusb -b hw_cdc_eptri")
+            sys.path.append("valentyusb")
+        else:
+            platform.add_extension(orangecrab.feather_serial)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
@@ -145,6 +151,7 @@ def main():
     parser.add_argument("--revision",     default="0.2",        help="Board Revision {0.1, 0.2} (default=0.2)")
     parser.add_argument("--device",       default="25F",        help="ECP5 device (default=25F)")
     parser.add_argument("--sdram-device", default="MT41K64M16", help="ECP5 device (default=MT41K64M16)")
+    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -154,6 +161,8 @@ def main():
         sdram_device = args.sdram_device,
         sys_clk_freq = int(float(args.sys_clk_freq)),
         **soc_sdram_argdict(args))
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)
