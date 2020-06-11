@@ -66,7 +66,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    ("vga_out", 0,
+    ("vga", 0,
         Subsignal("hsync_n", Pins("N3")),
         Subsignal("vsync_n", Pins("N1")),
         Subsignal("r", Pins("AA1 V1 Y2 Y1")),
