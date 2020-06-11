@@ -17,6 +17,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
 from litedram.phy import ECP5DDRPHY
@@ -105,7 +106,7 @@ class BaseSoC(SoCCore):
                 "MT41K64M16":  MT41K64M16,
                 "MT41K128M16": MT41K128M16,
                 "MT41K256M16": MT41K256M16,
-                "MT41K512M16": MT41K512M16
+                "MT41K512M16": MT41K512M16,
             }
             sdram_module = available_sdram_modules.get(sdram_device)
 
@@ -124,11 +125,18 @@ class BaseSoC(SoCCore):
                 l2_cache_reverse        = True
             )
 
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = Cat(*[platform.request("user_led", i) for i in range(3)]),
+            sys_clk_freq = sys_clk_freq)
+        self.add_csr("leds")
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on OrangeCrab")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--load",  action="store_true", help="Load bitstream")
     parser.add_argument("--toolchain", default="trellis", help="Gateware toolchain to use, trellis (default) or diamond")
     builder_args(parser)
     soc_sdram_args(parser)
@@ -139,15 +147,20 @@ def main():
     parser.add_argument("--sdram-device", default="MT41K64M16", help="ECP5 device (default=MT41K64M16)")
     args = parser.parse_args()
 
-    soc = BaseSoC(toolchain=args.toolchain,
-                  revision=args.revision,
-                  device=args.device,
-                  sdram_device=args.sdram_device,
-                  sys_clk_freq=int(float(args.sys_clk_freq)),
-                  **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        toolchain    = args.toolchain,
+        revision     = args.revision,
+        device       = args.device,
+        sdram_device = args.sdram_device,
+        sys_clk_freq = int(float(args.sys_clk_freq)),
+        **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
 
 if __name__ == "__main__":
     main()

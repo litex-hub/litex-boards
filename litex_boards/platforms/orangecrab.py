@@ -3,6 +3,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
+from litex.build.dfu import DFUProg
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -14,6 +15,10 @@ _io_r0_1 = [
         Subsignal("g", Pins("T17"), IOStandard("LVCMOS33")),
         Subsignal("b", Pins("J3"),  IOStandard("LVCMOS33")),
     ),
+
+    ("user_led", 0, Pins("V17"), IOStandard("LVCMOS33")), # rgb_led.r
+    ("user_led", 1, Pins("V17"), IOStandard("LVCMOS33")), # rgb_led.g
+    ("user_led", 2, Pins("V17"), IOStandard("LVCMOS33")), # rgb_led.b
 
     ("ddram", 0,
         Subsignal("a", Pins(
@@ -77,6 +82,10 @@ _io_r0_2 = [
         Subsignal("g", Pins("M3"), IOStandard("LVCMOS33")),
         Subsignal("b", Pins("J3"), IOStandard("LVCMOS33")),
     ),
+
+    ("user_led", 0, Pins("K4"), IOStandard("LVCMOS33")), # rgb_led.r
+    ("user_led", 1, Pins("M3"), IOStandard("LVCMOS33")), # rgb_led.g
+    ("user_led", 2, Pins("J3"), IOStandard("LVCMOS33")), # rgb_led.b
 
     ("ddram", 0,
         Subsignal("a", Pins(
@@ -188,6 +197,9 @@ class Platform(LatticePlatform):
         io         = {"0.1": _io_r0_1,            "0.2": _io_r0_2        }[revision]
         connectors = {"0.1": _connectors_r0_1,    "0.2": _connectors_r0_2}[revision]
         LatticePlatform.__init__(self, f"LFE5U-{device}-8MG285C", io, connectors, **kwargs)
+
+    def create_programmer(self):
+        return DFUProg(vid="1209", pid="5bf0")
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)
