@@ -76,6 +76,12 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, toolchain="trellis", **kwargs):
         platform = versa_ecp5.Platform(toolchain=toolchain)
 
+        # Fix ROM size for Microwatt
+        if with_ethernet:
+            kwargs["integrated_rom_size"]  = 0xb000
+        else:
+            kwargs["integrated_rom_size"]  = 0x9000
+
         # SoCCore -----------------------------------------_----------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
