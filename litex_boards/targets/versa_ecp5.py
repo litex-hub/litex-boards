@@ -73,8 +73,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, toolchain="trellis", **kwargs):
-        platform = versa_ecp5.Platform(toolchain=toolchain)
+    def __init__(self, sys_clk_freq=int(75e6), device="LFE5UM5G-45F-8BG381C", with_ethernet=False, toolchain="trellis", **kwargs):
+        platform = versa_ecp5.Platform(toolchain=toolchain, device=device)
 
         # Fix ROM size for Microwatt
         if with_ethernet:
@@ -129,11 +129,12 @@ def main():
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
-    parser.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency (default=75MHz)")
-    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--sys-clk-freq",  default=75e6,                   help="System clock frequency (default=75MHz)")
+    parser.add_argument("--device",        default="LFE5UM5G-45F-8BG381C", help="ECP5 device (default=LFE5UM5G-45F-8BG381C)")
+    parser.add_argument("--with-ethernet", action="store_true",            help="Enable Ethernet support")
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), with_ethernet=args.with_ethernet, toolchain=args.toolchain, **soc_sdram_argdict(args))
+    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), device=args.device, with_ethernet=args.with_ethernet, toolchain=args.toolchain, **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)
