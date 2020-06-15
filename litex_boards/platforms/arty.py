@@ -154,11 +154,14 @@ _sdcard_pmod_io = [ # https://store.digilentinc.com/pmod-microsd-microsd-card-sl
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33"),
     ),
+    # Pmod JD:
+    # https://github.com/antmicro/arty-expansion-board
+    # https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
     ("sdcard", 0,
-        Subsignal("data", Pins("D15 J17 J18 E15")),
-        Subsignal("cmd",  Pins("E16")),
-        Subsignal("clk",  Pins("C15")),
-        Subsignal("cd",   Pins("K15")),
+        Subsignal("data", Pins("F4 E2 D2 D4")),
+        Subsignal("cmd", Pins("D3")),
+        Subsignal("clk", Pins("F3")),
+        Subsignal("cd", Pins("H2")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33"),
     ),
