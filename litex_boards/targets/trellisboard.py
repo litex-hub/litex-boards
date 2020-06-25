@@ -33,7 +33,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys     = ClockDomain()
         self.clock_domains.cd_sys2x   = ClockDomain()
         self.clock_domains.cd_sys2x_i = ClockDomain(reset_less=True)
-        self.clock_domains.cd_clk10   = ClockDomain() # FIXME: LiteSDCard test
+        self.clock_domains.cd_sdcard  = ClockDomain()
 
         # # #
 
@@ -55,8 +55,8 @@ class _CRG(Module):
         self.submodules.pll = pll = ECP5PLL()
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
-        pll.create_clkout(self.cd_init, 25e6)
-        pll.create_clkout(self.cd_clk10, 10e6)
+        pll.create_clkout(self.cd_init,   25e6)
+        pll.create_clkout(self.cd_sdcard, 10e6)
         self.specials += [
             Instance("ECLKBRIDGECS",
                 i_CLK0   = self.cd_sys2x_i.clk,
@@ -73,9 +73,9 @@ class _CRG(Module):
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.cd_sys2x.rst,
                 o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_init,  ~por_done | ~pll.locked | rst),
-            AsyncResetSynchronizer(self.cd_sys,   ~por_done | ~pll.locked | rst),
-            AsyncResetSynchronizer(self.cd_clk10, ~por_done | ~pll.locked | rst)
+            AsyncResetSynchronizer(self.cd_init,   ~por_done | ~pll.locked | rst),
+            AsyncResetSynchronizer(self.cd_sys,    ~por_done | ~pll.locked | rst),
+            AsyncResetSynchronizer(self.cd_sdcard, ~por_done | ~pll.locked | rst)
         ]
 
         self.comb += platform.request("dram_vtt_en").eq(1)
