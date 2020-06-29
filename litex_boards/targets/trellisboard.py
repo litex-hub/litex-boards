@@ -37,7 +37,8 @@ class _CRG(Module):
 
         # # #
 
-        self.stop = Signal()
+        self.stop  = Signal()
+        self.reset = Signal()
 
         # Clk / Rst
         clk12 = platform.request("clk12")
@@ -46,7 +47,7 @@ class _CRG(Module):
         # Power on reset
         por_count = Signal(16, reset=2**16-1)
         por_done  = Signal()
-        self.comb += self.cd_por.clk.eq(ClockSignal())
+        self.comb += self.cd_por.clk.eq(clk12)
         self.comb += por_done.eq(por_count == 0)
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
@@ -71,11 +72,12 @@ class _CRG(Module):
                 p_DIV     = "2.0",
                 i_ALIGNWD = 0,
                 i_CLKI    = self.cd_sys2x.clk,
-                i_RST     = self.cd_sys2x.rst,
+                i_RST     = self.reset,
                 o_CDIVX   = self.cd_sys.clk),
             AsyncResetSynchronizer(self.cd_init,   ~por_done | ~pll.locked | rst),
-            AsyncResetSynchronizer(self.cd_sys,    ~por_done | ~pll.locked | rst),
-            AsyncResetSynchronizer(self.cd_sdcard, ~por_done | ~pll.locked | rst)
+            AsyncResetSynchronizer(self.cd_sdcard, ~por_done | ~pll.locked | rst),
+            AsyncResetSynchronizer(self.cd_sys,    ~por_done | ~pll.locked | rst | self.reset),
+            AsyncResetSynchronizer(self.cd_sys2x,  ~por_done | ~pll.locked | rst | self.reset),
         ]
 
         self.comb += platform.request("dram_vtt_en").eq(1)
@@ -97,6 +99,8 @@ class BaseSoC(SoCCore):
             self.submodules.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
+            self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
+            self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
