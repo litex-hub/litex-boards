@@ -54,7 +54,7 @@ class CRG(Module):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, platform, **kwargs):
+    def __init__(self, platform, with_pcie=False, **kwargs):
         sys_clk_freq = int(100e6)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -86,49 +86,42 @@ class BaseSoC(SoCCore):
             )
 
         # PCIe -------------------------------------------------------------------------------------
-        # PHY
-        self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
-            data_width = 128,
-            bar0_size  = 0x20000)
-        self.pcie_phy.add_timing_constraints(platform)
-        platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
-        self.add_csr("pcie_phy")
+        if with_pcie:
+            # PHY
+            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+                data_width = 128,
+                bar0_size  = 0x20000)
+            self.pcie_phy.add_timing_constraints(platform)
+            platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
+            self.add_csr("pcie_phy")
 
-        # Endpoint
-        self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, max_pending_requests=8)
+            # Endpoint
+            self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, max_pending_requests=8)
 
-        # Wishbone bridge
-        self.submodules.pcie_bridge = LitePCIeWishboneBridge(self.pcie_endpoint,
-            base_address = self.mem_map["csr"])
-        self.add_wb_master(self.pcie_bridge.wishbone)
+            # Wishbone bridge
+            self.submodules.pcie_bridge = LitePCIeWishboneBridge(self.pcie_endpoint,
+                base_address = self.mem_map["csr"])
+            self.add_wb_master(self.pcie_bridge.wishbone)
 
-        # DMA0
-        self.submodules.pcie_dma0 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
-            with_buffering = True, buffering_depth=1024,
-            with_loopback  = True)
-        self.add_csr("pcie_dma0")
+            # DMA0
+            self.submodules.pcie_dma0 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
+                with_buffering = True, buffering_depth=1024,
+                with_loopback  = True)
+            self.add_csr("pcie_dma0")
 
-        # DMA1
-        self.submodules.pcie_dma1 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
-            with_buffering = True, buffering_depth=1024,
-            with_loopback  = True)
-        self.add_csr("pcie_dma1")
+            self.add_constant("DMA_CHANNELS", 1)
 
-        self.add_constant("DMA_CHANNELS", 2)
-
-        # MSI
-        self.submodules.pcie_msi = LitePCIeMSI()
-        self.add_csr("pcie_msi")
-        self.comb += self.pcie_msi.source.connect(self.pcie_phy.msi)
-        self.interrupts = {
-            "PCIE_DMA0_WRITER":    self.pcie_dma0.writer.irq,
-            "PCIE_DMA0_READER":    self.pcie_dma0.reader.irq,
-            "PCIE_DMA1_WRITER":    self.pcie_dma1.writer.irq,
-            "PCIE_DMA1_READER":    self.pcie_dma1.reader.irq,
-        }
-        for i, (k, v) in enumerate(sorted(self.interrupts.items())):
-            self.comb += self.pcie_msi.irqs[i].eq(v)
-            self.add_constant(k + "_INTERRUPT", i)
+            # MSI
+            self.submodules.pcie_msi = LitePCIeMSI()
+            self.add_csr("pcie_msi")
+            self.comb += self.pcie_msi.source.connect(self.pcie_phy.msi)
+            self.interrupts = {
+                "PCIE_DMA0_WRITER":    self.pcie_dma0.writer.irq,
+                "PCIE_DMA0_READER":    self.pcie_dma0.reader.irq,
+            }
+            for i, (k, v) in enumerate(sorted(self.interrupts.items())):
+                self.comb += self.pcie_msi.irqs[i].eq(v)
+                self.add_constant(k + "_INTERRUPT", i)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -140,19 +133,19 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Aller")
-    parser.add_argument("--build",  action="store_true", help="Build bitstream")
-    parser.add_argument("--driver", action="store_true", help="Generate LitePCIe driver")
-    parser.add_argument("--load",   action="store_true", help="Load bitstream")
+    parser.add_argument("--build",     action="store_true", help="Build bitstream")
+    parser.add_argument("--with-pcie", action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",    action="store_true", help="Generate LitePCIe driver")
+    parser.add_argument("--load",      action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
     # Enforce arguments
-    args.uart_name      = "crossover"
     args.csr_data_width = 32
 
     platform = aller.Platform()
-    soc      = BaseSoC(platform, **soc_sdram_argdict(args))
+    soc      = BaseSoC(platform, with_pcie=args.with_pcie, **soc_sdram_argdict(args))
     builder  = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
