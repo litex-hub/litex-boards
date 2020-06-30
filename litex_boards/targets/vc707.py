@@ -46,8 +46,11 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), **kwargs):
         platform = vc707.Platform()
 
-        # SoCCore ------------------------------------------------------------------_---------------
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident          = "LiteX SoC on VC707",
+            ident_version  = True,
+            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

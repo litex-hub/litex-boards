@@ -104,7 +104,10 @@ class BaseSoC(SoCCore):
             sys.path.append("valentyusb")
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident          = "LiteX SoC on Logicbone",
+            ident_version  = True,
+            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"

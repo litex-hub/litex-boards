@@ -83,7 +83,10 @@ class BaseSoC(SoCCore):
             kwargs["integrated_rom_size"] = 0xb000 if with_ethernet else 0x9000
 
         # SoCCore -----------------------------------------_----------------------------------------
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident          = "LiteX SoC on Versa ECP5",
+            ident_version  = True,
+            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

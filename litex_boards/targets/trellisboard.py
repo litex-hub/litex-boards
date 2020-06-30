@@ -88,8 +88,11 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), toolchain="trellis", with_ethernet=False, **kwargs):
         platform = trellisboard.Platform(toolchain=toolchain)
 
-        # SoCCore -----------------------------------------------------------------_----------------
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident          = "LiteX SoC on Trellis Board",
+            ident_version  = True,
+            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

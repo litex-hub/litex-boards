@@ -34,7 +34,6 @@ class _CRG(Module):
         self.clock_domains.cd_sys2x_i  = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys2x_eb = ClockDomain(reset_less=True)
 
-
         # # #
 
         self.stop  = Signal()
@@ -102,7 +101,10 @@ class BaseSoC(SoCCore):
             platform.add_extension(orangecrab.feather_serial)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident          = "LiteX SoC on OrangeCrab",
+            ident_version  = True,
+            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"

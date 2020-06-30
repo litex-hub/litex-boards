@@ -107,7 +107,10 @@ class BaseSoC(SoCCore):
             sys_clk_freq = int(125e6)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident          = "LiteX SoC on Colorlight " + board.upper(),
+            ident_version  = True,
+            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         with_rst = kwargs["uart_name"] not in ["serial", "bridge"] # serial_rx shared with user_btn_n.
@@ -141,7 +144,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight 5A-75B")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight 5A-75X")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
