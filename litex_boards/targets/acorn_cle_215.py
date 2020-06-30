@@ -35,9 +35,6 @@ from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
-from litex.soc.cores.dna import DNA
-from litex.soc.cores.xadc import XADC
-from litex.soc.cores.icap import ICAP
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT41K512M16
@@ -86,20 +83,6 @@ class PCIeSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)
         self.add_csr("crg")
-
-        # DNA --------------------------------------------------------------------------------------
-        self.submodules.dna = DNA()
-        self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
-        self.add_csr("dna")
-
-        # XADC -------------------------------------------------------------------------------------
-        self.submodules.xadc = XADC()
-        self.add_csr("xadc")
-
-        # ICAP -------------------------------------------------------------------------------------
-        self.submodules.icap = ICAP(platform)
-        self.icap.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
-        self.add_csr("icap")
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
