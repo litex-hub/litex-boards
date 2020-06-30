@@ -48,9 +48,9 @@ class CRG(Module):
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_clk200)
 
-# PCIeSoC -----------------------------------------------------------------------------------------
+# BaseSoC -----------------------------------------------------------------------------------------
 
-class PCIeSoC(SoCCore):
+class BaseSoC(SoCCore):
     def __init__(self, platform, **kwargs):
         sys_clk_freq = int(100e6)
 
@@ -143,7 +143,7 @@ def main():
     args.csr_data_width = 32
 
     platform = nereid.Platform()
-    soc      = PCIeSoC(platform, **soc_sdram_argdict(args))
+    soc      = BaseSoC(platform, **soc_sdram_argdict(args))
     builder  = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
