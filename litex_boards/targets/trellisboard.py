@@ -33,7 +33,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys     = ClockDomain()
         self.clock_domains.cd_sys2x   = ClockDomain()
         self.clock_domains.cd_sys2x_i = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sdcard  = ClockDomain()
+        self.clock_domains.cd_sd      = ClockDomain()
 
         # # #
 
@@ -57,7 +57,7 @@ class _CRG(Module):
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         pll.create_clkout(self.cd_init,   25e6)
-        pll.create_clkout(self.cd_sdcard, 10e6)
+        pll.create_clkout(self.cd_sd,     16e6)
         self.specials += [
             Instance("ECLKBRIDGECS",
                 i_CLK0   = self.cd_sys2x_i.clk,
@@ -75,7 +75,7 @@ class _CRG(Module):
                 i_RST     = self.reset,
                 o_CDIVX   = self.cd_sys.clk),
             AsyncResetSynchronizer(self.cd_init,   ~por_done | ~pll.locked | rst),
-            AsyncResetSynchronizer(self.cd_sdcard, ~por_done | ~pll.locked | rst),
+            AsyncResetSynchronizer(self.cd_sd,     ~por_done | ~pll.locked | rst),
             AsyncResetSynchronizer(self.cd_sys,    ~por_done | ~pll.locked | rst | self.reset),
             AsyncResetSynchronizer(self.cd_sys2x,  ~por_done | ~pll.locked | rst | self.reset),
         ]
