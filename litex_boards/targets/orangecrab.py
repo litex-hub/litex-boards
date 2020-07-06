@@ -41,6 +41,7 @@ class _CRG(Module):
 
         # Clk / Rst
         clk48 = platform.request("clk48")
+        rst_n = platform.request("usr_btn")
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)
@@ -70,9 +71,9 @@ class _CRG(Module):
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.reset,
                 o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_init,  ~por_done | ~pll.locked),
-            AsyncResetSynchronizer(self.cd_sys,   ~por_done | ~pll.locked | self.reset),
-            AsyncResetSynchronizer(self.cd_sys2x, ~por_done | ~pll.locked | self.reset),
+            AsyncResetSynchronizer(self.cd_init,  ~por_done | ~pll.locked | ~rst_n),
+            AsyncResetSynchronizer(self.cd_sys,   ~por_done | ~pll.locked | ~rst_n | self.reset),
+            AsyncResetSynchronizer(self.cd_sys2x, ~por_done | ~pll.locked | ~rst_n | self.reset),
         ]
 
         # USB PLL
