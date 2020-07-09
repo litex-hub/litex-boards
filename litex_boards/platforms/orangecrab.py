@@ -1,4 +1,4 @@
-# This file is Copyright (c) Greg Davill <greg.davill@gmail.com>
+# This file is Copyright (c) 2020 Greg Davill <greg.davill@gmail.com>
 # License: BSD
 
 from litex.build.generic_platform import *
@@ -9,6 +9,7 @@ from litex.build.dfu import DFUProg
 
 _io_r0_1 = [
     ("clk48", 0,  Pins("A9"),  IOStandard("LVCMOS33")),
+    ("rst_n", 0, Pins("R16"), IOStandard("LVCMOS33")),
 
     ("rgb_led", 0,
         Subsignal("r", Pins("V17"), IOStandard("LVCMOS33")),
@@ -45,9 +46,16 @@ _io_r0_1 = [
         Misc("SLEWRATE=FAST")
     ),
 
+    ("usb", 0,
+        Subsignal("d_p", Pins("N1")),
+        Subsignal("d_n", Pins("M2")),
+        Subsignal("pullup", Pins("N2")),
+        IOStandard("LVCMOS33")
+    ),
+
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("U17")),
-        Subsignal("clk",  Pins("U16")),
+    #    Subsignal("clk",  Pins("U16")),
         Subsignal("dq",   Pins("U18 T18 R18 N18")),
         IOStandard("LVCMOS33")
     ),
@@ -178,16 +186,16 @@ feather_serial = [
 
 feather_i2c = [
     ("i2c", 0,
-        ("sda", Pins("GPIO:2"), IOStandard("LVCMOS33")),
-        ("scl", Pins("GPIO:3"), IOStandard("LVCMOS33"))
+        Subsignal("sda", Pins("GPIO:2"), IOStandard("LVCMOS33")),
+        Subsignal("scl", Pins("GPIO:3"), IOStandard("LVCMOS33"))
     )
 ]
 
 feather_spi = [
     ("spi",0,
-        ("miso", Pins("GPIO:14"), IOStandard("LVCMOS33")),
-        ("mosi", Pins("GPIO:16"), IOStandard("LVCMOS33")),
-        ("sck",  Pins("GPIO:15"), IOStandard("LVCMOS33"))
+        Subsignal("miso", Pins("GPIO:14"), IOStandard("LVCMOS33")),
+        Subsignal("mosi", Pins("GPIO:16"), IOStandard("LVCMOS33")),
+        Subsignal("sck",  Pins("GPIO:15"), IOStandard("LVCMOS33"))
     )
 ]
 
@@ -206,7 +214,7 @@ class Platform(LatticePlatform):
         LatticePlatform.__init__(self, f"LFE5U-{device}-8MG285C", io, connectors, **kwargs)
 
     def create_programmer(self):
-        return DFUProg(vid="1209", pid="5bf0")
+        return DFUProg(vid="1209", pid="5af0")
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)
