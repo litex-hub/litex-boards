@@ -53,6 +53,7 @@ _io = [
         Subsignal("siwu_n", Pins("AJ28"), IOStandard("LVCMOS33")),
     ),
 
+    ("dram_vtt_en", 0, Pins("E25"), IOStandard("LVCMOS33")),
     ("ddram", 0,
         Subsignal("a", Pins(
             "E30 F28 C32 E29 F32 D30 E32 D29",
@@ -80,8 +81,6 @@ _io = [
         Subsignal("reset_n", Pins("L32"), IOStandard("SSTL135_I")),
         Misc("SLEWRATE=FAST"),
     ),
-
-     ("dram_vtt_en", 0, Pins("E25"), IOStandard("LVCMOS33")),
 
     ("eth_clocks", 0,
         Subsignal("tx",  Pins("A15")),
