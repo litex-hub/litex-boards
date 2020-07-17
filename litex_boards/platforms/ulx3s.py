@@ -108,6 +108,7 @@ class Platform(LatticePlatform):
     default_clk_period = 1e9/25e6
 
     def __init__(self, device="LFE5U-45F", **kwargs):
+        assert device in ["LFE5U-25F", "LFE5U-45F", "LFE5U-85F"]
         LatticePlatform.__init__(self, device + "-6BG381C", _io, **kwargs)
 
     def create_programmer(self):
