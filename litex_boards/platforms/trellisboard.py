@@ -145,7 +145,7 @@ _io = [
         Subsignal("mosi", Pins("AH3"), Misc("PULLMODE=UP")),
         Subsignal("cs_n", Pins("AK1"), Misc("PULLMODE=UP")),
         Subsignal("miso", Pins("AG1"), Misc("PULLMODE=UP")),
-        Misc("SLEW=FAST"),
+        Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
 
@@ -153,7 +153,8 @@ _io = [
         Subsignal("clk",  Pins("AK3")),
         Subsignal("cmd",  Pins("AH3"), Misc("PULLMODE=UP")),
         Subsignal("data", Pins("AG1 AJ1 AH1 AK1"), Misc("PULLMODE=UP")),
-        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+        Misc("SLEWRATE=FAST"),
+        IOStandard("LVCMOS33"),
     ),
 
     ("spiflash4x", 0,
