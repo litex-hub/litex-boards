@@ -21,16 +21,20 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import AS4C32M16
-from litedram.phy import GENSDRPHY
+from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from litevideo.terminal.core import Terminal
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, with_sdram=False):
+    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_sys2x=False):
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+        if sdram_sys2x:
+            self.clock_domains.cd_sys2x = ClockDomain()
+            self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+        else:
+            self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
         self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
         # # #
 
@@ -41,17 +45,22 @@ class _CRG(Module):
         self.submodules.pll = pll = CycloneVPLL(speedgrade="-I7")
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
-        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+        if sdram_sys2x:
+            pll.create_clkout(self.cd_sys2x, 2*sys_clk_freq)
+            pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=90)
+        else:
+            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_vga,    25e6)
 
         # SDRAM clock
         if with_sdram:
-            self.specials += DDROutput(1, 0, platform.request("sdram_clock"), ClockSignal("sys_ps"))
+            sdram_clk = ClockSignal("sys2x_ps" if sdram_sys2x else "sys_ps")
+            self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_mister_sdram=False, with_mister_vga=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_mister_sdram=True, with_mister_vga=False, sdram_sys2x=False, **kwargs):
         platform = de10nano.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -61,14 +70,19 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=with_mister_sdram)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=with_mister_sdram, sdram_sys2x=sdram_sys2x)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if with_mister_sdram and not self.integrated_main_ram_size:
-            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
+            if sdram_sys2x:
+                self.submodules.sdrphy = HalfRateGENSDRPHY(platform.request("sdram"))
+                rate = "1:2"
+            else:
+                self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
+                rate = "1:1"
             self.add_sdram("sdram",
                 phy                     = self.sdrphy,
-                module                  = AS4C32M16(self.clk_freq, "1:1"),
+                module                  = AS4C32M16(sys_clk_freq, rate),
                 origin                  = self.mem_map["main_ram"],
                 size                    = kwargs.get("max_sdram_size", 0x40000000),
                 l2_cache_size           = kwargs.get("l2_size", 8192),
@@ -105,10 +119,12 @@ def main():
     soc_sdram_args(parser)
     parser.add_argument("--with-mister-sdram", action="store_true", help="Enable SDRAM with MiSTer expansion board")
     parser.add_argument("--with-mister-vga",   action="store_true", help="Enable VGA with Mister expansion board")
+    parser.add_argument("--sdram-sys2x",  action="store_true", help="Use double frequency for SDRAM PHY")
     args = parser.parse_args()
     soc = BaseSoC(
         with_mister_sdram = args.with_mister_sdram,
         with_mister_vga   = args.with_mister_vga,
+        sdram_sys2x       = args.sdram_sys2x,
         **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
