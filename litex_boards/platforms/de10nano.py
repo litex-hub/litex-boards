@@ -30,13 +30,15 @@ _io = [
     ("user_sw", 3, Pins("W20"), IOStandard("3.3-V LVTTL")),
 
     ("serial", 0,
-        Subsignal("tx", Pins("AH9"), IOStandard("3.3-V LVTTL")), # User I/O port on Mister
-        Subsignal("rx", Pins("AG11"), IOStandard("3.3-V LVTTL")) # User I/O port on Mister
+        Subsignal("tx", Pins("AH9")), # User I/O port on Mister
+        Subsignal("rx", Pins("AG11")),# User I/O port on Mister
+         IOStandard("3.3-V LVTTL"), Misc("WEAK_PULL_UP_RESISTOR ON"), Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\"")
     ),
 
     ("serial", 1,
-        Subsignal("tx", Pins("AF13"), IOStandard("3.3-V LVTTL")),  # Arduino_IO1
-        Subsignal("rx", Pins("AG13"), IOStandard("3.3-V LVTTL"))   # Arduino_IO0
+        Subsignal("tx", Pins("AF13")),  # Arduino_IO1
+        Subsignal("rx", Pins("AG13")),  # Arduino_IO0
+        IOStandard("3.3-V LVTTL"), Misc("WEAK_PULL_UP_RESISTOR ON"), Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\"")
     ),
 
     ("g_sensor", 0,
@@ -55,13 +57,13 @@ _io = [
     ),
 
     ("hdmi", 0,
-        Subsignal("tx_d_r", Pins("AS12 AE12 W8 Y8 AD11 AD10 AE11 Y5")),
-        Subsignal("tx_d_g", Pins("AF10 Y4 AE9 AB4 AE7 AF6 AF8 AF5")),
-        Subsignal("tx_d_b", Pins("AE4 AH2 AH4 AH5 AH6 AG6 AF9 AE8")),
-        Subsignal("tx_clk", Pins("AG5")),
-        Subsignal("tx_de",  Pins("AD19")),
-        Subsignal("tx_hs",  Pins("T8")),
-        Subsignal("tx_vs",  Pins("V13")),
+        Subsignal("tx_d_r", Pins("AS12 AE12 W8 Y8 AD11 AD10 AE11 Y5"), Misc("FAST_OUTPUT_REGISTER ON")),
+        Subsignal("tx_d_g", Pins("AF10 Y4 AE9 AB4 AE7 AF6 AF8 AF5"), Misc("FAST_OUTPUT_REGISTER ON")),
+        Subsignal("tx_d_b", Pins("AE4 AH2 AH4 AH5 AH6 AG6 AF9 AE8"), Misc("FAST_OUTPUT_REGISTER ON")),
+        Subsignal("tx_clk", Pins("AG5"), Misc("FAST_OUTPUT_REGISTER ON")),
+        Subsignal("tx_de",  Pins("AD19"), Misc("FAST_OUTPUT_REGISTER ON")),
+        Subsignal("tx_hs",  Pins("T8"), Misc("FAST_OUTPUT_REGISTER ON")),
+        Subsignal("tx_vs",  Pins("V13"), Misc("FAST_OUTPUT_REGISTER ON")),
         Subsignal("tx_int", Pins("AF11")),
         IOStandard("3.3-V LVTTL")
     ),
@@ -90,13 +92,14 @@ _mister_sdram_module_io = [
             "AC22 C12 AB26 AD17 D12")),
         Subsignal("dq",  Pins(
             "E8    V12 D11  W12 AH13  D8 AH14 AF7",
-            "AE24 AD23 AE6 AE23 AG14 AD5  AF4 AH3")),
+            "AE24 AD23 AE6 AE23 AG14 AD5  AF4 AH3"),
+            Misc("FAST_OUTPUT_ENABLE_REGISTER ON"), Misc("FAST_INPUT_REGISTER ON")),
         Subsignal("ba",    Pins("Y17 AB25")),
         Subsignal("cas_n", Pins("AA18")),
         Subsignal("cs_n",  Pins("Y18")),
         Subsignal("ras_n", Pins("W14")),
         Subsignal("we_n",  Pins("AA19")),
-        IOStandard("3.3-V LVTTL")
+        IOStandard("3.3-V LVTTL"), Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""), Misc("FAST_OUTPUT_REGISTER ON"), Misc("ALLOW_SYNCH_CTRL_USAGE OFF")
     ),
 
     ("spisdcard", 0,
@@ -104,14 +107,23 @@ _mister_sdram_module_io = [
         Subsignal("mosi", Pins("AF27")),
         Subsignal("cs_n", Pins("AF28")),
         Subsignal("miso", Pins("AF25")),
-        IOStandard("3.3-V LVTTL")
+        IOStandard("3.3-V LVTTL"), Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""), Misc("WEAK_PULL_UP_RESISTOR ON")
     ),
+    
+    ("sdcard", 0,
+        Subsignal("data", Pins("AF25 AF23 AD26 AF28"), Misc("WEAK_PULL_UP_RESISTOR ON")),
+        Subsignal("cmd", Pins("AF27"), Misc("WEAK_PULL_UP_RESISTOR ON")),
+        Subsignal("clk", Pins("AH26")),
+        Subsignal("cd", Pins("AH7"), Misc("WEAK_PULL_UP_RESISTOR ON")),
+        IOStandard("3.3-V LVTTL"), Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""), 
+    ),
+
 
     ("mister_outputs", 0,
         Subsignal("led_user",  Pins("Y15")),
         Subsignal("led_hdd",   Pins("AA15")),
         Subsignal("led_power", Pins("AG28")),
-        IOStandard("3.3-V LVTTL")
+        IOStandard("3.3-V LVTTL"), Misc("WEAK_PULL_UP_RESISTOR ON"), Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\"")
     ),
 
     ("vga", 0,
@@ -120,8 +132,8 @@ _mister_sdram_module_io = [
         Subsignal("blue", Pins("AG21 AA20 AE22 AF22 AH23 AH21")),
         Subsignal("hsync", Pins("AH22")),
         Subsignal("vsync",  Pins("AG24")),
-        Subsignal("en",  Pins("AH27")),
-        IOStandard("3.3-V LVTTL")
+        Subsignal("en",  Pins("AH27"), Misc("WEAK_PULL_UP_RESISTOR ON")),
+        IOStandard("3.3-V LVTTL"), Misc("CURRENT_STRENGTH_NEW 8MA")
     ),
 ]
 
