@@ -91,7 +91,9 @@ _mister_sdram_module_io = [
             "AC22 C12 AB26 AD17 D12")),
         Subsignal("dq",  Pins(
             "E8    V12 D11  W12 AH13  D8 AH14 AF7",
-            "AE24 AD23 AE6 AE23 AG14 AD5  AF4 AH3")),
+            "AE24 AD23 AE6 AE23 AG14 AD5  AF4 AH3"),
+            Misc("FAST_OUTPUT_REGISTER ON"),
+            Misc("FAST_INPUT_REGISTER ON")),
         Subsignal("ba",    Pins("Y17 AB25")),
         Subsignal("cas_n", Pins("AA18")),
         Subsignal("cs_n",  Pins("Y18")),
