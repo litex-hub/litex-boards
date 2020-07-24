@@ -92,14 +92,16 @@ _mister_sdram_module_io = [
         Subsignal("dq",  Pins(
             "E8    V12 D11  W12 AH13  D8 AH14 AF7",
             "AE24 AD23 AE6 AE23 AG14 AD5  AF4 AH3"),
-            Misc("FAST_OUTPUT_REGISTER ON"),
+            Misc("FAST_OUTPUT_ENABLE_REGISTER ON"),
             Misc("FAST_INPUT_REGISTER ON")),
         Subsignal("ba",    Pins("Y17 AB25")),
         Subsignal("cas_n", Pins("AA18")),
         Subsignal("cs_n",  Pins("Y18")),
         Subsignal("ras_n", Pins("W14")),
         Subsignal("we_n",  Pins("AA19")),
+        Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""),
         Misc("FAST_OUTPUT_REGISTER ON"),
+        Misc("ALLOW_SYNCH_CTRL_USAGE OFF"),
         IOStandard("3.3-V LVTTL"),
     ),
 
