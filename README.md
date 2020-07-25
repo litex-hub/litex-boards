@@ -59,9 +59,9 @@ Fully open-hardware boards, the ECP5 and iCE40 ones are even usable with the ope
 | ECPIX-5      | Lattice ECP5        | LFE5UM5G-85F  |  75MHz   | FTDI |  16-bit 512MB DDR3  |      No   |   1Gbps RGMII  |  16MB QSPI  |   Yes* |
 | Fomu         | Lattice iCE40       | iCE40-UP5K    |  12MHz   | USB  |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
 | HADBadge     | Lattice ECP5        | LFE5U-45F     |  48MHz   | IOs  |   8-bit  32MB SDR   |      No   |         No     |  16MB QSPI  |   No   |
-| iCEBreaker   | Lattice iCE40       | iCE40-UP5K    |  24MHz   | FTDI |     128KB SPRAM     |      No   |         No     |     ?       |   No   |
-| LogicBone    | Lattice ECP5        | LFE5U-45F     |  75MHz   | FTDI |   16-bit 1GB DDR3   |      No   |   1Gbps RGMII  |     ?       |   ?    |
-| MarbleMini   | Xilinx Artix7       | XC7A100T      |  100MHz  |  ?   |          ?          |      No   |   1Gbps RGMII  |     ?       |   ?    |
+| iCEBreaker   | Lattice iCE40       | iCE40-UP5K    |  24MHz   | FTDI |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
+| LogicBone    | Lattice ECP5        | LFE5U-45F     |  75MHz   | FTDI |   16-bit 1GB DDR3   |      No   |   1Gbps RGMII  |  16MB QSPI  |   Yes  |
+| MarbleMini   | Xilinx Artix7       | XC7A100T      |  100MHz  | FTDI |   16-bit 1GB DDR3   |      No   |   1Gbps RGMII  |  16MB QSPI  |   No   |
 | MiniSpartan6 | Xilinx Spartan6     | XC6SLX25      |  80MHz   | FTDI |  16-bit  32MB SDR   |      No   |         No     |   8MB QSPI  |   Yes  |
 | NeTV2        | Xilinx Artix7       | XC7A35T       | 100MHz   | IOs  |  32-bit 512MB DDR3  |  Gen2 X4  | 100Mbps RMII   |  16MB QSPI  |   Yes  |
 | OrangeCrab   | Lattice ECP5        | LFE5U-25F     |  48MHz   | USB  |  16-bit 128MB SDR   |      No   |         No     |   4MB QSPI  |   Yes  |
@@ -79,7 +79,7 @@ PCIe accelerators boards you could use to accelerate your applications, LiteX pr
 
 | Name           | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM            |    PCIe       |    Flash    |
 |----------------|---------------------|---------------|----------|------|-----------------------|---------------|-------------|
-| AcornCLE215+   | Xilinx Artix7       | XC7A200T      | 125MHz   | PCIe | 16-bit 1GB DDR3       |  Gen2 X4      |     ?       |
+| AcornCLE215+   | Xilinx Artix7       | XC7A200T      | 125MHz   | PCIe | 16-bit 1GB DDR3       |  Gen2 X4      |  16MB QSPI  |
 | ForestKitten33 | Xilinx Ultrascale+  | XCVU33P       | 125MHz   | PCIe | 2 x 1024-bit 4GB HBM2*|  Gen3 X16**   |     ?       |
 | BCU1525        | Xilinx Ultrascale+  | XCVU9P        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM* |  Gen3 X16**   |     ?       |
 | AlveoU250      | Xilinx Ultrascale+  | XCU250        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM* |  Gen2 X16**   |     ?       |
@@ -94,10 +94,10 @@ Repurposed FPGA hardware that has been "documented" by enthusiats :), allows you
 
 | Name         | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM         |       Ethernet     |    Flash    |
 |--------------|---------------------|---------------|----------|------|--------------------|--------------------|-------------|
-| Colorlight5A | Lattice ECP5        | LFE5U-25F     |   60MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |      ?      |
-| Linsn RV901  | Xilinx Spartan6     | XC6SLX16      |   75MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |      ?      |
-| PanoLogic G2 | Xilinx Spartan6     | XC6SLX100-150 |   50MHz  | IOs  | 32-bit 128MB DDR2  | 1Gbps GMII         |      ?      |
-| Camlink-4K   | Lattice ECP5        | LFE5U-25F     |   81MHz  | IOs  | 16-bit 128MB DDR3  |        No          |      ?      |
+| Colorlight5A | Lattice ECP5        | LFE5U-25F     |   60MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
+| Linsn RV901  | Xilinx Spartan6     | XC6SLX16      |   75MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
+| PanoLogic G2 | Xilinx Spartan6     | XC6SLX100-150 |   50MHz  | IOs  | 32-bit 128MB DDR2  | 1Gbps GMII         |  16MB QSPI  |
+| Camlink-4K   | Lattice ECP5        | LFE5U-25F     |   81MHz  | IOs  | 16-bit 128MB DDR3  |        No          |   ?MB QSPI  |
 
 The Colorlight5A is a very nice board to start with, cheap, powerful, easy to use with the open-source toolchain, you can find a specific LiteX project [here](https://github.com/enjoy-digital/colorlite)
 
@@ -108,35 +108,35 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 
 | Name         | FPGA Family         | FPGA device   | Sys-Clk | TTY  |       RAM          |    PCIe   |    Ethernet    |    Flash    | SDCard |
 |--------------|---------------------|---------------|---------|------|--------------------|-----------|----------------|-------------|--------|
-| AC701        | Xilinx Artix7       | XC7A200T      | 100MHz  | FTDI | 64-bit ?MB DDR3    |  Gen2 X4  | 1Gbps RGMII    |     ?       |   ?    |
-| Aller        | Xilinx Artix7       | XC7A200T      | 100MHz  | PCIe | 16-bit ?MB DDR3    |  Gen2 X4  |       No       |     ?       |   ?    |
+| AC701        | Xilinx Artix7       | XC7A200T      | 100MHz  | FTDI | 64-bit ?MB DDR3    |  Gen2 X4  | 1Gbps RGMII    |  16MB QSPI  |   Yes* |
+| Aller        | Xilinx Artix7       | XC7A200T      | 100MHz  | PCIe | 16-bit 256MB DDR3  |  Gen2 X4  |       No       | 128MB QSPI  |   No   |
 | Arty(A7)     | Xilinx Artix7       | XC7A35T       | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    | 100Mbps MII    |  16MB QSPI  |   No   |
 | ArtyS7       | Xilinx Spartan7     | XC7S50        | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    |       No       |  16MB QSPI  |   No   |
 | Avalanche    | Microsemi PolarFire | MPF300TS      | 100MHz  | IOs  | 16-bit 256MB DDR3  |     No    |   1Gbps RGMII* |   8MB QSPI* |   No   |
-| C10LPRefKit  | Intel Cyclone10     | 10CL055       |   ?     | ?    | 16-bit ?MB SDR     |     No    |       ?        |      ?      |   ?    |
+| C10LPRefKit  | Intel Cyclone10     | 10CL055       |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |  100Mbps MII   |  16MB QSPI  |   No   |
 | De0Nano      | Intel Cyclone4      | EP4CE22F      |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |       No       |      No     |   No   |
 | De10Lite     | Intel MAX10         | 10M50DA       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       No       |      No     |   No   |
 | De10Nano     | Intel Cyclone5      | 5CSEBA6       |  50MHz  | IOs  | 16-bit  32MB SDR   |     No    |       No       |      No     |   Yes  |
-| De1SoC       | Intel Cyclone5      | 5CSEMA5       |   ?     | ?    |                    |     No    |       ?        |      ?      |   ?    |
-| De2-115      | Intel Cyclone4      | EP4CE115      |   ?     | ?    |                    |     No    |       ?        |      ?      |   ?    |
-| ECP5-EVN     | Lattice ECP5        | LFE5UM5G-85F  |   ?     | ?    |                    |     No    |       ?        |      ?      |   ?    |
+| De1SoC       | Intel Cyclone5      | 5CSEMA5       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       ?        |      ?      |   ?    |
+| De2-115      | Intel Cyclone4      | EP4CE115      |  50MHz  | IOs  | 16-bit 128MB SDR   |     No    | 1Gbps GMII*    |  8MB QSPI   |   Yes* |
+| ECP5-EVN     | Lattice ECP5        | LFE5UM5G-85F  |  50MHz  | FTDI |        No          |     No    |       ?        |      ?      |   ?    |
 | Genesys2     | Xilinx Kintex7      | XC7K325T      | 125MHz  | FTDI | 32-bit   1GB DDR3  |     No    | 1Gbps RGMII*   |  32MB QSPI* |   Yes  |
 | KC705        | Xilinx Kintex7      | XC7K325T      | 125MHz  | FTDI | 64-bit   1GB DDR3  | Gen2 X8** |   1Gbps GMII   |  32MB QSPI* |   Yes  |
 | KCU105       | Xilinx KintexU      | XCKU40        | 125MHz  | FTDI | 64-bit   1GB DDR4  | Gen3 X8** | 1Gbps-BASE-X   |  64MB QSPI* |   Yes  |
-| KX2          | Xilinx Kintex7      | XC7K160T      |   ?     |  ?   |         ?          |     ?     |       ?        |      ?      |    ?   |
-| MachXO3      | Lattice MachXO3     | LCMXO3L-6900C |   ?     |  ?   |         ?          |     No    |       ?        |      ?      |    ?   |
-| Mercury XU5  | Xilinx ZynqU+       | XCZU2EG       |   ?     |  ?   |         ?          |     ?     |       ?        |      ?      |    ?   |
-| Mimas A7     | Xilinx Artix7       | XC7A50T       |   ?     |  ?   |         ?          |     No    | 1Gbps RGMII    |      ?      |    ?   |
-| Nereid       | Xilinx Kintex7      | XC7K160T      |   ?     |  ?   |         ?          |     ?     |       ?        |      ?      |    ?   |
-| Nexys4DDR    | Xilinx Artix7       | XC7A100T      | 100MHz  | FTDI | 16-bit 128MB DDR2  |      No   | 100Mbps RMII   |  16MB QSPI* |   Yes  |
-| Nexys Video  | Xilinx Artix7       | XC7A200T      | 100MHz  | FTDI | 16-bit 512MB DDR3  |      No   |   1Gbps RMII*  |  32MB QSPI* |   Yes  |
-| SP605        | Xilinx Spartan6     | ?             | ?       | ?    |         ?          |      ?    |       ?        |      ?      |    ?   |
-| Tagus        | Xilinx Artix7       | XC7A200T      | ?       | ?    |         ?          |      ?    |       ?        |      ?      |    ?   |
-| VC707        | Xilinx Virex7       | XC7VX485T     | ?       | FTDI |         ?          |      ?    |       ?        |      ?      |    ?   |
-| VCU118       | Xilinx VirtexU+     | XCVU9P        | ?       | FTDI |         ?          |      ?    |       ?        |      ?      |    ?   |
+| KX2          | Xilinx Kintex7      | XC7K160T      | 125MHz  | FTDI | 64-bit   1GB DDR3  |     No    |       No       |  64MB QSPI* |   No   |
+| MachXO3      | Lattice MachXO3     | LCMXO3L-6900C | 125MHz  |  ?   |         ?          |     No    |       No       |      ?      |   No   |
+| Mercury XU5  | Xilinx ZynqU+       | XCZU2EG       | 125MHz  | FTDI | 16-bit 512MB DDR4  |     No    |       No       |  64MB QSPI* |   No   |
+| Mimas A7     | Xilinx Artix7       | XC7A50T       | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    | 1Gbps RGMII    |  16MB QSPI  |   No   |
+| Nereid       | Xilinx Kintex7      | XC7K160T      | 100MHz  | PCIe | 64-bit   4GB DDR3  |  Gen2 X4  |       No       |  16MB QSPI  |   No   |
+| Nexys4DDR    | Xilinx Artix7       | XC7A100T      | 100MHz  | FTDI | 16-bit 128MB DDR2  |     No    | 100Mbps RMII   |  16MB QSPI* |   Yes  |
+| Nexys Video  | Xilinx Artix7       | XC7A200T      | 100MHz  | FTDI | 16-bit 512MB DDR3  |     No    |   1Gbps RMII*  |  32MB QSPI* |   Yes  |
+| SP605        | Xilinx Spartan6     | XC6SLX45T     | 100MHz  | FTDI | 16-bit 128MB DDR3* |  Gen1 X1* |   1Gbps GMII   |   8MB QSPI* |   Yes* |
+| Tagus        | Xilinx Artix7       | XC7A200T      | 100MHz  | PCIe | 16-bit 256MB DDR3  |  Gen2 X1  |  1Gbps-BASE-X* |  16MB QSPI* |   No   |
+| VC707        | Xilinx Virex7       | XC7VX485T     | 125MHz  | FTDI | 64-bit   1GB DDR3  |  Gen3 X8* |   1Gbps GMII   |  16MB QSPI* |   Yes* |
+| VCU118       | Xilinx VirtexU+     | XCVU9P        | 125MHz  | FTDI | 2 x 64-bit 4GB DDR4|  Gen3 X16*|  1Gbps SGMII   |  16MB QSPI* |   Yes* |
 | Versa ECP5   | Lattice ECP5        | LFE5UM5G-45F  |  75MHz  | FTDI | 16-bit 128MB DDR3  |  Gen1 X1* | 1Gbps RGMII    |  16MB QSPI* |   No   |
-| ZCU104       | Xilinx ZynqU+       | XCZU7EV       | 125MHz  | FTDI | 64-bit   1GB DDR4  |      No   | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
-| Zybo Z7      | Xilinx ZynqU+       | XC7Z010       | 125MHz  | FTDI | 64-bit   1GB DDR4  |      No   | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
+| ZCU104       | Xilinx ZynqU+       | XCZU7EV       | 125MHz  | FTDI | 64-bit   1GB DDR4  |     No    | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
+| Zybo Z7      | Xilinx ZynqU+       | XC7Z010       | 125MHz  | FTDI | 64-bit   1GB DDR4  |     No    | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
 
 * Present on the board but not yet supported or validated with LiteX.
 ** Currently limited to PCIe Gen2 X4 by LitePCIe.
