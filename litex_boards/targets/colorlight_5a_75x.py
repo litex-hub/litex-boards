@@ -103,9 +103,6 @@ class BaseSoC(SoCCore):
         elif board == "5a-75e":
             platform = colorlight_5a_75e.Platform(revision=revision)
 
-        if with_etherbone:
-            sys_clk_freq = int(125e6)
-
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Colorlight " + board.upper(),
