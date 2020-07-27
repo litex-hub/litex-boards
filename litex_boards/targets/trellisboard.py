@@ -28,6 +28,30 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.clock_domains.cd_por     = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys     = ClockDomain()
+
+        # # #
+
+        # Clk / Rst
+        clk12 = platform.request("clk12")
+        rst   = platform.request("user_btn", 0)
+
+        # Power on reset
+        por_count = Signal(16, reset=2**16-1)
+        por_done  = Signal()
+        self.comb += self.cd_por.clk.eq(clk12)
+        self.comb += por_done.eq(por_count == 0)
+        self.sync.por += If(~por_done, por_count.eq(por_count - 1))
+
+        # PLL
+        self.submodules.pll = pll = ECP5PLL()
+        pll.register_clkin(clk12, 12e6)
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked | rst)
+
+class _CRGSDRAM(Module):
+    def __init__(self, platform, sys_clk_freq):
         self.clock_domains.cd_init    = ClockDomain()
         self.clock_domains.cd_por     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys     = ClockDomain()
@@ -92,7 +116,8 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        crg_cls = _CRGSDRAM if not self.integrated_main_ram_size else _CRG
+        self.submodules.crg = crg_cls(platform, sys_clk_freq)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -125,8 +150,6 @@ class BaseSoC(SoCCore):
             pads         = Cat(*[platform.request("user_led", i) for i in range(12)]),
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
-
-        self.add_ram("firmware_ram", 0x20000000, 0x10000)
 
 # Build --------------------------------------------------------------------------------------------
 
