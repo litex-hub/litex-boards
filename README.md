@@ -28,7 +28,7 @@ This repository contains the platforms/targets currently supported by LiteX:
 
 The targets can be used as a base to build more complex or custom SoCs. They are are for example directly reused by the [Linux-on-LiteX-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) project that is just using a specific configuration (Linux-capable CPU, additional peripherals). Basing your design on provided targets allows to to reduce code duplication between very various projects.
 
-First make sure to install LiteX correctly by following the [installation guide](https://github.com/enjoy-digital/litex/wiki/Installation).
+First make sure to install LiteX correctly by following the [installation guide](https://github.com/enjoy-digital/litex/wiki/Installation) and have a look at the [LiteX's wiki](https://github.com/enjoy-digital/litex/wiki) for [tutorials](https://github.com/enjoy-digital/litex/wiki/Tutorials-Resources),  [examples of projects](https://github.com/enjoy-digital/litex/wiki/Projects) and more information to use/build FPGA designs with it.
 
 Each target provides a default configuration with a CPU, ROM, SRAM, UART, DRAM (if available), Ethernet (if available), etc... that can be simply built and loaded to the FPGA with:
 
