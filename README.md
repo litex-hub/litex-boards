@@ -10,15 +10,25 @@
 
 [> Intro
 --------
+<figure>
+<p align="center">
+<img src="https://user-images.githubusercontent.com/1450143/88511626-73792100-cfe5-11ea-8d3e-dbeea6314e15.JPG">
+</p>
+<figcaption>
+<p align="center">
+From the very tiny Fomu to large PCIe accelerator boards....
+</p>
+</figcaption>
+</figure>
 
 This repository contains the platforms/targets currently supported by LiteX:
 
-- The platform provides the defintion of the board:IOs, constraints, clocks, components + method to load and flash the bitstream to it.
+- The platform provides the definition of the board: IOs, constraints, clocks, components + methods to load and flash the bitstream to it.
 - The target provides a LiteX base design for the board that allows you to create a SoC (with or without a CPU) and integrate easily all the base components of your board: Ethernet, DRAM, PCIe, SPIFlash, SDCard, Leds, GPIOs, etc...
 
-The targets can be used as a base to build more complex or custom SoCs. They are are for example directly reused by the [Linux-on-LiteX-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) project that is just using a specific configuration (Linux-capable CPU, additional peripherals). Basing your design on provided targets allow to to reduce code duplication between very various projects.
+The targets can be used as a base to build more complex or custom SoCs. They are are for example directly reused by the [Linux-on-LiteX-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) project that is just using a specific configuration (Linux-capable CPU, additional peripherals). Basing your design on provided targets allows to to reduce code duplication between very various projects.
 
-First make to install LiteX correctly by following the [installation guide](https://github.com/enjoy-digital/litex/wiki/Installation).
+First make sure to install LiteX correctly by following the [installation guide](https://github.com/enjoy-digital/litex/wiki/Installation).
 
 Each target provides a default configuration with a CPU, ROM, SRAM, UART, DRAM (if available), Ethernet (if available), etc... that can be simply built and loaded to the FPGA with:
 
@@ -33,11 +43,11 @@ But this is just the starting point to create your own hardware! You can then:
 - Change the CPU: add `--cpu-type=lm32, microwatt, serv, rocket, etc... `
 - Change the Bus standard: add `--bus-standard=wishbone, axi-lite`
 - Enable components: add `--with-ethernet --with-etherbone --with-sdcard etc...`
-- Load application code to the CPU from UART/Ethernet/SDCard, etc...:  https://github.com/enjoy-digital/litex/wiki/Load-Application-Code-To-CPU
+- [Load application code to the CPU](https://github.com/enjoy-digital/litex/wiki/Load-Application-Code-To-CPU) over UART/Ethernet/SDCard, etc...
 - Create a bridge with your computer to easily [access the main bus of your SoC](https://github.com/enjoy-digital/litex/wiki/Use-Host-Bridge-to-control-debug-a-SoC)
 - Add a Logic Analyzer to your SoC to easily [observe/debug your design](https://github.com/enjoy-digital/litex/wiki/Use-LiteScope-To-Debug-A-SoC)
 - Simulate your SoC and interact with it at decent speed with [LiteX Sim](https://github.com/enjoy-digital/litex/blob/master/litex/tools/litex_sim.py)/Verilator.
-- Integrate external cores/CPU in your design.
+- Integrate external cores/CPU to create your own design.
 - etc...
 
 Please use `./target.py --help` to see the pre-built various possibilities.
@@ -75,7 +85,7 @@ Fully open-hardware boards, the ECP5 and iCE40 ones are even usable with the ope
 [> Accelerator boards
 ---------------------
 
-PCIe accelerators boards you could use to accelerate your applications, LiteX provides you the essential cores for it: LitePCIe and LiteDRAM along with the LiteX infrastructure to create a design and easily control it/debug it.
+PCIe accelerators boards taht you could use to accelerate your applications, LiteX provides you the essential cores for it: LitePCIe and LiteDRAM along with the LiteX infrastructure to create a design and easily control it/debug it.
 
 | Name           | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM            |    PCIe       |    Flash    |
 |----------------|---------------------|---------------|----------|------|-----------------------|---------------|-------------|
@@ -90,7 +100,7 @@ PCIe accelerators boards you could use to accelerate your applications, LiteX pr
 [> Repurposed hardware
 ----------------------
 
-Repurposed FPGA hardware that has been "documented" by enthusiats :), allows you to discover FPGAs for very cheap (15$)!
+Repurposed FPGA hardware that has been "documented" by enthusiasts :), allows you to discover FPGAs for very cheap (starting at 15$)!
 
 | Name         | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM         |       Ethernet     |    Flash    |
 |--------------|---------------------|---------------|----------|------|--------------------|--------------------|-------------|
@@ -140,4 +150,3 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 
 * Present on the board but not yet supported or validated with LiteX.
 ** Currently limited to PCIe Gen2 X4 by LitePCIe.
-
