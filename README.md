@@ -44,8 +44,8 @@ But this is just the starting point to create your own hardware! You can then:
 - Change the Bus standard: add `--bus-standard=wishbone, axi-lite`
 - Enable components: add `--with-ethernet --with-etherbone --with-sdcard etc...`
 - [Load application code to the CPU](https://github.com/enjoy-digital/litex/wiki/Load-Application-Code-To-CPU) over UART/Ethernet/SDCard, etc...
-- Create a bridge with your computer to easily [access the main bus of your SoC](https://github.com/enjoy-digital/litex/wiki/Use-Host-Bridge-to-control-debug-a-SoC)
-- Add a Logic Analyzer to your SoC to easily [observe/debug your design](https://github.com/enjoy-digital/litex/wiki/Use-LiteScope-To-Debug-A-SoC)
+- Create a bridge with your computer to easily [access the main bus of your SoC](https://github.com/enjoy-digital/litex/wiki/Use-Host-Bridge-to-control-debug-a-SoC).
+- Add a Logic Analyzer to your SoC to easily [observe/debug your design](https://github.com/enjoy-digital/litex/wiki/Use-LiteScope-To-Debug-A-SoC).
 - Simulate your SoC and interact with it at decent speed with [LiteX Sim](https://github.com/enjoy-digital/litex/blob/master/litex/tools/litex_sim.py)/Verilator.
 - Integrate external cores/CPU to create your own design.
 - etc...
