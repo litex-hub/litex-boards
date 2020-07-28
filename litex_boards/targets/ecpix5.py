@@ -123,6 +123,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ECPIX-5")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--with-sdcard", action="store_true",     help="Enable SDCard support")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -130,6 +131,8 @@ def main():
     args = parser.parse_args()
 
     soc     = BaseSoC(with_ethernet=args.with_ethernet, **soc_core_argdict(args))
+    if args.with_sdcard:
+        soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**trellis_argdict(args), run=args.build)
 
