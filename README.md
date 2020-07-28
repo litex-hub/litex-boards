@@ -85,7 +85,7 @@ Fully open-hardware boards, the ECP5 and iCE40 ones are even usable with the ope
 [> Accelerator boards
 ---------------------
 
-PCIe accelerators boards taht you could use to accelerate your applications, LiteX provides you the essential cores for it: LitePCIe and LiteDRAM along with the LiteX infrastructure to create a design and easily control it/debug it.
+PCIe accelerators boards that you could use to accelerate your applications, LiteX provides you the essential cores for it: LitePCIe and LiteDRAM along with the LiteX infrastructure to create a design and easily control it/debug it.
 
 | Name           | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM            |    PCIe       |    Flash    |
 |----------------|---------------------|---------------|----------|------|-----------------------|---------------|-------------|
