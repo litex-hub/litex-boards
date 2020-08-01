@@ -3,7 +3,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
-from litex.build.lattice.programmer import UJProg
+from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -113,7 +113,7 @@ class Platform(LatticePlatform):
         LatticePlatform.__init__(self, device + "-6BG381C", _io, **kwargs)
 
     def create_programmer(self):
-        return UJProg()
+        return OpenFPGALoader('ulx3s')
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)
