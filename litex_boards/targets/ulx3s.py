@@ -114,16 +114,12 @@ class BaseSoC(SoCCore):
     def add_oled(self):
         pads = self.platform.request("oled_spi")
         pads.miso = Signal()
-        oled = SPIMaster(pads, 8, self.sys_clk_freq, 8e6)
-        oled.add_clk_divider()
-        self.submodules.oled_spi = oled
+        self.submodules.oled_spi = SPIMaster(pads, 8, self.sys_clk_freq, 8e6)
+        self.oled_spi.add_clk_divider()
         self.add_csr("oled_spi")
 
-        ctl_pads = self.platform.request("oled_ctl")
-        oled_ctl = GPIOOut(ctl_pads)
-        self.submodules.oled_ctl = oled_ctl
+        self.submodules.oled_ctl = GPIOOut(self.platform.request("oled_ctl"))
         self.add_csr("oled_ctl")
-
 
 # Build --------------------------------------------------------------------------------------------
 
