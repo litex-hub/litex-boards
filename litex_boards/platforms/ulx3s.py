@@ -100,6 +100,17 @@ _io = [
         Subsignal("pullup", Pins("B12 C12")),
         IOStandard("LVCMOS33")
     ),
+    ("oled_spi", 0,
+        Subsignal("clk",  Pins("P4")),
+        Subsignal("mosi", Pins("P3")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("oled_ctl", 0,
+        Subsignal("dc",   Pins("P1")),
+        Subsignal("resn", Pins("P2")),
+        Subsignal("csn",  Pins("N2")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
