@@ -10,8 +10,10 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import crosslink_nx
+from litex_boards.platforms import crosslink_nx_eval
 
+from litex.soc.cores.lifclspram import LIFCLSPRAM
+from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -30,13 +32,16 @@ class BaseSoC(SoCCore):
         "spiflash":         0x20000000,
         "csr":              0xf0000000,
     }
-    def __init__(self, sys_clk_freq=int(125e6), **kwargs):
-        platform = crosslink_nx.Platform()
+    def __init__(self, bios_flash_offset, sys_clk_freq=int(125e6), **kwargs):
+        platform = crosslink_nx_eval.Platform()
 
         # TODO
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
-        # kwargs["integrated_sram_size"] = 0
-        # kwargs["integrated_rom_size"]  = 0
+        kwargs["integrated_sram_size"] = 0
+        kwargs["integrated_rom_size"]  = 0
+
+        # Set CPU variant / reset address
+        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
 
         # SoCCore -----------------------------------------_----------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -47,10 +52,9 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform.request(platform.default_clk_name))
 
-        # TODO: Research SP & DP RAM modules to create SRAM on LIFC
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
-        self.submodules.spram = Up5kSPRAM(size=64*kB)
-        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 64*kB)
+        self.submodules.spram = LIFCLSPRAM(size=128*kB)
+        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 128*kB)
 
         # SPI Flash --------------------------------------------------------------------------------
         self.submodules.spiflash = SpiFlash(platform.request("spiflash4x"), dummy=6, endianness="little")
@@ -69,15 +73,16 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX Eval Board")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--bios-flash-offset", default=0x40000,     help="BIOS offset in SPI Flash")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--sys-clk-freq",  default=125e6,         help="System clock frequency (default=125MHz)")
+    parser.add_argument("--sys-clk-freq",  default=125e6, help="System clock frequency (default=125MHz)")
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)),
+    soc = BaseSoC(args.bios_flash_offset, sys_clk_freq=int(float(args.sys_clk_freq)),
         **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = {}

@@ -45,70 +45,35 @@ _io = [
     ("user_dip_btn", 6, Pins("M17"), IOStandard("LVCMOS33")),
     ("user_dip_btn", 7, Pins("M18"), IOStandard("LVCMOS33")),
 
-    ("spiflash", 0, # clock needs to be accessed through USRMCLK
+    ("spiflash", 0, 
         Subsignal("cs_n", Pins("E13")),
+        Subsignal("clk", Pins("E12")),
         Subsignal("mosi", Pins("D13")),
         Subsignal("miso", Pins("D15")),
         Subsignal("wp",   Pins("D14")),
         Subsignal("hold", Pins("D16")),
-        IOStandard("LVCMOS33"),
+        IOStandard("LVCMOS33")
     ),
 
-    ("spiflash4x", 0, # clock needs to be accessed through USRMCLK
+    ("spiflash4x", 0, 
         Subsignal("cs_n", Pins("E13")),
+        Subsignal("clk", Pins("E12")),
         Subsignal("dq",   Pins("D13 D15 D14 D16")),
         IOStandard("LVCMOS33")
     )
-
 ]
 
 
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-   ("X3",
-        "None",  # (no pin 0)
-        "None",  #  1 GND
-        "None",  #  2 N/C
-        "None",  #  3 +2V5
-        "B19",   #  4 EXPCON_IO29
-        "B12",   #  5 EXPCON_IO30
-        "B9",    #  6 EXPCON_IO31
-        "E6",    #  7 EXPCON_IO32
-        "D6",    #  8 EXPCON_IO33
-        "E7",    #  9 EXPCON_IO34
-        "D7",    # 10 EXPCON_IO35
-        "B11",   # 11 EXPCON_IO36
-        "B6",    # 12 EXPCON_IO37
-        "E9",    # 13 EXPCON_IO38
-        "D9",    # 14 EXPCON_IO39
-        "B8",    # 15 EXPCON_IO40
-        "C8",    # 16 EXPCON_IO41
-        "D8",    # 17 EXPCON_IO42
-        "E8",    # 18 EXPCON_IO43
-        "C7",    # 19 EXPCON_IO44
-        "C6",    # 20 EXPCON_IO45
-        "None",  # 21 +5V
-        "None",  # 22 GND
-        "None",  # 23 +2V5
-        "None",  # 24 GND
-        "None",  # 25 +3V3
-        "None",  # 26 GND
-        "None",  # 27 +3V3
-        "None",  # 28 GND
-        "None",  # 29 EXPCON_OSC
-        "None",  # 30 GND
-        "None",  # 31 EXPCON_CLKIN
-        "None",  # 32 GND
-        "None",  # 33 EXPCON_CLKOUT
-        "None",  # 34 GND
-        "None",  # 35 +3V3
-        "None",  # 36 GND
-        "None",  # 37 +3V3
-        "None",  # 38 GND
-        "None",  # 39 +3V3
-        "None",  # 40 GND
-    ),
+   #TODO PMOD0
+   #TODO PMOD1
+   #TODO PMOD2
+   #TODO FMC
+   #TODO ADC
+   #TODO D-PHY
+   #TODO R-RPI
 ]
 
 # Platform -----------------------------------------------------------------------------------------
@@ -122,7 +87,7 @@ class Platform(LatticePlatform):
         LatticePlatform.__init__(self, device + "-40-9BG400C", _io, _connectors, toolchain="radiant", **kwargs)
 
     def create_programmer(self):
-        return OpenOCDJTAGProgrammer("openocd_versa_ecp5.cfg")
+        return OpenOCDJTAGProgrammer("openocd_versa_ecp5.cfg") #TODO Make cfg for Crosslink-NX-Eval
 
     def do_finalize(self, fragment):
         self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
