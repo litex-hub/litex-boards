@@ -13,11 +13,13 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex_boards.platforms import crosslink_nx_eval
 
 from litex.soc.cores.lifclspram import LIFCLSPRAM
+from litex.soc.cores.lifcllram import LIFCLLRAM
 from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
+
+from litex.soc.cores.spi_flash import SpiFlash
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -31,13 +33,21 @@ class _CRG(Module):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain()
 
-        # # #
+        # TODO: PLL and more allowed clock speeds
+        clk_name = {
+            int(12e6):  "clk12",
+            int(16e6):  "clk16",
+            int(125e6): "clk125",
+        }.get(sys_clk_freq, None)
+
+        if clk_name is None:
+            raise "Only clock speeds of 12, 16 and 125 MHz allowed"
 
         # Clocking
-        clk12 = platform.request("clk16")
-        rst_n = platform.request("GSRN")
+        clk = platform.request(clk_name)
+        rst_n = platform.request("gsrn")
 
-        self.comb += self.cd_sys.clk.eq(clk12)
+        self.comb += self.cd_sys.clk.eq(clk)
 
         #platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
@@ -58,16 +68,15 @@ class BaseSoC(SoCCore):
         "spiflash":         0x20000000,
         "csr":              0xf0000000,
     }
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(125e6), **kwargs):
+    def __init__(self, flash_offset, sys_clk_freq=int(125e6), **kwargs):
         platform = crosslink_nx_eval.Platform()
 
-        # TODO
-        # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
+        # Disable Integrated ROM/SRAM since Crosslink has its own ROM and RAM
         kwargs["integrated_sram_size"] = 0
         kwargs["integrated_rom_size"]  = 0
 
         # Set CPU variant / reset address
-        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
+        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + flash_offset
 
         # SoCCore -----------------------------------------_----------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -79,8 +88,8 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
-        self.submodules.spram = LIFCLSPRAM(size=128*kB)
-        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 128*kB)
+        self.submodules.spram = LIFCLLRAM(size=64*kB)
+        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 64*kB)
 
         # SPI Flash --------------------------------------------------------------------------------
         self.submodules.spiflash = SpiFlash(platform.request("spiflash"), dummy=6, endianness="little")
@@ -88,7 +97,7 @@ class BaseSoC(SoCCore):
         self.add_csr("spiflash")
 
         # Add ROM linker region --------------------------------------------------------------------
-        self.add_memory_region("rom", self.mem_map["spiflash"] + bios_flash_offset, 32*kB, type="cached+linker")
+        self.add_memory_region("rom", self.mem_map["spiflash"] + flash_offset, 32*kB, type="cached+linker")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -102,14 +111,14 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX Eval Board")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    parser.add_argument("--bios-flash-offset", default=0x40000,     help="BIOS offset in SPI Flash")
+    parser.add_argument("--flash-offset", default=0x200000, help="Boot offset in SPI Flash")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     parser.add_argument("--sys-clk-freq",  default=16e6, help="System clock frequency (default=16MHz)")
     args = parser.parse_args()
 
-    soc = BaseSoC(args.bios_flash_offset, sys_clk_freq=int(float(args.sys_clk_freq)),
-        **soc_sdram_argdict(args))
+    soc = BaseSoC(flash_offset=args.flash_offset, sys_clk_freq=int(float(args.sys_clk_freq)),
+        **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = {}
     builder.build(**builder_kargs, run=args.build)

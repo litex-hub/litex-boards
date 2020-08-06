@@ -13,11 +13,8 @@ _io = [
 
     # Section 5.1 Clock sources
     ("clk12", 0, Pins("L13"), IOStandard("LVCMOS")),
-    ("clk125", 0,
-        Subsignal("p", Pins("C12")),
-        Subsignal("n", Pins("C11")),
-        IOStandard("LVDS")
-    ),
+    # Clock signal is differential, but we only name the "p" side.
+    ("clk125", 0, Pins("C12"), IOStandard("LVCMOS")),
 
     # 7.2. General Purpose Push Buttons - all logic zero when pressed
     ("gsrn",     0, Pins("G19"), IOStandard("LVCMOS33")),  # SW4
@@ -62,7 +59,7 @@ _io = [
     # Section 6.3.1. SPI Configuration
     ("spiflash", 0,
         Subsignal("cs_n", Pins("E13")),
-        Subsignal("clk", Pins("E12")),
+        Subsignal("clk",  Pins("E12")),
         Subsignal("mosi", Pins("D13")),
         Subsignal("miso", Pins("D15")),
         Subsignal("wp",   Pins("D14")),
@@ -72,7 +69,7 @@ _io = [
 
     ("spiflash4x", 0, 
         Subsignal("cs_n", Pins("E13")),
-        Subsignal("clk", Pins("E12")),
+        Subsignal("clk",  Pins("E12")),
         Subsignal("dq",   Pins("D13 D15 D14 D16")),
         IOStandard("LVCMOS33")
     ),
