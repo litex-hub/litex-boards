@@ -9,7 +9,7 @@ from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    ("clk125", 0, Pins("C11"), IOStandard("LVDS")),
+    ("clk16", 0, Pins("K2"), IOStandard("LVCMOS33")),
     
     ("GSRN",  0, Pins("G19"), IOStandard("LVCMOS33")),
     ("PROGRAMN",  0, Pins("E11"), IOStandard("LVCMOS33")),
@@ -21,20 +21,20 @@ _io = [
         Subsignal("tx", Pins("F18"), IOStandard("LVCMOS33")),
     ),
 
-    ("user_led", 0, Pins("E16"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("D17"), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins("D18"), IOStandard("LVCMOS33")),
-    ("user_led", 3, Pins("E18"), IOStandard("LVCMOS33")),
-    ("user_led", 4, Pins("F17"), IOStandard("LVCMOS33")),
-    ("user_led", 5, Pins("F18"), IOStandard("LVCMOS33")),
-    ("user_led", 6, Pins("E17"), IOStandard("LVCMOS33")),
-    ("user_led", 7, Pins("F16"), IOStandard("LVCMOS33")),
-    ("user_led", 8, Pins("D18"), IOStandard("LVCMOS33")),
-    ("user_led", 9, Pins("E18"), IOStandard("LVCMOS33")),
-    ("user_led", 10, Pins("F17"), IOStandard("LVCMOS33")),
-    ("user_led", 11, Pins("F18"), IOStandard("LVCMOS33")),
-    ("user_led", 12, Pins("E17"), IOStandard("LVCMOS33")),
-    ("user_led", 13, Pins("F16"), IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("E17"), IOStandard("LVCMOS33")),
+    ("user_led", 1, Pins("F13"), IOStandard("LVCMOS33")),
+    ("user_led", 2, Pins("G13"), IOStandard("LVCMOS33")),
+    ("user_led", 3, Pins("F14"), IOStandard("LVCMOS33")),
+    ("user_led", 4, Pins("L16"), IOStandard("LVCMOS33")),
+    ("user_led", 5, Pins("L15"), IOStandard("LVCMOS33")),
+    ("user_led", 6, Pins("L20"), IOStandard("LVCMOS33")),
+    ("user_led", 7, Pins("L19"), IOStandard("LVCMOS33")),
+    ("user_led", 8, Pins("R17"), IOStandard("LVCMOS33")),
+    ("user_led", 9, Pins("R18"), IOStandard("LVCMOS33")),
+    ("user_led", 10, Pins("U20"), IOStandard("LVCMOS33")),
+    ("user_led", 11, Pins("T20"), IOStandard("LVCMOS33")),
+    ("user_led", 12, Pins("W20"), IOStandard("LVCMOS33")),
+    ("user_led", 13, Pins("V20"), IOStandard("LVCMOS33")),
 
     ("user_dip_btn", 0, Pins("N14"),  IOStandard("LVCMOS33")),
     ("user_dip_btn", 1, Pins("M14"),  IOStandard("LVCMOS33")),
@@ -79,8 +79,8 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name   = "clk125"
-    default_clk_period = 1e9/125e6
+    default_clk_name   = "clk16"
+    default_clk_period = 1e9/16e6
 
     def __init__(self, device="LIFCL", **kwargs):
         assert device in ["LIFCL"]
@@ -90,5 +90,5 @@ class Platform(LatticePlatform):
         return OpenOCDJTAGProgrammer("openocd_versa_ecp5.cfg") #TODO Make cfg for Crosslink-NX-Eval
 
     def do_finalize(self, fragment):
-        self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
+        self.add_period_constraint(self.lookup_request("clk16", loose=True), 1e9/16e6)
 

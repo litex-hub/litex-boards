@@ -24,6 +24,32 @@ from litex.soc.cores.led import LedChaser
 kB = 1024
 mB = 1024*kB
 
+# CRG ----------------------------------------------------------------------------------------------
+
+class _CRG(Module):
+    def __init__(self, platform, sys_clk_freq):
+        self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_por = ClockDomain()
+
+        # # #
+
+        # Clocking
+        clk12 = platform.request("clk16")
+        rst_n = platform.request("GSRN")
+
+        self.comb += self.cd_sys.clk.eq(clk12)
+
+        #platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
+
+        # Power On Reset
+        por_cycles  = 4096
+        por_counter = Signal(log2_int(por_cycles), reset=por_cycles-1)
+        self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
+        platform.add_period_constraint(self.cd_por.clk, 1e9/sys_clk_freq)
+        self.sync.por += If(por_counter != 0, por_counter.eq(por_counter - 1))
+        self.specials += AsyncResetSynchronizer(self.cd_por, ~rst_n)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, (por_counter != 0))
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -50,14 +76,14 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(platform.request(platform.default_clk_name))
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
         self.submodules.spram = LIFCLSPRAM(size=128*kB)
         self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 128*kB)
 
         # SPI Flash --------------------------------------------------------------------------------
-        self.submodules.spiflash = SpiFlash(platform.request("spiflash4x"), dummy=6, endianness="little")
+        self.submodules.spiflash = SpiFlash(platform.request("spiflash"), dummy=6, endianness="little")
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=16*mB)
         self.add_csr("spiflash")
 
@@ -79,7 +105,7 @@ def main():
     parser.add_argument("--bios-flash-offset", default=0x40000,     help="BIOS offset in SPI Flash")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--sys-clk-freq",  default=125e6, help="System clock frequency (default=125MHz)")
+    parser.add_argument("--sys-clk-freq",  default=16e6, help="System clock frequency (default=16MHz)")
     args = parser.parse_args()
 
     soc = BaseSoC(args.bios_flash_offset, sys_clk_freq=int(float(args.sys_clk_freq)),
