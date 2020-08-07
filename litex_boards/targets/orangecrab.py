@@ -23,9 +23,44 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
 from litedram.phy import ECP5DDRPHY
 
-# _CRG ---------------------------------------------------------------------------------------------
+# CRG ---------------------------------------------------------------------------------------------
 
 class _CRG(Module):
+    def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
+        self.clock_domains.cd_por     = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys     = ClockDomain()
+
+        # # #
+
+        # Clk / Rst
+        clk48 = platform.request("clk48")
+        rst_n = platform.request("usr_btn")
+
+        # Power on reset
+        por_count = Signal(16, reset=2**16-1)
+        por_done  = Signal()
+        self.comb += self.cd_por.clk.eq(clk48)
+        self.comb += por_done.eq(por_count == 0)
+        self.sync.por += If(~por_done, por_count.eq(por_count - 1))
+
+        # PLL
+        self.submodules.pll = pll = ECP5PLL()
+        pll.register_clkin(clk48, 48e6)
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked | ~rst_n)
+
+        # USB PLL
+        if with_usb_pll:
+            self.clock_domains.cd_usb_12 = ClockDomain()
+            self.clock_domains.cd_usb_48 = ClockDomain()
+            usb_pll = ECP5PLL()
+            self.submodules += usb_pll
+            usb_pll.register_clkin(clk48, 48e6)
+            usb_pll.create_clkout(self.cd_usb_48, 48e6)
+            usb_pll.create_clkout(self.cd_usb_12, 12e6)
+
+
+class _CRGSDRAM(Module):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
         self.clock_domains.cd_init     = ClockDomain()
         self.clock_domains.cd_por      = ClockDomain(reset_less=True)
@@ -76,16 +111,6 @@ class _CRG(Module):
             AsyncResetSynchronizer(self.cd_sys2x, ~por_done | ~pll.locked | ~rst_n | self.reset),
         ]
 
-        # USB PLL
-        if with_usb_pll:
-            self.clock_domains.cd_usb_12 = ClockDomain()
-            self.clock_domains.cd_usb_48 = ClockDomain()
-            usb_pll = ECP5PLL()
-            self.submodules += usb_pll
-            usb_pll.register_clkin(clk48, 48e6)
-            usb_pll.create_clkout(self.cd_usb_48, 48e6)
-            usb_pll.create_clkout(self.cd_usb_12, 12e6)
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -109,7 +134,8 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll)
+        crg_cls = _CRGSDRAM if not self.integrated_main_ram_size else _CRG
+        self.submodules.crg = crg_cls(platform, sys_clk_freq, with_usb_pll)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
