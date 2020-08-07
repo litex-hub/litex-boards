@@ -79,9 +79,6 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name   = "clk16"
-    default_clk_period = 1e9/16e6
-
     def __init__(self, device="LIFCL", **kwargs):
         assert device in ["LIFCL"]
         LatticePlatform.__init__(self, device + "-40-9BG400C", _io, _connectors, toolchain="radiant", **kwargs)
@@ -89,6 +86,5 @@ class Platform(LatticePlatform):
     def create_programmer(self):
         return OpenOCDJTAGProgrammer("openocd_versa_ecp5.cfg") #TODO Make cfg for Crosslink-NX-Eval
 
-    def do_finalize(self, fragment):
-        self.add_period_constraint(self.lookup_request("clk16", loose=True), 1e9/16e6)
+
 

@@ -34,18 +34,16 @@ class _CRG(Module):
         # # #
 
         # Clocking
-        clk12 = platform.request("clk16")
+        self.submodules.sys_clk = sys_osc = CrossLinkNXOSCA()
+        sys_osc.create_clkout(self.cd_sys, sys_clk_freq)
+
         rst_n = platform.request("GSRN")
-
-        self.comb += self.cd_sys.clk.eq(clk12)
-
-        #platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
         # Power On Reset
         por_cycles  = 4096
         por_counter = Signal(log2_int(por_cycles), reset=por_cycles-1)
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
-        platform.add_period_constraint(self.cd_por.clk, 1e9/sys_clk_freq)
+        platform.add_period_constraint(self.cd_por.clk, sys_clk_freq)
         self.sync.por += If(por_counter != 0, por_counter.eq(por_counter - 1))
         self.specials += AsyncResetSynchronizer(self.cd_por, ~rst_n)
         self.specials += AsyncResetSynchronizer(self.cd_sys, (por_counter != 0))
@@ -92,7 +90,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
-            pads         = Cat(*[platform.request("user_led", i) for i in range(11)]),
+            pads         = Cat(*[platform.request("user_led", i) for i in range(13)]),
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
 
@@ -105,7 +103,7 @@ def main():
     parser.add_argument("--bios-flash-offset", default=0x40000,     help="BIOS offset in SPI Flash")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--sys-clk-freq",  default=16e6, help="System clock frequency (default=16MHz)")
+    parser.add_argument("--sys-clk-freq",  default=75e6, help="System clock frequency (default=75MHz)")
     args = parser.parse_args()
 
     soc = BaseSoC(args.bios_flash_offset, sys_clk_freq=int(float(args.sys_clk_freq)),
