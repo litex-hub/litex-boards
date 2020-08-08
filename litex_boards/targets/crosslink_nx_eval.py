@@ -17,7 +17,6 @@ from litex.soc.cores.lifcllram import LIFCLLRAM
 from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
 
-from litex.soc.cores.spi_flash import SpiFlash
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -33,21 +32,11 @@ class _CRG(Module):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain()
 
-        # TODO: PLL and more allowed clock speeds
-        clk_name = {
-            int(12e6):  "clk12",
-            int(16e6):  "clk16",
-            int(125e6): "clk125",
-        }.get(sys_clk_freq, None)
-
-        if clk_name is None:
-            raise "Only clock speeds of 12, 16 and 125 MHz allowed"
-
         # Clocking
         self.submodules.sys_clk = sys_osc = CrossLinkNXOSCA()
         sys_osc.create_clkout(self.cd_sys, sys_clk_freq)
 
-        rst_n = platform.request("GSRN")
+        rst_n = platform.request("gsrn")
 
         # Power On Reset
         por_cycles  = 4096
@@ -83,14 +72,15 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, cpu_variant = "standard")
 
-        # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
-        self.submodules.spram = LIFCLLRAM(size=64*kB)
-        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 64*kB)
+        # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
+        size = 128*kB
+        self.submodules.spram = LIFCLLRAM(32, size)
+        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, size)
 
         # SPI Flash --------------------------------------------------------------------------------
-        self.submodules.spiflash = SpiFlash(platform.request("spiflash"), dummy=6, endianness="little")
+        self.submodules.spiflash = SpiFlash(platform.request("spiflash"), dummy=9, endianness="little")
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=16*mB)
         self.add_csr("spiflash")
 
@@ -99,7 +89,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
-            pads         = Cat(*[platform.request("user_led", i) for i in range(13)]),
+            pads         = Cat(*[platform.request("user_led", i) for i in range(14)]),
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
 
@@ -109,10 +99,10 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX Eval Board")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    parser.add_argument("--flash-offset", default=0x200000, help="Boot offset in SPI Flash")
+    parser.add_argument("--flash-offset", default=0x000000, help="Boot offset in SPI Flash")
+    parser.add_argument("--sys-clk-freq",  default=25e6, help="System clock frequency (default=75MHz)")
     builder_args(parser)
-    soc_sdram_args(parser)
-    parser.add_argument("--sys-clk-freq",  default=75e6, help="System clock frequency (default=75MHz)")
+    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(flash_offset=args.flash_offset, sys_clk_freq=int(float(args.sys_clk_freq)),

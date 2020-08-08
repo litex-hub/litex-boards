@@ -9,8 +9,6 @@ from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    ("clk16", 0, Pins("K2"), IOStandard("LVCMOS33")),
-
     # Section 5.1 Clock sources
     ("clk12", 0, Pins("L13"), IOStandard("LVCMOS")),
     # Clock signal is differential, but we only name the "p" side.
