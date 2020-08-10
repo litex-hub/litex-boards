@@ -42,7 +42,6 @@ class _CRG(Module):
         por_cycles  = 4096
         por_counter = Signal(log2_int(por_cycles), reset=por_cycles-1)
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
-        platform.add_period_constraint(self.cd_por.clk, sys_clk_freq)
         self.sync.por += If(por_counter != 0, por_counter.eq(por_counter - 1))
         self.specials += AsyncResetSynchronizer(self.cd_por, ~rst_n)
         self.specials += AsyncResetSynchronizer(self.cd_sys, (por_counter != 0))
@@ -80,7 +79,7 @@ class BaseSoC(SoCCore):
         self.register_mem("sram", self.mem_map["sram"], self.spram.bus, size)
 
         # SPI Flash --------------------------------------------------------------------------------
-        self.submodules.spiflash = SpiFlash(platform.request("spiflash"), dummy=8, endianness="little")
+        self.submodules.spiflash = SpiFlash(platform.request("spiflash"), dummy=8, endianness="little", div=4)
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=16*mB)
         self.add_csr("spiflash")
 
@@ -100,7 +99,7 @@ def main():
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
     parser.add_argument("--flash-offset", default=0x000000, help="Boot offset in SPI Flash")
-    parser.add_argument("--sys-clk-freq",  default=25e6, help="System clock frequency (default=25MHz)")
+    parser.add_argument("--sys-clk-freq",  default=75e6, help="System clock frequency (default=75MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
