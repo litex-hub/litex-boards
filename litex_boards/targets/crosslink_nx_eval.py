@@ -12,7 +12,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import crosslink_nx_eval
 
-from litex.soc.cores.lifclspram import LIFCLSPRAM
+from litex.soc.cores.lifclspram import LIFCLSPRAMX4
 from litex.soc.cores.lifcllram import LIFCLLRAM
 from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, cpu_variant = "standard")
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
         size = 128*kB
@@ -80,7 +80,7 @@ class BaseSoC(SoCCore):
         self.register_mem("sram", self.mem_map["sram"], self.spram.bus, size)
 
         # SPI Flash --------------------------------------------------------------------------------
-        self.submodules.spiflash = SpiFlash(platform.request("spiflash"), dummy=9, endianness="little")
+        self.submodules.spiflash = SpiFlash(platform.request("spiflash"), dummy=8, endianness="little")
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=16*mB)
         self.add_csr("spiflash")
 
@@ -100,7 +100,7 @@ def main():
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
     parser.add_argument("--flash-offset", default=0x000000, help="Boot offset in SPI Flash")
-    parser.add_argument("--sys-clk-freq",  default=25e6, help="System clock frequency (default=75MHz)")
+    parser.add_argument("--sys-clk-freq",  default=25e6, help="System clock frequency (default=25MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
