@@ -12,7 +12,7 @@ _io = [
     # Section 5.1 Clock sources
     ("clk12", 0, Pins("L13"), IOStandard("LVCMOS")),
     # Clock signal is differential, but we only name the "p" side.
-    ("clk125", 0, Pins("C12"), IOStandard("LVCMOS")),
+    ("clk125", 0, Pins("C12"), IOStandard("LVDS")),
 
     # 7.2. General Purpose Push Buttons - all logic zero when pressed
     ("gsrn",     0, Pins("G19"), IOStandard("LVCMOS33")),  # SW4
