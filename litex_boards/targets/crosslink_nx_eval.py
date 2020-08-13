@@ -24,6 +24,7 @@ from litex.soc.cores.led import LedChaser
 kB = 1024
 mB = 1024*kB
 
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -31,10 +32,11 @@ class _CRG(Module):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain()
 
+        # TODO: replace with PLL
         # Clocking
         self.submodules.sys_clk = sys_osc = CrossLinkNXOSCA()
         sys_osc.create_clkout(self.cd_sys, sys_clk_freq)
-
+        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
         rst_n = platform.request("gsrn")
 
         # Power On Reset
