@@ -10,7 +10,8 @@ from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 _io = [
     # Section 5.1 Clock sources
-    ("clk12", 0, Pins("L13"), IOStandard("LVCMOS")),
+    ("clk12", 0, Pins("L13"), IOStandard("LVCMOS33")), # Ensure JP2 is installed
+
     # Clock signal is differential, but we only name the "p" side.
     ("clk125", 0, Pins("C12"), IOStandard("LVDS")),
 
