@@ -49,19 +49,15 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     SoCCore.mem_map = {
+        "rom":              0x00000000,
         "sram":             0x10000000,
         "spiflash":         0x20000000,
+        "main_ram":         0x40000000,
         "csr":              0xf0000000,
     }
-    def __init__(self, flash_offset, sys_clk_freq=int(125e6), **kwargs):
+    def __init__(self, sys_clk_freq, **kwargs):
+
         platform = crosslink_nx_eval.Platform()
-
-        # Disable Integrated ROM/SRAM since Crosslink has its own ROM and RAM
-        kwargs["integrated_sram_size"] = 0
-        kwargs["integrated_rom_size"]  = 0
-
-        # Set CPU variant / reset address
-        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + flash_offset
 
         # Make serial_pmods available 
         platform.add_extension(crosslink_nx_eval.serial_pmods)
@@ -78,15 +74,12 @@ class BaseSoC(SoCCore):
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
         size = 128*kB
         self.submodules.spram = LIFCLLRAM(32, size)
-        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, size)
+        self.register_mem("main_ram", self.mem_map["main_ram"], self.spram.bus, size)
 
         # SPI Flash --------------------------------------------------------------------------------
         self.submodules.spiflash = SpiFlash(platform.request("spiflash"), dummy=8, endianness="little", div=4)
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=16*mB)
         self.add_csr("spiflash")
-
-        # Add ROM linker region --------------------------------------------------------------------
-        self.add_memory_region("rom", self.mem_map["spiflash"] + flash_offset, 32*kB, type="cached+linker")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -94,20 +87,19 @@ class BaseSoC(SoCCore):
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
 
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX Eval Board")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    parser.add_argument("--flash-offset", default=0x000000, help="Boot offset in SPI Flash")
     parser.add_argument("--sys-clk-freq",  default=75e6, help="System clock frequency (default=75MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(flash_offset=args.flash_offset, sys_clk_freq=int(float(args.sys_clk_freq)),
-        **soc_core_argdict(args))
+    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = {}
     builder.build(**builder_kargs, run=args.build)
