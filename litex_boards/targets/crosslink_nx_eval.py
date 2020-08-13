@@ -15,6 +15,7 @@ from litex_boards.platforms import crosslink_nx_eval
 from litex.soc.cores.lifcllram import LIFCLLRAM
 from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
+from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -47,6 +48,24 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_por, ~rst_n)
         self.specials += AsyncResetSynchronizer(self.cd_sys, (por_counter != 0))
 
+
+# TODO: remove this
+class ClockOut(Module):
+    """Outputs clock/1000 for easy measurement of clock frequency"""
+    def __init__(self, pin=None):
+        counter = Signal(9)
+        self.sync += [
+            counter.eq(counter + 1),
+            If(counter == 499,
+                pin.eq(~pin),
+                counter.eq(0)
+            ),
+        ]
+
+_ckout = [
+        ("clkout", 0, Pins("PMOD2:0"), IOStandard("LVCMOS33")),
+]
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -72,6 +91,14 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # Debugging: TODO Remove
+        self.add_uartbone(name="serial_pmod1", baudrate=115200)
+        platform.add_extension(_ckout)
+        self.submodules.clockout = ClockOut(platform.request("clkout"))
+
+        if hasattr(self, "cpu") and self.cpu.name == "vexriscv":
+            self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
         size = 128*kB
