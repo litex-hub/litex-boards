@@ -213,10 +213,30 @@ _connectors = [
     ),
 
     # Section 8.6 PMOD Header
-    ("PMOD0", "D10 D9 D7 D8 D6 D5 D4 D3"),
-    ("PMOD1", "E10 E9 E7 E8 E4 E3 E2 F1"),
-    ("PMOD2", "J2 J1 K2 K1 K3 K4 D17 E18"),
+    # PMOD signal number:
+    #          1   2  3  4  7  8  9   10
+    ("PMOD0", "D10 D9 D7 D8 D6 D5 D4  D3"),
+    ("PMOD1", "E10 E9 E7 E8 E4 E3 E2  F1"),
+    ("PMOD2", "J2  J1 K2 K1 K3 K4 D17 E18"),
 ]
+
+# Test and Demo ------------------------------------------------------------------------------------
+
+serial_pmods = [
+    ("serial_pmod0", 0,
+        Subsignal("rx", Pins("PMOD0:0"), IOStandard("LVCMOS33")),
+        Subsignal("tx", Pins("PMOD0:1"), IOStandard("LVCMOS33")),
+    ),
+    ("serial_pmod1", 0,
+        Subsignal("rx", Pins("PMOD1:0"), IOStandard("LVCMOS33")),
+        Subsignal("tx", Pins("PMOD1:1"), IOStandard("LVCMOS33")),
+    ),
+    ("serial_pmod2", 0,
+        Subsignal("rx", Pins("PMOD2:0"), IOStandard("LVCMOS33")),
+        Subsignal("tx", Pins("PMOD2:1"), IOStandard("LVCMOS33")),
+    ),
+]
+
 
 # Platform -----------------------------------------------------------------------------------------
 

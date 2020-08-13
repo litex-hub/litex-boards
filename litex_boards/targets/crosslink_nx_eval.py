@@ -63,6 +63,9 @@ class BaseSoC(SoCCore):
         # Set CPU variant / reset address
         kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + flash_offset
 
+        # Make serial_pmods available 
+        platform.add_extension(crosslink_nx_eval.serial_pmods)
+
         # SoCCore -----------------------------------------_----------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Crosslink-NX",
