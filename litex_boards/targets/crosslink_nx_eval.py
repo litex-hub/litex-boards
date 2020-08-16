@@ -36,9 +36,16 @@ class _CRG(Module):
         # TODO: replace with PLL
         # Clocking
         self.submodules.sys_clk = sys_osc = CrossLinkNXOSCA()
-        sys_osc.create_clkout(self.cd_sys, sys_clk_freq)
+        sys_osc.create_hf_clk(self.cd_sys, sys_clk_freq)
         platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
         rst_n = platform.request("gsrn")
+
+        self.clock_domains.cd_pll = ClockDomain("pll")
+        self.submodules.sys_pll = sys_pll = NEXUSPLL()
+        pll_freq = 24e6
+        sys_pll.register_clkin(platform.request("clk12"),12e6)
+        sys_pll.create_clkout(self.cd_pll, pll_freq)
+        platform.add_period_constraint(self.cd_pll.clk, 1e9/pll_freq)
 
         # Power On Reset
         por_cycles  = 4096
@@ -97,8 +104,15 @@ class BaseSoC(SoCCore):
         platform.add_extension(_ckout)
         self.submodules.clockout = ClockOut(platform.request("clkout"))
 
-        if hasattr(self, "cpu") and self.cpu.name == "vexriscv":
-            self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
+        #if hasattr(self, "cpu") and self.cpu.name == "vexriscv":
+        #    self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
+
+        platform.add_extension([("clkout2", 0, Pins("PMOD2:1"), IOStandard("LVCMOS33"),Misc("SLEWRATE=FAST"))])
+        test_module = Module()
+        test_module.comb += [
+            platform.request("clkout2",0).eq(ClockSignal("pll")),
+        ]
+        self.submodules.test_module = test_module
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
         size = 128*kB
