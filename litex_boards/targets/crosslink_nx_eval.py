@@ -12,7 +12,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import crosslink_nx_eval
 
-from litex.soc.cores.lifcllram import LIFCLLRAM
+from litex.soc.cores.nexusram import NexusLRAM
 from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
 from litex.build.generic_platform import *
@@ -35,7 +35,7 @@ class _CRG(Module):
 
         # TODO: replace with PLL
         # Clocking
-        self.submodules.sys_clk = sys_osc = CrossLinkNXOSCA()
+        self.submodules.sys_clk = sys_osc = NexusOSCA()
         sys_osc.create_hf_clk(self.cd_sys, sys_clk_freq)
         platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
         rst_n = platform.request("gsrn")
@@ -124,7 +124,7 @@ class BaseSoC(SoCCore):
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
         size = 128*kB
-        self.submodules.spram = LIFCLLRAM(32, size)
+        self.submodules.spram = NexusLRAM(32, size)
         self.register_mem("main_ram", self.mem_map["main_ram"], self.spram.bus, size)
 
         # SPI Flash --------------------------------------------------------------------------------
