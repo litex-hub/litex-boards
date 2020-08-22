@@ -70,7 +70,8 @@ class CRG(Module):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, platform, with_pcie=False, **kwargs):
+    def __init__(self, with_pcie=False, **kwargs):
+        platform = acorn_cle_215.Platform()
         sys_clk_freq = int(100e6)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -158,11 +159,12 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Acorn CLE 215+")
-    parser.add_argument("--build",     action="store_true", help="Build bitstream")
-    parser.add_argument("--with-pcie", action="store_true", help="Enable PCIe support")
-    parser.add_argument("--driver",    action="store_true", help="Generate PCIe driver")
-    parser.add_argument("--load",      action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",     action="store_true", help="Flash bitstream")
+    parser.add_argument("--build",           action="store_true", help="Build bitstream")
+    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
+    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires adapter off P2)")
+    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream")
+    parser.add_argument("--flash",           action="store_true", help="Flash bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
@@ -170,10 +172,14 @@ def main():
     # Enforce arguments
     args.csr_data_width = 32
 
-    platform = acorn_cle_215.Platform()
-    soc      = BaseSoC(platform, with_pcie=args.with_pcie, **soc_sdram_argdict(args))
+    soc      = BaseSoC(with_pcie=args.with_pcie, **soc_sdram_argdict(args))
+
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+
     builder  = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
+
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

@@ -33,6 +33,16 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # spisdcard (requires adapter off P2)
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("J2")),
+        Subsignal("mosi", Pins("J5"), Misc("PULLUP True")),
+        Subsignal("cs_n", Pins("H5"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("K2"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+
     # pcie
     ("pcie_clkreq_n", 0, Pins("G1"), IOStandard("LVCMOS33")),
     ("pcie_x4", 0,
