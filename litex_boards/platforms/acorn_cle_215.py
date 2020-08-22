@@ -33,16 +33,6 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # spisdcard (requires adapter off P2)
-    ("spisdcard", 0,
-        Subsignal("clk",  Pins("J2")),
-        Subsignal("mosi", Pins("J5"), Misc("PULLUP True")),
-        Subsignal("cs_n", Pins("H5"), Misc("PULLUP True")),
-        Subsignal("miso", Pins("K2"), Misc("PULLUP True")),
-        Misc("SLEW=FAST"),
-        IOStandard("LVCMOS33"),
-    ),
-
     # pcie
     ("pcie_clkreq_n", 0, Pins("G1"), IOStandard("LVCMOS33")),
     ("pcie_x4", 0,
@@ -83,6 +73,19 @@ _io = [
     ),
 ]
 
+_sdcard_io = [
+    # SPI SDCard adapter on P2
+    # https://spoolqueue.com/new-design/fpga/migen/litex/2020/08/11/acorn-cle-215.html
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("J2")),
+        Subsignal("mosi", Pins("J5"), Misc("PULLUP True")),
+        Subsignal("cs_n", Pins("H5"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("K2"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
@@ -91,6 +94,7 @@ class Platform(XilinxPlatform):
 
     def __init__(self):
         XilinxPlatform.__init__(self, "xc7a200t-fbg484-2", _io, toolchain="vivado")
+        self.add_extension(_sdcard_io)
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
 
         self.toolchain.bitstream_commands = [
