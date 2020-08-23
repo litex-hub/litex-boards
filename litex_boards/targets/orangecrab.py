@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) Greg Davill <greg.davill@gmail.com>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) Greg Davill <greg.davill@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
 
 import os
 import sys

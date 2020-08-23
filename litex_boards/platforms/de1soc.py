@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2019 Antony Pavlov <antonynpavlov@gmail.com>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Antony Pavlov <antonynpavlov@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
 from litex.build.altera import AlteraPlatform

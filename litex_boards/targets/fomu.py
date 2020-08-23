@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2019 Sean Cross <sean@xobs.io>
-# This file is Copyright (c) 2018 David Shah <dave@ds0.me>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Sean Cross <sean@xobs.io>
+# Copyright (c) 2018 David Shah <dave@ds0.me>
+# SPDX-License-Identifier: BSD-2-Clause
 
 import os
 import argparse

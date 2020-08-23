@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2020 Owen Kirby <oskirby@gmail.com>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Owen Kirby <oskirby@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
 #
 # Logicbone ECP5:
 # - Design files: https://github.com/oskirby/logicbone
@@ -31,7 +34,7 @@ _io_rev0 = [
         Subsignal("ras_n", Pins("L1"), IOStandard("SSTL135_I")),
         Subsignal("cas_n", Pins("M1"), IOStandard("SSTL135_I")),
         Subsignal("we_n",  Pins("E4"), IOStandard("SSTL135_I")),
-        Subsignal("cs_n",  Pins("M3"), IOStandard("SSTL135_I")), 
+        Subsignal("cs_n",  Pins("M3"), IOStandard("SSTL135_I")),
         #Subsignal("dm", Pins("L4 J5"), IOStandard("SSTL135_I")),
         Subsignal("dm", Pins("L5 H3"), IOStandard("SSTL135_I")), # HACK: I broke the DM pins, so we'll use some NC pins instead.
         Subsignal("dq", Pins(
@@ -104,7 +107,7 @@ _io_rev0 = [
         Subsignal("ref", Pins("A19")),
         IOStandard("LVCMOS33")
     ),
-    
+
     ("eth", 0,
         #Subsignal("rst_n",   Pins("U17")), # Stolen for SYS_RESETn on prototypes.
         Subsignal("int_n",   Pins("B20"), Misc("PULLMODE=UP")), # HACK: Should have a pullup on the board.
@@ -146,7 +149,7 @@ _connectors_rev0 = [
         "H18", "H17",   # P8_LVDS14
         "J19", "K19",   # P8_LVDS15
         "J18", "K18"),  # P8_LVDS16
-    ("P9", 
+    ("P9",
         "None",         # No pin 0
         "None", "None", # GND
         "None", "None", # VCC3V3

@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 # The Cam Link 4K PCB and IOs have been documented by @GregDavill and @ApertusOSCinema:
 # https://wiki.apertus.org/index.php/Elgato_CAM_LINK_4K

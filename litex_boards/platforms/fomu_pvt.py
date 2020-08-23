@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2019 Tom Keddie <git@bronwenandtom.com>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Tom Keddie <git@bronwenandtom.com>
+# SPDX-License-Identifier: BSD-2-Clause
 
 # Fomu PVT board:
 # - Crowd Supply campaign: https://www.crowdsupply.com/sutajio-kosagi/fomu

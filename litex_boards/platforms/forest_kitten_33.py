@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 # The Forest Kitten 33 is a cryptocurrency mining accelerator card from SQRL that can be repurposed
 # as a generic FPGA PCIe development board: http://www.squirrelsresearch.com/forest-kitten-33

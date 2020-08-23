@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 # The Colorlight 5A-75B PCB and IOs have been documented by @miek and @smunaut:
 # https://github.com/q3k/chubby75/tree/master/5a-75b

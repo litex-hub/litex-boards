@@ -1,6 +1,9 @@
-# This file is Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# This file is Copyright (c) 2019-2020 Serge Bazanski <serge@bazanski.pl>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2019-2020 Serge Bazanski <serge@bazanski.pl>
+# SPDX-License-Identifier: BSD-2-Clause
 
 # The Linsn RV901T PCB and IOs have been documented with Chubby75 project
 # available at: https://github.com/q3k/chubby75

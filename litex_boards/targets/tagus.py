@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2018-2019 Rohit Singh <rohit@rohitksingh.in>
-# This file is Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2018-2019 Rohit Singh <rohit@rohitksingh.in>
+# Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 import os
 import argparse

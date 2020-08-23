@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 # The Acorn CLE 215+ is a cryptocurrency mining accelerator card from SQRL that can be repurposed
 # as a generic FPGA PCIe development board: http://www.squirrelsresearch.com/acorn-cle-215-plus

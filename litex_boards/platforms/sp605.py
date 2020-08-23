@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2019 Michael Betz <michibetz@gmail.com>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Michael Betz <michibetz@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform

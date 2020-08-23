@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2020 Fei Gao <feig@princeton.edu>
-# This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# This file is Copyright (c) 2020 David Shah <dave@ds0.me>
-
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Fei Gao <feig@princeton.edu>
+# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2020 David Shah <dave@ds0.me>
+# SPDX-License-Identifier: BSD-2-Clause
 
 import argparse
 

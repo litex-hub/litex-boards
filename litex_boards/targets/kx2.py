@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2020 Mark Standke <mstandke@cern.ch>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Mark Standke <mstandke@cern.ch>
+# SPDX-License-Identifier: BSD-2-Clause
 
 import os
 import argparse

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+#
+# This file is part of LiteX-Boards.
+#
 # This file is Copyright (c) 2020 David Shah <dave@ds0.me>
-
-# License: BSD
+# SPDX-License-Identifier: BSD-2-Clause
 
 import re, sys
 
@@ -214,7 +216,7 @@ with open(sys.argv[1], "r") as xf:
 		if rs is None:
 			continue
 		res, sig = rs
-		
+
 		if sig is None:
 			groups[res] = pin
 		else:

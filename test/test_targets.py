@@ -1,6 +1,6 @@
 # This file is Copyright (c) 2017-2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # This file is Copyright (c) 2019 Tim 'mithro' Ansell <me@mith.ro>
-# License: BSD
+# SPDX-License-Identifier: BSD-2-Clause
 
 import subprocess
 import unittest

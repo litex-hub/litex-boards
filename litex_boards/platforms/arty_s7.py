@@ -1,6 +1,9 @@
-# This file is Copyright (c) 2018 William D. Jones <thor0505@comcast.net>
-# This file is Copyright (c) 2020 Staf Verhaegen <staf@fibraservi.eu>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2018 William D. Jones <thor0505@comcast.net>
+# Copyright (c) 2020 Staf Verhaegen <staf@fibraservi.eu>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import XilinxPlatform

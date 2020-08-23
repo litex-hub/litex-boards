@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2020 Vadim Kaushan <admin@disasm.info>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Vadim Kaushan <admin@disasm.info>
+# SPDX-License-Identifier: BSD-2-Clause
 
 # The Colorlight 5A-75E PCB and IOs have been documented by @derekmulcahy:
 # https://github.com/q3k/chubby75/issues/59

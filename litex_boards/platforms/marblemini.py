@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2020 Vamsi K Vytla <vamsi.vytla@gmail.com>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Vamsi K Vytla <vamsi.vytla@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
 
 
 # The Marble-Mini is a simple AMC FMC carrier board with SFP, 2x FMC, PoE, DDR3:

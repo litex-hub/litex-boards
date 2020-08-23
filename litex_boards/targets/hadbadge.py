@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2020 Michael Welling <mwelling@ieee.org>
-# This file is Copyright (c) 2020 Sean Cross <sean@xobs.io>
-# This file is Copyright (c) 2020 Drew Fustini <drew@pdp7.com>
-# This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Michael Welling <mwelling@ieee.org>
+# Copyright (c) 2020 Sean Cross <sean@xobs.io>
+# Copyright (c) 2020 Drew Fustini <drew@pdp7.com>
+# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 import os
 import argparse

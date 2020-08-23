@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2015 Robert Jordens <jordens@gmail.com>
-# This file is Copyright (c) 2015 Sebastien Bourdeauducq <sb@m-labs.hk>
-# This file is Copyright (c) 2015 Yann Sionneau <yann.sionneau@gmail.com>
-# This file is Copyright (c) 2016-2017 Tim 'mithro' Ansell <mithro@mithis.com>
-# This file is Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2015 Robert Jordens <jordens@gmail.com>
+# Copyright (c) 2015 Sebastien Bourdeauducq <sb@m-labs.hk>
+# Copyright (c) 2015 Yann Sionneau <yann.sionneau@gmail.com>
+# Copyright (c) 2016-2017 Tim 'mithro' Ansell <mithro@mithis.com>
+# Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 import os
 import argparse

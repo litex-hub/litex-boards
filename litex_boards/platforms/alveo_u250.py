@@ -1,6 +1,9 @@
-# This file is Copyright (c) 2020 David Shah <dave@ds0.me>
-# This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 David Shah <dave@ds0.me>
+# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 # Note: This platform should also be applicable to the Alveo U200, VCU1525, BCU1525 and other
 # 1525 variants.

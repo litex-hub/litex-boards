@@ -1,7 +1,10 @@
-# This file is Copyright (c) 2019 Tom Keddie <git@bronwenandtom.com>
-# This file is Copyright (c) 2020 Antmicro <www.antmicro.com>
-# This file is Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Tom Keddie <git@bronwenandtom.com>
+# Copyright (c) 2020 Antmicro <www.antmicro.com>
+# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 # The Pano Logic Zero Client G2 is a thin commercial client from Pano Logic that can be repurposed
 # as a generic development board thanks to reverse engineering efforts than can be found at:

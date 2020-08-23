@@ -1,5 +1,8 @@
-# This file is Copyright (c) 2019 David Shah <dave@ds0.me>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 David Shah <dave@ds0.me>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform

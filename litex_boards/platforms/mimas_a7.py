@@ -1,6 +1,9 @@
-# This file is Copyright (c) 2018-2019 Rohit Singh <rohit@rohitksingh.in>
-# This file is Copyright (c) 2020 Feliks Montez <feliks.montez@gmail.com>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2018-2019 Rohit Singh <rohit@rohitksingh.in>
+# Copyright (c) 2020 Feliks Montez <feliks.montez@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform
