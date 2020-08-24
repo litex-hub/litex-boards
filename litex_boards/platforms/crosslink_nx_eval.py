@@ -4,7 +4,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
-from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
+from litex.build.lattice.programmer import LatticeProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -246,8 +246,174 @@ class Platform(LatticePlatform):
         assert device in ["LIFCL"]
         LatticePlatform.__init__(self, device + "-40-9BG400C", _io, _connectors, toolchain="radiant", **kwargs)
 
-    def create_programmer(self):
-        return OpenOCDJTAGProgrammer("openocd_versa_ecp5.cfg") #TODO Make cfg for Crosslink-NX-Eval
+    def create_programmer(self, mode = "direct"):
+        assert mode in ["direct","flash"]
+
+        xcf_template_direct = """<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE		ispXCF	SYSTEM	"IspXCF.dtd" >
+<ispXCF version="R1.2.0">
+	<Comment></Comment>
+	<Chain>
+		<Comm>JTAG</Comm>
+		<Device>
+			<SelectedProg value="TRUE"/>
+			<Pos>1</Pos>
+			<Vendor>Lattice</Vendor>
+			<Family>LIFCL</Family>
+			<Name>LIFCL-40</Name>
+			<IDCode>0x010f1043</IDCode>
+			<Package>All</Package>
+			<PON>LIFCL-40</PON>
+			<Bypass>
+				<InstrLen>8</InstrLen>
+				<InstrVal>11111111</InstrVal>
+				<BScanLen>1</BScanLen>
+				<BScanVal>0</BScanVal>
+			</Bypass>
+			<File>{bitstream_file}</File>
+			<JedecChecksum>N/A</JedecChecksum>
+			<MemoryType>Static Random Access Memory (SRAM)</MemoryType>
+			<Operation>Fast Configuration</Operation>
+			<Option>
+				<SVFVendor>JTAG STANDARD</SVFVendor>
+				<IOState>HighZ</IOState>
+				<PreloadLength>362</PreloadLength>
+				<IOVectorData>0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</IOVectorData>
+				<Usercode>0x00000000</Usercode>
+				<AccessMode>Direct Programming</AccessMode>
+			</Option>
+		</Device>
+	</Chain>
+	<ProjectOptions>
+		<Program>SEQUENTIAL</Program>
+		<Process>ENTIRED CHAIN</Process>
+		<OperationOverride>No Override</OperationOverride>
+		<StartTAP>TLR</StartTAP>
+		<EndTAP>TLR</EndTAP>
+		<VerifyUsercode value="FALSE"/>
+		<TCKDelay>3</TCKDelay>
+	</ProjectOptions>
+	<CableOptions>
+		<CableName>USB2</CableName>
+		<PortAdd>FTUSB-0</PortAdd>
+	</CableOptions>
+</ispXCF>
+"""
+
+        xcf_template_flash = """<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE		ispXCF	SYSTEM	"IspXCF.dtd" >
+<ispXCF version="R1.2.0">
+	<Comment></Comment>
+	<Chain>
+		<Comm>JTAG2SPI</Comm>
+		<Device>
+			<SelectedProg value="TRUE"/>
+			<Pos>1</Pos>
+			<Vendor>Lattice</Vendor>
+			<Family>LIFCL</Family>
+			<Name>LIFCL-40</Name>
+			<Package>All</Package>
+			<Bypass>
+				<InstrLen>8</InstrLen>
+				<InstrVal>11111111</InstrVal>
+				<BScanLen>1</BScanLen>
+				<BScanVal>0</BScanVal>
+			</Bypass>
+			<File>{bitstream_file}</File>
+			<MemoryType>External SPI Flash Memory (SPI FLASH)</MemoryType>
+			<Operation>Erase,Program,Verify</Operation>
+			<Option>
+				<SVFVendor>JTAG STANDARD</SVFVendor>
+				<Usercode>0x00000000</Usercode>
+				<AccessMode>Direct Programming</AccessMode>
+			</Option>
+			<FPGALoader>
+			<CPLDDevice>
+				<Device>
+					<Pos>1</Pos>
+					<Vendor>Lattice</Vendor>
+					<Family>LIFCL</Family>
+					<Name>LIFCL-40</Name>
+					<IDCode>0x010f1043</IDCode>
+					<Package>All</Package>
+					<PON>LIFCL-40</PON>
+					<Bypass>
+						<InstrLen>8</InstrLen>
+						<InstrVal>11111111</InstrVal>
+						<BScanLen>1</BScanLen>
+						<BScanVal>0</BScanVal>
+					</Bypass>
+					<MemoryType>Static Random Access Memory (SRAM)</MemoryType>
+					<Operation>Refresh Verify ID</Operation>
+					<Option>
+						<SVFVendor>JTAG STANDARD</SVFVendor>
+						<IOState>HighZ</IOState>
+						<PreloadLength>362</PreloadLength>
+						<IOVectorData>0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</IOVectorData>
+						<AccessMode>Direct Programming</AccessMode>
+					</Option>
+				</Device>
+			</CPLDDevice>
+			<FlashDevice>
+				<Device>
+					<Pos>1</Pos>
+					<Vendor>Macronix</Vendor>
+					<Family>SPI Serial Flash</Family>
+					<Name>MX25L12833F</Name>
+					<IDCode>0x18</IDCode>
+					<Package>8-pin SOP</Package>
+					<Operation>Erase,Program,Verify</Operation>
+					<File>{bitstream_file}</File>
+					<AddressBase>0x00000000</AddressBase>
+					<EndAddress>0x000F0000</EndAddress>
+					<DeviceSize>128</DeviceSize>
+					<DataSize>1016029</DataSize>
+					<NumberOfDevices>1</NumberOfDevices>
+					<ReInitialize value="FALSE"/>
+				</Device>
+			</FlashDevice>
+			<FPGADevice>
+				<Device>
+					<Pos>1</Pos>
+					<Name></Name>
+					<File>{bitstream_file}</File>
+					<LocalChainList>
+						<LocalDevice index="-99"
+							name="Unknown"
+							file="{bitstream_file}"/>
+					</LocalChainList>
+					<Option>
+						<SVFVendor>JTAG STANDARD</SVFVendor>
+					</Option>
+				</Device>
+			</FPGADevice>
+			</FPGALoader>
+		</Device>
+	</Chain>
+	<ProjectOptions>
+		<Program>SEQUENTIAL</Program>
+		<Process>ENTIRED CHAIN</Process>
+		<OperationOverride>No Override</OperationOverride>
+		<StartTAP>TLR</StartTAP>
+		<EndTAP>TLR</EndTAP>
+		<DisableCheckBoard value="TRUE"/>
+		<VerifyUsercode value="FALSE"/>
+		<TCKDelay>3</TCKDelay>
+	</ProjectOptions>
+	<CableOptions>
+		<CableName>USB2</CableName>
+		<PortAdd>FTUSB-0</PortAdd>
+		<USBID>Lattice CrossLink-NX Eval Board A Location 0000 Serial FT4J4IK9A</USBID>
+	</CableOptions>
+</ispXCF>
+"""
+
+        if mode == "direct":
+            xcf_template = xcf_template_direct
+        if mode == "flash":
+            xcf_template = xcf_template_flash
+
+        return LatticeProgrammer(xcf_template)
 
 
 
