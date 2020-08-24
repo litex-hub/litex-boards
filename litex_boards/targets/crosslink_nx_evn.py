@@ -3,7 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2020 Piense <piense@gmail.com>
+# Copyright (c) 2020 David Corrigan <davidcorrigan714@gmail.com>
 # Copyright (c) 2020 Alan Green <avg@google.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
