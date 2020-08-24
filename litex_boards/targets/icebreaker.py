@@ -114,8 +114,8 @@ class BaseSoC(SoCCore):
 def flash(bios_flash_offset):
     from litex.build.lattice.programmer import IceStormProgrammer
     prog = IceStormProgrammer()
-    prog.flash(bios_flash_offset, "soc_basesoc_icebreaker/software/bios/bios.bin")
-    prog.flash(0x00000000,        "soc_basesoc_icebreaker/gateware/top.bin")
+    prog.flash(bios_flash_offset, "build/icebreaker/software/bios/bios.bin")
+    prog.flash(0x00000000,        "build/icebreaker/gateware/icebreaker.bin")
     exit()
 
 # Build --------------------------------------------------------------------------------------------
