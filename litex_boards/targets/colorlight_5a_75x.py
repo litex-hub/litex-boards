@@ -34,7 +34,7 @@
 # You should see the LiteX BIOS and be able to interact with it.
 #
 # Note that you can also use a 5A-75E board:
-# ./colorlight_5a_75x.py --board=5a-75e --revision=7.1
+# ./colorlight_5a_75x.py --board=5a-75e --revision=7.1 (or 6.0)
 #
 # Disclaimer: SoC 2) is still a Proof of Concept with large timings violations on the IP/UDP and
 # Etherbone stack that need to be optimized. It was initially just used to validate the reversed
@@ -57,7 +57,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
-from litedram.modules import M12L16161A
+from litedram.modules import M12L16161A, M12L64322A
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
@@ -130,11 +130,17 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"))
+            if board == "5a-75e" and revision == "6.0":
+                sdram_cls  = M12L64322A
+                sdram_size = 0x80000000
+            else:
+                sdram_cls  = M12L16161A
+                sdram_size = 0x40000000
             self.add_sdram("sdram",
                 phy                     = self.sdrphy,
-                module                  = M12L16161A(sys_clk_freq, sdram_rate),
+                module                  = sdram_cls(sys_clk_freq, sdram_rate),
                 origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", 0x40000000),
+                size                    = kwargs.get("max_sdram_size", sdram_size),
                 l2_cache_size           = kwargs.get("l2_size", 8192),
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
@@ -158,15 +164,15 @@ def main():
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
-    parser.add_argument("--build",          action="store_true",     help="Build bitstream")
-    parser.add_argument("--load",           action="store_true",     help="Load bitstream")
-    parser.add_argument("--board",          default="5a-75b",        help="Board type: 5a-75b (default) or 5a-75e")
-    parser.add_argument("--revision",       default="7.0", type=str, help="Board revision 7.0 (default) or 6.1")
-    parser.add_argument("--with-ethernet",  action="store_true",     help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support")
-    parser.add_argument("--eth-phy",        default=0, type=int,     help="Ethernet PHY 0 or 1 (default=0)")
-    parser.add_argument("--sys-clk-freq",   default=60e6,            help="System clock frequency (default=60MHz)")
-    parser.add_argument("--sdram-rate",     default="1:1",           help="SDRAM Rate 1:1 Full Rate (default), 1:2 Half Rate")
+    parser.add_argument("--build",          action="store_true",      help="Build bitstream")
+    parser.add_argument("--load",           action="store_true",      help="Load bitstream")
+    parser.add_argument("--board",          default="5a-75b",         help="Board type: 5a-75b (default) or 5a-75e")
+    parser.add_argument("--revision",       default="7.0", type=str,  help="Board revision 7.0 (default), 6.0 or 6.1")
+    parser.add_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support")
+    parser.add_argument("--with-etherbone", action="store_true",      help="Enable Etherbone support")
+    parser.add_argument("--eth-phy",        default=0, type=int,      help="Ethernet PHY 0 or 1 (default=0)")
+    parser.add_argument("--sys-clk-freq",   default=60e6, type=float, help="System clock frequency (default=60MHz)")
+    parser.add_argument("--sdram-rate",     default="1:1",            help="SDRAM Rate 1:1 Full Rate (default), 1:2 Half Rate")
     args = parser.parse_args()
 
     assert not (args.with_ethernet and args.with_etherbone)
