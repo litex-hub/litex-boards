@@ -113,7 +113,7 @@ _io_r0_2 = [
             "C17 D15 B17 C16 A15 B13 A17 A13",
             "F17 F16 G15 F15 J16 C18 H16 F18"),
             IOStandard("SSTL135_I"),
-            Misc("TERMINATION=75")),
+            Misc("TERMINATION=OFF")), # Misc("TERMINATION=75") Disabled to reduce heat
         Subsignal("dqs_p", Pins("B15 G18"), IOStandard("SSTL135D_I"),
             Misc("TERMINATION=OFF"),
             Misc("DIFFRESISTOR=100")),

@@ -74,6 +74,7 @@ class _CRGSDRAM(Module):
 
         # # #
 
+
         self.stop  = Signal()
         self.reset = Signal()
 
@@ -114,6 +115,16 @@ class _CRGSDRAM(Module):
             AsyncResetSynchronizer(self.cd_sys2x, ~por_done | ~pll.locked | ~rst_n | self.reset),
         ]
 
+        # USB PLL
+        if with_usb_pll:
+            self.clock_domains.cd_usb_12 = ClockDomain()
+            self.clock_domains.cd_usb_48 = ClockDomain()
+            usb_pll = ECP5PLL()
+            self.submodules += usb_pll
+            usb_pll.register_clkin(clk48, 48e6)
+            usb_pll.create_clkout(self.cd_usb_48, 48e6)
+            usb_pll.create_clkout(self.cd_usb_12, 12e6)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -150,10 +161,16 @@ class BaseSoC(SoCCore):
             }
             sdram_module = available_sdram_modules.get(sdram_device)
 
+            ddram_pads = platform.request("ddram")
             self.submodules.ddrphy = ECP5DDRPHY(
-                platform.request("ddram"),
-                sys_clk_freq=sys_clk_freq)
+                pads         = ddram_pads,
+                sys_clk_freq = sys_clk_freq)
+            self.ddrphy.settings.rtt_nom = "disabled"
             self.add_csr("ddrphy")
+            if hasattr(ddram_pads, "vccio"):
+                self.comb += ddram_pads.vccio.eq(0b111111)
+            if hasattr(ddram_pads, "gnd"):
+                self.comb += ddram_pads.gnd.eq(0)
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
