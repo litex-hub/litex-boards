@@ -11,6 +11,7 @@ import sys
 import argparse
 
 from migen import *
+from migen.genlib.misc import WaitTimer
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import orangecrab
@@ -63,6 +64,11 @@ class _CRG(Module):
             usb_pll.create_clkout(self.cd_usb_48, 48e6)
             usb_pll.create_clkout(self.cd_usb_12, 12e6)
 
+        # FPGA Reset (press usr_btn for 1 second to fallback to bootlooader)
+        reset_timer = WaitTimer(sys_clk_freq)
+        self.submodules += reset_timer
+        self.comb += reset_timer.wait.eq(~rst_n)
+        self.comb += platform.request("rst_n").eq(reset_timer.done)
 
 class _CRGSDRAM(Module):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
@@ -126,6 +132,12 @@ class _CRGSDRAM(Module):
             usb_pll.register_clkin(clk48, 48e6)
             usb_pll.create_clkout(self.cd_usb_48, 48e6)
             usb_pll.create_clkout(self.cd_usb_12, 12e6)
+
+        # FPGA Reset (press usr_btn for 1 second to fallback to bootlooader)
+        reset_timer = WaitTimer(sys_clk_freq)
+        self.submodules += reset_timer
+        self.comb += reset_timer.wait.eq(~rst_n)
+        self.comb += platform.request("rst_n").eq(~reset_timer.done)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
