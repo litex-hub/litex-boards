@@ -51,6 +51,7 @@ class _CRG(Module):
 
         # pll
         self.submodules.pll = pll = ECP5PLL()
+        self.comb += pll.reset.eq(~por_done)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         pll.create_clkout(self.cd_init, 27e6)
@@ -65,8 +66,7 @@ class _CRG(Module):
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.cd_sys2x.rst,
                 o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_init, ~por_done | ~pll.locked),
-            AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked)
+            AsyncResetSynchronizer(self.cd_sys, ~pll.locked)
         ]
 
 # BaseSoC ------------------------------------------------------------------------------------------

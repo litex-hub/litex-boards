@@ -48,9 +48,9 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()
+        self.comb += pll.reset.eq(~por_done | ~rst_n)
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked | ~rst_n)
 
         # USB PLL
         if with_usb_pll:
@@ -58,6 +58,7 @@ class _CRG(Module):
             self.clock_domains.cd_usb_48 = ClockDomain()
             usb_pll = ECP5PLL()
             self.submodules += usb_pll
+            self.comb += usb_pll.reset.eq(~por_done | ~rst_n)
             usb_pll.register_clkin(clk48, 48e6)
             usb_pll.create_clkout(self.cd_usb_48, 48e6)
             usb_pll.create_clkout(self.cd_usb_12, 12e6)
@@ -92,6 +93,7 @@ class _CRGSDRAM(Module):
         # PLL
         sys2x_clk_ecsout = Signal()
         self.submodules.pll = pll = ECP5PLL()
+        self.comb += pll.reset.eq(~por_done | ~rst_n)
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         pll.create_clkout(self.cd_init, 24e6)
@@ -110,9 +112,8 @@ class _CRGSDRAM(Module):
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.reset,
                 o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_init,  ~por_done | ~pll.locked | ~rst_n),
-            AsyncResetSynchronizer(self.cd_sys,   ~por_done | ~pll.locked | ~rst_n | self.reset),
-            AsyncResetSynchronizer(self.cd_sys2x, ~por_done | ~pll.locked | ~rst_n | self.reset),
+            AsyncResetSynchronizer(self.cd_sys,   ~pll.locked | self.reset),
+            AsyncResetSynchronizer(self.cd_sys2x, ~pll.locked | self.reset),
         ]
 
         # USB PLL
@@ -121,6 +122,7 @@ class _CRGSDRAM(Module):
             self.clock_domains.cd_usb_48 = ClockDomain()
             usb_pll = ECP5PLL()
             self.submodules += usb_pll
+            self.comb += usb_pll.reset.eq(~por_done | ~rst_n)
             usb_pll.register_clkin(clk48, 48e6)
             usb_pll.create_clkout(self.cd_usb_48, 48e6)
             usb_pll.create_clkout(self.cd_usb_12, 12e6)

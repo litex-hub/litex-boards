@@ -58,11 +58,11 @@ class _CRG(Module):
             pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180) # Idealy 90° but needs to be increased.
         else:
            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll.locked | rst)
 
         # USB PLL
         if with_usb_pll:
             self.submodules.usb_pll = usb_pll = ECP5PLL()
+            self.comb += usb_pll.reset.eq(rst)
             usb_pll.register_clkin(clk25, 25e6)
             self.clock_domains.cd_usb_12 = ClockDomain()
             self.clock_domains.cd_usb_48 = ClockDomain()

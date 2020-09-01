@@ -49,9 +49,9 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()
+        self.comb += pll.reset.eq(~por_done | rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked | rst)
 
 class _CRGSDRAM(Module):
     def __init__(self, platform, sys_clk_freq):
@@ -80,6 +80,7 @@ class _CRGSDRAM(Module):
         # PLL
         sys2x_clk_ecsout = Signal()
         self.submodules.pll = pll = ECP5PLL()
+        self.comb += pll.reset.eq(~por_done | rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         pll.create_clkout(self.cd_init,   25e6)
@@ -99,9 +100,8 @@ class _CRGSDRAM(Module):
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.reset,
                 o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_init,   ~por_done | ~pll.locked | rst),
-            AsyncResetSynchronizer(self.cd_sys,    ~por_done | ~pll.locked | rst | self.reset),
-            AsyncResetSynchronizer(self.cd_sys2x,  ~por_done | ~pll.locked | rst | self.reset),
+            AsyncResetSynchronizer(self.cd_sys,    ~pll.locked | self.reset),
+            AsyncResetSynchronizer(self.cd_sys2x,  ~pll.locked | self.reset),
         ]
 
         self.comb += platform.request("dram_vtt_en").eq(1)

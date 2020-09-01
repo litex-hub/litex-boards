@@ -48,7 +48,6 @@ class _CRG(Module):
         pll.register_clkin(clk8, 8e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll.locked)
 
         # SDRAM clock
         self.specials += DDROutput(1, 0, platform.request("sdram_clock"), ClockSignal("sys_ps"))
