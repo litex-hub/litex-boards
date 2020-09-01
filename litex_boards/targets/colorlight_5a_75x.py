@@ -65,7 +65,7 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, with_usb_pll=False, with_rst=True, sdram_rate="1:1"):
+    def __init__(self, platform, sys_clk_freq, use_internal_osc=False, with_usb_pll=False, with_rst=True, sdram_rate="1:1"):
         self.clock_domains.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
             self.clock_domains.cd_sys2x    = ClockDomain()
@@ -76,13 +76,23 @@ class _CRG(Module):
         # # #
 
         # Clk / Rst
-        clk25 = platform.request("clk25")
+        if not use_internal_osc:
+            clk = platform.request("clk25")
+            clk_freq = 25e6
+        else:
+            clk = Signal()
+            div = 5
+            self.specials += Instance("OSCG",
+                                p_DIV = div,
+                                o_OSC = clk)
+            clk_freq = 310e6/div
+
         rst_n = 1 if not with_rst else platform.request("user_btn_n", 0)
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~rst_n)
-        pll.register_clkin(clk25, 25e6)
+        pll.register_clkin(clk, clk_freq)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         if sdram_rate == "1:2":
             pll.create_clkout(self.cd_sys2x,    2*sys_clk_freq)
@@ -94,7 +104,7 @@ class _CRG(Module):
         if with_usb_pll:
             self.submodules.usb_pll = usb_pll = ECP5PLL()
             self.comb += usb_pll.reset.eq(~rst_n)
-            usb_pll.register_clkin(clk25, 25e6)
+            usb_pll.register_clkin(clk, clk_freq)
             self.clock_domains.cd_usb_12 = ClockDomain()
             self.clock_domains.cd_usb_48 = ClockDomain()
             usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
@@ -107,13 +117,16 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board, revision, with_ethernet=False, with_etherbone=False, sys_clk_freq=60e6, sdram_rate="1:1", **kwargs):
+    def __init__(self, board, revision, with_ethernet=False, with_etherbone=False, sys_clk_freq=60e6, use_internal_osc=False, sdram_rate="1:1", **kwargs):
         board = board.lower()
         assert board in ["5a-75b", "5a-75e"]
         if board == "5a-75b":
             platform = colorlight_5a_75b.Platform(revision=revision)
         elif board == "5a-75e":
             platform = colorlight_5a_75e.Platform(revision=revision)
+
+        if board == "5a-75e" and revision == "6.0" and (with_etherbone or with_ethernet):
+            assert use_internal_osc, "You cannot use the 25MHz clock as system clock since it is provided by the Ethernet PHY and will stop during PHY reset."
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -124,7 +137,7 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         with_rst = kwargs["uart_name"] not in ["serial", "bridge"] # serial_rx shared with user_btn_n.
         with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_pll,with_rst=with_rst, sdram_rate=sdram_rate)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_internal_osc=use_internal_osc, with_usb_pll=with_usb_pll,with_rst=with_rst, sdram_rate=sdram_rate)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -164,22 +177,24 @@ def main():
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
-    parser.add_argument("--build",          action="store_true",      help="Build bitstream")
-    parser.add_argument("--load",           action="store_true",      help="Load bitstream")
-    parser.add_argument("--board",          default="5a-75b",         help="Board type: 5a-75b (default) or 5a-75e")
-    parser.add_argument("--revision",       default="7.0", type=str,  help="Board revision 7.0 (default), 6.0 or 6.1")
-    parser.add_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone", action="store_true",      help="Enable Etherbone support")
-    parser.add_argument("--eth-phy",        default=0, type=int,      help="Ethernet PHY 0 or 1 (default=0)")
-    parser.add_argument("--sys-clk-freq",   default=60e6, type=float, help="System clock frequency (default=60MHz)")
-    parser.add_argument("--sdram-rate",     default="1:1",            help="SDRAM Rate 1:1 Full Rate (default), 1:2 Half Rate")
+    parser.add_argument("--build",            action="store_true",      help="Build bitstream")
+    parser.add_argument("--load",             action="store_true",      help="Load bitstream")
+    parser.add_argument("--board",            default="5a-75b",         help="Board type: 5a-75b (default) or 5a-75e")
+    parser.add_argument("--revision",         default="7.0", type=str,  help="Board revision 7.0 (default), 6.0 or 6.1")
+    parser.add_argument("--with-ethernet",    action="store_true",      help="Enable Ethernet support")
+    parser.add_argument("--with-etherbone",   action="store_true",      help="Enable Etherbone support")
+    parser.add_argument("--eth-phy",          default=0, type=int,      help="Ethernet PHY 0 or 1 (default=0)")
+    parser.add_argument("--sys-clk-freq",     default=60e6, type=float, help="System clock frequency (default=60MHz)")
+    parser.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator")
+    parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate 1:1 Full Rate (default), 1:2 Half Rate")
     args = parser.parse_args()
 
     assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(board=args.board, revision=args.revision,
-        with_ethernet  = args.with_ethernet,
-        with_etherbone = args.with_etherbone,
-        sys_clk_freq   = args.sys_clk_freq,
+        with_ethernet    = args.with_ethernet,
+        with_etherbone   = args.with_etherbone,
+        sys_clk_freq     = args.sys_clk_freq,
+        use_internal_osc = args.use_internal_osc,
         sdram_rate       = args.sdram_rate,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
