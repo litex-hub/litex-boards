@@ -156,7 +156,7 @@ _io_v6_0 = [
         Subsignal("mdio",    Pins("T4")),
         Subsignal("mdc",     Pins("R5")),
         Subsignal("rx_ctl",  Pins("J2")),
-        Subsignal("rx_data", Pins("J3 K2 K1 K3")),
+        Subsignal("rx_data", Pins("K2 J3 K1 K3")),
         Subsignal("tx_ctl",  Pins("L2")),
         Subsignal("tx_data", Pins("M2 M1 P1 R1")),
         IOStandard("LVCMOS33")
