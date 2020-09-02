@@ -117,7 +117,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board, revision, with_ethernet=False, with_etherbone=False, sys_clk_freq=60e6, use_internal_osc=False, sdram_rate="1:1", **kwargs):
+    def __init__(self, board, revision, with_ethernet=False, with_etherbone=False, eth_phy=0, sys_clk_freq=60e6, use_internal_osc=False, sdram_rate="1:1", **kwargs):
         board = board.lower()
         assert board in ["5a-75b", "5a-75e"]
         if board == "5a-75b":
@@ -129,7 +129,7 @@ class BaseSoC(SoCCore):
             assert use_internal_osc, "You cannot use the 25MHz clock as system clock since it is provided by the Ethernet PHY and will stop during PHY reset."
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
+        SoCCore.__init__(self, platform, int(sys_clk_freq),
             ident          = "LiteX SoC on Colorlight " + board.upper(),
             ident_version  = True,
             **kwargs)
@@ -162,8 +162,8 @@ class BaseSoC(SoCCore):
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHYRGMII(
-                clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"))
+                clock_pads = self.platform.request("eth_clocks", eth_phy),
+                pads       = self.platform.request("eth", eth_phy))
             self.add_csr("ethphy")
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
@@ -193,6 +193,7 @@ def main():
     soc = BaseSoC(board=args.board, revision=args.revision,
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
+        eth_phy          = args.eth_phy,
         sys_clk_freq     = args.sys_clk_freq,
         use_internal_osc = args.use_internal_osc,
         sdram_rate       = args.sdram_rate,
