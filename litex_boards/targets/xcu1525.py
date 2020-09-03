@@ -16,6 +16,12 @@ from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from litepcie.phy.usppciephy import USPPCIEPHY
+from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
+from litepcie.frontend.dma import LitePCIeDMA
+from litepcie.frontend.wishbone import LitePCIeWishboneBridge
+from litepcie.software import generate_litepcie_software
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -31,7 +37,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, **kwargs):
         platform = xcu1525.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -43,6 +49,44 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # PCIe -------------------------------------------------------------------------------------
+        if with_pcie:
+            # PHY
+            self.submodules.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+                data_width = 128,
+                bar0_size  = 0x20000)
+            #self.pcie_phy.add_timing_constraints(platform) # FIXME
+            platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
+            self.add_csr("pcie_phy")
+
+            # Endpoint
+            self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, max_pending_requests=8)
+
+            # Wishbone bridge
+            self.submodules.pcie_bridge = LitePCIeWishboneBridge(self.pcie_endpoint,
+                base_address = self.mem_map["csr"])
+            self.add_wb_master(self.pcie_bridge.wishbone)
+
+            # DMA0
+            self.submodules.pcie_dma0 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
+                with_buffering = True, buffering_depth=1024,
+                with_loopback  = True)
+            self.add_csr("pcie_dma0")
+
+            self.add_constant("DMA_CHANNELS", 1)
+
+            # MSI
+            self.submodules.pcie_msi = LitePCIeMSI()
+            self.add_csr("pcie_msi")
+            self.comb += self.pcie_msi.source.connect(self.pcie_phy.msi)
+            self.interrupts = {
+                "PCIE_DMA0_WRITER":    self.pcie_dma0.writer.irq,
+                "PCIE_DMA0_READER":    self.pcie_dma0.reader.irq,
+            }
+            for i, (k, v) in enumerate(sorted(self.interrupts.items())):
+                self.comb += self.pcie_msi.irqs[i].eq(v)
+                self.add_constant(k + "_INTERRUPT", i)
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -53,15 +97,23 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on XCU1525")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--build",     action="store_true", help="Build bitstream")
+    parser.add_argument("--with-pcie", action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
+    parser.add_argument("--load",      action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_sdram_argdict(args))
+    # Enforce arguments
+    args.csr_data_width = 32
+
+    soc =  BaseSoC(with_pcie=args.with_pcie, **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
+
+    if args.driver:
+        generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()
