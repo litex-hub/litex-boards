@@ -11,7 +11,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.platforms import forest_kitten_33
+from litex_boards.platforms import fk33
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -41,11 +41,11 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, **kwargs):
-        platform = forest_kitten_33.Platform()
+        platform = fk33.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Forest Kitten 33",
+            ident          = "LiteX SoC on FK33",
             ident_version  = True,
             **kwargs)
 
@@ -99,7 +99,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Forest Kitten 33")
+    parser = argparse.ArgumentParser(description="LiteX SoC on FK33")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--with-pcie", action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",    action="store_true", help="Generate PCIe driver")
