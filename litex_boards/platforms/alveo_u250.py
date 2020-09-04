@@ -275,6 +275,17 @@ _io = [
             "AP7 AR9 AT7 AU9 AV7 BB5 BD5 BF5")),
     ),
 
+    # pcie
+    ("pcie_x4", 0,
+        Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
+        Subsignal("clk_n", Pins("AM10")),
+        Subsignal("clk_p", Pins("AM11")),
+        Subsignal("rx_n",  Pins("AF1 AG3 AH1 AJ3")),
+        Subsignal("rx_p",  Pins("AF2 AG4 AH2 AJ4")),
+        Subsignal("tx_n",  Pins("AF6 AG8 AH6 AJ8")),
+        Subsignal("tx_p",  Pins("AF7 AG9 AH7 AJ9")),
+    ),
+
     # qsfp28
     ("qsfp28", 0,
         Subsignal("clk_n", Pins("K10")),
