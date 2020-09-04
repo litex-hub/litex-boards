@@ -55,7 +55,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), ddram_channel=0, with_pcie=False, **kwargs):
         platform = xcu1525.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -69,7 +69,8 @@ class BaseSoC(SoCCore):
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram"),
+            self.submodules.ddrphy = usddrphy.USPDDRPHY(
+                pads             = platform.request("ddram", ddram_channel),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6,
@@ -84,6 +85,9 @@ class BaseSoC(SoCCore):
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
             )
+            # FIXME: Vivado DRC error because T of ODERDESE3 directly connected to IOBUF but not I
+            # (since ODELAYE3 in-between), understand if this can be DRC rule can be safely disabled.
+            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks PDCN-2736]")
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -135,7 +139,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on XCU1525")
     parser.add_argument("--build",     action="store_true", help="Build bitstream")
     parser.add_argument("--with-pcie", action="store_true", help="Enable PCIe support")
-    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
+    parser.add_argument("--driver",    action="store_true", help="Generate PCIe driver")
     parser.add_argument("--load",      action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
