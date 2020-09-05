@@ -99,7 +99,7 @@ def main():
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load", action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",  default=75e6, help="System clock frequency (default=75MHz)")
-    parser.add_argument("--serial",  default="serial", help="UART Pins: serial or serial_pmod[0-2] (default=serial)")
+    parser.add_argument("--serial",  default="serial", help="UART Pins: serial (requires R15 and R17 to be soldered) or serial_pmod[0-2] (default=serial)")
     parser.add_argument("--prog-target",  default="direct", help="Programming Target: direct or flash")
     builder_args(parser)
     soc_core_args(parser)

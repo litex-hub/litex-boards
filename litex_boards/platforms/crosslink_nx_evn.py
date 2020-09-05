@@ -25,7 +25,8 @@ _io = [
     ("user_btn", 1, Pins("G15"), IOStandard("LVCMOS33")),  # SW3
 
     # Section 6.2 UART Topology
-    # Requires installation of 0-ohm jumpers to properly route signals
+    # Requires installation of 0-ohm jumpers R15 and R17 to properly route signals
+    # Note that it is R15 and R17, not R16 and R17 as stated in the user guide
     ("serial", 0,
         Subsignal("rx", Pins("F16"), IOStandard("LVCMOS33")),
         Subsignal("tx", Pins("F18"), IOStandard("LVCMOS33")),
