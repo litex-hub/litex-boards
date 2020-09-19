@@ -29,6 +29,16 @@ _io = [
     ),
 
     # pcie
+    ("pcie_x2", 0,
+        Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
+        Subsignal("clk_n", Pins("AM10")),
+        Subsignal("clk_p", Pins("AM11")),
+        Subsignal("rx_n",  Pins("AF1 AG3")),
+        Subsignal("rx_p",  Pins("AF2 AG4")),
+        Subsignal("tx_n",  Pins("AF6 AG8")),
+        Subsignal("tx_p",  Pins("AF7 AG9")),
+    ),
+
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
         Subsignal("clk_n", Pins("AM10")),
@@ -37,6 +47,26 @@ _io = [
         Subsignal("rx_p",  Pins("AF2 AG4 AH2 AJ4")),
         Subsignal("tx_n",  Pins("AF6 AG8 AH6 AJ8")),
         Subsignal("tx_p",  Pins("AF7 AG9 AH7 AJ9")),
+    ),
+
+    ("pcie_x8", 0,
+        Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
+        Subsignal("clk_n", Pins("AM10")),
+        Subsignal("clk_p", Pins("AM11")),
+        Subsignal("rx_n",  Pins("AF1 AG3 AH1 AJ3 AK1 AL3 AM1 AN3")),
+        Subsignal("rx_p",  Pins("AF2 AG4 AH2 AJ4 AK2 AL4 AM2 AN4")),
+        Subsignal("tx_n",  Pins("AF6 AG8 AH6 AJ8 AK6 AL8 AM6 AN8")),
+        Subsignal("tx_p",  Pins("AF7 AG9 AH7 AJ9 AK7 AL9 AM7 AN9")),
+    ),
+
+    ("pcie_x16", 0,
+        Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
+        Subsignal("clk_n", Pins("AM10")),
+        Subsignal("clk_p", Pins("AM11")),
+        Subsignal("rx_n", Pins("AF1 AG3 AH1 AJ3 AK1 AL3 AM1 AN3 AP1 AR3 AT1 AU3 AV1 AW3 BA1 BC1")),
+        Subsignal("rx_p", Pins("AF2 AG4 AH2 AJ4 AK2 AL4 AM2 AN4 AP2 AR4 AT2 AU4 AV2 AW4 BA2 BC2")),
+        Subsignal("tx_n", Pins("AF6 AG8 AH6 AJ8 AK6 AL8 AM6 AN8 AP6 AR8 AT6 AU8 AV6 BB4 BD4 BF4")),
+        Subsignal("tx_p", Pins("AF7 AG9 AH7 AJ9 AK7 AL9 AM7 AN9 AP7 AR9 AT7 AU9 AV7 BB5 BD5 BF5")),
     ),
 
     # ddram

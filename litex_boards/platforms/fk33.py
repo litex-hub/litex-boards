@@ -31,6 +31,16 @@ _io = [
         Subsignal("sda", Pins("BA24"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
     ),
 
+    ("pcie_x2", 0,
+        Subsignal("rst_n", Pins("BE24"), IOStandard("LVCMOS18")),
+        Subsignal("clk_p", Pins("AD9")),
+        Subsignal("clk_n", Pins("AD8")),
+        Subsignal("rx_p",  Pins("AL2 AM4")),
+        Subsignal("rx_n",  Pins("AL1 AM3")),
+        Subsignal("tx_p",  Pins("Y5  AA7")),
+        Subsignal("tx_n",  Pins("Y4  AA6")),
+    ),
+
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("BE24"), IOStandard("LVCMOS18")),
         Subsignal("clk_p", Pins("AD9")),
@@ -39,6 +49,16 @@ _io = [
         Subsignal("rx_n",  Pins("AL1 AM3 AK3 AN1")),
         Subsignal("tx_p",  Pins("Y5  AA7 AB5 AC7")),
         Subsignal("tx_n",  Pins("Y4  AA6 AB4 AC6")),
+    ),
+
+    ("pcie_x8", 0,
+        Subsignal("rst_n", Pins("BE24"), IOStandard("LVCMOS18")),
+        Subsignal("clk_p", Pins("AD9")),
+        Subsignal("clk_n", Pins("AD8")),
+        Subsignal("rx_p",  Pins("AL2 AM4 AK4 AN2 AP4 AR2 AT4 AU2")),
+        Subsignal("rx_n",  Pins("AL1 AM3 AK3 AN1 AP3 AR1 AT3 AU1")),
+        Subsignal("tx_p",  Pins("Y5  AA7 AB5 AC7 AD5 AF5 AE7 AH5")),
+        Subsignal("tx_n",  Pins("Y4  AA6 AB4 AC6 AD4 AF4 AE6 AH4")),
     ),
 
     ("pcie_x16", 0,
