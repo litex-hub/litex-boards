@@ -88,8 +88,7 @@ class BaseSoC(SoCCore):
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
             )
-            # FIXME: Vivado DRC error because T of ODERDESE3 directly connected to IOBUF but not I
-            # (since ODELAYE3 in-between), understand if this can be DRC rule can be safely disabled.
+            # Workadound for Vivado 2018.2 DRC, can be ignored and probably fixed on newer Vivado versions.
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks PDCN-2736]")
 
         # PCIe -------------------------------------------------------------------------------------
@@ -139,10 +138,11 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on XCU1525")
-    parser.add_argument("--build",     action="store_true", help="Build bitstream")
-    parser.add_argument("--with-pcie", action="store_true", help="Enable PCIe support")
-    parser.add_argument("--driver",    action="store_true", help="Generate PCIe driver")
-    parser.add_argument("--load",      action="store_true", help="Load bitstream")
+    parser.add_argument("--build",         action="store_true", help="Build bitstream")
+    parser.add_argument("--ddram-channel", default="0",         help="DDRAM channel")
+    parser.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",        action="store_true", help="Generate PCIe driver")
+    parser.add_argument("--load",          action="store_true", help="Load bitstream")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
@@ -150,7 +150,10 @@ def main():
     # Enforce arguments
     args.csr_data_width = 32
 
-    soc =  BaseSoC(with_pcie=args.with_pcie, **soc_sdram_argdict(args))
+    soc =  BaseSoC(
+        ddram_channel = int(args.ddram_channel, 0),
+        with_pcie     = args.with_pcie,
+        **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
