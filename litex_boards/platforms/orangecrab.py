@@ -21,8 +21,8 @@ _io_r0_1 = [
     ),
 
     ("user_led", 0, Pins("V17"), IOStandard("LVCMOS33")), # rgb_led.r
-    ("user_led", 1, Pins("V17"), IOStandard("LVCMOS33")), # rgb_led.g
-    ("user_led", 2, Pins("V17"), IOStandard("LVCMOS33")), # rgb_led.b
+    ("user_led", 1, Pins("T17"), IOStandard("LVCMOS33")), # rgb_led.g
+    ("user_led", 2, Pins("J3"),  IOStandard("LVCMOS33")), # rgb_led.b
 
     ("ddram", 0,
         Subsignal("a", Pins(
