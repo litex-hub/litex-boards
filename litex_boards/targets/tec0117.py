@@ -70,8 +70,6 @@ class BaseSoC(SoCCore):
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
 
-        self.add_constant("UART_POLLING")
-
 # Flash --------------------------------------------------------------------------------------------
 
 def flash(offset, path):
@@ -94,7 +92,7 @@ def flash(offset, path):
     dev = SerialFlashManager.get_flash_device("ftdi://ftdi:2232/2")
     dev.TIMINGS['chip'] = (4, 60) # chip is too slow
     print("Erasing flash...")
-    dev.erase(0, -1, True)
+    dev.erase(0, -1)
 
     with open(path, 'rb') as f:
         bios = f.read()
