@@ -194,63 +194,20 @@ class Platform(XilinxPlatform):
     default_clk_period = 10.0
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7z020clg484-1", _io, _connectors,
-                                toolchain=toolchain)
-        # self.toolchain.bitstream_commands = \
-        #     ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
-        # self.toolchain.additional_commands = \
-        #     ["write_cfgmem -force -format bin -interface spix4 -size 16 "
-        #      "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
-        # self.toolchain.additional_commands = [
-        #     # Generate .bit.bin file for loading with linux fpga_manager
-        #     'exec bootgen -image {build_name}.bif -w -arch zynq -process_bitstream bin'
-        # ]
+        XilinxPlatform.__init__(
+            self,
+            "xc7z020clg484-1",
+            _io,
+            _connectors,
+            toolchain=toolchain
+        )
 
-    def add_oled(self, soc, SPI_N=0, SS_N=1, DC_GPIO=8, RST_GPIO=9):
-        '''
-        Wire-up the on-board OLED display to the Zynq PS
+    def create_programmer(self):
+        return OpenOCD(config="board/digilent_zedboard.cfg")
 
-        soc: a SocZynq object
-        SPI_N: which SPI peripheral (0 or 1)
-        SS_N: which slave select pin (0, 1, 2)
-        DC_GPIO: PS GPIO pin to connect to  Data / Command input of display
-        RST_GPIO: PS GPIO pin to connect to  Reset input of display
-
-        The configuration in ./ip/gen_ip.tcl must match these parameters!
-        '''
-        oled = self.request("zed_oled")
-        oled_cs = Signal()
-        soc.cpu.cpu_params[f"o_SPI{SPI_N}_SS{SS_N}_O"] = oled_cs
-        oled_clk = Signal()
-        oled_mosi = Signal()
-        soc.comb += [
-            # OLED power always on
-            oled.vbat_n.eq(0),
-            oled.vdd_n.eq(0),
-            # Fake the missing OLED chip select by gating MOSI and SCLK
-            If(oled_cs,
-                oled_clk.eq(0),
-                oled_mosi.eq(0)
-            ).Else(
-                oled_clk.eq(soc.cpu.cpu_params[f"o_SPI{SPI_N}_SCLK_O"]),
-                oled_mosi.eq(soc.cpu.cpu_params[f"o_SPI{SPI_N}_MOSI_O"]),
-            ),
-            # Share SPI0 SCLK and MOSI
-            oled.clk.eq(oled_clk),
-            oled.mosi.eq(oled_mosi),
-            # D/C = EMIO62
-            oled.dc.eq(soc.cpu.cpu_params["o_GPIO_O"][DC_GPIO]),
-            # RESET_N = EMIO63
-            oled.reset_n.eq(soc.cpu.cpu_params["o_GPIO_O"][RST_GPIO])
-        ]
-
-    def create_programmer(self, programmer="xc3sprog"):
-        if programmer == "xc3sprog":
-            return XC3SProg("jtaghs2", position=1)
-        elif programmer == "openocd":
-            return OpenOCD(config="board/digilent_zedboard.cfg")
-        elif programmer == "vivado":
-            return VivadoProgrammer(flash_part="s25fl256s-3.3v-qspi-x4-single")
-        else:
-            raise ValueError("{} programmer is not supported"
-                             .format(programmer))
+    def do_finalize(self, fragment):
+        XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(
+            self.lookup_request(Platform.default_clk_name, loose=True),
+            Platform.default_clk_period
+        )
