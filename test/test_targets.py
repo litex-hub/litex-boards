@@ -63,6 +63,9 @@ class TestTargets(unittest.TestCase):
         # Xilinx Kintex Ultrascale
         platforms.append("kcu105")
 
+        # Xilinx Zynq-7000
+        platforms.append("zedboard")
+
         # Xilinx Zynq Ultrascale+
         platforms.append("zcu104")
 

@@ -77,6 +77,13 @@ _io = [
         Subsignal("vrn", Pins("M7")),
         Subsignal("vrp", Pins("N7")),
         Subsignal("we_n", Pins("R4"))
+    ),
+
+    # serial (just to make CI pass)
+    # unfortunately the only USB UART is hard-wired to the ARM CPU
+    ("serial", 0,
+        Subsignal("tx", Pins("-")),
+        Subsignal("rx", Pins("-"))
     )
 ]
 
