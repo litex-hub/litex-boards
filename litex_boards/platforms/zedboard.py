@@ -2,9 +2,8 @@
 # License: BSD
 
 from litex.build.generic_platform import Pins, IOStandard, Subsignal
-from litex.build.xilinx import XilinxPlatform, XC3SProg, VivadoProgrammer
+from litex.build.xilinx import XilinxPlatform
 from litex.build.openocd import OpenOCD
-from migen import *
 
 _io = [
     # 8 LEDs above DIP switches (Bank 33)
