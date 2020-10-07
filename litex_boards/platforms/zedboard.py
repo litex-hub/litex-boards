@@ -18,13 +18,13 @@ _io = [
 
     # UG-2832HSWEG04 (ssd1306)
     ("zed_oled", 0,
-        Subsignal("clk", Pins("AB12")),
-        Subsignal("mosi", Pins("AA12")),
+        Subsignal("clk",     Pins("AB12")),
+        Subsignal("mosi",    Pins("AA12")),
         # OLED does not have a MISO pin :(
         Subsignal("reset_n", Pins("U9")),
-        Subsignal("dc", Pins("U10")),
-        Subsignal("vbat_n", Pins("U11")),
-        Subsignal("vdd_n", Pins("U12")),
+        Subsignal("dc",      Pins("U10")),
+        Subsignal("vbat_n",  Pins("U11")),
+        Subsignal("vdd_n",   Pins("U12")),
         IOStandard("LVCMOS33")
     ),
 
@@ -50,33 +50,43 @@ _io = [
     # Clock source (Bank 13)
     ("clk100", 0, Pins("Y9"), IOStandard("LVCMOS33")),
 
-    # PS stuff
-    ("ps7_clk", 0, Pins("F7")),
-    ("ps7_porb", 0, Pins("B5")),
+    # PS7
+    ("ps7_clk",   0, Pins("F7")),
+    ("ps7_porb",  0, Pins("B5")),
     ("ps7_srstb", 0, Pins("C9")),
-    ("ps7_mio", 0, Pins("G6 A1 A2 F6 E4 A3 A4 D5 E5 C4 G7 B4 C5 A6 B6 E6 D6 E9 A7 E10 A8 F11 A14 E11 B7 F12 A13 D7 A12 E8 A11 F9 C7 G13 B12 F14 A9 B14 F13 C13 E14 C8 D8 B11 E13 B9 D12 B10 D11 C14 D13 C10 D10 C12")),
+    ("ps7_mio",   0, Pins(
+        " G6  A1  A2  F6  E4  A3  A4  D5",
+        " E5  C4  G7  B4  C5  A6  B6  E6",
+        " D6  E9  A7 E10  A8 F11 A14 E11",
+        " B7 F12 A13  D7 A12  E8 A11  F9",
+        " C7 G13 B12 F14 A9  B14 F13 C13",
+        "E14  C8  D8 B11 E13  B9 D12 B10",
+        "D11 C14 D13 C10 D10 C12")),
     ("ps7_ddram", 0,
-        Subsignal("addr",
-               Pins("M4 M5 K4 L4 K6 K5 J7 J6 J5 H5 J3 G5 H4 F4 G4")),
-        Subsignal("ba", Pins("L7 L6 M6")),
+        Subsignal("addr", Pins(
+            "M4 M5 K4 L4 K6 K5 J7 J6",
+            "J5 H5 J3 G5 H4 F4 G4")),
+        Subsignal("ba",    Pins("L7 L6 M6")),
         Subsignal("cas_n", Pins("P3")),
-        Subsignal("cke", Pins("V3")),
-        Subsignal("ck_n", Pins("N5")),
-        Subsignal("ck_p", Pins("N4")),
-        Subsignal("cs_n", Pins("P6")),
-        Subsignal("dm", Pins("B1 H3 P1 AA2")),
-        Subsignal("dq",
-           Pins("D1 C3 B2 D3 E3 E1 F2 F1 G2 G1 L1 L2 L3 K1 J1 K3 "
-                "M1 T3 N3 T1 R3 T2 M2 R1 AA3 U1 AA1 U2 W1 Y3 W3 Y1"),
+        Subsignal("cke",   Pins("V3")),
+        Subsignal("ck_n",  Pins("N5")),
+        Subsignal("ck_p",  Pins("N4")),
+        Subsignal("cs_n",  Pins("P6")),
+        Subsignal("dm",    Pins("B1 H3 P1 AA2")),
+        Subsignal("dq", Pins(
+            " D1  C3  B2  D3  E3  E1  F2  F1",
+            " G2  G1  L1  L2  L3  K1  J1  K3",
+            " M1  T3  N3  T1  R3  T2  M2  R1",
+            "AA3  U1 AA1  U2  W1  Y3  W3  Y1"),
         ),
-        Subsignal("dqs_n", Pins("D2 J2 P2 W2")),
-        Subsignal("dqs_p", Pins("C2 H2 N2 V2")),
+        Subsignal("dqs_n",   Pins("D2 J2 P2 W2")),
+        Subsignal("dqs_p",   Pins("C2 H2 N2 V2")),
         Subsignal("reset_n", Pins("F3")),
-        Subsignal("odt", Pins("P5")),
-        Subsignal("ras_n", Pins("R5")),
-        Subsignal("vrn", Pins("M7")),
-        Subsignal("vrp", Pins("N7")),
-        Subsignal("we_n", Pins("R4"))
+        Subsignal("odt",     Pins("P5")),
+        Subsignal("ras_n",   Pins("R5")),
+        Subsignal("vrn",     Pins("M7")),
+        Subsignal("vrp",     Pins("N7")),
+        Subsignal("we_n",    Pins("R4"))
     ),
 
     # serial (just to make CI pass)
@@ -199,21 +209,12 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
 
-    def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(
-            self,
-            "xc7z020clg484-1",
-            _io,
-            _connectors,
-            toolchain=toolchain
-        )
+    def __init__(self):
+        XilinxPlatform.__init__(self, "xc7z020clg484-1", _io, _connectors, toolchain="vivado")
 
     def create_programmer(self):
         return OpenOCD(config="board/digilent_zedboard.cfg")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(
-            self.lookup_request(Platform.default_clk_name, loose=True),
-            Platform.default_clk_period
-        )
+        self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
