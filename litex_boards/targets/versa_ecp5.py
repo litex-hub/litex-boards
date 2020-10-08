@@ -78,7 +78,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), device="LFE5UM5G", with_ethernet=False, toolchain="trellis", **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), device="LFE5UM5G", with_ethernet=False, with_etherbone=False, toolchain="trellis", **kwargs):
         platform = versa_ecp5.Platform(toolchain=toolchain, device=device)
 
         # FIXME: adapt integrated rom size for Microwatt
@@ -120,6 +120,14 @@ class BaseSoC(SoCCore):
             self.add_csr("ethphy")
             self.add_ethernet(phy=self.ethphy)
 
+        # Etherbone --------------------------------------------------------------------------------
+        if with_etherbone:
+            self.submodules.ethphy = LiteEthPHYRGMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"))
+            self.add_csr("ethphy")
+            self.add_etherbone(phy=self.ethphy)
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -136,15 +144,18 @@ def main():
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
-    parser.add_argument("--sys-clk-freq",  default=75e6,         help="System clock frequency (default=75MHz)")
-    parser.add_argument("--device",        default="LFE5UM5G",   help="ECP5 device (LFE5UM5G (default) or LFE5UM)")
-    parser.add_argument("--with-ethernet", action="store_true",  help="Enable Ethernet support")
+    parser.add_argument("--sys-clk-freq",   default=75e6,        help="System clock frequency (default=75MHz)")
+    parser.add_argument("--device",         default="LFE5UM5G",  help="ECP5 device (LFE5UM5G (default) or LFE5UM)")
+    parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
     args = parser.parse_args()
 
+    assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)),
-        device        = args.device,
-        with_ethernet = args.with_ethernet,
-        toolchain     = args.toolchain,
+        device         = args.device,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        toolchain      = args.toolchain,
         **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
