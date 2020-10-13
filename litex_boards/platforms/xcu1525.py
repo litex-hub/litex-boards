@@ -16,6 +16,18 @@ _io = [
         Subsignal("n", Pins("AY38"), IOStandard("DIFF_SSTL12")),
         Subsignal("p", Pins("AY37"), IOStandard("DIFF_SSTL12")),
     ),
+    ("clk300", 1,
+        Subsignal("n", Pins("AW19"), IOStandard("DIFF_SSTL12")),
+        Subsignal("p", Pins("AW20"), IOStandard("DIFF_SSTL12")),
+    ),
+    ("clk300", 2,
+        Subsignal("n", Pins("E32"), IOStandard("DIFF_SSTL12")),
+        Subsignal("p", Pins("F32"), IOStandard("DIFF_SSTL12")),
+    ),
+    ("clk300", 3,
+        Subsignal("n", Pins("H16"), IOStandard("DIFF_SSTL12")),
+        Subsignal("p", Pins("J16"), IOStandard("DIFF_SSTL12")),
+    ),
 
     # led
     ("user_led", 0, Pins("BC21"), IOStandard("LVCMOS12")),
@@ -97,14 +109,18 @@ _io = [
             "AM27 AN27 AP28 AP29 AM29 AN29 AR28 AR27",
             "AW34 AV32 AV31 AV34 BA35 BA34 AW31 AY31"),
             IOStandard("POD12_DCI"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n", Pins("BB36 AU30 BB30 BD29 AM32 BF38 AL29 AW33"),
             IOStandard("DIFF_POD12"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
-        Subsignal("dqs_p", Pins("BB35 AU2 BA30 BD28 AM31 BE38 AL28 AV33"),
+        Subsignal("dqs_p", Pins("BB35 AU29 BA30 BD28 AM31 BE38 AL28 AV33"),
             IOStandard("DIFF_POD12"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("odt",     Pins("AP34"), IOStandard("SSTL12_DCI")),
         Subsignal("reset_n", Pins("AU31"), IOStandard("LVCMOS12")),
@@ -137,14 +153,17 @@ _io = [
             "AV16 AV17 AU16 AU17 BB17 BB16 AT18 AT17",
             "AM15 AL15 AN17 AN16 AR18 AP18 AL17 AL16"),
             IOStandard("POD12_DCI"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n", Pins("BF9 AY15 BB10 AT13 BE11 BC12 AW18 AR16"),
             IOStandard("DIFF_POD12"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p", Pins("BF10 AW15 BB11 AT14 BE12 BC13 AV18 AP16"),
             IOStandard("DIFF_POD12"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("odt",     Pins("AW23"), IOStandard("SSTL12_DCI")),
@@ -178,14 +197,17 @@ _io = [
             "J35 K35 L33 K33 J34 J33 N34 P34",
             "H36 G36 H37 J36 K37 K38 G35 G34"),
             IOStandard("POD12_DCI"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n", Pins("M26 J26 D30 A28 E40 M31 L36 H38"),
             IOStandard("DIFF_POD12"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p", Pins("N26 J25 D29 A27 E39 N31 L35 J38"),
             IOStandard("DIFF_POD12"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("odt",     Pins("E33"), IOStandard("SSTL12_DCI")),
@@ -219,14 +241,17 @@ _io = [
             "E17 F20 E18 E20 D19 D20 H18 J18",
             "F22 E22 G22 G21 F24 E25 F25 G25"),
             IOStandard("POD12_DCI"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n", Pins("R22 H21 K20 P18 A24 B17 F17 E23"),
             IOStandard("DIFF_POD12"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p", Pins("T22 J21 L20 P19 A25 C17 F18 F23"),
             IOStandard("DIFF_POD12"),
+            Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("odt",     Pins("C16"), IOStandard("SSTL12_DCI")),
@@ -251,24 +276,27 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk300", 0, loose=True), 1e9/300e6)
         # For passively cooled boards, overheating is a significant risk if airflow isn't sufficient
         self.add_platform_command("set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]")
         # Reduce programming time
         self.add_platform_command("set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]")
-        # DDR4 memory channel C0 Internal Vref
+        # DDR4 memory channel C0 Clock constraint / Internal Vref
+        self.add_period_constraint(self.lookup_request("clk300", 0, loose=True), 1e9/300e6)
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 40]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 41]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 42]")
-        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 43]")
-        # DDR4 memory channel C1 Internal Vref
+        # DDR4 memory channel C1 Clock constraint / Internal Vref
+        self.add_period_constraint(self.lookup_request("clk300", 1, loose=True), 1e9/300e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 65]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 67]")
-        # DDR4 memory channel C2 Internal Vref
+        # DDR4 memory channel C2 Clock constraint / Internal Vref
+        self.add_period_constraint(self.lookup_request("clk300", 2, loose=True), 1e9/300e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 46]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 47]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 48]")
-        # DDR4 memory channel C3 Internal Vref
+        # DDR4 memory channel C3 Clock constraint / Internal Vref
+        self.add_period_constraint(self.lookup_request("clk300", 3, loose=True), 1e9/300e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 70]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 71]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 72]")
