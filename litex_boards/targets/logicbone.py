@@ -93,8 +93,10 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, revision="rev0", device="45F", sdram_device="MT41K512M16",
-                 with_ethernet=False,
-                 sys_clk_freq=int(75e6), toolchain="trellis", **kwargs):
+                 with_ethernet = False,
+                 sys_clk_freq  = int(75e6),
+                 toolchain     = "trellis",
+                 **kwargs):
         platform = logicbone.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # Serial -----------------------------------------------------------------------------------

@@ -45,9 +45,9 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
-        pll.create_clkout(self.cd_clk200,    200e6)
+        pll.create_clkout(self.cd_idelay,    200e6)
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_clk200)
+        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

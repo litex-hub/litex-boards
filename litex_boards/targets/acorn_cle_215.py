@@ -55,7 +55,7 @@ class CRG(Module):
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
-        self.clock_domains.cd_clk200    = ClockDomain()
+        self.clock_domains.cd_idelay    = ClockDomain()
 
         # Clk/Rst
         clk200 = platform.request("clk200")
@@ -66,9 +66,9 @@ class CRG(Module):
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
-        pll.create_clkout(self.cd_clk200,    200e6)
+        pll.create_clkout(self.cd_idelay,    200e6)
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_clk200)
+        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC -----------------------------------------------------------------------------------------
 

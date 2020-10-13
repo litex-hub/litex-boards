@@ -31,14 +31,14 @@ class _CRG(Module):
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
         self.clock_domains.cd_pll4x  = ClockDomain(reset_less=True)
-        self.clock_domains.cd_clk500 = ClockDomain()
+        self.clock_domains.cd_idelay = ClockDomain()
 
         # # #
 
         self.submodules.pll = pll = USMMCM(speedgrade=-2)
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
-        pll.create_clkout(self.cd_clk500, 500e6, with_reset=False)
+        pll.create_clkout(self.cd_idelay, 500e6, with_reset=False)
 
         self.specials += [
             Instance("BUFGCE_DIV", name="main_bufgce_div",
@@ -46,10 +46,10 @@ class _CRG(Module):
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys.clk),
             Instance("BUFGCE", name="main_bufgce",
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
-            AsyncResetSynchronizer(self.cd_clk500, ~pll.locked),
+            AsyncResetSynchronizer(self.cd_idelay, ~pll.locked),
         ]
 
-        self.submodules.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_clk500, cd_sys=self.cd_sys)
+        self.submodules.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
