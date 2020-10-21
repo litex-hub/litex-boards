@@ -92,6 +92,26 @@ _io = [
         Subsignal("cam_frame_sync", Pins("U1")),
     ),
 
+    # HyperRAM
+    ("hyperram", 0,
+        Subsignal("dq", Pins("Y6 W7 V7 P7 P8 R8 T8 Y7"), IOStandard("LVCMOS18H")),
+        Subsignal("rwds", Pins("W6"), IOStandard("LVCMOS18H")),
+        Subsignal("cs_n", Pins("V6"), IOStandard("LVCMOS18H")),
+        Subsignal("rst_n", Pins("U7"), IOStandard("LVCMOS18H")),
+        Subsignal("clk", Pins("R7"), IOStandard("LVDS")),
+        # Subsignal("clk_n", Pins("T7"), IOStandard("LVDS")),
+        Misc("SLEWRATE=FAST")
+    ),
+    ("hyperram", 1,
+        Subsignal("dq", Pins("W8 V9 W9 Y9 T10 T11 U10 V10"), IOStandard("LVCMOS18H")),
+        Subsignal("rwds", Pins("R10"), IOStandard("LVCMOS18H")),
+        Subsignal("cs_n", Pins("P9"), IOStandard("LVCMOS18H")),
+        Subsignal("rst_n", Pins("P10"), IOStandard("LVCMOS18H")),
+        Subsignal("clk", Pins("W10"), IOStandard("LVDS")),
+        # Subsignal("clk_n", Pins("Y10"), IOStandard("LVDS")),
+        Misc("SLEWRATE=FAST")
+    ),
+
     # MIPI camera modules
     # Note that use of MIPI_DPHY standard for + and LVCMOS12H for - is copied from Lattice PDC
     ("camera", 0,

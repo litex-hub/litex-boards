@@ -17,6 +17,10 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import crosslink_nx_vip
 
+from litex_boards.platforms import crosslink_nx_vip
+
+from litehyperbus.core.hyperbus import HyperRAM
+
 from litex.soc.cores.nxlram import NXLRAM
 from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
@@ -62,7 +66,7 @@ class BaseSoC(SoCCore):
         "sram":             0x40000000,
         "csr":              0xf0000000,
     }
-    def __init__(self, sys_clk_freq, **kwargs):
+    def __init__(self, sys_clk_freq, hyperram="none", **kwargs):
         platform = crosslink_nx_vip.Platform()
 
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
@@ -79,10 +83,17 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
-        # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
-        size = 128*kB
-        self.submodules.spram = NXLRAM(32, size)
-        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, size)
+        if hyperram == "none":
+            # 128KB LRAM (used as SRAM) ------------------------------------------------------------
+            size = 128*kB
+            self.submodules.spram = NXLRAM(32, size)
+            self.register_mem("sram", self.mem_map["sram"], self.spram.bus, size)
+        else:
+            # Use HyperRAM generic PHY as SRAM -----------------------------------------------------
+            size = 8*1024*kB
+            hr_pads = platform.request("hyperram", int(hyperram))
+            self.submodules.hyperram = HyperRAM(hr_pads)
+            self.register_mem("sram", self.mem_map["sram"], self.hyperram.bus, size)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -94,16 +105,17 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX Eval Board")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX VIP Board")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load", action="store_true", help="Load bitstream")
+    parser.add_argument("--with-hyperram", default="none", help="Enable use of HyperRAM chip 0 or 1 (default=none)")
     parser.add_argument("--sys-clk-freq",  default=75e6, help="System clock frequency (default=75MHz)")
     parser.add_argument("--prog-target",  default="direct", help="Programming Target: direct or flash")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), **soc_core_argdict(args))
+    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), hyperram=args.with_hyperram, **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = {}
     builder.build(**builder_kargs, run=args.build)
