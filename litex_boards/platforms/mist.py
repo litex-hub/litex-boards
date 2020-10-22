@@ -1,6 +1,7 @@
-# 
+#
 # This file is part of LiteX-Boards.
 #
+# Copyright (c) 2020 Krzysztof Jankowski <yanekx@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -13,7 +14,7 @@ _io = [
     ("clk27", 0, Pins("54")),
     ("clk27", 0, Pins("54")),
 
-    ("user_led", 0, Pins("7"), 
+    ("user_led", 0, Pins("7"),
         Misc("CURRENT_STRENGTH_NEW 4MA")),
 
     ("vga", 0,
@@ -47,11 +48,11 @@ _io = [
 
     ("conf_data0", 0, Pins("13")),
 
-    ("sdram_clock", 0, Pins("43"), 
+    ("sdram_clock", 0, Pins("43"),
         Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
         Subsignal("a", Pins("49 44 42 39 4 6 8 10 11 28 50 30 32")),
-        Subsignal("dq", Pins("83 79 77 76 72 71 69 68 86 87 98 99 100 101 103 104"), 
+        Subsignal("dq", Pins("83 79 77 76 72 71 69 68 86 87 98 99 100 101 103 104"),
             Misc("FAST_INPUT_REGISTER ON"), Misc("FAST_OUTPUT_ENABLE_REGISTER ON")),
         Subsignal("ba", Pins("58 51")),
         Subsignal("dm", Pins("67 85")),     # DQML, DQMH

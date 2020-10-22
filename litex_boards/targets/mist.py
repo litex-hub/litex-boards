@@ -3,6 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
+# Copyright (c) 2020 Krzysztof Jankowski <yanekx@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
