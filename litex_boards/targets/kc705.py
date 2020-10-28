@@ -117,7 +117,7 @@ class BaseSoC(SoCCore):
             self.submodules.sata_phy = LiteSATAPHY(platform.device,
                 refclk     = sata_refclk,
                 pads       = platform.request("sfp"),
-                gen        = "gen1",
+                gen        = "gen2",
                 clk_freq   = sys_clk_freq,
                 data_width = 16)
 
@@ -137,8 +137,8 @@ class BaseSoC(SoCCore):
             self.add_csr("sata_block2mem")
 
             # Timing constraints
-            platform.add_period_constraint(self.sata_phy.crg.cd_sata_tx.clk, 1e9/75e6)
-            platform.add_period_constraint(self.sata_phy.crg.cd_sata_tx.clk, 1e9/75e6)
+            platform.add_period_constraint(self.sata_phy.crg.cd_sata_tx.clk, 1e9/150e6)
+            platform.add_period_constraint(self.sata_phy.crg.cd_sata_tx.clk, 1e9/150e6)
             self.platform.add_false_path_constraints(
                 self.crg.cd_sys.clk,
                 self.sata_phy.crg.cd_sata_tx.clk,
