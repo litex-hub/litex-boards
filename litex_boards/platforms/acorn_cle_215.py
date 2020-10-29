@@ -76,6 +76,16 @@ _io = [
     ),
 ]
 
+_serial_io = [
+    # Serial adapter on P2
+    ("serial", 0,
+        Subsignal("tx", Pins("K2")),
+        Subsignal("rx", Pins("J2")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+]
+
 _sdcard_io = [
     # SPI SDCard adapter on P2
     # https://spoolqueue.com/new-design/fpga/migen/litex/2020/08/11/acorn-cle-215.html
@@ -97,6 +107,7 @@ class Platform(XilinxPlatform):
 
     def __init__(self):
         XilinxPlatform.__init__(self, "xc7a200t-fbg484-2", _io, toolchain="vivado")
+        self.add_extension(_serial_io)
         self.add_extension(_sdcard_io)
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
 
