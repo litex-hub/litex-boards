@@ -119,7 +119,7 @@ class BaseSoC(SoCCore):
             self.add_csr("sata_phy")
 
             # Core
-            self.add_sata(phy=self.sata_phy, mode="read")
+            self.add_sata(phy=self.sata_phy, mode="read+write")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
