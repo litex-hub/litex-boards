@@ -139,7 +139,7 @@ class Platform(LatticePlatform):
     default_clk_period = 1e9/25e6
 
     def __init__(self, device="LFE5U-45F", revision="2.0", **kwargs):
-        assert device in ["LFE5U-25F", "LFE5U-45F", "LFE5U-85F"]
+        assert device in ["LFE5U-12F", "LFE5U-25F", "LFE5U-45F", "LFE5U-85F"]
         assert revision in ["1.7", "2.0"]
         _io = _io_common + {"1.7": _io_1_7, "2.0": _io_2_0}[revision]
         LatticePlatform.__init__(self, device + "-6BG381C", _io, **kwargs)
