@@ -11,7 +11,7 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # clk
+    # Clk / Rst
     ("clk300", 0,
         Subsignal("n", Pins("AY38"), IOStandard("DIFF_SSTL12")),
         Subsignal("p", Pins("AY37"), IOStandard("DIFF_SSTL12")),
@@ -29,18 +29,18 @@ _io = [
         Subsignal("p", Pins("J16"), IOStandard("DIFF_SSTL12")),
     ),
 
-    # led
+    # Leds
     ("user_led", 0, Pins("BC21"), IOStandard("LVCMOS12")),
     ("user_led", 1, Pins("BB21"), IOStandard("LVCMOS12")),
     ("user_led", 2, Pins("BA20"), IOStandard("LVCMOS12")),
 
-    # serial
+    # Serial
     ("serial", 0,
         Subsignal("rx", Pins("BF18"), IOStandard("LVCMOS12")),
         Subsignal("tx", Pins("BB20"), IOStandard("LVCMOS12")),
     ),
 
-    # pcie
+    # PCIe
     ("pcie_x2", 0,
         Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
         Subsignal("clk_n", Pins("AM10")),
@@ -50,7 +50,6 @@ _io = [
         Subsignal("tx_n",  Pins("AF6 AG8")),
         Subsignal("tx_p",  Pins("AF7 AG9")),
     ),
-
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
         Subsignal("clk_n", Pins("AM10")),
@@ -60,7 +59,6 @@ _io = [
         Subsignal("tx_n",  Pins("AF6 AG8 AH6 AJ8")),
         Subsignal("tx_p",  Pins("AF7 AG9 AH7 AJ9")),
     ),
-
     ("pcie_x8", 0,
         Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
         Subsignal("clk_n", Pins("AM10")),
@@ -70,7 +68,6 @@ _io = [
         Subsignal("tx_n",  Pins("AF6 AG8 AH6 AJ8 AK6 AL8 AM6 AN8")),
         Subsignal("tx_p",  Pins("AF7 AG9 AH7 AJ9 AK7 AL9 AM7 AN9")),
     ),
-
     ("pcie_x16", 0,
         Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
         Subsignal("clk_n", Pins("AM10")),
@@ -81,7 +78,7 @@ _io = [
         Subsignal("tx_p", Pins("AF7 AG9 AH7 AJ9 AK7 AL9 AM7 AN9 AP7 AR9 AT7 AU9 AV7 BB5 BD5 BF5")),
     ),
 
-    # ddram
+    # DDR4 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "AT36 AV36 AV37 AW35 AW36 AY36 AY35 BA40",
@@ -259,6 +256,8 @@ _io = [
         Misc("SLEW=FAST")
     ),
 ]
+
+# Connectors ---------------------------------------------------------------------------------------
 
 _connectors = []
 

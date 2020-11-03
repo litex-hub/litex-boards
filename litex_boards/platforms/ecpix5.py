@@ -11,11 +11,11 @@ from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # clock / reset
+    # Clk / Rst
     ("clk100", 0, Pins("K23"), IOStandard("LVCMOS33")),
     ("rst_n",  0, Pins("N5"),  IOStandard("LVCMOS33")),
 
-    # led
+    # Leds
     ("rgb_led", 0,
         Subsignal("r", Pins("U21")),
         Subsignal("g", Pins("W21")),
@@ -41,13 +41,13 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # serial
+    # Serial
     ("serial", 0,
         Subsignal("rx", Pins("R26"), IOStandard("LVCMOS33")),
         Subsignal("tx", Pins("R24"), IOStandard("LVCMOS33")),
     ),
 
-    # ddram
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "T5 M3 L3 V6 K2 W6 K3 L1",
@@ -72,7 +72,7 @@ _io = [
         Misc("SLEWRATE=FAST"),
     ),
 
-    # ethernet
+    # RGMII Ethernetx
     ("eth_clocks", 0,
         Subsignal("tx", Pins("A12")),
         Subsignal("rx", Pins("E11")),
@@ -89,7 +89,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # sdcard
+    # SDCard
     ("sdcard", 0,
         Subsignal("data",      Pins("N26 N25 N23 N21"), Misc("PULLMODE=UP")),
         Subsignal("cmd",       Pins("M24"),             Misc("PULLMODE=UP")),
@@ -100,6 +100,8 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 ]
+
+# Connectors ---------------------------------------------------------------------------------------
 
 _connectors = []
 

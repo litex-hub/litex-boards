@@ -14,16 +14,16 @@ from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io_v6_1 = [ # Documented by @smunaut
-    # clock
+    # Clk
     ("clk25", 0, Pins("P3"), IOStandard("LVCMOS33")),
 
-    # led
+    # Led
     ("user_led_n", 0, Pins("U16"), IOStandard("LVCMOS33")),
 
-    # btn
+    # Button
     ("user_btn_n", 0, Pins("R16"), IOStandard("LVCMOS33")),
 
-    # serial
+    # Serial
     # There seems to be some capacitance on KEY+ pin, so high baudrates may not work (>9600bps).
     ("serial", 0,
         Subsignal("tx", Pins("U16")), # led (J19 DATA_LED-)
@@ -31,7 +31,7 @@ _io_v6_1 = [ # Documented by @smunaut
         IOStandard("LVCMOS33")
     ),
 
-    # spi flash (GD25Q16CSIG)
+    # SPIFlash (GD25Q16CSIG)
     ("spiflash", 0,
         Subsignal("cs_n", Pins("R2")),
         Subsignal("clk",  Pins("U3")),
@@ -40,7 +40,7 @@ _io_v6_1 = [ # Documented by @smunaut
         IOStandard("LVCMOS33"),
     ),
 
-    # sdram (EM636165-6G)
+    # SDRAM SDRAM (EM636165-6G)
     ("sdram_clock", 0, Pins("B9"), IOStandard("LVCMOS33")),
     ("sdram", 0,
         Subsignal("a", Pins(
@@ -62,7 +62,7 @@ _io_v6_1 = [ # Documented by @smunaut
         Misc("SLEWRATE=FAST")
     ),
 
-    # ethernet (B50612D)
+    # RGMII Ethernet (B50612D)
     ("eth_clocks", 0,
         Subsignal("tx", Pins("G1")),
         Subsignal("rx", Pins("H2")),
@@ -78,7 +78,6 @@ _io_v6_1 = [ # Documented by @smunaut
         Subsignal("tx_data", Pins("G2 H1 J1 J3")),
         IOStandard("LVCMOS33")
     ),
-
     ("eth_clocks", 1,
         Subsignal("tx", Pins("U19")),
         Subsignal("rx", Pins("L19")),
@@ -97,23 +96,23 @@ _io_v6_1 = [ # Documented by @smunaut
 ]
 
 _io_v7_0 = [ # Documented by @miek
-    # clock
+    # Clk
     ("clk25", 0, Pins("P6"), IOStandard("LVCMOS33")),
 
-    # led
+    # Led
     ("user_led_n", 0, Pins("P11"), IOStandard("LVCMOS33")),
 
-    # btn
+    # Button
     ("user_btn_n", 0, Pins("M13"), IOStandard("LVCMOS33")),
 
-    # serial
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("P11")), # led (J19 DATA_LED-)
         Subsignal("rx", Pins("M13")), # btn (J19 KEY+)
         IOStandard("LVCMOS33")
     ),
 
-    # spiflash (W25Q32JV)
+    # SPIFlash (W25Q32JV)
     ("spiflash", 0,
         # clk
         Subsignal("cs_n", Pins("N8")),
@@ -123,7 +122,7 @@ _io_v7_0 = [ # Documented by @miek
         IOStandard("LVCMOS33"),
     ),
 
-    # sdram (M12616161A)
+    # SDR SDRAM (M12616161A)
     ("sdram_clock", 0, Pins("C6"), IOStandard("LVCMOS33")),
     ("sdram", 0,
         Subsignal("a", Pins(
@@ -145,7 +144,7 @@ _io_v7_0 = [ # Documented by @miek
         Misc("SLEWRATE=FAST")
     ),
 
-    # ethernet (B50612D)
+    # RGMII Ethernet (B50612D)
     ("eth_clocks", 0,
         Subsignal("tx", Pins("M2")),
         Subsignal("rx", Pins("M1")),
@@ -177,6 +176,7 @@ _io_v7_0 = [ # Documented by @miek
         IOStandard("LVCMOS33")
     ),
 
+    # USB
     ("usb", 0,
         Subsignal("d_p", Pins("M8")),
         Subsignal("d_n", Pins("R2")),
@@ -185,7 +185,7 @@ _io_v7_0 = [ # Documented by @miek
     ),
 ]
 
-# from https://github.com/miek/chubby75/blob/5a-75b-v7_pinout/5a-75b/hardware_V6.1.md
+# From https://github.com/miek/chubby75/blob/5a-75b-v7_pinout/5a-75b/hardware_V6.1.md
 _connectors_v6_1 = [
     ("j1", "B3  A2  B2   - B1  C2  C1  J17 F1  E2  E1  F2  C18 J18 H16 -"),
     ("j2", "D2  H3  H4   - J4  B4  A3  J17 F1  E2  E1  F2  C18 J18 H16 -"),
@@ -197,7 +197,7 @@ _connectors_v6_1 = [
     ("j8", "B20 C20 B19  - B18 A19 A18 J17 F1  E2  E1  F2  C18 J18 H16 -"),
 ]
 
-# from https://github.com/q3k/chubby75/blob/master/5a-75b/hardware_V7.0.md
+# From https://github.com/q3k/chubby75/blob/master/5a-75b/hardware_V7.0.md
 _connectors_v7_0 = [
     ("j1", "F3  F1  G3  - G2  H3  H5  F15 L2 K1 J5 K2 B16 J14 F12 -"),
     ("j2", "J4  K3  G1  - K4  C2  E3  F15 L2 K1 J5 K2 B16 J14 F12 -"),
@@ -208,8 +208,6 @@ _connectors_v7_0 = [
     ("j7", "H13 J13 H12 - G14 H14 G15 F15 L2 K1 J5 K2 B16 J14 F12 -"),
     ("j8", "A15 F16 A14 - E13 B14 A13 F15 L2 K1 J5 K2 B16 J14 F12 -"),
 ]
-
-
 
 # Platform -----------------------------------------------------------------------------------------
 

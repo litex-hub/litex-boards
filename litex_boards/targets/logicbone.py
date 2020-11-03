@@ -43,7 +43,7 @@ class _CRG(Module):
         self.reset = Signal()
 
         # Clk / Rst
-        clk25 = platform.request("refclk")
+        clk25 = platform.request("clk25")
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)

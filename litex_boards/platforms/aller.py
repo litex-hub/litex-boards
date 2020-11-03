@@ -12,15 +12,15 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # clk / rst
+    # Clk / Rst
     ("clk100", 0, Pins("W19"), IOStandard("LVCMOS33")),
 
-    # leds (only a single rgb led, aliased here also)
+    # Leds (only a single rgb led, aliased here also)
     ("user_led", 0, Pins("AB21"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("AB22"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("U20"),  IOStandard("LVCMOS33")),
 
-    # rgb led, active-low
+    # RGB led, active-low
     ("rgb_led", 0,
         Subsignal("r", Pins("AB21")),
         Subsignal("g", Pins("AB22")),
@@ -28,7 +28,7 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # flash
+    # SPIFlash
     ("flash", 0,
         Subsignal("cs_n",  Pins("T19")),
         Subsignal("mosi",  Pins("P22")),
@@ -37,14 +37,13 @@ _io = [
         Subsignal("rst_n", Pins("R19")),
         IOStandard("LVCMOS33")
     ),
-
     ("flash4x", 0,  # clock needs to be accessed through STARTUPE2
         Subsignal("cs_n", Pins("T19")),
         Subsignal("dq",   Pins("P22", "R22", "P21", "R21")),
         IOStandard("LVCMOS33")
     ),
 
-    # tpm
+    # TPM
     ("tpm", 0,
         Subsignal("clk",   Pins("W20")),
         Subsignal("rst_n", Pins("V19")),
@@ -54,7 +53,7 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # pcie
+    # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("AB20"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
@@ -75,7 +74,7 @@ _io = [
         Subsignal("tx_n",  Pins("A4 C5 A6 C7"))
     ),
 
-    # dram
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "U6 T5 Y6 T6  V2 T4 Y2 R2",

@@ -9,10 +9,11 @@ from litex.build.openfpgaloader import OpenFPGALoader
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    ("user_led",  0, Pins("86"), IOStandard("LVCMOS33")),
+    # Clk / Rst
     ("clk12", 0, Pins("35"), IOStandard("LVCMOS33")),
     ("rst",   0, Pins("77"), IOStandard("LVCMOS33")),
 
+    # Leds
     ("user_led", 0, Pins("86"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("85"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("84"), IOStandard("LVCMOS33")),
@@ -22,11 +23,13 @@ _io = [
     ("user_led", 6, Pins("80"), IOStandard("LVCMOS33")),
     ("user_led", 7, Pins("79"), IOStandard("LVCMOS33")),
 
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("15"), IOStandard("LVCMOS33")),
         Subsignal("rx", Pins("16"), IOStandard("LVCMOS33"))
     ),
 
+    # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("51"), IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("49"), IOStandard("LVCMOS33")),
@@ -36,14 +39,13 @@ _io = [
         Subsignal("hold", Pins("50"), IOStandard("LVCMOS33")),
     ),
 
-    # this one is the FTDI chip
+    # SPIFlash (FTDI Chip)
     ("spiflash", 1,
         Subsignal("cs_n", Pins("13"), IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("16"), IOStandard("LVCMOS33")),
         Subsignal("miso", Pins("14"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("15"), IOStandard("LVCMOS33")),
     ),
-
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -63,4 +65,3 @@ class Platform(GowinPlatform):
 
     def create_programmer(self):
         return OpenFPGALoader("littlebee")
-

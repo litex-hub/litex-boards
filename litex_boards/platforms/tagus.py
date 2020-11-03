@@ -12,15 +12,14 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # clk / rst
+    # Clk / Rst
     ("clk100", 0, Pins("W19"), IOStandard("LVCMOS33")),
     ("rst",    0, Pins("P17"), IOStandard("LVCMOS33")),
 
-    # leds (only a single rgb led, aliased here also)
+    # Leds (only a single rgb led, aliased here also)
     ("user_led", 0, Pins("W21"),  IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("W22"),  IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("AA20"), IOStandard("LVCMOS33")),
-
     ("rgb_led", 0,
         Subsignal("r", Pins("W21")),
         Subsignal("g", Pins("W22")),
@@ -28,17 +27,18 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # Serial
     ("serial", 0,
-     Subsignal("tx",    Pins("R14")),
-     Subsignal("rx",    Pins("P14")),
-     Subsignal("rts",   Pins("R18")),
-     Subsignal("cts",   Pins("T18")),
-     Subsignal("cbus0", Pins("N17")),
-     IOStandard("LVCMOS33")
+        Subsignal("tx",    Pins("R14")),
+        Subsignal("rx",    Pins("P14")),
+        Subsignal("rts",   Pins("R18")),
+        Subsignal("cts",   Pins("T18")),
+        Subsignal("cbus0", Pins("N17")),
+        IOStandard("LVCMOS33")
     ),
 
-    # flash
-    ("flash", 0,
+    # SPIFlash
+    ("spiflash", 0,
         Subsignal("cs_n", Pins("T19")),
         Subsignal("mosi", Pins("P22")),
         Subsignal("miso", Pins("R22")),
@@ -46,14 +46,13 @@ _io = [
         Subsignal("hold", Pins("R21")),
         IOStandard("LVCMOS33")
     ),
-
-    ("flash4x", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
         Subsignal("cs_n", Pins("T19")),
         Subsignal("dq",   Pins("P22", "R22", "P21", "R21")),
         IOStandard("LVCMOS33")
     ),
 
-    # tpm
+    # TPM
     ("tpm", 0,
         Subsignal("clk",   Pins("Y18")),
         Subsignal("rst_n", Pins("AA19")),
@@ -63,7 +62,7 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # pcie
+    # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("W20"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
@@ -74,7 +73,7 @@ _io = [
         Subsignal("tx_n",  Pins("A4"))
     ),
 
-    # dram
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "U6 T5 Y6 T6  V2 T4 Y2 R2",
@@ -101,7 +100,7 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
-     # sdcard
+     # SDCard
      ("sdcard", 0,
         Subsignal("data", Pins("P19 Y22 Y21 T21")),
         Subsignal("cmd",  Pins("U21")),
@@ -110,7 +109,7 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # sfp0
+    # SFP0
     ("sfp_tx", 0,
         Subsignal("p", Pins("B6")),
         Subsignal("n", Pins("A6"))
@@ -122,7 +121,7 @@ _io = [
     ("sfp_tx_disable_n", 0, Pins("V22"),  IOStandard("LVCMOS33")),
     ("sfp_rx_los",       0, Pins("AB21"), IOStandard("LVCMOS33")),
 
-     # sfp1
+    # SFP1
     ("sfp_tx", 1,
         Subsignal("p", Pins("D7")),
         Subsignal("n", Pins("C7")),

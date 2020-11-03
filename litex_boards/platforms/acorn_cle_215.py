@@ -14,19 +14,19 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # clk / rst
+    # Clk / Rst
     ("clk200", 0,
         Subsignal("p", Pins("J19"), IOStandard("DIFF_SSTL15")),
         Subsignal("n", Pins("H19"), IOStandard("DIFF_SSTL15"))
     ),
 
-    # leds
+    # Leds
     ("user_led", 0, Pins("G3"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("H3"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("G4"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("H4"), IOStandard("LVCMOS33")),
 
-    # spiflash
+    # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("T19")),
         Subsignal("mosi", Pins("P22")),
@@ -36,7 +36,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # pcie
+    # PCIe
     ("pcie_clkreq_n", 0, Pins("G1"), IOStandard("LVCMOS33")),
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
@@ -48,7 +48,7 @@ _io = [
         Subsignal("tx_n",  Pins("A6 A4 C5 C7")),
     ),
 
-    # dram
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "M15 L21 M16 L18 K21 M18 M21 N20",

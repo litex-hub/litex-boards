@@ -17,33 +17,33 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # clock / reset
+    # Clk / Rst
     ("clk125",    0, Pins("Y13"),  IOStandard("LVCMOS33")),
     ("rst_n",     0, Pins("AB14"), IOStandard("LVCMOS33")),
 
-    # led
+    # Leds
     ("user_led", 0, Pins("E12"),  IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("H13"),  IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("F13"),  IOStandard("LVCMOS33")),
 
-    # btn
+    # Buttons
     ("user_btn_n", 0, Pins("H12"), IOStandard("LVCMOS33")),
 
-    # serial
+    # Serial
     ("serial", 0, # hdmi
         Subsignal("tx", Pins("AB19")),
         Subsignal("rx", Pins("AA21")),
         IOStandard("LVCMOS33")
     ),
 
-    # serial
+    # Serial
     ("serial", 1, # dvi
         Subsignal("tx", Pins("C14")),
         Subsignal("rx", Pins("C17")),
         IOStandard("LVCMOS33")
     ),
 
-    # spi flash
+    # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("T5"),   IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("Y21"),  IOStandard("LVCMOS33")),
@@ -51,7 +51,7 @@ _io = [
         Subsignal("miso", Pins("AA20"), IOStandard("LVCMOS33"))
     ),
 
-    # ddram
+    # DDR2 SDRAM
     ("ddram_clock_a", 0,
         Subsignal("p", Pins("H20")),
         Subsignal("n", Pins("J19")),
@@ -76,7 +76,6 @@ _io = [
         Subsignal("cke", Pins("D21"), IOStandard("SSTL18_II")),
         Subsignal("odt", Pins("G22"), IOStandard("SSTL18_II")),
     ),
-
     ("ddram_clock_b", 0,
         Subsignal("p", Pins("H4")),
         Subsignal("n", Pins("H3")),
@@ -102,7 +101,7 @@ _io = [
         Subsignal("odt", Pins("J6"), IOStandard("SSTL18_II")),
     ),
 
-    # ethernet
+    # GMII Ethernet
     ("eth_rst_n",  0, Pins("R11"), IOStandard("LVCMOS33")),
     ("eth_clocks", 0,
         Subsignal("tx",  Pins("Y11")),
@@ -125,7 +124,6 @@ _io = [
         Subsignal("crs",     Pins("W4")),
         IOStandard("LVCMOS33")
     ),
-
 ]
 
 # Platform -----------------------------------------------------------------------------------------

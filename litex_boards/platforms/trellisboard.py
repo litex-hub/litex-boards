@@ -11,24 +11,12 @@ from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk100", 0, Pins("B29"), IOStandard("LVDS")), # [broken on rev1.0 (non diff pair)]
     ("clk12",  0, Pins("B3"),  IOStandard("LVCMOS33")),
     ("clkref", 0, Pins("E17"), IOStandard("LVCMOS33")),
 
-    ("user_btn", 0, Pins("Y32"),  IOStandard("SSTL135_I")),
-    ("user_btn", 1, Pins("W31"),  IOStandard("SSTL135_I")),
-    ("user_btn", 2, Pins("AD30"), IOStandard("SSTL135_I")),
-    ("user_btn", 3, Pins("AD29"), IOStandard("SSTL135_I")),
-
-    ("user_dip", 0, Pins("AE31"), IOStandard("SSTL135_I")),
-    ("user_dip", 1, Pins("AE32"), IOStandard("SSTL135_I")),
-    ("user_dip", 2, Pins("AD32"), IOStandard("SSTL135_I")),
-    ("user_dip", 3, Pins("AC32"), IOStandard("SSTL135_I")),
-    ("user_dip", 4, Pins("AB32"), IOStandard("SSTL135_I")),
-    ("user_dip", 5, Pins("AB31"), IOStandard("SSTL135_I")),
-    ("user_dip", 6, Pins("AC31"), IOStandard("SSTL135_I")),
-    ("user_dip", 7, Pins("AC30"), IOStandard("SSTL135_I")),
-
+    # Leds
     ("user_led",  0, Pins("C26"),  IOStandard("LVCMOS33"), Misc("PULLMODE=NONE")),
     ("user_led",  1, Pins("D26"),  IOStandard("LVCMOS33"), Misc("PULLMODE=NONE")),
     ("user_led",  2, Pins("A28"),  IOStandard("LVCMOS33"), Misc("PULLMODE=NONE")),
@@ -42,12 +30,30 @@ _io = [
     ("user_led", 10, Pins("AG29"), IOStandard("LVCMOS33"), Misc("PULLMODE=NONE")),
     ("user_led", 11, Pins("AK30"), IOStandard("LVCMOS33"), Misc("PULLMODE=NONE")),
 
+    # Buttons
+    ("user_btn", 0, Pins("Y32"),  IOStandard("SSTL135_I")),
+    ("user_btn", 1, Pins("W31"),  IOStandard("SSTL135_I")),
+    ("user_btn", 2, Pins("AD30"), IOStandard("SSTL135_I")),
+    ("user_btn", 3, Pins("AD29"), IOStandard("SSTL135_I")),
+
+    # Switches
+    ("user_dip", 0, Pins("AE31"), IOStandard("SSTL135_I")),
+    ("user_dip", 1, Pins("AE32"), IOStandard("SSTL135_I")),
+    ("user_dip", 2, Pins("AD32"), IOStandard("SSTL135_I")),
+    ("user_dip", 3, Pins("AC32"), IOStandard("SSTL135_I")),
+    ("user_dip", 4, Pins("AB32"), IOStandard("SSTL135_I")),
+    ("user_dip", 5, Pins("AB31"), IOStandard("SSTL135_I")),
+    ("user_dip", 6, Pins("AC31"), IOStandard("SSTL135_I")),
+    ("user_dip", 7, Pins("AC30"), IOStandard("SSTL135_I")),
+
+    # Serial
     ("serial", 0,
         Subsignal("rx", Pins("AM28"), IOStandard("LVCMOS33")),
         Subsignal("tx", Pins("AL28"), IOStandard("LVCMOS33")),
     ),
 
-    ("ftdi", 0,
+    # USB FIFO
+    ("usb_fifo", 0,
         Subsignal("dq",    Pins("AM28 AL28 AM29 AK28 AK32 AM30 AJ32 AL30"), IOStandard("LVCMOS33")),
         Subsignal("txe_n", Pins("AM31"),  IOStandard("LVCMOS33")),
         Subsignal("rxf_n", Pins("AJ31"),  IOStandard("LVCMOS33")),
@@ -56,6 +62,7 @@ _io = [
         Subsignal("siwu_n", Pins("AJ28"), IOStandard("LVCMOS33")),
     ),
 
+    # DDR3 SDRAM
     ("dram_vtt_en", 0, Pins("E25"), IOStandard("LVCMOS33")),
     ("ddram", 0,
         Subsignal("a", Pins(
@@ -85,13 +92,13 @@ _io = [
         Misc("SLEWRATE=FAST"),
     ),
 
+    # RGMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx",  Pins("A15")),
         Subsignal("rx",  Pins("C17")),
         Subsignal("ref", Pins("A17")),
         IOStandard("LVCMOS33")
     ),
-
     ("eth", 0,
         Subsignal("rst_n",   Pins("D16")),
         Subsignal("int_n",   Pins("E16")),
@@ -104,6 +111,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # I2C Clock Generator
     ("clkgen", 0,
         Subsignal("sda",   Pins("C22")),
         Subsignal("scl",   Pins("A22")),
@@ -111,7 +119,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-
+    # PCIe
     ("pcie_x2", 0,
         Subsignal("clk_p",  Pins("AM14")),
         Subsignal("clk_n",  Pins("AM15")),
@@ -123,6 +131,7 @@ _io = [
         Subsignal("wake_n", Pins("A23"), IOStandard("LVCMOS33")),
     ),
 
+    # M2
     ("m2", 0,
         Subsignal("clk_p", Pins("AM23")),
         Subsignal("clk_n", Pins("AM24")),
@@ -143,6 +152,7 @@ _io = [
         Subsignal("uart_cts_n", Pins("P7"), IOStandard("LVCMOS33"))
     ),
 
+    # SDCard
     ("spisdcard", 0,
         Subsignal("clk",  Pins("AK3")),
         Subsignal("mosi", Pins("AH3"), Misc("PULLMODE=UP")),
@@ -151,7 +161,6 @@ _io = [
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
-
     ("sdcard", 0,
         Subsignal("clk",  Pins("AK3")),
         Subsignal("cmd",  Pins("AH3"), Misc("PULLMODE=UP")),
@@ -160,13 +169,8 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    ("spiflash4x", 0,
-        Subsignal("clk",  Pins("AM3")),
-        Subsignal("cs_n", Pins("AJ3")),
-        Subsignal("dq",   Pins("AK2 AJ2 AM2 AL1")),
-        IOStandard("LVCMOS33")
-    ),
 
+    # SPIFlash
     ("spiflash", 0,
         Subsignal("clk",  Pins("AM3")),
         Subsignal("cs_n", Pins("AJ3")),
@@ -176,7 +180,14 @@ _io = [
         Subsignal("hold", Pins("AL1")),
         IOStandard("LVCMOS33")
     ),
+    ("spiflash4x", 0,
+        Subsignal("clk",  Pins("AM3")),
+        Subsignal("cs_n", Pins("AJ3")),
+        Subsignal("dq",   Pins("AK2 AJ2 AM2 AL1")),
+        IOStandard("LVCMOS33")
+    ),
 
+    # USB ULPI
     ("ulpi", 0,
         Subsignal("clk",   Pins("A18")),
         Subsignal("stp",   Pins("D18")),
@@ -187,6 +198,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # HDMI
     ("hdmi", 0,
         Subsignal("d", Pins(
             "C11 A11 B11 A10 B10 C10  A8  B7",

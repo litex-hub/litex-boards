@@ -11,12 +11,21 @@ from litex.build.altera.programmer import USBBlaster
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk27", 0, Pins("54")),
     ("clk27", 0, Pins("54")),
 
+    # Leds
     ("user_led", 0, Pins("7"),
         Misc("CURRENT_STRENGTH_NEW 4MA")),
 
+    # Serial
+    ("serial", 0,
+        Subsignal("tx", Pins("46")),
+        Subsignal("rx", Pins("31")),
+    ),
+
+    # VGA
     ("vga", 0,
         Subsignal("r", Pins("135 137 141 142 143 144")),
         Subsignal("g", Pins("106 110 111 112 113 114")),
@@ -26,17 +35,15 @@ _io = [
         Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""),
     ),
 
+    # Audio
     ("audio", 0,
         Subsignal("l", Pins("65")),
         Subsignal("r", Pins("80")),
         Misc("CURRENT_STRENGTH_NEW 4MA"),
     ),
 
-    ("serial", 0,
-        Subsignal("tx", Pins("46")),
-        Subsignal("rx", Pins("31")),
-    ),
 
+    # SPI
     ("spi", 0,
         Subsignal("do", Pins("105")),
         Subsignal("di", Pins("88")),
@@ -46,8 +53,7 @@ _io = [
         Subsignal("ss4", Pins("90")),
     ),
 
-    ("conf_data0", 0, Pins("13")),
-
+    # SDR SDRAM
     ("sdram_clock", 0, Pins("43"),
         Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
@@ -64,6 +70,9 @@ _io = [
         Misc("FAST_OUTPUT_REGISTER ON"),
         Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""),
     ),
+
+    # Others
+    ("conf_data0", 0, Pins("13")),
 ]
 
 # Platform -----------------------------------------------------------------------------------------

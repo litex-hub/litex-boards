@@ -10,28 +10,28 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # clk125
+    # Clk / Rst
     ("clk125", 0, Pins("L16"), IOStandard("LVCMOS33")),
 
-    # user led
+    # Leds
     ("user_led", 0, Pins("M14"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("M15"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("G14"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("D18"), IOStandard("LVCMOS33")),
 
-    # user sw
+    # Switches
     ("user_sw", 0, Pins("G15"), IOStandard("LVCMOS33")),
     ("user_sw", 1, Pins("P15"), IOStandard("LVCMOS33")),
     ("user_sw", 2, Pins("W13"), IOStandard("LVCMOS33")),
     ("user_sw", 3, Pins("T16"), IOStandard("LVCMOS33")),
 
-    # user btn
+    # Buttons
     ("user_btn", 0, Pins("R18"), IOStandard("LVCMOS33")),
     ("user_btn", 1, Pins("P16"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("V16"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("Y16"), IOStandard("LVCMOS33")),
 
-    # serial
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("T17")),
         Subsignal("rx", Pins("Y17")),
@@ -40,7 +40,7 @@ _io = [
 ]
 
 _ps7_io = [
-    # ps7
+    # PS7
     ("ps7_clk",   0, Pins(1)),
     ("ps7_porb",  0, Pins(1)),
     ("ps7_srstb", 0, Pins(1)),

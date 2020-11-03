@@ -20,9 +20,9 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk20_vcxo",    0, Pins("D17"), IOStandard("LVCMOS33")),
     ("clk20_vcxo_en", 0, Pins("E13"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),  # Set it to 1 to enable clk20_-vcxo.
-
     ("mgt_clk", 0,
         Subsignal("p", Pins("F6")),
         Subsignal("n", Pins("E6"))
@@ -33,6 +33,7 @@ _io = [
         Subsignal("n", Pins("E10"))
     ),
 
+    # Serial
     ("serial", 0,
         Subsignal("rts", Pins("W9")),
         Subsignal("rx",  Pins("U7")),
@@ -40,6 +41,7 @@ _io = [
         IOStandard("LVCMOS25")
     ),
 
+    # RGMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("J15")),
         Subsignal("rx", Pins("L19")),
@@ -52,8 +54,9 @@ _io = [
         Subsignal("tx_ctl",  Pins("J16")),
         Subsignal("tx_data", Pins("G15 G16 G13 H13")),
         IOStandard("LVCMOS25"),
-     ),
+    ),
 
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "L6 M5 P6 K6 M1 M3 N2 M6",

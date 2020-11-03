@@ -11,6 +11,7 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk300", 0,
         Subsignal("p", Pins("G31"), IOStandard("DIFF_SSTL12")),
         Subsignal("n", Pins("F31"), IOStandard("DIFF_SSTL12")),
@@ -31,9 +32,9 @@ _io = [
         Subsignal("p", Pins("H32"), IOStandard("DIFF_SSTL12")),
         Subsignal("n", Pins("G32"), IOStandard("DIFF_SSTL12")),
     ),
-
     ("cpu_reset", 0, Pins("L19"), IOStandard("LVCMOS12")),
 
+    # Leds
     ("user_led", 0, Pins("AT32"), IOStandard("LVCMOS12")),
     ("user_led", 1, Pins("AV34"), IOStandard("LVCMOS12")),
     ("user_led", 2, Pins("AY30"), IOStandard("LVCMOS12")),
@@ -43,23 +44,27 @@ _io = [
     ("user_led", 6, Pins("AV36"), IOStandard("LVCMOS12")),
     ("user_led", 7, Pins("BA37"), IOStandard("LVCMOS12")),
 
+    # Switches
     ("user_dip_btn", 0, Pins("B17"), IOStandard("LVCMOS12")),
     ("user_dip_btn", 1, Pins("G16"), IOStandard("LVCMOS12")),
     ("user_dip_btn", 2, Pins("J16"), IOStandard("LVCMOS12")),
     ("user_dip_btn", 3, Pins("D21"), IOStandard("LVCMOS12")),
 
+    # Buttons
     ("user_btn_c", 0, Pins("BD23"), IOStandard("LVCMOS18")),
     ("user_btn_n", 0, Pins("BB24"), IOStandard("LVCMOS18")),
     ("user_btn_e", 0, Pins("BE23"), IOStandard("LVCMOS18")),
     ("user_btn_s", 0, Pins("BE22"), IOStandard("LVCMOS18")),
     ("user_btn_w", 0, Pins("BF22"), IOStandard("LVCMOS18")),
 
+    # I2C
     ("i2c", 0,
         Subsignal("scl", Pins("AM24"), IOStandard("LVCMOS18")),
         Subsignal("sda", Pins("AL24"), IOStandard("LVCMOS18")),
     ),
     ("i2c_mux_reset_n", 0, Pins("AL25"), IOStandard("LVCMOS18")),
 
+    # Serial
     ("serial", 0,
         Subsignal("rx",  Pins("AW25"), IOStandard("LVCMOS18")),
         Subsignal("rts", Pins("BB22"), IOStandard("LVCMOS18")),

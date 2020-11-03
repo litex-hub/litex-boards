@@ -13,18 +13,21 @@ from litex.build.lattice import LatticePlatform
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    ("clk8", 0, Pins("U18"), IOStandard("LVCMOS33")),
-
+    # Clk / Rst
+    ("clk8",     0, Pins("U18"), IOStandard("LVCMOS33")),
     ("programn", 0, Pins("R1"), IOStandard("LVCMOS33")),
 
+    # Leds
+    ("led", 0, Pins("E3 D3 C3 C4 C2 B1 B20 B19 A18 K20 K19"), IOStandard("LVCMOS33")), # Anodes
+    ("led", 1, Pins("P19 L18 K18"), IOStandard("LVCMOS33")), # Cathodes via FET
+
+    # Serial
     ("serial", 0,
         Subsignal("rx", Pins("U2"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
         Subsignal("tx", Pins("U1"), IOStandard("LVCMOS33")),
     ),
 
-    ("led", 0, Pins("E3 D3 C3 C4 C2 B1 B20 B19 A18 K20 K19"), IOStandard("LVCMOS33")), # Anodes
-    ("led", 1, Pins("P19 L18 K18"), IOStandard("LVCMOS33")), # Cathodes via FET
-
+    # USB
     ("usb", 0,
         Subsignal("d_p",     Pins("F3")),
         Subsignal("d_n",     Pins("G3")),
@@ -33,6 +36,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # KeyPad
     ("keypad", 0,
         Subsignal("left",   Pins("G2"), Misc("PULLMODE=UP")),
         Subsignal("right",  Pins("F2"), Misc("PULLMODE=UP")),
@@ -44,6 +48,7 @@ _io = [
         Subsignal("b",      Pins("E2"), Misc("PULLMODE=UP")),
     ),
 
+    # HDMI
     ("hdmi_out", 0,
         Subsignal("clk_p",       Pins("P20"), Inverted(), IOStandard("TMDS_33")),
         Subsignal("clk_n",       Pins("R20"), Inverted(), IOStandard("TMDS_33")),
@@ -58,6 +63,7 @@ _io = [
         Misc("DRIVE=4"),
     ),
 
+    # LCD
     ("lcd", 0,
         Subsignal("db", Pins(
             "J3 H1 K4 J1 K3 K2 L4 K1",
@@ -74,6 +80,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # SPIFlash
     ("spiflash", 0, # Clock needs to be accessed through USRMCLK
         Subsignal("cs_n", Pins("R2")),
         Subsignal("mosi", Pins("W2")),
@@ -82,13 +89,13 @@ _io = [
         Subsignal("hold", Pins("W1")),
         IOStandard("LVCMOS33")
     ),
-
     ("spiflash4x", 0, # Clock needs to be accessed through USRMCLK
         Subsignal("cs_n", Pins("R2")),
         Subsignal("dq",   Pins("W2 V2 Y2 W1")),
         IOStandard("LVCMOS33")
     ),
 
+    # SPIRam
     ("spiram4x", 0,
         Subsignal("cs_n", Pins("D20")),
         Subsignal("clk",  Pins("E20")),
@@ -102,34 +109,7 @@ _io = [
         IOStandard("LVCMOS33"), Misc("SLEWRATE=SLOW")
     ),
 
-    ("sao", 0,
-        Subsignal("sda",  Pins("B3")),
-        Subsignal("scl",  Pins("B2")),
-        Subsignal("gpio", Pins("A2 A3 B4")),
-        Subsignal("drm",  Pins("A4")),
-        IOStandard("LVCMOS33"),
-    ),
-
-    ("sao", 1,
-        Subsignal("sda", Pins("A16")),
-        Subsignal("scl", Pins("B17")),
-        Subsignal("gpio", Pins("B18 A17 B16")),
-        Subsignal("drm", Pins("C17")),
-        IOStandard("LVCMOS33"),
-    ),
-
-    ("testpts", 0,
-        Subsignal("a1", Pins("A15")),
-        Subsignal("a2", Pins("C16")),
-        Subsignal("a3", Pins("A14")),
-        Subsignal("a4", Pins("D16")),
-        Subsignal("b1", Pins("B15")),
-        Subsignal("b2", Pins("C15")),
-        Subsignal("b3", Pins("A13")),
-        Subsignal("b4", Pins("B13")),
-        IOStandard("LVCMOS33"),
-    ),
-
+    # SDR SDRAM
     ("sdram_clock", 0, Pins("D11"), IOStandard("LVCMOS33")),
     ("sdram", 0,
         Subsignal("a",     Pins("A8 D9 C9 B9 C14 E17 A12 B12 H17 G18 B8 A11 B11")),
@@ -143,7 +123,38 @@ _io = [
         Subsignal("dm",    Pins("A10")),
         IOStandard("LVCMOS33"), Misc("SLEWRATE=FAST")
     ),
+
+    # SAO
+    ("sao", 0,
+        Subsignal("sda",  Pins("B3")),
+        Subsignal("scl",  Pins("B2")),
+        Subsignal("gpio", Pins("A2 A3 B4")),
+        Subsignal("drm",  Pins("A4")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("sao", 1,
+        Subsignal("sda", Pins("A16")),
+        Subsignal("scl", Pins("B17")),
+        Subsignal("gpio", Pins("B18 A17 B16")),
+        Subsignal("drm", Pins("C17")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Test Points
+    ("testpts", 0,
+        Subsignal("a1", Pins("A15")),
+        Subsignal("a2", Pins("C16")),
+        Subsignal("a3", Pins("A14")),
+        Subsignal("a4", Pins("D16")),
+        Subsignal("b1", Pins("B15")),
+        Subsignal("b2", Pins("C15")),
+        Subsignal("b3", Pins("A13")),
+        Subsignal("b4", Pins("B13")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
+
+# Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
     ("pmod",  "A15 C16 A14 D16 B15 C15 A13 B13"),
@@ -152,6 +163,8 @@ _connectors = [
               "D10 C10 B10 A10 D11 C11 B11 A11", # 16-23
               "G18 H17 B12 A12 E17 C14"),        # 24-29
 ]
+
+# PMODs --------------------------------------------------------------------------------------------
 
 _pmod_gpio = [
     ("pmod_gpio", 0,
@@ -166,6 +179,8 @@ _pmod_gpio = [
         IOStandard("LVCMOS33")
     ),
 ]
+
+# Generic IOs --------------------------------------------------------------------------------------
 
 _genio_gpio = [
     ("genio_gpio", 0,

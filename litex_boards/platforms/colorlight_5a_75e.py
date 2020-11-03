@@ -16,25 +16,24 @@ from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 # Documented by @derekmulcahy
 _io_v7_1 = [
-    # clock
+    # Clk
     ("clk25", 0, Pins("P6"), IOStandard("LVCMOS33")),
 
-    # led
+    # Led
     ("user_led_n", 0, Pins("P11"), IOStandard("LVCMOS33")),
 
-    # btn
+    # Button
     ("user_btn_n", 0, Pins("M13"), IOStandard("LVCMOS33")),
 
-    # serial
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("P11")), # led (J19 DATA_LED-)
         Subsignal("rx", Pins("M13")), # btn (J19 KEY+)
         IOStandard("LVCMOS33")
     ),
 
-    # spiflash (W25Q32JV)
+    # SPIFlash (W25Q32JV)
     ("spiflash", 0,
-        # clk
         Subsignal("cs_n", Pins("N8")),
         #Subsignal("clk",  Pins("")), driven through USRMCLK
         Subsignal("mosi", Pins("T8")),
@@ -42,7 +41,7 @@ _io_v7_1 = [
         IOStandard("LVCMOS33"),
     ),
 
-    # sdram (M12616161A)
+    # SDR SDRAM (M12616161A)
     ("sdram_clock", 0, Pins("C6"), IOStandard("LVCMOS33")),
     ("sdram", 0,
         Subsignal("a", Pins(
@@ -64,7 +63,7 @@ _io_v7_1 = [
         Misc("SLEWRATE=FAST")
     ),
 
-    # ethernet (B50612D)
+    # RGMII Ethernet (B50612D)
     ("eth_clocks", 0,
         Subsignal("tx", Pins("M2")),
         Subsignal("rx", Pins("M1")),
@@ -99,25 +98,24 @@ _io_v7_1 = [
 
 # Documented by @adamgreig
 _io_v6_0 = [
-    # clock
+    # Clk
     ("clk25", 0, Pins("P6"), IOStandard("LVCMOS33")),
 
-    # led
+    # Led
     ("user_led_n", 0, Pins("T6"), IOStandard("LVCMOS33")),
 
-    # btn
+    # Button
     ("user_btn_n", 0, Pins("R7"),  IOStandard("LVCMOS33")),
 
-    # serial
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("T6")), # led (J19 DATA_LED-)
         Subsignal("rx", Pins("R7")), # btn (J19 KEY+)
         IOStandard("LVCMOS33")
     ),
 
-    # spiflash (25Q32JVSIQ)
+    # SPIFlash (25Q32JVSIQ)
     ("spiflash", 0,
-        # clk
         Subsignal("cs_n", Pins("N8")),
         #Subsignal("clk",  Pins("")), driven through USRMCLK
         Subsignal("mosi", Pins("T8")),
@@ -125,7 +123,7 @@ _io_v6_0 = [
         IOStandard("LVCMOS33"),
     ),
 
-    # sdram (M12L64322A-5T)
+    # SDR SDRAM (M12L64322A-5T)
     ("sdram_clock", 0, Pins("C8"), IOStandard("LVCMOS33")),
     ("sdram", 0,
         Subsignal("a",     Pins("A9 B9 B10 C10 D9 C9 E9 D8 E8 C7 B8")),
@@ -145,7 +143,7 @@ _io_v6_0 = [
         IOStandard("LVCMOS33"),
     ),
 
-    # ethernet (RTL8211FD)
+    # RGMII Ethernet (RTL8211FD)
     ("eth_clocks", 0,
         Subsignal("tx", Pins("L1")),
         Subsignal("rx", Pins("J1")),
@@ -178,7 +176,7 @@ _io_v6_0 = [
     ),
 ]
 
-# from https://github.com/q3k/chubby75/blob/master/5a-75e/hardware_V7.1.md
+# From https://github.com/q3k/chubby75/blob/master/5a-75e/hardware_V7.1.md
 _connectors_v7_1 = [
     ("j1",  "F3  F1  G3  - G2  H3  H5  F15 L2 K1 J5 K2 B16 J14 F12 -"),
     ("j2",  "G4  G5  J2  - H2  J1  J3  F15 L2 K1 J5 K2 B16 J14 F12 -"),
@@ -198,7 +196,7 @@ _connectors_v7_1 = [
     ("j16", "G13 G12 E15 - F14 F13 C13 F15 L2 K1 J5 K2 B16 J14 F12 -"),
 ]
 
-# from https://github.com/q3k/chubby75/blob/master/5a-75e/hardware_V6.0.md
+# From https://github.com/q3k/chubby75/blob/master/5a-75e/hardware_V6.0.md
 _connectors_v6_0 = [
     ("j1",  "C4  D4  E4  - D3  E3  F4  N4 N5 N3 P3 P4 M3 N1 M4 -"),
     ("j2",  "F3  F5  G3  - G4  H3  H4  N4 N5 N3 P3 P4 M3 N1 M4 -"),
@@ -217,7 +215,6 @@ _connectors_v6_0 = [
     ("j15", "J13 K13 J12 - H13 H12 G12 N4 N5 N3 P3 P4 M3 N1 M4 -"),
     ("j16", "F14 G13 F12 - F13 F14 E14 N4 N5 N3 P3 P4 M3 N1 M4 -"),
 ]
-
 
 # Platform -----------------------------------------------------------------------------------------
 

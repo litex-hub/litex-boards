@@ -11,33 +11,36 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk125", 0,
         Subsignal("p", Pins("F23"), IOStandard("LVDS")),
         Subsignal("n", Pins("E23"), IOStandard("LVDS")),
     ),
-
     ("clk300", 0,
         Subsignal("p", Pins("AH18"), IOStandard("DIFF_SSTL12_DCI")),
         Subsignal("n", Pins("AH17"), IOStandard("DIFF_SSTL12_DCI")),
     ),
+    ("cpu_reset", 0, Pins("M11"), IOStandard("LVCMOS33")),
 
+    # Leds
     ("user_led", 0, Pins("D5"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("D6"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("A5"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("B5"), IOStandard("LVCMOS33")),
 
-    ("cpu_reset", 0, Pins("M11"), IOStandard("LVCMOS33")),
-
+    # Buttons
     ("user_btn", 0, Pins("B4"), IOStandard("LVCMOS33")),
     ("user_btn", 1, Pins("C4"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("B3"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("C3"), IOStandard("LVCMOS33")),
 
+    # Switches
     ("user_dip", 0, Pins("E4"), IOStandard("LVCMOS33")),
     ("user_dip", 1, Pins("D4"), IOStandard("LVCMOS33")),
     ("user_dip", 2, Pins("F5"), IOStandard("LVCMOS33")),
     ("user_dip", 3, Pins("F4"), IOStandard("LVCMOS33")),
 
+    # Serial
     ("serial", 0,
         Subsignal("cts", Pins("A19")),
         Subsignal("rts", Pins("C18")),
@@ -46,12 +49,14 @@ _io = [
         IOStandard("LVCMOS18")
     ),
 
+    # I2C
     ("i2c", 0,
         Subsignal("sda", Pins("P12")),
         Subsignal("scl", Pins("N12")),
         IOStandard("LVCMOS33")
     ),
 
+    # DDR4 SDRAM
     ("ddram", 0,
         Subsignal("a",       Pins(
             "AH16 AG14 AG15 AF15 AF16 AJ14 AH14 AF17",

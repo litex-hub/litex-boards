@@ -12,6 +12,11 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
+    ("clk100", 0, Pins("H4"), IOStandard("LVCMOS33")),
+    ("cpu_reset", 0, Pins("M2"), IOStandard("LVCMOS33")),
+
+    # Leds
     ("user_led", 0, Pins("K17"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("J17"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("L14"), IOStandard("LVCMOS33")),
@@ -21,6 +26,7 @@ _io = [
     ("user_led", 6, Pins("M15"), IOStandard("LVCMOS33")),
     ("user_led", 7, Pins("M16"), IOStandard("LVCMOS33")),
 
+    # Switches
     ("user_sw", 0, Pins("B21"), IOStandard("LVCMOS33")),
     ("user_sw", 1, Pins("A21"), IOStandard("LVCMOS33")),
     ("user_sw", 2, Pins("E22"), IOStandard("LVCMOS33")),
@@ -30,21 +36,20 @@ _io = [
     ("user_sw", 6, Pins("G21"), IOStandard("LVCMOS33")),
     ("user_sw", 7, Pins("G22"), IOStandard("LVCMOS33")),
 
+    # Buttons
     ("user_btn", 0, Pins("P20"), IOStandard("LVCMOS33")),
     ("user_btn", 1, Pins("P19"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("P17"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("N17"), IOStandard("LVCMOS33")),
 
-    ("clk100", 0, Pins("H4"), IOStandard("LVCMOS33")),
-
-    ("cpu_reset", 0, Pins("M2"), IOStandard("LVCMOS33")),
-
+    # Serial
     ("serial", 0, # Can be used when FT2232H's Channel A configured to ASYNC Serial (UART) mode
         Subsignal("tx", Pins("Y21")),
         Subsignal("rx", Pins("Y22")),
         IOStandard("LVCMOS33")
     ),
 
+    # USB FIFO
     ("usb_fifo", 0, # Can be used when FT2232H's Channel A configured to ASYNC FIFO 245 mode
         Subsignal("data",  Pins("Y22 Y21 AB22 AA21 AB21 AA20 AB20 AA18")),
         Subsignal("rxf_n", Pins("W21")),
@@ -58,12 +63,7 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("T19")),
-        Subsignal("clk",  Pins("L12")),
-        Subsignal("dq",   Pins("P22", "R22", "P21", "R21")),
-        IOStandard("LVCMOS33")
-    ),
+    # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("T19")),
         Subsignal("clk",  Pins("L12")),
@@ -73,7 +73,14 @@ _io = [
         Subsignal("hold", Pins("R21")),
         IOStandard("LVCMOS33"),
     ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("T19")),
+        Subsignal("clk",  Pins("L12")),
+        Subsignal("dq",   Pins("P22", "R22", "P21", "R21")),
+        IOStandard("LVCMOS33")
+    ),
 
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "U6 T5 Y6 T6 V2 T4 Y2 R2",
@@ -100,12 +107,14 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
+    # I2C EEPROM
     ("eeprom", 0,
         Subsignal("scl", Pins("N5")),
         Subsignal("sda", Pins("P6")),
         IOStandard("LVCMOS33")
     ),
 
+    # RGMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("U20")),
         Subsignal("rx", Pins("W19")),
@@ -123,6 +132,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # HDMI In
     ("hdmi_in", 0,
         Subsignal("clk_p",   Pins("K4"), IOStandard("TMDS_33")),
         Subsignal("clk_n",   Pins("J4"), IOStandard("TMDS_33")),
@@ -139,6 +149,7 @@ _io = [
         # Subsignal("txen", Pins("R3"), IOStandard("LVCMOS33")),  # FIXME
     ),
 
+    # HDMI Out
     ("hdmi_out", 0,
         Subsignal("clk_p",   Pins("L3"), IOStandard("TMDS_33")),
         Subsignal("clk_n",   Pins("K3"), IOStandard("TMDS_33")),

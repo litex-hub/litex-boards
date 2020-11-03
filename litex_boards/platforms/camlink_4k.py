@@ -16,17 +16,21 @@ from litex.build.lattice import LatticePlatform
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk27", 0, Pins("B11"), IOStandard("LVCMOS25")),
 
+    # Leds
     ("user_led", 0, Pins("A6"), IOStandard("LVCMOS25")),
     ("user_led", 1, Pins("A9"), IOStandard("LVCMOS25")),
 
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("A6")), # led0
         Subsignal("rx", Pins("A9")), # led1
         IOStandard("LVCMOS25")
     ),
 
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "P2 L2 N1 P1 N5 M1 M3 N4",

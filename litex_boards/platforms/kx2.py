@@ -11,24 +11,27 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
+    ("clk200", 0,
+        Subsignal("p", Pins("AB11"), IOStandard("LVDS")),
+        Subsignal("n", Pins("AC11"), IOStandard("LVDS"))
+    ),
+    ("cpu_reset_n", 0, Pins("G9"), IOStandard("LVCMOS25")),
+
+    # Leds
     ("user_led", 0, Pins("U9"),  IOStandard("LVCMOS15")),
     ("user_led", 1, Pins("V12"), IOStandard("LVCMOS15")),
     ("user_led", 2, Pins("V13"), IOStandard("LVCMOS15")),
     ("user_led", 3, Pins("W13"), IOStandard("LVCMOS15")),
 
-    ("cpu_reset_n", 0, Pins("G9"), IOStandard("LVCMOS25")),
-
-    ("clk200", 0,
-        Subsignal("p", Pins("AB11"), IOStandard("LVDS")),
-        Subsignal("n", Pins("AC11"), IOStandard("LVDS"))
-    ),
-
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("W11")),
         Subsignal("rx", Pins("AB16")),
         IOStandard("LVCMOS15")  # FIXME: LVCMOS15 or LVCMOS33?
      ),
 
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "AE11 AF9 AD10 AB10  AA9 AB9 AA8 AC8",

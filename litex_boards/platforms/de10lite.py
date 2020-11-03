@@ -11,15 +11,12 @@ from litex.build.altera.programmer import USBBlaster
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk10", 0, Pins("N5"),  IOStandard("3.3-V LVTTL")),
     ("clk50", 0, Pins("P11"), IOStandard("3.3-V LVTTL")),
     ("clk50", 1, Pins("N14"), IOStandard("3.3-V LVTTL")),
 
-    ("serial", 0,
-        Subsignal("tx", Pins("V10"), IOStandard("3.3-V LVTTL")), # JP1 GPIO[0]
-        Subsignal("rx", Pins("W10"), IOStandard("3.3-V LVTTL"))  # JP1 GPIO[1]
-    ),
-
+    # Leds
     ("user_led", 0, Pins("A8"),  IOStandard("3.3-V LVTTL")),
     ("user_led", 1, Pins("A9"),  IOStandard("3.3-V LVTTL")),
     ("user_led", 2, Pins("A10"), IOStandard("3.3-V LVTTL")),
@@ -31,9 +28,11 @@ _io = [
     ("user_led", 8, Pins("A11"), IOStandard("3.3-V LVTTL")),
     ("user_led", 9, Pins("B11"), IOStandard("3.3-V LVTTL")),
 
+    # Buttons
     ("user_btn", 0, Pins("B8"), IOStandard("3.3-V LVTTL")),
     ("user_btn", 1, Pins("A7"), IOStandard("3.3-V LVTTL")),
 
+    # Switches
     ("user_sw", 0, Pins("C10"), IOStandard("3.3-V LVTTL")),
     ("user_sw", 1, Pins("C11"), IOStandard("3.3-V LVTTL")),
     ("user_sw", 2, Pins("D12"), IOStandard("3.3-V LVTTL")),
@@ -45,7 +44,7 @@ _io = [
     ("user_sw", 8, Pins("B14"), IOStandard("3.3-V LVTTL")),
     ("user_sw", 9, Pins("F15"), IOStandard("3.3-V LVTTL")),
 
-    # 7-segment displays
+    # Seven Segment
     ("seven_seg", 0, Pins("C14 E15 C15 C16 E16 D17 C17 D15"), IOStandard("3.3-V LVTTL")),
     ("seven_seg", 1, Pins("C18 D18 E18 B16 A17 A18 B17 A16"), IOStandard("3.3-V LVTTL")),
     ("seven_seg", 2, Pins("B20 A20 B19 A21 B21 C22 B22 A19"), IOStandard("3.3-V LVTTL")),
@@ -53,31 +52,13 @@ _io = [
     ("seven_seg", 4, Pins("F18 E20 E19 J18 H19 F19 F20 F17"), IOStandard("3.3-V LVTTL")),
     ("seven_seg", 5, Pins("J20 K20 L18 N18 M20 N19 N20 L19"), IOStandard("3.3-V LVTTL")),
 
-
-    ("gpio_0", 0, Pins(
-        "V9     W9   V8   W8  V7   W7   W6  V5",
-        "W5   AA15 AA14  W13 W12 AB13 AB12 Y11",
-        "AB11  W11 AB10 AA10 AA9   Y8  AA8  Y7",
-        "AA7    Y6  AA6   Y5 AA5   Y4  AB3  Y3",
-        "AB2  AA2"),
-        IOStandard("3.3-V LVTTL")
-    ),
-    ("gpio_1", 0, Pins(
-        "AB5   AB6  AB7  AB8 AB9  Y10 AA11 AA12",
-        "AB17 AA17 AB19 AA19 Y19 AB20 AB21 AA20",
-        "F16"),
-        IOStandard("3.3-V LVTTL")
+    # Serial
+    ("serial", 0,
+        Subsignal("tx", Pins("V10"), IOStandard("3.3-V LVTTL")), # JP1 GPIO[0]
+        Subsignal("rx", Pins("W10"), IOStandard("3.3-V LVTTL"))  # JP1 GPIO[1]
     ),
 
-    ("vga", 0,
-        Subsignal("hsync_n", Pins("N3")),
-        Subsignal("vsync_n", Pins("N1")),
-        Subsignal("r", Pins("AA1 V1 Y2 Y1")),
-        Subsignal("g", Pins("W1 T2 R2 R1")),
-        Subsignal("b", Pins("P1 T1 P4 N2")),
-        IOStandard("3.3-V LVTTL")
-    ),
-
+    # SDR SDRAM
     ("sdram_clock", 0, Pins("L14"), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
         Subsignal("a",     Pins(
@@ -96,7 +77,18 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    ("accelerometer", 0,
+    # VGA
+    ("vga", 0,
+        Subsignal("hsync_n", Pins("N3")),
+        Subsignal("vsync_n", Pins("N1")),
+        Subsignal("r", Pins("AA1 V1 Y2 Y1")),
+        Subsignal("g", Pins("W1 T2 R2 R1")),
+        Subsignal("b", Pins("P1 T1 P4 N2")),
+        IOStandard("3.3-V LVTTL")
+    ),
+
+    # Accelerometer
+    ("acc", 0,
         Subsignal("int1", Pins("Y14")),
         Subsignal("int1", Pins("Y13")),
         Subsignal("mosi", Pins("V11")),
@@ -104,7 +96,23 @@ _io = [
         Subsignal("clk",  Pins("AB15")),
         Subsignal("cs_n", Pins("AB16")),
         IOStandard("3.3-V LVTTL")
-    )
+    ),
+
+    # GPIOs
+    ("gpio_0", 0, Pins(
+        "V9     W9   V8   W8  V7   W7   W6  V5",
+        "W5   AA15 AA14  W13 W12 AB13 AB12 Y11",
+        "AB11  W11 AB10 AA10 AA9   Y8  AA8  Y7",
+        "AA7    Y6  AA6   Y5 AA5   Y4  AB3  Y3",
+        "AB2  AA2"),
+        IOStandard("3.3-V LVTTL")
+    ),
+    ("gpio_1", 0, Pins(
+        "AB5   AB6  AB7  AB8 AB9  Y10 AA11 AA12",
+        "AB17 AA17 AB19 AA19 Y19 AB20 AB21 AA20",
+        "F16"),
+        IOStandard("3.3-V LVTTL")
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------

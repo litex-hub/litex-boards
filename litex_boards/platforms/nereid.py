@@ -12,7 +12,15 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # rgb led, active-low
+    # Clk / Rst
+    ("clk100", 0, Pins("F22"), IOStandard("LVCMOS33")),
+    ("clk150", 0,
+        Subsignal("p", Pins("G24"), IOStandard("TMDS_33")),
+        Subsignal("n", Pins("F24"), IOStandard("TMDS_33"))
+    ),
+    ("cpu_reset", 0, Pins("C26"), IOStandard("LVCMOS33"), Misc("PULLDOWN=True")), # Active high, pulldown needed.
+
+    # Leds (activive-low)
     ("rgb_led", 0,
         Subsignal("r", Pins("J26")),
         Subsignal("g", Pins("H26")),
@@ -20,18 +28,10 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    ("clk100", 0, Pins("F22"), IOStandard("LVCMOS33")),
+    # FAN
+    ("fan", 0, Pins("J25"), IOStandard("LVCMOS33")),
 
-    ("clk150", 0,
-        Subsignal("p", Pins("G24"), IOStandard("TMDS_33")),
-        Subsignal("n", Pins("F24"), IOStandard("TMDS_33"))
-    ),
-
-    # Active-high CPU reset, pulldown needed
-    ("cpu_reset", 0, Pins("C26"), IOStandard("LVCMOS33"), Misc("PULLDOWN=True")),
-
-    ("fan_pwm", 0, Pins("J25"), IOStandard("LVCMOS33")),
-
+    # Serial
     ("serial", 0,
         Subsignal("tx",    Pins("H22")),
         Subsignal("rx",    Pins("K22")),
@@ -41,6 +41,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # XADC
     ("xadc", 0,
         Subsignal("adc_p", Pins("C16 A18 B17")),
         Subsignal("adc_n", Pins("B16 A19 A17")),
@@ -48,6 +49,7 @@ _io = [
         Subsignal("v_n",   Pins("P11")),
     ),
 
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "AF7 AE7 AC7 AB7 AA7 AC8 AC9 AA9",
@@ -83,46 +85,7 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
-    ("ddram_dual_rank", 0,
-        Subsignal("a", Pins(
-            "AF7 AE7 AC7 AB7 AA7 AC8 AC9 AA9",
-            "AD8  V9 Y11  Y7 W10  Y8 Y10  W9"),
-            IOStandard("SSTL135")),
-        Subsignal("ba",    Pins("AA8 AD9 AB9"), IOStandard("SSTL135")),
-        Subsignal("ras_n", Pins("AC13"), IOStandard("SSTL135")),
-        Subsignal("cas_n", Pins("AC12"), IOStandard("SSTL135")),
-        Subsignal("we_n",  Pins("AA13"), IOStandard("SSTL135")),
-        Subsignal("cs_n",  Pins("AB12 AA12"), IOStandard("SSTL135")),
-        Subsignal("dm", Pins("W16 AD18 AE15 AB15 AD1 AC3 Y3 V6"),
-            IOStandard("SSTL135")),
-        Subsignal("dq", Pins(
-            "V19   V16  Y17  V14  V17  V18  W14  W15",
-            "AB17 AB19 AC18 AC19 AA19 AA20 AC17 AD19",
-            "AD16 AD15 AF20 AE17 AF17 AF19 AF14 AF15",
-            "AB16 AA15 AA14 AC14 AA18 AA17 AD14 AB14",
-            "AE3   AE6  AE2  AF3  AD4  AE5  AE1  AF2",
-            "AB6    Y6  AB4  AC4  AC6  AD6   Y5  AA4",
-            "AB2   AC2   V1   W1   V2  AA3   Y1   Y2",
-            "V4     V3   U2   U1   U7   W3   U6   U5"),
-            IOStandard("SSTL135_T_DCI")),
-        Subsignal("dqs_p", Pins("W18 AD20 AE18 Y15 AF5 AA5 AB1 W6"),
-            IOStandard("DIFF_SSTL135_T_DCI")),
-        Subsignal("dqs_n", Pins("W19 AE20 AF18 Y16 AF4 AB5 AC1 W5"),
-            IOStandard("DIFF_SSTL135_T_DCI")),
-        Subsignal("clk_p", Pins("V11 V8"),    IOStandard("DIFF_SSTL135")),
-        Subsignal("clk_n", Pins("W11 V7"),    IOStandard("DIFF_SSTL135")),
-        Subsignal("cke",   Pins("AA10 AB10"), IOStandard("SSTL135")),
-        Subsignal("odt",   Pins("AD13 Y13"),  IOStandard("SSTL135")),
-        Subsignal("reset_n", Pins("AA2"), IOStandard("SSTL135")),
-        Misc("SLEW=FAST"),
-    ),
-
-    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
-        Subsignal("cs_n", Pins("C23")),
-        Subsignal("dq",   Pins("B24", "A25", "B22", "A22")),
-        IOStandard("LVCMOS33")
-    ),
-
+    # SPIFlash
     ("spiflash", 0,  # clock needs to be accessed through STARTUPE2
         Subsignal("cs_n", Pins("C23")),
         Subsignal("mosi", Pins("B24")),
@@ -131,14 +94,21 @@ _io = [
         Subsignal("hold", Pins("A22")),
         IOStandard("LVCMOS33"),
     ),
+    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+        Subsignal("cs_n", Pins("C23")),
+        Subsignal("dq",   Pins("B24", "A25", "B22", "A22")),
+        IOStandard("LVCMOS33")
+    ),
 
-    ("mmc", 0,
+    # SDCard
+    ("sdcard", 0,
         Subsignal("cmd", Pins("H24")),
         Subsignal("clk", Pins("G22")),
         Subsignal("dat", Pins("F25 E25 J23 H23")),
         IOStandard("LVCMOS33")
      ),
 
+    # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("E21"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("K6")),

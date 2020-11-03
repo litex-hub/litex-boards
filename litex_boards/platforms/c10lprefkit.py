@@ -12,28 +12,32 @@ from litex.build.altera.programmer import USBBlaster
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk12", 0, Pins("G21"),  IOStandard("3.3-V LVTTL")),
     ("clk25", 0, Pins("AA12"), IOStandard("3.3-V LVTTL")),
+    ("cpu_reset", 0, Pins("V15"), IOStandard("3.3-V LVTTL")),
 
+    # Leds
     ("user_led", 0, Pins("C18"), IOStandard("3.3-V LVTTL")),
     ("user_led", 1, Pins("D19"), IOStandard("3.3-V LVTTL")),
     ("user_led", 2, Pins("C19"), IOStandard("3.3-V LVTTL")),
     ("user_led", 3, Pins("C17"), IOStandard("3.3-V LVTTL")),
     ("user_led", 4, Pins("D18"), IOStandard("3.3-V LVTTL")),
 
-    ("cpu_reset", 0, Pins("V15"), IOStandard("3.3-V LVTTL")),
-
+    # Switches
     ("sw", 0, Pins("U10"), IOStandard("3.3-V LVTTL")),
     ("sw", 1, Pins("U11"), IOStandard("3.3-V LVTTL")),
     ("sw", 2, Pins("V11"), IOStandard("3.3-V LVTTL")),
     ("sw", 3, Pins("T10"), IOStandard("3.3-V LVTTL")),
     ("sw", 4, Pins("T11"), IOStandard("3.3-V LVTTL")),
 
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("B21"), IOStandard("3.3-V LVTTL")),
         Subsignal("rx", Pins("C20"), IOStandard("3.3-V LVTTL")),
     ),
 
+    # SDR SDRAM
     ("sdram_clock", 0, Pins("AA3"), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
         Subsignal("a", Pins(
@@ -52,14 +56,16 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
+    # ECPS
     ("epcs", 0,
         Subsignal("data0", Pins("K1")),
-        Subsignal("dclk", Pins("K2")),
-        Subsignal("ncs0", Pins("E2")),
-        Subsignal("asd0", Pins("D1")),
+        Subsignal("dclk",  Pins("K2")),
+        Subsignal("ncs0",  Pins("E2")),
+        Subsignal("asd0",  Pins("D1")),
         IOStandard("3.3-V LVTTL")
     ),
 
+    # HyperRAM
     ("hyperram", 0,
         Subsignal("clk",   Pins("T16")),
         Subsignal("rst_n", Pins("U12")),
@@ -69,11 +75,13 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
+    # GPIO Leds
     ("gpio_leds", 0,
         Pins("AB10 AA10 AA9 Y10 W10 U9 U8 U7"),
         IOStandard("3.3-V LVTTL")
     ),
 
+    # MII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("U21")),
         Subsignal("rx", Pins("V22")),
@@ -92,7 +100,6 @@ _io = [
         Subsignal("crs",     Pins("R20")),
         IOStandard("3.3-V LVTTL"),
     ),
-
     ("eth_clocks", 1,
         Subsignal("tx", Pins("N16")),
         Subsignal("rx", Pins("V22")),

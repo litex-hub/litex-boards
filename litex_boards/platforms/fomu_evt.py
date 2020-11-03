@@ -16,8 +16,10 @@ from litex.build.lattice.programmer import IceStormProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk48", 0, Pins("44"), IOStandard("LVCMOS33")),
 
+    # Leds
     ("user_led_n", 0, Pins("41"), IOStandard("LVCMOS33")),
     ("rgb_led", 0,
         Subsignal("r", Pins("40")),
@@ -26,15 +28,18 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # Buttons
     ("user_btn_n", 0, Pins("42"), IOStandard("LVCMOS33")),
     ("user_btn_n", 1, Pins("38"), IOStandard("LVCMOS33")),
 
+    # Serial
     ("serial", 0,
         Subsignal("rx", Pins("21")),
         Subsignal("tx", Pins("13"), Misc("PULLUP")),
         IOStandard("LVCMOS33")
     ),
 
+    # USB
     ("usb", 0,
         Subsignal("d_p", Pins("34")),
         Subsignal("d_n", Pins("37")),
@@ -43,6 +48,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("16"), IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("15"), IOStandard("LVCMOS33")),
@@ -57,6 +63,8 @@ _io = [
         Subsignal("clk",  Pins("15"), IOStandard("LVCMOS33")),
         Subsignal("dq",   Pins("14 17 18 19"), IOStandard("LVCMOS33")),
     ),
+
+    # I2C
     ("i2c", 0,
         Subsignal("scl", Pins("12"), IOStandard("LVCMOS18")),
         Subsignal("sda", Pins("20"), IOStandard("LVCMOS18")),

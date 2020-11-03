@@ -16,15 +16,20 @@ from litex.build.dfu import DFUProg
 # IOs ----------------------------------------------------------------------------------------------
 
 _io_rev0 = [
-    ("refclk", 0, Pins("M19"),  IOStandard("LVCMOS18")),
-    ("rst_n", 0, Pins("C17"), IOStandard("LVCMOS33")),
-    ("user_btn", 0, Pins("U2"), IOStandard("LVCMOS33")),
+    # Clk / Rst
+    ("clk25", 0, Pins("M19"),  IOStandard("LVCMOS18")),
+    ("rst_n",  0, Pins("C17"), IOStandard("LVCMOS33")),
 
+    # Leds
     ("user_led", 0, Pins("D16"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("C15"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("C13"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("B13"), IOStandard("LVCMOS33")),
 
+    # Buttons
+    ("user_btn", 0, Pins("U2"), IOStandard("LVCMOS33")),
+
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "D5 F4 B3 F3 E5 C3 C4 A5",
@@ -52,6 +57,7 @@ _io_rev0 = [
         Misc("SLEWRATE=FAST"),
     ),
 
+    # USB
     ("usb", 0,
         Subsignal("d_p", Pins("B12")),
         Subsignal("d_n", Pins("C12")),
@@ -59,16 +65,13 @@ _io_rev0 = [
         IOStandard("LVCMOS33")
     ),
 
+    # Serial
     ("serial", 0,
         Subsignal("rx", Pins("B6"), IOStandard("LVCMOS33")),
         Subsignal("tx", Pins("A7"), IOStandard("LVCMOS33")),
     ),
 
-    ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("R2"), IOStandard("LVCMOS33")),
-        #Subsignal("clk",  Pins("U3"), IOStandard("LVCMOS33")), # Note: CLK is bound using USRMCLK block
-        Subsignal("dq",   Pins("W2 V2 Y2 W1"), IOStandard("LVCMOS33")),
-    ),
+    # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("R2"), IOStandard("LVCMOS33")),
         #Subsignal("clk",  Pins("U3"), IOStandard("LVCMOS33")), # Note: CLK is bound using USRMCLK block
@@ -77,15 +80,13 @@ _io_rev0 = [
         Subsignal("wp",   Pins("Y2"), IOStandard("LVCMOS33")),
         Subsignal("hold", Pins("W1"), IOStandard("LVCMOS33")),
     ),
-
-    ("sdcard", 0,
-        Subsignal("clk",  Pins("E11")),
-        Subsignal("cmd",  Pins("D15"), Misc("PULLMODE=UP")),
-        Subsignal("data", Pins("D13 E13 E15 E14"), Misc("PULLMODE=UP")),
-        Subsignal("cd",   Pins("D14"), Misc("PULLMODE=UP")),
-        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("R2"), IOStandard("LVCMOS33")),
+        #Subsignal("clk",  Pins("U3"), IOStandard("LVCMOS33")), # Note: CLK is bound using USRMCLK block
+        Subsignal("dq",   Pins("W2 V2 Y2 W1"), IOStandard("LVCMOS33")),
     ),
 
+    # SDCard
     ("spisdcard", 0,
         Subsignal("clk",  Pins("E11")),
         Subsignal("mosi", Pins("D15"), Misc("PULLMODE=UP")),
@@ -94,13 +95,22 @@ _io_rev0 = [
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33"),
     ),
+    ("sdcard", 0,
+        Subsignal("clk",  Pins("E11")),
+        Subsignal("cmd",  Pins("D15"), Misc("PULLMODE=UP")),
+        Subsignal("data", Pins("D13 E13 E15 E14"), Misc("PULLMODE=UP")),
+        Subsignal("cd",   Pins("D14"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+    ),
 
+    # I2C
     ("i2c", 0,
         Subsignal("sda", Pins("V1")),
         Subsignal("scl", Pins("U1")),
         IOStandard("LVCMOS33")
     ),
 
+    # RGMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("A15")),
         Subsignal("rx", Pins("B18")),
@@ -179,7 +189,7 @@ _connectors_rev0 = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name   = "refclk"
+    default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
     def __init__(self, revision="rev0", device="45F", **kwargs):
@@ -194,5 +204,5 @@ class Platform(LatticePlatform):
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("refclk", loose=True), 1e9/25e6)
+        self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", loose=True), 1e9/125e6)

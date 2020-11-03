@@ -12,6 +12,11 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
+    ("clk100", 0, Pins("R2"), IOStandard("SSTL135")),
+    ("cpu_reset", 0, Pins("C18"), IOStandard("LVCMOS33")),
+
+    # Leds
     ("user_led", 0, Pins("E18"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("F13"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("E13"), IOStandard("LVCMOS33")),
@@ -23,7 +28,6 @@ _io = [
         Subsignal("b", Pins("F15")),
         IOStandard("LVCMOS33")
     ),
-
     ("rgb_led", 1,
         Subsignal("r", Pins("E15")),
         Subsignal("g", Pins("F18")),
@@ -31,6 +35,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # Switches
     ("user_sw", 0, Pins("H14"), IOStandard("LVCMOS33")),
     ("user_sw", 1, Pins("H18"), IOStandard("LVCMOS33")),
     ("user_sw", 2, Pins("G18"), IOStandard("LVCMOS33")),
@@ -41,15 +46,14 @@ _io = [
     ("user_btn", 2, Pins("J16"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("H13"), IOStandard("LVCMOS33")),
 
-    ("clk100", 0, Pins("R2"), IOStandard("SSTL135")),
-
-    ("cpu_reset", 0, Pins("C18"), IOStandard("LVCMOS33")),
-
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("R12")),
         Subsignal("rx", Pins("V12")),
-        IOStandard("LVCMOS33")),
+        IOStandard("LVCMOS33")
+    ),
 
+    # SPI
     ("spi", 0,
         Subsignal("clk",  Pins("G16")),
         Subsignal("cs_n", Pins("H16")),
@@ -58,18 +62,14 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # I2C
     ("i2c", 0,
         Subsignal("scl", Pins("J14")),
         Subsignal("sda", Pins("J13")),
         IOStandard("LVCMOS33"),
     ),
 
-    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
-        Subsignal("cs_n", Pins("M13")),
-        Subsignal("clk",  Pins("D11")),
-        Subsignal("dq",   Pins("K17", "K18", "L14", "M15")),
-        IOStandard("LVCMOS33")
-    ),
+    # SPIFlash
     ("spiflash", 0,  # clock needs to be accessed through STARTUPE2
         Subsignal("cs_n", Pins("M13")),
         Subsignal("clk",  Pins("D11")),
@@ -79,7 +79,14 @@ _io = [
         Subsignal("hold", Pins("M15")),
         IOStandard("LVCMOS33")
     ),
+    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+        Subsignal("cs_n", Pins("M13")),
+        Subsignal("clk",  Pins("D11")),
+        Subsignal("dq",   Pins("K17", "K18", "L14", "M15")),
+        IOStandard("LVCMOS33")
+    ),
 
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "U2 R4 V2 V4 T3 R7 V6 T6",

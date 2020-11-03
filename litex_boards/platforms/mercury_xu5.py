@@ -10,41 +10,42 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk100", 0,
         Subsignal("n", Pins("AD4"), IOStandard("DIFF_SSTL12_DCI")),
         Subsignal("p", Pins("AD5"), IOStandard("DIFF_SSTL12_DCI")),
     ),
-
     ("clk100_gtr", 0,
         Subsignal("p", Pins("C21"), IOStandard("DIFF_SSTL12")),
         Subsignal("n", Pins("C22"), IOStandard("DIFF_SSTL12")),
     ),
-
     ("clk27_gtr", 0,
         Subsignal("p", Pins("A21"), IOStandard("DIFF_SSTL12")),
         Subsignal("n", Pins("A22"), IOStandard("DIFF_SSTL12")),
     ),
-
     ("clk33", 0, Pins("AD4"), IOStandard("SSTL12")),
-
     ("cpu_reset", 0, Pins("N19"), IOStandard("LVCMOS33")),
 
+    # Leds
     ("user_led", 0, Pins("H2"),   IOStandard("LVCMOS18")),
     ("user_led", 1, Pins("P9"),   IOStandard("LVCMOS18")),
     ("user_led", 2, Pins("K5"),   IOStandard("LVCMOS18")),
 
+    # Serial
     ("serial", 0,
         Subsignal("rx", Pins("AA10")),  # Module connector A: A60 (Meccury PE1: "IO B" connector 32)
         Subsignal("tx", Pins("AA11")),  # Module connector A: A58 (Meccury PE1: "IO B" connector 31)
         IOStandard("LVCMOS33"),
     ),
 
+    # I2C
     ("i2c", 0,
         Subsignal("scl", Pins("D12")),
         Subsignal("sda", Pins("C12")),
         IOStandard("LVCMOS18")
     ),
 
+    # DDR4 SDRAM
     ("ddram", 0,
         Subsignal("a",       Pins(
             "AC4 AC3 AB4 AB3 AB2 AC2 AB1 AC1",

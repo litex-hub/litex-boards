@@ -5,8 +5,13 @@ from litex.build.generic_platform import Pins, IOStandard, Subsignal
 from litex.build.xilinx import XilinxPlatform
 from litex.build.openocd import OpenOCD
 
+# IOs ----------------------------------------------------------------------------------------------
+
 _io = [
-    # 8 LEDs above DIP switches (Bank 33)
+    # Clk / Rst
+    ("clk100", 0, Pins("Y9"), IOStandard("LVCMOS33")),
+
+    # Leds (above DIP switches)
     ("user_led", 0, Pins("T22"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("T21"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("U22"), IOStandard("LVCMOS33")),
@@ -16,7 +21,31 @@ _io = [
     ("user_led", 6, Pins("U19"), IOStandard("LVCMOS33")),
     ("user_led", 7, Pins("U14"), IOStandard("LVCMOS33")),
 
-    # UG-2832HSWEG04 (ssd1306)
+    # Switches
+    ("user_sw", 0, Pins("F22"), IOStandard("LVCMOS18")),
+    ("user_sw", 1, Pins("G22"), IOStandard("LVCMOS18")),
+    ("user_sw", 2, Pins("H22"), IOStandard("LVCMOS18")),
+    ("user_sw", 3, Pins("F21"), IOStandard("LVCMOS18")),
+    ("user_sw", 4, Pins("H19"), IOStandard("LVCMOS18")),
+    ("user_sw", 5, Pins("H18"), IOStandard("LVCMOS18")),
+    ("user_sw", 6, Pins("H17"), IOStandard("LVCMOS18")),
+    ("user_sw", 7, Pins("M15"), IOStandard("LVCMOS18")),
+
+    # Buttons
+    ("user_btn_c", 0, Pins("P16"), IOStandard("LVCMOS25")),
+    ("user_btn_d", 0, Pins("R16"), IOStandard("LVCMOS25")),
+    ("user_btn_l", 0, Pins("N15"), IOStandard("LVCMOS25")),
+    ("user_btn_r", 0, Pins("R18"), IOStandard("LVCMOS25")),
+    ("user_btn_u", 0, Pins("T18"), IOStandard("LVCMOS25")),
+
+    # Serial (ust to make CI pass)
+    # Unfortunately the only USB UART is hard-wired to the ARM CPU
+    ("serial", 0,
+        Subsignal("tx", Pins("-")),
+        Subsignal("rx", Pins("-"))
+    ),
+
+    # OLED (UG-2832HSWEG04/ssd1306)
     ("zed_oled", 0,
         Subsignal("clk",     Pins("AB12")),
         Subsignal("mosi",    Pins("AA12")),
@@ -27,28 +56,6 @@ _io = [
         Subsignal("vdd_n",   Pins("U12")),
         IOStandard("LVCMOS33")
     ),
-
-    # 8 Switches (Bank 35)
-    ("user_sw", 0, Pins("F22"), IOStandard("LVCMOS18")),
-    ("user_sw", 1, Pins("G22"), IOStandard("LVCMOS18")),
-    ("user_sw", 2, Pins("H22"), IOStandard("LVCMOS18")),
-    ("user_sw", 3, Pins("F21"), IOStandard("LVCMOS18")),
-    ("user_sw", 4, Pins("H19"), IOStandard("LVCMOS18")),
-    ("user_sw", 5, Pins("H18"), IOStandard("LVCMOS18")),
-    ("user_sw", 6, Pins("H17"), IOStandard("LVCMOS18")),
-    ("user_sw", 7, Pins("M15"), IOStandard("LVCMOS18")),
-
-    # push buttons (Bank 34)
-    # ("user_btn",   0, Pins("D13"), IOStandard("LVCMOS18")),
-    # ("user_btn",   1, Pins("C10"), IOStandard("LVCMOS18")),
-    ("user_btn_c", 0, Pins("P16"), IOStandard("LVCMOS25")),
-    ("user_btn_d", 0, Pins("R16"), IOStandard("LVCMOS25")),
-    ("user_btn_l", 0, Pins("N15"), IOStandard("LVCMOS25")),
-    ("user_btn_r", 0, Pins("R18"), IOStandard("LVCMOS25")),
-    ("user_btn_u", 0, Pins("T18"), IOStandard("LVCMOS25")),
-
-    # Clock source (Bank 13)
-    ("clk100", 0, Pins("Y9"), IOStandard("LVCMOS33")),
 
     # PS7
     ("ps7_clk",   0, Pins("F7")),
@@ -88,15 +95,9 @@ _io = [
         Subsignal("vrp",     Pins("N7")),
         Subsignal("we_n",    Pins("R4"))
     ),
-
-    # serial (just to make CI pass)
-    # unfortunately the only USB UART is hard-wired to the ARM CPU
-    ("serial", 0,
-        Subsignal("tx", Pins("-")),
-        Subsignal("rx", Pins("-"))
-    )
 ]
 
+# Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
     # access a pin with `pmoda:N`, where N is:
@@ -204,6 +205,7 @@ _connectors = [
     })
 ]
 
+# Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
     default_clk_name = "clk100"

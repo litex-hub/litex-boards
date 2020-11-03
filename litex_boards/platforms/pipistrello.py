@@ -15,16 +15,20 @@ from litex.build.xilinx.programmer import XC3SProg
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk50", 0, Pins("H17"), IOStandard("LVTTL")),
 
+    # Leds
+    ("user_led", 0, Pins("V16"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # Green at hdmi
+    ("user_led", 1, Pins("U16"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # Red at hdmi
+    ("user_led", 2, Pins("A16"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # Green at msd
+    ("user_led", 3, Pins("A15"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # Red at msd
+    ("user_led", 4, Pins("A12"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # Red at usb
+
+    # Buttons
     ("user_btn", 0, Pins("N14"), IOStandard("LVTTL"), Misc("PULLDOWN")),
 
-    ("user_led", 0, Pins("V16"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # green at hdmi
-    ("user_led", 1, Pins("U16"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # red at hdmi
-    ("user_led", 2, Pins("A16"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # green at msd
-    ("user_led", 3, Pins("A15"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # red at msd
-    ("user_led", 4, Pins("A12"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # red at usb
-
+    # Serial
     ("serial", 0,
         Subsignal("tx",  Pins("A10")),
         Subsignal("rx",  Pins("A11"), Misc("PULLUP")),
@@ -33,6 +37,7 @@ _io = [
         IOStandard("LVTTL"),
     ),
 
+    # USB FIFO
     ("usb_fifo", 0,
         Subsignal("data",  Pins("A11 A10 C10 A9 B9 A8 B8 A7")),
         Subsignal("rxf_n", Pins("C7")),
@@ -43,6 +48,7 @@ _io = [
         IOStandard("LVTTL"),
     ),
 
+    # HDMI
     ("hdmi", 0,
         Subsignal("clk_p",     Pins("U5"), IOStandard("TMDS_33")),
         Subsignal("clk_n",     Pins("V5"), IOStandard("TMDS_33")),
@@ -57,6 +63,7 @@ _io = [
         Subsignal("hpd_notif", Pins("R8"), IOStandard("LVTTL")),
     ),
 
+    # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("V3")),
         Subsignal("clk",  Pins("R15")),
@@ -67,7 +74,6 @@ _io = [
         Misc("SLEW=FAST"),
         IOStandard("LVTTL")
     ),
-
     ("spiflash2x", 0,
         Subsignal("cs_n", Pins("V3")),
         Subsignal("clk",  Pins("R15")),
@@ -77,7 +83,6 @@ _io = [
         Misc("SLEW=FAST"),
         IOStandard("LVTTL"),
     ),
-
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("V3")),
         Subsignal("clk",  Pins("R15")),
@@ -86,38 +91,34 @@ _io = [
         IOStandard("LVTTL"),
     ),
 
-    ("mmc", 0,
-        Subsignal("clk", Pins("A3")),
-        Subsignal("cmd", Pins("B3"),          Misc("PULLUP")),
-        Subsignal("dat", Pins("B4 A4 B2 A2"), Misc("PULLUP")),
-        IOStandard("SDIO")
-    ),
-
-    ("mmc_spi", 0,
+    # SDCard
+    ("spisdcard", 0,
         Subsignal("cs_n", Pins("A2"), Misc("PULLUP")),
         Subsignal("clk",  Pins("A3")),
         Subsignal("mosi", Pins("B3")),
         Subsignal("miso", Pins("B4"), Misc("PULLUP")),
         IOStandard("SDIO")
     ),
+    ("sdcard", 0,
+        Subsignal("clk", Pins("A3")),
+        Subsignal("cmd", Pins("B3"),          Misc("PULLUP")),
+        Subsignal("dat", Pins("B4 A4 B2 A2"), Misc("PULLUP")),
+        IOStandard("SDIO")
+    ),
 
+    # Audio
     ("audio", 0,
         Subsignal("l", Pins("R7"), Misc("SLEW=SLOW")),
         Subsignal("r", Pins("T7"), Misc("SLEW=SLOW")),
         IOStandard("LVTTL"),
     ),
 
-    ("pmod", 0,
-        Subsignal("d", Pins("D9 C8 D6 C4 B11 C9 D8 C6")),
-        IOStandard("LVTTL")
-    ),
-
+    # LPDDR SDRAM
     ("ddram_clock", 0,
         Subsignal("p", Pins("G3")),
         Subsignal("n", Pins("G1")),
         IOStandard("MOBILE_DDR")
     ),
-
     ("ddram", 0,
         Subsignal("a", Pins(
             "J7 J6 H5 L7 F3 H4 H3 H6",
@@ -133,7 +134,13 @@ _io = [
         Subsignal("dqs", Pins("L4 P2")),
         Subsignal("dm", Pins("K3 K4")),
         IOStandard("MOBILE_DDR")
-    )
+    ),
+
+    # PMOD
+    ("pmod", 0,
+        Subsignal("d", Pins("D9 C8 D6 C4 B11 C9 D8 C6")),
+        IOStandard("LVTTL")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

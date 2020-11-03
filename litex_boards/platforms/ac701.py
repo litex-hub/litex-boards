@@ -11,23 +11,24 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
+    ("clk200", 0,
+        Subsignal("p", Pins("R3"), IOStandard("DIFF_SSTL15")),
+        Subsignal("n", Pins("P3"), IOStandard("DIFF_SSTL15"))
+    ),
+    ("clk156", 0,
+        Subsignal("p", Pins("M21"), IOStandard("LVDS_25")),
+        Subsignal("n", Pins("M22"), IOStandard("LVDS_25"))
+    ),
+    ("cpu_reset", 0, Pins("U4"), IOStandard("SSTL15")),
+
+    # Leds
     ("user_led", 0, Pins("M26"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("T24"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("T25"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("R26"), IOStandard("LVCMOS33")),
 
-    ("cpu_reset", 0, Pins("U4"), IOStandard("SSTL15")),
-
-    ("clk200", 0,
-        Subsignal("p", Pins("R3"), IOStandard("DIFF_SSTL15")),
-        Subsignal("n", Pins("P3"), IOStandard("DIFF_SSTL15"))
-    ),
-
-    ("clk156", 0,
-        Subsignal("p", Pins("M21"), IOStandard("LVDS_25")),
-        Subsignal("n", Pins("M22"), IOStandard("LVDS_25"))
-    ),
-
+    # Serial
     ("serial", 0,
         Subsignal("cts", Pins("V19")),
         Subsignal("rts", Pins("W19")),
@@ -36,12 +37,12 @@ _io = [
         IOStandard("LVCMOS18")
     ),
 
+    # RGMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("U22")),
         Subsignal("rx", Pins("U21")),
         IOStandard("LVCMOS18")
     ),
-
     ("eth", 0,
         Subsignal("rx_ctl",  Pins("U14")),
         Subsignal("rx_data", Pins("U17 V17 V16 V14")),
@@ -55,6 +56,7 @@ _io = [
         IOStandard("LVCMOS18"),
     ),
 
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "M4 J3 J1 L4 K5 M7 K1 M6",
@@ -90,6 +92,7 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
+    # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("M20"), IOStandard("LVCMOS25")),
         Subsignal("clk_p", Pins("F11")),
@@ -100,13 +103,13 @@ _io = [
         Subsignal("tx_n",  Pins("C10"))
     ),
 
-    ("vadj_on_b", 0, Pins("R16"), IOStandard("LVCMOS25")),
-
+    # GTP RefClk
     ("gtp_refclk", 0,
      Subsignal("p", Pins("AA13")),
      Subsignal("n", Pins("AB13"))
     ),
 
+    # SFP
     ("sfp", 0,
         Subsignal("txp", Pins("AC10")),
         Subsignal("txn", Pins("AD10")),
@@ -117,6 +120,10 @@ _io = [
     ("sfp_mgt_clk_sel1", 0, Pins("C24"), IOStandard("LVCMOS25")),
     ("sfp_tx_disable_n", 0, Pins("R18"), IOStandard("LVCMOS33")),
     ("sfp_rx_los",       0, Pins("R23"), IOStandard("LVCMOS33")),
+
+    # Others
+    ("vadj_on_b", 0, Pins("R16"), IOStandard("LVCMOS25")),
+
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

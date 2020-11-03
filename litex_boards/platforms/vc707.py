@@ -13,6 +13,7 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk200", 0,
         Subsignal("p", Pins("E19"), IOStandard("LVDS")),
         Subsignal("n", Pins("E18"), IOStandard("LVDS")),
@@ -21,9 +22,9 @@ _io = [
         Subsignal("p", Pins("AK34"), IOStandard("LVDS")),
         Subsignal("n", Pins("AL34"), IOStandard("LVDS")),
     ),
-
     ("cpu_reset", 0, Pins("AV40"), IOStandard("LVCMOS18")),
 
+    # Leds
     ("user_led", 0, Pins("AM39"), IOStandard("LVCMOS18")),
     ("user_led", 1, Pins("AN39"), IOStandard("LVCMOS18")),
     ("user_led", 2, Pins("AR37"), IOStandard("LVCMOS18")),
@@ -33,6 +34,7 @@ _io = [
     ("user_led", 6, Pins("AP42"), IOStandard("LVCMOS18")),
     ("user_led", 7, Pins("AU39"), IOStandard("LVCMOS18")),
 
+    # Switches
     ("user_dip_btn", 0, Pins("AV30"), IOStandard("LVCMOS18")),
     ("user_dip_btn", 1, Pins("AY33"), IOStandard("LVCMOS18")),
     ("user_dip_btn", 2, Pins("BA31"), IOStandard("LVCMOS18")),
@@ -42,17 +44,20 @@ _io = [
     ("user_dip_btn", 6, Pins("BA30"), IOStandard("LVCMOS18")),
     ("user_dip_btn", 7, Pins("BB31"), IOStandard("LVCMOS18")),
 
+    # Buttons
     ("user_btn_c", 0, Pins("AV39"), IOStandard("LVCMOS18")),
     ("user_btn_n", 0, Pins("AR40"), IOStandard("LVCMOS18")),
     ("user_btn_e", 0, Pins("AU38"), IOStandard("LVCMOS18")),
     ("user_btn_s", 0, Pins("AP40"), IOStandard("LVCMOS18")),
     ("user_btn_w", 0, Pins("AW40"), IOStandard("LVCMOS18")),
 
+    # Serial
     ("serial", 0,
         Subsignal("rx", Pins("AU33"), IOStandard("LVCMOS18")),
         Subsignal("tx", Pins("AU36"), IOStandard("LVCMOS18")),
     ),
 
+    # Rotary Encoder
     ("rotary", 0,
         Subsignal("a",    Pins("AR33")),
         Subsignal("b",    Pins("AT31")),
@@ -60,6 +65,7 @@ _io = [
         IOStandard("LVCMOS18")
     ),
 
+    # LCD
     ("lcd", 0,
         Subsignal("db", Pins("AT42 AR38 AR39 AN40")),
         Subsignal("rs", Pins("AN41")),
@@ -67,13 +73,16 @@ _io = [
         Subsignal("e",  Pins("AT40")),
         IOStandard("LVCMOS18")
     ),
+
+    # I2C
     ("i2c", 0,
         Subsignal("scl", Pins("AT35"), IOStandard("LVCMOS18")),
         Subsignal("sda", Pins("AU32"), IOStandard("LVCMOS18")),
     ),
     ("i2c_mux_reset", 0, Pins("AY42"), IOStandard("LVCMOS18")),
 
-    ("mmc", 0,
+    # SDCard
+    ("sdcard", 0,
         Subsignal("clk", Pins("AN30")),
         Subsignal("cmd", Pins("AP30")),
         Subsignal("det", Pins("AP32")),
@@ -82,12 +91,13 @@ _io = [
         IOStandard("LVCMOS18"),
     ),
 
-    ("vadj_on_b", 0, Pins("AH35"), IOStandard("LVCMOS18")),
-
+    # SGMII Clock
     ("sgmii_clock", 0,
         Subsignal("p", Pins("AH8")),
         Subsignal("n", Pins("AH7")),
     ),
+
+    # SGMII Ethernet
     ("eth", 0,
         Subsignal("rst_n", Pins("AJ33"), IOStandard("LVCMOS18")),
         Subsignal("int_n", Pins("AL31"), IOStandard("LVCMOS18")),
@@ -99,6 +109,7 @@ _io = [
         Subsignal("tx_n",  Pins("AN1")),
     ),
 
+    # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("AV35"), IOStandard("LVCMOS18")),
         Subsignal("clk_p", Pins("AB8")),
@@ -136,6 +147,7 @@ _io = [
         Subsignal("tx_n",  Pins("W1 AA1 AC1 AE1 AG1 AH3 AJ1 AK3")),
     ),
 
+    # SMA
     ("user_sma_clock", 0,
         Subsignal("p", Pins("AJ32"), IOStandard("LVCMOS18")),
         Subsignal("n", Pins("AK32"), IOStandard("LVCMOS18")),
@@ -152,6 +164,10 @@ _io = [
         Subsignal("p", Pins("AP4")),
         Subsignal("n", Pins("AP3")),
     ),
+    ("user_sma_gpio_p", 0, Pins("AN31"), IOStandard("LVCMOS18")),
+    ("user_sma_gpio_n", 0, Pins("AP31"), IOStandard("LVCMOS18")),
+
+    # SI5324 Clock
     ("si5324", 0,
         Subsignal("rst_n", Pins("AT36"), IOStandard("LVCMOS18")),
         Subsignal("int",   Pins("AU34"), IOStandard("LVCMOS18")),
@@ -161,9 +177,7 @@ _io = [
         Subsignal("n", Pins("AD7")),
     ),
 
-    ("user_sma_gpio_p", 0, Pins("AN31"), IOStandard("LVCMOS18")),
-    ("user_sma_gpio_n", 0, Pins("AP31"), IOStandard("LVCMOS18")),
-
+    # HDMI
     ("hdmi", 0,
         Subsignal("d", Pins(
             "AM22 AL22 AJ20 AJ21 AM21 AL21 AK22 AJ22",
@@ -181,6 +195,7 @@ _io = [
         IOStandard("LVCMOS18"),
     ),
 
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "A20 B19 C20 A19 A17 A16 D20 C18",
@@ -208,36 +223,8 @@ _io = [
         Misc("SLEW=FAST"),
         Misc("VCCAUX_IO=HIGH"),
     ),
-    ("ddram_dual_rank", 0,
-        Subsignal("a", Pins(
-            "A20 B19 C20 A19 A17 A16 D20 C18",
-            "D17 C19 B21 B17 A15 A21 F17 E17"),
-            IOStandard("SSTL15")),
-        Subsignal("ba",      Pins("D21 C21 D18"), IOStandard("SSTL15")),
-        Subsignal("ras_n",   Pins("E20"), IOStandard("SSTL15")),
-        Subsignal("cas_n",   Pins("K17"), IOStandard("SSTL15")),
-        Subsignal("we_n",    Pins("F20"), IOStandard("SSTL15")),
-        Subsignal("cs_n",    Pins("J17 J20"), IOStandard("SSTL15")),
-        Subsignal("dm",      Pins("M13 K15 F12 A14 C23 D25 C31 F31"), IOStandard("SSTL15")),
-        Subsignal("dq",      Pins(
-            "N14 N13 L14 M14 M12 N15 M11 L12",
-            "K14 K13 H13 J13 L16 L15 H14 J15",
-            "E15 E13 F15 E14 G13 G12 F14 G14",
-            "B14 C13 B16 D15 D13 E12 C16 D16",
-            "A24 B23 B27 B26 A22 B22 A25 C24",
-            "E24 D23 D26 C25 E23 D22 F22 E22",
-            "A30 D27 A29 C28 D28 B31 A31 A32",
-            "E30 F29 F30 F27 C30 E29 F26 D30"),
-            IOStandard("SSTL15")),
-        Subsignal("dqs_p",   Pins("N16 K12 H16 C15 A26 F25 B28 E27"), IOStandard("DIFF_SSTL15")),
-        Subsignal("dqs_n",   Pins("M16 J12 G16 C14 A27 E25 B29 E28"), IOStandard("DIFF_SSTL15")),
-        Subsignal("clk_p",   Pins("H19 G19"), IOStandard("DIFF_SSTL15")),
-        Subsignal("clk_n",   Pins("G18 F19"), IOStandard("DIFF_SSTL15")),
-        Subsignal("cke",     Pins("K19 J18"), IOStandard("SSTL15")),
-        Subsignal("odt",     Pins("H20 H18"), IOStandard("SSTL15")),
-        Subsignal("reset_n", Pins("C29"), IOStandard("LVCMOS15")),
-    ),
 
+    # SFP
     ("sfp", 0,
         Subsignal("txp", Pins("AM4")),
         Subsignal("txn", Pins("AM3")),
@@ -254,6 +241,9 @@ _io = [
     ),
     ("sfp_tx_disable_n", 0, Pins("AP33"), IOStandard("LVCMOS18")),
     ("sfp_rx_los",       0, Pins("BB38"), IOStandard("LVCMOS18")),
+
+    # Others
+    ("vadj_on_b", 0, Pins("AH35"), IOStandard("LVCMOS18")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

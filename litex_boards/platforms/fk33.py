@@ -13,11 +13,13 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk / Rst
     ("clk200", 0,
         Subsignal("p", Pins("BC26"), IOStandard("LVDS")),
         Subsignal("n", Pins("BC27"), IOStandard("LVDS"))
     ),
 
+    # Leds
     ("user_led", 0, Pins("BD25"), IOStandard("LVCMOS18")),
     ("user_led", 1, Pins("BE26"), IOStandard("LVCMOS18")),
     ("user_led", 2, Pins("BD23"), IOStandard("LVCMOS18")),
@@ -26,11 +28,13 @@ _io = [
     ("user_led", 5, Pins("BB26"), IOStandard("LVCMOS18")),
     ("user_led", 6, Pins("BB25"), IOStandard("LVCMOS18")),
 
+    # I2C
     ("i2c",
         Subsignal("scl", Pins("BB24"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
         Subsignal("sda", Pins("BA24"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
     ),
 
+    # PCIe
     ("pcie_x2", 0,
         Subsignal("rst_n", Pins("BE24"), IOStandard("LVCMOS18")),
         Subsignal("clk_p", Pins("AD9")),
