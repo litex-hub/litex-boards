@@ -29,11 +29,13 @@ from litepcie.software import generate_litepcie_software
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
 
         # # #
 
         self.submodules.pll = pll = USPMMCM(speedgrade=-2)
+        self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("clk200"), 200e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 

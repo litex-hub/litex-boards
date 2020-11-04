@@ -32,6 +32,7 @@ from litevideo.terminal.core import Terminal
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
         self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
@@ -43,6 +44,7 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = CycloneIVPLL(speedgrade="-8")
+        self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)

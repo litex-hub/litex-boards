@@ -33,6 +33,7 @@ mB = 1024*kB
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain()
 
@@ -49,7 +50,7 @@ class _CRG(Module):
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.sync.por += If(por_counter != 0, por_counter.eq(por_counter - 1))
         self.specials += AsyncResetSynchronizer(self.cd_por, ~rst_n)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, (por_counter != 0))
+        self.specials += AsyncResetSynchronizer(self.cd_sys, (por_counter != 0) | self.rst)
 
 
 # BaseSoC ------------------------------------------------------------------------------------------

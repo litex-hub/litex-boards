@@ -28,6 +28,7 @@ from litedram.phy import s7ddrphy
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys2x     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
@@ -37,7 +38,7 @@ class _CRG(Module):
         # # #
 
         self.submodules.pll = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset"))
+        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys2x,     2*sys_clk_freq)
@@ -67,8 +68,7 @@ class BaseSoC(SoCCore):
             self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
                 memtype        = "DDR3",
                 nphases        = 4,
-                sys_clk_freq   = sys_clk_freq,
-                interface_type = "MEMORY")
+                sys_clk_freq   = sys_clk_freq)
             self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,

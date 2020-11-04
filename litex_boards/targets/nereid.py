@@ -35,6 +35,7 @@ from litepcie.software import generate_litepcie_software
 
 class CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay = ClockDomain()
@@ -44,6 +45,7 @@ class CRG(Module):
 
         # PLL
         self.submodules.pll = pll = S7PLL()
+        self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)

@@ -23,6 +23,7 @@ from litex.soc.cores.led import LedChaser
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, x5_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
 
         # # #
@@ -37,7 +38,7 @@ class _CRG(Module):
 
         # pll
         self.submodules.pll = pll = ECP5PLL()
-        self.comb += pll.reset.eq(~rst_n)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk, x5_clk_freq or 12e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 

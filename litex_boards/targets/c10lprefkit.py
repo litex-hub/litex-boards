@@ -32,6 +32,7 @@ from litehyperbus.core.hyperbus import HyperRAM
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
 
@@ -42,7 +43,7 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = Cyclone10LPPLL(speedgrade="-A7")
-        self.comb += pll.reset.eq(~platform.request("cpu_reset"))
+        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)

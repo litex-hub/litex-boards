@@ -26,9 +26,7 @@ kB = 1024
 mB = 1024*kB
 
 class BaseSoC(SoCCore):
-
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-
     def __init__(self, bios_flash_offset, **kwargs):
         platform     = tec0117.Platform()
         sys_clk_freq = int(1e9/platform.default_clk_period)

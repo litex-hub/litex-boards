@@ -32,6 +32,7 @@ from litedram.phy import s6ddrphy
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_sys           = ClockDomain()
         self.clock_domains.cd_sdram_half    = ClockDomain()
         self.clock_domains.cd_sdram_full_wr = ClockDomain()
@@ -104,7 +105,7 @@ class _CRG(Module):
         )
 
         # Power on reset
-        reset = platform.request("user_btn") | self.reset
+        reset = platform.request("user_btn") | self.reset | self.rst
         self.clock_domains.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))

@@ -26,6 +26,7 @@ from litex.soc.cores.led import LedChaser
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, use_ps7_clk=False):
+        self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
 
         # # #
@@ -33,9 +34,10 @@ class _CRG(Module):
         if use_ps7_clk:
             assert sys_clk_freq == 100e6
             self.comb += ClockSignal("sys").eq(ClockSignal("ps7"))
-            self.comb += ResetSignal("sys").eq(ResetSignal("ps7"))
+            self.comb += ResetSignal("sys").eq(ResetSignal("ps7") | self.rst)
         else:
             self.submodules.pll = pll = S7PLL(speedgrade=-1)
+            self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(platform.request("clk125"), 125e6)
             pll.create_clkout(self.cd_sys,       sys_clk_freq)
 

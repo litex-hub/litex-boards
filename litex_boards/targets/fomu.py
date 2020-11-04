@@ -33,6 +33,7 @@ mB = 1024*kB
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         assert sys_clk_freq == 12e6
+        self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_por    = ClockDomain(reset_less=True)
         self.clock_domains.cd_usb_12 = ClockDomain()
@@ -53,6 +54,7 @@ class _CRG(Module):
 
         # USB PLL
         self.submodules.pll = pll = iCE40PLL()
+        self.comb += pll.reset.eq(self.rst)
         pll.clko_freq_range = ( 12e6,  275e9) # FIXME: improve iCE40PLL to avoid lowering clko_freq_min.
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_usb_12, 12e6, with_reset=False)

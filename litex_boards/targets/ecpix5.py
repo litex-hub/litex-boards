@@ -30,6 +30,7 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_init    = ClockDomain()
         self.clock_domains.cd_por     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys     = ClockDomain()
@@ -54,7 +55,7 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()
-        self.comb += pll.reset.eq(~por_done | ~rst_n)
+        self.comb += pll.reset.eq(~por_done | ~rst_n | self.rst)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         pll.create_clkout(self.cd_init, 25e6)
@@ -69,8 +70,8 @@ class _CRG(Module):
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.reset,
                 o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys,   ~pll.locked | self.reset),
-            AsyncResetSynchronizer(self.cd_sys2x, ~pll.locked | self.reset),
+            AsyncResetSynchronizer(self.cd_sys,   ~pll.locked | self.reset | self.rst),
+            AsyncResetSynchronizer(self.cd_sys2x, ~pll.locked | self.reset | self.rst),
         ]
 
 # BaseSoC ------------------------------------------------------------------------------------------

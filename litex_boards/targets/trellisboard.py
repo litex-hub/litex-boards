@@ -31,8 +31,9 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_por     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys     = ClockDomain()
+        self.rst = Signal()
+        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys = ClockDomain()
 
         # # #
 
@@ -49,12 +50,13 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()
-        self.comb += pll.reset.eq(~por_done | rst)
+        self.comb += pll.reset.eq(~por_done | rst | self.rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
 class _CRGSDRAM(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_init    = ClockDomain()
         self.clock_domains.cd_por     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys     = ClockDomain()
@@ -80,7 +82,7 @@ class _CRGSDRAM(Module):
         # PLL
         sys2x_clk_ecsout = Signal()
         self.submodules.pll = pll = ECP5PLL()
-        self.comb += pll.reset.eq(~por_done | rst)
+        self.comb += pll.reset.eq(~por_done | rst | self.rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         pll.create_clkout(self.cd_init,   25e6)

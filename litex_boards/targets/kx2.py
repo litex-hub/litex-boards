@@ -26,6 +26,7 @@ from litedram.phy import s7ddrphy
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay = ClockDomain()
@@ -33,7 +34,7 @@ class _CRG(Module):
         # # #
 
         self.submodules.pll = pll = S7MMCM(speedgrade=-2)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset_n"))
+        self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
         pll.register_clkin(platform.request("clk200"), 200e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)

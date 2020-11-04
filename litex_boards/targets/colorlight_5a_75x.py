@@ -66,6 +66,7 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, use_internal_osc=False, with_usb_pll=False, with_rst=True, sdram_rate="1:1"):
+        self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
             self.clock_domains.cd_sys2x    = ClockDomain()
@@ -91,7 +92,7 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()
-        self.comb += pll.reset.eq(~rst_n)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk, clk_freq)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         if sdram_rate == "1:2":
@@ -103,7 +104,7 @@ class _CRG(Module):
         # USB PLL
         if with_usb_pll:
             self.submodules.usb_pll = usb_pll = ECP5PLL()
-            self.comb += usb_pll.reset.eq(~rst_n)
+            self.comb += usb_pll.reset.eq(~rst_n | self.rst)
             usb_pll.register_clkin(clk, clk_freq)
             self.clock_domains.cd_usb_12 = ClockDomain()
             self.clock_domains.cd_usb_48 = ClockDomain()

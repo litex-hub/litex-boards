@@ -25,6 +25,7 @@ from liteeth.phy import LiteEthPHY
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq, with_ethernet=False):
+        self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
 
         # # #
@@ -35,7 +36,7 @@ class _CRG(Module):
             self.comb += platform.request("eth_rst_n").eq(1)
 
         self.submodules.pll = pll = S6PLL(speedgrade=-2)
-        self.comb += pll.reset.eq(~platform.request("user_btn_n"))
+        self.comb += pll.reset.eq(~platform.request("user_btn_n") | self.rst)
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_sys, clk_freq)
 

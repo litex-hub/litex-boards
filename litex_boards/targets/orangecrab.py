@@ -31,6 +31,7 @@ from litedram.phy import ECP5DDRPHY
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
+        self.rst = Signal()
         self.clock_domains.cd_por     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys     = ClockDomain()
 
@@ -49,7 +50,7 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()
-        self.comb += pll.reset.eq(~por_done | ~rst_n)
+        self.comb += pll.reset.eq(~por_done | ~rst_n | self.rst)
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
@@ -59,7 +60,7 @@ class _CRG(Module):
             self.clock_domains.cd_usb_48 = ClockDomain()
             usb_pll = ECP5PLL()
             self.submodules += usb_pll
-            self.comb += usb_pll.reset.eq(~por_done | ~rst_n)
+            self.comb += usb_pll.reset.eq(~por_done | ~rst_n | self.rst)
             usb_pll.register_clkin(clk48, 48e6)
             usb_pll.create_clkout(self.cd_usb_48, 48e6)
             usb_pll.create_clkout(self.cd_usb_12, 12e6)
