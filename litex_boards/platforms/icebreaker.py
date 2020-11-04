@@ -17,7 +17,7 @@ from litex.build.lattice.programmer import IceStormProgrammer
 
 _io = [
     # Clk / Rst
-    ("clk12", 0, Pins("35"), IOStandard("LVCMOS33"))
+    ("clk12", 0, Pins("35"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led_n",    0, Pins("11"), IOStandard("LVCMOS33")),
