@@ -11,6 +11,7 @@
 import argparse, os
 
 from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import alveo_u250
 

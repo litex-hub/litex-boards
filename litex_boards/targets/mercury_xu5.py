@@ -10,7 +10,7 @@ import os
 import argparse
 
 from migen import *
-from migen.genlib.io import CRG
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import mercury_xu5
 
