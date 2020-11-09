@@ -16,6 +16,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex_boards.platforms import crosslink_nx_evn
 
 from litex.soc.cores.nxlram import NXLRAM
+from litex.soc.cores.clock_nxpll import NXPLL
 from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
 from litex.build.generic_platform import *
@@ -33,24 +34,28 @@ mB = 1024*kB
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain()
+        self.clock_domains.cd_sys = ClockDomain()
 
-        # TODO: replace with PLL
-        # Clocking
-        self.submodules.sys_clk = sys_osc = NXOSCA()
-        sys_osc.create_hf_clk(self.cd_sys, sys_clk_freq)
-        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
-        rst_n = platform.request("gsrn")
+        # Built in OSC
+        self.submodules.hf_clk = NXOSCA()
+        hf_clk_freq = 25e6
+        self.hf_clk.create_hf_clk(self.cd_por, hf_clk_freq)
 
-        # Power On Reset
-        por_cycles  = 4096
-        por_counter = Signal(log2_int(por_cycles), reset=por_cycles-1)
-        self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
-        self.sync.por += If(por_counter != 0, por_counter.eq(por_counter - 1))
-        self.specials += AsyncResetSynchronizer(self.cd_por, ~rst_n)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, (por_counter != 0) | self.rst)
+        # Power on reset
+        por_count = Signal(16, reset=2**16-1)
+        por_done  = Signal()
+        self.comb += por_done.eq(por_count == 0)
+        self.sync.por += If(~por_done, por_count.eq(por_count - 1))
+
+        self.rst_n = platform.request("gsrn")
+        self.specials += AsyncResetSynchronizer(self.cd_por, ~self.rst_n)
+
+        # PLL
+        self.submodules.sys_pll = sys_pll = NXPLL(platform=platform, create_output_port_clocks=True)
+        sys_pll.register_clkin(self.cd_por.clk, hf_clk_freq)
+        sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked | ~por_done )
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
