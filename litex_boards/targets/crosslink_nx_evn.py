@@ -16,7 +16,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex_boards.platforms import crosslink_nx_evn
 
 from litex.soc.cores.nxlram import NXLRAM
-from litex.soc.cores.clock_nxpll import NXPLL
+from litex.soc.cores.clock import NXPLL
 from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
 from litex.build.generic_platform import *
