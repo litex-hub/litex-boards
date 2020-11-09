@@ -418,6 +418,3 @@ class Platform(LatticePlatform):
             xcf_template = xcf_template_flash
 
         return LatticeProgrammer(xcf_template)
-
-
-
