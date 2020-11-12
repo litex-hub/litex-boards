@@ -65,8 +65,8 @@ class Platform(LatticePlatform):
     default_clk_name   = "clk27"
     default_clk_period = 1e9/27e6
 
-    def __init__(self, **kwargs):
-        LatticePlatform.__init__(self, "LFE5U-25F-8BG381C", _io, **kwargs)
+    def __init__(self, toolchain="trellis", **kwargs):
+        LatticePlatform.__init__(self, "LFE5U-25F-8BG381C", _io, toolchain=toolchain, **kwargs)
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)

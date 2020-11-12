@@ -66,8 +66,8 @@ class Platform(LatticePlatform):
     default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
-    def __init__(self):
-        LatticePlatform.__init__(self, "ice40-up5k-uwg30", _io, _connectors, toolchain="icestorm")
+    def __init__(self, toolchain="icestorm"):
+        LatticePlatform.__init__(self, "ice40-up5k-uwg30", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return IceStormProgrammer()

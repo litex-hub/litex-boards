@@ -215,13 +215,13 @@ class Platform(LatticePlatform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
-    def __init__(self, revision="7.0"):
+    def __init__(self, revision="7.0", toolchain="trellis"):
         assert revision in ["6.1", "7.0"]
         self.revision = revision
         device     = {"6.1": "LFE5U-25F-6BG381C", "7.0": "LFE5U-25F-6BG256C"}[revision]
         io         = {"6.1": _io_v6_1,            "7.0": _io_v7_0}[revision]
         connectors = {"6.1": _connectors_v6_1,            "7.0": _connectors_v7_0}[revision]
-        LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain="trellis")
+        LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return OpenOCDJTAGProgrammer("openocd_colorlight_5a_75b.cfg")

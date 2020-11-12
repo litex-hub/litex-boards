@@ -220,12 +220,12 @@ class Platform(LatticePlatform):
     default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
-    def __init__(self, revision="0.2", device="25F", **kwargs):
+    def __init__(self, revision="0.2", device="25F", toolchain="trellis", **kwargs):
         assert revision in ["0.1", "0.2"]
         self.revision = revision
         io         = {"0.1": _io_r0_1,            "0.2": _io_r0_2        }[revision]
         connectors = {"0.1": _connectors_r0_1,    "0.2": _connectors_r0_2}[revision]
-        LatticePlatform.__init__(self, f"LFE5U-{device}-8MG285C", io, connectors, **kwargs)
+        LatticePlatform.__init__(self, f"LFE5U-{device}-8MG285C", io, connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
         return DFUProg(vid="1209", pid="5af0")
