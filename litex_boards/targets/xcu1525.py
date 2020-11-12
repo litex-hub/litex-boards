@@ -95,6 +95,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
+            assert self.csr_data_width == 32
             # PHY
             self.submodules.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
@@ -149,10 +150,7 @@ def main():
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    # Enforce arguments
-    args.csr_data_width = 32
-
-    soc =  BaseSoC(
+    soc = BaseSoC(
         ddram_channel = int(args.ddram_channel, 0),
         with_pcie     = args.with_pcie,
         **soc_sdram_argdict(args))
