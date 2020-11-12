@@ -115,14 +115,14 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE10-Nano")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    builder_args(parser)
-    soc_sdram_args(parser)
+    parser.add_argument("--build",             action="store_true", help="Build bitstream")
+    parser.add_argument("--load",              action="store_true", help="Load bitstream")
     parser.add_argument("--with-mister-sdram", action="store_true", help="Enable SDRAM with MiSTer expansion board")
     parser.add_argument("--with-mister-vga",   action="store_true", help="Enable VGA with Mister expansion board")
-    parser.add_argument("--sdram-rate",  default="1:1", help="SDRAM Rate 1:1 Full Rate (default), 1:2 Half Rate")
+    parser.add_argument("--sdram-rate",        default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
     args = parser.parse_args()
+    builder_args(parser)
+    soc_sdram_args(parser)
     soc = BaseSoC(
         with_mister_sdram = args.with_mister_sdram,
         with_mister_vga   = args.with_mister_vga,

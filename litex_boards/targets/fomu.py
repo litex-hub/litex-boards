@@ -148,8 +148,8 @@ def flash(bios_flash_offset):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Fomu")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--bios-flash-offset", default=0x60000, help="BIOS offset in SPI Flash")
+    parser.add_argument("--build",             action="store_true", help="Build bitstream")
+    parser.add_argument("--bios-flash-offset", default=0x60000,     help="BIOS offset in SPI Flash (default: 0x60000)")
     parser.add_argument("--flash",             action="store_true", help="Flash Bitstream")
     builder_args(parser)
     soc_core_args(parser)

@@ -107,11 +107,11 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX VIP Board")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load", action="store_true", help="Load bitstream")
-    parser.add_argument("--with-hyperram", default="none", help="Enable use of HyperRAM chip 0 or 1 (default=none)")
-    parser.add_argument("--sys-clk-freq",  default=75e6, help="System clock frequency (default=75MHz)")
-    parser.add_argument("--prog-target",  default="direct", help="Programming Target: direct or flash")
+    parser.add_argument("--build",         action="store_true", help="Build bitstream")
+    parser.add_argument("--load",          action="store_true", help="Load bitstream")
+    parser.add_argument("--with-hyperram", default="none",      help="Enable use of HyperRAM chip: none (default), 0 or 1")
+    parser.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency (default: 75MHz)")
+    parser.add_argument("--prog-target",   default="direct",    help="Programming Target: direct (default) or flash")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

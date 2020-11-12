@@ -128,14 +128,14 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Nexys Video")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    builder_args(parser)
-    soc_sdram_args(parser)
+    parser.add_argument("--build",           action="store_true", help="Build bitstream")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream")
     parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support")
     parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
     parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
     parser.add_argument("--with-sata",       action="store_true", help="Enable SATA support (over FMCRAID)")
+    builder_args(parser)
+    soc_sdram_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(with_ethernet=args.with_ethernet, with_sata=args.with_sata, **soc_sdram_argdict(args))

@@ -165,7 +165,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Acorn CLE 215+")
     parser.add_argument("--build",           action="store_true", help="Build bitstream")
     parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires adapter off P2)")
+    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2)")
     parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
     parser.add_argument("--load",            action="store_true", help="Load bitstream")
     parser.add_argument("--flash",           action="store_true", help="Flash bitstream")

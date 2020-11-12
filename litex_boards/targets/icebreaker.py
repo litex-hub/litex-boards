@@ -125,7 +125,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
     parser.add_argument("--build",             action="store_true", help="Build bitstream")
     parser.add_argument("--load",              action="store_true", help="Load bitstream")
-    parser.add_argument("--bios-flash-offset", default=0x40000,     help="BIOS offset in SPI Flash")
+    parser.add_argument("--bios-flash-offset", default=0x40000,     help="BIOS offset in SPI Flash (default: 0x40000)")
     parser.add_argument("--flash",             action="store_true", help="Flash Bitstream")
     builder_args(parser)
     soc_core_args(parser)

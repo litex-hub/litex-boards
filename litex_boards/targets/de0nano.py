@@ -96,9 +96,9 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE0-Nano")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    parser.add_argument("--sdram-rate",  default="1:1", help="SDRAM Rate 1:1 Full Rate (default), 1:2 Half Rate")
+    parser.add_argument("--build",       action="store_true", help="Build bitstream")
+    parser.add_argument("--load",        action="store_true", help="Load bitstream")
+    parser.add_argument("--sdram-rate",  default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()

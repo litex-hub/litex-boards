@@ -48,12 +48,12 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="Generic LiteX SoC")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("platform",                             help="Module name of the platform to build for")
+    parser.add_argument("--build",         action="store_true", help="Build bitstream")
+    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--toolchain",     default=None,        help="FPGA toolchain (None default)")
     builder_args(parser)
     soc_core_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
-    parser.add_argument("platform",                             help="Module name of the platform to build for")
-    parser.add_argument("--toolchain", default=None,   help="FPGA gateware toolchain used for build")
     args = parser.parse_args()
 
     platform_module = importlib.import_module(args.platform)

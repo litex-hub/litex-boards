@@ -101,7 +101,7 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on FK33")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--build",     action="store_true", help="Build bitstream")
     parser.add_argument("--with-pcie", action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",    action="store_true", help="Generate PCIe driver")
     parser.add_argument("--load",      action="store_true", help="Load bitstream")

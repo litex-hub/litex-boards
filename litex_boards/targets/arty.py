@@ -104,15 +104,15 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Arty A7")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    vivado_build_args(parser)
+    parser.add_argument("--build",           action="store_true", help="Build bitstream")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream")
     parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support")
     parser.add_argument("--with-etherbone",  action="store_true", help="Enable Etherbone support")
     parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
     parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    builder_args(parser)
+    soc_sdram_args(parser)
+    vivado_build_args(parser)
     args = parser.parse_args()
 
     assert not (args.with_ethernet and args.with_etherbone)

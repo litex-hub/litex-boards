@@ -32,8 +32,8 @@ from litedram.phy import ECP5DDRPHY
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
         self.rst = Signal()
-        self.clock_domains.cd_por     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys     = ClockDomain()
+        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys = ClockDomain()
 
         # # #
 
@@ -208,17 +208,17 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on OrangeCrab")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    parser.add_argument("--toolchain", default="trellis", help="Gateware toolchain to use, trellis (default) or diamond")
+    parser.add_argument("--build",           action="store_true",  help="Build bitstream")
+    parser.add_argument("--load",            action="store_true",  help="Load bitstream")
+    parser.add_argument("--toolchain",       default="trellis",    help="FPGA  use, trellis (default) or diamond")
+    parser.add_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency (default: 48MHz)")
+    parser.add_argument("--revision",        default="0.2",        help="Board Revision: 0.1 or 0.2 (default)")
+    parser.add_argument("--device",          default="25F",        help="ECP5 device (default: 25F)")
+    parser.add_argument("--sdram-device",    default="MT41K64M16", help="ECP5 device (default: MT41K64M16)")
+    parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
-    parser.add_argument("--sys-clk-freq", default=48e6,         help="System clock frequency (default=48MHz)")
-    parser.add_argument("--revision",     default="0.2",        help="Board Revision {0.1, 0.2} (default=0.2)")
-    parser.add_argument("--device",       default="25F",        help="ECP5 device (default=25F)")
-    parser.add_argument("--sdram-device", default="MT41K64M16", help="ECP5 device (default=MT41K64M16)")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
     args = parser.parse_args()
 
     soc = BaseSoC(

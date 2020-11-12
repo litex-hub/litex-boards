@@ -120,12 +120,12 @@ class EthernetSoC(BaseSoC):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Linsn RV901T")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--build",         action="store_true", help="Build bitstream")
+    parser.add_argument("--load",          action="store_true", help="Load bitstream")
+    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--eth-phy",       default=0, type=int, help="Ethernet PHY: 0 (default) or 1")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
-    parser.add_argument("--eth-phy",       default=0, type=int, help="Ethernet PHY 0 or 1 (default=0)")
     args = parser.parse_args()
 
     if args.with_ethernet:
