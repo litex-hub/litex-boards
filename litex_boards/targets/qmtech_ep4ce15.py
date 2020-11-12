@@ -14,7 +14,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import qmtech_EP4CE15
+from litex_boards.platforms import qmtech_ep4ce15
 
 from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.integration.soc_core import *
@@ -61,11 +61,11 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), sdram_rate="1:1", **kwargs):
-        platform = qmtech_EP4CE15.Platform()
+        platform = qmtech_ep4ce15.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on qmtech_EP4CE15",
+            ident          = "LiteX SoC on QMTECH EP4CE15",
             ident_version  = True,
             **kwargs)
 
@@ -95,10 +95,10 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on qmtech_EP4CE15")
+    parser = argparse.ArgumentParser(description="LiteX SoC on QMTECH EP4CE15")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    parser.add_argument("--sdram-rate",  default="1:1", help="SDRAM Rate 1:1 Full Rate (default), 1:2 Half Rate")
+    parser.add_argument("--sdram-rate",  default="1:1", help="SDRAM Rate: 1:1 Full Rate (default) or 1:2 Half Rate")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()

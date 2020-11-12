@@ -81,6 +81,7 @@ class TestTargets(unittest.TestCase):
         # Intel Cyclone4
         platforms.append("de0nano")
         platforms.append("de2_115")
+        platforms.append("qmtech_ep4ce15")
 
         # Intel Cyclone5
         platforms.append("de1soc")
