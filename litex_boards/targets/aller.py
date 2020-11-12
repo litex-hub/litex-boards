@@ -56,7 +56,8 @@ class CRG(Module):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, platform, with_pcie=False, **kwargs):
+    def __init__(self, with_pcie=False, **kwargs):
+        platform = aller.Platform()
         sys_clk_freq = int(100e6)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -112,9 +113,8 @@ def main():
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    platform = aller.Platform()
-    soc      = BaseSoC(platform, with_pcie=args.with_pcie, **soc_sdram_argdict(args))
-    builder  = Builder(soc, **builder_argdict(args))
+    soc     = BaseSoC(with_pcie=args.with_pcie, **soc_sdram_argdict(args))
+    builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
     if args.driver:

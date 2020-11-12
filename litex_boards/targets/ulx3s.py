@@ -82,7 +82,6 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, device="LFE5U-45F", revision="2.0", toolchain="trellis",
         sys_clk_freq=int(50e6), sdram_module_cls="MT48LC16M16", sdram_rate="1:1", **kwargs):
-
         platform = ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------

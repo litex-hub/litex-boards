@@ -68,7 +68,6 @@ class BaseSoC(SoCCore):
     }
     def __init__(self, sys_clk_freq, **kwargs):
         platform = crosslink_nx_evn.Platform()
-
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
 
         # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
