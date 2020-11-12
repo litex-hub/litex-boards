@@ -35,6 +35,7 @@ class TestTargets(unittest.TestCase):
         platforms.append("minispartan6")
         platforms.append("pipistrello")
         platforms.append("sp605")
+        platforms.append("pano_logic_g2")
 
         # Xilinx Spartan7
         platforms.append("arty_s7")
@@ -65,9 +66,11 @@ class TestTargets(unittest.TestCase):
 
         # Xilinx Zynq-7000
         platforms.append("zedboard")
+        platforms.append("zybo_z7")
 
         # Xilinx Zynq Ultrascale+
         platforms.append("zcu104")
+        platforms.append("mercury_xu5")
 
         # Xilinx Virtex Ultrascale+
         platforms.append("vcu118")
@@ -94,6 +97,7 @@ class TestTargets(unittest.TestCase):
         platforms.append("fomu_hacker")
         platforms.append("fomu_pvt")
         platforms.append("tinyfpga_bx")
+        platforms.append("icebreaker")
 
         # Lattice MachXO2
         platforms.append("machxo3")
@@ -106,6 +110,15 @@ class TestTargets(unittest.TestCase):
         platforms.append("ulx3s")
         platforms.append("versa_ecp5")
         platforms.append("colorlight_5a_75b")
+        platforms.append("colorlight_5a_75e")
+        platforms.append("camlink_4k")
+
+        # Lattice Crosslink NX
+        platforms.append("crosslink_nx_evn")
+        platforms.append("crosslink_nx_vip")
+
+        # Gowin
+        platforms.append("tec0117")
 
         # Microsemi PolarFire
         platforms.append("avalanche")
