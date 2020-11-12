@@ -70,7 +70,6 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)
-        self.add_csr("crg")
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
