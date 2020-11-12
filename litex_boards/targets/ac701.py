@@ -4,7 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2019 Vamsi K Vytla <vamsi.vytla@gmail.com>
-# Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -27,6 +27,9 @@ from litedram.phy import s7ddrphy
 from liteeth.phy.a7_gtp import QPLLSettings, QPLL
 from liteeth.phy.a7_1000basex import A7_1000BASEX
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
+
+from litepcie.phy.s7pciephy import S7PCIEPHY
+from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -53,7 +56,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, ethernet_phy="rgmii", **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, ethernet_phy="rgmii", with_pcie=False, **kwargs):
         platform = ac701.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -121,6 +124,14 @@ class BaseSoC(SoCCore):
 
             self.add_ethernet(phy=self.ethphy)
 
+        # PCIe -------------------------------------------------------------------------------------
+        if with_pcie:
+            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+                data_width = 128,
+                bar0_size  = 0x20000)
+            self.add_csr("pcie_phy")
+            self.add_pcie(phy=self.pcie_phy, ndmas=1)
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -136,11 +147,20 @@ def main():
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
     parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
     parser.add_argument("--ethernet-phy",  default="rgmii",     help="Select Ethernet PHY: rgmii (default) or 1000basex")
+    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
     args = parser.parse_args()
 
-    soc = BaseSoC(with_ethernet=args.with_ethernet, ethernet_phy=args.ethernet_phy, **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        with_ethernet = args.with_ethernet,
+        ethernet_phy  = args.ethernet_phy,
+        with_pcie     = args.with_pcie,
+        **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
+
+    if args.driver:
+        generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()

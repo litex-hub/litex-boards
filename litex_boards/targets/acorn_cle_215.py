@@ -43,9 +43,6 @@ from litedram.modules import MT41K512M16
 from litedram.phy import s7ddrphy
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
-from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
-from litepcie.frontend.dma import LitePCIeDMA
-from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -108,50 +105,11 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            assert self.csr_data_width == 32
-            # PHY
             self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
-            platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
             self.add_csr("pcie_phy")
-            self.comb += platform.request("pcie_clkreq_n").eq(0)
-
-            # Endpoint
-            self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, max_pending_requests=8)
-
-            # Wishbone bridge
-            self.submodules.pcie_bridge = LitePCIeWishboneBridge(self.pcie_endpoint,
-                base_address = self.mem_map["csr"])
-            self.add_wb_master(self.pcie_bridge.wishbone)
-
-            # DMA0
-            self.submodules.pcie_dma0 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
-                with_buffering = True, buffering_depth=1024,
-                with_loopback  = True)
-            self.add_csr("pcie_dma0")
-
-            # DMA1
-            self.submodules.pcie_dma1 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
-                with_buffering = True, buffering_depth=1024,
-                with_loopback  = True)
-            self.add_csr("pcie_dma1")
-
-            self.add_constant("DMA_CHANNELS", 2)
-
-            # MSI
-            self.submodules.pcie_msi = LitePCIeMSI()
-            self.add_csr("pcie_msi")
-            self.comb += self.pcie_msi.source.connect(self.pcie_phy.msi)
-            self.interrupts = {
-                "PCIE_DMA0_WRITER":    self.pcie_dma0.writer.irq,
-                "PCIE_DMA0_READER":    self.pcie_dma0.reader.irq,
-                "PCIE_DMA1_WRITER":    self.pcie_dma1.writer.irq,
-                "PCIE_DMA1_READER":    self.pcie_dma1.reader.irq,
-            }
-            for i, (k, v) in enumerate(sorted(self.interrupts.items())):
-                self.comb += self.pcie_msi.irqs[i].eq(v)
-                self.add_constant(k + "_INTERRUPT", i)
+            self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -164,23 +122,21 @@ class BaseSoC(SoCCore):
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Acorn CLE 215+")
     parser.add_argument("--build",           action="store_true", help="Build bitstream")
-    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2)")
-    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
     parser.add_argument("--load",            action="store_true", help="Load bitstream")
     parser.add_argument("--flash",           action="store_true", help="Flash bitstream")
+    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
+    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(with_pcie=args.with_pcie, **soc_sdram_argdict(args))
-
+    soc = BaseSoC(with_pcie     = args.with_pcie, **soc_sdram_argdict(args))
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
 
     builder  = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
-
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

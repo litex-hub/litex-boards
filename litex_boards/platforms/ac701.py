@@ -103,6 +103,16 @@ _io = [
         Subsignal("tx_n",  Pins("C10"))
     ),
 
+    ("pcie_x4", 0,
+        Subsignal("rst_n", Pins("M20"), IOStandard("LVCMOS25")),
+        Subsignal("clk_p", Pins("F11")),
+        Subsignal("clk_n", Pins("E11")),
+        Subsignal("rx_p",  Pins("D12 B13 D14 B11")),
+        Subsignal("rx_n",  Pins("C12 A13 C14 A11")),
+        Subsignal("tx_p",  Pins("D10 B9 D8 B7")),
+        Subsignal("tx_n",  Pins("C10 A9 C8 A7"))
+    ),
+
     # GTP RefClk
     ("gtp_refclk", 0,
      Subsignal("p", Pins("AA13")),

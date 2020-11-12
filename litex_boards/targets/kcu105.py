@@ -3,7 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2018-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -24,6 +24,9 @@ from litedram.modules import EDY4016A
 from litedram.phy import usddrphy
 
 from liteeth.phy.ku_1000basex import KU_1000BASEX
+
+from litepcie.phy.uspciephy import USPCIEPHY
+from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -59,7 +62,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_etherbone=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_etherbone=False, with_pcie=False, **kwargs):
         platform = kcu105.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -101,6 +104,14 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
 
+        # PCIe -------------------------------------------------------------------------------------
+        if with_pcie:
+            self.submodules.pcie_phy = USPCIEPHY(platform, platform.request("pcie_x4"),
+                data_width = 128,
+                bar0_size  = 0x20000)
+            self.add_csr("pcie_phy")
+            self.add_pcie(phy=self.pcie_phy, ndmas=1)
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -113,17 +124,26 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on KCU105")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    builder_args(parser)
-    soc_sdram_args(parser)
     parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
     parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
+    parser.add_argument("--with-pcie",      action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",         action="store_true", help="Generate PCIe driver")
+    builder_args(parser)
+    soc_sdram_args(parser)
     args = parser.parse_args()
 
     assert not (args.with_ethernet and args.with_etherbone)
-    soc = BaseSoC(with_ethernet=args.with_ethernet, with_etherbone=args.with_etherbone,
-        **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        with_pcie      = args.with_pcie,
+        **soc_sdram_argdict(args)
+	)
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
+
+    if args.driver:
+        generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()

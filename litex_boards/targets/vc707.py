@@ -21,6 +21,10 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT8JTF12864
 from litedram.phy import s7ddrphy
 
+
+from litepcie.phy.s7pciephy import S7PCIEPHY
+from litepcie.software import generate_litepcie_software
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -44,7 +48,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, **kwargs):
         platform = vc707.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -73,6 +77,14 @@ class BaseSoC(SoCCore):
                 l2_cache_reverse        = True
             )
 
+        # PCIe -------------------------------------------------------------------------------------
+        if with_pcie:
+            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+                data_width = 128,
+                bar0_size  = 0x20000)
+            self.add_csr("pcie_phy")
+            self.add_pcie(phy=self.pcie_phy, ndmas=1)
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -83,15 +95,20 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on VC707")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--build",     action="store_true", help="Build bitstream")
+    parser.add_argument("--load",      action="store_true", help="Load bitstream")
+    parser.add_argument("--with-pcie", action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",    action="store_true", help="Generate PCIe driver")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_sdram_argdict(args))
+    soc = BaseSoC(with_pcie_=args.with_pcie, **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
+
+    if args.driver:
+        generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()

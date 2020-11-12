@@ -4,7 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2014-2015 Sebastien Bourdeauducq <sb@m-labs.hk>
-# Copyright (c) 2014-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2014-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # Copyright (c) 2014-2015 Yann Sionneau <ys@m-labs.hk>
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -25,6 +25,9 @@ from litedram.modules import MT8JTF12864
 from litedram.phy import s7ddrphy
 
 from liteeth.phy import LiteEthPHY
+
+from litepcie.phy.s7pciephy import S7PCIEPHY
+from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -49,7 +52,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_sata=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_pcie=False, with_sata=False, **kwargs):
         platform = kc705.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -86,6 +89,14 @@ class BaseSoC(SoCCore):
                 clk_freq   = self.clk_freq)
             self.add_csr("ethphy")
             self.add_ethernet(phy=self.ethphy)
+
+        # PCIe -------------------------------------------------------------------------------------
+        if with_pcie:
+            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+                data_width = 128,
+                bar0_size  = 0x20000)
+            self.add_csr("pcie_phy")
+            self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # SATA -------------------------------------------------------------------------------------
         if with_sata:
@@ -135,14 +146,24 @@ def main():
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
     parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",        action="store_true", help="Generate PCIe driver")
     parser.add_argument("--with-sata",     action="store_true", help="Enable SATA support (over SFP2SATA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(with_ethernet=args.with_ethernet, with_sata=args.with_sata, **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        with_ethernet = args.with_ethernet,
+        with_pcie     = args.with_pcie,
+        with_sata     = args.with_sata,
+        **soc_sdram_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
+
+    if args.driver:
+        generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()
