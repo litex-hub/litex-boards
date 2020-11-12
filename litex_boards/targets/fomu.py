@@ -70,9 +70,8 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), **kwargs):
         kwargs["uart_name"] = "usb_acm" # Enforce UART to USB-ACM
-        sys_clk_freq = int(12e6)
         platform = fomu_pvt.Platform()
 
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
@@ -149,13 +148,18 @@ def flash(bios_flash_offset):
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Fomu")
     parser.add_argument("--build",             action="store_true", help="Build bitstream")
+    parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency (default: 12MHz)")
     parser.add_argument("--bios-flash-offset", default=0x60000,     help="BIOS offset in SPI Flash (default: 0x60000)")
     parser.add_argument("--flash",             action="store_true", help="Flash Bitstream")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(args.bios_flash_offset, **soc_core_argdict(args))
+    soc = BaseSoC(
+        bios_flash_offset = args.bios_flash_offset,
+        sys_clk_freq      = int(float(args.sys_clk_freq)),
+        **soc_core_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 

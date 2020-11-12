@@ -71,6 +71,7 @@ class _CRG(Module):
         self.comb += reset_timer.wait.eq(~rst_n)
         self.comb += platform.request("rst_n").eq(reset_timer.done)
 
+
 class _CRGSDRAM(Module):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
         self.clock_domains.cd_init     = ClockDomain()

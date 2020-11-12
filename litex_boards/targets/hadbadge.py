@@ -94,7 +94,10 @@ def main():
     trellis_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(toolchain=args.toolchain, sys_clk_freq=int(float(args.sys_clk_freq)), **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        toolchain    = args.toolchain,
+        sys_clk_freq = int(float(args.sys_clk_freq)),
+        **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)

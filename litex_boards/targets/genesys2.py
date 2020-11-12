@@ -99,6 +99,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Genesys2")
     parser.add_argument("--build",          action="store_true", help="Build bitstream")
     parser.add_argument("--load",           action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
     parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
     builder_args(parser)
@@ -106,8 +107,12 @@ def main():
     args = parser.parse_args()
 
     assert not (args.with_ethernet and args.with_etherbone)
-    soc = BaseSoC(with_ethernet=args.with_ethernet, with_etherbone=args.with_etherbone,
-        **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        **soc_sdram_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 

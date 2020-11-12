@@ -108,9 +108,11 @@ def main():
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)),
-        with_ethernet=args.with_ethernet,
-        **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        sys_clk_freq  = int(float(args.sys_clk_freq)),
+        with_ethernet = args.with_ethernet,
+        **soc_sdram_argdict(args)
+    )
     assert not (args.with_spi_sdcard and args.with_sdcard)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

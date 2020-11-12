@@ -53,9 +53,8 @@ class CRG(Module):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_pcie=False, **kwargs):
         platform = nereid.Platform()
-        sys_clk_freq = int(100e6)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -84,7 +83,6 @@ class BaseSoC(SoCCore):
                 l2_cache_reverse        = True
             )
 
-
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
             self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
@@ -97,15 +95,20 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Nereid")
-    parser.add_argument("--build",     action="store_true", help="Build bitstream")
-    parser.add_argument("--load",      action="store_true", help="Load bitstream")
-    parser.add_argument("--with-pcie", action="store_true", help="Enable PCIe support")
-    parser.add_argument("--driver",    action="store_true", help="Generate PCIe driver")
+    parser.add_argument("--build",        action="store_true", help="Build bitstream")
+    parser.add_argument("--load",         action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq", default=100e6,       help="System clock frequency (default: 100MHz)")
+    parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    soc     = BaseSoC(with_pcie=args.with_pcie, **soc_sdram_argdict(args))
+    soc = BaseSoC(
+         sys_clk_freq = int(float(args.sys_clk_freq)),
+         with_pcie    = args.with_pcie,
+         **soc_sdram_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 

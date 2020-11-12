@@ -54,6 +54,7 @@ class _CRG(Module):
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+
 class _CRGSDRAM(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
@@ -172,9 +173,11 @@ def main():
     trellis_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)),
-        with_ethernet=args.with_ethernet,
-        **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        sys_clk_freq  = int(float(args.sys_clk_freq)),
+        with_ethernet = args.with_ethernet,
+        **soc_sdram_argdict(args)
+    )
     assert not (args.with_spi_sdcard and args.with_sdcard)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

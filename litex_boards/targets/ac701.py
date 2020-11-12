@@ -145,17 +145,20 @@ def main():
     soc_sdram_args(parser)
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
     parser.add_argument("--ethernet-phy",  default="rgmii",     help="Select Ethernet PHY: rgmii (default) or 1000basex")
-    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
-    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
+    parser.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support")
+    parser.add_argument("--driver",        action="store_true", help="Generate PCIe driver")
     args = parser.parse_args()
 
     soc = BaseSoC(
+        sys_clk_freq  = int(float(args.sys_clk_freq)),
         with_ethernet = args.with_ethernet,
         ethernet_phy  = args.ethernet_phy,
         with_pcie     = args.with_pcie,
-        **soc_sdram_argdict(args))
+        **soc_sdram_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 

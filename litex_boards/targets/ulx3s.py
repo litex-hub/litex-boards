@@ -144,7 +144,10 @@ def main():
     trellis_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(device=args.device, revision=args.revision, toolchain=args.toolchain,
+    soc = BaseSoC(
+        device           = args.device,
+        revision         = args.revision,
+        toolchain        = args.toolchain,
         sys_clk_freq     = int(float(args.sys_clk_freq)),
         sdram_module_cls = args.sdram_module,
         sdram_rate       = args.sdram_rate,

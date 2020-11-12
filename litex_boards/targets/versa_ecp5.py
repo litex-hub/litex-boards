@@ -148,13 +148,15 @@ def main():
     args = parser.parse_args()
 
     assert not (args.with_ethernet and args.with_etherbone)
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)),
+    soc = BaseSoC(
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
         device         = args.device,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_phy        = args.eth_phy,
         toolchain      = args.toolchain,
-        **soc_sdram_argdict(args))
+        **soc_sdram_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)

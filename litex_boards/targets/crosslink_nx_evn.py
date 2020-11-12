@@ -66,7 +66,7 @@ class BaseSoC(SoCCore):
         "sram":             0x40000000,
         "csr":              0xf0000000,
     }
-    def __init__(self, sys_clk_freq, **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), **kwargs):
         platform = crosslink_nx_evn.Platform()
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
 
@@ -78,8 +78,8 @@ class BaseSoC(SoCCore):
 
         # SoCCore -----------------------------------------_----------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Crosslink-NX Evaluation Board",
-            ident_version  = True,
+            ident         = "LiteX SoC on Crosslink-NX Evaluation Board",
+            ident_version = True,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -110,7 +110,10 @@ def main():
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), **soc_core_argdict(args))
+    soc = BaseSoC(
+        sys_clk_freq = int(float(args.sys_clk_freq)),
+        **soc_core_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = {}
     builder.build(**builder_kargs, run=args.build)

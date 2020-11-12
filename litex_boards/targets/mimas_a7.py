@@ -100,13 +100,18 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Mimas A7")
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
     builder_args(parser)
     soc_sdram_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(with_ethernet=args.with_ethernet, **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        sys_clk_freq  = int(float(args.sys_clk_freq)),
+        with_ethernet = args.with_ethernet,
+        **soc_sdram_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**vivado_build_argdict(args), run=args.build)
 

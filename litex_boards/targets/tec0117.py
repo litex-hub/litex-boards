@@ -27,9 +27,8 @@ mB = 1024*kB
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, **kwargs):
-        platform     = tec0117.Platform()
-        sys_clk_freq = int(1e9/platform.default_clk_period)
+    def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), **kwargs):
+        platform = tec0117.Platform()
 
         # SoC can have littel a bram, as a treat
         kwargs["integrated_sram_size"] = 2048*2
@@ -97,8 +96,6 @@ def flash(offset, path):
     print("Programming flash...")
     dev.write(offset, bios)
 
-
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -107,11 +104,16 @@ def main():
     parser.add_argument("--load",              action="store_true", help="Load bitstream")
     parser.add_argument("--bios-flash-offset", default=0x00000,     help="BIOS offset in SPI Flash (0x00000 default)")
     parser.add_argument("--flash",             action="store_true", help="Flash BIOS")
+    parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency (default: 12MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc     = BaseSoC(args.bios_flash_offset, **soc_core_argdict(args))
+    soc= BaseSoC(
+        bios_flash_offset = args.bios_flash_offset,
+        sys_clk_freq      = int(float(args.sys_clk_freq)),
+        **soc_core_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 

@@ -94,8 +94,8 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, revision="rev0", device="45F", sdram_device="MT41K512M16",
-                 with_ethernet = False,
                  sys_clk_freq  = int(75e6),
+                 with_ethernet = False,
                  toolchain     = "trellis",
                  **kwargs):
         platform = logicbone.Platform(revision=revision, device=device ,toolchain=toolchain)
@@ -175,10 +175,11 @@ def main():
     soc = BaseSoC(
         toolchain     = args.toolchain,
         device        = args.device,
+        sys_clk_freq  = int(float(args.sys_clk_freq)),
         sdram_device  = args.sdram_device,
         with_ethernet = args.with_ethernet,
-        sys_clk_freq  = int(float(args.sys_clk_freq)),
-        **soc_sdram_argdict(args))
+        **soc_sdram_argdict(args)
+    )
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))

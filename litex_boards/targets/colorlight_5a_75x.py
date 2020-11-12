@@ -118,7 +118,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board, revision, with_ethernet=False, with_etherbone=False, eth_phy=0, sys_clk_freq=60e6, use_internal_osc=False, sdram_rate="1:1", **kwargs):
+    def __init__(self, board, revision, sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, eth_phy=0, use_internal_osc=False, sdram_rate="1:1", **kwargs):
         board = board.lower()
         assert board in ["5a-75b", "5a-75e"]
         if board == "5a-75b":
@@ -179,10 +179,10 @@ def main():
     parser.add_argument("--load",             action="store_true",      help="Load bitstream")
     parser.add_argument("--board",            default="5a-75b",         help="Board type: 5a-75b (default) or 5a-75e")
     parser.add_argument("--revision",         default="7.0", type=str,  help="Board revision: 7.0 (default), 6.0 or 6.1")
+    parser.add_argument("--sys-clk-freq",     default=60e6,             help="System clock frequency (default: 60MHz)")
     parser.add_argument("--with-ethernet",    action="store_true",      help="Enable Ethernet support")
     parser.add_argument("--with-etherbone",   action="store_true",      help="Enable Etherbone support")
     parser.add_argument("--eth-phy",          default=0, type=int,      help="Ethernet PHY: 0 (default) or 1")
-    parser.add_argument("--sys-clk-freq",     default=60e6, type=float, help="System clock frequency (default: 60MHz)")
     parser.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator")
     parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
     builder_args(parser)
@@ -192,13 +192,14 @@ def main():
 
     assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(board=args.board, revision=args.revision,
+        sys_clk_freq     = int(float(args.sys_clk_freq)),
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
         eth_phy          = args.eth_phy,
-        sys_clk_freq     = args.sys_clk_freq,
         use_internal_osc = args.use_internal_osc,
         sdram_rate       = args.sdram_rate,
-        **soc_core_argdict(args))
+        **soc_core_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**trellis_argdict(args), run=args.build)
 

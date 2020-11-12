@@ -29,8 +29,7 @@ mB = 1024*kB
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, **kwargs):
-        sys_clk_freq = int(16e6)
+    def __init__(self, bios_flash_offset, sys_clk_freq=int(16e6), **kwargs):
         platform = tinyfpga_bx.Platform()
 
         # Disable Integrated ROM since too large for iCE40.
@@ -70,11 +69,16 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on TinyFPGA BX")
     parser.add_argument("--build",             action="store_true", help="Build bitstream")
     parser.add_argument("--bios-flash-offset", default=0x60000,     help="BIOS offset in SPI Flash (default: 0x60000)")
+    parser.add_argument("--sys-clk-freq",      default=16e6,        help="System clock frequency (default: 16MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(args.bios_flash_offset, **soc_core_argdict(args))
+    soc = BaseSoC(
+         bios_flash_offset = args.bios_flash_offset,
+         sys_clk_freq      = int(float(args.sys_clk_freq)),
+         **soc_core_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 

@@ -113,15 +113,20 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Cam Link 4K")
-    parser.add_argument("--build",     action="store_true", help="Build bitstream")
-    parser.add_argument("--load",      action="store_true", help="Load bitstream")
-    parser.add_argument("--toolchain", default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
+    parser.add_argument("--build",        action="store_true", help="Build bitstream")
+    parser.add_argument("--load",         action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq", default=81e6,        help="System clock frequency (default: 81MHz)")
+    parser.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(toolchain=args.toolchain, **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        sys_clk_freq = int(float(args.sys_clk_freq)),
+        toolchain    = args.toolchain,
+        **soc_sdram_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)

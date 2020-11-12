@@ -104,14 +104,19 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE10-Lite")
-    parser.add_argument("--build",    action="store_true", help="Build bitstream")
-    parser.add_argument("--load",     action="store_true", help="Load bitstream")
-    parser.add_argument("--with-vga", action="store_true", help="Enable VGA support")
+    parser.add_argument("--build",        action="store_true", help="Build bitstream")
+    parser.add_argument("--load",         action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--with-vga",     action="store_true", help="Enable VGA support")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(with_vga=args.with_vga, **soc_sdram_argdict(args))
+    soc = BaseSoC(
+        sys_clk_freq = int(float(args.sys_clk_freq)),
+        with_vga     = args.with_vga,
+        **soc_sdram_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 

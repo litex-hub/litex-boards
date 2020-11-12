@@ -117,17 +117,21 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DE10-Nano")
     parser.add_argument("--build",             action="store_true", help="Build bitstream")
     parser.add_argument("--load",              action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-mister-sdram", action="store_true", help="Enable SDRAM with MiSTer expansion board")
     parser.add_argument("--with-mister-vga",   action="store_true", help="Enable VGA with Mister expansion board")
     parser.add_argument("--sdram-rate",        default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
     args = parser.parse_args()
     builder_args(parser)
     soc_sdram_args(parser)
+
     soc = BaseSoC(
+        sys_clk_freq      = int(float(args.sys_clk_freq)),
         with_mister_sdram = args.with_mister_sdram,
         with_mister_vga   = args.with_mister_vga,
         sdram_rate        = args.sdram_rate,
-        **soc_sdram_argdict(args))
+        **soc_sdram_argdict(args)
+    )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
