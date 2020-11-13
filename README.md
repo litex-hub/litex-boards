@@ -104,6 +104,7 @@ Repurposed FPGA hardware that has been "documented" by enthusiasts :), allows yo
 
 | Name         | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM         |       Ethernet     |    Flash    |
 |--------------|---------------------|---------------|----------|------|--------------------|--------------------|-------------|
+| SDS1104X-E   | Xilinx Zynq         | XC7Z020       |  100MHz  | Eth  | 32-bit 256MB DDR3  | 100Mbps MII        |      ?      |
 | Colorlight5A | Lattice ECP5        | LFE5U-25F     |   60MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
 | Linsn RV901  | Xilinx Spartan6     | XC6SLX16      |   75MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
 | PanoLogic G2 | Xilinx Spartan6     | XC6SLX100-150 |   50MHz  | IOs  | 32-bit 128MB DDR2  | 1Gbps GMII         |  16MB QSPI  |
