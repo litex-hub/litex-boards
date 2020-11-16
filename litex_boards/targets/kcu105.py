@@ -62,7 +62,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_etherbone=False, with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_etherbone=False, with_pcie=False, with_sata=False, **kwargs):
         platform = kcu105.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -112,6 +112,41 @@ class BaseSoC(SoCCore):
             self.add_csr("pcie_phy")
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
+        # SATA -------------------------------------------------------------------------------------
+        if with_sata:
+            from litex.build.generic_platform import Subsignal, Pins
+            from litesata.phy import LiteSATAPHY
+
+            # IOs
+            _sata_io = [
+                # SFP 2 SATA Adapter / https://shop.trenz-electronic.de/en/TE0424-01-SFP-2-SATA-Adapter
+                ("sfp2sata", 0,
+                    Subsignal("tx_p", Pins("U4")),
+                    Subsignal("tx_n", Pins("U3")),
+                    Subsignal("rx_p", Pins("T2")),
+                    Subsignal("rx_n", Pins("T1")),
+                ),
+            ]
+            platform.add_extension(_sata_io)
+
+            # RefClk, Generate 150MHz from PLL.
+            self.clock_domains.cd_sata_refclk = ClockDomain()
+            self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
+            sata_refclk = ClockSignal("sata_refclk")
+            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-1753]")
+
+            # PHY
+            self.submodules.sata_phy = LiteSATAPHY(platform.device,
+                refclk     = sata_refclk,
+                pads       = platform.request("sfp2sata"),
+                gen        = "gen2",
+                clk_freq   = sys_clk_freq,
+                data_width = 16)
+            self.add_csr("sata_phy")
+
+            # Core
+            self.add_sata(phy=self.sata_phy, mode="read+write")
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -129,6 +164,7 @@ def main():
     parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
     parser.add_argument("--with-pcie",      action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",         action="store_true", help="Generate PCIe driver")
+    parser.add_argument("--with-sata",      action="store_true", help="Enable SATA support (over SFP2SATA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
@@ -139,6 +175,7 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         with_pcie      = args.with_pcie,
+        with_sata     = args.with_sata,
         **soc_sdram_argdict(args)
 	)
     builder = Builder(soc, **builder_argdict(args))
