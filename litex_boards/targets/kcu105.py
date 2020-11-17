@@ -175,7 +175,7 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         with_pcie      = args.with_pcie,
-        with_sata     = args.with_sata,
+        with_sata      = args.with_sata,
         **soc_sdram_argdict(args)
 	)
     builder = Builder(soc, **builder_argdict(args))
