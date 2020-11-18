@@ -72,7 +72,7 @@ class CRG(Module):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_pcie=False, with_sata=False, **kwargs):
         platform = acorn_cle_215.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -110,6 +110,41 @@ class BaseSoC(SoCCore):
             self.add_csr("pcie_phy")
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
+        # SATA -------------------------------------------------------------------------------------
+        if with_sata:
+            from litex.build.generic_platform import Subsignal, Pins
+            from litesata.phy import LiteSATAPHY
+
+            # IOs
+            _sata_io = [
+                 # PCIe 2 SATA Custom Adapter (With PCIe Riser / SATA cable mod).
+                ("pcie2sata", 0,
+                    Subsignal("tx_p",  Pins("B6")),
+                    Subsignal("tx_n",  Pins("A6")),
+                    Subsignal("rx_p",  Pins("B10")),
+                    Subsignal("rx_n",  Pins("A10")),
+                ),
+            ]
+            platform.add_extension(_sata_io)
+
+            # RefClk, Generate 150MHz from PLL.
+            self.clock_domains.cd_sata_refclk = ClockDomain()
+            self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
+            sata_refclk = ClockSignal("sata_refclk")
+            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
+
+            # PHY
+            self.submodules.sata_phy = LiteSATAPHY(platform.device,
+                refclk     = sata_refclk,
+                pads       = platform.request("pcie2sata"),
+                gen        = "gen2",
+                clk_freq   = sys_clk_freq,
+                data_width = 16)
+            self.add_csr("sata_phy")
+
+            # Core
+            self.add_sata(phy=self.sata_phy, mode="read+write")
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -127,13 +162,16 @@ def main():
     parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
     parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2)")
+    parser.add_argument("--with-sata",       action="store_true", help="Enable SATA support (over PCIe2SATA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
+    assert not (args.with_pcie and args.with_sata)
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         with_pcie    = args.with_pcie,
+        with_sata    = args.with_sata,
         **soc_sdram_argdict(args)
     )
     if args.with_spi_sdcard:
