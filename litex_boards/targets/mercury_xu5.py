@@ -73,7 +73,8 @@ class BaseSoC(SoCCore):
             self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram"),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
-                iodelay_clk_freq = 500e6)
+                iodelay_clk_freq = 500e6,
+                cmd_latency      = 0)
             self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
