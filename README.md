@@ -135,6 +135,7 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 | KC705        | Xilinx Kintex7      | XC7K325T      | 125MHz  | FTDI | 64-bit   1GB DDR3  | Gen2 X8** |   1Gbps GMII   |  32MB QSPI* |   Yes  |
 | KCU105       | Xilinx KintexU      | XCKU40        | 125MHz  | FTDI | 64-bit   1GB DDR4  | Gen3 X8** | 1Gbps-BASE-X   |  64MB QSPI* |   Yes  |
 | KX2          | Xilinx Kintex7      | XC7K160T      | 125MHz  | FTDI | 64-bit   1GB DDR3  |     No    |       No       |  64MB QSPI* |   No   |
+| LiteFury     | Xilinx Artix7       | XC7A100T      | 100MHz  | PCIe | 16-bit 512MB DDR3  |  Gen2 X4  |       No       |  32MB QSPI* |   No   |
 | MachXO3      | Lattice MachXO3     | LCMXO3L-6900C | 125MHz  |  ?   |         ?          |     No    |       No       |      ?      |   No   |
 | Mercury XU5  | Xilinx ZynqU+       | XCZU2EG       | 125MHz  | FTDI | 16-bit 512MB DDR4  |     No    |       No       |  64MB QSPI* |   No   |
 | Mimas A7     | Xilinx Artix7       | XC7A50T       | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    | 1Gbps RGMII    |  16MB QSPI  |   No   |
