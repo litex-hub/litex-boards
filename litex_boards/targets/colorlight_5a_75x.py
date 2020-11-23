@@ -56,6 +56,7 @@ from litex.build.lattice.trellis import trellis_args, trellis_argdict
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.led import LedChaser
 
 from litedram.modules import M12L16161A, M12L64322A
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -170,6 +171,12 @@ class BaseSoC(SoCCore):
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
+
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = platform.request_all("user_led_n"),
+            sys_clk_freq = sys_clk_freq)
+        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
