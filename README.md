@@ -8,6 +8,8 @@
 
               Copyright 2012-2020 / LiteX-Hub community
 
+[![](https://github.com/litex-hub/litex-boards/workflows/ci/badge.svg)](https://github.com/litex-hub/litex-boards/actions) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)
+
 [> Intro
 --------
 <figure>
