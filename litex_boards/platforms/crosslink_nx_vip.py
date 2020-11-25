@@ -202,9 +202,9 @@ class Platform(LatticePlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
-    def __init__(self, device="LIFCL", **kwargs):
+    def __init__(self, device="LIFCL", toolchain="radiant", **kwargs):
         assert device in ["LIFCL"]
-        LatticePlatform.__init__(self, device + "-40-9BG400C", _io, _connectors, toolchain="radiant", **kwargs)
+        LatticePlatform.__init__(self, device + "-40-9BG400C", _io, _connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self, mode = "direct"):
         assert mode in ["direct","flash"]
