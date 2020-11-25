@@ -31,6 +31,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from litex.build.lattice.oxide import oxide_args, oxide_argdict
+
 kB = 1024
 mB = 1024*kB
 
@@ -67,8 +69,8 @@ class BaseSoC(SoCCore):
         "sram":             0x40000000,
         "csr":              0xf0000000,
     }
-    def __init__(self, sys_clk_freq=int(75e6), hyperram="none", **kwargs):
-        platform = crosslink_nx_vip.Platform()
+    def __init__(self, sys_clk_freq=int(75e6), hyperram="none", toolchain="radiant", **kwargs):
+        platform = crosslink_nx_vip.Platform(toolchain=toolchain)
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
 
         # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
@@ -108,20 +110,23 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX VIP Board")
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
+    parser.add_argument("--toolchain",     default="radiant",   help="FPGA toolchain: radiant (default) or prjoxide")
     parser.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency (default: 75MHz)")
     parser.add_argument("--with-hyperram", default="none",      help="Enable use of HyperRAM chip: none (default), 0 or 1")
     parser.add_argument("--prog-target",   default="direct",    help="Programming Target: direct (default) or flash")
     builder_args(parser)
     soc_core_args(parser)
+    oxide_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         hyperram     = args.with_hyperram,
+        toolchain    = args.toolchain,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = {}
+    builder_kargs = oxide_argdict(args) if args.toolchain == "oxide" else {}
     builder.build(**builder_kargs, run=args.build)
 
     if args.load:
