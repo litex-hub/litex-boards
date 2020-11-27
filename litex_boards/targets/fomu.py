@@ -83,7 +83,6 @@ class BaseSoC(SoCCore):
 
         # Serial -----------------------------------------------------------------------------------
         # FIXME: do proper install of ValentyUSB.
-        # FIXME: replace IoBuf with https://github.com/im-tomu/valentyusb/blob/master/valentyusb/usbcore/io.py#L13-L61.
         os.system("git clone https://github.com/litex-hub/valentyusb -b hw_cdc_eptri")
         sys.path.append("valentyusb")
 
