@@ -9,7 +9,6 @@
 import os
 import sys
 import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -103,7 +102,7 @@ class BaseSoC(SoCCore):
         # Serial -----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "usb_acm":
             # FIXME: do proper install of ValentyUSB.
-            os.system("git clone https://github.com/gregdavill/valentyusb -b hw_cdc_eptri")
+            os.system("git clone https://github.com/litex-hub/valentyusb -b hw_cdc_eptri")
             sys.path.append("valentyusb")
 
         # SoCCore ----------------------------------------------------------------------------------

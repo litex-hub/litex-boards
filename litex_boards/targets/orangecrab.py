@@ -151,7 +151,7 @@ class BaseSoC(SoCCore):
         # Serial -----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "usb_acm":
             # FIXME: do proper install of ValentyUSB.
-            os.system("git clone https://github.com/gregdavill/valentyusb -b hw_cdc_eptri")
+            os.system("git clone https://github.com/litex-hub/valentyusb -b hw_cdc_eptri")
             sys.path.append("valentyusb")
         else:
             platform.add_extension(orangecrab.feather_serial)
