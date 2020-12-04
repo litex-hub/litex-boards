@@ -4,6 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2020 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -54,13 +55,13 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, **kwargs):
-        platform = arty.Platform()
+    def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, ident_version=True, **kwargs):
+        platform = arty.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Arty A7",
-            ident_version  = True,
+            ident_version  = ident_version,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -104,13 +105,15 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Arty A7")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency (default: 100MHz)")
-    parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone",  action="store_true", help="Enable Etherbone support")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
-    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    parser.add_argument("--toolchain",        default="vivado",     help="Toolchain use to build (default: vivado)")
+    parser.add_argument("--build",            action="store_true",  help="Build bitstream")
+    parser.add_argument("--load",             action="store_true",  help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",     default=100e6,        help="System clock frequency (default: 100MHz)")
+    parser.add_argument("--with-ethernet",    action="store_true",  help="Enable Ethernet support")
+    parser.add_argument("--with-etherbone",   action="store_true",  help="Enable Etherbone support")
+    parser.add_argument("--with-spi-sdcard",  action="store_true",  help="Enable SPI-mode SDCard support")
+    parser.add_argument("--with-sdcard",      action="store_true",  help="Enable SDCard support")
+    parser.add_argument("--no-ident-version", action="store_false", help="Disable build time output")
     builder_args(parser)
     soc_sdram_args(parser)
     vivado_build_args(parser)
@@ -118,9 +121,11 @@ def main():
 
     assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(
+        toolchain      = args.toolchain,
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
+        ident_version  = args.no_ident_version,
         **soc_sdram_argdict(args)
     )
     assert not (args.with_spi_sdcard and args.with_sdcard)
@@ -130,7 +135,8 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
+    builder.build(**builder_kwargs, run=args.build)
 
     if args.load:
         prog = soc.platform.create_programmer()
