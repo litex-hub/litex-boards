@@ -11,7 +11,7 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
 _io = [
     # Clk / Rst
-    ("clk125", 0, Pins("L16"), IOStandard("LVCMOS33")),
+    ("clk125", 0, Pins("K17"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("M14"), IOStandard("LVCMOS33")),
