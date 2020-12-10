@@ -15,8 +15,7 @@
 #
 # Test Console:
 # litex_server --udp
-# litex_crossover_uart (will create /dev/pts/X)
-# litex_term /dev/pts/X
+# litex_term crossover
 # --------------------------------------------------------------------------------------------------
 
 import os
