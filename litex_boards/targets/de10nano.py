@@ -121,9 +121,9 @@ def main():
     parser.add_argument("--with-mister-sdram", action="store_true", help="Enable SDRAM with MiSTer expansion board")
     parser.add_argument("--with-mister-vga",   action="store_true", help="Enable VGA with Mister expansion board")
     parser.add_argument("--sdram-rate",        default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
-    args = parser.parse_args()
     builder_args(parser)
     soc_sdram_args(parser)
+    args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq      = int(float(args.sys_clk_freq)),
