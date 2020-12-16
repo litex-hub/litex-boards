@@ -180,7 +180,8 @@ class BaseSoC(SoCCore):
             ddram_pads = platform.request("ddram")
             self.submodules.ddrphy = ECP5DDRPHY(
                 pads         = ddram_pads,
-                sys_clk_freq = sys_clk_freq)
+                sys_clk_freq = sys_clk_freq,
+                dm_remapping = {0:1, 1:0})
             self.ddrphy.settings.rtt_nom = "disabled"
             self.add_csr("ddrphy")
             if hasattr(ddram_pads, "vccio"):
