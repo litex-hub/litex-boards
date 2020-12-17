@@ -1,12 +1,12 @@
 
-           __   _ __      _  __    ___                   __
-          / /  (_) /____ | |/_/___/ _ )___  ___ ________/ /__
-         / /__/ / __/ -_)>  </___/ _  / _ \/ _ `/ __/ _  (_-<
-        /____/_/\__/\__/_/|_|   /____/\___/\_,_/_/  \_,_/___/
+                                  __   _ __      _  __    ___                   __
+                                 / /  (_) /____ | |/_/___/ _ )___  ___ ________/ /__
+                                / /__/ / __/ -_)>  </___/ _  / _ \/ _ `/ __/ _  (_-<
+                               /____/_/\__/\__/_/|_|   /____/\___/\_,_/_/  \_,_/___/
 
-                       LiteX boards files
+                                              LiteX boards files
 
-              Copyright 2012-2020 / LiteX-Hub community
+                                     Copyright 2012-2020 / LiteX-Hub community
 
 [![](https://github.com/litex-hub/litex-boards/workflows/ci/badge.svg)](https://github.com/litex-hub/litex-boards/actions) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)
 
@@ -68,7 +68,7 @@ Fully open-hardware boards, the ECP5 and iCE40 ones are even usable with the ope
 
 | Name         | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       RAM           |    PCIe   |    Ethernet    |    Flash    | SDCard |
 |--------------|---------------------|---------------|----------|------|---------------------|-----------|----------------|-------------|--------|
-| ECPIX-5      | Lattice ECP5        | LFE5UM5G-85F  |  75MHz   | FTDI |  16-bit 512MB DDR3  |      No   |   1Gbps RGMII  |  16MB QSPI  |   Yes* |
+| ECPIX-5      | Lattice ECP5        | LFE5UM5G-85F  |  75MHz   | FTDI |  16-bit 512MB DDR3  |      No   |   1Gbps RGMII  |  16MB QSPI  |   Yes  |
 | Fomu         | Lattice iCE40       | iCE40-UP5K    |  12MHz   | USB  |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
 | HADBadge     | Lattice ECP5        | LFE5U-45F     |  48MHz   | IOs  |   8-bit  32MB SDR   |      No   |         No     |  16MB QSPI  |   No   |
 | iCEBreaker   | Lattice iCE40       | iCE40-UP5K    |  24MHz   | FTDI |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
@@ -79,10 +79,10 @@ Fully open-hardware boards, the ECP5 and iCE40 ones are even usable with the ope
 | OrangeCrab   | Lattice ECP5        | LFE5U-25F     |  48MHz   | USB  |  16-bit 128MB SDR   |      No   |         No     |   4MB QSPI  |   Yes  |
 | Pipistrello  | Xilinx Spartan6     | XC6SLX45      |  83MHz   | FTDI |  16-bit  64MB LPDDR |      No   |         No     |  16MB QSPI  |   Yes* |
 | ULX3S        | Lattice ECP5        | LFE5U-45F     |  50MHz   | FTDI |  16-bit  32MB SDR   |      No   |         No     |   4MB QSPI  |   Yes  |
-| TrellisBoard | Lattice ECP5        | LFE5UM5G-85F  |  75MHz   | FTDI |  32-bit   1GB DDR3  |  Gen2 X1* |   1Gbps RGMII* |  16MB QSPI  |   Yes  |
+| TrellisBoard | Lattice ECP5        | LFE5UM5G-85F  |  75MHz   | FTDI |  32-bit   1GB DDR3  |  Gen2 X1* |   1Gbps RGMII  |  16MB QSPI  |   Yes  |
 | TinyFPGA     | Lattice iCE40       | iCE40-LP8K    |  16MHz   | IOs  |         No          |      No   |         No     |  16MB QSPI  |   No   |
 
-* Present on the board but not yet supported or validated with LiteX.
+\* Present on the board but not yet supported or validated with LiteX.
 
 [> Accelerator boards
 ---------------------
@@ -92,12 +92,11 @@ PCIe accelerators boards that you could use to accelerate your applications, Lit
 | Name           | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM            |    PCIe       |    Flash    |
 |----------------|---------------------|---------------|----------|------|-----------------------|---------------|-------------|
 | AcornCLE215+   | Xilinx Artix7       | XC7A200T      | 125MHz   | PCIe | 16-bit 1GB DDR3       |  Gen2 X4      |  16MB QSPI  |
-| ForestKitten33 | Xilinx Ultrascale+  | XCVU33P       | 125MHz   | PCIe | 2 x 1024-bit 4GB HBM2*|  Gen3 X16**   |     ?       |
-| BCU1525        | Xilinx Ultrascale+  | XCVU9P        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM* |  Gen3 X16**   |     ?       |
-| AlveoU250      | Xilinx Ultrascale+  | XCU250        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM* |  Gen2 X16**   |     ?       |
+| ForestKitten33 | Xilinx Ultrascale+  | XCVU33P       | 125MHz   | PCIe | 2 x 1024-bit 4GB HBM2*|  Gen3 X16     |     ?       |
+| BCU1525        | Xilinx Ultrascale+  | XCVU9P        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM  |  Gen3 X16     |     ?       |
+| AlveoU250      | Xilinx Ultrascale+  | XCU250        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM  |  Gen2 X16     |     ?       |
 
-* Present on the board but not yet supported or validated with LiteX.
-** Currently limited to PCIe Gen2 X4 by LitePCIe.
+\* Present on the board but not yet supported or validated with LiteX.
 
 [> Repurposed hardware
 ----------------------
@@ -114,7 +113,7 @@ Repurposed FPGA hardware that has been "documented" by enthusiasts :), allows yo
 
 The Colorlight5A is a very nice board to start with, cheap, powerful, easy to use with the open-source toolchain, you can find a specific LiteX project [here](https://github.com/enjoy-digital/colorlite)
 
-* Present on the board but not yet supported or validated with LiteX.
+\* Present on the board but not yet supported or validated with LiteX.
 
 [> Development boards
 ---------------------
@@ -133,7 +132,7 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 | De1SoC       | Intel Cyclone5      | 5CSEMA5       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       ?        |      ?      |   ?    |
 | De2-115      | Intel Cyclone4      | EP4CE115      |  50MHz  | IOs  | 16-bit 128MB SDR   |     No    | 1Gbps GMII*    |  8MB QSPI   |   Yes* |
 | ECP5-EVN     | Lattice ECP5        | LFE5UM5G-85F  |  50MHz  | FTDI |        No          |     No    |       ?        |      ?      |   ?    |
-| Genesys2     | Xilinx Kintex7      | XC7K325T      | 125MHz  | FTDI | 32-bit   1GB DDR3  |     No    | 1Gbps RGMII*   |  32MB QSPI* |   Yes  |
+| Genesys2     | Xilinx Kintex7      | XC7K325T      | 125MHz  | FTDI | 32-bit   1GB DDR3  |     No    | 1Gbps RGMII    |  32MB QSPI* |   Yes  |
 | KC705        | Xilinx Kintex7      | XC7K325T      | 125MHz  | FTDI | 64-bit   1GB DDR3  | Gen2 X8** |   1Gbps GMII   |  32MB QSPI* |   Yes  |
 | KCU105       | Xilinx KintexU      | XCKU40        | 125MHz  | FTDI | 64-bit   1GB DDR4  | Gen3 X8** | 1Gbps-BASE-X   |  64MB QSPI* |   Yes  |
 | KX2          | Xilinx Kintex7      | XC7K160T      | 125MHz  | FTDI | 64-bit   1GB DDR3  |     No    |       No       |  64MB QSPI* |   No   |
@@ -143,7 +142,7 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 | Mimas A7     | Xilinx Artix7       | XC7A50T       | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    | 1Gbps RGMII    |  16MB QSPI  |   No   |
 | Nereid       | Xilinx Kintex7      | XC7K160T      | 100MHz  | PCIe | 64-bit   4GB DDR3  |  Gen2 X4  |       No       |  16MB QSPI  |   No   |
 | Nexys4DDR    | Xilinx Artix7       | XC7A100T      | 100MHz  | FTDI | 16-bit 128MB DDR2  |     No    | 100Mbps RMII   |  16MB QSPI* |   Yes  |
-| Nexys Video  | Xilinx Artix7       | XC7A200T      | 100MHz  | FTDI | 16-bit 512MB DDR3  |     No    |   1Gbps RMII*  |  32MB QSPI* |   Yes  |
+| Nexys Video  | Xilinx Artix7       | XC7A200T      | 100MHz  | FTDI | 16-bit 512MB DDR3  |     No    |   1Gbps RMII   |  32MB QSPI* |   Yes  |
 | SP605        | Xilinx Spartan6     | XC6SLX45T     | 100MHz  | FTDI | 16-bit 128MB DDR3* |  Gen1 X1* |   1Gbps GMII   |   8MB QSPI* |   Yes* |
 | Tagus        | Xilinx Artix7       | XC7A200T      | 100MHz  | PCIe | 16-bit 256MB DDR3  |  Gen2 X1  |  1Gbps-BASE-X* |  16MB QSPI* |   No   |
 | VC707        | Xilinx Virex7       | XC7VX485T     | 125MHz  | FTDI | 64-bit   1GB DDR3  |  Gen3 X8* |   1Gbps GMII   |  16MB QSPI* |   Yes* |
@@ -152,5 +151,4 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 | ZCU104       | Xilinx ZynqU+       | XCZU7EV       | 125MHz  | FTDI | 64-bit   1GB DDR4  |     No    | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
 | Zybo Z7      | Xilinx ZynqU+       | XC7Z010       | 125MHz  | FTDI | 64-bit   1GB DDR4  |     No    | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
 
-* Present on the board but not yet supported or validated with LiteX.
-** Currently limited to PCIe Gen2 X4 by LitePCIe.
+\* Present on the board but not yet supported or validated with LiteX.
