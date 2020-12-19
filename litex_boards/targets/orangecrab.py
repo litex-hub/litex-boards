@@ -69,7 +69,7 @@ class _CRG(Module):
         reset_timer = WaitTimer(sys_clk_freq)
         self.submodules += reset_timer
         self.comb += reset_timer.wait.eq(~rst_n)
-        self.comb += platform.request("rst_n").eq(reset_timer.done)
+        self.comb += platform.request("rst_n").eq(~reset_timer.done)
 
 
 class _CRGSDRAM(Module):
