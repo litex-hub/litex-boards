@@ -14,6 +14,7 @@ from migen import *
 from litex_boards.platforms import nexys4ddr
 
 from litex.soc.cores.clock import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -23,6 +24,8 @@ from litedram.modules import MT47H64M16
 from litedram.phy import s7ddrphy
 
 from liteeth.phy.rmii import LiteEthPHYRMII
+
+from litevideo.terminal.core import Terminal
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -34,7 +37,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys2x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
-
+        self.clock_domains.cd_vga       = ClockDomain(reset_less=True)
         # # #
 
         self.submodules.pll = pll = S7MMCM(speedgrade=-1)
@@ -45,13 +48,14 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys2x_dqs, 2*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
         pll.create_clkout(self.cd_eth,       50e6)
+        pll.create_clkout(self.cd_vga,    25e6)
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_vga=False, **kwargs):
         platform = nexys4ddr.Platform()
 
         # SoCCore ----------------------------------_-----------------------------------------------
@@ -88,6 +92,19 @@ class BaseSoC(SoCCore):
             self.add_csr("ethphy")
             self.add_ethernet(phy=self.ethphy)
 
+        # VGA terminal -----------------------------------------------------------------------------
+        if with_vga:
+            self.submodules.terminal = terminal = Terminal()
+            self.bus.add_slave("terminal", self.terminal.bus, region=SoCRegion(origin=0x30000000, size=0x10000))
+            vga_pads = platform.request("vga")
+            self.comb += [
+                vga_pads.vsync.eq(terminal.vsync),
+                vga_pads.hsync.eq(terminal.hsync),
+                vga_pads.red.eq(terminal.red[4:8]),
+                vga_pads.green.eq(terminal.green[4:8]),
+                vga_pads.blue.eq(terminal.blue[3:8])
+            ]
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -104,6 +121,7 @@ def main():
     parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support")
     parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
     parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    parser.add_argument("--with-vga",        action="store_true", help="Enable VGA support")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
