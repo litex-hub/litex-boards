@@ -129,6 +129,16 @@ _io = [
         Subsignal("int_n",   Pins("D8")),
         IOStandard("LVCMOS33")
      ),
+
+    # VGA
+     ("vga", 0,
+        Subsignal("red", Pins("A4 C5 B4 A3")),
+        Subsignal("green", Pins("A6 B6 A5 C6")),
+        Subsignal("blue", Pins("D7 C7 B7")), # D8 is shared with eth int_n
+        Subsignal("hsync", Pins("B11")),
+        Subsignal("vsync",  Pins("B12")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
