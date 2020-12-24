@@ -48,7 +48,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys2x_dqs, 2*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
         pll.create_clkout(self.cd_eth,       50e6)
-        pll.create_clkout(self.cd_vga,    25e6)
+        pll.create_clkout(self.cd_vga,       25e6)
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
@@ -102,7 +102,7 @@ class BaseSoC(SoCCore):
                 vga_pads.hsync.eq(terminal.hsync),
                 vga_pads.red.eq(terminal.red[4:8]),
                 vga_pads.green.eq(terminal.green[4:8]),
-                vga_pads.blue.eq(terminal.blue[3:8])
+                vga_pads.blue.eq(terminal.blue[4:8])
             ]
 
         # Leds -------------------------------------------------------------------------------------
