@@ -68,7 +68,7 @@ Fully open-hardware boards, the ECP5 and iCE40 ones are even usable with the ope
 
 | Name         | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       RAM           |    PCIe   |    Ethernet    |    Flash    | SDCard |
 |--------------|---------------------|---------------|----------|------|---------------------|-----------|----------------|-------------|--------|
-| ECPIX-5      | Lattice ECP5        | LFE5UM5G-85F  |  75MHz   | FTDI |  16-bit 512MB DDR3  |      No   |   1Gbps RGMII  |  16MB QSPI  |   Yes  |
+| ECPIX-5      | Lattice ECP5        | LFE5UM5G-85F  |  100MHz  | FTDI |  16-bit 512MB DDR3  |      No   |   1Gbps RGMII  |  16MB QSPI  |   Yes  |
 | Fomu         | Lattice iCE40       | iCE40-UP5K    |  12MHz   | USB  |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
 | HADBadge     | Lattice ECP5        | LFE5U-45F     |  48MHz   | IOs  |   8-bit  32MB SDR   |      No   |         No     |  16MB QSPI  |   No   |
 | iCEBreaker   | Lattice iCE40       | iCE40-UP5K    |  24MHz   | FTDI |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
