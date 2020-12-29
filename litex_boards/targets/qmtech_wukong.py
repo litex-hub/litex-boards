@@ -1,200 +1,141 @@
+#!/usr/bin/env python3
+
 #
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2020 Shinken Sanada <sanadashinken@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
-from litex.build.openocd import OpenOCD
+import os
+import argparse
 
-# IOs ----------------------------------------------------------------------------------------------
+from migen import *
 
-_io = [
-    # Clk / Rst
-    ("clk50",      0, Pins("M22"), IOStandard("LVCMOS33")),
-    ("sys_reset",  0, Pins("J8"),  IOStandard("LVCMOS33")),
+from litex_boards.platforms import qmtech_wukong
+from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
-    # Leds
-    ("user_led",   0, Pins("J6"),   IOStandard("LVCMOS33")),
-    ("user_led",   1, Pins("H6"),   IOStandard("LVCMOS33")),
+from litex.soc.cores.clock import *
+from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc_sdram import *
+from litex.soc.integration.builder import *
+from litex.soc.cores.led import LedChaser
 
-    # Buttons
-    ("key0",       0, Pins("H7"),   IOStandard("LVCMOS33")),
+from litedram.modules import MT41K128M16
+from litedram.phy import s7ddrphy
 
-    # Serial
-    ("serial", 0,
-        Subsignal("tx", Pins("E3")),
-        Subsignal("rx", Pins("F3")),
-        IOStandard("LVCMOS33"),
-    ),
+from liteeth.phy.mii import LiteEthPHYMII
 
-    # SPIFlash
-    ("spiflash", 0,
-        Subsignal("cs_n", Pins("P18")),
-        Subsignal("clk",  Pins("H13")),
-        Subsignal("mosi", Pins("R14")),
-        Subsignal("miso", Pins("R15")),
-        Subsignal("wp",   Pins("P14")),
-        Subsignal("hold", Pins("N14")),
-        IOStandard("LVCMOS33"),
-    ),
-    ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("P18")),
-        Subsignal("clk",  Pins("H13")),
-        Subsignal("dq",   Pins("R14", "R15", "P14", "N14")),
-        IOStandard("LVCMOS33")
-    ),
+# CRG ----------------------------------------------------------------------------------------------
 
-    # DDR3 SDRAM
-    ("ddram", 0,
-        Subsignal("a", Pins(
-            "E17 G17 F17 C17 G16 D16 H16 E16",
-            "H14 F15 F20 H15 C18 G15"),
-            IOStandard("SSTL135")),
-        Subsignal("ba",    Pins("B17 D18 A17"), IOStandard("SSTL135")),
-        Subsignal("ras_n", Pins("A19"), IOStandard("SSTL135")),
-        Subsignal("cas_n", Pins("B19"), IOStandard("SSTL135")),
-        Subsignal("we_n",  Pins("A18"), IOStandard("SSTL135")),
-        Subsignal("cs_n",  Pins("E22"), IOStandard("SSTL135")),
-        Subsignal("dm", Pins("A22 C22"), IOStandard("SSTL135")),
-        Subsignal("dq", Pins(
-            "D21 C21 B22 B21 D19 E20 C19 D20",
-            "C23 D23 B24 B25 C24 C26 A25 B26"),
-            IOStandard("SSTL135"),
-            Misc("IN_TERM=UNTUNED_SPLIT_40")),
-        Subsignal("dqs_p", Pins("B20 A23"),
-            IOStandard("DIFF_SSTL135"),
-            Misc("IN_TERM=UNTUNED_SPLIT_40")),
-        Subsignal("dqs_n", Pins("A20 A24"),
-            IOStandard("DIFF_SSTL135"),
-            Misc("IN_TERM=UNTUNED_SPLIT_40")),
-        Subsignal("clk_p", Pins("F18"), IOStandard("DIFF_SSTL135")),
-        Subsignal("clk_n", Pins("F19"), IOStandard("DIFF_SSTL135")),
-        Subsignal("cke",   Pins("E18"), IOStandard("SSTL135")),
-        Subsignal("odt",   Pins("G19"), IOStandard("SSTL135")),
-        Subsignal("reset_n", Pins("H17"), IOStandard("SSTL135")),
-        Misc("SLEW=FAST"),
-    ),
+class _CRG(Module):
+    def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
+        self.clock_domains.cd_sys       = ClockDomain()
+        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_idelay    = ClockDomain()
+        self.clock_domains.cd_eth       = ClockDomain()
 
-    # MII Ethernet
-    ("eth_ref_clk", 0, Pins("U1"), IOStandard("LVCMOS33")),
-    ("eth_clocks", 0,
-        Subsignal("tx",  Pins("M2")),
-        Subsignal("rx",  Pins("P4")),
-        IOStandard("LVCMOS33")
-    ),
-    ("eth", 0,
-        Subsignal("rst_n", Pins("R1")),   #Signal to ground
-        #Subsignal("int_n", Pins("L16")),  #Signal to 3.3V
-        Subsignal("mdio",    Pins("H1")),
-        Subsignal("mdc",     Pins("H2")),
-        Subsignal("rx_dv",   Pins("L3")),
-        Subsignal("rx_er",   Pins("U5")),
-        Subsignal("rx_data", Pins("M4 N3 N4 P3 R3 T3 T4 T5")),
-        Subsignal("tx_en",   Pins("T2")),
-        Subsignal("tx_er",   Pins("J1")),
-        Subsignal("tx_data", Pins("R2 P1 N2 N1 M1 L2 K2 K1")),
-        Subsignal("col", Pins("U4")),  # col/mod:0
-        Subsignal("crs",     Pins("U2")),
-        IOStandard("LVCMOS33")
-    ),
+        # # #
 
-    # HDMI out
-    ("hdmi_out", 0,
-        Subsignal("clk_p",   Pins("D4"), IOStandard("TMDS_33")),
-        Subsignal("clk_n",   Pins("C4"), IOStandard("TMDS_33")),
-        Subsignal("data0_p", Pins("E1"), IOStandard("TMDS_33")),
-        Subsignal("data0_n", Pins("D1"), IOStandard("TMDS_33")),
-        Subsignal("data1_p", Pins("F2"), IOStandard("TMDS_33")),
-        Subsignal("data1_n", Pins("E2"), IOStandard("TMDS_33")),
-        Subsignal("data2_p", Pins("G2"), IOStandard("TMDS_33")),
-        Subsignal("data2_n", Pins("G1"), IOStandard("TMDS_33")),
-        Subsignal("scl",     Pins("B2"), IOStandard("LVCMOS33")),
-        Subsignal("sda",     Pins("A2"), IOStandard("LVCMOS33")),
-        Subsignal("hdp",     Pins("A3"), IOStandard("LVCMOS33")),
-        Subsignal("cec",     Pins("B1"), IOStandard("LVCMOS33")),
-    ),
-]
+        self.submodules.pll = pll = S7PLL(speedgrade=-2)
+        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
+        pll.register_clkin(platform.request("clk50"), 50e6)
+        pll.create_clkout(self.cd_sys,       sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
+        pll.create_clkout(self.cd_idelay,    2*sys_clk_freq)
+        pll.create_clkout(self.cd_eth,       sys_clk_freq)
 
-# Connectors ---------------------------------------------------------------------------------------
+        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
-_connectors = [
-    ("pmoda", "H4 F4 A4 A5 J4 G4 B4 B5"),
-    ("pmodb", "D5 G5 G7 G8 E5 E6 D6 G6"),
-#    ("j10", "D5 E5 G5 E6 G7 D6 G8 G6"),
-#    ("j11", "J4 G4 B4 B5"),
-    ("j12", "AB26 AC26 AB24 AC24 AA24 AB25 AA22 AA23 Y25 AA25 W25 Y26 Y22 Y23 W21 Y21 V26 W26 U25 U26 V24 W24 V23 W23 V18 W18 U22 V22 U21 V21 T20 U20 T19 U19"),
-    ("jp2", "H21 H22 K21 J21 H26 G26 G25 F25 G20 G21 F23 E23 E26 D26 E25 D25"),
-    ("jp3", "AF7 AE7 AD8 AC8 AF9 AE9 AD12 AC10 AA11 AB11 AF11 AE11 AD14 AC14 AF13 AE13 AD12 AC12"),
-]
+        self.comb += platform.request("eth_ref_clk").eq(self.cd_eth.clk)
 
-# PMODS --------------------------------------------------------------------------------------------
+# BaseSoC ------------------------------------------------------------------------------------------
 
-'''
-#SPI SD CARD
-("spisdcard", 0,
-    Subsignal("clk",  Pins("A4")),
-    Subsignal("cs_n", Pins("A5"), Misc("PULLUP True")),
-    Subsignal("mosi", Pins("H4"), Misc("PULLUP True")),
-    Subsignal("miso", Pins("F4"), Misc("PULLUP True")),
-    IOStandard("LVCMOS33")
-),
-'''
+class BaseSoC(SoCCore):
+    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, **kwargs):
+        platform = qmtech_wukong.Platform()
 
-def sdcard_pmod_io(pmod):
-    return [
-        # SDCard PMOD:
-        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
-        # Over J11 connector
-        # SIGNAL - CONN/PIN
-        # 3.3V - 6/3.3V
-        # GND  - 5/GND
-        # MISO - 1/H4
-        # MOSI - 2/F4
-        # CLK  - 3/A4
-        # CS   - 4/A5
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident          = "LiteX SoC on QMTECH Wukong Board",
+            ident_version  = True,
+            **kwargs)
 
-        ("spisdcard", 0,
-            Subsignal("clk",  Pins("A4")),
-            Subsignal("mosi", Pins("F4"), Misc("PULLUP True")),
-            Subsignal("cs_n", Pins("A5"), Misc("PULLUP True")),
-            Subsignal("miso", Pins("H4"), Misc("PULLUP True")),
-            Misc("SLEW=FAST"),
-            IOStandard("LVCMOS33")
-        ),
-]
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
-_sdcard_pmod_io = sdcard_pmod_io("pmoda") # SDCARD PMOD on J11.
+        # DDR3 SDRAM -------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
+                memtype        = "DDR3",
+                nphases        = 4,
+                sys_clk_freq   = sys_clk_freq)
+            self.add_csr("ddrphy")
+            self.add_sdram("sdram",
+                phy                     = self.ddrphy,
+                module                  = MT41K128M16(sys_clk_freq, "1:4"),
+                origin                  = self.mem_map["main_ram"],
+                size                    = kwargs.get("max_sdram_size", 0x40000000),
+                l2_cache_size           = kwargs.get("l2_size", 8192),
+                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
+                l2_cache_reverse        = True
+            )
 
-serial_pmods = [
-    ("serial_pmod0", 0,
-        Subsignal("rx", Pins("J4"), IOStandard("LVCMOS33")),
-        Subsignal("tx", Pins("G4"), IOStandard("LVCMOS33")),
-    ),
-    ("serial_pmod1", 0,
-        Subsignal("rx", Pins("B4"), IOStandard("LVCMOS33")),
-        Subsignal("tx", Pins("B5"), IOStandard("LVCMOS33")),
-    ),
-]
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.submodules.ethphy = LiteEthPHYMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"))
+            self.add_csr("ethphy")
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy)
 
-# Platform -----------------------------------------------------------------------------------------
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = platform.request_all("user_led"),
+            sys_clk_freq = sys_clk_freq)
+        self.add_csr("leds")
 
-class Platform(XilinxPlatform):
-    default_clk_name   = "clk50"
-    default_clk_period = 1e9/50e6
+# Build --------------------------------------------------------------------------------------------
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a100t-2fgg676", _io, _connectors,  toolchain="vivado")
-        self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
-        self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
-        self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 16]")
-        self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk50_IBUF]")
-        self.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks UCIO-1]")
+def main():
+    parser = argparse.ArgumentParser(description="LiteX SoC on QMTECH Wukong Board")
+    parser.add_argument("--build",           action="store_true", help="Build bitstream")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency (default: 100MHz)")
+    parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--with-etherbone",  action="store_true", help="Enable Etherbone support")
+    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
+    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    builder_args(parser)
+    soc_sdram_args(parser)
+    vivado_build_args(parser)
+    args = parser.parse_args()
 
-    def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a100t.bit")
+    assert not (args.with_ethernet and args.with_etherbone)
+    soc = BaseSoC(
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        **soc_sdram_argdict(args)
+    )
+    assert not (args.with_spi_sdcard and args.with_sdcard)
+    soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
+    builder = Builder(soc, **builder_argdict(args))
 
-    def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+    builder.build(**vivado_build_argdict(args), run=args.build)
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+
+if __name__ == "__main__":
+    main()
