@@ -51,8 +51,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), **kwargs):
-        platform = arty_s7.Platform()
+    def __init__(self, variant="s7-50", sys_clk_freq=int(100e6), **kwargs):
+        platform = arty_s7.Platform(variant=variant)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -92,6 +92,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Arty S7")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
+    parser.add_argument("--variant",      default="s7-50",     help="Board variant: s7-50 (default) or s7-25")
     parser.add_argument("--sys-clk-freq", default=100e6,       help="System clock frequency (default: 100MHz)")
     builder_args(parser)
     soc_sdram_args(parser)
@@ -99,6 +100,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        variant      = args.variant,
         sys_clk_freq = int(float(args.sys_clk_freq)),
         **soc_sdram_argdict(args)
     )
