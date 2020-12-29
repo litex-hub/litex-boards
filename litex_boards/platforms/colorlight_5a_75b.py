@@ -185,7 +185,89 @@ _io_v7_0 = [ # Documented by @miek
     ),
 ]
 
-# From https://github.com/miek/chubby75/blob/5a-75b-v7_pinout/5a-75b/hardware_V6.1.md
+_io_v8_0 = [
+    # Clk
+    ("clk25", 0, Pins("P6"), IOStandard("LVCMOS33")),
+
+    # Led
+    ("user_led_n", 0, Pins("T6"), IOStandard("LVCMOS33")),
+
+    # Button
+    ("user_btn_n", 0, Pins("R7"), IOStandard("LVCMOS33")),
+
+    # serial
+    ("serial", 0,
+        Subsignal("tx", Pins("T6")), # led (J19 DATA_LED-)
+        Subsignal("rx", Pins("R7")), # btn (J19 KEY+)
+        IOStandard("LVCMOS33")
+    ),
+
+    # SPIFlash (W25Q32JV)
+    ("spiflash", 0,
+        # clk
+        Subsignal("cs_n", Pins("N8")),
+        #Subsignal("clk",  Pins("")), driven through USRMCLK
+        Subsignal("mosi", Pins("T8")),
+        Subsignal("miso", Pins("T7")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # SDR SDRAM (M12L64322A)
+    ("sdram_clock", 0, Pins("C8"), IOStandard("LVCMOS33")),
+    ("sdram", 0,
+        Subsignal("a", Pins(
+            "A9 B9 B10 C10 D9 C9 E9 D8",
+            "E8 C7 B8")),
+        Subsignal("dq", Pins(
+            "B2 A2 C3 A3 B3 A4 B4 A5",
+            "E7 C6 D7 D6 E6 D5 C5 E5",
+            "A11 B11 B12 A13 B13 A14 B14 D14",
+            "D13 E11 C13 D11 C12 E10 C11 D10")),
+        Subsignal("we_n",  Pins("B5")),
+        Subsignal("ras_n", Pins("B6")),
+        Subsignal("cas_n", Pins("A6")),
+        #Subsignal("cs_n", Pins("")), # gnd
+        #Subsignal("cke",  Pins("")), # 3v3
+        Subsignal("ba",    Pins("B7 A8")),
+        #Subsignal("dm",   Pins("")), # gnd
+        IOStandard("LVCMOS33"),
+        Misc("SLEWRATE=FAST")
+    ),
+
+    # RGMII Ethernet (RTL8211FD)
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("L1")),
+        Subsignal("rx", Pins("J1")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("R6")),
+        Subsignal("mdio",    Pins("T4")),
+        Subsignal("mdc",     Pins("R5")),
+        Subsignal("rx_ctl",  Pins("J2")),
+        Subsignal("rx_data", Pins("K2 J3 K1 K3")),
+        Subsignal("tx_ctl",  Pins("L2")),
+        Subsignal("tx_data", Pins("M2 M1 P1 R1")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth_clocks", 1,
+        Subsignal("tx", Pins("J16")),
+        Subsignal("rx", Pins("M16")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 1,
+        Subsignal("rst_n",   Pins("R6")),
+        Subsignal("mdio",    Pins("T4")),
+        Subsignal("mdc",     Pins("R5")),
+        Subsignal("rx_ctl",  Pins("P16")),
+        Subsignal("rx_data", Pins("M15 R16 L15 L16")),
+        Subsignal("tx_ctl",  Pins("K14")),
+        Subsignal("tx_data", Pins("K16 J15 J14 K15")),
+        IOStandard("LVCMOS33")
+    ),
+]
+
+# from https://github.com/miek/chubby75/blob/5a-75b-v7_pinout/5a-75b/hardware_V6.1.md
 _connectors_v6_1 = [
     ("j1", "B3  A2  B2   - B1  C2  C1  J17 F1  E2  E1  F2  C18 J18 H16 -"),
     ("j2", "D2  H3  H4   - J4  B4  A3  J17 F1  E2  E1  F2  C18 J18 H16 -"),
@@ -209,19 +291,33 @@ _connectors_v7_0 = [
     ("j8", "A15 F16 A14 - E13 B14 A13 F15 L2 K1 J5 K2 B16 J14 F12 -"),
 ]
 
+# from https://github.com/q3k/chubby75/blob/master/5a-75b/hardware_V8.0.md
+_connectors_v8_0 = [
+    ("j1", "C4  D4  E4  - D3  F5  E3  N4  N5  N3  P3  P4  M3  N1  M4 -"),
+    ("j2", "F1  F2  G2  - G1  H2  H3  N4  N5  N3  P3  P4  M3  N1  M4 -"),
+    ("j3", "B1  C2  C1  - D1  E2  E1  N4  N5  N3  P3  P4  M3  N1  M4 -"),
+    ("j4", "P5  R3  P2  - R2  T2  N6  N4  N5  N3  P3  P4  M3  N1  M4 -"),
+    ("j5", "T13 R12 R13 - R14 T14 P12 N4  N5  N3  P3  P4  M3  N1  M4 -"),
+    ("j6", "R15 T15 P13 - P14 N14 H15 N4  N5  N3  P3  P4  M3  N1  M4 -"),
+    ("j7", "G16 H14 G15 - F15 F16 E16 N4  N5  N3  P3  P4  M3  N1  M4 -"),
+    ("j8", "D16 E15 C16 - B16 C15 B15 N4  N5  N3  P3  P4  M3  N1  M4 -"),
+]
+
+
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
-    def __init__(self, revision="7.0", toolchain="trellis"):
-        assert revision in ["6.1", "7.0"]
+    def __init__(self, revision="7.0"):
+        assert revision in ["6.1", "7.0", "8.0"]
         self.revision = revision
-        device     = {"6.1": "LFE5U-25F-6BG381C", "7.0": "LFE5U-25F-6BG256C"}[revision]
-        io         = {"6.1": _io_v6_1,            "7.0": _io_v7_0}[revision]
-        connectors = {"6.1": _connectors_v6_1,            "7.0": _connectors_v7_0}[revision]
-        LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
+        device     = {"6.1": "LFE5U-25F-6BG381C", "7.0": "LFE5U-25F-6BG256C", "8.0": "LFE5U-25F-6BG256C"}[revision]
+        io         = {"6.1": _io_v6_1,            "7.0": _io_v7_0,            "8.0": _io_v8_0}[revision]
+        connectors = {"6.1": _connectors_v6_1,    "7.0": _connectors_v7_0,    "8.0": _connectors_v8_0}[revision]
+        LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain="trellis")
 
     def create_programmer(self):
         return OpenOCDJTAGProgrammer("openocd_colorlight_5a_75b.cfg")
@@ -231,3 +327,4 @@ class Platform(LatticePlatform):
         self.add_period_constraint(self.lookup_request("clk25",            loose=True), 1e9/25e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 1, loose=True), 1e9/125e6)
+
