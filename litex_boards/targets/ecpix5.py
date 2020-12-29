@@ -111,7 +111,8 @@ class BaseSoC(SoCCore):
         if with_ethernet:
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"))
+                pads       = self.platform.request("eth"),
+                rx_delay   = 0e-9)
             self.add_csr("ethphy")
             self.add_ethernet(phy=self.ethphy)
 
