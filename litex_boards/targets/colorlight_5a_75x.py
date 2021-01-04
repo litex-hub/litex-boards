@@ -144,7 +144,7 @@ class BaseSoC(SoCCore):
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"))
+            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             if board == "5a-75e" and revision == "6.0":
                 sdram_cls  = M12L64322A
                 sdram_size = 0x80000000

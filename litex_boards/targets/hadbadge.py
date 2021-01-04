@@ -71,7 +71,7 @@ class BaseSoC(SoCCore):
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), cl=2)
+            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy                     = self.sdrphy,
                 module                  = AS4C32M8(sys_clk_freq, "1:1"),

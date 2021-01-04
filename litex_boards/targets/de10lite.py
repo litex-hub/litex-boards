@@ -70,7 +70,7 @@ class BaseSoC(SoCCore):
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
+            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy                     = self.sdrphy,
                 module                  = IS42S16320(sys_clk_freq, "1:1"),
