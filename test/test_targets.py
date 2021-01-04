@@ -1,4 +1,7 @@
-# This file is Copyright (c) 2017-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+#
+# This file is part of LiteX-Boards.
+#
+# This file is Copyright (c) 2017-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # This file is Copyright (c) 2019 Tim 'mithro' Ansell <me@mith.ro>
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,10 +12,6 @@ import os
 from migen import *
 
 from litex.soc.integration.builder import *
-
-
-RUNNING_ON_TRAVIS = (os.getenv('TRAVIS', 'false').lower() == 'true')
-
 
 def build_test(socs):
     errors = 0
