@@ -92,7 +92,7 @@ _io_rev0 = [
         Subsignal("mosi", Pins("D15"), Misc("PULLMODE=UP")),
         Subsignal("cs_n", Pins("E14"), Misc("PULLMODE=UP")),
         Subsignal("miso", Pins("D13"), Misc("PULLMODE=UP")),
-        Misc("SLEW=FAST"),
+        Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
     ("sdcard", 0,
@@ -100,7 +100,7 @@ _io_rev0 = [
         Subsignal("cmd",  Pins("D15"), Misc("PULLMODE=UP")),
         Subsignal("data", Pins("D13 E13 E15 E14"), Misc("PULLMODE=UP")),
         Subsignal("cd",   Pins("D14"), Misc("PULLMODE=UP")),
-        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+        IOStandard("LVCMOS33"), Misc("SLEWRATE=FAST")
     ),
 
     # I2C

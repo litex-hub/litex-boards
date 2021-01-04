@@ -83,7 +83,7 @@ _io_r0_1 = [
         Subsignal("mosi", Pins("K2"), Misc("PULLMODE=UP")),
         Subsignal("cs_n", Pins("M1"), Misc("PULLMODE=UP")),
         Subsignal("miso", Pins("J1"), Misc("PULLMODE=UP")),
-        Misc("SLEW=FAST"),
+        Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
 ]
@@ -164,7 +164,7 @@ _io_r0_2 = [
         Subsignal("mosi", Pins("K2"), Misc("PULLMODE=UP")),
         Subsignal("cs_n", Pins("M1"), Misc("PULLMODE=UP")),
         Subsignal("miso", Pins("J1"), Misc("PULLMODE=UP")),
-        Misc("SLEW=FAST"),
+        Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
 
@@ -172,7 +172,7 @@ _io_r0_2 = [
         Subsignal("clk",  Pins("K1")),
         Subsignal("cmd",  Pins("K2"), Misc("PULLMODE=UP")),
         Subsignal("data", Pins("J1 K3 L3 M1"), Misc("PULLMODE=UP")),
-        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+        IOStandard("LVCMOS33"), Misc("SLEWRATE=FAST")
     ),
 ]
 
