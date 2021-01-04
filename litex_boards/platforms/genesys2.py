@@ -68,17 +68,20 @@ _io = [
 
     # SDCard
     ("spisdcard", 0,
+        Subsignal("rst",  Pins("AE24")),
         Subsignal("clk",  Pins("R28")),
-        Subsignal("cs_n", Pins("T30")),
-        Subsignal("mosi", Pins("R29"), Misc("PULLUP")),
-        Subsignal("miso", Pins("R26"), Misc("PULLUP")),
+        Subsignal("cs_n", Pins("T30"), Misc("PULLUP True")),
+        Subsignal("mosi", Pins("R29"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("R26"), Misc("PULLUP True")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33")
     ),
     ("sdcard", 0,
-        Subsignal("clk", Pins("R28")),
-        Subsignal("cmd", Pins("R29"), Misc("PULLUP True")),
+        Subsignal("rst",  Pins("AE24"),            Misc("PULLUP True")),
         Subsignal("data", Pins("R26 R30 P29 T30"), Misc("PULLUP True")),
+        Subsignal("cmd",  Pins("R29"),             Misc("PULLUP True")),
+        Subsignal("clk",  Pins("R28")),
+        Subsignal("cd",   Pins("P28")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33")
     ),
