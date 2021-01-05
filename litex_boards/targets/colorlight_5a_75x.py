@@ -119,7 +119,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board, revision, sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, eth_phy=0, use_internal_osc=False, sdram_rate="1:1", **kwargs):
+    def __init__(self, board, revision, sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, etherbone_ip="192.168.1.50", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", **kwargs):
         board = board.lower()
         assert board in ["5a-75b", "5a-75e"]
         if board == "5a-75b":
@@ -171,7 +171,7 @@ class BaseSoC(SoCCore):
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=etherbone_ip)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -183,16 +183,17 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight 5A-75X")
-    parser.add_argument("--build",            action="store_true",      help="Build bitstream")
-    parser.add_argument("--load",             action="store_true",      help="Load bitstream")
-    parser.add_argument("--board",            default="5a-75b",         help="Board type: 5a-75b (default) or 5a-75e")
-    parser.add_argument("--revision",         default="7.0", type=str,  help="Board revision: 7.0 (default), 6.0 or 6.1")
-    parser.add_argument("--sys-clk-freq",     default=60e6,             help="System clock frequency (default: 60MHz)")
-    parser.add_argument("--with-ethernet",    action="store_true",      help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone",   action="store_true",      help="Enable Etherbone support")
-    parser.add_argument("--eth-phy",          default=0, type=int,      help="Ethernet PHY: 0 (default) or 1")
-    parser.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator")
-    parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
+    parser.add_argument("--build",             action="store_true",              help="Build bitstream")
+    parser.add_argument("--load",              action="store_true",              help="Load bitstream")
+    parser.add_argument("--board",             default="5a-75b",                 help="Board type: 5a-75b (default) or 5a-75e")
+    parser.add_argument("--revision",          default="7.0", type=str,          help="Board revision: 7.0 (default), 6.0 or 6.1")
+    parser.add_argument("--sys-clk-freq",      default=60e6,                     help="System clock frequency (default: 60MHz)")
+    parser.add_argument("--with-ethernet",     action="store_true",              help="Enable Ethernet support")
+    parser.add_argument("--with-etherbone",    action="store_true",              help="Enable Etherbone support")
+    parser.add_argument("--etherbone-ip",      default="192.168.1.50", type=str, help="etherbone IP address")
+    parser.add_argument("--eth-phy",           default=0, type=int,              help="Ethernet PHY: 0 (default) or 1")
+    parser.add_argument("--use-internal-osc",  action="store_true",              help="Use internal oscillator")
+    parser.add_argument("--sdram-rate",        default="1:1",                    help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
