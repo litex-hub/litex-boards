@@ -44,6 +44,7 @@ class _CRG(Module):
         pll.register_clkin(platform.request("clk300", 0), 300e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
         pll.create_clkout(self.cd_idelay, 500e6, with_reset=False)
+        platform.add_false_path_constraints(pll.clkin, self.cd_sys.clk)
 
         self.specials += [
             Instance("BUFGCE_DIV", name="main_bufgce_div",

@@ -39,7 +39,8 @@ class _CRG(Module):
             self.submodules.pll = pll = S7PLL(speedgrade=-1)
             self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(platform.request("clk125"), 125e6)
-            pll.create_clkout(self.cd_sys,       sys_clk_freq)
+            pll.create_clkout(self.cd_sys, sys_clk_freq)
+            platform.add_false_path_constraints(pll.clkin, self.cd_sys.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

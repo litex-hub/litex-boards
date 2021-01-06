@@ -55,6 +55,7 @@ class _CRG(Module):
             pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=90)
         else:
             pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+        platform.add_false_path_constraints(pll.clkin, self.cd_sys.clk)
 
         # SDRAM clock
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")

@@ -39,6 +39,7 @@ class _CRG(Module):
         self.comb += pll.reset.eq(~platform.request("user_btn_n") | self.rst)
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_sys, clk_freq)
+        platform.add_false_path_constraints(pll.clkin, self.cd_sys.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

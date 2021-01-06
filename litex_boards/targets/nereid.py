@@ -47,6 +47,7 @@ class CRG(Module):
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)
         pll.create_clkout(self.cd_idelay, 200e6)
+        platform.add_false_path_constraints(pll.clkin, self.cd_sys.clk)
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
