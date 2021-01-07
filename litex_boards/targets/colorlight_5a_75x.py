@@ -119,7 +119,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board, revision, sys_clk_freq=60e6, with_leds=False, with_ethernet=False, with_etherbone=False, etherbone_ip="192.168.1.50", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", **kwargs):
+    def __init__(self, board, revision, sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, etherbone_ip="192.168.1.50", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", **kwargs):
         board = board.lower()
         assert board in ["5a-75b", "5a-75e"]
         if board == "5a-75b":
@@ -174,7 +174,7 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy, ip_address=etherbone_ip)
 
         # Leds -------------------------------------------------------------------------------------
-        if with_leds:
+        if platform.lookup_request("serial", loose=True) is None: # Disable leds when serial is used.
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
@@ -189,7 +189,6 @@ def main():
     parser.add_argument("--board",             default="5a-75b",                 help="Board type: 5a-75b (default) or 5a-75e")
     parser.add_argument("--revision",          default="7.0", type=str,          help="Board revision: 7.0 (default), 6.0 or 6.1")
     parser.add_argument("--sys-clk-freq",      default=60e6,                     help="System clock frequency (default: 60MHz)")
-    parser.add_argument("--with-leds",         action="store_true",              help="Enable LED chaser")
     parser.add_argument("--with-ethernet",     action="store_true",              help="Enable Ethernet support")
     parser.add_argument("--with-etherbone",    action="store_true",              help="Enable Etherbone support")
     parser.add_argument("--etherbone-ip",      default="192.168.1.50", type=str, help="etherbone IP address")
