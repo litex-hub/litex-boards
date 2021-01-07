@@ -79,7 +79,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), device="LFE5UM5G", with_ethernet=False, with_etherbone=False, eth_phy=0, toolchain="trellis", **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), device="LFE5UM5G", with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_phy=0, toolchain="trellis", **kwargs):
         platform = versa_ecp5.Platform(toolchain=toolchain, device=device)
 
         # FIXME: adapt integrated rom size for Microwatt
@@ -122,7 +122,7 @@ class BaseSoC(SoCCore):
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -134,14 +134,15 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Versa ECP5")
-    parser.add_argument("--build",          action="store_true", help="Build bitstream")
-    parser.add_argument("--load",           action="store_true", help="Load bitstream")
-    parser.add_argument("--toolchain",      default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
-    parser.add_argument("--sys-clk-freq",   default=75e6,        help="System clock frequency (default: 75MHz)")
-    parser.add_argument("--device",         default="LFE5UM5G",  help="FPGA device (LFE5UM5G (default) or LFE5UM)")
-    parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
-    parser.add_argument("--eth-phy",        default=0, type=int, help="Ethernet PHY: 0 (default) or 1")
+    parser.add_argument("--build",          action="store_true",              help="Build bitstream")
+    parser.add_argument("--load",           action="store_true",              help="Load bitstream")
+    parser.add_argument("--toolchain",      default="trellis",                help="FPGA toolchain: trellis (default) or diamond")
+    parser.add_argument("--sys-clk-freq",   default=75e6,                     help="System clock frequency (default: 75MHz)")
+    parser.add_argument("--device",         default="LFE5UM5G",               help="FPGA device (LFE5UM5G (default) or LFE5UM)")
+    parser.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")
+    parser.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
+    parser.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
+    parser.add_argument("--eth-phy",        default=0, type=int,              help="Ethernet PHY: 0 (default) or 1")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
@@ -153,6 +154,7 @@ def main():
         device         = args.device,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
         eth_phy        = args.eth_phy,
         toolchain      = args.toolchain,
         **soc_sdram_argdict(args)

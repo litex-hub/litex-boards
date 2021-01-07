@@ -61,7 +61,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=False, eth_ip="192.168.1.50", **kwargs):
         platform = sds1104xe.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -96,16 +96,17 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
             self.add_csr("ethphy")
-            self.add_etherbone(phy=self.ethphy)
+            self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on SDS1104X-E")
-    parser.add_argument("--build",          action="store_true", help="Build bitstream")
-    parser.add_argument("--load",           action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency (default: 100MHz)")
-    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
+    parser.add_argument("--build",          action="store_true",              help="Build bitstream")
+    parser.add_argument("--load",           action="store_true",              help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",   default=100e6,                    help="System clock frequency (default: 100MHz)")
+    parser.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
+    parser.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
     builder_args(parser)
     soc_sdram_args(parser)
     vivado_build_args(parser)
@@ -114,8 +115,10 @@ def main():
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
         **soc_sdram_argdict(args)
     )
+
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**vivado_build_argdict(args), run=args.build)
 
