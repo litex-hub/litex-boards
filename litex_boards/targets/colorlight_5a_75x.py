@@ -119,7 +119,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board, revision, sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, etherbone_ip="192.168.1.50", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", **kwargs):
+    def __init__(self, board, revision, sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", **kwargs):
         board = board.lower()
         assert board in ["5a-75b", "5a-75e"]
         if board == "5a-75b":
@@ -171,7 +171,7 @@ class BaseSoC(SoCCore):
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=etherbone_ip)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if platform.lookup_request("serial", loose=True) is None: # Disable leds when serial is used.
@@ -191,7 +191,7 @@ def main():
     parser.add_argument("--sys-clk-freq",      default=60e6,                     help="System clock frequency (default: 60MHz)")
     parser.add_argument("--with-ethernet",     action="store_true",              help="Enable Ethernet support")
     parser.add_argument("--with-etherbone",    action="store_true",              help="Enable Etherbone support")
-    parser.add_argument("--etherbone-ip",      default="192.168.1.50", type=str, help="etherbone IP address")
+    parser.add_argument("--eth-ip",            default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
     parser.add_argument("--eth-phy",           default=0, type=int,              help="Ethernet PHY: 0 (default) or 1")
     parser.add_argument("--use-internal-osc",  action="store_true",              help="Use internal oscillator")
     parser.add_argument("--sdram-rate",        default="1:1",                    help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
@@ -205,6 +205,7 @@ def main():
         sys_clk_freq     = int(float(args.sys_clk_freq)),
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
+        eth_ip           = args.eth_ip,
         eth_phy          = args.eth_phy,
         use_internal_osc = args.use_internal_osc,
         sdram_rate       = args.sdram_rate,
