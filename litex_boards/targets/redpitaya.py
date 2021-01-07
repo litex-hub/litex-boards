@@ -41,7 +41,7 @@ class _CRG(Module):
             self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(platform.request(platform.default_clk_name), platform.default_clk_freq)
             pll.create_clkout(self.cd_sys,      sys_clk_freq)
-            platform.add_false_path_constraints(pll.clkin, self.cd_sys.clk)
+            platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

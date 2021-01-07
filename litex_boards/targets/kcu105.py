@@ -47,7 +47,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
         pll.create_clkout(self.cd_idelay, 200e6, with_reset=False)
         pll.create_clkout(self.cd_eth,    200e6)
-        platform.add_false_path_constraints(pll.clkin, self.cd_sys.clk)
+        platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.specials += [
             Instance("BUFGCE_DIV", name="main_bufgce_div",
