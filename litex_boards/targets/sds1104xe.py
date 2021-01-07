@@ -63,6 +63,8 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_etherbone=False, eth_ip="192.168.1.50", **kwargs):
         platform = sds1104xe.Platform()
+        # platform has no uart pins, so disable uart
+        kwargs['with_uart'] = False
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
