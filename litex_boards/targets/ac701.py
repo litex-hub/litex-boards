@@ -57,7 +57,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, ethernet_phy="rgmii", with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, eth_phy="rgmii", with_pcie=False, **kwargs):
         platform = ac701.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ class BaseSoC(SoCCore):
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet:
             # RGMII Ethernet PHY -------------------------------------------------------------------
-            if ethernet_phy == "rgmii":
+            if eth_phy == "rgmii":
                 # phy
                 self.submodules.ethphy = LiteEthPHYRGMII(
                     clock_pads = self.platform.request("eth_clocks"),
@@ -98,7 +98,7 @@ class BaseSoC(SoCCore):
                 self.add_csr("ethphy")
 
             # 1000BaseX Ethernet PHY ---------------------------------------------------------------
-            if ethernet_phy == "1000basex":
+            if eth_phy == "1000basex":
                 # phy
                 self.comb += self.platform.request("sfp_mgt_clk_sel0", 0).eq(0)
                 self.comb += self.platform.request("sfp_mgt_clk_sel1", 0).eq(0)
@@ -148,7 +148,7 @@ def main():
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
-    parser.add_argument("--ethernet-phy",  default="rgmii",     help="Select Ethernet PHY: rgmii (default) or 1000basex")
+    parser.add_argument("--eth-phy",       default="rgmii",     help="Select Ethernet PHY: rgmii (default) or 1000basex")
     parser.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",        action="store_true", help="Generate PCIe driver")
     args = parser.parse_args()
@@ -156,7 +156,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         with_ethernet = args.with_ethernet,
-        ethernet_phy  = args.ethernet_phy,
+        eth_phy       = args.eth_phy,
         with_pcie     = args.with_pcie,
         **soc_sdram_argdict(args)
     )
