@@ -39,7 +39,8 @@ class _CRG(Module):
 
         # Clk / Rst
         clk48 = platform.request("clk48")
-        rst_n = platform.request("usr_btn")
+        rst_n = platform.request("usr_btn", loose=True)
+        if rst_n is None: rst_n = 1
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)
@@ -89,7 +90,8 @@ class _CRGSDRAM(Module):
 
         # Clk / Rst
         clk48 = platform.request("clk48")
-        rst_n = platform.request("usr_btn")
+        rst_n = platform.request("usr_btn", loose=True)
+        if rst_n is None: rst_n = 1
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)
