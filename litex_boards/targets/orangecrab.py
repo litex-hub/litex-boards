@@ -81,7 +81,6 @@ class _CRGSDRAM(Module):
         self.clock_domains.cd_sys      = ClockDomain()
         self.clock_domains.cd_sys2x    = ClockDomain()
         self.clock_domains.cd_sys2x_i  = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys2x_eb = ClockDomain(reset_less=True)
 
         # # #
 
@@ -183,6 +182,7 @@ class BaseSoC(SoCCore):
             self.submodules.ddrphy = ECP5DDRPHY(
                 pads         = ddram_pads,
                 sys_clk_freq = sys_clk_freq,
+                cmd_delay    = 0 if sys_clk_freq > 64e6 else 100,
                 dm_remapping = {0:1, 1:0})
             self.ddrphy.settings.rtt_nom = "disabled"
             self.add_csr("ddrphy")
