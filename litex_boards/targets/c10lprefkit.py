@@ -109,7 +109,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on C10 LP RefKit")
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",  default=500e6,       help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--sys-clk-freq",  default=50e6,       help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
     builder_args(parser)
     soc_sdram_args(parser)
