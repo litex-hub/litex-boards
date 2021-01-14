@@ -102,6 +102,11 @@ class BaseSoC(SoCCore):
             sys_clk_freq = sys_clk_freq)
         self.add_csr("leds")
 
+        if 'cpu_variant' in kwargs:
+            if 'debug' in kwargs['cpu_variant']:
+                self.register_mem(self.cpu.name + "_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
+
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
