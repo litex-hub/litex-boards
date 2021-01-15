@@ -23,64 +23,22 @@ _io = [
     ),
     ("cpu_reset", 0, Pins("L30"), IOStandard("LVCMOS18")),
 
-    # Leds
-    ("user_led", 0, Pins("C32"), IOStandard("LVCMOS18")),
-    ("user_led", 1, Pins("D32"), IOStandard("LVCMOS18")),
-    ("user_led", 2, Pins("D31"), IOStandard("LVCMOS18")),
-
     # Serial
     ("serial", 0,
         Subsignal("rx", Pins("A28"), IOStandard("LVCMOS18")),
         Subsignal("tx", Pins("B33"), IOStandard("LVCMOS18")),
     ),
 
-    # # PCIe
-    # ("pcie_x2", 0,
-    #     Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
-    #     Subsignal("clk_n", Pins("AM10")),
-    #     Subsignal("clk_p", Pins("AM11")),
-    #     Subsignal("rx_n",  Pins("AF1 AG3")),
-    #     Subsignal("rx_p",  Pins("AF2 AG4")),
-    #     Subsignal("tx_n",  Pins("AF6 AG8")),
-    #     Subsignal("tx_p",  Pins("AF7 AG9")),
-    # ),
-    # ("pcie_x4", 0,
-    #     Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
-    #     Subsignal("clk_n", Pins("AM10")),
-    #     Subsignal("clk_p", Pins("AM11")),
-    #     Subsignal("rx_n",  Pins("AF1 AG3 AH1 AJ3")),
-    #     Subsignal("rx_p",  Pins("AF2 AG4 AH2 AJ4")),
-    #     Subsignal("tx_n",  Pins("AF6 AG8 AH6 AJ8")),
-    #     Subsignal("tx_p",  Pins("AF7 AG9 AH7 AJ9")),
-    # ),
-    # ("pcie_x8", 0,
-    #     Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
-    #     Subsignal("clk_n", Pins("AM10")),
-    #     Subsignal("clk_p", Pins("AM11")),
-    #     Subsignal("rx_n",  Pins("AF1 AG3 AH1 AJ3 AK1 AL3 AM1 AN3")),
-    #     Subsignal("rx_p",  Pins("AF2 AG4 AH2 AJ4 AK2 AL4 AM2 AN4")),
-    #     Subsignal("tx_n",  Pins("AF6 AG8 AH6 AJ8 AK6 AL8 AM6 AN8")),
-    #     Subsignal("tx_p",  Pins("AF7 AG9 AH7 AJ9 AK7 AL9 AM7 AN9")),
-    # ),
-    # ("pcie_x16", 0,
-    #     Subsignal("rst_n", Pins("BD21"), IOStandard("LVCMOS12")),
-    #     Subsignal("clk_n", Pins("AM10")),
-    #     Subsignal("clk_p", Pins("AM11")),
-    #     Subsignal("rx_n", Pins("AF1 AG3 AH1 AJ3 AK1 AL3 AM1 AN3 AP1 AR3 AT1 AU3 AV1 AW3 BA1 BC1")),
-    #     Subsignal("rx_p", Pins("AF2 AG4 AH2 AJ4 AK2 AL4 AM2 AN4 AP2 AR4 AT2 AU4 AV2 AW4 BA2 BC2")),
-    #     Subsignal("tx_n", Pins("AF6 AG8 AH6 AJ8 AK6 AL8 AM6 AN8 AP6 AR8 AT6 AU8 AV6 BB4 BD4 BF4")),
-    #     Subsignal("tx_p", Pins("AF7 AG9 AH7 AJ9 AK7 AL9 AM7 AN9 AP7 AR9 AT7 AU9 AV7 BB5 BD5 BF5")),
-    # ),
-
     # DDR4 SDRAM
+    #("ddram_reset_gate", 0, Pins("AU21"), IOStandard("LVCMOS12")),
     ("ddram", 0,
         Subsignal("a", Pins(
             "BF46 BG43 BK45 BF42 BL45 BF43 BG42 BL43",
             "BK43 BM42 BG45 BD41 BL42 BE44"), #"BE43 BL46 BH44"
             IOStandard("SSTL12_DCI")),
         Subsignal("act_n", Pins("BH41"), IOStandard("SSTL12_DCI")),
-        Subsignal("ba", Pins("BH45 BM47"), IOStandard("SSTL12_DCI")),
-        Subsignal("bg", Pins("BF41 BE41"), IOStandard("SSTL12_DCI")),
+        Subsignal("ba",    Pins("BH45 BM47"), IOStandard("SSTL12_DCI")),
+        Subsignal("bg",    Pins("BF41 BE41"), IOStandard("SSTL12_DCI")),
         Subsignal("ras_n", Pins("BH44"), IOStandard("SSTL12_DCI")), # A16
         Subsignal("cas_n", Pins("BL46"), IOStandard("SSTL12_DCI")), # A15
         Subsignal("we_n",  Pins("BE43"), IOStandard("SSTL12_DCI")), # A14
@@ -115,7 +73,7 @@ _io = [
             # Misc("OUTPUT_IMPEDANCE=RDRV_40_40"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
-        Subsignal("odt",     Pins("BG44"), IOStandard("SSTL12_DCI")),
+        Subsignal("odt", Pins("BG44"), IOStandard("SSTL12_DCI")),
         Subsignal("reset_n", Pins("BG33"), IOStandard("LVCMOS12")),
         Misc("SLEW=FAST")
     ),
@@ -156,24 +114,3 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]")
         self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN Pullup [current_design]")
         self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR Yes [current_design]")
-        # ------------------------------------------------------------------------
-        # # DDR4 memory channel C0 Clock constraint / Internal Vref
-        # self.add_period_constraint(self.lookup_request("clk300", 0, loose=True), 1e9/300e6)
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 40]")
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 41]")
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 42]")
-        # # DDR4 memory channel C1 Clock constraint / Internal Vref
-        # self.add_period_constraint(self.lookup_request("clk300", 1, loose=True), 1e9/300e6)
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 65]")
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 67]")
-        # # DDR4 memory channel C2 Clock constraint / Internal Vref
-        # self.add_period_constraint(self.lookup_request("clk300", 2, loose=True), 1e9/300e6)
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 46]")
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 47]")
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 48]")
-        # # DDR4 memory channel C3 Clock constraint / Internal Vref
-        # self.add_period_constraint(self.lookup_request("clk300", 3, loose=True), 1e9/300e6)
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 70]")
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 71]")
-        # self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 72]")

@@ -19,7 +19,6 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy import usddrphy
@@ -66,7 +65,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on AlveoU280",
+            ident          = "LiteX SoC on Alveo U280",
             ident_version  = True,
             **kwargs)
 
@@ -91,8 +90,6 @@ class BaseSoC(SoCCore):
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
             )
-            # Workadound for Vivado 2018.2 DRC, can be ignored and probably fixed on newer Vivado versions.
-            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks PDCN-2736]")
 
         # Firmware RAM (To ease initial LiteDRAM calibration support) ------------------------------
         self.add_ram("firmware_ram", 0x20000000, 0x8000)
@@ -105,16 +102,10 @@ class BaseSoC(SoCCore):
             self.add_csr("pcie_phy")
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
-        # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on AlveoU280")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Alveo U280")
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",  default=125e6,       help="System clock frequency (default: 125MHz)")
