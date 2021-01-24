@@ -81,6 +81,21 @@ _io_common = [
         IOStandard("LVCMOS33")
     ),
 
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("R2")),
+        Subsignal("miso", Pins("V2")),
+        Subsignal("mosi", Pins("W2")),
+        Subsignal("wp", Pins("Y2")),
+        Subsignal("hold", Pins("W1")),
+        IOStandard("LVCMOS33")
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("R2")),
+        Subsignal("dq", Pins("W2", "V2", "Y2", "W1")),
+        IOStandard("LVCMOS33")
+    ),
+
     # OLED
     ("oled_spi", 0,
         Subsignal("clk",  Pins("P4")),
