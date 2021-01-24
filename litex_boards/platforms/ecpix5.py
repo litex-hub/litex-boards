@@ -94,6 +94,7 @@ _io = [
         Subsignal("data",      Pins("N26 N25 N23 N21"), Misc("PULLMODE=UP")),
         Subsignal("cmd",       Pins("M24"),             Misc("PULLMODE=UP")),
         Subsignal("clk",       Pins("P24")),
+        Subsignal("cd",        Pins("L22")),
         Subsignal("cmd_dir",   Pins("M23")),
         Subsignal("dat0_dir",  Pins("N24")),
         Subsignal("dat13_dir", Pins("P26")),
