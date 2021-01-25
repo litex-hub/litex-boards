@@ -117,7 +117,8 @@ _io = [
     ),
 ]
 
-# this is partly redundant to the above, but convenient if you plug in your own peripherals
+# Connectors ---------------------------------------------------------------------------------------
+
 _connectors = [
     # PIN    1  2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18 19 20  21  22  23  24  25  26  27  28 29 30 31  32  33  34  35  36  37  38  39  40
     ("JP1", "A8 D3  B8  C3  A2  A3  B3  B4  A4  B5  -   -   A5  D5  B6  A6  B7  D6 A7 C6  C8  E6  E7  D8  E8  F8  F9  E9  - -  C9  D9  E11 E10 C11 B11 A12 D11 D12 B12"),
