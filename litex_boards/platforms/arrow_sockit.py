@@ -1,9 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# I (HB) used the similar de1soc board as a starting point, therefore:
-# Copyright (c) 2019 Antony Pavlov <antonynpavlov@gmail.com>
-# SocKit adaption (c) 2020 Hans Baier <hansfbaier@gmail.com>
+# Copyright (c) 2020 Hans Baier <hansfbaier@gmail.com>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -21,17 +19,17 @@ _io = [
     ("user_led", 0, Pins("AF10"), IOStandard("3.3-V LVTTL")),
     ("user_led", 1, Pins("AD10"), IOStandard("3.3-V LVTTL")),
     ("user_led", 2, Pins("AE11"), IOStandard("3.3-V LVTTL")),
-    ("user_led", 3, Pins("AD7"), IOStandard("3.3-V LVTTL")),
+    ("user_led", 3, Pins("AD7"),  IOStandard("3.3-V LVTTL")),
 
     # Buttons
-    ("user_btn", 0, Pins("AE9"), IOStandard("3.3-V LVTTL")),
+    ("user_btn", 0, Pins("AE9"),  IOStandard("3.3-V LVTTL")),
     ("user_btn", 1, Pins("AE12"), IOStandard("3.3-V LVTTL")),
-    ("user_btn", 2, Pins("AD9"), IOStandard("3.3-V LVTTL")),
+    ("user_btn", 2, Pins("AD9"),  IOStandard("3.3-V LVTTL")),
     ("user_btn", 3, Pins("AD11"), IOStandard("3.3-V LVTTL")),
 
     # Switches
-    ("user_sw", 0, Pins("W25"), IOStandard("3.3-V LVTTL")),
-    ("user_sw", 1, Pins("V25"), IOStandard("3.3-V LVTTL")),
+    ("user_sw", 0, Pins("W25"),  IOStandard("3.3-V LVTTL")),
+    ("user_sw", 1, Pins("V25"),  IOStandard("3.3-V LVTTL")),
     ("user_sw", 2, Pins("AC28"), IOStandard("3.3-V LVTTL")),
     ("user_sw", 3, Pins("AC29"), IOStandard("3.3-V LVTTL")),
 
@@ -41,50 +39,50 @@ _io = [
             "AJ14 AK14 AH12 AJ12 AG15 AH15 AK12 AK13",
             "AH13 AH14 AJ9  AK9  AK7  AK8  AG12"),
             IOStandard("SSTL15"),
-            Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")
         ),
-        Subsignal("ba",    Pins("AH10 AJ11 AK11"), IOStandard("SSTL-15 CLASS I"), Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")),
-        Subsignal("ras_n", Pins("AH8"), IOStandard("SSTL-15 CLASS I"), Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")),
-        Subsignal("cas_n", Pins("AH7"), IOStandard("SSTL-15 CLASS I"), Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")),
-        Subsignal("we_n",  Pins("AJ6"), IOStandard("SSTL-15 CLASS I"), Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")),
+        Subsignal("ba",    Pins("AH10 AJ11 AK11"), IOStandard("SSTL-15 CLASS I"), ),
+        Subsignal("ras_n", Pins("AH8"), IOStandard("SSTL-15 CLASS I")),
+        Subsignal("cas_n", Pins("AH7"), IOStandard("SSTL-15 CLASS I")),
+        Subsignal("we_n",  Pins("AJ6"), IOStandard("SSTL-15 CLASS I")),
         Subsignal("dm", Pins("AH17 AG23 AK23 AJ27"),
             IOStandard("SSTL-15 CLASS I"),
             Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION")
         ),
         Subsignal("dq", Pins(
-                             "AF18 AE17 AG16 AF16 AH20 AG21 AJ16 AH18",
-                             "AK18 AJ17 AG18 AK19 AG20 AF19 AJ20 AH24",
-                             "AE19 AE18 AG22 AK22 AF21 AF20 AH23 AK24",
-                             "AF24 AF23 AJ24 AK26 AE23 AE22 AG25 AK27"),
-                  IOStandard("SSTL-15 CLASS I"),
-                  Misc("INPUT_TERMINATION=PARALLEL 50 OHM WITH CALIBRATION"),
-                  Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION"),
+            "AF18 AE17 AG16 AF16 AH20 AG21 AJ16 AH18",
+            "AK18 AJ17 AG18 AK19 AG20 AF19 AJ20 AH24",
+            "AE19 AE18 AG22 AK22 AF21 AF20 AH23 AK24",
+            "AF24 AF23 AJ24 AK26 AE23 AE22 AG25 AK27"),
+            IOStandard("SSTL-15 CLASS I"),
+            Misc("INPUT_TERMINATION=PARALLEL 50 OHM WITH CALIBRATION"),
+            Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION"),
         ),
-        Subsignal("dqs_p",   Pins("V16 V17 Y17 AC20"),
+        Subsignal("dqs_p", Pins("V16 V17 Y17 AC20"),
             IOStandard("DIFFERENTIAL 1.5-V SSTL CLASS I"),
             Misc("INPUT_TERMINATION=PARALLEL 50 OHM WITH CALIBRATION"),
             Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION")
         ),
-        Subsignal("dqs_n",   Pins("W16 W17 AA18 AD19"), 
+        Subsignal("dqs_n", Pins("W16 W17 AA18 AD19"),
             IOStandard("DIFFERENTIAL 1.5-V SSTL CLASS I"),
             Misc("INPUT_TERMINATION=PARALLEL 50 OHM WITH CALIBRATION"),
             Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION")
         ),
-        Subsignal("clk_p",   Pins("AA14"),
+        Subsignal("clk_p", Pins("AA14"),
             IOStandard("DIFFERENTIAL 1.5-V SSTL CLASS I"),
             Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION"),
             Misc("D5_DELAY=2")
         ),
-        Subsignal("clk_n",   Pins("AA15"),
+        Subsignal("clk_n", Pins("AA15"),
             IOStandard("DIFFERENTIAL 1.5-V SSTL CLASS I"),
             Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION"),
             Misc("D5_DELAY=2")
         ),
-        Subsignal("cs_n",    Pins("AB15"),    IOStandard("SSTL-15 CLASS I"), Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")),
-        Subsignal("cke",     Pins("AJ21"),    IOStandard("SSTL-15 CLASS I"), Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")),
-        Subsignal("odt",     Pins("AE16"),    IOStandard("SSTL-15 CLASS I"), Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")),
-        Subsignal("reset_n", Pins("AK21"),    IOStandard("SSTL-15 CLASS I"), Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")),
-        Subsignal("rzq",     Pins("AG1"),     IOStandard("SSTL-15")),
+        Subsignal("cs_n",    Pins("AB15"), IOStandard("SSTL-15 CLASS I")),
+        Subsignal("cke",     Pins("AJ21"), IOStandard("SSTL-15 CLASS I")),
+        Subsignal("odt",     Pins("AE16"), IOStandard("SSTL-15 CLASS I")),
+        Subsignal("reset_n", Pins("AK21"), IOStandard("SSTL-15 CLASS I")),
+        Subsignal("rzq",     Pins("AG1"),  IOStandard("SSTL-15")),
+        Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")
         ),
 
     # VGA
@@ -99,11 +97,13 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
+    # IrDA
     ("irda", 0,
         Subsignal("irda_rxd", Pins("AH2")),
         IOStandard("3.3-V LVTTL")
     ),
 
+    # Temperatue
     ("temperature", 0,
         Subsignal("temp_cs_n", Pins("AF8")),
         Subsignal("temp_din",  Pins("AG7")),
@@ -112,6 +112,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
+    # Audio
     ("audio", 0,
         Subsignal("aud_adclrck",  Pins("AG30")),
         Subsignal("aud_adcdat",   Pins("AC27")),
@@ -125,6 +126,8 @@ _io = [
         IOStandard("3.3-V LVTTL")
     )
 ]
+
+# Connectors ---------------------------------------------------------------------------------------
 
 _connectors_hsmc_gpio_daughterboard = [
     ("J2", "G15 F14 H15 F15 A13 G13 B13 H14 B11 E13 - - " +
@@ -146,19 +149,18 @@ _connectors_hsmc_gpio_daughterboard = [
 # Platform -----------------------------------------------------------------------------------------
 
 _device_map = {
-    "revB/C": "5CSXFC6D6F31C8ES",
-    "revD":   "5CSXFC6D6F31C8",
+    "revb" : "5CSXFC6D6F31C8ES",
+    "revc" : "5CSXFC6D6F31C8ES",
+    "revd" : "5CSXFC6D6F31C8",
 }
 
 class Platform(AlteraPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self, revision="revB/C"):
+    def __init__(self, revision="revd"):
         assert revision in _device_map.keys()
         self.revision = revision
-        
-        # Yes, the HSMC GPIO board is optional, but only it has generic connectors
         AlteraPlatform.__init__(self, _device_map[revision], _io, connectors=_connectors_hsmc_gpio_daughterboard)
 
     def create_programmer(self):

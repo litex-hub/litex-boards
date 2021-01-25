@@ -2,10 +2,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# I (HB) used the similar de1soc board as a starting point, therefore:
-# Copyright (c) 2019 Antony Pavlov <antonynpavlov@gmail.com>
-# SocKit adaption (c) 2020 Hans Baier <hansfbaier@gmail.com>
-#
+# Copyright (c) 2020 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -15,7 +12,6 @@ from migen.fhdl.module      import Module
 from migen.fhdl.structure   import Signal, ClockDomain
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.build.io                  import DDROutput
 from litex.soc.cores.clock           import CycloneVPLL
 from litex.soc.integration.builder   import Builder, builder_args, builder_argdict
 from litex.soc.integration.soc_core  import SoCCore
@@ -45,12 +41,10 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), revisionD=False, **kwargs):
-        revision = "revD" if revisionD else "revB/C"
+    def __init__(self, sys_clk_freq=int(50e6), revision="revd", **kwargs):
         platform = arrow_sockit.Platform(revision)
 
-        # Defaults to Crossover UART, because Serial is attached to the HPS
-        # and thus not available to the FPGA
+        # Defaults to Crossover UART because serial is attached to the HPS and cannot be used.
         if kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "crossover"
 
@@ -76,7 +70,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on SoCKit")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--revisionD",    action="store_true", help="board revision D, otherwise the more widespread revision B/C is assumed")
+    parser.add_argument("--revision",     default="revd",      help="Board revision: revb (default), revc or revd")
     parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency (default: 50MHz)")
     builder_args(parser)
     soc_sdram_args(parser)
@@ -84,7 +78,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        revisionD = args.revisionD,
+        revision     = args.revision,
         **soc_sdram_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
