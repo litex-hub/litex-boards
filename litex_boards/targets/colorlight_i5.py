@@ -149,9 +149,9 @@ class BaseSoC(SoCCore):
         if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
-                pads       = self.platform.request("eth", eth_phy))
+                pads       = self.platform.request("eth", eth_phy),
+                tx_delay = 0)
             self.add_csr("ethphy")
-            self.add_constant("TARGET_BIOS_INIT", 1)
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
@@ -223,13 +223,6 @@ def main():
         soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
-    if args.with_ethernet:
-        os.makedirs(os.path.join(builder.software_dir, "include/generated"),
-                    exist_ok=True)
-        write_to_file(
-            os.path.join(builder.software_dir, "include/generated", "target.h"),
-            "// Colorlight i5 needs this to disable TX data to clock delay.\n"
-	    "#define TARGET_BIOS_INIT_FUNC() mdio_write(0, 0x1c, 0x8c00)")
 
     builder.build(**trellis_argdict(args), run=args.build)
 
