@@ -100,11 +100,46 @@ _io = [
         Subsignal("dat13_dir", Pins("P26")),
         IOStandard("LVCMOS33"),
     ),
+
+    # Sata
+    ("sata", 0,
+        Subsignal("clk_p", Pins("AF12")),
+        Subsignal("clk_n", Pins("AF13")),
+        Subsignal("rx_p", Pins("AF15")),
+        Subsignal("rx_n", Pins("AF16")),
+        Subsignal("tx_p", Pins("AD16")),
+        Subsignal("tx_n", Pins("AD17")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("AA2")),
+        Subsignal("mosi", Pins("AE2")),
+        Subsignal("miso", Pins("AD2")),
+        Subsignal("wp", Pins("AF2")),
+        Subsignal("hold", Pins("AE1")),
+        IOStandard("LVCMOS33")
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("AA2")),
+        Subsignal("dq", Pins("AE2", "AD2", "AF2", "AE1")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = []
+_connectors = [
+    ("pmod0", "T25 U25 U24 V24 T26 U26 V26 W26"),
+    ("pmod1", "U23 V23 U22 V21 W25 W24 W23 W22"),
+    ("pmod2", "J24 H22 E21 D18 K22 J21 H21 D22"),
+    ("pmod3", "E4 F4 E6 H4 F3 D4 D5 F5"),
+    ("pmod4", "E26 D25 F26 F25 C26 C25 A25 A24"),
+    ("pmod5", "D19 C21 B21 C22 D21 A21 A22 A23"),
+    ("pmod6", "C16 B17 C18 B19 A17 A18 A19 C19"),
+    ("pmod7", "D14 B14 E14 B16 C14 A14 A15 A16"),
+]
 
 # Platform -----------------------------------------------------------------------------------------
 
