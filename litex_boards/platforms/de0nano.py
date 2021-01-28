@@ -117,6 +117,15 @@ _io = [
     ),
 ]
 
+# Connectors ---------------------------------------------------------------------------------------
+
+_connectors = [
+    # PIN    1  2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18 19 20  21  22  23  24  25  26  27  28 29 30 31  32  33  34  35  36  37  38  39  40
+    ("JP1", "A8 D3  B8  C3  A2  A3  B3  B4  A4  B5  -   -   A5  D5  B6  A6  B7  D6 A7 C6  C8  E6  E7  D8  E8  F8  F9  E9  - -  C9  D9  E11 E10 C11 B11 A12 D11 D12 B12"),
+    ("JP2", "T9 F13 R9  T15 T14 T13 R13 T12 R12 T11 -   -   T10 R11 P11 R10 N12 P9 N9 N11 L16 K16 R16 L15 P15 P16 R14 N16 - -  N15 P14 L14 N14 M10 L13 J16 K15 J13 J14"),
+    ("JP3", "-  E15 E16 M16 A14 B16 C14 C16 C15 D16 D15 D14 F15 F16 F14 G16 G15 -  -  -   -   -   -   -   -   -")
+]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(AlteraPlatform):
@@ -124,7 +133,7 @@ class Platform(AlteraPlatform):
     default_clk_period = 1e9/50e6
 
     def __init__(self):
-        AlteraPlatform.__init__(self, "EP4CE22F17C6", _io)
+        AlteraPlatform.__init__(self, "EP4CE22F17C6", _io, _connectors)
 
     def create_programmer(self):
         return USBBlaster()

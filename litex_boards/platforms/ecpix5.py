@@ -112,8 +112,9 @@ class Platform(LatticePlatform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
-    def __init__(self, toolchain="trellis", **kwargs):
-        LatticePlatform.__init__(self, "LFE5UM5G-85F-8BG554I", _io, _connectors, toolchain=toolchain, **kwargs)
+    def __init__(self, device="85F", toolchain="trellis", **kwargs):
+        assert device in ["45F", "85F"]
+        LatticePlatform.__init__(self, f"LFE5UM5G-{device}-8BG554I", _io, _connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
         return OpenOCDJTAGProgrammer("openocd_ecpix5.cfg")

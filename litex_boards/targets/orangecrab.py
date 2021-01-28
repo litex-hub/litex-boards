@@ -76,6 +76,7 @@ class _CRG(Module):
 
 class _CRGSDRAM(Module):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
+        self.rst = Signal()
         self.clock_domains.cd_init     = ClockDomain()
         self.clock_domains.cd_por      = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys      = ClockDomain()
@@ -102,7 +103,7 @@ class _CRGSDRAM(Module):
         # PLL
         sys2x_clk_ecsout = Signal()
         self.submodules.pll = pll = ECP5PLL()
-        self.comb += pll.reset.eq(~por_done | ~rst_n)
+        self.comb += pll.reset.eq(~por_done | ~rst_n | self.rst)
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         pll.create_clkout(self.cd_init, 24e6)
@@ -182,8 +183,7 @@ class BaseSoC(SoCCore):
             self.submodules.ddrphy = ECP5DDRPHY(
                 pads         = ddram_pads,
                 sys_clk_freq = sys_clk_freq,
-                cmd_delay    = 0 if sys_clk_freq > 64e6 else 100,
-                dm_remapping = {0:1, 1:0})
+                cmd_delay    = 0 if sys_clk_freq > 64e6 else 100)
             self.ddrphy.settings.rtt_nom = "disabled"
             self.add_csr("ddrphy")
             if hasattr(ddram_pads, "vccio"):

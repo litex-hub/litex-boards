@@ -105,7 +105,7 @@ class BaseSoC(SoCCore):
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_csr("pcie_phy")
-            self.add_pcie(phy=self.pcie_phy, ndmas=1)
+            self.add_pcie(phy=self.pcie_phy, ndmas=1, max_pending_requests=2)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(

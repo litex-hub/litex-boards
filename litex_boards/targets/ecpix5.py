@@ -77,8 +77,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, **kwargs):
-        platform = ecpix5.Platform(toolchain="trellis")
+    def __init__(self, device="85F", sys_clk_freq=int(75e6), with_ethernet=False, **kwargs):
+        platform = ecpix5.Platform(device=device, toolchain="trellis")
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -128,6 +128,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ECPIX-5")
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
+    parser.add_argument("--device",        default="85F",       help="ECP5 device (default: 85F)")
     parser.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency (default: 75MHz)")
     parser.add_argument("--with-sdcard",   action="store_true", help="Enable SDCard support")
     parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
@@ -137,6 +138,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        device = args.device,
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         with_ethernet = args.with_ethernet,
         **soc_core_argdict(args)
