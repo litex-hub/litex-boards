@@ -22,12 +22,15 @@ from litex.soc.cores.led import LedChaser
 
 from litex_boards.platforms import tec0117
 
+from litedram.modules import M12L64322A  # FIXME
+from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
+
 kB = 1024
 mB = 1024*kB
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), with_sdram=False, sdram_rate="1:1", **kwargs):
         platform = tec0117.Platform()
 
         # SoC can have littel a bram, as a treat
@@ -55,6 +58,36 @@ class BaseSoC(SoCCore):
             size   = 8*mB,
             linker = True)
         )
+
+        # SDR SDRAM (WIP) --------------------------------------------------------------------------
+        if with_sdram:
+            class SDRAMPads:
+                def __init__(self):
+                    self.clk   = platform.request("O_sdram_clk")
+                    self.cke   = platform.request("O_sdram_cke")
+                    self.cs_n  = platform.request("O_sdram_cs_n")
+                    self.cas_n = platform.request("O_sdram_cas_n")
+                    self.ras_n = platform.request("O_sdram_ras_n")
+                    self.we_n  = platform.request("O_sdram_we_n")
+                    self.dm    = platform.request("O_sdram_dqm")
+                    self.a     = platform.request("O_sdram_addr")
+                    self.ba    = platform.request("O_sdram_ba")
+                    self.dq    = platform.request("IO_sdram_dq")
+            sdram_pads = SDRAMPads()
+
+            self.comb += sdram_pads.clk.eq(~ClockSignal("sys"))
+
+            sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
+            self.submodules.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
+            self.add_sdram("sdram",
+                phy                     = self.sdrphy,
+                module                  = M12L64322A(sys_clk_freq, sdram_rate),
+                origin                  = self.mem_map["main_ram"],
+                size                    = kwargs.get("max_sdram_size", 0x10000000),
+                l2_cache_size           = 0,
+                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
+                l2_cache_reverse        = True
+            )
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(

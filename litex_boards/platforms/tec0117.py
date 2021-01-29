@@ -46,6 +46,18 @@ _io = [
         Subsignal("miso", Pins("14"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("15"), IOStandard("LVCMOS33")),
     ),
+
+    # SDRAM (embedded in SIP, requires specific IO naming)
+    ("O_sdram_clk",   0, Pins(1), IOStandard("LVCMOS33")),
+    ("O_sdram_cke",   0, Pins(1), IOStandard("LVCMOS33")),
+    ("O_sdram_cs_n",  0, Pins(1), IOStandard("LVCMOS33")),
+    ("O_sdram_cas_n", 0, Pins(1), IOStandard("LVCMOS33")),
+    ("O_sdram_ras_n", 0, Pins(1), IOStandard("LVCMOS33")),
+    ("O_sdram_we_n",  0, Pins(1), IOStandard("LVCMOS33")),
+    ("O_sdram_dqm",   0, Pins(2), IOStandard("LVCMOS33")),
+    ("O_sdram_addr",  0, Pins(12), IOStandard("LVCMOS33")),
+    ("O_sdram_ba",    0, Pins(2), IOStandard("LVCMOS33")),
+    ("IO_sdram_dq",   0, Pins(16), IOStandard("LVCMOS33")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
