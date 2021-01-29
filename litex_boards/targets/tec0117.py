@@ -44,10 +44,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(
-                platform.request(platform.default_clk_name),
-                ~platform.request('rst'),
-        )
+        self.submodules.crg = CRG(platform.request("clk12"), ~platform.request("rst"))
 
         # SPI Flash --------------------------------------------------------------------------------
         self.add_spi_flash(mode="1x", dummy_cycles=8)
@@ -68,11 +65,10 @@ class BaseSoC(SoCCore):
 # Flash --------------------------------------------------------------------------------------------
 
 def flash(offset, path):
-    from spiflash.serialflash import SerialFlashManager
+    # Create FTDI <--> SPI Flash proxy bitstream and load it.
     platform = tec0117.Platform()
-    flash = platform.request("spiflash", 0)
-    bus = platform.request("spiflash", 1)
-
+    flash    = platform.request("spiflash", 0)
+    bus      = platform.request("spiflash", 1)
     module = Module()
     module.comb += [
         flash.clk.eq(bus.clk),
@@ -80,26 +76,25 @@ def flash(offset, path):
         flash.mosi.eq(bus.mosi),
         bus.miso.eq(flash.miso),
     ]
-
     platform.build(module)
     prog = platform.create_programmer()
     prog.load_bitstream('build/impl/pnr/project.fs')
 
+    # Flash BIOS through proxy bitstream.
+    from spiflash.serialflash import SerialFlashManager
     dev = SerialFlashManager.get_flash_device("ftdi://ftdi:2232/2")
-    dev.TIMINGS['chip'] = (4, 60) # chip is too slow
+    dev.TIMINGS['chip'] = (4, 60) # Chip is too slow
     print("Erasing flash...")
     dev.erase(0, -1)
-
     with open(path, 'rb') as f:
         bios = f.read()
-
     print("Programming flash...")
     dev.write(offset, bios)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
+    parser = argparse.ArgumentParser(description="LiteX SoC on TEC0117")
     parser.add_argument("--build",             action="store_true", help="Build bitstream")
     parser.add_argument("--load",              action="store_true", help="Load bitstream")
     parser.add_argument("--bios-flash-offset", default=0x00000,     help="BIOS offset in SPI Flash (0x00000 default)")
@@ -109,7 +104,7 @@ def main():
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc= BaseSoC(
+    soc = BaseSoC(
         bios_flash_offset = args.bios_flash_offset,
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
@@ -118,16 +113,11 @@ def main():
     builder.build(run=args.build)
 
     if args.flash:
-        flash(
-            args.bios_flash_offset,
-            os.path.join(builder.software_dir, "bios", "bios.bin"))
+        flash(args.bios_flash_offset, os.path.join(builder.software_dir, "bios", "bios.bin"))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(
-            os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"),
-            args.flash)
-
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"), args.flash)
 
 if __name__ == "__main__":
     main()
