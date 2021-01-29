@@ -123,7 +123,7 @@ _io = [
         Subsignal("mdio",    Pins("J5")),
         Subsignal("rx_er",   Pins("K5")),
         Subsignal("int_n",   Pins("M4")),
-        Subsignal("rst_n",   Pins("C9")), # FIXME not connected
+        #Subsignal("rst_n",   Pins("")), # Not connected
         IOStandard("LVCMOS33")
     ),
 
