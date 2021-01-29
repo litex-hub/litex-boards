@@ -101,7 +101,7 @@ _io = [
           Misc("DIFFRESISTOR=100")),
       Subsignal("clk_p"  , Pins("K16"), IOStandard("SSTL15D_I")),
       Subsignal("cke",     Pins("D19"), IOStandard("SSTL15_I")),
-      Subsignal("odt",     Pins("H4")), # FIXME not connected
+      #Subsignal("odt",    Pins("")), Not connected.
       Subsignal("reset_n", Pins("L20"), IOStandard("SSTL15_I")),
       # Pseudo-VCCIO pads: SSTL15_II for 10 mA drive strength, see FPGA-TN-02035, section 6.7.
       Subsignal( "vccio", Pins( "C20 E16 J18 K18 L18 L19 N17 N18 T16" ),
