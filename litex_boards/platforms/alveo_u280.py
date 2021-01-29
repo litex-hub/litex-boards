@@ -7,7 +7,6 @@
 
 # Modified for Alveo U280 by Sergiu Mosanu based on XCU1525 and Alveo U250
 
-
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
@@ -24,13 +23,6 @@ _io = [
         Subsignal("p", Pins("BH6"), IOStandard("LVDS")),
     ),
 
-
-
-
-
-
-
-
     ("cpu_reset", 0, Pins("L30"), IOStandard("LVCMOS18")),
 
     # Leds
@@ -45,21 +37,11 @@ _io = [
     ("gpio_sw", 2, Pins("K32"), IOStandard("LVCMOS18")),
     ("gpio_sw", 3, Pins("K31"), IOStandard("LVCMOS18")),
     
-
-
-
-
-
-
     # Serial
     ("serial", 0,
         Subsignal("rx", Pins("A28"), IOStandard("LVCMOS18")),
         Subsignal("tx", Pins("B33"), IOStandard("LVCMOS18")),
     ),
-
-    
-
-
 
     # DDR4 SDRAM
     #("ddram_reset_gate", 0, Pins(""), IOStandard("LVCMOS12")),???
@@ -129,27 +111,14 @@ class Platform(XilinxPlatform):
         self.add_period_constraint(self.lookup_request("sysclk", 0, loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("sysclk", 1, loose=True), 1e9/100e6)
 
-
         # For passively cooled boards, overheating is a significant risk if airflow isn't sufficient
         self.add_platform_command("set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]")
         # Reduce programming time
         self.add_platform_command("set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        # DDR4 memory channel C1 Internal Vref
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 65]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")
 
         # Other suggested configurations
         self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")
