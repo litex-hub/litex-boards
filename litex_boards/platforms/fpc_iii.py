@@ -17,37 +17,32 @@ _io = [
     ("clk25",  0, Pins("P3"), IOStandard("LVCMOS33")),
 
     # LEDs
-    ("user_led", 0, Pins("N16"), IOStandard("LVCMOS15"), Misc( "OPENDRAIN=ON" ) ),
-    ("user_led", 1, Pins("P20"), IOStandard("LVCMOS15"), Misc( "OPENDRAIN=ON" ) ),
-    ("user_led", 2, Pins("R20"), IOStandard("LVCMOS15"), Misc( "OPENDRAIN=ON" ) ),
-    ("user_led", 3, Pins("N20"), IOStandard("LVCMOS15"), Misc( "OPENDRAIN=ON" ) ),
-    ("user_led", 4, Pins("U20"), IOStandard("LVCMOS15"), Misc( "OPENDRAIN=ON" ) ),
-    ("user_led", 5, Pins("M20"), IOStandard("LVCMOS15"), Misc( "OPENDRAIN=ON" ) ),
-    ("user_led", 6, Pins("T20"), IOStandard("LVCMOS15"), Misc( "OPENDRAIN=ON" ) ),
-    ("user_led", 7, Pins("D6"), IOStandard("LVCMOS33"), Misc( "OPENDRAIN=ON" ) ),
-
-    # Serial
-    #("serial", 0,
-    #  Subsignal("rx", Pins("N2"), IOStandard("LVCMOS33")),
-    #  Subsignal("tx", Pins("M1"), IOStandard("LVCMOS33"))),
+    ("user_led", 0, Pins("N16"), IOStandard("LVCMOS15"), Misc("OPENDRAIN=ON")),
+    ("user_led", 1, Pins("P20"), IOStandard("LVCMOS15"), Misc("OPENDRAIN=ON")),
+    ("user_led", 2, Pins("R20"), IOStandard("LVCMOS15"), Misc("OPENDRAIN=ON")),
+    ("user_led", 3, Pins("N20"), IOStandard("LVCMOS15"), Misc("OPENDRAIN=ON")),
+    ("user_led", 4, Pins("U20"), IOStandard("LVCMOS15"), Misc("OPENDRAIN=ON")),
+    ("user_led", 5, Pins("M20"), IOStandard("LVCMOS15"), Misc("OPENDRAIN=ON")),
+    ("user_led", 6, Pins("T20"), IOStandard("LVCMOS15"), Misc("OPENDRAIN=ON")),
+    ("user_led", 7, Pins("D6"),  IOStandard("LVCMOS33"), Misc("OPENDRAIN=ON")),
 
     # USB FIFO
     ("usb_fifo", 0,
-      Subsignal( "data", Pins( "N2 M1 M3 L1 L2 K1 K2 J1" ) ),
-      Subsignal( "rxf_n", Pins( "H1" ) ),
-      Subsignal( "txe_n", Pins( "H2" ) ),
-      Subsignal( "rd_n", Pins( "G1" ) ),
-      Subsignal( "wr_n", Pins( "G2" ) ),
-      Subsignal( "siwua", Pins( "F1" ) )
+      Subsignal( "data",  Pins("N2 M1 M3 L1 L2 K1 K2 J1")),
+      Subsignal( "rxf_n", Pins("H1")),
+      Subsignal( "txe_n", Pins("H2")),
+      Subsignal( "rd_n",  Pins("G1")),
+      Subsignal( "wr_n",  Pins("G2")),
+      Subsignal( "siwua", Pins("F1"))
     ),
 
     # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("R2"), IOStandard("LVCMOS33")),
-        Subsignal("mosi",   Pins("W2"), IOStandard("LVCMOS33")),
-        Subsignal("miso",   Pins("V2"), IOStandard("LVCMOS33")),
-        Subsignal("wp",     Pins("Y2"), IOStandard("LVCMOS33")),
-        Subsignal("hold",   Pins("W1"), IOStandard("LVCMOS33")),
+        Subsignal("mosi", Pins("W2"), IOStandard("LVCMOS33")),
+        Subsignal("miso", Pins("V2"), IOStandard("LVCMOS33")),
+        Subsignal("wp",   Pins("Y2"), IOStandard("LVCMOS33")),
+        Subsignal("hold", Pins("W1"), IOStandard("LVCMOS33")),
     ),
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("R2"),          IOStandard("LVCMOS33")),
@@ -83,32 +78,36 @@ _io = [
     ),
 
     # DDR3 SDRAM
-    ("dram_vtt_en", 0, Pins( "M19" ), IOStandard( "LVCMOS15" ), Misc( "OPENDRAIN=ON" ) ),
+    ("dram_vtt_en", 0, Pins("M19"), IOStandard("LVCMOS15"), Misc("OPENDRAIN=ON")),
     ("ddram", 0,
-      Subsignal( "a", Pins( "E18 H16 D18 L16 H17 E17 G18 C18 "
-                            "G16 D17 J16 F18 J17 F16 F17" ),
-                 IOStandard( "SSTL15_I" ) ),
-      Subsignal( "ba", Pins( "M18 H18 L17" ), IOStandard( "SSTL15_I" ) ),
-      Subsignal( "ras_n", Pins( "R17" ), IOStandard( "SSTL15_I" ) ),
-      Subsignal( "cas_n", Pins( "R16" ), IOStandard( "SSTL15_I" ) ),
-      Subsignal( "we_n", Pins( "M17" ), IOStandard( "SSTL15_I" ) ),
-      Subsignal( "cs_n", Pins( "P17" ), IOStandard( "SSTL15_I" ) ),
-      Subsignal( "dm", Pins( "F20 T18" ), IOStandard( "SSTL15_I" ) ),
-      Subsignal( "dq", Pins( "J20 F19 J19 E19 K19 E20 K20 G20 ",
-                             "T17 U16 P18 U17 N19 U18 P19 U19" ),
-                 IOStandard( "SSTL15_I" ), Misc( "TERMINATION=50" ) ),
-      Subsignal( "dqs_p", Pins( "G19 T19" ), IOStandard( "SSTL15D_I" ),
-                 Misc( "TERMINATION=OFF" ), Misc( "DIFFRESISTOR=100" ) ),
-      Subsignal( "clk_p", Pins( "K16" ), IOStandard( "SSTL15D_I" ) ),
-      Subsignal( "cke", Pins( "D19" ), IOStandard( "SSTL15_I" ) ),
-      Subsignal( "odt", Pins( "H4" ) ), # FIXME not connected
-      Subsignal( "reset_n", Pins( "L20" ), IOStandard( "SSTL15_I" ) ),
-      # Pseudo-VCCIO pads: SSTL15_II for 10 mA drive strength, see
-      # FPGA-TN-02035, section 6.7.
+        Subsignal("a", Pins(
+            "E18 H16 D18 L16 H17 E17 G18 C18 "
+            "G16 D17 J16 F18 J17 F16 F17"
+        ),
+        IOStandard("SSTL15_I")),
+      Subsignal("ba",    Pins("M18 H18 L17"), IOStandard("SSTL15_I")),
+      Subsignal("ras_n", Pins("R17"), IOStandard("SSTL15_I")),
+      Subsignal("cas_n", Pins("R16"), IOStandard("SSTL15_I")),
+      Subsignal("we_n",  Pins("M17"), IOStandard("SSTL15_I")),
+      Subsignal("cs_n",  Pins("P17"), IOStandard("SSTL15_I")),
+      Subsignal("dm", Pins("F20 T18"), IOStandard("SSTL15_I")),
+      Subsignal("dq", Pins(
+          "J20 F19 J19 E19 K19 E20 K20 G20",
+          "T17 U16 P18 U17 N19 U18 P19 U19"),
+          IOStandard("SSTL15_I"),
+          Misc("TERMINATION=50")),
+      Subsignal("dqs_p", Pins("G19 T19"), IOStandard("SSTL15D_I"),
+          Misc("TERMINATION=OFF"),
+          Misc("DIFFRESISTOR=100")),
+      Subsignal("clk_p"  , Pins("K16"), IOStandard("SSTL15D_I")),
+      Subsignal("cke",     Pins("D19"), IOStandard("SSTL15_I")),
+      Subsignal("odt",     Pins("H4")), # FIXME not connected
+      Subsignal("reset_n", Pins("L20"), IOStandard("SSTL15_I")),
+      # Pseudo-VCCIO pads: SSTL15_II for 10 mA drive strength, see FPGA-TN-02035, section 6.7.
       Subsignal( "vccio", Pins( "C20 E16 J18 K18 L18 L19 N17 N18 T16" ),
-                 IOStandard( "SSTL15_II" ) ),
-      Misc( "SLEWRATE=FAST" ) ),
-    
+          IOStandard( "SSTL15_II" ) ),
+      Misc("SLEWRATE=FAST")),
+
     # MII Ethernet
     ("eth_clocks", 0,
         Subsignal("rx", Pins("L5")),
@@ -130,23 +129,23 @@ _io = [
 
     # HDMI output
     ("hdmi", 0,
-       Subsignal( "data0", Pins( "G3" ) ),
-       Subsignal( "data1", Pins( "F4" ) ),
-       Subsignal( "data2", Pins( "C1" ) ),
-       Subsignal( "clk", Pins( "E4" ) ),
-       IOStandard( "LVCMOS33D" ), Misc( "DRIVE=8 SLEWRATE=FAST" ) ),
+       Subsignal("data0", Pins("G3")),
+       Subsignal("data1", Pins("F4")),
+       Subsignal("data2", Pins("C1")),
+       Subsignal("clk", Pins("E4") ),
+       IOStandard("LVCMOS33D"),
+       Misc("DRIVE=8 SLEWRATE=FAST")),
 
     # USB host 1
     ("usbhost", 0,
-       Subsignal( "dp", Pins( "B6" ) ),
-       Subsignal( "dn", Pins( "A6" ) ),
-       IOStandard( "LVCMOS33" ) )
+       Subsignal("dp", Pins("B6")),
+       Subsignal("dn", Pins("A6")),
+       IOStandard("LVCMOS33"))
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = [
-]
+_connectors = []
 
 # Platform -----------------------------------------------------------------------------------------
 
