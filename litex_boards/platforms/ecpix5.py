@@ -6,7 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
-from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
+from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -152,7 +152,7 @@ class Platform(LatticePlatform):
         LatticePlatform.__init__(self, f"LFE5UM5G-{device}-8BG554I", _io, _connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
-        return OpenOCDJTAGProgrammer("openocd_ecpix5.cfg")
+        return OpenFPGALoader("ecpix5")
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)

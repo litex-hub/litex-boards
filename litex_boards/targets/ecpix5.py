@@ -134,6 +134,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ECPIX-5")
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
+    parser.add_argument("--flash",         action="store_true", help="Flash bitstream to SPI Flash")
     parser.add_argument("--device",        default="85F",       help="ECP5 device (default: 85F)")
     parser.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency (default: 75MHz)")
     parser.add_argument("--with-sdcard",   action="store_true", help="Enable SDCard support")
@@ -156,7 +157,11 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".svf"))
+        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+
+    if args.flash:
+        prog = soc.platform.create_programmer()
+        prog.flash(None, os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
 
 if __name__ == "__main__":
     main()
