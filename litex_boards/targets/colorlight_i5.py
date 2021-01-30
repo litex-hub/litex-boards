@@ -185,12 +185,14 @@ def main():
     parser.add_argument("--board",            default="i5",         help="Board type: i5 (default)")
     parser.add_argument("--revision",         default="7.0", type=str,  help="Board revision: 7.0 (default)")
     parser.add_argument("--sys-clk-freq",     default=60e6,             help="System clock frequency (default: 60MHz)")
-    parser.add_argument("--with-ethernet",    action="store_true",      help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone",   action="store_true",      help="Enable Etherbone support")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone",  action="store_true",      help="Enable Etherbone support")
     parser.add_argument("--remote-ip",        default="192.168.1.100",  help="Remote IP address of TFTP server")
     parser.add_argument("--local-ip",         default="192.168.1.50",   help="Local IP address")
-    parser.add_argument("--with-spi-sdcard",  action="store_true",	help="Enable SPI-mode SDCard support")
-    parser.add_argument("--with-sdcard",      action="store_true",	help="Enable SDCard support")
+    sdopts = parser.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",  action="store_true",	help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",      action="store_true",	help="Enable SDCard support")
     parser.add_argument("--eth-phy",          default=0, type=int,      help="Ethernet PHY: 0 (default) or 1")
     parser.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator")
     parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
@@ -201,7 +203,6 @@ def main():
     trellis_args(parser)
     args = parser.parse_args()
 
-    assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(board=args.board, revision=args.revision,
         sys_clk_freq     = int(float(args.sys_clk_freq)),
         with_ethernet    = args.with_ethernet,
@@ -215,7 +216,6 @@ def main():
         with_prbs        = args.with_prbs,
         **soc_core_argdict(args)
     )
-    assert not (args.with_spi_sdcard and args.with_sdcard)
     soc.platform.add_extension(colorlight_i5._sdcard_pmod_io)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

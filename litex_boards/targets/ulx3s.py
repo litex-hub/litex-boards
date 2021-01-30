@@ -139,8 +139,9 @@ def main():
     parser.add_argument("--sdram-module",    default="MT48LC16M16", help="SDRAM module: MT48LC16M16 (default), AS4C32M16 or AS4C16M16")
     parser.add_argument("--with-spiflash",   action="store_true",   help="Make the SPI Flash accessible from the SoC")
     parser.add_argument("--flash-boot-adr",  type=lambda x: int(x,0), default=None, help="Flash boot address")
-    parser.add_argument("--with-spi-sdcard", action="store_true",   help="Enable SPI-mode SDCard support")
-    parser.add_argument("--with-sdcard",     action="store_true",   help="Enable SDCard support")
+    sdopts = parser.add_mutually_exclusive_group()    
+    sdopts.add_argument("--with-spi-sdcard", action="store_true",   help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",     action="store_true",   help="Enable SDCard support")
     parser.add_argument("--with-oled",       action="store_true",   help="Enable SDD1331 OLED support")
     parser.add_argument("--sdram-rate",      default="1:1",         help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
     builder_args(parser)
@@ -157,7 +158,6 @@ def main():
         sdram_rate       = args.sdram_rate,
         spiflash         = args.with_spiflash,
         **soc_sdram_argdict(args))
-    assert not (args.with_spi_sdcard and args.with_sdcard)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

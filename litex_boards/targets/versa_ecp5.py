@@ -134,21 +134,21 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Versa ECP5")
-    parser.add_argument("--build",          action="store_true",              help="Build bitstream")
-    parser.add_argument("--load",           action="store_true",              help="Load bitstream")
-    parser.add_argument("--toolchain",      default="trellis",                help="FPGA toolchain: trellis (default) or diamond")
-    parser.add_argument("--sys-clk-freq",   default=75e6,                     help="System clock frequency (default: 75MHz)")
-    parser.add_argument("--device",         default="LFE5UM5G",               help="FPGA device (LFE5UM5G (default) or LFE5UM)")
-    parser.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
-    parser.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
-    parser.add_argument("--eth-phy",        default=0, type=int,              help="Ethernet PHY: 0 (default) or 1")
+    parser.add_argument("--build",           action="store_true",              help="Build bitstream")
+    parser.add_argument("--load",            action="store_true",              help="Load bitstream")
+    parser.add_argument("--toolchain",       default="trellis",                help="FPGA toolchain: trellis (default) or diamond")
+    parser.add_argument("--sys-clk-freq",    default=75e6,                     help="System clock frequency (default: 75MHz)")
+    parser.add_argument("--device",          default="LFE5UM5G",               help="FPGA device (LFE5UM5G (default) or LFE5UM)")
+    ethopts = parser.add_mutually_exclusive_group()    
+    ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
+    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
+    parser.add_argument("--eth-phy",         default=0, type=int,              help="Ethernet PHY: 0 (default) or 1")
     builder_args(parser)
     soc_sdram_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
-    assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         device         = args.device,

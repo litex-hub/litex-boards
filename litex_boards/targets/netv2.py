@@ -124,8 +124,9 @@ def main():
     parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support")
     parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
-    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    sdopts = parser.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
 
     builder_args(parser)
     soc_sdram_args(parser)
@@ -138,7 +139,6 @@ def main():
         with_pcie     = args.with_pcie,
         **soc_sdram_argdict(args)
     )
-    assert not (args.with_spi_sdcard and args.with_sdcard)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
