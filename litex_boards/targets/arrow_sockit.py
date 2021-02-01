@@ -4,6 +4,15 @@
 #
 # Copyright (c) 2020 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
+"""
+    This class provides basic support for the Arrow SoCKit.
+    Since the SoCKit has its USB2UART attached to the HPS
+    system, it is not available to the FPGA and thus the only
+    way to communicate is via JTAG serial which is configured
+    by default.
+    To access it, you can use the nios2_terminal application
+    included in the Intel/Altera quartus distribution.
+"""
 
 import os
 import argparse
@@ -44,9 +53,9 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), revision="revd", **kwargs):
         platform = arrow_sockit.Platform(revision)
 
-        # Defaults to Crossover UART because serial is attached to the HPS and cannot be used.
+        # Defaults to UART over JTAG because serial is attached to the HPS and cannot be used.
         if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "crossover"
+            kwargs["uart_name"] = "jtag_atlantic"
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
