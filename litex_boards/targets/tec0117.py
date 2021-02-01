@@ -97,8 +97,37 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(offset, path):
+def flash(bios_flash_offset):
+    # Prepare Flash image.
+    # --------------------
+    bitstream  = open("build/tec0117/gateware/impl/pnr/project.bin",  "rb")
+    bios       = open("build/tec0117/software/bios/bios.bin", "rb")
+    image      = open("build/tec0117/image.bin", "wb")
+    # Copy Bitstream at 0.
+    blength = 0
+    while True:
+        b = bitstream.read(1)
+        if not b:
+            break
+        else:
+           image.write(b)
+           blength += 1
+    # Check Bitstream/BIOS overlap.
+    if blength > bios_flash_offset:
+        raise ValueError(f"Bitstream/BIOS overlap 0x{blength:08x} vs 0x{bios_flash_offset:08x}, increase BIOS Flash offset.")
+    # Fill Gap between Bitstream/BIOS with zeroes.
+    for i in range(bios_flash_offset - blength):
+         image.write(0x00.to_bytes(1, "big"))
+    # Copy BIOS at bios_flash_offset
+    while True:
+        b = bios.read(1)
+        if not b:
+            break
+        else:
+           image.write(b)
+
     # Create FTDI <--> SPI Flash proxy bitstream and load it.
+    # -------------------------------------------------------
     platform = tec0117.Platform()
     flash    = platform.request("spiflash", 0)
     bus      = platform.request("spiflash", 1)
@@ -111,18 +140,19 @@ def flash(offset, path):
     ]
     platform.build(module)
     prog = platform.create_programmer()
-    prog.load_bitstream('build/impl/pnr/project.fs')
+    prog.load_bitstream("build/impl/pnr/project.fs")
 
-    # Flash BIOS through proxy bitstream.
+    # Flash Image through proxy Bitstream.
+    # ------------------------------------
     from spiflash.serialflash import SerialFlashManager
     dev = SerialFlashManager.get_flash_device("ftdi://ftdi:2232/2")
-    dev.TIMINGS['chip'] = (4, 60) # Chip is too slow
+    dev.TIMINGS["chip"] = (4, 60) # Chip is too slow
     print("Erasing flash...")
     dev.erase(0, -1)
-    with open(path, 'rb') as f:
-        bios = f.read()
+    with open("build/tec0117/image.bin", "rb") as f:
+        image = f.read()
     print("Programming flash...")
-    dev.write(offset, bios)
+    dev.write(0, image)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -130,8 +160,8 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on TEC0117")
     parser.add_argument("--build",             action="store_true", help="Build bitstream")
     parser.add_argument("--load",              action="store_true", help="Load bitstream")
-    parser.add_argument("--bios-flash-offset", default=0x00000,     help="BIOS offset in SPI Flash (0x00000 default)")
-    parser.add_argument("--flash",             action="store_true", help="Flash BIOS")
+    parser.add_argument("--bios-flash-offset", default=0x80000,     help="BIOS offset in SPI Flash (0x00000 default)")
+    parser.add_argument("--flash",             action="store_true", help="Flash Bitstream and BIOS")
     parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency (default: 12MHz)")
     builder_args(parser)
     soc_core_args(parser)
@@ -145,12 +175,14 @@ def main():
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
-    if args.flash:
-        flash(args.bios_flash_offset, os.path.join(builder.software_dir, "bios", "bios.bin"))
-
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"), args.flash)
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+
+    if args.flash:
+        # flash(args.bios_flash_offset) FIXME.
+        prog = soc.platform.create_programmer()
+        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
 
 if __name__ == "__main__":
     main()

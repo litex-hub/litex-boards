@@ -43,6 +43,12 @@ _io = [
         Subsignal("wp",   Pins("54"), IOStandard("LVCMOS33")),
         Subsignal("hold", Pins("50"), IOStandard("LVCMOS33")),
     ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("51")),
+        Subsignal("clk",  Pins("49")),
+        Subsignal("dq",   Pins("48 53 54 50")),
+        IOStandard("LVCMOS33")
+    ),
 
     # SPIFlash (FTDI Chip)
     ("spiflash", 1,
