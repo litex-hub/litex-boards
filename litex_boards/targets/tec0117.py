@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 #
-# This file is part of LiteX.
+# This file is part of LiteX-Boards.
 #
-# Copyright (c) 2014-2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# Copyright (c) 2013-2014 Sebastien Bourdeauducq <sb@m-labs.hk>
+# Copyright (c) 2020 Pepijn de Vos <pepijndevos@gmail.com>
+# Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os

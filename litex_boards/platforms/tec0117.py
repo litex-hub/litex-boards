@@ -1,4 +1,9 @@
-#!/usr/bin/env python3
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2020 Pepijn de Vos <pepijndevos@gmail.com>
+# Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
 
