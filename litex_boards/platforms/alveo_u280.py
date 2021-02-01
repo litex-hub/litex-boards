@@ -88,6 +88,49 @@ _io = [
         Subsignal("we_n",  Pins("BE43"), IOStandard("SSTL12_DCI")), # A14
         Misc("SLEW=FAST")
     ),
+        ("ddram", 1,
+        Subsignal("a", Pins(
+            "BF7 BK1 BF6 BF5 BE3 BE6 BE5 BG7",
+            "BJ1 BG2 BJ8 BE4 BL2 BK5"), # BK8 BJ4 BF8
+            IOStandard("SSTL12_DCI")),
+        Subsignal("act_n", Pins("BG3"), IOStandard("SSTL12_DCI")),
+        Subsignal("ba", Pins("BG8 BK4"), IOStandard("SSTL12_DCI")),
+        Subsignal("bg", Pins("BF3 BF2"), IOStandard("SSTL12_DCI")),
+        Subsignal("cas_n", Pins("BJ4"), IOStandard("SSTL12_DCI")), # A15
+        Subsignal("cke", Pins("BE1"), IOStandard("SSTL12_DCI")),
+        Subsignal("clk_n", Pins("BJ2"), IOStandard("DIFF_SSTL12_DCI")),
+        Subsignal("clk_p", Pins("BJ3"), IOStandard("DIFF_SSTL12_DCI")),
+        Subsignal("cs_n",  Pins("BL3"), IOStandard("SSTL12_DCI")),
+        Subsignal("dq", Pins(
+            "A11 A10 A9 A8 B12 B10 C12 B11",
+            "E11 D11 E12 F11 F10 E9 F9 G11",
+            "H12 G13 H13 H14 J11 J12 J15 J14",
+            "A14 C15 A15 B15 F15 E14 F14 F13",
+            "BM3 BM4 BM5 BL6 BN4 BN5 BN6 BN7",
+            "BJ9 BK9 BK10 BL10 BM9 BN9 BN10 BM10",
+            "BM15 BM14 BL15 BM13 BN12 BM12 BP13 BP14",
+            "BJ13 BJ12 BH15 BH14 BK14 BK15 BL12 BL13"),
+            IOStandard("POD12_DCI"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
+            Misc("EQUALIZATION=EQ_LEVEL2")),
+        Subsignal("dqs_n", Pins(
+            "A13 D9 G15 D14 BM7 BM8 BN14 BK13",
+            "BF11 C9 G10 K13 D12 BP6 BP8 BP11"), # "BK11 BH9"
+            IOStandard("DIFF_POD12"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
+            Misc("EQUALIZATION=EQ_LEVEL2")),
+        Subsignal("dqs_p", Pins(
+            "B13 C10 D10 H10 H15 K14 D15 E13",
+            "BL7 BP7 BL8 BP9 BN15 BP12 BJ14 BJ11"), #"BH54 BJ52"
+            IOStandard("DIFF_POD12"),
+            Misc("PRE_EMPHASIS=RDRV_240"),
+            Misc("EQUALIZATION=EQ_LEVEL2")),
+        Subsignal("odt", Pins("BH2"), IOStandard("SSTL12_DCI")),
+        Subsignal("ras_n", Pins("BF8"), IOStandard("SSTL12_DCI")), # A16
+        Subsignal("reset_n", Pins("BH12"), IOStandard("LVCMOS12")),
+        Subsignal("we_n",  Pins("BK8"), IOStandard("SSTL12_DCI")), # A14
+        Misc("SLEW=FAST")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -115,10 +158,14 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]")
         # Reduce programming time
         self.add_platform_command("set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]")
-        # DDR4 memory channel C1 Internal Vref
+        # DDR4 memory channel C0 Internal Vref
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 65]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")
+        # DDR4 memory channel C1 Internal Vref
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 68]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 69]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 70]")
 
         # Other suggested configurations
         self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")
