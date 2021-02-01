@@ -22,15 +22,41 @@ from litex.soc.cores.led import LedChaser
 
 from litex_boards.platforms import tec0117
 
-from litedram.modules import M12L64322A  # FIXME
+from litedram.modules import MT48LC4M16  # FIXME: use EtronTech reference.
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 kB = 1024
 mB = 1024*kB
 
+# CRG ----------------------------------------------------------------------------------------------
+
+class _CRG(Module):
+    def __init__(self, platform, sys_clk_freq):
+        self.rst = Signal()
+        self.clock_domains.cd_sys = ClockDomain()
+
+        # # #
+
+        # Clk / Rst
+        clk100 = platform.request("clk100")
+        rst_n  = platform.request("rst_n")
+
+        # Generate 25Mhz sys_clk_freq clock from 100MHz input clock, FIXME: use PLL.
+        assert sys_clk_freq == 25e6
+        self.clock_domains.cd_clk100 = ClockDomain()
+        self.comb += self.cd_clk100.clk.eq(clk100)
+        count = Signal(2)
+        self.sync.clk100 += count.eq(count + 1)
+        clk50 = count[0]
+        clk25 = count[1]
+        self.comb += self.cd_sys.clk.eq(clk25)
+        self.comb += self.cd_sys.rst.eq(~rst_n | self.rst) # FIXME: use AsyncResetSynchronizer
+
+# BaseSoC ------------------------------------------------------------------------------------------
+
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), with_sdram=False, sdram_rate="1:1", **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=int(25e6), sdram_rate="1:1", **kwargs):
         platform = tec0117.Platform()
 
         # Use custom default configuration to fit in LittleBee.
@@ -49,7 +75,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(platform.request("clk12"), ~platform.request("rst"))
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
         self.add_spi_flash(mode="1x", dummy_cycles=8)
@@ -62,8 +88,8 @@ class BaseSoC(SoCCore):
         #    linker = True)
         #)
 
-        # SDR SDRAM (WIP) --------------------------------------------------------------------------
-        if with_sdram:
+        # SDR SDRAM --------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
             class SDRAMPads:
                 def __init__(self):
                     self.clk   = platform.request("O_sdram_clk")
@@ -71,25 +97,23 @@ class BaseSoC(SoCCore):
                     self.cs_n  = platform.request("O_sdram_cs_n")
                     self.cas_n = platform.request("O_sdram_cas_n")
                     self.ras_n = platform.request("O_sdram_ras_n")
-                    self.we_n  = platform.request("O_sdram_we_n")
+                    self.we_n  = platform.request("O_sdram_wen_n")
                     self.dm    = platform.request("O_sdram_dqm")
                     self.a     = platform.request("O_sdram_addr")
                     self.ba    = platform.request("O_sdram_ba")
                     self.dq    = platform.request("IO_sdram_dq")
             sdram_pads = SDRAMPads()
 
-            self.comb += sdram_pads.clk.eq(~ClockSignal("sys"))
+            self.comb += sdram_pads.clk.eq(~ClockSignal("sys")) # FIXME: use phase shift from PLL.
 
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
             self.add_sdram("sdram",
                 phy                     = self.sdrphy,
-                module                  = M12L64322A(sys_clk_freq, sdram_rate),
+                module                  = MT48LC4M16(sys_clk_freq, sdram_rate), # FIXME.
                 origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", 0x10000000),
-                l2_cache_size           = 0,
-                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                l2_cache_size           = 128,
+                l2_cache_min_data_width = 256,
             )
 
         # Leds -------------------------------------------------------------------------------------
@@ -165,7 +189,7 @@ def main():
     parser.add_argument("--load",              action="store_true", help="Load bitstream")
     parser.add_argument("--bios-flash-offset", default=0x80000,     help="BIOS offset in SPI Flash (0x00000 default)")
     parser.add_argument("--flash",             action="store_true", help="Flash Bitstream and BIOS")
-    parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency (default: 12MHz)")
+    parser.add_argument("--sys-clk-freq",      default=25e6,        help="System clock frequency (default: 12MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
