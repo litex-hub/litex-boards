@@ -33,9 +33,11 @@ class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), with_sdram=False, sdram_rate="1:1", **kwargs):
         platform = tec0117.Platform()
 
-        # SoC can have littel a bram, as a treat
-        kwargs["integrated_sram_size"] = 2048*2
-        kwargs["integrated_rom_size"]  = 0
+        # Use custom default configuration to fit in LittleBee.
+        kwargs["integrated_sram_size"] = 0x1000
+        kwargs["integrated_rom_size"]  = 0x6000
+        kwargs["cpu_type"]     = "vexriscv"
+        kwargs["cpu_variant"]  = "lite"
 
         # Set CPU variant / reset address
         kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
@@ -173,7 +175,7 @@ def main():
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **builder_argdict(args), bios_options=["TERM_MINI"])
     builder.build(run=args.build)
 
     if args.load:
