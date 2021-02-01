@@ -53,11 +53,12 @@ class BaseSoC(SoCCore):
         self.add_spi_flash(mode="1x", dummy_cycles=8)
 
         # Add ROM linker region --------------------------------------------------------------------
-        self.bus.add_region("rom", SoCRegion(
-            origin = self.mem_map["spiflash"] + bios_flash_offset,
-            size   = 8*mB,
-            linker = True)
-        )
+        # FIXME: SPI Flash does not seem responding, power down set after loading bitstream?
+        #self.bus.add_region("rom", SoCRegion(
+        #    origin = self.mem_map["spiflash"] + bios_flash_offset,
+        #    size   = 32*kB,
+        #    linker = True)
+        #)
 
         # SDR SDRAM (WIP) --------------------------------------------------------------------------
         if with_sdram:
