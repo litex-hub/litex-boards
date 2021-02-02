@@ -158,20 +158,20 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on KCU105")
-    parser.add_argument("--build",          action="store_true",              help="Build bitstream")
-    parser.add_argument("--load",           action="store_true",              help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",   default=125e6,                    help="System clock frequency (default: 125MHz)")
-    parser.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
-    parser.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
-    parser.add_argument("--with-pcie",      action="store_true",              help="Enable PCIe support")
-    parser.add_argument("--driver",         action="store_true",              help="Generate PCIe driver")
-    parser.add_argument("--with-sata",      action="store_true",              help="Enable SATA support (over SFP2SATA)")
+    parser.add_argument("--build",           action="store_true",              help="Build bitstream")
+    parser.add_argument("--load",            action="store_true",              help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",    default=125e6,                    help="System clock frequency (default: 125MHz)")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
+    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
+    parser.add_argument("--with-pcie",       action="store_true",              help="Enable PCIe support")
+    parser.add_argument("--driver",          action="store_true",              help="Generate PCIe driver")
+    parser.add_argument("--with-sata",       action="store_true",              help="Enable SATA support (over SFP2SATA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_ethernet  = args.with_ethernet,

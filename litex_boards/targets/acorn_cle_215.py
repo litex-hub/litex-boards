@@ -160,15 +160,15 @@ def main():
     parser.add_argument("--load",            action="store_true", help="Load bitstream")
     parser.add_argument("--flash",           action="store_true", help="Flash bitstream")
     parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency (default: 100MHz)")
-    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
+    pcieopts = parser.add_mutually_exclusive_group()
+    pcieopts.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
     parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2)")
-    parser.add_argument("--with-sata",       action="store_true", help="Enable SATA support (over PCIe2SATA)")
+    pcieopts.add_argument("--with-sata",     action="store_true", help="Enable SATA support (over PCIe2SATA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    assert not (args.with_pcie and args.with_sata)
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         with_pcie    = args.with_pcie,

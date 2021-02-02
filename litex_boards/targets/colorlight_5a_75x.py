@@ -189,8 +189,9 @@ def main():
     parser.add_argument("--board",             default="5a-75b",                 help="Board type: 5a-75b (default) or 5a-75e")
     parser.add_argument("--revision",          default="7.0", type=str,          help="Board revision: 7.0 (default), 6.0 or 6.1")
     parser.add_argument("--sys-clk-freq",      default=60e6,                     help="System clock frequency (default: 60MHz)")
-    parser.add_argument("--with-ethernet",     action="store_true",              help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone",    action="store_true",              help="Enable Etherbone support")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",    action="store_true",              help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone",   action="store_true",              help="Enable Etherbone support")
     parser.add_argument("--eth-ip",            default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
     parser.add_argument("--eth-phy",           default=0, type=int,              help="Ethernet PHY: 0 (default) or 1")
     parser.add_argument("--use-internal-osc",  action="store_true",              help="Use internal oscillator")
@@ -200,7 +201,6 @@ def main():
     trellis_args(parser)
     args = parser.parse_args()
 
-    assert not (args.with_ethernet and args.with_etherbone)
     soc = BaseSoC(board=args.board, revision=args.revision,
         sys_clk_freq     = int(float(args.sys_clk_freq)),
         with_ethernet    = args.with_ethernet,

@@ -133,8 +133,9 @@ def main():
     parser.add_argument("--load",            action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
-    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    sdopts = parser.add_mutually_exclusive_group()    
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
     parser.add_argument("--with-sata",       action="store_true", help="Enable SATA support (over FMCRAID)")
     builder_args(parser)
     soc_sdram_args(parser)
@@ -146,7 +147,6 @@ def main():
         with_sata     = args.with_sata,
         **soc_sdram_argdict(args)
     )
-    assert not (args.with_spi_sdcard and args.with_sdcard)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
