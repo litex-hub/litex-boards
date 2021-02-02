@@ -41,7 +41,7 @@ class _CRG(Module):
 
         self.submodules.pll = pll = USMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst)
-        pll.register_clkin(platform.request("sysclk", 0), 100e6)
+        pll.register_clkin(platform.request("sysclk", 1), 100e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
         pll.create_clkout(self.cd_idelay, 500e6, with_reset=False)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
@@ -75,7 +75,7 @@ class BaseSoC(SoCCore):
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram"),
+            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram", 1),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6,
