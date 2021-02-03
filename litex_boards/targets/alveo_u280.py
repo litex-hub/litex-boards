@@ -21,6 +21,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
+from litex.soc.cores.led import LedChaser
 from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy import usddrphy
 
@@ -30,7 +31,7 @@ from litepcie.software import generate_litepcie_software
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, ddram_channel):
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
         self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
@@ -41,7 +42,7 @@ class _CRG(Module):
 
         self.submodules.pll = pll = USMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst)
-        pll.register_clkin(platform.request("sysclk", 1), 100e6)
+        pll.register_clkin(platform.request("sysclk", ddram_channel), 100e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
         pll.create_clkout(self.cd_idelay, 500e6, with_reset=False)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
@@ -60,7 +61,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), ddram_channel=0, with_pcie=False, **kwargs):
         platform = alveo_u280.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -71,11 +72,11 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, ddram_channel)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram", 1),
+            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram", ddram_channel),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6,
@@ -102,6 +103,12 @@ class BaseSoC(SoCCore):
             self.add_csr("pcie_phy")
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = platform.request_all("gpio_led"),
+            sys_clk_freq = sys_clk_freq)
+        self.add_csr("leds")
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -109,6 +116,7 @@ def main():
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency (default: 125MHz)")
+    parser.add_argument("--ddram-channel",default="0",         help="DDRAM channel (default: 0)")
     parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver")
     builder_args(parser)
@@ -117,6 +125,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
+        ddram_channel = int(args.ddram_channel, 0),
         with_pcie    = args.with_pcie,
         **soc_sdram_argdict(args)
 	)
