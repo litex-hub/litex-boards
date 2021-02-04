@@ -33,6 +33,29 @@ _io = [
     ("user_sw", 2, Pins("AC28"), IOStandard("3.3-V LVTTL")),
     ("user_sw", 3, Pins("AC29"), IOStandard("3.3-V LVTTL")),
 
+    # MiSTer SDRAM via GPIO expansion board J2
+    ("sdram_clock", 0, Pins("D10"), IOStandard("3.3-V LVTTL")),
+    ("sdram", 0,
+        Subsignal("a",     Pins(
+            "B1 C2 B2 D2 D9 C7 E12 B7",
+            "D12 A11 B6 D11 A10")),
+        Subsignal("ba",    Pins("B5 A4")),
+        Subsignal("cs_n",  Pins("A3")),
+        # CKE not connected on XS 2.2/2.4
+        Subsignal("cke",   Pins("B3")),
+        Subsignal("ras_n", Pins("E9")),
+        Subsignal("cas_n", Pins("A6")),
+        Subsignal("we_n",  Pins("A5")),
+        Subsignal("dq", Pins(
+            "F14 G15 F15 H15 G13 A13 H14 B13",
+            "C13 C8 B12 B8 F13 C12 B11 E13"),
+        ),
+        # DQML/DQMH not connected on XS 2.2/2.4
+        Subsignal("dm", Pins("AB27 AA26")),
+        IOStandard("3.3-V LVTTL"),
+        Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""),
+    ),
+
     # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
