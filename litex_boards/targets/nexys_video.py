@@ -12,6 +12,7 @@ import argparse
 from migen import *
 
 from litex_boards.platforms import nexys_video
+from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -27,7 +28,7 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, toolchain):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
@@ -37,7 +38,10 @@ class _CRG(Module):
 
         # # #
 
-        self.submodules.pll = pll = S7MMCM(speedgrade=-1)
+        if toolchain == "vivado":
+            self.submodules.pll = pll = S7MMCM(speedgrade=-1)
+        else:
+            self.submodules.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
@@ -52,8 +56,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_sata=False, **kwargs):
-        platform = nexys_video.Platform()
+    def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_sata=False, **kwargs):
+        platform = nexys_video.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -62,7 +66,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -129,6 +133,7 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Nexys Video")
+    parser.add_argument("--toolchain",       default="vivado",    help="Toolchain use to build (default: vivado)")
     parser.add_argument("--build",           action="store_true", help="Build bitstream")
     parser.add_argument("--load",            action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency (default: 100MHz)")
@@ -139,9 +144,11 @@ def main():
     parser.add_argument("--with-sata",       action="store_true", help="Enable SATA support (over FMCRAID)")
     builder_args(parser)
     soc_sdram_args(parser)
+    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
+        toolchain     = args.toolchain,
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         with_ethernet = args.with_ethernet,
         with_sata     = args.with_sata,
@@ -152,7 +159,8 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
+    builder.build(**builder_kwargs, run=args.build)
 
     if args.load:
         prog = soc.platform.create_programmer()
