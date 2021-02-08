@@ -53,10 +53,10 @@ _io = [
             "H14 F15 F20 H15 C18 G15"),
             IOStandard("SSTL135")),
         Subsignal("ba",    Pins("B17 D18 A17"), IOStandard("SSTL135")),
-        Subsignal("ras_n", Pins("A19"),  IOStandard("SSTL135")),
-        Subsignal("cas_n", Pins("B19"),  IOStandard("SSTL135")),
-        Subsignal("we_n",  Pins("A18"),  IOStandard("SSTL135")),
-        Subsignal("cs_n",  Pins("E22"),  IOStandard("SSTL135")),
+        Subsignal("ras_n", Pins("A19"), IOStandard("SSTL135")),
+        Subsignal("cas_n", Pins("B19"), IOStandard("SSTL135")),
+        Subsignal("we_n",  Pins("A18"), IOStandard("SSTL135")),
+        Subsignal("cs_n",  Pins("E22"), IOStandard("SSTL135")),
         Subsignal("dm", Pins("A22 C22"), IOStandard("SSTL135")),
         Subsignal("dq", Pins(
             "D21 C21 B22 B21 D19 E20 C19 D20",
@@ -78,10 +78,9 @@ _io = [
     ),
 
     # MII Ethernet
-    ("eth_ref_clk", 0, Pins("U1"), IOStandard("LVCMOS33")),
     ("eth_clocks", 0,
-        Subsignal("tx", Pins("M2")),
-        Subsignal("rx", Pins("P4")),
+        Subsignal("tx",  Pins("M2")),
+        Subsignal("rx",  Pins("P4")),
         IOStandard("LVCMOS33")
     ),
     ("eth", 0,
@@ -111,16 +110,68 @@ _io = [
         Subsignal("data2_n", Pins("G1"), IOStandard("TMDS_33")),
         Subsignal("scl",     Pins("B2"), IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("A2"), IOStandard("LVCMOS33")),
-        Subsignal("hdp",     Pins("A3"), IOStandard("LVCMOS33")),
         Subsignal("cec",     Pins("B1"), IOStandard("LVCMOS33")),
+        Subsignal("hdp",     Pins("A3"), IOStandard("LVCMOS33")),
+    ),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl",     Pins("G8"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("G7"), IOStandard("LVCMOS33")),
+    ),
+    ("i2c", 1,
+        Subsignal("scl",     Pins("H21"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("H22"), IOStandard("LVCMOS33")),
+    ),
+    ("i2c", 2,
+        Subsignal("scl",     Pins("G25"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("F25"), IOStandard("LVCMOS33")),
+    ),
+
+    # SPI
+    ("spi", 0,
+        Subsignal("clk",  Pins("D6")),
+        Subsignal("cs_n", Pins("G6")),
+        Subsignal("mosi", Pins("E6")),
+        Subsignal("miso", Pins("E5")),
+        IOStandard("LVCMOS33"),
+    ),    
+    ("spi", 1,
+        Subsignal("clk",  Pins("K21")),
+        Subsignal("cs_n", Pins("J21")),
+        Subsignal("mosi", Pins("H26")),
+        Subsignal("miso", Pins("G26")),
+        IOStandard("LVCMOS33"),
+    ),    
+
+    # UART
+    ("uart", 0,
+        Subsignal("tx", Pins("D5")),
+        Subsignal("rx", Pins("G5")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("uart", 1,
+        Subsignal("tx", Pins("G20")),
+        Subsignal("rx", Pins("G21")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # VGA
+     ("vga", 0,
+        Subsignal("red",   Pins("W23 W18 V22 V21 U20 U19")),
+        Subsignal("green", Pins("Y26 Y23 Y21 W26 U26 W24")),
+        Subsignal("blue",  Pins("V23 V18 U22 U21 T20 T19")),
+        Subsignal("hsync", Pins("V24")),
+        Subsignal("vsync", Pins("U25")),
+        IOStandard("LVCMOS33")
     ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    ("j10", "H4 F4 A4 A5 J4 G4 B4 B5"),
-    ("j11", "D5 G5 G7 G8 E5 E6 D6 G6"),
+    ("j10", "D5 G5 G7 G8 E5 E6 D6 G6"),
+    ("j11", "H4 F4 A4 A5 J4 G4 B4 B5"),
     ("j12", "AB26 AC26 AB24 AC24 AA24 AB25 AA22 AA23",
             " Y25 AA25  W25  Y26  Y22  Y23  W21  Y21",
             " V26  W26  U25  U26  V24  W24  V23  W23",
@@ -136,27 +187,34 @@ _connectors = [
 # PMODS --------------------------------------------------------------------------------------------
 
 def sdcard_pmod_io(pmod):
-    return [
-        # SDCard PMOD:
-        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
-        ("spisdcard", 0,
-            Subsignal("clk",  Pins(f"{pmod}:3")),
+	return [
+		# SDCard PMOD:
+		# Over J11 connector
+		# SIGNAL - CONN/PIN
+		# 3.3V - 6/3.3V
+		# GND  - 5/GND
+		# MISO - 1/H4
+		# MOSI - 2/F4
+		# CLK  - 3/A4
+		# CS   - 4/A5
+
+	    ("spisdcard", 0,
+            Subsignal("clk",  Pins(f"{pmod}:2")),
             Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULLUP True")),
-            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP True")),
-            Misc("SLEW=FAST"),
+            Subsignal("cs_n", Pins(f"{pmod}:3"), Misc("PULLUP True")),
+            Subsignal("miso", Pins(f"{pmod}:0"), Misc("PULLUP True")),
+	        IOStandard("LVCMOS33"),
+	    ),
+	    ("sdcard", 0,
+            Subsignal("data", Pins(f"{pmod}:4 {pmod}:5 {pmod}:6 {pmod}:7"), Misc("PULLUP True")),
+            Subsignal("cmd",  Pins(f"{pmod}:0"), Misc("PULLUP True")),
+            Subsignal("clk",  Pins(f"{pmod}:1")),
+            Subsignal("cd",   Pins(f"{pmod}:2")),
             IOStandard("LVCMOS33"),
         ),
-        ("sdcard", 0,
-            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("PULLUP True")),
-            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("cd",   Pins(f"{pmod}:6")),
-            Misc("SLEW=FAST"),
-            IOStandard("LVCMOS33"),
-        ),
-]
-_sdcard_pmod_io = sdcard_pmod_io("j10") # SDCARD PMOD on J10.
+	] 
+_sdcard_pmod_io = sdcard_pmod_io("j11")     # SDCARD   PMOD on J11.
+#_usb_uart_pmod_io = usb_uart_pmod_io("j10") # USB UART PMOD on J10.
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -165,14 +223,15 @@ class Platform(XilinxPlatform):
     default_clk_period = 1e9/50e6
 
     def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a100t-2fgg676", _io, _connectors,  toolchain="vivado")
+        XilinxPlatform.__init__(self, "xc7a100t-2fgg676", _io, _connectors, toolchain="vivado")
         self.toolchain.bitstream_commands = \
-            ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
+        ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = \
-            ["write_cfgmem -force -format bin -interface spix4 -size 16 "
-             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
+        ["write_cfgmem -force -format bin -interface spix4 -size 16"
+         " -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 16]")
         self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk50_IBUF]")
+        self.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks UCIO-1]")
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a100t.bit")
