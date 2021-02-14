@@ -145,8 +145,7 @@ def main():
         eth_ip         = args.eth_ip,
         with_vga       = args.with_vga,
         **soc_sdram_argdict(args)
-	)
-
+    )
     soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

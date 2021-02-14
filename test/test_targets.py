@@ -43,7 +43,6 @@ class TestTargets(unittest.TestCase):
         platforms.append("ac701")
         platforms.append("aller")
         platforms.append("arty")
-        platforms.append("ego1")
         platforms.append("mimas_a7")
         platforms.append("netv2")
         platforms.append("nexys4ddr")

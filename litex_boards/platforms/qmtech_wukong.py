@@ -119,14 +119,6 @@ _io = [
         Subsignal("scl",     Pins("G8"), IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("G7"), IOStandard("LVCMOS33")),
     ),
-    ("i2c", 1,
-        Subsignal("scl",     Pins("H21"), IOStandard("LVCMOS33")),
-        Subsignal("sda",     Pins("H22"), IOStandard("LVCMOS33")),
-    ),
-    ("i2c", 2,
-        Subsignal("scl",     Pins("G25"), IOStandard("LVCMOS33")),
-        Subsignal("sda",     Pins("F25"), IOStandard("LVCMOS33")),
-    ),
 
     # SPI
     ("spi", 0,
@@ -136,25 +128,6 @@ _io = [
         Subsignal("miso", Pins("E5")),
         IOStandard("LVCMOS33"),
     ),    
-    ("spi", 1,
-        Subsignal("clk",  Pins("K21")),
-        Subsignal("cs_n", Pins("J21")),
-        Subsignal("mosi", Pins("H26")),
-        Subsignal("miso", Pins("G26")),
-        IOStandard("LVCMOS33"),
-    ),    
-
-    # UART
-    ("uart", 0,
-        Subsignal("tx", Pins("D5")),
-        Subsignal("rx", Pins("G5")),
-        IOStandard("LVCMOS33"),
-    ),
-    ("uart", 1,
-        Subsignal("tx", Pins("G20")),
-        Subsignal("rx", Pins("G21")),
-        IOStandard("LVCMOS33"),
-    ),
 
     # VGA
      ("vga", 0,
@@ -214,7 +187,6 @@ def sdcard_pmod_io(pmod):
         ),
 	] 
 _sdcard_pmod_io = sdcard_pmod_io("j11")     # SDCARD   PMOD on J11.
-#_usb_uart_pmod_io = usb_uart_pmod_io("j10") # USB UART PMOD on J10.
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -230,8 +202,10 @@ class Platform(XilinxPlatform):
         ["write_cfgmem -force -format bin -interface spix4 -size 16"
          " -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 16]")
-        self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk50_IBUF]")
         self.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks UCIO-1]")
+        self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk50]")
+        self.add_platform_command("set_property CFGBVS VCCO [current_design]")
+        self.add_platform_command("set_property CONFIG_VOLTAGE 3.3 [current_design]")
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a100t.bit")
@@ -239,3 +213,4 @@ class Platform(XilinxPlatform):
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+
