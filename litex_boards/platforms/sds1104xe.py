@@ -66,36 +66,50 @@ _io = [ # Documented by https://github.com/360nosc0pe project.
         IOStandard("LVCMOS33"),
     ),
 
+    # Scope things
+    ("offsetmux", 0,
+        Subsignal("S",       Pins("U14 Y18 AA18")),
+        Subsignal("nE",      Pins("U19")),
+        IOStandard("LVCMOS15"),
+    ),
+
+    ("offsetdac", 0,
+        Subsignal("SCLK",       Pins("H15")),
+        Subsignal("DIN",        Pins("R15")),
+        Subsignal("nSYNC",      Pins("J15")),
+        IOStandard("LVCMOS15"),
+    ),
+
     # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "J21 K18 J18 R16 P16 T18 R18 T19",
             "R19 P18 P17 P15 N15"),
-            IOStandard("SSTL135")),
-        Subsignal("ba",    Pins("K21 J20 J22"), IOStandard("SSTL135")),
-        Subsignal("ras_n", Pins("L21"), IOStandard("SSTL135")),
-        Subsignal("cas_n", Pins("L22"), IOStandard("SSTL135")),
-        Subsignal("we_n",  Pins("K19"), IOStandard("SSTL135")),
-        #Subsignal("cs_n", Pins(""), IOStandard("SSTL135")), # Pulled low.
-        #Subsignal("dm",   Pins(""), IOStandard("SSTL135")), # Pulled low.
+            IOStandard("SSTL15")),
+        Subsignal("ba",    Pins("K21 J20 J22"), IOStandard("SSTL15")),
+        Subsignal("ras_n", Pins("L21"), IOStandard("SSTL15")),
+        Subsignal("cas_n", Pins("L22"), IOStandard("SSTL15")),
+        Subsignal("we_n",  Pins("K19"), IOStandard("SSTL15")),
+        #Subsignal("cs_n", Pins(""), IOStandard("SSTL15")), # Pulled low.
+        #Subsignal("dm",   Pins(""), IOStandard("SSTL15")), # Pulled low.
         Subsignal("dq", Pins(
             " T21  U21  T22  U22  W20  W21 U20   V20",
             "AA22 AB22 AA21 AB21 AB19 AB20 Y19  AA19",
 	        " W16  Y16  U17  V17 AA17 AB17 AA16 AB16",
 	        " V14  V13  W13  Y14 AA14  Y13 AA13 AB14"),
-            IOStandard("SSTL135"),
+            IOStandard("SSTL15"),
             Misc("IN_TERM=UNTUNED_SPLIT_40")),
         Subsignal("dqs_p", Pins("V22 Y20 U15 W15"),
-            IOStandard("DIFF_SSTL135"),
+            IOStandard("DIFF_SSTL15"),
             Misc("IN_TERM=UNTUNED_SPLIT_40")),
         Subsignal("dqs_n", Pins("W22 Y21 U16 Y15"),
-            IOStandard("DIFF_SSTL135"),
+            IOStandard("DIFF_SSTL15"),
             Misc("IN_TERM=UNTUNED_SPLIT_40")),
-        Subsignal("clk_p",   Pins("T16"), IOStandard("DIFF_SSTL135")),
-        Subsignal("clk_n",   Pins("T17"), IOStandard("DIFF_SSTL135")),
-        Subsignal("cke",     Pins("M21"), IOStandard("SSTL135")),
-        Subsignal("odt",     Pins("M22"), IOStandard("SSTL135")),
-        Subsignal("reset_n", Pins("V18"), IOStandard("SSTL135")),
+        Subsignal("clk_p",   Pins("T16"), IOStandard("DIFF_SSTL15")),
+        Subsignal("clk_n",   Pins("T17"), IOStandard("DIFF_SSTL15")),
+        Subsignal("cke",     Pins("M21"), IOStandard("SSTL15")),
+        Subsignal("odt",     Pins("M22"), IOStandard("SSTL15")),
+        Subsignal("reset_n", Pins("V18"), IOStandard("SSTL15")),
         Misc("SLEW=FAST"),
     ),
 ]

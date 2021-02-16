@@ -36,6 +36,8 @@ from litedram.phy import s7ddrphy
 
 from liteeth.phy.mii import LiteEthPHYMII
 
+from sds1104xe_offsetdac import OffsetDac
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -99,6 +101,10 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"))
             self.add_csr("ethphy")
             self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+
+        # Add scope hardware
+        self.submodules.offset_dac = OffsetDac(platform.request("offsetdac"), platform.request("offsetmux"))
+        self.add_csr("offset_dac")
 
 # Build --------------------------------------------------------------------------------------------
 
