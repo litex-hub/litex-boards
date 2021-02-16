@@ -147,26 +147,33 @@ _io = [
         Subsignal("aud_i2c_sdat", Pins("AF30")),
         Subsignal("aud_mute",     Pins("AD26")),
         IOStandard("3.3-V LVTTL")
-    )
+    ),
+
+    ("gpio_serial", 0,
+        Subsignal("tx", Pins("J3:9")),
+        Subsignal("rx", Pins("J3:10")),
+        IOStandard("3.3-V LVTTL"))
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
-
+# Since the numbering of the connectors in the documentation is 1-based
+# I added a dummy pin (-) to the beginning to each connector
+# to make the numbering in the code consistent with the documentation
 _connectors_hsmc_gpio_daughterboard = [
-    ("J2", "G15 F14 H15 F15 A13 G13 B13 H14 B11 E13 - - " +
+    ("J2", "- G15 F14 H15 F15 A13 G13 B13 H14 B11 E13 - - " +
            "C12 F13 B8 B12 C8 C13 A10 D10 A11 D11 B7 D12 C7 E12 A5 D9 - - " +
            "A6 E9 A3 B5 A4 B6 B1 C2 B2 D2"),
-    ("J2p", "D1 E1 E11 F11"), # top to bottom, starting with 57
+    ("J2p", "- D1 E1 E11 F11"), # top to bottom, starting with 57
 
-    ("J3", "AB27 F8 AA26 F9 B3 G8 C3 H8 D4 H7 - - " +
+    ("J3", "- AB27 F8 AA26 F9 B3 G8 C3 H8 D4 H7 - - " +
            "E4 J7 E2 K8 E3 K7 E6 J9 E7 J10 C4 J12 D5 G10 C5 J12 - - " +
            "D6 K12 F6 G11 G7 G12 D7 A8 E8 A9"),
-    ("J3p", "C9 C10 H12 H13"), # top to bottom, starting with 117
+    ("J3p", "- C9 C10 H12 H13"), # top to bottom, starting with 117
 
-    ("J4", "- - AD3 AE1 AD4 AE2 - - AB3 AC1 - - " +
+    ("J4", "- - - AD3 AE1 AD4 AE2 - - AB3 AC1 - - " +
            "AB4 AC2 - - Y3 AA1 Y4 AA2 - - V3 W1 V4 W2 - - - -" +
            "T3 U1 T4 R1 - R2 P3 U2 P4 -"),
-    ("J4p", "M3 M4 - H3 H4 J14 AD29 - N1 N2 - J1 J2") # top to bottom, starting with 169
+    ("J4p", "- M3 M4 - H3 H4 J14 AD29 - N1 N2 - J1 J2") # top to bottom, starting with 169
 ]
 
 # Platform -----------------------------------------------------------------------------------------

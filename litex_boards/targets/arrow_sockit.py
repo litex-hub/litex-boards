@@ -28,6 +28,7 @@ from litex.soc.integration.soc_sdram import soc_sdram_argdict, soc_sdram_args
 from litex.soc.cores.led             import LedChaser
 
 from litex.build.io import DDROutput
+from litex.build.generic_platform  import Pins, IOStandard, Subsignal
 
 from litex_boards.platforms import arrow_sockit
 
@@ -160,14 +161,14 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on SoCKit")
+    parser = argparse.ArgumentParser(description="LiteX SoC on the Arrow/Terasic SoCKit")
     parser.add_argument("--single-rate-sdram",   action="store_true", help="clock SDRAM with 1x the sytem clock (instead of 2x)")
     parser.add_argument("--mister-sdram-xs-v22", action="store_true", help="Use optional MiSTer SDRAM module XS v2.2 on J2 on GPIO daughter card")
     parser.add_argument("--mister-sdram-xs-v24", action="store_true", help="Use optional MiSTer SDRAM module XS v2.4 on J2 on GPIO daughter card")
     parser.add_argument("--build",               action="store_true", help="Build bitstream")
     parser.add_argument("--load",                action="store_true", help="Load bitstream")
     parser.add_argument("--revision",            default="revd",      help="Board revision: revb (default), revc or revd")
-    parser.add_argument("--sys-clk-freq",        default=50e6,       help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency (default: 50MHz)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
