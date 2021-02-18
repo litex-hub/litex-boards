@@ -61,11 +61,11 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=False, eth_ip="192.168.1.50", **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=True, eth_ip="192.168.1.50", **kwargs):
         platform = sds1104xe.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] == "serial":
+        if kwargs.get("uart_name", "serial") == "serial":
             kwargs["uart_name"] = "crossover" # Defaults to Crossover UART.
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Siglent SDS1104X-E",
