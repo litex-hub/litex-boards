@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2020-2021 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2021 Felix Domke <tmbinc@elitedvb.net>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -20,17 +19,17 @@ _io = [ # Documented by https://github.com/360nosc0pe project.
 
     # Led Frontpanel
     ("led_frontpanel", 0,
-        Subsignal("rclk", Pins("N22")),
-        Subsignal("clk",  Pins("R20")),
-        Subsignal("mosi", Pins("P22")),
-        Subsignal("oe",   Pins("R21")),
-        IOStandard("LVCMOS33"),
+        Subsignal("cs_n", Pins("N22")),  # CLK
+        Subsignal("clk",  Pins("R20")),  # SCLK
+        Subsignal("mosi", Pins("P22")),  # SERDATA
+        Subsignal("oe",   Pins("R21")),  # OE
+        IOStandard("LVCMOS15"),
     ),
 
     # Button Frontpanel
     ("btn_frontpanel", 0,
         Subsignal("clk",  Pins("H18")),
-        Subsignal("clr",  Pins("G19")),
+        Subsignal("cs_n", Pins("G19")),
         Subsignal("miso", Pins("G17")),
         IOStandard("LVCMOS33")
     ),
@@ -40,9 +39,9 @@ _io = [ # Documented by https://github.com/360nosc0pe project.
         Subsignal("clk",   Pins("D20")),
         Subsignal("vsync", Pins("A21")),
         Subsignal("hsync", Pins("A22")),
-        Subsignal("r", Pins("G22 F22 F21 F19 F18 F17")),
-        Subsignal("g", Pins("F16 E21 E20 E19 E18 E16")),
-        Subsignal("b",  Pins("D22 D21 C22 C20 B22 B21")),
+        Subsignal("r",     Pins("G22 F22 F21 F19 F18 F17")),
+        Subsignal("g",     Pins("F16 E21 E20 E19 E18 E16")),
+        Subsignal("b",     Pins("D22 D21 C22 C20 B22 B21")),
         IOStandard("LVCMOS33"),
     ),
 
@@ -53,7 +52,7 @@ _io = [ # Documented by https://github.com/360nosc0pe project.
         IOStandard("LVCMOS33"),
     ),
     ("eth", 0,
-        Subsignal("rst_n",   Pins("R6")),
+        Subsignal("rst_n",   Pins("R6"), IOStandard("LVCMOS25")),
         Subsignal("mdio",    Pins("E15")),
         Subsignal("mdc",     Pins("D15")),
         Subsignal("rx_dv",   Pins("A16")),
