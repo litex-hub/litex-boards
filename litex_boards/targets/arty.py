@@ -58,6 +58,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, ident_version=True, **kwargs):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
+        kwargs["integrated_rom_size"] = 0x10000 if with_etherbone else 0x8000
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
