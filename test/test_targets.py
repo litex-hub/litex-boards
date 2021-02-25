@@ -94,6 +94,7 @@ class TestTargets(unittest.TestCase):
 
         # Intel Max10
         platforms.append("de10lite")
+        platforms.append("deca")
 
         # Lattice iCE40
         platforms.append("fomu_evt")
