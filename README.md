@@ -128,7 +128,7 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 | C10LPRefKit  | Intel Cyclone10     | 10CL055       |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |  100Mbps MII   |  16MB QSPI  |   No   |
 | De0Nano      | Intel Cyclone4      | EP4CE22F      |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |       No       |      No     |   No   |
 | De10Lite     | Intel MAX10         | 10M50DA       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       No       |      No     |   No   |
-| DECA         | Intel MAX10         | 10M50DA       |  50MHz  | JTAG | 16-bit 512MG DDR3* |     No    |       Yes      |      No     |   Yes  |
+| DECA         | Intel MAX10         | 10M50DA       |  50MHz  | JTAG | 16-bit 512MB DDR3* |     No    |       Yes      |      No     |   Yes  |
 | De10Nano     | Intel Cyclone5      | 5CSEBA6       |  50MHz  | IOs  | 16-bit  32MB SDR   |     No    |       No       |      No     |   Yes  |
 | Arrow SoCKit | Intel Cyclone5      | 5CSXFC6D6F31C8|  50MHz  | JTAG | 32-bit   1GB DDR3* |     No    |       No       |      No     |   No   |
 | De1SoC       | Intel Cyclone5      | 5CSEMA5       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       ?        |      ?      |   ?    |
