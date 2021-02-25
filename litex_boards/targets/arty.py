@@ -119,6 +119,7 @@ def main():
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support")
+    parser.add_argument("--sdcard-adapter",      type=str,                         help="SDCard PMOD adapter: digilent (default) or numato")
     parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
     builder_args(parser)
     soc_sdram_args(parser)
@@ -138,7 +139,10 @@ def main():
         ident_version  = args.no_ident_version,
         **soc_sdram_argdict(args)
     )
-    soc.platform.add_extension(arty._sdcard_pmod_io)
+    if args.sdcard_adapter == "numato":
+        soc.platform.add_extension(arty._numato_sdcard_pmod_io)
+    else:
+        soc.platform.add_extension(arty._sdcard_pmod_io)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
