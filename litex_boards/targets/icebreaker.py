@@ -31,8 +31,8 @@ from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoDVIPHY
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.video import *
 
 kB = 1024
 mB = 1024*kB
@@ -110,21 +110,9 @@ class BaseSoC(SoCCore):
 
         # Video Terminal ---------------------------------------------------------------------------
         if with_video_terminal:
-            self.platform.add_extension(icebreaker.dvi_pmod)
-            self.submodules.vtg = vtg = VideoTimingGenerator(default_video_timings="800x600@60Hz")
-            self.add_csr("vtg")
-            #self.submodules.vgen = vgen = ColorBarsPattern()
-            self.submodules.vgen = vgen = VideoTerminal(hres=800, vres=600)
-            self.submodules.vphy = vphy = VideoDVIPHY(platform.request("dvi"), clock_domain="sys")
-            self.comb += [
-                # Connect UART to Video Terminal.
-                vgen.uart_sink.valid.eq(self.uart.source.valid & self.uart.source.ready),
-                vgen.uart_sink.data.eq(self.uart.source.data),
-                # Connect Video Timing Generator to Video Terminal.
-                vtg.source.connect(vgen.vtg_sink),
-                # Connect VideoTerminal to VideoDVIPHY.
-                vgen.source.connect(vphy.sink),
-            ]
+            platform.add_extension(icebreaker.dvi_pmod)
+            self.submodules.videophy = VideoDVIPHY(platform.request("dvi"), clock_domain="sys")
+            self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="sys")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(

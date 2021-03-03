@@ -18,14 +18,13 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT47H64M16
 from litedram.phy import s7ddrphy
 
 from liteeth.phy.rmii import LiteEthPHYRMII
-
-from litex.soc.cores.video import *
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -98,23 +97,8 @@ class BaseSoC(SoCCore):
 
         # Video Terminal ---------------------------------------------------------------------------
         if with_video_terminal:
-            self.submodules.vtg = vtg = ClockDomainsRenamer("vga")(VideoTimingGenerator(default_video_timings="800x600@60Hz"))
-            self.add_csr("vtg")
-            #self.submodules.vgen = vgen = ClockDomainsRenamer("vga")(ColorBarsPattern())
-            self.submodules.vgen = vgen = ClockDomainsRenamer("vga")(VideoTerminal(hres=800, vres=600))
-            self.submodules.vphy = vphy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
-            from litex.soc.interconnect import stream
-            self.submodules.uart_cdc = stream.ClockDomainCrossing([("data", 8)], cd_from="sys", cd_to="vga")
-            self.comb += [
-                # Connect UART to Video Terminal.
-                self.uart_cdc.sink.valid.eq(self.uart.source.valid & self.uart.source.ready),
-                self.uart_cdc.sink.data.eq(self.uart.source.data),
-                self.uart_cdc.source.connect(vgen.uart_sink),
-                # Connect Video Timing Generator to Video Terminal.
-                vtg.source.connect(vgen.vtg_sink),
-                # Connect VideoTerminal to VideoDVIPHY.
-                vgen.source.connect(vphy.sink),
-            ]
+            self.submodules.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
+            self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
