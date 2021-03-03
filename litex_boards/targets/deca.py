@@ -23,8 +23,6 @@ from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litevideo.terminal.core import Terminal
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):

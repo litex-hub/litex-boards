@@ -27,11 +27,11 @@ _io = [
 
     # VGA
     ("vga", 0,
+        Subsignal("hsync_n", Pins("119")),
+        Subsignal("vsync_n", Pins("136")),
         Subsignal("r", Pins("135 137 141 142 143 144")),
         Subsignal("g", Pins("106 110 111 112 113 114")),
         Subsignal("b", Pins("115 120 121 125 132 133")),
-        Subsignal("vsync", Pins("136")),
-        Subsignal("hsync", Pins("119")),
         Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""),
     ),
 

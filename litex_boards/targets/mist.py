@@ -21,12 +21,11 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT48LC16M16
 from litedram.phy import GENSDRPHY
-
-from litevideo.terminal.core import Terminal
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -48,7 +47,7 @@ class _CRG(Module):
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
-        pll.create_clkout(self.cd_vga, 25e6)
+        pll.create_clkout(self.cd_vga, 40e6)
 
         # SDRAM clock
         self.specials += DDROutput(1, 0, platform.request("sdram_clock"), ClockSignal("sys_ps"))
@@ -56,7 +55,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_vga=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_video_terminal=False, **kwargs):
         platform = mist.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -81,18 +80,10 @@ class BaseSoC(SoCCore):
                 l2_cache_reverse        = True
             )
 
-        # VGA Terminal -----------------------------------------------------------------------------
-        if with_vga:
-            self.submodules.terminal = terminal = Terminal()
-            self.bus.add_slave("terminal", self.terminal.bus, region=SoCRegion(origin=0x30000000, size=0x10000))
-            vga_pads = platform.request("vga")
-            self.comb += [
-                vga_pads.vsync.eq(terminal.vsync),
-                vga_pads.hsync.eq(terminal.hsync),
-                vga_pads.r.eq(terminal.red[2:8]),
-                vga_pads.g.eq(terminal.green[2:8]),
-                vga_pads.b.eq(terminal.blue[2:8])
-            ]
+        # Video Terminal ---------------------------------------------------------------------------
+        if with_video_terminal:
+            self.submodules.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
+            self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -104,17 +95,17 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on MIST")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency (default: 50MHz)")
-    parser.add_argument("--with-vga",     action="store_true", help="Enable VGA support")
+    parser.add_argument("--build",               action="store_true", help="Build bitstream")
+    parser.add_argument("--load",                action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        with_vga=args.with_vga,
+        with_video_terminal=args.with_video_terminal,
         **soc_sdram_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))

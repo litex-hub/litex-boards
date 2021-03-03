@@ -150,12 +150,12 @@ _mister_sdram_module_io = [
 
     # VGA
     ("vga", 0,
-        Subsignal("red", Pins("AE17 AE20 AF20 AH18 AH19 AF21")),
-        Subsignal("green", Pins("AE19 AG15 AF18 AG18 AG19 AG20")),
-        Subsignal("blue", Pins("AG21 AA20 AE22 AF22 AH23 AH21")),
-        Subsignal("hsync", Pins("AH22")),
-        Subsignal("vsync",  Pins("AG24")),
-        Subsignal("en",  Pins("AH27")),
+        Subsignal("en",      Pins("AH27")),
+        Subsignal("hsync_n", Pins("AH22")),
+        Subsignal("vsync_n", Pins("AG24")),
+        Subsignal("r", Pins("AE17 AE20 AF20 AH18 AH19 AF21")),
+        Subsignal("g", Pins("AE19 AG15 AF18 AG18 AG19 AG20")),
+        Subsignal("b", Pins("AG21 AA20 AE22 AF22 AH23 AH21")),
         IOStandard("3.3-V LVTTL")
     ),
 ]
