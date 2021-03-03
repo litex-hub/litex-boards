@@ -25,7 +25,7 @@ from litedram.phy import s7ddrphy
 
 from liteeth.phy.rmii import LiteEthPHYRMII
 
-from litevideo.terminal.core import Terminal
+from litex.soc.cores.video import *
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys2x_dqs, 2*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
         pll.create_clkout(self.cd_eth,       50e6)
-        pll.create_clkout(self.cd_vga,       25e6)
+        pll.create_clkout(self.cd_vga,       40e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
@@ -56,7 +56,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, with_vga=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, with_video_terminal=False, **kwargs):
         platform = nexys4ddr.Platform()
 
         # SoCCore ----------------------------------_-----------------------------------------------
@@ -96,17 +96,24 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
 
-        # VGA terminal -----------------------------------------------------------------------------
-        if with_vga:
-            self.submodules.terminal = terminal = Terminal()
-            self.bus.add_slave("terminal", self.terminal.bus, region=SoCRegion(origin=0x30000000, size=0x10000))
-            vga_pads = platform.request("vga")
+        # Video Terminal ---------------------------------------------------------------------------
+        if with_video_terminal:
+            self.submodules.vtg = vtg = ClockDomainsRenamer("vga")(VideoTimingGenerator(default_video_timings="800x600@60Hz"))
+            self.add_csr("vtg")
+            #self.submodules.vgen = vgen = ClockDomainsRenamer("vga")(ColorBarsPattern())
+            self.submodules.vgen = vgen = ClockDomainsRenamer("vga")(VideoTerminal(hres=800, vres=600))
+            self.submodules.vphy = vphy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
+            from litex.soc.interconnect import stream
+            self.submodules.uart_cdc = stream.ClockDomainCrossing([("data", 8)], cd_from="sys", cd_to="vga")
             self.comb += [
-                vga_pads.vsync.eq(terminal.vsync),
-                vga_pads.hsync.eq(terminal.hsync),
-                vga_pads.red.eq(terminal.red[4:8]),
-                vga_pads.green.eq(terminal.green[4:8]),
-                vga_pads.blue.eq(terminal.blue[4:8])
+                # Connect UART to Video Terminal.
+                self.uart_cdc.sink.valid.eq(self.uart.source.valid & self.uart.source.ready),
+                self.uart_cdc.sink.data.eq(self.uart.source.data),
+                self.uart_cdc.source.connect(vgen.uart_sink),
+                # Connect Video Timing Generator to Video Terminal.
+                vtg.source.connect(vgen.vtg_sink),
+                # Connect VideoTerminal to VideoDVIPHY.
+                vgen.source.connect(vphy.sink),
             ]
 
         # Leds -------------------------------------------------------------------------------------
@@ -119,24 +126,25 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Nexys4DDR")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency (default: 75MHz)")
-    ethopts = parser.add_mutually_exclusive_group()    
-    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
-    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
-    sdopts = parser.add_mutually_exclusive_group()    
-    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
-    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
-    parser.add_argument("--with-vga",        action="store_true", help="Enable VGA support")
+    parser.add_argument("--build",              action="store_true", help="Build bitstream")
+    parser.add_argument("--load",               action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",       default=75e6,        help="System clock frequency (default: 75MHz)")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",     action="store_true", help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone",    action="store_true", help="Enable Etherbone support")
+    sdopts = parser.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",     action="store_true", help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",         action="store_true", help="Enable SDCard support")
+    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
-        with_ethernet  = args.with_ethernet,
-        with_etherbone = args.with_etherbone,
+        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        with_ethernet       = args.with_ethernet,
+        with_etherbone      = args.with_etherbone,
+        with_video_terminal = args.with_video_terminal,
         **soc_sdram_argdict(args)
     )
     if args.with_spi_sdcard:

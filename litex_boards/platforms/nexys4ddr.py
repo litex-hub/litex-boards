@@ -132,11 +132,11 @@ _io = [
 
     # VGA
      ("vga", 0,
-        Subsignal("red",   Pins("A4 C5 B4 A3")),
-        Subsignal("green", Pins("A6 B6 A5 C6")),
-        Subsignal("blue",  Pins("D7 C7 B7 D8")),
-        Subsignal("hsync", Pins("B11")),
-        Subsignal("vsync", Pins("B12")),
+        Subsignal("hsync_n", Pins("B11")),
+        Subsignal("vsync_n", Pins("B12")),
+        Subsignal("r", Pins("A4 C5 B4 A3")),
+        Subsignal("g", Pins("A6 B6 A5 C6")),
+        Subsignal("b", Pins("D7 C7 B7 D8")),
         IOStandard("LVCMOS33")
     ),
 ]
