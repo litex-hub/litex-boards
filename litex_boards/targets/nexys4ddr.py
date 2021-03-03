@@ -18,7 +18,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.video import VideoVGAPHY
+from litex.soc.cores.video import VideoVGAPHY, VideoTimingGenerator, VideoFrameBuffer
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT47H64M16
@@ -55,7 +55,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, with_video_terminal=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = nexys4ddr.Platform()
 
         # SoCCore ----------------------------------_-----------------------------------------------
@@ -100,6 +100,11 @@ class BaseSoC(SoCCore):
             self.submodules.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
             self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
 
+        # Video Framebuffer ------------------------------------------------------------------------
+        if with_video_framebuffer:
+            self.submodules.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
+            self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -110,25 +115,27 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Nexys4DDR")
-    parser.add_argument("--build",              action="store_true", help="Build bitstream")
-    parser.add_argument("--load",               action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",       default=75e6,        help="System clock frequency (default: 75MHz)")
+    parser.add_argument("--build",                  action="store_true", help="Build bitstream")
+    parser.add_argument("--load",                   action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",           default=75e6,        help="System clock frequency (default: 75MHz)")
     ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",     action="store_true", help="Enable Ethernet support")
-    ethopts.add_argument("--with-etherbone",    action="store_true", help="Enable Etherbone support")
+    ethopts.add_argument("--with-ethernet",         action="store_true", help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone",        action="store_true", help="Enable Etherbone support")
     sdopts = parser.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",     action="store_true", help="Enable SPI-mode SDCard support")
-    sdopts.add_argument("--with-sdcard",         action="store_true", help="Enable SDCard support")
-    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA)")
+    sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support")
+    parser.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA)")
+    parser.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq        = int(float(args.sys_clk_freq)),
-        with_ethernet       = args.with_ethernet,
-        with_etherbone      = args.with_etherbone,
-        with_video_terminal = args.with_video_terminal,
+        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        with_ethernet          = args.with_ethernet,
+        with_etherbone         = args.with_etherbone,
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
         **soc_sdram_argdict(args)
     )
     if args.with_spi_sdcard:
