@@ -78,10 +78,6 @@ class BaseSoC(SoCCore):
         kwargs["integrated_sram_size"] = 0
         kwargs["integrated_rom_size"]  = 0
 
-        # Force sys_clk_freq with Video Terminal since iCE40's PLL only has 1 output.
-        if with_video_terminal:
-            sys_clk_freq = 40e6
-
         # Set CPU variant / reset address
         kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
 
@@ -112,7 +108,7 @@ class BaseSoC(SoCCore):
         if with_video_terminal:
             platform.add_extension(icebreaker.dvi_pmod)
             self.submodules.videophy = VideoDVIPHY(platform.request("dvi"), clock_domain="sys")
-            self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="sys")
+            self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="sys")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
