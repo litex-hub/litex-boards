@@ -126,15 +126,13 @@ class BaseSoC(SoCCore):
             # Core
             self.add_sata(phy=self.sata_phy, mode="read+write")
 
-        # Video Terminal ---------------------------------------------------------------------------
-        if with_video_terminal:
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal or with_video_framebuffer:
             self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
-            self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
-
-        # Video Framebuffer ------------------------------------------------------------------------
-        if with_video_framebuffer:
-            self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
-            self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -155,8 +153,9 @@ def main():
     sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support")
     parser.add_argument("--with-sata",              action="store_true", help="Enable SATA support (over FMCRAID)")
-    parser.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
-    parser.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
+    viopts = parser.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
     builder_args(parser)
     soc_sdram_args(parser)
     vivado_build_args(parser)

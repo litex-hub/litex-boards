@@ -18,7 +18,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.video import VideoVGAPHY, VideoTimingGenerator, VideoFrameBuffer
+from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT47H64M16
@@ -95,15 +95,13 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
 
-        # Video Terminal ---------------------------------------------------------------------------
-        if with_video_terminal:
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal or with_video_framebuffer:
             self.submodules.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
-            self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
-
-        # Video Framebuffer ------------------------------------------------------------------------
-        if with_video_framebuffer:
-            self.submodules.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
-            self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -124,8 +122,9 @@ def main():
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support")
-    parser.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA)")
-    parser.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA)")
+    viopts = parser.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA)")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()

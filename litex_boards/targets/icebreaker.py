@@ -104,7 +104,7 @@ class BaseSoC(SoCCore):
             linker = True)
         )
 
-        # Video Terminal ---------------------------------------------------------------------------
+        # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
             platform.add_extension(icebreaker.dvi_pmod)
             self.submodules.videophy = VideoDVIPHY(platform.request("dvi"), clock_domain="sys")
