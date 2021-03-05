@@ -22,7 +22,7 @@ _io = [
     ("clk27_3", 0, Pins("Y2"), IOStandard("LVCMOS18")),
 
     # 8.1. General Purpose Push Buttons - all logic zero when pressed]
-    ("cam_reset", 0, Pins("T1"), IOStandard("LVCMOS18")),  # SW1
+    ("cam_reset", 0, Pins("T1"), IOStandard("LVCMOS18H"), Misc("PULLMODE=UP")),  # SW1
     ("gsrn",      0, Pins("G13"), IOStandard("LVCMOS33")),  # SW3
     ("programn",  0, Pins("E11"), IOStandard("LVCMOS33")),  # SW4
     ("user_btn",  0, Pins("L20"), IOStandard("LVCMOS33")),  # SW5
