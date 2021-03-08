@@ -117,7 +117,9 @@ class BaseSoC(SoCCore):
         if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
-                pads       = self.platform.request("eth", eth_phy))
+                pads       = self.platform.request("eth", eth_phy),
+                tx_delay   = 0e-9,
+                rx_delay   = 0e-9)
             self.add_csr("ethphy")
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
@@ -139,7 +141,7 @@ def main():
     parser.add_argument("--toolchain",       default="trellis",                help="FPGA toolchain: trellis (default) or diamond")
     parser.add_argument("--sys-clk-freq",    default=75e6,                     help="System clock frequency (default: 75MHz)")
     parser.add_argument("--device",          default="LFE5UM5G",               help="FPGA device (LFE5UM5G (default) or LFE5UM)")
-    ethopts = parser.add_mutually_exclusive_group()    
+    ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
     parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
