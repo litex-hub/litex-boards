@@ -50,7 +50,7 @@ _io = [
     ("temp", 0,
         Subsignal("cs_n", Pins("PIN_AB4")),
         Subsignal("sc",   Pins("PIN_AA1")),
-        Subsignal("sio",  Pins("PIN_Y2")),   
+        Subsignal("sio",  Pins("PIN_Y2")),
         IOStandard("3.3-V LVTTL")
     ),
 
@@ -199,14 +199,14 @@ _io = [
 
     # HDMI
     ("hdmi", 0,
-        Subsignal("tx_d_r", Pins("C18 D17 C17 C19 D14 B19 D13 A19 C14")),
-        Subsignal("tx_d_g", Pins("C14 A17 B16 C15 A14 A15 A12 A16")),
-        Subsignal("tx_d_b", Pins("A13 C16 C12 B17 B12 B14 A18 C13")),
-        Subsignal("tx_clk", Pins("A20")),
-        Subsignal("tx_de",  Pins("C9")),
-        Subsignal("tx_hs",  Pins("B11")),
-        Subsignal("tx_vs",  Pins("C11")),
-        Subsignal("tx_int", Pins("B10")),
+        Subsignal("r", Pins("C18 D17 C17 C19 D14 B19 D13 A19")),
+        Subsignal("g", Pins("C14 A17 B16 C15 A14 A15 A12 A16")),
+        Subsignal("b", Pins("A13 C16 C12 B17 B12 B14 A18 C13")),
+        Subsignal("clk",   Pins("A20")),
+        Subsignal("de",    Pins("C9")),
+        Subsignal("hsync", Pins("B11")),
+        Subsignal("vsync", Pins("C11")),
+        Subsignal("int",   Pins("B10")),
         Misc("FAST_OUTPUT_REGISTER ON"),
         IOStandard("1.8 V")
     ),
@@ -252,14 +252,14 @@ _io = [
 
     ("gpio", 0, Pins("P8:3  P8:4  P8:5  P8:6  P8:7  P8:8  P8:9  P8:10",
                      "P8:11 P8:12 P8:13 P8:14 P8:15 P8:16 P8:17 P8:18",
-                     "P8:19 P8:20 P8:21 P8:22 P8:23 P8:24 P8:25 P8:26", 
+                     "P8:19 P8:20 P8:21 P8:22 P8:23 P8:24 P8:25 P8:26",
                      "P8:27 P8:28 P8:29 P8:30 P8:31 P8:32 P8:33 P8:34",
                      "P8:35 P8:36 P8:37 P8:38 P8:39 P8:40 P8:41 P8:42",
                      "P8:43 P8:44 P8:45 P8:46"),
                 IOStandard("3.3-V LVTTL")
     ),
     ("gpio", 1, Pins("P9:11 P9:12 P9:13 P9:14 P9:15 P9:16 P9:17 P9:18",
-                     "P9:19 P9:20 P9:21 P9:22 P9:23 P9:24 P9:25 P9:26", 
+                     "P9:19 P9:20 P9:21 P9:22 P9:23 P9:24 P9:25 P9:26",
                      "P9:27 P9:28 P9:29 P9:30 P9:31 P9:41 P9:42"),
                 IOStandard("3.3-V LVTTL")
     ),
@@ -269,8 +269,8 @@ _io = [
 
 _connectors = [
     # Beagle bone black headers (numbering 1-based, Pin 0 is dummy)
-    # PIN   0 1 2   3   4   5    6    7    8    9   10   11  12  13   14  15  16   17   18   19  20   21  22  23   24   25   26   27   28   29   30   31   32   33  34  35  36  37  38  39  40  41  42  43  44  45  46 
-    ("P8", "- - - W18 Y18 Y19 AA17 AA20 AA19 AB21 AB20 AB19 Y16 V16 AB18 V15 W17 AB17 AA16 AB16 W16 AB15 W15 Y14 AA15 AB14 AA14 AB13 AA13 AB12 AA12 AB11 AA11 AB10 Y13 Y11 W13 W12 W11 V12 V11 V13 V14 Y17 W14 U15 R13"), 
+    # PIN   0 1 2   3   4   5    6    7    8    9   10   11  12  13   14  15  16   17   18   19  20   21  22  23   24   25   26   27   28   29   30   31   32   33  34  35  36  37  38  39  40  41  42  43  44  45  46
+    ("P8", "- - - W18 Y18 Y19 AA17 AA20 AA19 AB21 AB20 AB19 Y16 V16 AB18 V15 W17 AB17 AA16 AB16 W16 AB15 W15 Y14 AA15 AB14 AA14 AB13 AA13 AB12 AA12 AB11 AA11 AB10 Y13 Y11 W13 W12 W11 V12 V11 V13 V14 Y17 W14 U15 R13"),
     ("P9", "- - -   -   -   -    -    -    -   U6  AA2   Y5  Y6  W6   W7  W8  V8  AB8   V7  R11 AB7  AB6 AA7 AA6   Y7  V10   U7   W9   W5   R9   W4   P9    -   K4   -  J4  H3  J8  J9  F5  F4 V17  W3   -   -   -   -")
 ]
 
@@ -283,7 +283,7 @@ class Platform(AlteraPlatform):
 
     def __init__(self):
         AlteraPlatform.__init__(self, "10M50DAF484C6GES", _io, _connectors)
-        # disable config pin so bank8 can use 1.2V 
+        # disable config pin so bank8 can use 1.2V
         self.add_platform_command("set_global_assignment -name AUTO_RESTART_CONFIGURATION ON")
         self.add_platform_command("set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF")
         self.add_platform_command("set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF")

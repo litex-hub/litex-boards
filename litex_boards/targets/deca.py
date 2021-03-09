@@ -21,6 +21,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoDVIPHY
 from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -29,7 +30,7 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+        self.clock_domains.cd_hdmi   = ClockDomain()
 
         # # #
 
@@ -40,13 +41,13 @@ class _CRG(Module):
         self.submodules.pll = pll = Max10PLL(speedgrade="-6")
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
-        pll.create_clkout(self.cd_sys,    sys_clk_freq)
-        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+        pll.create_clkout(self.cd_sys,  sys_clk_freq)
+        pll.create_clkout(self.cd_hdmi, 40e6)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_vga=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_video_terminal=False, **kwargs):
         platform = deca.Platform()
 
         # Defaults to UART over JTAG because no hardware uart is on the board
@@ -62,6 +63,11 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            self.submodules.videophy = VideoDVIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -72,15 +78,17 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DECA")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--build",               action="store_true", help="Build bitstream")
+    parser.add_argument("--load",                action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        with_video_terminal = args.with_video_terminal,
         **soc_sdram_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
