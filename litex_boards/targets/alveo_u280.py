@@ -3,10 +3,8 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2020 Fei Gao <feig@princeton.edu>
-# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# Copyright (c) 2020 David Shah <dave@ds0.me>
-# Modified for Alveo U280 by Sergiu Mosanu based on XCU1525 and Alveo U250
+# Copyright (c) 2021 Sergiu Mosanu <sm7ed@virginia.edu>
+#
 # SPDX-License-Identifier: BSD-2-Clause
 
 import argparse, os
@@ -44,7 +42,7 @@ class _CRG(Module):
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("sysclk", ddram_channel), 100e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
-        pll.create_clkout(self.cd_idelay, 500e6, with_reset=False)
+        pll.create_clkout(self.cd_idelay, 500e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.specials += [

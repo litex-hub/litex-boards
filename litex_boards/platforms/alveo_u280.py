@@ -1,11 +1,9 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2020 David Shah <dave@ds0.me>
-# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2021 Sergiu Mosanu <sm7ed@virginia.edu>
+#
 # SPDX-License-Identifier: BSD-2-Clause
-
-# Modified for Alveo U280 by Sergiu Mosanu based on XCU1525 and Alveo U250
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
@@ -31,12 +29,12 @@ _io = [
     ("gpio_led", 2, Pins("D31"), IOStandard("LVCMOS18")),
 
     # Switches
-    
+
     ("gpio_sw", 0, Pins("J30"), IOStandard("LVCMOS18")),
     ("gpio_sw", 1, Pins("J32"), IOStandard("LVCMOS18")),
     ("gpio_sw", 2, Pins("K32"), IOStandard("LVCMOS18")),
     ("gpio_sw", 3, Pins("K31"), IOStandard("LVCMOS18")),
-    
+
     # Serial
     ("serial", 0,
         Subsignal("rx", Pins("A28"), IOStandard("LVCMOS18")),
