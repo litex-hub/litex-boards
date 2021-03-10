@@ -119,17 +119,18 @@ _io = [
 
     # MIPI camera modules
     # Note that use of MIPI_DPHY standard for + and LVCMOS12H for - is copied from Lattice PDC
+    # MIPI pins are unconstrained to work around a Radiant 2.0 bug
     ("camera", 0,
-        Subsignal("clkp", Pins("A2"), IOStandard("MIPI_DPHY")),
-        Subsignal("clkn", Pins("B1"), IOStandard("LVCMOS12H")),
-        Subsignal("dp", Pins("B2 A3 C2 A4"), IOStandard("MIPI_DPHY")),
-        Subsignal("dn", Pins("C1 B3 D1 B4"), IOStandard("LVCMOS12H")),
+        Subsignal("clkp", Pins("X")),
+        Subsignal("clkn", Pins("X")),
+        Subsignal("dp", Pins("X X X X")),
+        Subsignal("dn", Pins("X X X X")),
     ),
     ("camera", 1,
-        Subsignal("clkp", Pins("A8"), IOStandard("MIPI_DPHY")),
-        Subsignal("clkn", Pins("B8"), IOStandard("LVCMOS12H")),
-        Subsignal("dp", Pins("A7 A9 A6 A10"), IOStandard("MIPI_DPHY")),
-        Subsignal("dn", Pins("B7 B9 B6 B10"), IOStandard("LVCMOS12H")),
+        Subsignal("clkp", Pins("X")),
+        Subsignal("clkn", Pins("X")),
+        Subsignal("dp", Pins("X X X X")),
+        Subsignal("dn", Pins("X X X X")),
     ),
     ("camera", 2,
         Subsignal("clkp", Pins("W11"), IOStandard("MIPI_DPHY")),
