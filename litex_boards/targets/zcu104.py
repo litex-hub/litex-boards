@@ -50,7 +50,6 @@ class _CRG(Module):
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys.clk),
             Instance("BUFGCE", name="main_bufgce",
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
-            AsyncResetSynchronizer(self.cd_idelay, ~pll.locked),
         ]
 
         self.submodules.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
