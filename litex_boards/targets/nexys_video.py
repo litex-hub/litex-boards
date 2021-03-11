@@ -37,6 +37,7 @@ class _CRG(Module):
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_hdmi      = ClockDomain()
         self.clock_domains.cd_hdmi5x    = ClockDomain()
+        self.clock_domains.cd_clk100    = ClockDomain()
 
         # # #
 
@@ -52,6 +53,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_idelay,    200e6)
         pll.create_clkout(self.cd_hdmi,      40e6)
         pll.create_clkout(self.cd_hdmi5x,    5*40e6)
+        pll.create_clkout(self.cd_clk100,    100e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
