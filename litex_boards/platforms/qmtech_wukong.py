@@ -1,26 +1,26 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2020 Shinken Sanada <sanadashinken@gmail.com>
+# Copyright (c) 2020-2021 Shinken Sanada <sanadashinken@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     # Clk / Rst
-    ("clk50",      0, Pins("M22"), IOStandard("LVCMOS33")),
-    ("cpu_reset",  0, Pins("J8"),  IOStandard("LVCMOS33")),
+    ("clk50", 0, Pins("M22"), IOStandard("LVCMOS33")),
+    ("cpu_reset", 0, Pins("J8"), IOStandard("LVCMOS33")),
 
     # Leds
-    ("user_led",   0, Pins("J6"),   IOStandard("LVCMOS33")),
-    ("user_led",   1, Pins("H6"),   IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("J6"), IOStandard("LVCMOS33")),
+    ("user_led", 1, Pins("H6"), IOStandard("LVCMOS33")),
 
     # Buttons
-    ("user_btn",   0, Pins("H7"),   IOStandard("LVCMOS33")), # Key0
+    ("user_btn", 0, Pins("H7"), IOStandard("LVCMOS33")), # Key0
 
     # Serial
     ("serial", 0,
@@ -79,8 +79,8 @@ _io = [
 
     # MII Ethernet
     ("eth_clocks", 0,
-        Subsignal("tx",  Pins("M2")),
-        Subsignal("rx",  Pins("P4")),
+        Subsignal("tx", Pins("M2")),
+        Subsignal("rx", Pins("P4")),
         IOStandard("LVCMOS33")
     ),
     ("eth", 0,
@@ -113,21 +113,6 @@ _io = [
         Subsignal("cec",     Pins("B1"), IOStandard("LVCMOS33")),
         Subsignal("hdp",     Pins("A3"), IOStandard("LVCMOS33")),
     ),
-
-    # I2C
-    ("i2c", 0,
-        Subsignal("scl",     Pins("G8"), IOStandard("LVCMOS33")),
-        Subsignal("sda",     Pins("G7"), IOStandard("LVCMOS33")),
-    ),
-
-    # SPI
-    ("spi", 0,
-        Subsignal("clk",  Pins("D6")),
-        Subsignal("cs_n", Pins("G6")),
-        Subsignal("mosi", Pins("E6")),
-        Subsignal("miso", Pins("E5")),
-        IOStandard("LVCMOS33"),
-    ),    
 
     # VGA
      ("vga", 0,
@@ -194,15 +179,15 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a100t-2fgg676", _io, _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7a100t-2fgg676", _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
-        ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
+            ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
+             "set_property SEVERITY {{Warning}} [get_drc_checks UCIO-1]"]
         self.toolchain.additional_commands = \
-        ["write_cfgmem -force -format bin -interface spix4 -size 16"
-         " -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
+            ["write_cfgmem -force -format bin -interface spix4 -size 16 "
+             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 16]")
-        self.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks UCIO-1]")
         self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk50]")
         self.add_platform_command("set_property CFGBVS VCCO [current_design]")
         self.add_platform_command("set_property CONFIG_VOLTAGE 3.3 [current_design]")
@@ -212,5 +197,12 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+        try:
+            self.add_period_constraint(self.lookup_request("eth_clocks").rx, 1e9/50e6)
+        except ConstraintError:
+            pass
 
+    def do_finalize(self, fragment):
+        XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk50",         loose=True), 1e9/50e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks:rx", loose=True), 1e9/50e6)
