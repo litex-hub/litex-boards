@@ -110,10 +110,11 @@ _io = [
 
     # VGA
     ("vga", 0,
-        Subsignal("hsync_n", Pins("AD12")),
-        Subsignal("vsync_n", Pins("AC12")),
         Subsignal("sync_n",  Pins("AG2")),
         Subsignal("blank_n", Pins("AH3")),
+        Subsignal("clk",     Pins("W20")),
+        Subsignal("hsync_n", Pins("AD12")),
+        Subsignal("vsync_n", Pins("AC12")),
         Subsignal("r", Pins("AG5  AA12 AB12 AF6  AG6  AJ2  AH5  AJ1")),
         Subsignal("g", Pins("Y21  AA25 AB26 AB22 AB23 AA24 AB25 AE27")),
         Subsignal("b", Pins("AE28 Y23  Y24  AG28 AF28 V23  W24  AF29")),
