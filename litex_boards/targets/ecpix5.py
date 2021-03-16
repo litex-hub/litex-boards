@@ -78,7 +78,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, device="85F", sys_clk_freq=int(75e6), with_ethernet=False, **kwargs):
+    def __init__(self, device="85F", sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, **kwargs):
         platform = ecpix5.Platform(device=device, toolchain="trellis")
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -108,14 +108,17 @@ class BaseSoC(SoCCore):
                 l2_cache_reverse        = True
             )
 
-        # Ethernet ---------------------------------------------------------------------------------
-        if with_ethernet:
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 rx_delay   = 0e-9)
             self.add_csr("ethphy")
-            self.add_ethernet(phy=self.ethphy)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy)
 
         # Leds -------------------------------------------------------------------------------------
         leds_pads = []
@@ -132,22 +135,26 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ECPIX-5")
-    parser.add_argument("--build",         action="store_true", help="Build bitstream")
-    parser.add_argument("--load",          action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",         action="store_true", help="Flash bitstream to SPI Flash")
-    parser.add_argument("--device",        default="85F",       help="ECP5 device (default: 85F)")
-    parser.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency (default: 75MHz)")
-    parser.add_argument("--with-sdcard",   action="store_true", help="Enable SDCard support")
-    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--build",           action="store_true", help="Build bitstream")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream")
+    parser.add_argument("--flash",           action="store_true", help="Flash bitstream to SPI Flash")
+    parser.add_argument("--device",          default="85F",       help="ECP5 device (default: 85F)")
+    parser.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency (default: 75MHz)")
+    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
+
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        device = args.device,
-        sys_clk_freq  = int(float(args.sys_clk_freq)),
-        with_ethernet = args.with_ethernet,
+        device         = args.device,
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
         **soc_core_argdict(args)
     )
     if args.with_sdcard:

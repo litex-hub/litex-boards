@@ -22,7 +22,7 @@ _io = [
     ("clk27_3", 0, Pins("Y2"), IOStandard("LVCMOS18")),
 
     # 8.1. General Purpose Push Buttons - all logic zero when pressed]
-    ("cam_reset", 0, Pins("T1"), IOStandard("LVCMOS18")),  # SW1
+    ("cam_reset", 0, Pins("T1"), IOStandard("LVCMOS18H"), Misc("PULLMODE=UP")),  # SW1
     ("gsrn",      0, Pins("G13"), IOStandard("LVCMOS33")),  # SW3
     ("programn",  0, Pins("E11"), IOStandard("LVCMOS33")),  # SW4
     ("user_btn",  0, Pins("L20"), IOStandard("LVCMOS33")),  # SW5
@@ -112,31 +112,33 @@ _io = [
         Misc("SLEWRATE=FAST")
     ),
 
+    ("camera_mclk", 0, Pins("M3"), IOStandard("LVCMOS18")),
+    ("camera_mclk", 1, Pins("M4"), IOStandard("LVCMOS18")),
+    ("camera_mclk", 2, Pins("M5"), IOStandard("LVCMOS18")),
+    ("camera_mclk", 3, Pins("M6"), IOStandard("LVCMOS18")),
+
     # MIPI camera modules
     # Note that use of MIPI_DPHY standard for + and LVCMOS12H for - is copied from Lattice PDC
+    # MIPI pins are unconstrained to work around a Radiant 2.0 bug
     ("camera", 0,
-        Subsignal("mclk", Pins("M3"), IOStandard("LVCMOS18")),
-        Subsignal("clkp", Pins("A2"), IOStandard("MIPI_DPHY")),
-        Subsignal("clkn", Pins("B1"), IOStandard("LVCMOS12H")),
-        Subsignal("dp", Pins("B2 A3 C2 A4"), IOStandard("MIPI_DPHY")),
-        Subsignal("dn", Pins("C1 B3 D1 B4"), IOStandard("LVCMOS12H")),
+        Subsignal("clkp", Pins("X")),
+        Subsignal("clkn", Pins("X")),
+        Subsignal("dp", Pins("X X X X")),
+        Subsignal("dn", Pins("X X X X")),
     ),
     ("camera", 1,
-        Subsignal("mclk", Pins("M4"), IOStandard("LVCMOS18")),
-        Subsignal("clkp", Pins("A8"), IOStandard("MIPI_DPHY")),
-        Subsignal("clkn", Pins("B8"), IOStandard("LVCMOS12H")),
-        Subsignal("dp", Pins("A7 A9 A6 A10"), IOStandard("MIPI_DPHY")),
-        Subsignal("dn", Pins("B7 B9 B6 B10"), IOStandard("LVCMOS12H")),
+        Subsignal("clkp", Pins("X")),
+        Subsignal("clkn", Pins("X")),
+        Subsignal("dp", Pins("X X X X")),
+        Subsignal("dn", Pins("X X X X")),
     ),
     ("camera", 2,
-        Subsignal("mclk", Pins("M5"), IOStandard("LVCMOS18")),
         Subsignal("clkp", Pins("W11"), IOStandard("MIPI_DPHY")),
         Subsignal("clkn", Pins("Y11"), IOStandard("LVCMOS12H")),
         Subsignal("dp", Pins("V11 W13 U12 R12"), IOStandard("MIPI_DPHY")),
         Subsignal("dn", Pins("U11 V12 T12 P12"), IOStandard("LVCMOS12H")),
     ),
     ("camera", 3,
-        Subsignal("mclk", Pins("M6"), IOStandard("LVCMOS18")),
         Subsignal("clkp", Pins("T13"), IOStandard("MIPI_DPHY")),
         Subsignal("clkn", Pins("T14"), IOStandard("LVCMOS12H")),
         Subsignal("dp", Pins("Y15 U15 V17 P13"), IOStandard("MIPI_DPHY")),

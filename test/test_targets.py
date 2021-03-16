@@ -87,12 +87,14 @@ class TestTargets(unittest.TestCase):
         # Intel Cyclone5
         platforms.append("de1soc")
         platforms.append("de10nano")
+        platforms.append("arrow_sockit")
 
         # Intel Cyclone10
         platforms.append("c10lprefkit")
 
         # Intel Max10
         platforms.append("de10lite")
+        platforms.append("deca")
 
         # Lattice iCE40
         platforms.append("fomu_evt")

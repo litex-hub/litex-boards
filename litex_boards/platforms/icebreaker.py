@@ -83,6 +83,19 @@ break_off_pmod = [
      ("user_ledg", 3, Pins("PMOD2:2"), IOStandard("LVCMOS33"))
 ]
 
+dvi_pmod = [
+    ("dvi", 0,
+        Subsignal("clk",   Pins("PMOD1B:1")),
+        Subsignal("de",    Pins("PMOD1B:6")),
+        Subsignal("hsync", Pins("PMOD1B:3")),
+        Subsignal("vsync", Pins("PMOD1B:7")),
+        Subsignal("r",     Pins("PMOD1A:5 PMOD1A:1 PMOD1A:4 PMOD1A:0")),
+        Subsignal("g",     Pins("PMOD1A:7 PMOD1A:3 PMOD1A:6 PMOD1A:2")),
+        Subsignal("b",     Pins("PMOD1B:2 PMOD1B:5 PMOD1B:4 PMOD1B:0")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):

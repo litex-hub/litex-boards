@@ -19,15 +19,15 @@ import argparse
 
 from migen.fhdl.module      import Module
 from migen.fhdl.structure   import Signal, ClockDomain, ClockSignal
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.cores.clock           import CycloneVPLL
 from litex.soc.integration.builder   import Builder, builder_args, builder_argdict
 from litex.soc.integration.soc_core  import SoCCore
 from litex.soc.integration.soc_sdram import soc_sdram_argdict, soc_sdram_args
 from litex.soc.cores.led             import LedChaser
+from litex.soc.cores.video           import VideoVGAPHY
 
-from litex.build.io import DDROutput
+from litex.build.io                  import DDROutput
 
 from litex_boards.platforms import arrow_sockit
 
@@ -79,6 +79,7 @@ class _CRG(Module):
         self.sdram_rate = sdram_rate
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
+        self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
         if with_sdram:
             if sdram_rate == "1:2":
                 self.clock_domains.cd_sys2x    = ClockDomain()
@@ -93,7 +94,8 @@ class _CRG(Module):
         self.submodules.pll = pll = CycloneVPLL(speedgrade="-C6")
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
-        pll.create_clkout(self.cd_sys,    sys_clk_freq)
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        pll.create_clkout(self.cd_vga, 65e6)
         if with_sdram:
             if sdram_rate == "1:2":
                 pll.create_clkout(self.cd_sys2x,    2*sys_clk_freq)
@@ -109,7 +111,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), revision="revd", sdram_rate="1:2", mister_sdram=None, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), revision="revd", sdram_rate="1:2", mister_sdram=None, with_video_terminal=False, **kwargs):
         platform = arrow_sockit.Platform(revision)
 
         # Defaults to UART over JTAG because serial is attached to the HPS and cannot be used.
@@ -156,18 +158,27 @@ class BaseSoC(SoCCore):
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
             )
+        
+        # Video Terminal ---------------------------------------------------------------------------
+        if with_video_terminal:
+            vga_pads = platform.request("vga")
+            self.comb += [ vga_pads.sync_n.eq(0), vga_pads.blank_n.eq(1) ]
+            self.specials += DDROutput(i1=1, i2=0, o=vga_pads.clk, clk=ClockSignal("vga"))
+            self.submodules.videophy = VideoVGAPHY(vga_pads, clock_domain="vga")
+            self.add_video_terminal(phy=self.videophy, timings="1024x768@60Hz", clock_domain="vga")
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on SoCKit")
+    parser = argparse.ArgumentParser(description="LiteX SoC on the Arrow/Terasic SoCKit")
     parser.add_argument("--single-rate-sdram",   action="store_true", help="clock SDRAM with 1x the sytem clock (instead of 2x)")
     parser.add_argument("--mister-sdram-xs-v22", action="store_true", help="Use optional MiSTer SDRAM module XS v2.2 on J2 on GPIO daughter card")
     parser.add_argument("--mister-sdram-xs-v24", action="store_true", help="Use optional MiSTer SDRAM module XS v2.4 on J2 on GPIO daughter card")
     parser.add_argument("--build",               action="store_true", help="Build bitstream")
     parser.add_argument("--load",                action="store_true", help="Load bitstream")
     parser.add_argument("--revision",            default="revd",      help="Board revision: revb (default), revc or revd")
-    parser.add_argument("--sys-clk-freq",        default=50e6,       help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA)")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
@@ -177,6 +188,7 @@ def main():
         revision            = args.revision,
         sdram_rate          = "1:1" if args.single_rate_sdram else "1:2",
         mister_sdram        = "xs_v22" if args.mister_sdram_xs_v22 else "xs_v24" if args.mister_sdram_xs_v24 else None,
+        with_video_terminal = args.with_video_terminal,
         **soc_sdram_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))

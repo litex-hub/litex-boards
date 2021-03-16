@@ -61,11 +61,11 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=False, eth_ip="192.168.1.50", **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=True, eth_ip="192.168.1.50", **kwargs):
         platform = sds1104xe.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] == "serial":
+        if kwargs.get("uart_name", "serial") == "serial":
             kwargs["uart_name"] = "crossover" # Defaults to Crossover UART.
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Siglent SDS1104X-E",
@@ -94,11 +94,53 @@ class BaseSoC(SoCCore):
 
         # Etherbone --------------------------------------------------------------------------------
         if with_etherbone:
-            self.submodules.ethphy = LiteEthPHYMII(
+            # FIXME: Simplify LiteEth Hybrid MAC integration.
+            from liteeth.common import convert_ip
+            from liteeth.mac import LiteEthMAC
+            from liteeth.core.arp import LiteEthARP
+            from liteeth.core.ip import LiteEthIP
+            from liteeth.core.udp import LiteEthUDP
+            from liteeth.core.icmp import LiteEthICMP
+            from liteeth.core import LiteEthUDPIPCore
+            from liteeth.frontend.etherbone import LiteEthEtherbone
+
+            # Ethernet PHY
+            ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            self.add_csr("ethphy")
-            self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+            self.submodules += ethphy
+            etherbone_ip_address  = convert_ip("192.168.1.51")
+            etherbone_mac_address = 0x10e2d5000001
+
+            # Ethernet MAC
+            self.submodules.ethmac = LiteEthMAC(phy=ethphy, dw=8,
+                interface  = "hybrid",
+                endianness = self.cpu.endianness,
+                hw_mac     = etherbone_mac_address)
+
+            # Software Interface.
+            self.add_memory_region("ethmac", self.mem_map["ethmac"], 0x2000, type="io")
+            self.add_wb_slave(self.mem_regions["ethmac"].origin, self.ethmac.bus, 0x2000)
+            self.add_csr("ethmac")
+            if self.irq.enabled:
+                self.irq.add("ethmac", use_loc_if_exists=True)
+
+            # Hardware Interface.
+            self.submodules.arp  = LiteEthARP(self.ethmac, etherbone_mac_address, etherbone_ip_address, sys_clk_freq, dw=8)
+            self.submodules.ip   = LiteEthIP(self.ethmac, etherbone_mac_address, etherbone_ip_address, self.arp.table, dw=8)
+            self.submodules.icmp = LiteEthICMP(self.ip, etherbone_ip_address, dw=8)
+            self.submodules.udp  = LiteEthUDP(self.ip, etherbone_ip_address, dw=8)
+
+            # Etherbone
+            self.submodules.etherbone = LiteEthEtherbone(self.udp, 1234, mode="master")
+            self.add_wb_master(self.etherbone.wishbone.bus)
+
+            # Timing constraints
+            eth_rx_clk = ethphy.crg.cd_eth_rx.clk
+            eth_tx_clk = ethphy.crg.cd_eth_tx.clk
+            self.platform.add_period_constraint(eth_rx_clk, 1e9/ethphy.rx_clk_freq)
+            self.platform.add_period_constraint(eth_tx_clk, 1e9/ethphy.tx_clk_freq)
+            self.platform.add_false_path_constraints(self.crg.cd_sys.clk, eth_rx_clk, eth_tx_clk)
 
 # Build --------------------------------------------------------------------------------------------
 

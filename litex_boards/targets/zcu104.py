@@ -41,7 +41,7 @@ class _CRG(Module):
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
-        pll.create_clkout(self.cd_idelay, 500e6, with_reset=False)
+        pll.create_clkout(self.cd_idelay, 500e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.specials += [
@@ -50,7 +50,6 @@ class _CRG(Module):
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys.clk),
             Instance("BUFGCE", name="main_bufgce",
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
-            AsyncResetSynchronizer(self.cd_idelay, ~pll.locked),
         ]
 
         self.submodules.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)

@@ -306,6 +306,29 @@ def sdcard_pmod_io(pmod):
 ]
 _sdcard_pmod_io = sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
 
+def numato_sdcard_pmod_io(pmod):
+    return [
+        # SDCard PMOD:
+        # https://numato.com/product/micro-sd-expansion-module/
+        # This adaptor does not have the card detect (CD) pin connected
+        ("spisdcard", 0,
+            Subsignal("clk",  Pins(f"{pmod}:5")),
+            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP True")),
+            Subsignal("cs_n", Pins(f"{pmod}:4"), Misc("PULLUP True")),
+            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP True")),
+            Misc("SLEW=FAST"),
+            IOStandard("LVCMOS33"),
+        ),
+        ("sdcard", 0,
+            Subsignal("data", Pins(f"{pmod}:2 {pmod}:6 {pmod}:0 {pmod}:4"), Misc("PULLUP True")),
+            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP True")),
+            Subsignal("clk",  Pins(f"{pmod}:5")),
+            Misc("SLEW=FAST"),
+            IOStandard("LVCMOS33"),
+        ),
+]
+_numato_sdcard_pmod_io = numato_sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):

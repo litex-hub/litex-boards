@@ -95,6 +95,7 @@ PCIe accelerators boards that you could use to accelerate your applications, Lit
 | ForestKitten33 | Xilinx Ultrascale+  | XCVU33P       | 125MHz   | PCIe | 2 x 1024-bit 4GB HBM2*|  Gen3 X16     |     ?       |
 | BCU1525        | Xilinx Ultrascale+  | XCVU9P        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM  |  Gen3 X16     |     ?       |
 | AlveoU250      | Xilinx Ultrascale+  | XCU250        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM  |  Gen2 X16     |     ?       |
+| AlveoU280      | Xilinx Ultrascale+  | XCU280        | 125MHz   | PCIe* | 2 x 64-bit DDR4 DIMM* & HBM2*  |  Gen2 X16     |     ?       |
 
 \* Present on the board but not yet supported or validated with LiteX.
 
@@ -128,7 +129,9 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 | C10LPRefKit  | Intel Cyclone10     | 10CL055       |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |  100Mbps MII   |  16MB QSPI  |   No   |
 | De0Nano      | Intel Cyclone4      | EP4CE22F      |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |       No       |      No     |   No   |
 | De10Lite     | Intel MAX10         | 10M50DA       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       No       |      No     |   No   |
+| DECA         | Intel MAX10         | 10M50DA       |  50MHz  | JTAG | 16-bit 512MB DDR3* |     No    |       Yes      |      No     |   Yes  |
 | De10Nano     | Intel Cyclone5      | 5CSEBA6       |  50MHz  | IOs  | 16-bit  32MB SDR   |     No    |       No       |      No     |   Yes  |
+| Arrow SoCKit | Intel Cyclone5      | 5CSXFC6D6F31C8|  50MHz  | JTAG | 32-bit   1GB DDR3* |     No    |       No       |      No     |   No   |
 | De1SoC       | Intel Cyclone5      | 5CSEMA5       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       ?        |      ?      |   ?    |
 | De2-115      | Intel Cyclone4      | EP4CE115      |  50MHz  | IOs  | 16-bit 128MB SDR   |     No    | 1Gbps GMII*    |  8MB QSPI   |   Yes* |
 | ECP5-EVN     | Lattice ECP5        | LFE5UM5G-85F  |  50MHz  | FTDI |        No          |     No    |       ?        |      ?      |   ?    |

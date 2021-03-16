@@ -31,6 +31,7 @@ from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoDVIPHY
 from litex.soc.cores.led import LedChaser
 
 kB = 1024
@@ -69,7 +70,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(24e6), **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=int(24e6), with_video_terminal=False, **kwargs):
         platform = icebreaker.Platform()
         platform.add_extension(icebreaker.break_off_pmod)
 
@@ -90,8 +91,8 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
-        self.submodules.spram = Up5kSPRAM(size=128*kB)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=128*kB))
+        self.submodules.spram = Up5kSPRAM(size=64*kB)
+        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=64*kB))
 
         # SPI Flash --------------------------------------------------------------------------------
         self.add_spi_flash(mode="1x", dummy_cycles=8)
@@ -102,6 +103,12 @@ class BaseSoC(SoCCore):
             size   = 32*kB,
             linker = True)
         )
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            platform.add_extension(icebreaker.dvi_pmod)
+            self.submodules.videophy = VideoDVIPHY(platform.request("dvi"), clock_domain="sys")
+            self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="sys")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -122,18 +129,20 @@ def flash(bios_flash_offset):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
-    parser.add_argument("--build",             action="store_true", help="Build bitstream")
-    parser.add_argument("--load",              action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",             action="store_true", help="Flash Bitstream")
-    parser.add_argument("--sys-clk-freq",      default=24e6,        help="System clock frequency (default: 24MHz)")
-    parser.add_argument("--bios-flash-offset", default=0x40000,     help="BIOS offset in SPI Flash (default: 0x40000)")
+    parser.add_argument("--build",               action="store_true", help="Build bitstream")
+    parser.add_argument("--load",                action="store_true", help="Load bitstream")
+    parser.add_argument("--flash",               action="store_true", help="Flash Bitstream")
+    parser.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency (default: 24MHz)")
+    parser.add_argument("--bios-flash-offset",   default=0x40000,     help="BIOS offset in SPI Flash (default: 0x40000)")
+    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (with DVI PMOD)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        bios_flash_offset = args.bios_flash_offset,
-        sys_clk_freq      = int(float(args.sys_clk_freq)),
+        bios_flash_offset   = args.bios_flash_offset,
+        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        with_video_terminal = args.with_video_terminal,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
