@@ -141,6 +141,41 @@ _io = [
     ),
 ]
 
+# Connectors ---------------------------------------------------------------------------------------
+
+_connectors = [
+    ("pmoda", "C17 D18 E18 G17 D17 E17 F18 G18"),
+    ("pmodb", "D14 F16 G16 H14 E16 F13 G13 H16"),
+    ("pmodc", "K1 F6 J2 G6 E7 J3 J4 E6"),
+    ("pmodd", "H4 H1 G1 G3 H2 G4 G2 F3"),
+    ("pmodxdac", "A13 A15 B16 B18 A14 A16 B17 A18"),
+]
+
+# PMODS --------------------------------------------------------------------------------------------
+
+def sdcard_pmod_io(pmod):
+    return [
+        # SDCard PMOD:
+        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
+        ("spisdcard", 0,
+            Subsignal("clk",  Pins(f"{pmod}:3")),
+            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP True")),
+            Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULLUP True")),
+            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP True")),
+            Misc("SLEW=FAST"),
+            IOStandard("LVCMOS33"),
+        ),
+        ("sdcard", 0,
+            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("PULLUP True")),
+            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP True")),
+            Subsignal("clk",  Pins(f"{pmod}:3")),
+            Subsignal("cd",   Pins(f"{pmod}:6")),
+            Misc("SLEW=FAST"),
+            IOStandard("LVCMOS33"),
+        ),
+]
+_sdcard_pmod_io = sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
@@ -148,7 +183,7 @@ class Platform(XilinxPlatform):
     default_clk_period = 1e9/100e6
 
     def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a100t-CSG324-1", _io, toolchain="vivado")
+        XilinxPlatform.__init__(self, "xc7a100t-CSG324-1", _io, _connectors, toolchain="vivado")
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
 
     def create_programmer(self):
