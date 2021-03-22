@@ -110,22 +110,30 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # DVI In
-    ("dvi_in", 0,
-        Subsignal("clk_p",  Pins("C9"), IOStandard("TMDS_33")),
-        Subsignal("clk_n",  Pins("A9"), IOStandard("TMDS_33")),
-        Subsignal("data_p", Pins("C7 B6 B5"), IOStandard("TMDS_33")),
-        Subsignal("data_n", Pins("A7 A6 A5"), IOStandard("TMDS_33")),
-        Subsignal("scl",    Pins("C1"), IOStandard("LVCMOS33")),
-        Subsignal("sda",    Pins("B1"), IOStandard("LVCMOS33"))
+    # HDMI In
+    ("hdmi_in", 0,
+        Subsignal("clk_p",   Pins("C9"), IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("A9"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("C7"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("A7"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("B6"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("A6"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("B5"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("A5"), IOStandard("TMDS_33")),
+        Subsignal("scl",     Pins("C1"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("B1"), IOStandard("LVCMOS33"))
     ),
 
-    # DVI Out
-    ("dvi_out", 0,
+    # HDMI Out
+    ("hdmi_out", 0,
         Subsignal("clk_p",  Pins("B14"), IOStandard("TMDS_33")),
         Subsignal("clk_n",  Pins("A14"), IOStandard("TMDS_33")),
-        Subsignal("data_p", Pins("C13 B12 C11"), IOStandard("TMDS_33")),
-        Subsignal("data_n", Pins("A13 A12 A11"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("C13"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("A13"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("B12"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("A12"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("C11"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("A11"), IOStandard("TMDS_33")),
     )
 ]
 
