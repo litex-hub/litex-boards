@@ -21,7 +21,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-from litex.soc.cores.led import LedChaser
+# from litex.soc.cores.led import LedChaser
 from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy import usddrphy
 
@@ -104,10 +104,10 @@ class BaseSoC(SoCCore):
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("gpio_led"),
-            sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
+        # self.submodules.leds = LedChaser(
+        #     pads         = platform.request_all("gpio_led"),
+        #     sys_clk_freq = sys_clk_freq)
+        # self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
