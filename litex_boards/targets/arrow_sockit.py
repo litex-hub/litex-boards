@@ -22,8 +22,7 @@ from migen.fhdl.structure   import Signal, ClockDomain, ClockSignal
 
 from litex.soc.cores.clock           import CycloneVPLL
 from litex.soc.integration.builder   import Builder, builder_args, builder_argdict
-from litex.soc.integration.soc_core  import SoCCore
-from litex.soc.integration.soc_sdram import soc_sdram_argdict, soc_sdram_args
+from litex.soc.integration.soc_core  import SoCCore, soc_core_argdict, soc_core_args
 from litex.soc.cores.led             import LedChaser
 from litex.soc.cores.video           import VideoVGAPHY
 
@@ -44,7 +43,7 @@ class W9825G6KH6(SDRModule):
     I get a number of data errors if I run it at 50MHz,
     so this defaults to 1:2. If you want to use a higher
     system clock (eg 100MHz), you might want to consider
-    using 1:1 clocking, because the -6 speedgrade 
+    using 1:1 clocking, because the -6 speedgrade
     can be clocked up to 166MHz (CL3) or 133MHz (CL2)
     """
     # geometry
@@ -158,7 +157,7 @@ class BaseSoC(SoCCore):
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
             )
-        
+
         # Video Terminal ---------------------------------------------------------------------------
         if with_video_terminal:
             vga_pads = platform.request("vga")
@@ -180,7 +179,7 @@ def main():
     parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA)")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -189,7 +188,7 @@ def main():
         sdram_rate          = "1:1" if args.single_rate_sdram else "1:2",
         mister_sdram        = "xs_v22" if args.mister_sdram_xs_v22 else "xs_v24" if args.mister_sdram_xs_v24 else None,
         with_video_terminal = args.with_video_terminal,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)

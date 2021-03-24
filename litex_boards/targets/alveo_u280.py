@@ -16,7 +16,6 @@ from litex_boards.platforms import alveo_u280
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.led import LedChaser
@@ -117,14 +116,14 @@ def main():
     parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         ddram_channel = int(args.ddram_channel, 0),
         with_pcie    = args.with_pcie,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
 	)
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)

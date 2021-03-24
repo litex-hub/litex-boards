@@ -28,7 +28,6 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import MT41K64M16
@@ -152,7 +151,7 @@ def main():
     parser.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
     parser.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
 
@@ -160,7 +159,7 @@ def main():
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
     )
 
     builder = Builder(soc, **builder_argdict(args))
