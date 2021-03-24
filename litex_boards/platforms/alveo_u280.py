@@ -22,7 +22,6 @@ _io = [
         Subsignal("n", Pins("BJ6"), IOStandard("DIFF_SSTL12")),
         Subsignal("p", Pins("BH6"), IOStandard("DIFF_SSTL12")),
     ),
-
     ("cpu_reset", 0, Pins("L30"), IOStandard("LVCMOS18")),
 
     # Leds
@@ -77,13 +76,13 @@ _io = [
         Subsignal("dqs_n", Pins(
             "BN30 BM29 BK30 BG30 BM35 BN35 BK35 BJ32",
             "BM50 BP49 BF48 BG49 BJ47 BK49 BP46 BP42"), #"BJ54 BJ53"
-            IOStandard("DIFF_POD12_DCI"),
+            IOStandard("DIFF_POD12"), # DIFF_POD12_DCI
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p", Pins(
             "BN29 BM28 BJ29 BG29 BL35 BM34 BK34 BH32",
             "BM49 BP48 BF47 BG48 BH47 BK48 BN46 BN42"), #"BH54 BJ52"
-            IOStandard("DIFF_POD12_DCI"),
+            IOStandard("DIFF_POD12"), # DIFF_POD12_DCI
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("odt", Pins("BG44"), IOStandard("SSTL12_DCI")),
@@ -122,15 +121,13 @@ _io = [
         Subsignal("dqs_n", Pins(
             "A13 C9 D9 G10 G15 K13 D14 D12",
             "BM7 BP6 BM8 BP8 BN14 BP11 BK13 BK11"), #"BF11 BH9"
-            #"A13 C9 G15 D14 BM7 BM8 BN14 BK13",
-            #"BF11 C9 G10 K13 D12 BP6 BP8 BP11"), # "BK11 BH9"
-            IOStandard("DIFF_POD12_DCI"),
+            IOStandard("DIFF_POD12"), # DIFF_POD12_DCI
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p", Pins(
             "B13 C10 D10 H10 H15 K14 D15 E13",
             "BL7 BP7 BL8 BP9 BN15 BP12 BJ14 BJ11"), #"BF12 BH10"
-            IOStandard("DIFF_POD12_DCI"),
+            IOStandard("DIFF_POD12"), # DIFF_POD12_DCI
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("odt", Pins("BH2"), IOStandard("SSTL12_DCI")),
@@ -174,12 +171,12 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 70]")
 
         # Other suggested configurations
-        self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")
-        self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]")
-        self.add_platform_command("set_property CONFIG_MODE SPIx4 [current_design]")
-        self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]")
-        self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGRATE 85.0 [current_design]")
-        self.add_platform_command("set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN disable [current_design]")
-        self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]")
-        self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN Pullup [current_design]")
-        self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR Yes [current_design]")
+        # self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")
+        # self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]")
+        # self.add_platform_command("set_property CONFIG_MODE SPIx4 [current_design]")
+        # self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]")
+        # self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGRATE 85.0 [current_design]")
+        # self.add_platform_command("set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN disable [current_design]")
+        # self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]")
+        # self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN Pullup [current_design]")
+        # self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR Yes [current_design]")
