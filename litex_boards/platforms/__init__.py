@@ -6,17 +6,26 @@ import importlib
 # Boards Vendors.
 
 vendors = [
+    "1bitsquared",
     "colorlight",
     "digilent",
     "enclustra",
+    "gsd",
+    "hackaday"
     "kosagi",
     "lattice",
+    "lambdaconcept",
     "linsn",
     "numato",
     "qmtech",
+    "radiona",
+    "rhsresearchllc",
+    "saanlima",
+    "scarabhardware",
+    "siglent",
+    "sqrl",
     "terasic",
     "trenz",
-    "sqrl",
     "xilinx",
 ]
 
