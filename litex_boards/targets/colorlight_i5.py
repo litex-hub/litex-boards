@@ -209,7 +209,6 @@ def main():
     parser.add_argument("--eth-phy",          default=0, type=int,      help="Ethernet PHY: 0 (default) or 1")
     parser.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator")
     parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
-    parser.add_argument("--l2-size",          default=8192, type=int,   help="L2 cache size")
     parser.add_argument("--with-prbs",        action="store_true",      help="Enable PRBS support")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
