@@ -28,7 +28,7 @@ from litex.soc.cores.video           import VideoVGAPHY
 
 from litex.build.io                  import DDROutput
 
-from litex_boards.platforms import arrow_sockit
+from litex_boards.platforms import terasic_sockit
 
 from litedram.modules import _TechnologyTimings, _SpeedgradeTimings, SDRModule, AS4C32M16
 from litedram.phy     import HalfRateGENSDRPHY, GENSDRPHY
