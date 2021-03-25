@@ -107,6 +107,11 @@ class BaseSoC(SoCCore):
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
+            # FIXME: Improve (Make it generic and apply it to all targets).
+            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clkout0] -group [get_clocks userclk2] -asynchronous",)
+            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clkout0] -group [get_clocks clk_125mhz] -asynchronous")
+            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clkout0] -group [get_clocks clk_250mhz] -asynchronous")
+            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clk_125mhz] -group [get_clocks clk_250mhz] -asynchronous")
 
         # SATA -------------------------------------------------------------------------------------
         if with_sata:
