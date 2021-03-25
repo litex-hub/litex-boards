@@ -64,7 +64,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    SoCCore.mem_map = {
+    mem_map = {
         "rom":              0x00000000,
         "sram":             0x40000000,
         "csr":              0xf0000000,
