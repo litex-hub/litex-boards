@@ -56,7 +56,7 @@ class TestTargets(unittest.TestCase):
         # Xilinx Kintex7
         platforms.append("genesys2")
         platforms.append("kc705")
-        platforms.append("kx2")
+        platforms.append("mercury_kx2")
         platforms.append("nereid")
 
         # Xilinx Virtex7
@@ -87,7 +87,7 @@ class TestTargets(unittest.TestCase):
         # Intel Cyclone5
         platforms.append("de1soc")
         platforms.append("de10nano")
-        platforms.append("arrow_sockit")
+        platforms.append("sockit")
 
         # Intel Cyclone10
         platforms.append("c10lprefkit")

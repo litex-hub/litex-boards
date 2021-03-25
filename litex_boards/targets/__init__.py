@@ -15,6 +15,7 @@ vendors = [
     "numato",
     "qmtech",
     "terasic",
+    "trenz",
     "sqrl",
     "xilinx",
 ]
