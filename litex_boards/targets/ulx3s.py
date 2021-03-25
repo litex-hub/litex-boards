@@ -182,7 +182,11 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         spiflash               = args.with_spiflash,
+<<<<<<< HEAD
         **soc_core_argdict(args))
+=======
+        **soc_sdram_argdict(args))
+>>>>>>> refs/remotes/origin/master
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

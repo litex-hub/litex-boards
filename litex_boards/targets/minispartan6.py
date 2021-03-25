@@ -128,7 +128,11 @@ def main():
         sdram_rate   = args.sdram_rate,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+<<<<<<< HEAD
         **soc_core_argdict(args)
+=======
+        **soc_sdram_argdict(args)
+>>>>>>> refs/remotes/origin/master
     )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)

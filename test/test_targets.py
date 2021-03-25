@@ -52,6 +52,7 @@ class TestTargets(unittest.TestCase):
         platforms.append("marblemini")
         platforms.append("litefury")
         platforms.append("qmtech_wukong")
+        platforms.append("trenz_te0725")
 
         # Xilinx Kintex7
         platforms.append("genesys2")
