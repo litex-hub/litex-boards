@@ -111,7 +111,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), revision="revd", sdram_rate="1:2", mister_sdram=None, with_video_terminal=False, **kwargs):
-        platform = arrow_sockit.Platform(revision)
+        platform = terasic_sockit.Platform(revision)
 
         # Defaults to UART over JTAG because serial is attached to the HPS and cannot be used.
         if kwargs["uart_name"] == "serial":
@@ -119,7 +119,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on the Arrow SoCKit",
+            ident          = "LiteX SoC on the Terasic SoCKit",
             ident_version  = True,
             **kwargs)
 
@@ -168,7 +168,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on the Arrow/Terasic SoCKit")
+    parser = argparse.ArgumentParser(description="LiteX SoC on the Terasic SoCKit")
     parser.add_argument("--single-rate-sdram",   action="store_true", help="clock SDRAM with 1x the sytem clock (instead of 2x)")
     parser.add_argument("--mister-sdram-xs-v22", action="store_true", help="Use optional MiSTer SDRAM module XS v2.2 on J2 on GPIO daughter card")
     parser.add_argument("--mister-sdram-xs-v24", action="store_true", help="Use optional MiSTer SDRAM module XS v2.4 on J2 on GPIO daughter card")
