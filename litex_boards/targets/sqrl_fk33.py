@@ -62,7 +62,6 @@ class BaseSoC(SoCCore):
             self.submodules.pcie_phy = USPHBMPCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
-            platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
 
             # Endpoint
             self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, max_pending_requests=8)

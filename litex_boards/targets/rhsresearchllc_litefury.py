@@ -88,7 +88,7 @@ class BaseSoC(SoCCore):
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
             self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
-                data_width = 64,
+                data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
