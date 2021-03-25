@@ -11,21 +11,18 @@ import argparse
 import sys
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import colorlight_i5
-from litex.build.tools import write_to_file
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.spi_flash import SpiFlash
-from litex.soc.cores.spi import SPIMaster
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-
+from litex.soc.cores.video import VideoECP5HDMIPHY
 from litex.soc.cores.led import LedChaser
 
 from litex.soc.interconnect.csr import *
@@ -49,7 +46,7 @@ class _PRBSSource(Module, AutoCSR):
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, use_internal_osc=False, with_usb_pll=False, sdram_rate="1:1"):
+    def __init__(self, platform, sys_clk_freq, use_internal_osc=False, with_usb_pll=False, with_video_pll=False, sdram_rate="1:1"):
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
@@ -95,6 +92,16 @@ class _CRG(Module):
             usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
             usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
 
+        # Video PLL
+        if with_video_pll:
+            self.submodules.video_pll = video_pll = ECP5PLL()
+            self.comb += video_pll.reset.eq(~rst_n | self.rst)
+            video_pll.register_clkin(clk, clk_freq)
+            self.clock_domains.cd_hdmi   = ClockDomain()
+            self.clock_domains.cd_hdmi5x = ClockDomain()
+            video_pll.create_clkout(self.cd_hdmi,    40e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi5x, 200e6, margin=0)
+
         # SDRAM clock
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
         self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
@@ -103,7 +110,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0xd0000000}}
-    def __init__(self, board="i5", revision="7.0", sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, local_ip="", remote_ip="", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", with_prbs=False, **kwargs):
+    def __init__(self, board="i5", revision="7.0", sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, local_ip="", remote_ip="", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False, with_video_framebuffer=False, with_prbs=False, **kwargs):
         board = board.lower()
         assert board in ["i5"]
         if board == "i5":
@@ -117,7 +124,8 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_internal_osc=use_internal_osc, with_usb_pll=with_usb_pll, sdram_rate=sdram_rate)
+        with_video_pll = with_video_terminal or with_video_framebuffer
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_internal_osc=use_internal_osc, with_usb_pll=with_usb_pll, with_video_pll=with_video_pll, sdram_rate=sdram_rate)
 
         # Leds -------------------------------------------------------------------------------------
         ledn = platform.request_all("user_led_n")
@@ -169,6 +177,14 @@ class BaseSoC(SoCCore):
             self.add_constant("REMOTEIP3", int(remote_ip[2]))
             self.add_constant("REMOTEIP4", int(remote_ip[3]))
 
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal or with_video_framebuffer:
+            self.submodules.videophy = VideoECP5HDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+
         # PRBS -------------------------------------------------------------------------------------
         if with_prbs:
             self.submodules.prbs = _PRBSSource()
@@ -195,22 +211,27 @@ def main():
     parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
     parser.add_argument("--l2-size",          default=8192, type=int,   help="L2 cache size")
     parser.add_argument("--with-prbs",        action="store_true",      help="Enable PRBS support")
+    viopts = parser.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(board=args.board, revision=args.revision,
-        sys_clk_freq     = int(float(args.sys_clk_freq)),
-        with_ethernet    = args.with_ethernet,
-        with_etherbone   = args.with_etherbone,
-        local_ip         = args.local_ip,
-        remote_ip        = args.remote_ip,
-        eth_phy          = args.eth_phy,
-        use_internal_osc = args.use_internal_osc,
-        sdram_rate       = args.sdram_rate,
-        l2_size		 = args.l2_size,
-        with_prbs        = args.with_prbs,
+        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        with_ethernet          = args.with_ethernet,
+        with_etherbone         = args.with_etherbone,
+        local_ip               = args.local_ip,
+        remote_ip              = args.remote_ip,
+        eth_phy                = args.eth_phy,
+        use_internal_osc       = args.use_internal_osc,
+        sdram_rate             = args.sdram_rate,
+        l2_size	               = args.l2_size,
+        with_prbs              = args.with_prbs,
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
     )
     soc.platform.add_extension(colorlight_i5._sdcard_pmod_io)

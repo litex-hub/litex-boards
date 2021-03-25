@@ -95,6 +95,18 @@ _io_v7_0 = [ # Documented by @smunaut
         Subsignal("tx_data", Pins("U20 T19 T20 R20")),
         IOStandard("LVCMOS33")
     ),
+
+    # GPDI
+    ("gpdi", 0,
+        Subsignal("clk_p",   Pins("J19"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("clk_n",   Pins("K19"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data0_p", Pins("G19"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("data0_n", Pins("H20"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data1_p", Pins("E20"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("data1_n", Pins("F19"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data2_p", Pins("C20"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("data2_n", Pins("D19"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+    ),
 ]
 
 # From https://github.com/wuxx/Colorlight-FPGA-Projects/blob/master/schematic/i5_v6.0-extboard.pdf and
