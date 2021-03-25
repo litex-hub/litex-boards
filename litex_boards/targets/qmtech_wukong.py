@@ -16,10 +16,9 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.video import VideoS7HDMIPHY, video_timings
+from litex.soc.cores.video import VideoS7HDMIPHY
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
@@ -35,6 +34,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay    = ClockDomain()
+        self.clock_domains.cd_eth       = ClockDomain()
         self.clock_domains.cd_hdmi      = ClockDomain()
         self.clock_domains.cd_hdmi5x    = ClockDomain()
 
@@ -50,8 +50,10 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    2*sys_clk_freq)
+        pll.create_clkout(self.cd_eth,       sys_clk_freq)
         pll.create_clkout(self.cd_hdmi,      40e6)
         pll.create_clkout(self.cd_hdmi5x,    5*40e6)
+
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
@@ -59,7 +61,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_video_terminal=False, with_video_framebuffer=False, video_timing="800x600@60Hz", with_ethernet=False, **kwargs):
+    def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_video_terminal=False, with_video_framebuffer=False, video_timing="1024x600@60Hz", with_ethernet=False, **kwargs):
         platform = qmtech_wukong.Platform(toolchain=toolchain)
         platform.add_extension(qmtech_wukong._sdcard_pmod_io)
 
@@ -103,17 +105,7 @@ class BaseSoC(SoCCore):
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings=video_timing, clock_domain="hdmi")
             if with_video_framebuffer:
-                self.add_video_framebuffer(phy=self.videophy, timings=video_timing, clock_domain="hdmi")
-                self.add_constant("framebuffer_base",        0x4f000000)
-                self.add_constant("litevideo_pix_clk",       video_timings[video_timing]["pix_clk"])
-                self.add_constant("litevideo_h_active",      video_timings[video_timing]["h_active"])
-                self.add_constant("litevideo_h_blanking",    video_timings[video_timing]["h_blanking"])
-                self.add_constant("litevideo_h_sync",        video_timings[video_timing]["h_sync_width"])
-                self.add_constant("litevideo_h_front_porch", video_timings[video_timing]["h_sync_offset"])
-                self.add_constant("litevideo_v_active",      video_timings[video_timing]["v_active"])
-                self.add_constant("litevideo_v_blanking",    video_timings[video_timing]["v_blanking"])
-                self.add_constant("litevideo_v_sync",        video_timings[video_timing]["v_sync_width"])
-                self.add_constant("litevideo_v_front_porch", video_timings[video_timing]["v_sync_offset"])
+                self.add_video_framebuffer(base = 0x4f000000, phy=self.videophy, timings=video_timing, clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
@@ -137,7 +129,7 @@ def main():
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
 
@@ -147,7 +139,7 @@ def main():
         with_ethernet          = args.with_ethernet,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
     )
     soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
     if args.with_spi_sdcard:

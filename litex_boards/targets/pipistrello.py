@@ -21,7 +21,6 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex_boards.platforms import pipistrello
 
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -203,10 +202,10 @@ def main():
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_sdram_argdict(args))
+    soc = BaseSoC(**soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 

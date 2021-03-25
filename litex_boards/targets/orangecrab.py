@@ -20,7 +20,6 @@ from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -221,7 +220,7 @@ def main():
     parser.add_argument("--sdram-device",    default="MT41K64M16", help="SDRAM device (default: MT41K64M16)")
     parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
@@ -231,7 +230,7 @@ def main():
         device       = args.device,
         sdram_device = args.sdram_device,
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        **soc_sdram_argdict(args))
+        **soc_core_argdict(args))
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     builder = Builder(soc, **builder_argdict(args))

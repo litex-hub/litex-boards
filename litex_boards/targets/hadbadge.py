@@ -24,7 +24,6 @@ from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
 from litedram import modules as litedram_modules
@@ -90,14 +89,14 @@ def main():
     parser.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
     parser.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency (default: 48MHz)")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         toolchain    = args.toolchain,
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        **soc_sdram_argdict(args))
+        **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)

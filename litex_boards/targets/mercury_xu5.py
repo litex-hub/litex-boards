@@ -16,7 +16,6 @@ from litex_boards.platforms import mercury_xu5
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -98,12 +97,12 @@ def main():
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency (default: 125MHz)")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
          sys_clk_freq = int(float(args.sys_clk_freq)),
-         **soc_sdram_argdict(args)
+         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)

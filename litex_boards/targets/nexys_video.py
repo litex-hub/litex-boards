@@ -16,7 +16,6 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.cores.led import LedChaser
@@ -159,7 +158,7 @@ def main():
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
 
@@ -170,7 +169,7 @@ def main():
         with_sata              = args.with_sata,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

@@ -17,7 +17,6 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -104,14 +103,14 @@ def main():
     parser.add_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         with_ethernet = args.with_ethernet,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**vivado_build_argdict(args), run=args.build)

@@ -18,7 +18,6 @@ from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -166,18 +165,18 @@ def main():
     parser.add_argument("--toolchain",       default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
     parser.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency (default: 75MHz)")
     parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support")
-    sdopts = parser.add_mutually_exclusive_group()        
+    sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         with_ethernet = args.with_ethernet,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

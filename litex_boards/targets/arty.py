@@ -17,7 +17,6 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -127,7 +126,7 @@ def main():
     parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
     parser.add_argument("--with-jtagbone",    action="store_true",              help="Enable Jtagbone support")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
 
@@ -143,7 +142,7 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         ident_version  = args.no_ident_version,
         with_jtagbone  = args.with_jtagbone,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
     )
     if args.sdcard_adapter == "numato":
         soc.platform.add_extension(arty._numato_sdcard_pmod_io)

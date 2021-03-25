@@ -21,8 +21,8 @@ from litex_boards.platforms import minispartan6
 
 from litex.soc.cores.clock import S6PLL
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoS6HDMIPHY
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import AS4C16M16
@@ -39,6 +39,8 @@ class _CRG(Module):
             self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
         else:
             self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+        self.clock_domains.cd_hdmi    = ClockDomain()
+        self.clock_domains.cd_hdmi5x = ClockDomain()
 
         # # #
 
@@ -55,7 +57,9 @@ class _CRG(Module):
             pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=90)
         else:
             pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
-        platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
+        #platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
+        pll.create_clkout(self.cd_hdmi,   1*40e6)
+        pll.create_clkout(self.cd_hdmi5x, 5*40e6)
 
         # SDRAM clock
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
@@ -64,7 +68,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(80e6), sdram_rate="1:1", **kwargs):
+    def __init__(self, sys_clk_freq=int(80e6), sdram_rate="1:1", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = minispartan6.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -90,6 +94,14 @@ class BaseSoC(SoCCore):
                 l2_cache_reverse        = True
             )
 
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal or with_video_framebuffer:
+            self.submodules.videophy = VideoS6HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -100,18 +112,23 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on MiniSpartan6")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=80e6,        help="System clock frequency (default: 80MHz)")
-    parser.add_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default) or 1:2 Half Rate")
+    parser.add_argument("--build",                  action="store_true", help="Build bitstream")
+    parser.add_argument("--load",                   action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",           default=80e6,        help="System clock frequency (default: 80MHz)")
+    parser.add_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default) or 1:2 Half Rate")
+    viopts = parser.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         sdram_rate   = args.sdram_rate,
-        **soc_sdram_argdict(args)
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
+        **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)

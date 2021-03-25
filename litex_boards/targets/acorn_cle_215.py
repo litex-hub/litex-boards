@@ -33,7 +33,6 @@ from litex_boards.platforms import acorn_cle_215
 
 from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
@@ -166,14 +165,14 @@ def main():
     parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2)")
     pcieopts.add_argument("--with-sata",     action="store_true", help="Enable SATA support (over PCIe2SATA)")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         with_pcie    = args.with_pcie,
         with_sata    = args.with_sata,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

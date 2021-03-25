@@ -18,7 +18,6 @@ from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -167,7 +166,7 @@ def main():
     parser.add_argument("--with-ethernet",  action="store_true",   help="Enable Ethernet support")
     parser.add_argument("--with-sdcard",    action="store_true",   help="Enable SDCard support")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
@@ -177,7 +176,7 @@ def main():
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         sdram_device  = args.sdram_device,
         with_ethernet = args.with_ethernet,
-        **soc_sdram_argdict(args)
+        **soc_core_argdict(args)
     )
     if args.with_sdcard:
         soc.add_sdcard()
