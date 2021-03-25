@@ -74,7 +74,6 @@ class BaseSoC(SoCCore):
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6)
-            self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MTA4ATF51264HZ(sys_clk_freq, "1:4"),
@@ -89,7 +88,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

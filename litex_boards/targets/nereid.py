@@ -72,7 +72,6 @@ class BaseSoC(SoCCore):
                 nphases          = 4,
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
-            self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MT8KTF51264(sys_clk_freq, "1:4", speedgrade="800"),
@@ -88,7 +87,6 @@ class BaseSoC(SoCCore):
             self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
-            self.add_csr("pcie_phy")
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
 # Build --------------------------------------------------------------------------------------------

@@ -131,7 +131,6 @@ class BaseSoC(SoCCore):
                 sys_clk_freq=sys_clk_freq)
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
-            self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MT41J256M16(sys_clk_freq, "1:2"),
@@ -147,14 +146,12 @@ class BaseSoC(SoCCore):
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            self.add_csr("ethphy")
             self.add_ethernet(phy=self.ethphy)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

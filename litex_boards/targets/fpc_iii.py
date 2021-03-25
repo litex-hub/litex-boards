@@ -105,7 +105,6 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.comb += ddram.vccio.eq(Replicate(C(1), ddram.vccio.nbits))
-            self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = IS43TR16256A(sys_clk_freq, "1:2"),
@@ -122,7 +121,6 @@ class BaseSoC(SoCCore):
             self.submodules.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            self.add_csr("ethphy")
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
@@ -132,7 +130,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

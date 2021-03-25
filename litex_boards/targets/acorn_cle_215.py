@@ -91,7 +91,6 @@ class BaseSoC(SoCCore):
                 nphases          = 4,
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
-            self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MT41K512M16(sys_clk_freq, "1:4"),
@@ -107,7 +106,6 @@ class BaseSoC(SoCCore):
             self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
-            self.add_csr("pcie_phy")
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # SATA -------------------------------------------------------------------------------------
@@ -140,7 +138,6 @@ class BaseSoC(SoCCore):
                 gen        = "gen2",
                 clk_freq   = sys_clk_freq,
                 data_width = 16)
-            self.add_csr("sata_phy")
 
             # Core
             self.add_sata(phy=self.sata_phy, mode="read+write")
@@ -149,7 +146,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

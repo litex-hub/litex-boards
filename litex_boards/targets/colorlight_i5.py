@@ -122,7 +122,6 @@ class BaseSoC(SoCCore):
         # Leds -------------------------------------------------------------------------------------
         ledn = platform.request_all("user_led_n")
         self.submodules.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
-        self.add_csr("leds")
 
         # SPI Flash --------------------------------------------------------------------------------
         self.add_spi_flash(mode="1x", dummy_cycles=8)
@@ -151,7 +150,6 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 tx_delay = 0)
-            self.add_csr("ethphy")
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
@@ -174,7 +172,6 @@ class BaseSoC(SoCCore):
         # PRBS -------------------------------------------------------------------------------------
         if with_prbs:
             self.submodules.prbs = _PRBSSource()
-            self.add_csr("prbs")
 
         # Build --------------------------------------------------------------------------------------------
 

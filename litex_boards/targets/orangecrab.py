@@ -184,7 +184,6 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq,
                 cmd_delay    = 0 if sys_clk_freq > 64e6 else 100)
             self.ddrphy.settings.rtt_nom = "disabled"
-            self.add_csr("ddrphy")
             if hasattr(ddram_pads, "vccio"):
                 self.comb += ddram_pads.vccio.eq(0b111111)
             if hasattr(ddram_pads, "gnd"):
@@ -205,7 +204,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

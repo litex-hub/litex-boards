@@ -178,7 +178,6 @@ class BaseSoC(SoCCore):
                 self.ddrphy.clk4x_wr_strb.eq(self.crg.clk4x_wr_strb),
                 self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
             ]
-            self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MT46H32M16(sys_clk_freq, "1:2"),
@@ -193,7 +192,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

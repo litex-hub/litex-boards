@@ -64,7 +64,6 @@ class BaseSoC(SoCCore):
                 memtype      = "DDR3",
                 nphases      = 4,
                 sys_clk_freq = sys_clk_freq)
-            self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = H5TC4G63CFR(sys_clk_freq, "1:4"),
@@ -79,7 +78,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = Cat(*[platform.request("user_led", i) for i in range(4)]),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

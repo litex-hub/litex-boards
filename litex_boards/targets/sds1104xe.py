@@ -80,7 +80,6 @@ class BaseSoC(SoCCore):
                 memtype        = "DDR3",
                 nphases        = 4,
                 sys_clk_freq   = sys_clk_freq)
-            self.add_csr("ddrphy")
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
                 module                  = MT41K64M16(sys_clk_freq, "1:4"),
@@ -120,7 +119,6 @@ class BaseSoC(SoCCore):
             # Software Interface.
             self.add_memory_region("ethmac", self.mem_map["ethmac"], 0x2000, type="io")
             self.add_wb_slave(self.mem_regions["ethmac"].origin, self.ethmac.bus, 0x2000)
-            self.add_csr("ethmac")
             if self.irq.enabled:
                 self.irq.add("ethmac", use_loc_if_exists=True)
 

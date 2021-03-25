@@ -167,7 +167,6 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 tx_delay   = 0e-9)
-            self.add_csr("ethphy")
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
@@ -178,7 +177,6 @@ class BaseSoC(SoCCore):
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
-            self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

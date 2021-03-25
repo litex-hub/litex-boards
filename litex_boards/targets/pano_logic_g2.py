@@ -65,7 +65,6 @@ class BaseSoC(SoCCore):
                 pads               = self.platform.request("eth"),
                 clk_freq           = sys_clk_freq,
                 with_hw_init_reset = False)
-            self.add_csr("ethphy")
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
@@ -75,7 +74,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -85,7 +83,7 @@ def main():
     parser.add_argument("--load",            action="store_true",              help="Load bitstream")
     parser.add_argument("--revision",        default="c",                      help="Board revision c (default) or b")
     parser.add_argument("--sys-clk-freq",    default=50e6,                     help="System clock frequency (default: 50MHz)")
-    ethopts = parser.add_mutually_exclusive_group()    
+    ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
     parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")

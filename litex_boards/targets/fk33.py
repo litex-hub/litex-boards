@@ -63,7 +63,6 @@ class BaseSoC(SoCCore):
                 data_width = 128,
                 bar0_size  = 0x20000)
             platform.add_false_path_constraints(self.crg.cd_sys.clk, self.pcie_phy.cd_pcie.clk)
-            self.add_csr("pcie_phy")
 
             # Endpoint
             self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, max_pending_requests=8)
@@ -77,13 +76,11 @@ class BaseSoC(SoCCore):
             self.submodules.pcie_dma0 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
                 with_buffering = True, buffering_depth=1024,
                 with_loopback  = True)
-            self.add_csr("pcie_dma0")
 
             self.add_constant("DMA_CHANNELS", 1)
 
             # MSI
             self.submodules.pcie_msi = LitePCIeMSI()
-            self.add_csr("pcie_msi")
             self.comb += self.pcie_msi.source.connect(self.pcie_phy.msi)
             self.interrupts = {
                 "PCIE_DMA0_WRITER":    self.pcie_dma0.writer.irq,
@@ -97,7 +94,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

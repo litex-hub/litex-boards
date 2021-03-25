@@ -90,7 +90,6 @@ class BaseSoC(SoCCore):
             self.submodules.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
-            self.add_csr("ddrphy")
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.add_sdram("sdram",
                 phy                     = self.ddrphy,
@@ -107,7 +106,6 @@ class BaseSoC(SoCCore):
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
-            self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

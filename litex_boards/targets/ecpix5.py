@@ -95,7 +95,6 @@ class BaseSoC(SoCCore):
             self.submodules.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
-            self.add_csr("ddrphy")
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
@@ -114,7 +113,6 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 rx_delay   = 0e-9)
-            self.add_csr("ethphy")
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
@@ -129,7 +127,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = Cat(leds_pads),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

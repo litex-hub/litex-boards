@@ -96,8 +96,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = Cat(*[platform.request("user_led", i) for i in range(14)]),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
-
 
 # Build --------------------------------------------------------------------------------------------
 

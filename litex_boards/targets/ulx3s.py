@@ -134,17 +134,14 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
     def add_oled(self):
         pads = self.platform.request("oled_spi")
         pads.miso = Signal()
         self.submodules.oled_spi = SPIMaster(pads, 8, self.sys_clk_freq, 8e6)
         self.oled_spi.add_clk_divider()
-        self.add_csr("oled_spi")
 
         self.submodules.oled_ctl = GPIOOut(self.platform.request("oled_ctl"))
-        self.add_csr("oled_ctl")
 
 # Build --------------------------------------------------------------------------------------------
 
