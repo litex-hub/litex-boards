@@ -29,6 +29,7 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoDVIPHY
 
 from litedram.modules import MT41K64M16
 from litedram.phy import s7ddrphy
@@ -44,6 +45,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay    = ClockDomain()
+        self.clock_domains.cd_dvi       = ClockDomain()
 
         # # #
 
@@ -53,6 +55,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
+        pll.create_clkout(self.cd_dvi,       40e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
@@ -60,7 +63,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=True, eth_ip="192.168.1.50", **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=True, eth_ip="192.168.1.50", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = sds1104xe.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -117,7 +120,7 @@ class BaseSoC(SoCCore):
                 hw_mac     = etherbone_mac_address)
 
             # Software Interface.
-            self.add_memory_region("ethmac", self.mem_map["ethmac"], 0x2000, type="io")
+            self.add_memory_region("ethmac", getattr(self.mem_map, "ethmac", None), 0x2000, type="io")
             self.add_wb_slave(self.mem_regions["ethmac"].origin, self.ethmac.bus, 0x2000)
             if self.irq.enabled:
                 self.irq.add("ethmac", use_loc_if_exists=True)
@@ -139,6 +142,14 @@ class BaseSoC(SoCCore):
             self.platform.add_period_constraint(eth_tx_clk, 1e9/ethphy.tx_clk_freq)
             self.platform.add_false_path_constraints(self.crg.cd_sys.clk, eth_rx_clk, eth_tx_clk)
 
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal or with_video_framebuffer:
+            self.submodules.videophy = VideoDVIPHY(platform.request("lcd"), clock_domain="dvi")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="dvi")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="dvi")
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -148,6 +159,9 @@ def main():
     parser.add_argument("--sys-clk-freq",   default=100e6,                    help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
     parser.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
+    viopts = parser.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -157,6 +171,8 @@ def main():
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
     )
 
