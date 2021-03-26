@@ -39,7 +39,7 @@ from liteeth.phy.mii import LiteEthPHYMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_ethernet=False):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
@@ -49,8 +49,12 @@ class _CRG(Module):
 
         # # #
 
+        # Clk / Rst
+        clk25 = ClockSignal("eth_tx") if with_ethernet else platform.request("eth_clocks").rx
+
+        # PLL
         self.submodules.pll = pll = S7PLL(speedgrade=-1)
-        pll.register_clkin(ClockSignal("eth_tx"), 25e6)
+        pll.register_clkin(clk25, 25e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
@@ -75,7 +79,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_etherbone)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
