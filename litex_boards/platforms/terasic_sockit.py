@@ -12,16 +12,16 @@ from litex.build.generic_platform  import Pins, IOStandard, Subsignal, Misc
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk
+    # Clk.
     ("clk50", 0, Pins("AF14"), IOStandard("3.3-V LVTTL")),
 
-    # Leds
+    # Leds.
     ("user_led", 0, Pins("AF10"), IOStandard("3.3-V LVTTL")),
     ("user_led", 1, Pins("AD10"), IOStandard("3.3-V LVTTL")),
     ("user_led", 2, Pins("AE11"), IOStandard("3.3-V LVTTL")),
     ("user_led", 3, Pins("AD7"),  IOStandard("3.3-V LVTTL")),
 
-    # Buttons
+    # Buttons.
     ("user_btn", 0, Pins("AE9"),  IOStandard("3.3-V LVTTL")),
     ("user_btn", 1, Pins("AE12"), IOStandard("3.3-V LVTTL")),
     ("user_btn", 2, Pins("AD9"),  IOStandard("3.3-V LVTTL")),
@@ -33,7 +33,7 @@ _io = [
     ("user_sw", 2, Pins("AC28"), IOStandard("3.3-V LVTTL")),
     ("user_sw", 3, Pins("AC29"), IOStandard("3.3-V LVTTL")),
 
-    # MiSTer SDRAM via GPIO expansion board J2
+    # MiSTer SDRAM (via GPIO expansion board on J2).
     ("sdram_clock", 0, Pins("D10"), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
         Subsignal("a",     Pins(
@@ -41,8 +41,7 @@ _io = [
             "D12 A11 B6 D11 A10")),
         Subsignal("ba",    Pins("B5 A4")),
         Subsignal("cs_n",  Pins("A3")),
-        # CKE not connected on XS 2.2/2.4
-        Subsignal("cke",   Pins("B3")),
+        Subsignal("cke",   Pins("B3")), # CKE not connected on XS 2.2/2.4.
         Subsignal("ras_n", Pins("E9")),
         Subsignal("cas_n", Pins("A6")),
         Subsignal("we_n",  Pins("A5")),
@@ -50,13 +49,12 @@ _io = [
             "F14 G15 F15 H15 G13 A13 H14 B13",
             "C13 C8 B12 B8 F13 C12 B11 E13"),
         ),
-        # DQML/DQMH not connected on XS 2.2/2.4
-        Subsignal("dm", Pins("AB27 AA26")),
+        Subsignal("dm", Pins("AB27 AA26")), # DQML/DQMH not connected on XS 2.2/2.4
         IOStandard("3.3-V LVTTL"),
         Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""),
     ),
 
-    # DDR3 SDRAM
+    # DDR3 SDRAM.
     ("ddram", 0,
         Subsignal("a", Pins(
             "AJ14 AK14 AH12 AJ12 AG15 AH15 AK12 AK13",
@@ -108,7 +106,7 @@ _io = [
         Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")
         ),
 
-    # VGA
+    # VGA.
     ("vga", 0,
         Subsignal("sync_n",  Pins("AG2")),
         Subsignal("blank_n", Pins("AH3")),
@@ -121,13 +119,13 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    # IrDA
+    # IrDA.
     ("irda", 0,
         Subsignal("irda_rxd", Pins("AH2")),
         IOStandard("3.3-V LVTTL")
     ),
 
-    # Temperatue
+    # Temperatue.
     ("temperature", 0,
         Subsignal("temp_cs_n", Pins("AF8")),
         Subsignal("temp_din",  Pins("AG7")),
@@ -136,7 +134,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    # Audio
+    # Audio.
     ("audio", 0,
         Subsignal("aud_adclrck",  Pins("AG30")),
         Subsignal("aud_adcdat",   Pins("AC27")),
@@ -150,6 +148,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
+    # GPIO Serial.
     ("gpio_serial", 0,
         Subsignal("tx", Pins("J3:9")),
         Subsignal("rx", Pins("J3:10")),
@@ -157,24 +156,22 @@ _io = [
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
-# Since the numbering of the connectors in the documentation is 1-based
-# I added a dummy pin (-) to the beginning to each connector
-# to make the numbering in the code consistent with the documentation
+
 _connectors_hsmc_gpio_daughterboard = [
     ("J2", "- G15 F14 H15 F15 A13 G13 B13 H14 B11 E13 - - " +
            "C12 F13 B8 B12 C8 C13 A10 D10 A11 D11 B7 D12 C7 E12 A5 D9 - - " +
            "A6 E9 A3 B5 A4 B6 B1 C2 B2 D2"),
-    ("J2p", "- D1 E1 E11 F11"), # top to bottom, starting with 57
+    ("J2p", "- D1 E1 E11 F11"), # Top to bottom, starting with 57.
 
     ("J3", "- AB27 F8 AA26 F9 B3 G8 C3 H8 D4 H7 - - " +
            "E4 J7 E2 K8 E3 K7 E6 J9 E7 J10 C4 J12 D5 G10 C5 J12 - - " +
            "D6 K12 F6 G11 G7 G12 D7 A8 E8 A9"),
-    ("J3p", "- C9 C10 H12 H13"), # top to bottom, starting with 117
+    ("J3p", "- C9 C10 H12 H13"), # Top to bottom, starting with 117.
 
     ("J4", "- - - AD3 AE1 AD4 AE2 - - AB3 AC1 - - " +
            "AB4 AC2 - - Y3 AA1 Y4 AA2 - - V3 W1 V4 W2 - - - -" +
            "T3 U1 T4 R1 - R2 P3 U2 P4 -"),
-    ("J4p", "- M3 M4 - H3 H4 J14 AD29 - N1 N2 - J1 J2") # top to bottom, starting with 169
+    ("J4p", "- M3 M4 - H3 H4 J14 AD29 - N1 N2 - J1 J2") # Top to bottom, starting with 169.
 ]
 
 # Platform -----------------------------------------------------------------------------------------

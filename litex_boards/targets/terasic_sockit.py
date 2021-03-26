@@ -4,36 +4,29 @@
 #
 # Copyright (c) 2020 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
-"""
-    This class provides basic support for the Arrow SoCKit.
-    Since the SoCKit has its USB2UART attached to the HPS
-    system, it is not available to the FPGA and thus the only
-    way to communicate is via JTAG serial which is configured
-    by default.
-    To access it, you can use the nios2_terminal application
-    included in the Intel/Altera quartus distribution.
-"""
 
 import os
 import argparse
 
-from migen.fhdl.module      import Module
-from migen.fhdl.structure   import Signal, ClockDomain, ClockSignal
-
-from litex.soc.cores.clock           import CycloneVPLL
-from litex.soc.integration.builder   import Builder, builder_args, builder_argdict
-from litex.soc.integration.soc_core  import SoCCore, soc_core_argdict, soc_core_args
-from litex.soc.cores.led             import LedChaser
-from litex.soc.cores.video           import VideoVGAPHY
-
-from litex.build.io                  import DDROutput
-
+from migen import *
 from litex_boards.platforms import terasic_sockit
 
-from litedram.modules import _TechnologyTimings, _SpeedgradeTimings, SDRModule, AS4C32M16
-from litedram.phy     import HalfRateGENSDRPHY, GENSDRPHY
+from litex.soc.cores.clock import CycloneVPLL
+from litex.soc.integration.soc_core  import *
+from litex.soc.integration.builder import *
+from litex.soc.cores.led import LedChaser
+from litex.soc.cores.video import VideoVGAPHY
+
+from litex.build.io import DDROutput
+
+from litedram.modules import AS4C32M16
+from litedram.phy import HalfRateGENSDRPHY, GENSDRPHY
 
 # DRAM Module for XS board v2.2 ----------------------------------------------------------------------
+# FIXME: Move to litedram.modules.
+
+from litedram.modules import _TechnologyTimings, _SpeedgradeTimings, SDRModule
+
 class W9825G6KH6(SDRModule):
     """
     Winbond W9825G6KH-6 chip on Mister SDRAM XS board v2.2
@@ -77,8 +70,8 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2"):
         self.sdram_rate = sdram_rate
         self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_vga = ClockDomain(reset_less=True)
         if with_sdram:
             if sdram_rate == "1:2":
                 self.clock_domains.cd_sys2x    = ClockDomain()
@@ -126,11 +119,7 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=mister_sdram != None, sdram_rate=sdram_rate)
 
-        # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
-
+        # SDR SDRAM --------------------------------------------------------------------------------
         if mister_sdram == "xs_v22":
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
@@ -164,6 +153,11 @@ class BaseSoC(SoCCore):
             self.specials += DDROutput(i1=1, i2=0, o=vga_pads.clk, clk=ClockSignal("vga"))
             self.submodules.videophy = VideoVGAPHY(vga_pads, clock_domain="vga")
             self.add_video_terminal(phy=self.videophy, timings="1024x768@60Hz", clock_domain="vga")
+
+        # Leds -------------------------------------------------------------------------------------
+        self.submodules.leds = LedChaser(
+            pads         = platform.request_all("user_led"),
+            sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
