@@ -41,8 +41,8 @@ _io = [
 
     # I2C: CapSense Buttons
     ("cap_sense_i2c", 0,
-        Subsignal("sclk", Pins("AB2")),
-        Subsignal("sdat", Pins("AB3")),
+        Subsignal("scl", Pins("AB2")),
+        Subsignal("sda", Pins("AB3")),
         IOStandard("3.3-V LVTTL")
     ),
 
@@ -55,7 +55,7 @@ _io = [
     ),
 
     # power monitor I2C
-    ("pmonitor", 0,
+    ("pmonitor_i2c", 0,
         Subsignal("alert", Pins("Y4")),
         Subsignal("scl",   Pins("Y3")),
         Subsignal("sda",   Pins("Y1")),
@@ -63,7 +63,7 @@ _io = [
     ),
 
     # temperature and humidity sensor I2C
-    ("rh_temp", 0,
+    ("rh_temp_i2c", 0,
         Subsignal("drdy_n", Pins("AB9")),
         Subsignal("scl",    Pins("Y10")),
         Subsignal("sda",    Pins("AA10")),
@@ -155,16 +155,16 @@ _io = [
         IOStandard("1.5 V")
     ),
 
-    # USB ULPI
+    # USB ULPI TUSB1210
     ("ulpi", 0,
-        Subsignal("fault_n", Pins("D8"),  IOStandard("1.2 V")),
-        Subsignal("clk",     Pins("H11"), IOStandard("1.2 V")),
-        Subsignal("stp",     Pins("J12")),
-        Subsignal("dir",     Pins("J13")),
-        Subsignal("nxt",     Pins("H12")),
-        Subsignal("reset_n", Pins("E16")),
-        Subsignal("data",    Pins("E12 E13 H13 E14 H14 D15 E15 F15")),
-        IOStandard("1.8 V")
+        Subsignal("fault_n", Pins("D8"),                              IOStandard("1.2 V")),
+        Subsignal("cs",      Pins("J11"),                             IOStandard("1.8 V")),
+        Subsignal("clk",     Pins("H11"),                             IOStandard("1.2 V")),
+        Subsignal("stp",     Pins("J12"),                             IOStandard("1.8 V")),
+        Subsignal("dir",     Pins("J13"),                             IOStandard("1.8 V")),
+        Subsignal("nxt",     Pins("H12"),                             IOStandard("1.8 V")),
+        Subsignal("reset_n", Pins("E16"),                             IOStandard("1.8 V")),
+        Subsignal("data",    Pins("E12 E13 H13 E14 H14 D15 E15 F15"), IOStandard("1.8 V")),
     ),
 
     ("sdcard", 0,
@@ -210,6 +210,7 @@ _io = [
         Misc("FAST_OUTPUT_REGISTER ON"),
         IOStandard("1.8 V")
     ),
+    # HDMI_I2C
     ("hdmi_i2c", 0,
         Subsignal("scl",    Pins("C10")),
         Subsignal("sda",    Pins("B15")),
@@ -263,6 +264,11 @@ _io = [
                      "P9:27 P9:28 P9:29 P9:30 P9:31 P9:41 P9:42"),
                 IOStandard("3.3-V LVTTL")
     ),
+
+    ("gpio_serial", 0,
+        Subsignal("tx", Pins("P8:3")),
+        Subsignal("rx", Pins("P8:4")),
+        IOStandard("3.3-V LVTTL"))
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -290,7 +296,7 @@ class Platform(AlteraPlatform):
         self.add_platform_command("set_global_assignment -name INTERNAL_FLASH_UPDATE_MODE \"SINGLE IMAGE WITH ERAM\"")
 
     def create_programmer(self):
-        return USBBlaster()
+        return USBBlaster(cable_name="Arrow MAX 10 DECA")
 
     def do_finalize(self, fragment):
         AlteraPlatform.do_finalize(self, fragment)
