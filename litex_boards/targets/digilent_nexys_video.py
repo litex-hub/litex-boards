@@ -60,7 +60,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_sata=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
+    def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_sata=False, vadj="1.2V", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = nexys_video.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -124,6 +124,17 @@ class BaseSoC(SoCCore):
             # Core
             self.add_sata(phy=self.sata_phy, mode="read+write")
 
+            vadj_map = {
+                "1.2V": 0,
+                "1.8V": 1,
+                "2.5V": 2,
+                "3.3V": 3,
+            }
+
+            if vadj_map[vadj] != 0:
+                vadj_pads = platform.request_all("vadj")
+                self.comb += vadj_pads.eq(C(vadj_map[vadj]))
+
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
             self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
@@ -150,6 +161,7 @@ def main():
     sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support")
     parser.add_argument("--with-sata",              action="store_true", help="Enable SATA support (over FMCRAID)")
+    parser.add_argument("--vadj",                   default="1.2V",      help="FMC VADJ value", choices=["1.2V", "1.8V", "2.5V", "3.3V"])
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
@@ -163,6 +175,7 @@ def main():
         sys_clk_freq           = int(float(args.sys_clk_freq)),
         with_ethernet          = args.with_ethernet,
         with_sata              = args.with_sata,
+        vadj                   = args.vadj,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
