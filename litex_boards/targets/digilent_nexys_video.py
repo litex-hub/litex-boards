@@ -124,17 +124,6 @@ class BaseSoC(SoCCore):
             # Core
             self.add_sata(phy=self.sata_phy, mode="read+write")
 
-            vadj_map = {
-                "1.2V": 0,
-                "1.8V": 1,
-                "2.5V": 2,
-                "3.3V": 3,
-            }
-
-            if vadj_map[vadj] != 0:
-                vadj_pads = platform.request_all("vadj")
-                self.comb += vadj_pads.eq(C(vadj_map[vadj]))
-
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
             self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
@@ -147,6 +136,10 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
+
+        # VADJ -------------------------------------------------------------------------------------
+        vadj_map = {"1.2V": 0b00, "1.8V": 0b01, "2.5V": 0b10, "3.3V": 0b11}
+        platform.request_all("vadj").eq(vadj_map[vadj])
 
 # Build --------------------------------------------------------------------------------------------
 
