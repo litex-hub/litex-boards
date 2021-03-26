@@ -4,8 +4,12 @@
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# The Acorn CLE 215+ is a cryptocurrency mining accelerator card from SQRL that can be repurposed
-# as a generic FPGA PCIe development board: http://www.squirrelsresearch.com/acorn-cle-215-plus
+# The Acorn (CLE-101, CLE-215(+)) are cryptocurrency mining accelerator cards from SQRL that can be
+# repurposed as generic FPGA PCIe development boards:
+# - http://www.squirrelsresearch.com/acorn-cle-101
+# - http://www.squirrelsresearch.com/acorn-cle-215-plus
+# The 101 variant is eguivalent to the LiteFury and 215 variant equivalent to the NiteFury from
+# RHSResearchLLC that are documented at: https://github.com/RHSResearchLLC/NiteFury-and-LiteFury.
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform
@@ -14,19 +18,19 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk / Rst
+    # Clk / Rst.
     ("clk200", 0,
         Subsignal("p", Pins("J19"), IOStandard("DIFF_SSTL15")),
         Subsignal("n", Pins("H19"), IOStandard("DIFF_SSTL15"))
     ),
 
-    # Leds
+    # Leds.
     ("user_led", 0, Pins("G3"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("H3"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("G4"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("H4"), IOStandard("LVCMOS33")),
 
-    # SPIFlash
+    # SPIFlash.
     ("spiflash", 0,
         Subsignal("cs_n", Pins("T19")),
         Subsignal("mosi", Pins("P22")),
@@ -36,7 +40,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # PCIe
+    # PCIe.
     ("pcie_clkreq_n", 0, Pins("G1"), IOStandard("LVCMOS33")),
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
@@ -48,7 +52,7 @@ _io = [
         Subsignal("tx_n",  Pins("A6 A4 C5 C7")),
     ),
 
-    # DDR3 SDRAM
+    # DDR3 SDRAM.
     ("ddram", 0,
         Subsignal("a", Pins(
             "M15 L21 M16 L18 K21 M18 M21 N20",
@@ -77,7 +81,7 @@ _io = [
 ]
 
 _serial_io = [
-    # Serial adapter on P2
+    # Serial adapter on P2.
     ("serial", 0,
         Subsignal("tx", Pins("K2")),
         Subsignal("rx", Pins("J2")),
@@ -87,7 +91,7 @@ _serial_io = [
 ]
 
 _sdcard_io = [
-    # SPI SDCard adapter on P2
+    # SPI SDCard adapter on P2.
     # https://spoolqueue.com/new-design/fpga/migen/litex/2020/08/11/acorn-cle-215.html
     ("spisdcard", 0,
         Subsignal("clk",  Pins("J2")),
@@ -105,8 +109,14 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a200t-fbg484-2", _io, toolchain="vivado")
+    def __init__(self, variant="cle-215+"):
+        device = {
+            "cle-101":  "xc7a100t-fgg484-2",
+            "cle-215":  "xc7a200t-fbg484-2",
+            "cle-215+": "xc7a200t-fbg484-3"
+        }[variant]
+
+        XilinxPlatform.__init__(self, device, _io, toolchain="vivado")
         self.add_extension(_serial_io)
         self.add_extension(_sdcard_io)
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")

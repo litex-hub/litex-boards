@@ -8,7 +8,7 @@
 
 # Build/Use ----------------------------------------------------------------------------------------
 # Build/Load bitstream:
-# ./acorn_cle_215.py --uart-name=crossover --with-pcie --build --driver --load (or --flash)
+# ./acorn_cle.py --uart-name=crossover --with-pcie --build --driver --load (or --flash)
 #
 #.Build the kernel and load it:
 # cd build/<platform>/driver/kernel
@@ -29,7 +29,7 @@ import sys
 
 from migen import *
 
-from litex_boards.platforms import acorn_cle_215
+from litex_boards.platforms import acorn
 
 from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
@@ -72,12 +72,12 @@ class CRG(Module):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_pcie=False, with_sata=False, **kwargs):
-        platform = acorn_cle_215.Platform()
+    def __init__(self, variant="cle-215+", sys_clk_freq=int(100e6), with_pcie=False, with_sata=False, **kwargs):
+        platform = acorn.Platform(variant=variant)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Acorn CLE 215+",
+            ident          = "LiteX SoC on Acorn CLE-101/215(+)",
             ident_version  = True,
             **kwargs)
 
@@ -155,10 +155,11 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Acorn CLE 215+")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Acorn CLE-101/215(+)")
     parser.add_argument("--build",           action="store_true", help="Build bitstream")
     parser.add_argument("--load",            action="store_true", help="Load bitstream")
     parser.add_argument("--flash",           action="store_true", help="Flash bitstream")
+    parser.add_argument("--variant",         default="cle-215+",  help="Board variant: cle-215+ (default), cle-215 or cle-101")
     parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency (default: 100MHz)")
     pcieopts = parser.add_mutually_exclusive_group()
     pcieopts.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support")
@@ -170,6 +171,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        variant      = args.variant,
         sys_clk_freq = int(float(args.sys_clk_freq)),
         with_pcie    = args.with_pcie,
         with_sata    = args.with_sata,
