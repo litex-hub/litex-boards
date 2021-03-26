@@ -11,17 +11,14 @@ from litex.build.altera.programmer import USBBlaster
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # power button
-    ("pwr_but", 0, Pins("P9:9"), IOStandard("3.3-V LVTTL")),
-    # system reset
-    ("sys_reset_n", 0, Pins("P9:10"), IOStandard("3.3-V LVTTL")),
+    # Clk / Rst.
+    ("clk10",     0, Pins("M9"),    IOStandard("2.5 V")),
+    ("clk50",     0, Pins("M8"),    IOStandard("2.5 V")),
+    ("clk50",     1, Pins("P11"),   IOStandard("3.3-V LVTTL")),
+    ("rst_n",     0, Pins("P9:10"), IOStandard("3.3-V LVTTL")),
+    ("power_btn", 0, Pins("P9:9"),  IOStandard("3.3-V LVTTL")),
 
-    # Clk
-    ("adc_clk_10", 0, Pins("M9"),  IOStandard("2.5 V")),
-    ("clk1_50",    0, Pins("M8"),  IOStandard("2.5 V")),
-    ("clk2_50",    0, Pins("P11"), IOStandard("3.3-V LVTTL")),
-
-    # Leds
+    # Leds.
     ("user_led", 0, Pins("C7"),  IOStandard("1.2 V")),
     ("user_led", 1, Pins("C8"),  IOStandard("1.2 V")),
     ("user_led", 2, Pins("A6"),  IOStandard("1.2 V")),
@@ -31,22 +28,22 @@ _io = [
     ("user_led", 6, Pins("B4"),  IOStandard("1.2 V")),
     ("user_led", 7, Pins("C5"),  IOStandard("1.2 V")),
 
-    # Button
-    ("key", 0, Pins("H21"),  IOStandard("1.5 V SCHMITT TRIGGER")),
-    ("key", 1, Pins("H22"),  IOStandard("1.5 V SCHMITT TRIGGER")),
+    # Buttons.
+    ("user_btn", 0, Pins("H21"),  IOStandard("1.5 V SCHMITT TRIGGER")),
+    ("user_btn", 1, Pins("H22"),  IOStandard("1.5 V SCHMITT TRIGGER")),
 
-    # Switches
-    ("sw", 0, Pins("J21"),  IOStandard("1.5 V SCHMITT TRIGGER")),
-    ("sw", 1, Pins("J22"),  IOStandard("1.5 V SCHMITT TRIGGER")),
+    # Switches.
+    ("user_sw", 0, Pins("J21"),  IOStandard("1.5 V SCHMITT TRIGGER")),
+    ("user_sw", 1, Pins("J22"),  IOStandard("1.5 V SCHMITT TRIGGER")),
 
-    # I2C: CapSense Buttons
+    # CapSense Buttons (I2C).
     ("cap_sense_i2c", 0,
         Subsignal("scl", Pins("AB2")),
         Subsignal("sda", Pins("AB3")),
         IOStandard("3.3-V LVTTL")
     ),
 
-    # board temperature sensor
+    # Temperature sensor.
     ("temp", 0,
         Subsignal("cs_n", Pins("PIN_AB4")),
         Subsignal("sc",   Pins("PIN_AA1")),
@@ -54,7 +51,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    # power monitor I2C
+    # Power monitor (I2C).
     ("pmonitor_i2c", 0,
         Subsignal("alert", Pins("Y4")),
         Subsignal("scl",   Pins("Y3")),
@@ -62,7 +59,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    # temperature and humidity sensor I2C
+    # Temperature / Humidity sensor (I2C).
     ("rh_temp_i2c", 0,
         Subsignal("drdy_n", Pins("AB9")),
         Subsignal("scl",    Pins("Y10")),
@@ -70,7 +67,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    # proximity / ambient light sensor
+    # Proximity / Ambient light sensor (I2C).
     ("proximity_i2c", 0,
         Subsignal("scl",    Pins("Y8")),
         Subsignal("sda",    Pins("AA8")),
@@ -78,7 +75,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    # Accelerometer
+    # Accelerometer.
     ("gsensor", 0,
         Subsignal("sdi", Pins("C6")),
         Subsignal("sdo", Pins("D5")),
@@ -89,7 +86,7 @@ _io = [
         IOStandard("1.2 V")
     ),
 
-    # DDR3 SDRAM
+    # DDR3 SDRAM.
     ("ddram", 0,
         Subsignal("a", Pins(
             "E21 V20 V21 C20 Y21 J14 V18 U20",
@@ -138,7 +135,7 @@ _io = [
         Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")
     ),
 
-    # Audio
+    # Audio.
     ("audio", 0,
         Subsignal("bclk",       Pins("R14")),
         Subsignal("reset_n",    Pins("M21")),
@@ -155,28 +152,29 @@ _io = [
         IOStandard("1.5 V")
     ),
 
-    # USB ULPI TUSB1210
+    # USB ULPI (TUSB1210).
     ("ulpi", 0,
-        Subsignal("fault_n", Pins("D8"),                              IOStandard("1.2 V")),
-        Subsignal("cs",      Pins("J11"),                             IOStandard("1.8 V")),
-        Subsignal("clk",     Pins("H11"),                             IOStandard("1.2 V")),
-        Subsignal("stp",     Pins("J12"),                             IOStandard("1.8 V")),
-        Subsignal("dir",     Pins("J13"),                             IOStandard("1.8 V")),
-        Subsignal("nxt",     Pins("H12"),                             IOStandard("1.8 V")),
-        Subsignal("reset_n", Pins("E16"),                             IOStandard("1.8 V")),
+        Subsignal("fault_n", Pins("D8"),  IOStandard("1.2 V")),
+        Subsignal("cs",      Pins("J11"), IOStandard("1.8 V")),
+        Subsignal("clk",     Pins("H11"), IOStandard("1.2 V")),
+        Subsignal("stp",     Pins("J12"), IOStandard("1.8 V")),
+        Subsignal("dir",     Pins("J13"), IOStandard("1.8 V")),
+        Subsignal("nxt",     Pins("H12"), IOStandard("1.8 V")),
+        Subsignal("reset_n", Pins("E16"), IOStandard("1.8 V")),
         Subsignal("data",    Pins("E12 E13 H13 E14 H14 D15 E15 F15"), IOStandard("1.8 V")),
     ),
 
+    # SDCard.
     ("sdcard", 0,
-        Subsignal("sel",     Pins("P13"), IOStandard("3.3-V LVTTL")),
-        Subsignal("fb_clk",  Pins("R22")),
-        Subsignal("clk",     Pins("T20")),
-        Subsignal("cmd",     Pins("T21")),
-        Subsignal("data",    Pins("R18 T18 T19 R20")),
+        Subsignal("sel",    Pins("P13"), IOStandard("3.3-V LVTTL")),
+        Subsignal("fb_clk", Pins("R22")),
+        Subsignal("clk",    Pins("T20")),
+        Subsignal("cmd",    Pins("T21")),
+        Subsignal("data",   Pins("R18 T18 T19 R20")),
         IOStandard("1.5 V")
     ),
 
-    # MII Ethernet
+    # MII Ethernet.
     ("eth_clocks", 0,
         Subsignal("tx", Pins("T5")),
         Subsignal("rx", Pins("T6")),
@@ -197,7 +195,7 @@ _io = [
         IOStandard("2.5 V"),
     ),
 
-    # HDMI
+    # HDMI.
     ("hdmi", 0,
         Subsignal("r", Pins("C18 D17 C17 C19 D14 B19 D13 A19")),
         Subsignal("g", Pins("C14 A17 B16 C15 A14 A15 A12 A16")),
@@ -210,12 +208,13 @@ _io = [
         Misc("FAST_OUTPUT_REGISTER ON"),
         IOStandard("1.8 V")
     ),
-    # HDMI_I2C
+    # HDMI_I2C.
     ("hdmi_i2c", 0,
         Subsignal("scl",    Pins("C10")),
         Subsignal("sda",    Pins("B15")),
         IOStandard("1.8 V")
     ),
+    # HDMI_I2S.
     ("hdmi_i2s", 0,
         Subsignal("i2s",    Pins("A9 A11 A8 B8")),
         Subsignal("mclk",   Pins("A7")),
@@ -224,7 +223,7 @@ _io = [
         IOStandard("3.3-V LVTTL")
     ),
 
-    # MIPI
+    # MIPI.
     ("camera", 0,
         Subsignal("mclk",    Pins("U3")),
         Subsignal("clkp",    Pins("N5")),
@@ -236,7 +235,7 @@ _io = [
         Subsignal("core_en", Pins("V3")),
         IOStandard("2.5 V"),
     ),
-    # LP-MIPI
+    # LP-MIPI.
     ("camera", 1,
         Subsignal("mclk",    Pins("U3"), IOStandard("2.5 V")),
         Subsignal("clkp",    Pins("E11")),
@@ -251,20 +250,26 @@ _io = [
         IOStandard("2.5 V")
     ),
 
-    ("gpio", 0, Pins("P8:3  P8:4  P8:5  P8:6  P8:7  P8:8  P8:9  P8:10",
-                     "P8:11 P8:12 P8:13 P8:14 P8:15 P8:16 P8:17 P8:18",
-                     "P8:19 P8:20 P8:21 P8:22 P8:23 P8:24 P8:25 P8:26",
-                     "P8:27 P8:28 P8:29 P8:30 P8:31 P8:32 P8:33 P8:34",
-                     "P8:35 P8:36 P8:37 P8:38 P8:39 P8:40 P8:41 P8:42",
-                     "P8:43 P8:44 P8:45 P8:46"),
-                IOStandard("3.3-V LVTTL")
-    ),
-    ("gpio", 1, Pins("P9:11 P9:12 P9:13 P9:14 P9:15 P9:16 P9:17 P9:18",
-                     "P9:19 P9:20 P9:21 P9:22 P9:23 P9:24 P9:25 P9:26",
-                     "P9:27 P9:28 P9:29 P9:30 P9:31 P9:41 P9:42"),
-                IOStandard("3.3-V LVTTL")
+    # GPIO 0.
+    ("gpio", 0, Pins(
+        "P8:3  P8:4  P8:5  P8:6  P8:7  P8:8  P8:9  P8:10",
+        "P8:11 P8:12 P8:13 P8:14 P8:15 P8:16 P8:17 P8:18",
+        "P8:19 P8:20 P8:21 P8:22 P8:23 P8:24 P8:25 P8:26",
+        "P8:27 P8:28 P8:29 P8:30 P8:31 P8:32 P8:33 P8:34",
+        "P8:35 P8:36 P8:37 P8:38 P8:39 P8:40 P8:41 P8:42",
+        "P8:43 P8:44 P8:45 P8:46"),
+        IOStandard("3.3-V LVTTL")
     ),
 
+    # GPIO 1.
+    ("gpio", 1, Pins(
+        "P9:11 P9:12 P9:13 P9:14 P9:15 P9:16 P9:17 P9:18",
+        "P9:19 P9:20 P9:21 P9:22 P9:23 P9:24 P9:25 P9:26",
+        "P9:27 P9:28 P9:29 P9:30 P9:31 P9:41 P9:42"),
+        IOStandard("3.3-V LVTTL")
+    ),
+
+    # GPIO Serial.
     ("gpio_serial", 0,
         Subsignal("tx", Pins("P8:3")),
         Subsignal("rx", Pins("P8:4")),
@@ -289,7 +294,7 @@ class Platform(AlteraPlatform):
 
     def __init__(self):
         AlteraPlatform.__init__(self, "10M50DAF484C6GES", _io, _connectors)
-        # disable config pin so bank8 can use 1.2V
+        # Disable config pin so bank8 can use 1.2V.
         self.add_platform_command("set_global_assignment -name AUTO_RESTART_CONFIGURATION ON")
         self.add_platform_command("set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF")
         self.add_platform_command("set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF")
@@ -300,4 +305,4 @@ class Platform(AlteraPlatform):
 
     def do_finalize(self, fragment):
         AlteraPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk1_50", loose=True), 1e9/50e6)
+        self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
