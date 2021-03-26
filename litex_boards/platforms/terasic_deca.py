@@ -288,7 +288,7 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(AlteraPlatform):
-    default_clk_name   = "clk1_50"
+    default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
     create_rbf         = False
 
