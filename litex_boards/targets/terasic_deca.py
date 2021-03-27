@@ -86,7 +86,6 @@ def main():
     parser.add_argument("--load",                action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA)")
-    parser.add_argument("--integrated-ram-size", default=0x4000,      help="Use FPGA block RAM as main RAM. Interim measure until we have DDR3 support.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -94,7 +93,6 @@ def main():
     soc = BaseSoC(
         sys_clk_freq             = int(float(args.sys_clk_freq)),
         with_video_terminal      = args.with_video_terminal,
-        integrated_main_ram_size = args.integrated_ram_size,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
