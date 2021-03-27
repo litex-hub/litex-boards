@@ -84,7 +84,6 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on DECA")
     parser.add_argument("--build",               action="store_true", help="Build bitstream")
     parser.add_argument("--load",                action="store_true", help="Load bitstream")
-    parser.add_argument("--debug",               action="store_true", help="generate cpu debug interface") # FIXME: Remove or add argument in LiteX directly.
     parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA)")
     parser.add_argument("--integrated-ram-size", default=0x4000,      help="Use FPGA block RAM as main RAM. Interim measure until we have DDR3 support.")
@@ -96,8 +95,6 @@ def main():
         sys_clk_freq             = int(float(args.sys_clk_freq)),
         with_video_terminal      = args.with_video_terminal,
         integrated_main_ram_size = args.integrated_ram_size,
-        # Use compressed instructions to save ROM
-        cpu_variant              = "imac+debug" if args.debug else "imac", # FIXME: Remove or add argument in LiteX directly.
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
