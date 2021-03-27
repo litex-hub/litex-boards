@@ -43,6 +43,7 @@ class TestTargets(unittest.TestCase):
         platforms.append("ac701")
         platforms.append("aller")
         platforms.append("arty")
+        platforms.append("ego1")
         platforms.append("mimas_a7")
         platforms.append("netv2")
         platforms.append("nexys4ddr")
@@ -51,6 +52,7 @@ class TestTargets(unittest.TestCase):
         platforms.append("acorn")
         platforms.append("marblemini")
         platforms.append("qmtech_wukong")
+        platforms.append("trenz_te0725")
 
         # Xilinx Kintex7
         platforms.append("genesys2")
