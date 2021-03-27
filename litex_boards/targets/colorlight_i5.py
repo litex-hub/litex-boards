@@ -26,22 +26,11 @@ from litex.soc.cores.video import VideoECP5HDMIPHY
 from litex.soc.cores.led import LedChaser
 
 from litex.soc.interconnect.csr import *
-from litex.soc.cores.prbs import *
 
 from litedram.modules import M12L64322A
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
-
-# PRBS -------------------------------------------------------------------------------------------
-
-class _PRBSSource(Module, AutoCSR):
-    def __init__(self):
-        self.submodules.prbs = prbs = PRBS31Generator(32)
-        self.data = CSRStatus(32)
-        self.comb += [
-            self.data.status.eq(prbs.o)
-        ]
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -110,7 +99,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0xd0000000}}
-    def __init__(self, board="i5", revision="7.0", sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, local_ip="", remote_ip="", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False, with_video_framebuffer=False, with_prbs=False, **kwargs):
+    def __init__(self, board="i5", revision="7.0", sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, local_ip="", remote_ip="", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         board = board.lower()
         assert board in ["i5"]
         if board == "i5":
@@ -185,11 +174,7 @@ class BaseSoC(SoCCore):
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
 
-        # PRBS -------------------------------------------------------------------------------------
-        if with_prbs:
-            self.submodules.prbs = _PRBSSource()
-
-        # Build --------------------------------------------------------------------------------------------
+# Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight i5")
@@ -209,7 +194,6 @@ def main():
     parser.add_argument("--eth-phy",          default=0, type=int,      help="Ethernet PHY: 0 (default) or 1")
     parser.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator")
     parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
-    parser.add_argument("--with-prbs",        action="store_true",      help="Enable PRBS support")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
@@ -228,7 +212,6 @@ def main():
         use_internal_osc       = args.use_internal_osc,
         sdram_rate             = args.sdram_rate,
         l2_size	               = args.l2_size,
-        with_prbs              = args.with_prbs,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
