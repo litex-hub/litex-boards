@@ -83,13 +83,10 @@ class BaseSoC(SoCCore):
                 nphases        = 4,
                 sys_clk_freq   = sys_clk_freq)
             self.add_sdram("sdram",
-                phy                     = self.ddrphy,
-                module                  = MT41J128M16(sys_clk_freq, "1:4"), #MT41J128M16XX-125
-                origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", 0x40000000),
-                l2_cache_size           = kwargs.get("l2_size", 8192),
-                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                phy           = self.ddrphy,
+                module        = MT41J128M16(sys_clk_freq, "1:4"), #MT41J128M16XX-125
+                size          = 0x40000000,
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # Leds -------------------------------------------------------------------------------------

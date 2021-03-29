@@ -77,13 +77,10 @@ class BaseSoC(SoCCore):
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6)
             self.add_sdram("sdram",
-                phy                     = self.ddrphy,
-                module                  = MT40A512M8(sys_clk_freq, "1:4"),
-                origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", 0x40000000),
-                l2_cache_size           = kwargs.get("l2_size", 8192),
-                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                phy           = self.ddrphy,
+                module        = MT40A512M8(sys_clk_freq, "1:4"),
+                size          = 0x40000000,
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
             # Workadound for Vivado 2018.2 DRC, can be ignored and probably fixed on newer Vivado versions.
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks PDCN-2736]")

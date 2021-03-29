@@ -152,13 +152,10 @@ class BaseSoC(SoCCore):
                 sdram_cls  = M12L16161A
                 sdram_size = 0x40000000
             self.add_sdram("sdram",
-                phy                     = self.sdrphy,
-                module                  = sdram_cls(sys_clk_freq, sdram_rate),
-                origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", sdram_size),
-                l2_cache_size           = kwargs.get("l2_size", 8192),
-                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                phy           = self.sdrphy,
+                module        = sdram_cls(sys_clk_freq, sdram_rate),
+                size          = 0x40000000,
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # Ethernet / Etherbone ---------------------------------------------------------------------

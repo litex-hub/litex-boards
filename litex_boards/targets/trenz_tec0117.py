@@ -111,7 +111,6 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy                     = self.sdrphy,
                 module                  = MT48LC4M16(sys_clk_freq, sdram_rate), # FIXME.
-                origin                  = self.mem_map["main_ram"],
                 l2_cache_size           = 128,
                 l2_cache_min_data_width = 256,
             )

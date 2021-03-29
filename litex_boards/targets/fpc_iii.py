@@ -106,13 +106,10 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.comb += ddram.vccio.eq(Replicate(C(1), ddram.vccio.nbits))
             self.add_sdram("sdram",
-                phy                     = self.ddrphy,
-                module                  = IS43TR16256A(sys_clk_freq, "1:2"),
-                origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", 0x20000000),
-                l2_cache_size           = kwargs.get("l2_size", 8192),
-                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                phy           = self.ddrphy,
+                module        = IS43TR16256A(sys_clk_freq, "1:2"),
+                size          = 0x40000000,
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
         self.comb += platform.request("dram_vtt_en").eq(0 if self.integrated_main_ram_size else 1)
 
