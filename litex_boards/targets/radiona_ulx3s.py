@@ -77,8 +77,8 @@ class _CRG(Module):
             video_pll.register_clkin(clk25, 25e6)
             self.clock_domains.cd_hdmi   = ClockDomain()
             self.clock_domains.cd_hdmi5x = ClockDomain()
-            video_pll.create_clkout(self.cd_hdmi,    40e6, margin=0)
-            video_pll.create_clkout(self.cd_hdmi5x, 200e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
 
         # SDRAM clock
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
@@ -119,16 +119,17 @@ class BaseSoC(SoCCore):
                 size                    = kwargs.get("max_sdram_size", 0x40000000),
                 l2_cache_size           = kwargs.get("l2_size", 8192),
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                l2_cache_reverse        = False
             )
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
             self.submodules.videophy = VideoECP5HDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
             if with_video_terminal:
-                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             if with_video_framebuffer:
-                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+                self.comb += platform.request("ext0p").eq(self.video_framebuffer.underflow) # FIXME: Remove, used to debug SDRAM underflows.
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(

@@ -64,8 +64,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), expansion="debug", **kwargs):
-        platform = ztex213.Platform(expansion=expansion)
+    def __init__(self, variant="ztex2.13a", sys_clk_freq=int(100e6), expansion="debug", **kwargs):
+        platform = ztex213.Platform(variant=variant, expansion=expansion)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
