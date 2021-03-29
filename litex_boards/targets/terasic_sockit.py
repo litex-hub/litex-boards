@@ -120,14 +120,15 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=mister_sdram != None, sdram_rate=sdram_rate)
 
         # SDR SDRAM --------------------------------------------------------------------------------
-        sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-        sdrphy_mod = {"xs_v22": W9825G6KH6, "xs_v24": AS4C32M16}
-        self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
-        self.add_sdram("sdram",
-            phy           = self.sdrphy,
-            module        = sdrphy_mod(sys_clk_freq, sdram_rate),
-            l2_cache_size = kwargs.get("l2_size", 8192)
-        )
+        if mister_sdram is not None:
+            sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
+            sdrphy_mod = {"xs_v22": W9825G6KH6, "xs_v24": AS4C32M16}[mister_sdram]
+            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
+            self.add_sdram("sdram",
+                phy           = self.sdrphy,
+                module        = sdrphy_mod(sys_clk_freq, sdram_rate),
+                l2_cache_size = kwargs.get("l2_size", 8192)
+            )
 
         # Video Terminal ---------------------------------------------------------------------------
         if with_video_terminal:

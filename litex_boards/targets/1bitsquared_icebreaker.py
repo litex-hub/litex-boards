@@ -122,7 +122,6 @@ def flash(bios_flash_offset):
     prog = IceStormProgrammer()
     prog.flash(bios_flash_offset, "build/icebreaker/software/bios/bios.bin")
     prog.flash(0x00000000,        "build/icebreaker/gateware/icebreaker.bin")
-    exit()
 
 # Build --------------------------------------------------------------------------------------------
 

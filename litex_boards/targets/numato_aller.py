@@ -60,6 +60,8 @@ class BaseSoC(SoCCore):
         platform = aller.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "crossover" # Defaults to Crossover UART.
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Aller",
             ident_version  = True,
