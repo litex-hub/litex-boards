@@ -108,7 +108,6 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = IS43TR16256A(sys_clk_freq, "1:2"),
-                size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
         self.comb += platform.request("dram_vtt_en").eq(0 if self.integrated_main_ram_size else 1)

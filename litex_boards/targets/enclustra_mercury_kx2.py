@@ -47,7 +47,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), **kwargs):
-        platform = kx2.Platform()
+        platform = mercury_kx2.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -67,7 +67,6 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = H5TC4G63CFR(sys_clk_freq, "1:4"),
-                size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 

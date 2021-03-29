@@ -104,7 +104,6 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = MT41K64M16(sys_clk_freq, "1:2"),
-                size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
