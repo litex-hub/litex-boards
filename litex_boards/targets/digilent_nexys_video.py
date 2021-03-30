@@ -28,7 +28,7 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, toolchain):
+    def __init__(self, platform, sys_clk_freq, toolchain, with_video_pll=False):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
@@ -40,22 +40,33 @@ class _CRG(Module):
 
         # # #
 
+        # Clk / Rst.
+        clk100 = platform.request("clk100")
+        rst_n  = platform.request("cpu_reset")
+
+        # PLL.
         if toolchain == "vivado":
             self.submodules.pll = pll = S7MMCM(speedgrade=-1)
         else:
             self.submodules.pll = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
-        pll.register_clkin(platform.request("clk100"), 100e6)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
+        pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
-        pll.create_clkout(self.cd_hdmi,      40e6)
-        pll.create_clkout(self.cd_hdmi5x,    5*40e6)
         pll.create_clkout(self.cd_clk100,    100e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+
+        # Video PLL.
+        if with_video_pll:
+            self.submodules.video_pll = video_pll = S7MMCM(speedgrade=-1)
+            video_pll.reset.eq(~rst_n | self.rst)
+            video_pll.register_clkin(clk100, 100e6)
+            video_pll.create_clkout(self.cd_hdmi,   40e6)
+            video_pll.create_clkout(self.cd_hdmi5x, 5*40e6)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -70,7 +81,8 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain)
+        with_video_pll = (with_video_terminal or with_video_framebuffer)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain, with_video_pll=with_video_pll)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
