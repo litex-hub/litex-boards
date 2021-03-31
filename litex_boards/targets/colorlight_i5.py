@@ -27,7 +27,7 @@ from litex.soc.cores.led import LedChaser
 
 from litex.soc.interconnect.csr import *
 
-from litedram.modules import M12L64322A
+from litedram.modules import M12L64322A # Compatible with EM638325-6H.
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
@@ -129,16 +129,10 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"))
-            # if board == "i5" and revision == "7.0":
-            sdram_cls  = M12L64322A # compat with EM638325-6H
             self.add_sdram("sdram",
-                phy                     = self.sdrphy,
-                module                  = sdram_cls(sys_clk_freq, sdram_rate),
-                origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", 0x40000000),
-                l2_cache_size           = kwargs.get("l2_size", 8192),
-                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                phy           = self.sdrphy,
+                module        = M12L64322A(sys_clk_freq, sdram_rate),
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # Ethernet / Etherbone ---------------------------------------------------------------------

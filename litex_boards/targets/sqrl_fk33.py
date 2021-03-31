@@ -47,6 +47,8 @@ class BaseSoC(SoCCore):
         platform = fk33.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG-UART.
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on FK33",
             ident_version  = True,

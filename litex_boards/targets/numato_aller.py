@@ -60,6 +60,8 @@ class BaseSoC(SoCCore):
         platform = aller.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "crossover" # Defaults to Crossover UART.
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Aller",
             ident_version  = True,
@@ -76,13 +78,9 @@ class BaseSoC(SoCCore):
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
             self.add_sdram("sdram",
-                phy                     = self.ddrphy,
-                module                  = MT41J128M16(sys_clk_freq, "1:4"),
-                origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", 0x40000000),
-                l2_cache_size           = kwargs.get("l2_size", 8192),
-                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                phy           = self.ddrphy,
+                module        = MT41J128M16(sys_clk_freq, "1:4"),
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # PCIe -------------------------------------------------------------------------------------

@@ -64,9 +64,9 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {
-        "rom":              0x00000000,
-        "sram":             0x40000000,
-        "csr":              0xf0000000,
+        "rom"  : 0x00000000,
+        "sram" : 0x40000000,
+        "csr"  : 0xf0000000,
     }
     def __init__(self, sys_clk_freq=int(75e6), toolchain="radiant", **kwargs):
         platform = crosslink_nx_evn.Platform(toolchain=toolchain)

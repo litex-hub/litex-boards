@@ -70,13 +70,9 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
-                phy                     = self.sdrphy,
-                module                  = IS42S16320(sys_clk_freq, "1:1"),
-                origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", 0x40000000),
-                l2_cache_size           = kwargs.get("l2_size", 8192),
-                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                phy           = self.sdrphy,
+                module        = IS42S16320(sys_clk_freq, "1:1"),
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # Video Terminal ---------------------------------------------------------------------------
