@@ -126,6 +126,9 @@ class TestTargets(unittest.TestCase):
         # Microsemi PolarFire
         platforms.append("avalanche")
 
+        # LPDDR4 Test Board
+        platforms.append("lpddr4_test_board")
+
         for name in platforms:
             with self.subTest(platform=name):
                 cmd = """\
