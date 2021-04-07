@@ -6,7 +6,7 @@
 # Copyright (c) 2020 Fei Gao <feig@princeton.edu>
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # Copyright (c) 2020 David Shah <dave@ds0.me>
-# Modified for Alveo U280 by Sergiu Mosanu based on XCU1525 and Alveo U250
+# Modified for Alveo U280 (ES1) by Sergiu Mosanu based on XCU1525 and Alveo U250
 # SPDX-License-Identifier: BSD-2-Clause
 
 import argparse, os
@@ -80,6 +80,7 @@ class BaseSoC(SoCCore):
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 600e6,
+                cmd_latency      = 1,
                 is_rdimm         = True)
             self.add_csr("ddrphy")
             self.add_sdram("sdram",

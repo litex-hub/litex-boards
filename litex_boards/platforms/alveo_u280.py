@@ -5,7 +5,7 @@
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# Modified for Alveo U280 by Sergiu Mosanu based on XCU1525 and Alveo U250
+# Modified for Alveo U280 (ES1) by Sergiu Mosanu based on XCU1525 and Alveo U250
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
