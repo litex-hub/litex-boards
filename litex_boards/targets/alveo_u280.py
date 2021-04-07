@@ -6,7 +6,7 @@
 # Copyright (c) 2020 Fei Gao <feig@princeton.edu>
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # Copyright (c) 2020 David Shah <dave@ds0.me>
-# Modified for Alveo U280 by Sergiu Mosanu based on XCU1525 and Alveo U250
+# Modified for Alveo U280 (ES1) by Sergiu Mosanu based on XCU1525 and Alveo U250
 # SPDX-License-Identifier: BSD-2-Clause
 
 import argparse, os
@@ -21,7 +21,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-from litex.soc.cores.led import LedChaser
+# from litex.soc.cores.led import LedChaser
 from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy import usddrphy
 
@@ -44,7 +44,7 @@ class _CRG(Module):
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("sysclk", ddram_channel), 100e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
-        pll.create_clkout(self.cd_idelay, 500e6, with_reset=False)
+        pll.create_clkout(self.cd_idelay, 600e6, with_reset=False)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.specials += [
@@ -61,7 +61,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), ddram_channel=0, with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_pcie=False, **kwargs):
         platform = alveo_u280.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -79,7 +79,8 @@ class BaseSoC(SoCCore):
             self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram", ddram_channel),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
-                iodelay_clk_freq = 500e6,
+                iodelay_clk_freq = 600e6,
+                cmd_latency      = 1,
                 is_rdimm         = True)
             self.add_csr("ddrphy")
             self.add_sdram("sdram",
@@ -96,18 +97,18 @@ class BaseSoC(SoCCore):
         self.add_ram("firmware_ram", 0x20000000, 0x8000)
 
         # PCIe -------------------------------------------------------------------------------------
-        if with_pcie:
-            self.submodules.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
-                data_width = 128,
-                bar0_size  = 0x20000)
-            self.add_csr("pcie_phy")
-            self.add_pcie(phy=self.pcie_phy, ndmas=1)
+        # if with_pcie:
+        #     self.submodules.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+        #         data_width = 128,
+        #         bar0_size  = 0x20000)
+        #     self.add_csr("pcie_phy")
+        #     self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("gpio_led"),
-            sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
+        # self.submodules.leds = LedChaser(
+        #     pads         = platform.request_all("gpio_led"),
+        #     sys_clk_freq = sys_clk_freq)
+        # self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -115,7 +116,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Alveo U280")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency (default: 125MHz)")
+    parser.add_argument("--sys-clk-freq", default=150e6,       help="System clock frequency (default: 150MHz)")
     parser.add_argument("--ddram-channel",default="0",         help="DDRAM channel (default: 0)")
     parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver")
