@@ -17,43 +17,64 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoS7HDMIPHY
+from litex.soc.cores.video import video_timings
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
 
-from liteeth.phy.mii import LiteEthPHYMII
+from liteeth.phy import LiteEthPHY
+from liteeth.phy import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False, pix_clk=25.175e6):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay    = ClockDomain()
-        self.clock_domains.cd_eth       = ClockDomain()
+        self.clock_domains.cd_clk100    = ClockDomain()
+        self.clock_domains.cd_hdmi      = ClockDomain()
+        self.clock_domains.cd_hdmi5x    = ClockDomain()
 
         # # #
 
-        self.submodules.pll = pll = S7PLL(speedgrade=-2)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
-        pll.register_clkin(platform.request("clk50"), 50e6)
+        plls_reset = platform.request("cpu_reset")
+        plls_clk50 = platform.request("clk50")
+
+        self.submodules.pll = pll = S7MMCM(speedgrade=-2)
+        self.comb += pll.reset.eq(~plls_reset | self.rst)
+        pll.register_clkin(plls_clk50, 50e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
-        pll.create_clkout(self.cd_idelay,    2*sys_clk_freq)
-        pll.create_clkout(self.cd_eth,       sys_clk_freq)
+        #pll.create_clkout(self.cd_idelay,    200e6)
+
+        # idelay PLL
+        self.submodules.pll_idelay = pll_idelay = S7PLL(speedgrade=-2)
+        self.comb += pll_idelay.reset.eq(~plls_reset | self.rst)
+        pll_idelay.register_clkin(plls_clk50, 50e6)
+        pll_idelay.create_clkout(self.cd_idelay, 200e6)
+        pll_idelay.create_clkout(self.cd_clk100, 100e6)
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
-        self.comb += platform.request("eth_ref_clk").eq(self.cd_eth.clk)
+        # Video PLL.
+        if with_video_pll:
+            self.submodules.video_pll = video_pll = S7MMCM(speedgrade=-2)
+            self.comb += video_pll.reset.eq(~plls_reset | self.rst)
+            video_pll.register_clkin(plls_clk50, 50e6)
+            video_pll.create_clkout(self.cd_hdmi,   pix_clk)
+            video_pll.create_clkout(self.cd_hdmi5x, 5*pix_clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", with_video_terminal=False, with_video_framebuffer=False, video_timing="640x480@60Hz", **kwargs):
         platform = qmtech_wukong.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -63,7 +84,8 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        with_video_pll = (with_video_terminal or with_video_framebuffer)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_pll, pix_clk = video_timings[video_timing]["pix_clk"])
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -79,11 +101,12 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYMII(
+            self.submodules.ethphy = LiteEthPHY(
                 clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"))
+                pads       = self.platform.request("eth"),
+                clk_freq   = sys_clk_freq)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
+                self.add_ethernet(phy=self.ethphy, nrxslots=2)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
@@ -92,6 +115,13 @@ class BaseSoC(SoCCore):
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
 
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal or with_video_framebuffer:
+            self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings=video_timing, clock_domain="hdmi")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings=video_timing, clock_domain="hdmi")
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -106,6 +136,9 @@ def main():
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true",              help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",     action="store_true",              help="Enable SDCard support")
+    viopts = parser.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -116,13 +149,17 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
     )
-    soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
     if args.with_spi_sdcard:
+        soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
         soc.add_spi_sdcard()
     if args.with_sdcard:
+        soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
         soc.add_sdcard()
+
     builder = Builder(soc, **builder_argdict(args))
 
     builder.build(**vivado_build_argdict(args), run=args.build)
