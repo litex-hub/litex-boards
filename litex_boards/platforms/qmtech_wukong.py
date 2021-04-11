@@ -77,10 +77,10 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
-    # MII Ethernet
-    ("eth_ref_clk", 0, Pins("U1"), IOStandard("LVCMOS33")),
+    # GMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("M2")),
+        Subsignal("gtx", Pins("U1")),
         Subsignal("rx", Pins("P4")),
         IOStandard("LVCMOS33")
     ),
@@ -157,6 +157,11 @@ def sdcard_pmod_io(pmod):
         ),
 ]
 _sdcard_pmod_io = sdcard_pmod_io("j10") # SDCARD PMOD on J10.
+def ps2_pmod_io(pmod):
+    return [
+        ("ps2kbd", 0, Pins(f"{pmod}:0 {pmod}:2"), IOStandard("LVCMOS33")), # data, clk
+]
+_ps2_pmod_io = ps2_pmod_io("j11") # PS2 PMOD on top line of J11
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -173,6 +178,8 @@ class Platform(XilinxPlatform):
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 16]")
         self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk50_IBUF]")
+        self.add_platform_command("set_property CFGBVS VCCO [current_design]")
+        self.add_platform_command("set_property CONFIG_VOLTAGE 3.3 [current_design]")
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a100t.bit")
