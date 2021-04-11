@@ -58,7 +58,11 @@ for target in targets:
     # from litex_boards.targets import digilent_arty or
     # from litex_boards.targets import arty
     if target.split("_")[0] in vendors:
-        short_target = target[len(target.split("_")[0])+1:]
-        t = importlib.import_module(f"litex_boards.targets.{target}")
-        vars()[short_target] = t
-        sys.modules[f"litex_boards.targets.{short_target}"] = t
+        try:
+            short_target = target[len(target.split("_")[0])+1:]
+            t = importlib.import_module(f"litex_boards.targets.{target}")
+            vars()[short_target] = t
+            sys.modules[f"litex_boards.targets.{short_target}"] = t
+        except ModuleNotFoundError:
+            # Not all dependencies for this target is satisfied. Skip.
+            pass
