@@ -126,6 +126,17 @@ _io = [
         Subsignal("dq", Pins("AE2", "AD2", "AF2", "AE1")),
         IOStandard("LVCMOS33")
     ),
+
+    # USB
+    ("ulpi", 0,
+        Subsignal("rst",  Pins("E23")),
+        Subsignal("clk",  Pins("H24")),
+        Subsignal("dir",  Pins("F22")),
+        Subsignal("nxt",  Pins("F23")),
+        Subsignal("stp",  Pins("H23")),
+        Subsignal("data", Pins("M26 L25 L26 K25 K26 J23 P25 H25")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
