@@ -41,7 +41,7 @@ class _CRG(Module):
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("sysclk", ddram_channel), 100e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
-        pll.create_clkout(self.cd_idelay, 500e6)
+        pll.create_clkout(self.cd_idelay, 600e6, with_reset=False)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.specials += [
@@ -57,7 +57,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), ddram_channel=0, with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_pcie=False, **kwargs):
         platform = alveo_u280.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Alveo U280")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency (default: 125MHz)")
+    parser.add_argument("--sys-clk-freq", default=150e6,       help="System clock frequency (default: 150MHz)")
     parser.add_argument("--ddram-channel",default="0",         help="DDRAM channel (default: 0)")
     parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver")
