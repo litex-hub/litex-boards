@@ -4,6 +4,10 @@
 # Copyright (c) 2014-2019 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# To use the MiSTer SDRAM option, please connect the SDRAM
+# module as described here:
+# https://github.com/SoCFPGA-learning/DECA/tree/main/Projects/sdram_mister_deca
+
 from litex.build.generic_platform import *
 from litex.build.altera import AlteraPlatform
 from litex.build.altera.programmer import USBBlaster
@@ -84,6 +88,27 @@ _io = [
         Subsignal("int1", Pins("E8")),
         Subsignal("int2", Pins("D7")),
         IOStandard("1.2 V")
+    ),
+
+    # MiSTer SDRAM (via GPIO expansion board on P8).
+    ("sdram_clock", 0, Pins("P8:26"), IOStandard("3.3-V LVTTL")),
+    ("sdram", 0,
+        Subsignal("a",     Pins(
+            "P8:43 P8:44 P8:45 P8:46 P8:34 P8:31 P8:32 P8:29",
+            "P8:30 P8:27 P8:42 P8:28 P8:25")),
+        Subsignal("ba",    Pins("P8:40 P8:41")),
+        Subsignal("cs_n",  Pins("P8:39")),
+        Subsignal("cke",   Pins("P8:18")), # CKE not connected on XS 2.2/2.4.
+        Subsignal("ras_n", Pins("P8:38")),
+        Subsignal("cas_n", Pins("P8:37")),
+        Subsignal("we_n",  Pins("P8:33")),
+        Subsignal("dq", Pins(
+            "P8:7  P8:8  P8:9  P8:10 P8:11 P8:12 P8:13 P8:14",
+            "P8:24 P8:23 P8:22 P8:21 P8:20 P8:19 P8:15 P8:16"),
+        ),
+        Subsignal("dm", Pins("P8:35 P8:36")), # DQML/DQMH not connected on XS 2.2/2.4
+        IOStandard("3.3-V LVTTL"),
+        Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""),
     ),
 
     # DDR3 SDRAM.
