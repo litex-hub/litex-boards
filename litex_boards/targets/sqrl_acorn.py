@@ -104,10 +104,23 @@ class BaseSoC(SoCCore):
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
             # FIXME: Improve (Make it generic and apply it to all targets).
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clkout0] -group [get_clocks userclk2] -asynchronous",)
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clkout0] -group [get_clocks clk_125mhz] -asynchronous")
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clkout0] -group [get_clocks clk_250mhz] -asynchronous")
+            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks main_crg_clkout0] -group [get_clocks userclk2] -asynchronous",)
+            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks main_crg_clkout0] -group [get_clocks clk_125mhz] -asynchronous")
+            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks main_crg_clkout0] -group [get_clocks clk_250mhz] -asynchronous")
             platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clk_125mhz] -group [get_clocks clk_250mhz] -asynchronous")
+
+
+            # ICAP (For FPGA reload over PCIe).
+            from litex.soc.cores.icap import ICAP
+            self.submodules.icap = ICAP()
+            self.icap.add_reload()
+            self.icap.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
+
+            # Flash (For SPIFlash update over PCIe). FIXME: Should probably be updated to use SpiFlashSingle/SpiFlashDualQuad (so MMAPed and do the update with bit-banging)
+            from litex.soc.cores.gpio import GPIOOut
+            from litex.soc.cores.spi_flash import S7SPIFlash
+            self.submodules.flash_cs_n = GPIOOut(platform.request("flash_cs_n"))
+            self.submodules.flash      = S7SPIFlash(platform.request("flash"), sys_clk_freq, 25e6)
 
         # SATA -------------------------------------------------------------------------------------
         if with_sata:
@@ -188,7 +201,7 @@ def main():
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
+        prog.flash(0, os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
 
 if __name__ == "__main__":
     main()

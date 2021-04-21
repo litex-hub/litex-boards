@@ -31,8 +31,8 @@ _io = [
     ("user_led", 3, Pins("H4"), IOStandard("LVCMOS33")),
 
     # SPIFlash.
-    ("spiflash", 0,
-        Subsignal("cs_n", Pins("T19")),
+    ("flash_cs_n", 0, Pins("T19"), IOStandard("LVCMOS33")),
+    ("flash", 0,
         Subsignal("mosi", Pins("P22")),
         Subsignal("miso", Pins("R22")),
         Subsignal("wp",   Pins("P21")),
