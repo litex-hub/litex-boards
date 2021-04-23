@@ -91,9 +91,14 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
+            # Traces between PHY and FPGA introduce ignorable delays of ~0.165ns +/- 0.015ns.
+            # PHY chip does not introduce delays on TX (FPGA->PHY), however it includes 1.2ns
+            # delay for RX CLK so we only need 0.8ns to match the desired 2ns.
             self.submodules.ethphy = LiteEthS7PHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"))
+                pads       = self.platform.request("eth"),
+                rx_delay   = 0.8e-9,
+            )
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
