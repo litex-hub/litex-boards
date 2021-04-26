@@ -26,7 +26,7 @@ from litedram.phy import s7ddrphy
 
 from liteeth.phy.mii import LiteEthPHYMII
 
-from litespi.modules import S25FL128S
+from litespi.modules import S25FL128L
 from litespi.opcodes import SpiNorFlashOpCodes as Codes
 from litespi.phy.generic import LiteSPIPHY
 from litespi import LiteSPI
@@ -42,9 +42,6 @@ class _CRG(Module):
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
 
-        if with_mapped_flash:
-            self.clock_domains.cd_qspi  = ClockDomain() # we need a domain with reset for litespi
-
         # # #
 
         self.submodules.pll = pll = S7PLL(speedgrade=-1)
@@ -55,10 +52,6 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
         pll.create_clkout(self.cd_eth,       25e6)
-
-        if with_mapped_flash:
-            pll.create_clkout(self.cd_qspi,      4*sys_clk_freq)
-
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
@@ -106,15 +99,11 @@ class BaseSoC(SoCCore):
         if with_jtagbone:
             self.add_jtagbone()
 
+        # Flash (through LiteSPI, experimental).
         if with_mapped_flash:
-
-            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash"), S25FL128S(Codes.READ_1_1_1), clock_domain = "qspi")
-            self.submodules.spiflash_mmap  = LiteSPI(phy=self.spiflash_phy,
-                clk_freq        = 4 * sys_clk_freq,
-                clock_domain    = "qspi",
-                mmap_endianness = self.cpu.endianness)
-            spiflash_size   = 1024*1024*16
-            spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=spiflash_size, cached=False)
+            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash4x"), S25FL128L(Codes.READ_1_1_4))
+            self.submodules.spiflash_mmap = LiteSPI(self.spiflash_phy, clk_freq=sys_clk_freq, mmap_endianness=self.cpu.endianness)
+            spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=S25FL128L.total_size, cached=False)
             self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)
 
         # Leds -------------------------------------------------------------------------------------
@@ -141,8 +130,8 @@ def main():
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support")
     parser.add_argument("--sdcard-adapter",      type=str,                         help="SDCard PMOD adapter: digilent (default) or numato")
     parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
-    parser.add_argument("--with-jtagbone",    action="store_true",              help="Enable Jtagbone support")
-    parser.add_argument("--with-mapped-flash", action="store_true",             help="Enable memory mapped flash")
+    parser.add_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support")
+    parser.add_argument("--with-mapped-flash",   action="store_true",              help="Enable Memory Mapped Flash")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -151,15 +140,15 @@ def main():
     assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
-        variant        = args.variant,
-        toolchain      = args.toolchain,
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
-        with_ethernet  = args.with_ethernet,
-        with_etherbone = args.with_etherbone,
-        eth_ip         = args.eth_ip,
-        eth_dynamic_ip = args.eth_dynamic_ip,
-        ident_version  = args.no_ident_version,
-        with_jtagbone  = args.with_jtagbone,
+        variant           = args.variant,
+        toolchain         = args.toolchain,
+        sys_clk_freq      = int(float(args.sys_clk_freq)),
+        with_ethernet     = args.with_ethernet,
+        with_etherbone    = args.with_etherbone,
+        eth_ip            = args.eth_ip,
+        eth_dynamic_ip    = args.eth_dynamic_ip,
+        ident_version     = args.no_ident_version,
+        with_jtagbone     = args.with_jtagbone,
         with_mapped_flash = args.with_mapped_flash,
         **soc_core_argdict(args)
     )
