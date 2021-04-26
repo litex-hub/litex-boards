@@ -16,6 +16,7 @@ from litex_boards.platforms import arty
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -25,16 +26,24 @@ from litedram.phy import s7ddrphy
 
 from liteeth.phy.mii import LiteEthPHYMII
 
+from litespi.modules import S25FL128S
+from litespi.opcodes import SpiNorFlashOpCodes as Codes
+from litespi.phy.generic import LiteSPIPHY
+from litespi import LiteSPI
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_mapped_flash):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
+
+        if with_mapped_flash:
+            self.clock_domains.cd_qspi  = ClockDomain() # we need a domain with reset for litespi
 
         # # #
 
@@ -46,6 +55,10 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
         pll.create_clkout(self.cd_eth,       25e6)
+
+        if with_mapped_flash:
+            pll.create_clkout(self.cd_qspi,      4*sys_clk_freq)
+
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
@@ -55,7 +68,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, ident_version=True, with_jtagbone=True, **kwargs):
+    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, ident_version=True, with_jtagbone=True, with_mapped_flash=False, **kwargs):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -65,7 +78,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_mapped_flash)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -93,6 +106,17 @@ class BaseSoC(SoCCore):
         if with_jtagbone:
             self.add_jtagbone()
 
+        if with_mapped_flash:
+
+            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash"), S25FL128S(Codes.READ_1_1_1), clock_domain = "qspi")
+            self.submodules.spiflash_mmap  = LiteSPI(phy=self.spiflash_phy,
+                clk_freq        = 4 * sys_clk_freq,
+                clock_domain    = "qspi",
+                mmap_endianness = self.cpu.endianness)
+            spiflash_size   = 1024*1024*16
+            spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=spiflash_size, cached=False)
+            self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -118,6 +142,7 @@ def main():
     parser.add_argument("--sdcard-adapter",      type=str,                         help="SDCard PMOD adapter: digilent (default) or numato")
     parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
     parser.add_argument("--with-jtagbone",    action="store_true",              help="Enable Jtagbone support")
+    parser.add_argument("--with-mapped-flash", action="store_true",             help="Enable memory mapped flash")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -135,6 +160,7 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         ident_version  = args.no_ident_version,
         with_jtagbone  = args.with_jtagbone,
+        with_mapped_flash = args.with_mapped_flash,
         **soc_core_argdict(args)
     )
     if args.sdcard_adapter == "numato":
