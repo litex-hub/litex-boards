@@ -34,13 +34,16 @@ from litespi import LiteSPI
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_mapped_flash):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
+
+        if with_mapped_flash:
+            self.clock_domains.cd_qspi  = ClockDomain() # we need a domain with reset for litespi
 
         # # #
 
@@ -52,6 +55,10 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
         pll.create_clkout(self.cd_eth,       25e6)
+
+        if with_mapped_flash:
+            pll.create_clkout(self.cd_qspi,      4*sys_clk_freq)
+
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
@@ -71,7 +78,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_mapped_flash)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -101,9 +108,10 @@ class BaseSoC(SoCCore):
 
         if with_mapped_flash:
 
-            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash"), S25FL128S(Codes.READ_1_1_1))
+            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash"), S25FL128S(Codes.READ_1_1_1), clock_domain = "qspi")
             self.submodules.spiflash_mmap  = LiteSPI(phy=self.spiflash_phy,
-                clk_freq        = sys_clk_freq,
+                clk_freq        = 4 * sys_clk_freq,
+                clock_domain    = "qspi",
                 mmap_endianness = self.cpu.endianness)
             spiflash_size   = 1024*1024*16
             spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=spiflash_size, cached=False)
