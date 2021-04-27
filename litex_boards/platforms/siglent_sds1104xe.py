@@ -39,9 +39,9 @@ _io = [ # Documented by https://github.com/360nosc0pe project.
         Subsignal("clk",   Pins("D20")),
         Subsignal("vsync", Pins("A21")),
         Subsignal("hsync", Pins("A22")),
-        Subsignal("r",     Pins("G22 F22 F21 F19 F18 F17")),
+        Subsignal("r",     Pins("D22 D21 C22 C20 B22 B21")),
         Subsignal("g",     Pins("F16 E21 E20 E19 E18 E16")),
-        Subsignal("b",     Pins("D22 D21 C22 C20 B22 B21")),
+        Subsignal("b",     Pins("G22 F22 F21 F19 F18 F17")),
         IOStandard("LVCMOS33"),
     ),
 
