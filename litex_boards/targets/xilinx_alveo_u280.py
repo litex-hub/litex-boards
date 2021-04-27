@@ -57,12 +57,12 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_pcie=False, with_led=False, **kwargs):
         platform = alveo_u280.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Alveo U280",
+            ident          = "LiteX SoC on Alveo U280 (ES1)",
             ident_version  = True,
             **kwargs)
 
@@ -73,8 +73,9 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram", ddram_channel),
                 memtype          = "DDR4",
+                cmd_latency      = 1, # seems to work better with cmd_latency=1
                 sys_clk_freq     = sys_clk_freq,
-                iodelay_clk_freq = 500e6,
+                iodelay_clk_freq = 600e6,
                 is_rdimm         = True)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
@@ -94,9 +95,10 @@ class BaseSoC(SoCCore):
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("gpio_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("gpio_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -108,6 +110,7 @@ def main():
     parser.add_argument("--ddram-channel",default="0",         help="DDRAM channel (default: 0)")
     parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver")
+    parser.add_argument("--with-led",     action="store_true", help="Enable LED Chaser")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -116,6 +119,7 @@ def main():
         sys_clk_freq = int(float(args.sys_clk_freq)),
         ddram_channel = int(args.ddram_channel, 0),
         with_pcie    = args.with_pcie,
+        with_led    = args.with_led,
         **soc_core_argdict(args)
 	)
     builder = Builder(soc, **builder_argdict(args))
