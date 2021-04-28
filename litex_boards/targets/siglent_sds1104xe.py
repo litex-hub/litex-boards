@@ -144,12 +144,23 @@ class BaseSoC(SoCCore):
             self.platform.add_false_path_constraints(self.crg.cd_sys.clk, eth_rx_clk, eth_tx_clk)
 
         # Video ------------------------------------------------------------------------------------
+        video_timings = ("800x480@60Hz", {
+            "pix_clk"       : 40e6,
+            "h_active"      : 800,
+            "h_blanking"    : 256,
+            "h_sync_offset" : 40,
+            "h_sync_width"  : 128,
+            "v_active"      : 480,
+            "v_blanking"    : 28,
+            "v_sync_offset" : 1,
+            "v_sync_width"  : 4,
+        })
         if with_video_terminal or with_video_framebuffer:
             self.submodules.videophy = VideoDVIPHY(platform.request("lcd"), clock_domain="dvi")
             if with_video_terminal:
-                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="dvi")
+                self.add_video_terminal(phy=self.videophy, timings=video_timings, clock_domain="dvi")
             if with_video_framebuffer:
-                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="dvi")
+                self.add_video_framebuffer(phy=self.videophy, timings=video_timings, clock_domain="dvi")
 
 # Build --------------------------------------------------------------------------------------------
 
