@@ -67,11 +67,12 @@ class W9825G6KH6(SDRModule):
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2"):
+    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2", with_video_terminal=False):
         self.sdram_rate = sdram_rate
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_vga = ClockDomain(reset_less=True)
+        if with_video_terminal:
+            self.clock_domains.cd_vga = ClockDomain(reset_less=True)
         if with_sdram:
             if sdram_rate == "1:2":
                 self.clock_domains.cd_sys2x    = ClockDomain()
@@ -87,7 +88,10 @@ class _CRG(Module):
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
-        pll.create_clkout(self.cd_vga, 65e6)
+
+        if with_video_terminal:
+            pll.create_clkout(self.cd_vga, 65e6)
+
         if with_sdram:
             if sdram_rate == "1:2":
                 pll.create_clkout(self.cd_sys2x,    2*sys_clk_freq)
@@ -117,7 +121,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=mister_sdram != None, sdram_rate=sdram_rate)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=mister_sdram != None, sdram_rate=sdram_rate, with_video_terminal=with_video_terminal)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if mister_sdram is not None:
