@@ -8,7 +8,7 @@
 
 # Build/Use ----------------------------------------------------------------------------------------
 # Build/Load bitstream:
-# ./acorn_cle.py --uart-name=crossover --with-pcie --build --driver --load (or --flash)
+# ./sqrl_acorn.py --uart-name=crossover --with-pcie --build --driver --load (or --flash)
 #
 #.Build the kernel and load it:
 # cd build/<platform>/driver/kernel
