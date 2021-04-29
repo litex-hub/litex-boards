@@ -60,7 +60,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), sdram_rate="1:1", **kwargs):
-        platform = de0nano.Platform()
+        self.platform = platform = de0nano.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
