@@ -130,6 +130,7 @@ class BaseSoC(SoCCore):
             self.submodules.ip   = LiteEthIP(self.ethmac, etherbone_mac_address, etherbone_ip_address, self.arp.table, dw=8)
             self.submodules.icmp = LiteEthICMP(self.ip, etherbone_ip_address, dw=8)
             self.submodules.udp  = LiteEthUDP(self.ip, etherbone_ip_address, dw=8)
+            self.add_constant("ETH_PHY_NO_RESET") # Disable reset from BIOS to avoid disabling Hardware Interface.
 
             # Etherbone
             self.submodules.etherbone = LiteEthEtherbone(self.udp, 1234, mode="master")
