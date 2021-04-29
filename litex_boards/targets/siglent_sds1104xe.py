@@ -8,7 +8,7 @@
 
 # Build/Use ----------------------------------------------------------------------------------------
 # Build/Load bitstream:
-# ./sds1104xe.py --with-etherbone --uart-name=crossover --csr-csv=csr.csv --build --load
+# ./siglent_ds1104xe.py --with-etherbone --uart-name=crossover --csr-csv=csr.csv --build --load
 #
 # Test Ethernet:
 # ping 192.168.1.50
@@ -29,7 +29,7 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.video import VideoDVIPHY
+from litex.soc.cores.video import VideoVGAPHY
 
 from litedram.modules import MT41K64M16
 from litedram.phy import s7ddrphy
@@ -59,7 +59,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
-        pll.create_clkout(self.cd_dvi,       40e6)
+        pll.create_clkout(self.cd_dvi,       33.3e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
@@ -107,15 +107,14 @@ class BaseSoC(SoCCore):
             from liteeth.frontend.etherbone import LiteEthEtherbone
 
             # Ethernet PHY
-            ethphy = LiteEthPHYMII(
+            self.submodules.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            self.submodules += ethphy
             etherbone_ip_address  = convert_ip("192.168.1.51")
             etherbone_mac_address = 0x10e2d5000001
 
             # Ethernet MAC
-            self.submodules.ethmac = LiteEthMAC(phy=ethphy, dw=8,
+            self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=8,
                 interface  = "hybrid",
                 endianness = self.cpu.endianness,
                 hw_mac     = etherbone_mac_address)
@@ -131,25 +130,37 @@ class BaseSoC(SoCCore):
             self.submodules.ip   = LiteEthIP(self.ethmac, etherbone_mac_address, etherbone_ip_address, self.arp.table, dw=8)
             self.submodules.icmp = LiteEthICMP(self.ip, etherbone_ip_address, dw=8)
             self.submodules.udp  = LiteEthUDP(self.ip, etherbone_ip_address, dw=8)
+            self.add_constant("ETH_PHY_NO_RESET") # Disable reset from BIOS to avoid disabling Hardware Interface.
 
             # Etherbone
             self.submodules.etherbone = LiteEthEtherbone(self.udp, 1234, mode="master")
             self.add_wb_master(self.etherbone.wishbone.bus)
 
             # Timing constraints
-            eth_rx_clk = ethphy.crg.cd_eth_rx.clk
-            eth_tx_clk = ethphy.crg.cd_eth_tx.clk
-            self.platform.add_period_constraint(eth_rx_clk, 1e9/ethphy.rx_clk_freq)
-            self.platform.add_period_constraint(eth_tx_clk, 1e9/ethphy.tx_clk_freq)
+            eth_rx_clk = self.ethphy.crg.cd_eth_rx.clk
+            eth_tx_clk = self.ethphy.crg.cd_eth_tx.clk
+            self.platform.add_period_constraint(eth_rx_clk, 1e9/self.ethphy.rx_clk_freq)
+            self.platform.add_period_constraint(eth_tx_clk, 1e9/self.ethphy.tx_clk_freq)
             self.platform.add_false_path_constraints(self.crg.cd_sys.clk, eth_rx_clk, eth_tx_clk)
 
         # Video ------------------------------------------------------------------------------------
+        video_timings = ("800x480@60Hz", {
+            "pix_clk"       : 33.3e6,
+            "h_active"      : 800,
+            "h_blanking"    : 256,
+            "h_sync_offset" : 210,
+            "h_sync_width"  : 1,
+            "v_active"      : 480,
+            "v_blanking"    : 45,
+            "v_sync_offset" : 22,
+            "v_sync_width"  : 1,
+        })
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoDVIPHY(platform.request("lcd"), clock_domain="dvi")
+            self.submodules.videophy = VideoVGAPHY(platform.request("lcd"), clock_domain="dvi")
             if with_video_terminal:
-                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="dvi")
+                self.add_video_terminal(phy=self.videophy, timings=video_timings, clock_domain="dvi")
             if with_video_framebuffer:
-                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="dvi")
+                self.add_video_framebuffer(phy=self.videophy, timings=video_timings, clock_domain="dvi")
 
 # Build --------------------------------------------------------------------------------------------
 
