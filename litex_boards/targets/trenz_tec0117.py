@@ -15,6 +15,7 @@ from migen import *
 
 from litex.build.io import CRG
 
+from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
@@ -33,7 +34,7 @@ mB = 1024*kB
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_sys   = ClockDomain()
 
         # # #
 
@@ -41,16 +42,12 @@ class _CRG(Module):
         clk100 = platform.request("clk100")
         rst_n  = platform.request("rst_n")
 
-        # Generate 25Mhz sys_clk_freq clock from 100MHz input clock, FIXME: use PLL.
-        assert sys_clk_freq == 25e6
-        self.clock_domains.cd_clk100 = ClockDomain()
-        self.comb += self.cd_clk100.clk.eq(clk100)
-        count = Signal(2)
-        self.sync.clk100 += count.eq(count + 1)
-        clk50 = count[0]
-        clk25 = count[1]
-        self.comb += self.cd_sys.clk.eq(clk25)
-        self.comb += self.cd_sys.rst.eq(~rst_n | self.rst) # FIXME: use AsyncResetSynchronizer
+        # PLL
+        self.submodules.pll = pll = GW1NPLL(device="GW1N9K")
+        self.comb += pll.reset.eq(~rst_n)
+        pll.register_clkin(clk100, 100e6)
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        self.comb += self.cd_sys.rst.eq(~rst_n) # FIXME: Move to GW1NPLL and use lock.
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -70,8 +67,8 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on TEC0117",
-            ident_version  = True,
+            ident         = "LiteX SoC on TEC0117",
+            ident_version = True,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -187,7 +184,7 @@ def main():
     parser.add_argument("--load",              action="store_true", help="Load bitstream")
     parser.add_argument("--bios-flash-offset", default=0x80000,     help="BIOS offset in SPI Flash (0x00000 default)")
     parser.add_argument("--flash",             action="store_true", help="Flash Bitstream and BIOS")
-    parser.add_argument("--sys-clk-freq",      default=25e6,        help="System clock frequency (default: 12MHz)")
+    parser.add_argument("--sys-clk-freq",      default=25e6,        help="System clock frequency (default: 25MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
