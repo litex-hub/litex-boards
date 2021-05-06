@@ -9,6 +9,7 @@ vendors = [
     "1bitsquared",
     "antmicro",
     "colorlight",
+    "decklink",
     "digilent",
     "enclustra",
     "gsd",
