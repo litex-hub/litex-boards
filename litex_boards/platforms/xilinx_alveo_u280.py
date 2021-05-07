@@ -133,11 +133,21 @@ _io = [
         Misc("SLEW=FAST")
     ),
 
-    # I2C
+    # I2C (not tested on hardware)
     ("i2c_rst_n", 0, Pins("B31"), IOStandard("LVCMOS18")),
     ("i2c", 0,
         Subsignal("scl", Pins("C30"), IOStandard("LVCMOS18")),
         Subsignal("sda", Pins("C33"), IOStandard("LVCMOS18")),
+    ),
+    
+    # QSFP Clock (not tested on hardware)
+    ("qsfp_156mhz_clock", 0,
+        Subsignal("n", Pins("T43")),
+        Subsignal("p", Pins("T42")),
+    ),
+    ("qsfp_156mhz_clock", 1,
+        Subsignal("n", Pins("P43")),
+        Subsignal("p", Pins("P42")),
     ),
 
     # PCIe
@@ -170,6 +180,39 @@ _io = [
         Subsignal("tx_p",  Pins("AL11 AM9 AN11 AP9")),
     ),
 
+    # QSFP28 (not tested on hardware)
+    ("qsfp28", 0,
+        Subsignal("clk_n", Pins("R41")),
+        Subsignal("clk_p", Pins("R40")),
+        #Subsignal("fs0", Pins(""), IOStandard("LVCMOS18")), # not found in u280 pins
+        #Subsignal("fs1", Pins(""), IOStandard("LVCMOS18")), # not found in u280 pins
+        Subsignal("intl", Pins("B32")),
+        Subsignal("lpmode", Pins("C29")),
+        Subsignal("modprsl", Pins("A33")),
+        Subsignal("modskll", Pins("A31")),
+        #Subsignal("refclk_reset", Pins(""), IOStandard("LVCMOS12")), # not found in u280 pins
+        Subsignal("resetl", Pins("B30")),
+        Subsignal("rxn", Pins("L54 K52 J54 H52")),
+        Subsignal("rxp", Pins("L53 K51 J53 H51")),
+        Subsignal("txn", Pins("L49 L45 K47 J49")),
+        Subsignal("txp", Pins("L48 L44 K46 J48")),
+    ),
+    ("qsfp28", 1,
+        Subsignal("clk_n", Pins("M43")),
+        Subsignal("clk_p", Pins("M42")),
+        #Subsignal("fs0", Pins(""), IOStandard("LVCMOS18")), # not found in u280 pins
+        #Subsignal("fs1", Pins(""), IOStandard("LVCMOS18")), # not found in u280 pins
+        Subsignal("intl", Pins("E29")),
+        Subsignal("lpmode", Pins("F29")),
+        Subsignal("modprsl", Pins("F33")),
+        Subsignal("modskll", Pins("D30")),
+        #Subsignal("refclk_reset", Pins(""), IOStandard("LVCMOS12")), # not found in u280 pins
+        Subsignal("resetl", Pins("E33")),
+        Subsignal("rxn", Pins("G54 F52 E54 D52")),
+        Subsignal("rxp", Pins("G53 F51 E53 D51")),
+        Subsignal("txn", Pins("G49 E49 C49 A50")),
+        Subsignal("txp", Pins("G48 E48 C48 A49")),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -207,12 +250,12 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 70]")
 
         # Other suggested configurations
-        # self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")
-        # self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]")
-        # self.add_platform_command("set_property CONFIG_MODE SPIx4 [current_design]")
-        # self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]")
-        # self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGRATE 85.0 [current_design]")
-        # self.add_platform_command("set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN disable [current_design]")
-        # self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]")
-        # self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN Pullup [current_design]")
-        # self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR Yes [current_design]")
+        self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]")
+        self.add_platform_command("set_property CONFIG_MODE SPIx4 [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGRATE 85.0 [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN disable [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN Pullup [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR Yes [current_design]")
