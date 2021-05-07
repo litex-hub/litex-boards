@@ -101,6 +101,7 @@ class TestTargets(unittest.TestCase):
         platforms.append("fomu_pvt")
         platforms.append("tinyfpga_bx")
         platforms.append("icebreaker")
+        platforms.append("icesugar")
 
         # Lattice MachXO2
         platforms.append("machxo3")
