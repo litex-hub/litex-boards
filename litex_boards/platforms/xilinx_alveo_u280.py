@@ -132,6 +132,44 @@ _io = [
         Subsignal("reset_n", Pins("BH12"), IOStandard("LVCMOS12")),
         Misc("SLEW=FAST")
     ),
+
+    # I2C
+    ("i2c_rst_n", 0, Pins("B31"), IOStandard("LVCMOS18")),
+    ("i2c", 0,
+        Subsignal("scl", Pins("C30"), IOStandard("LVCMOS18")),
+        Subsignal("sda", Pins("C33"), IOStandard("LVCMOS18")),
+    ),
+
+    # PCIe
+    ("pcie_x16", 0,
+        Subsignal("rst_n", Pins("BH26"), IOStandard("LVCMOS18")),
+        Subsignal("clk_n", Pins("AR14")),
+        Subsignal("clk_p", Pins("AR15")),
+        Subsignal("rx_n", Pins(
+            "AL1 AM3 AN5 AN1 AP3 AR1 AT3 AU1",
+            "AV3 AW5 AW1 AY3 BA5 BA1 BB3 BC1")),
+        Subsignal("rx_p", Pins(
+            "AL2 AM4 AN6 AN2 AP4 AR2 AT4 AU2",
+            "AV4 AW6 AW2 AY4 BA6 BA2 BB4 BC2")),
+        Subsignal("tx_n", Pins(
+            "AL10 AM8 AN10 AP8 AR10 AR6 AT8 AU10",
+            "AU6 AV8 AW10 AY8 BA10 BB8 BC10 BC6")),
+        Subsignal("tx_p", Pins(
+            "AL11 AM9 AN11 AP9 AR11 AR7 AT9 AU11",
+            "AU7 AV9 AW11 AY9 BA11 BB9 BC11 BC7")),
+    ),
+
+    # PCIe
+    ("pcie_x4", 0,
+        Subsignal("rst_n", Pins("BH26"), IOStandard("LVCMOS18")),
+        Subsignal("clk_n", Pins("AR14")),
+        Subsignal("clk_p", Pins("AR15")),
+        Subsignal("rx_n",  Pins("AL1 AM3 AN5 AN1")),
+        Subsignal("rx_p",  Pins("AL2 AM4 AN6 AN2")),
+        Subsignal("tx_n",  Pins("AL10 AM8 AN10 AP8")),
+        Subsignal("tx_p",  Pins("AL11 AM9 AN11 AP9")),
+    ),
+
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
