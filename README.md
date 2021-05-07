@@ -72,6 +72,7 @@ Fully open-hardware boards, the ECP5 and iCE40 ones are even usable with the ope
 | Fomu         | Lattice iCE40       | iCE40-UP5K    |  12MHz   | USB  |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
 | HADBadge     | Lattice ECP5        | LFE5U-45F     |  48MHz   | IOs  |   8-bit  32MB SDR   |      No   |         No     |  16MB QSPI  |   No   |
 | iCEBreaker   | Lattice iCE40       | iCE40-UP5K    |  24MHz   | FTDI |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
+| iCESugar     | Lattice iCE40       | iCE40-UP5K    |  24MHz   | STM32|     128KB SPRAM     |      No   |         No     |   8MB QSPI  |   No   |
 | LogicBone    | Lattice ECP5        | LFE5U-45F     |  75MHz   | FTDI |   16-bit 1GB DDR3   |      No   |   1Gbps RGMII  |  16MB QSPI  |   Yes  |
 | MarbleMini   | Xilinx Artix7       | XC7A100T      |  100MHz  | FTDI |   16-bit 1GB DDR3   |      No   |   1Gbps RGMII  |  16MB QSPI  |   No   |
 | MiniSpartan6 | Xilinx Spartan6     | XC6SLX25      |  80MHz   | FTDI |  16-bit  32MB SDR   |      No   |         No     |   8MB QSPI  |   Yes  |
