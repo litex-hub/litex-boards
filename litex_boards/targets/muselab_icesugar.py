@@ -6,8 +6,7 @@
 # Copyright (c) 2021 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# iCESugar FPGA:
-# https://www.aliexpress.com/item/4001201771358.html
+# iCESugar FPGA: https://www.aliexpress.com/item/4001201771358.html
 
 import os
 import argparse

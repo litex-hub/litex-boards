@@ -4,8 +4,7 @@
 # Copyright (c) 2021 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# iCESugar FPGA:
-# https://www.aliexpress.com/item/4001201771358.html
+# iCESugar FPGA: https://www.aliexpress.com/item/4001201771358.html
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
@@ -55,17 +54,11 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    # I chose the pin order such that it is the
-    # same as on the iCEBreaker so that its PMODs
-    # can be reused with this board
+    # Pin order similar to iCEBreaker to allow PMODs reuse.
     ("PMOD1", "10  6  3 48  9  4  2 47"),
     ("PMOD2", "46 44 42 37 45 43 38 36"),
     ("PMOD3", "34 31 27 25 32 28 26 23"),
-
-    # numbering similar to the pmods:
-    # 0 is marked pin, parallel rows
-    # notice that all those pins are also connected to PMOD1
-    ("J7", "48 - 3 47 - 2"),
+    ("J7",    "48 - 3 47 - 2"), # Numbering similar to PMODS: 0: Marked pin.
 ]
 
 # PMODS --------------------------------------------------------------------------------------------
@@ -73,7 +66,7 @@ _connectors = [
 def led_pmod_io_v11(pmod, offset=0):
     return [
         # LED PMOD: https://www.aliexpress.com/item/1005001504777342.html
-        # contrary to the supplied schematic, the two nibbles seem to be swapped on the board
+        # Contrary to the supplied schematic, the two nibbles seem to be swapped on the board.
         ("user_led_n", offset + 0,  Pins(f"{pmod}:4"), IOStandard("LVCMOS33")),
         ("user_led_n", offset + 1,  Pins(f"{pmod}:5"), IOStandard("LVCMOS33")),
         ("user_led_n", offset + 2,  Pins(f"{pmod}:6"), IOStandard("LVCMOS33")),
