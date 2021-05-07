@@ -76,6 +76,10 @@ class TestTargets(unittest.TestCase):
         # Xilinx Virtex Ultrascale+
         platforms.append("vcu118")
 
+        # Xilinx Alveo Ultrascale+
+        platforms.append("alveo_u250")
+        platforms.append("alveo_u280")
+
         # Intel Cyclone3
         platforms.append("mist")
 
