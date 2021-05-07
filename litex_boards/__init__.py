@@ -18,6 +18,7 @@ vendors = [
     "lattice",
     "lambdaconcept",
     "linsn",
+    "muselab",
     "numato",
     "qmtech",
     "radiona",
