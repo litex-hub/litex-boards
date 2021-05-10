@@ -49,6 +49,14 @@ _io = [
         Subsignal("miso", Pins("17"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("14"), IOStandard("LVCMOS33")),
     ),
+
+    # USB
+    ("usb", 0,
+        Subsignal("d_p", Pins("10")),
+        Subsignal("d_n", Pins("9")),
+        Subsignal("pullup", Pins("11")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
