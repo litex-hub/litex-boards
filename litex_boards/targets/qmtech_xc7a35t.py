@@ -143,7 +143,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Arty A7")
+    parser = argparse.ArgumentParser(description="LiteX SoC on QMTech XC7A35T")
     parser.add_argument("--toolchain",           default="vivado",                 help="Toolchain use to build (default: vivado)")
     parser.add_argument("--build",               action="store_true",              help="Build bitstream")
     parser.add_argument("--load",                action="store_true",              help="Load bitstream")
