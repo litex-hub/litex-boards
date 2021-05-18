@@ -11,7 +11,7 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs -----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk / Rst
+    # 100MHz Clk / Rst
     ("sysclk", 0,
         Subsignal("n", Pins("BJ44"), IOStandard("DIFF_SSTL12")),
         Subsignal("p", Pins("BJ43"), IOStandard("DIFF_SSTL12")),
@@ -28,7 +28,6 @@ _io = [
     ("gpio_led", 2, Pins("D31"), IOStandard("LVCMOS18")),
 
     # Switches
-
     ("gpio_sw", 0, Pins("J30"), IOStandard("LVCMOS18")),
     ("gpio_sw", 1, Pins("J32"), IOStandard("LVCMOS18")),
     ("gpio_sw", 2, Pins("K32"), IOStandard("LVCMOS18")),
@@ -150,7 +149,7 @@ _io = [
         Subsignal("p", Pins("P42")),
     ),
 
-    # PCIe
+    # PCIe (hardware tests in progress)
     ("pcie_x16", 0,
         Subsignal("rst_n", Pins("BH26"), IOStandard("LVCMOS18")),
         Subsignal("clk_n", Pins("AR14")),
@@ -169,7 +168,7 @@ _io = [
             "AU7 AV9 AW11 AY9 BA11 BB9 BC11 BC7")),
     ),
 
-    # PCIe
+    # PCIe (hardware tests in progress)
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("BH26"), IOStandard("LVCMOS18")),
         Subsignal("clk_n", Pins("AR14")),
