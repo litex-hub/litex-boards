@@ -128,6 +128,7 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 | ArtyS7         | Xilinx Spartan7     | XC7S50        | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    |       No       |  16MB QSPI  |   No   |
 | Avalanche      | Microsemi PolarFire | MPF300TS      | 100MHz  | IOs  | 16-bit 256MB DDR3  |     No    |   1Gbps RGMII* |   8MB QSPI* |   No   |
 | C10LPRefKit    | Intel Cyclone10     | 10CL055       |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |  100Mbps MII   |  16MB QSPI  |   No   |
+| CYC1000        | Intel Cyclone10     | 10CL025       |  50MHz  | FTDI | 16-bit  64MB SDR   |     No    |       No       |  16MB QSPI* |   No   |
 | De0Nano        | Intel Cyclone4      | EP4CE22F      |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |       No       |      No     |   No   |
 | De10Lite       | Intel MAX10         | 10M50DA       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       No       |      No     |   No   |
 | DECA           | Intel MAX10         | 10M50DA       |  50MHz  | JTAG | 16-bit 512MB DDR3* |     No    |       Yes      |      No     |   Yes  |
