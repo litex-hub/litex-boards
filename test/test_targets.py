@@ -91,6 +91,7 @@ class TestTargets(unittest.TestCase):
 
         # Intel Cyclone10
         platforms.append("c10lprefkit")
+        platforms.append("cyc1000")
 
         # Intel Max10
         platforms.append("de10lite")
