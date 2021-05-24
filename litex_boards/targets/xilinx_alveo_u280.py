@@ -13,9 +13,14 @@ from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import alveo_u280
+from hbm_ip import HBMIP
+
+from litedram.common import *
+from litedram.frontend.axi import *
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.led import LedChaser
@@ -34,6 +39,8 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
         self.clock_domains.cd_pll4x  = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay = ClockDomain()
+        self.clock_domains.cd_hbm_ref = ClockDomain()
+        self.clock_domains.cd_apb     = ClockDomain()
 
         # # #
 
@@ -42,7 +49,10 @@ class _CRG(Module):
         pll.register_clkin(platform.request("sysclk", ddram_channel), 100e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
         pll.create_clkout(self.cd_idelay, 600e6, with_reset=False)
+        pll.create_clkout(self.cd_hbm_ref, 100e6)
+        pll.create_clkout(self.cd_apb,     100e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
+        platform.add_false_path_constraints(self.cd_sys.clk, self.cd_apb.clk)
 
         self.specials += [
             Instance("BUFGCE_DIV", name="main_bufgce_div",
@@ -57,32 +67,44 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_pcie=False, with_led=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_pcie=False, with_led=False, with_hbm=False, **kwargs):
         platform = alveo_u280.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Alveo U280 (ES1)",
+            ident          = "LiteX SoC on Alveo U280 (ES1) HBM2 Test",
             ident_version  = True,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, ddram_channel)
 
+        # HBM --------------------------------------------------------------------------------------
+        if with_hbm:
+            # Add HBM Core.
+            self.submodules.hbm = hbm = ClockDomainsRenamer({"axi": "sys"})(HBMIP(platform))
+
+            # Connect four of the HBM's AXI interfaces to the main bus of the SoC.
+            for i in range(4):
+                axi_hbm      = hbm.axi[i]
+                axi_lite_hbm = AXILiteInterface(data_width=256, address_width=33)
+                self.submodules += AXILite2AXI(axi_lite_hbm, axi_hbm)
+                self.bus.add_slave(f"hbm{i}", axi_lite_hbm, SoCRegion(origin=0x4000_0000 + 0x1000_0000*i, size=0x1000_0000)) # 256MB.
+
         # DDR4 SDRAM -------------------------------------------------------------------------------
-        if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram", ddram_channel),
-                memtype          = "DDR4",
-                cmd_latency      = 1, # seems to work better with cmd_latency=1
-                sys_clk_freq     = sys_clk_freq,
-                iodelay_clk_freq = 600e6,
-                is_rdimm         = True)
-            self.add_sdram("sdram",
-                phy           = self.ddrphy,
-                module        = MTA18ASF2G72PZ(sys_clk_freq, "1:4"),
-                size          = 0x40000000,
-                l2_cache_size = kwargs.get("l2_size", 8192)
-            )
+        # if not self.integrated_main_ram_size:
+        #     self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram", ddram_channel),
+        #         memtype          = "DDR4",
+        #         cmd_latency      = 1, # seems to work better with cmd_latency=1
+        #         sys_clk_freq     = sys_clk_freq,
+        #         iodelay_clk_freq = 600e6,
+        #         is_rdimm         = True)
+        #     self.add_sdram("sdram",
+        #         phy           = self.ddrphy,
+        #         module        = MTA18ASF2G72PZ(sys_clk_freq, "1:4"),
+        #         size          = 0x40000000,
+        #         l2_cache_size = kwargs.get("l2_size", 8192)
+        #     )
 
         # Firmware RAM (To ease initial LiteDRAM calibration support) ------------------------------
         self.add_ram("firmware_ram", 0x20000000, 0x8000)
@@ -111,6 +133,7 @@ def main():
     parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver")
     parser.add_argument("--with-led",     action="store_true", help="Enable LED Chaser")
+    parser.add_argument("--with-hbm",     action="store_true", help="Use HBM2")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -120,6 +143,7 @@ def main():
         ddram_channel = int(args.ddram_channel, 0),
         with_pcie    = args.with_pcie,
         with_led    = args.with_led,
+        with_hbm    = args.with_hbm,
         **soc_core_argdict(args)
 	)
     builder = Builder(soc, **builder_argdict(args))
