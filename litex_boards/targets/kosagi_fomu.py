@@ -54,7 +54,7 @@ class _CRG(Module):
 
         # USB PLL
         self.submodules.pll = pll = iCE40PLL()
-        self.comb += pll.reset.eq(self.rst)
+        #self.comb += pll.reset.eq(self.rst) # FIXME: Add proper iCE40PLL reset support and add back | self.rst.
         pll.clko_freq_range = ( 12e6,  275e9) # FIXME: improve iCE40PLL to avoid lowering clko_freq_min.
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_usb_12, 12e6, with_reset=False)
@@ -116,12 +116,12 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(bios_flash_offset):
+def flash(build_dir, build_name, bios_flash_offset):
     from litex.build.dfu import DFUProg
     prog = DFUProg(vid="1209", pid="5bf0")
-    bitstream  = open("build/fomu_pvt/gateware/fomu_pvt.bin",  "rb")
-    bios       = open("build/fomu_pvt/software/bios/bios.bin", "rb")
-    image      = open("build/fomu_pvt/image.bin", "wb")
+    bitstream  = open(f"{build_dir}/gateware/{build_name}.bin",  "rb")
+    bios       = open(f"{build_dir}/software/bios/bios.bin", "rb")
+    image      = open(f"{build_dir}/image.bin", "wb")
     # Copy bitstream at 0x00000000
     for i in range(0x00000000, 0x0020000):
         b = bitstream.read(1)
@@ -139,7 +139,7 @@ def flash(bios_flash_offset):
     bitstream.close()
     bios.close()
     image.close()
-    prog.load_bitstream("build/fomu_pvt/image.bin")
+    prog.load_bitstream(f"{build_dir}/image.bin")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -162,7 +162,7 @@ def main():
     builder.build(run=args.build)
 
     if args.flash:
-        flash(args.bios_flash_offset)
+        flash(builder.output_dir, soc.build_name, args.bios_flash_offset)
 
 if __name__ == "__main__":
     main()

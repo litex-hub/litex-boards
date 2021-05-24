@@ -60,7 +60,7 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = iCE40PLL(primitive="SB_PLL40_PAD")
-        self.comb += pll.reset.eq(~rst_n | self.rst)
+        self.comb += pll.reset.eq(~rst_n) # FIXME: Add proper iCE40PLL reset support and add back | self.rst.
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=False)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked)
@@ -117,11 +117,11 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(bios_flash_offset):
+def flash(build_dir, build_name, bios_flash_offset):
     from litex.build.lattice.programmer import IceStormProgrammer
     prog = IceStormProgrammer()
-    prog.flash(bios_flash_offset, "build/icebreaker/software/bios/bios.bin")
-    prog.flash(0x00000000,        "build/icebreaker/gateware/icebreaker.bin")
+    prog.flash(bios_flash_offset, f"{build_dir}/software/bios/bios.bin")
+    prog.flash(0x00000000,        f"{build_dir}/gateware/{build_name}.bin")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -151,7 +151,7 @@ def main():
         prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
 
     if args.flash:
-        flash(args.bios_flash_offset)
+        flash(builder.output_dir, soc.build_name, args.bios_flash_offset)
 
 if __name__ == "__main__":
     main()

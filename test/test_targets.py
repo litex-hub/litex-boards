@@ -43,6 +43,7 @@ class TestTargets(unittest.TestCase):
         platforms.append("ac701")
         platforms.append("aller")
         platforms.append("arty")
+        platforms.append("basys3")
         platforms.append("mimas_a7")
         platforms.append("netv2")
         platforms.append("nexys4ddr")
@@ -95,6 +96,7 @@ class TestTargets(unittest.TestCase):
 
         # Intel Cyclone10
         platforms.append("c10lprefkit")
+        platforms.append("cyc1000")
 
         # Intel Max10
         platforms.append("de10lite")
