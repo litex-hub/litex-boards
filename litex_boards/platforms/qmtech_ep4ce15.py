@@ -2,6 +2,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2020 Basel Sayeh <Basel.Sayeh@hotmail.com>
+# Copyright (c) 2021 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -14,18 +15,25 @@ _io = [
     # Clk
     ("clk50", 0, Pins("T2"), IOStandard("3.3-V LVTTL")),
 
-    # Leds
-    ("user_led", 0, Pins("E4"), IOStandard("3.3-V LVTTL")),
-
     # Button
-    ("key", 0, Pins("Y13"), IOStandard("3.3-V LVTTL")),
+    ("key", 0, Pins("Y13"),  IOStandard("3.3-V LVTTL")),
     ("key", 1, Pins("W13"),  IOStandard("3.3-V LVTTL")),
 
     # Serial
     ("serial", 0,
         # Compatible with cheap FT232 based cables (ex: Gaoominy 6Pin Ftdi Ft232Rl Ft232)
-        Subsignal("tx", Pins("AA13"), IOStandard("3.3-V LVTTL")), # GPIO_07 (JP1 Pin 10)
-        Subsignal("rx", Pins("AA14"), IOStandard("3.3-V LVTTL"))  # GPIO_05 (JP1 Pin 8)
+        Subsignal("tx", Pins("J3:7"), IOStandard("3.3-V LVTTL")), # GPIO_07 (JP1 Pin 10)
+        Subsignal("rx", Pins("J3:8"), IOStandard("3.3-V LVTTL"))  # GPIO_05 (JP1 Pin 8)
+    ),
+
+    # SPIFlash (W25Q64)
+    ("spiflash", 0,
+        # clk
+        Subsignal("cs_n", Pins("E2")),
+        Subsignal("clk",  Pins("K2")),
+        Subsignal("mosi", Pins("D1")),
+        Subsignal("miso", Pins("E2")),
+        IOStandard("3.3-V LVTTL"),
     ),
 
     # SDR SDRAM
@@ -46,30 +54,74 @@ _io = [
         Subsignal("dm", Pins("AA5 W7")),
         IOStandard("3.3-V LVTTL")
     ),
+]
 
-    # GPIOs
-    #ignore for now
-    #("gpio_0", 0, Pins(
-    #    "D3 C3  A2  A3  B3  B4  A4  B5",
-    #    "A5 D5  B6  A6  B7  D6  A7  C6",
-    #    "C8 E6  E7  D8  E8  F8  F9  E9",
-    #    "C9 D9 E11 E10 C11 B11 A12 D11",
-    #    "D12 B12"),
-    #    IOStandard("3.3-V LVTTL")
-    #),
-    #("gpio_1", 0, Pins(
-    #    "F13 T15 T14 T13 R13 T12 R12 T11",
-    #    "T10 R11 P11 R10 N12  P9  N9 N11",
-    #    "L16 K16 R16 L15 P15 P16 R14 N16",
-    #    "N15 P14 L14 N14 M10 L13 J16 K15",
-    #    "J13 J14"),
-    #    IOStandard("3.3-V LVTTL")
-    #),
-    #("gpio_2", 0, Pins(
-    #    "A14 B16 C14 C16 C15 D16 D15 D14",
-    #    "F15 F16 F14 G16 G15"),
-    #    IOStandard("3.3-V LVTTL")
-    #),
+# The connectors are named after the daughterboard, not the core board
+# because on the different core boards the names vary, but on the
+# daughterboard they stay the same, which we need to connect the
+# daughterboard peripherals to the core board.
+# On this board J2 is U7 and J3 is U8
+_connectors = [
+    ("J2", {
+         # odd row     even row
+          7: "R1",   8: "R2",
+          9: "P1",  10: "P2",
+         11: "N1",  12: "N2",
+         13: "M1",  14: "M2",
+         15: "J1",  16: "J2",
+         17: "H1",  18: "H2",
+         19: "F1",  20: "F2",
+         21: "E1",  22: "D2",
+         23: "C1",  24: "C2",
+         25: "B1",  26: "B2",
+         27: "B3",  28: "A3",
+         29: "B4",  30: "A4",
+         31: "C4",  32: "C3",
+         33: "B5",  34: "A5",
+         35: "B6",  36: "A6",
+         37: "B7",  38: "A7",
+         39: "B8",  40: "A8",
+         41: "B9",  42: "A9",
+         43: "B10", 44: "A10",
+         45: "B13", 46: "A13",
+         47: "B14", 48: "A14",
+         49: "B15", 50: "A15",
+         51: "B16", 52: "A16",
+         53: "B17", 54: "A17",
+         55: "B18", 56: "A18",
+         57: "B19", 58: "A19",
+         59: "B20", 60: "A20",
+    }),
+    ("J3", {
+        # odd row     even row
+         7: "AA13",   8: "AB13",
+         9: "AA14",  10: "AB14",
+        11: "AA15",  12: "AB15",
+        13: "AA16",  14: "AB16",
+        15: "AA17",  16: "AB17",
+        17: "AA18",  18: "AB18",
+        19: "AA19",  20: "AB19",
+        21: "AA20",  22: "AB20",
+        23: "Y22",   24: "Y21",
+        25: "W22",   26: "W21",
+        27: "V22",   28: "V21",
+        29: "U22",   30: "U21",
+        31: "R22",   32: "R21",
+        33: "P22",   34: "P21",
+        35: "N22",   36: "N21",
+        37: "M22",   38: "M21",
+        39: "L22",   40: "L21",
+        41: "K22",   42: "K21",
+        43: "J22",   44: "J21",
+        45: "H22",   46: "H21",
+        47: "F22",   48: "F21",
+        49: "E22",   50: "E21",
+        51: "D22",   52: "D21",
+        53: "C22",   54: "C21",
+        55: "B22",   56: "B21",
+        57: "N20",   58: "N19",
+        59: "M20",   60: "M19",
+    })
 ]
 
 # Platform -----------------------------------------------------------------------------------------
@@ -77,9 +129,26 @@ _io = [
 class Platform(AlteraPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
+    core_resources = [ ("user_led", 0, Pins("E4"), IOStandard("3.3-V LVTTL")) ]
 
-    def __init__(self):
-        AlteraPlatform.__init__(self, "EP4CE15F23C8", _io)
+    def __init__(self, with_daughterboard=False):
+        device = "EP4CE15F23C8"
+        io = _io
+        connectors = _connectors
+
+        if with_daughterboard:
+            from litex_boards.platforms.qmtech_daughterboard import QMTechDaughterboard
+            daughterboard = QMTechDaughterboard(IOStandard("3.3-V LVTTL"))
+            io += daughterboard.io
+            connectors += daughterboard.connectors
+        else:
+            io += self.core_resources
+
+        AlteraPlatform.__init__(self, device, io, connectors)
+
+        if with_daughterboard:
+            # an ethernet pin takes K22, so make it available
+            self.add_platform_command("set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION \"USE AS REGULAR IO\"")
 
     def create_programmer(self):
         return USBBlaster()
