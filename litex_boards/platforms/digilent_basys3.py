@@ -12,7 +12,7 @@ from litex.build.openocd import OpenOCD
 
 _io = [
     # Clk / Rst
-    ("clk100", 0, Pins("W3"), IOStandard("LVCMOS33")),
+    ("clk100", 0, Pins("W5"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led",  0, Pins("U16"), IOStandard("LVCMOS33")),
@@ -24,13 +24,13 @@ _io = [
     ("user_led",  6, Pins("U14"), IOStandard("LVCMOS33")),
     ("user_led",  7, Pins("V14"), IOStandard("LVCMOS33")),
     ("user_led",  8, Pins("V13"), IOStandard("LVCMOS33")),
-    ("user_led",  9, Pins("V3"), IOStandard("LVCMOS33")),
-    ("user_led", 10, Pins("W3"), IOStandard("LVCMOS33")),
-    ("user_led", 11, Pins("U3"), IOStandard("LVCMOS33")),
-    ("user_led", 12, Pins("P3"), IOStandard("LVCMOS33")),
-    ("user_led", 13, Pins("N3"), IOStandard("LVCMOS33")),
-    ("user_led", 14, Pins("P1"), IOStandard("LVCMOS33")),
-    ("user_led", 15, Pins("L1"), IOStandard("LVCMOS33")),
+    ("user_led",  9, Pins("V3"),  IOStandard("LVCMOS33")),
+    ("user_led", 10, Pins("W3"),  IOStandard("LVCMOS33")),
+    ("user_led", 11, Pins("U3"),  IOStandard("LVCMOS33")),
+    ("user_led", 12, Pins("P3"),  IOStandard("LVCMOS33")),
+    ("user_led", 13, Pins("N3"),  IOStandard("LVCMOS33")),
+    ("user_led", 14, Pins("P1"),  IOStandard("LVCMOS33")),
+    ("user_led", 15, Pins("L1"),  IOStandard("LVCMOS33")),
 
     # Switches
     ("user_sw",  0, Pins("V17"), IOStandard("LVCMOS33")),
@@ -43,12 +43,12 @@ _io = [
     ("user_sw",  7, Pins("W13"), IOStandard("LVCMOS33")),
     ("user_sw",  8, Pins("V2"),  IOStandard("LVCMOS33")),
     ("user_sw",  9, Pins("T3"),  IOStandard("LVCMOS33")),
-    ("user_sw", 10, Pins("T2"), IOStandard("LVCMOS33")),
-    ("user_sw", 11, Pins("R3"), IOStandard("LVCMOS33")),
+    ("user_sw", 10, Pins("T2"),  IOStandard("LVCMOS33")),
+    ("user_sw", 11, Pins("R3"),  IOStandard("LVCMOS33")),
     ("user_sw", 12, Pins("W2"),  IOStandard("LVCMOS33")),
-    ("user_sw", 13, Pins("U1"), IOStandard("LVCMOS33")),
-    ("user_sw", 14, Pins("T1"), IOStandard("LVCMOS33")),
-    ("user_sw", 15, Pins("R2"), IOStandard("LVCMOS33")),  
+    ("user_sw", 13, Pins("U1"),  IOStandard("LVCMOS33")),
+    ("user_sw", 14, Pins("T1"),  IOStandard("LVCMOS33")),
+    ("user_sw", 15, Pins("R2"),  IOStandard("LVCMOS33")),
 
     # Buttons
     ("user_btnu", 0, Pins("T18"), IOStandard("LVCMOS33")),
@@ -85,10 +85,10 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    ("pmoda", "J1 L2 J2 G2 H1 K2 H2 G3"),
-    ("pmodb", "A14 A16 B15 B16 A15 A17 C15 C16"),
-    ("pmodc", "K17 M18 N17 P18 L17 M19 P17 R18"),
-    ("pmodxdac", "J3 L3 M2 N2 K3 M3 M1 N1"),
+    ("pmoda",    "J1   L2  J2  G2  H1  K2  H2  G3"),
+    ("pmodb",    "A14 A16 B15 B16 A15 A17 C15 C16"),
+    ("pmodc",    "K17 M18 N17 P18 L17 M19 P17 R18"),
+    ("pmodxdac", " J3  L3  M2  N2  K3  M3  M1  N1"),
 ]
 
 # PMODS --------------------------------------------------------------------------------------------
@@ -129,4 +129,4 @@ class Platform(XilinxPlatform):
     
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk100",             loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
