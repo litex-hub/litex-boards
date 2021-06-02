@@ -31,6 +31,8 @@ from litespi.opcodes import SpiNorFlashOpCodes as Codes
 from litespi.phy.generic import LiteSPIPHY
 from litespi import LiteSPI
 
+from litescope import LiteScopeAnalyzer
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -61,7 +63,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, ident_version=True, with_jtagbone=True, with_mapped_flash=False, **kwargs):
+    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, ident_version=True, with_jtagbone=True, with_mapped_flash=False, with_analyzer=False, **kwargs):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -110,6 +112,25 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
+                
+        # Analyzer ---------------------------------------------------------------------------------
+        if with_analyzer:
+            analyzer_signals = [
+                # IDBus (could also just added as self.cpu.idbus)
+                self.cpu.idbus.stb,
+                self.cpu.idbus.cyc,
+                self.cpu.idbus.adr,
+                self.cpu.idbus.we,
+                self.cpu.idbus.ack,
+                self.cpu.idbus.sel,
+                self.cpu.idbus.dat_w,
+                self.cpu.idbus.dat_r,
+            ]
+            self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals,
+                depth        = 512,
+                clock_domain = "sys",
+                csr_csv      = "analyzer.csv")
+            self.add_csr("analyzer")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -132,6 +153,7 @@ def main():
     parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
     parser.add_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support")
     parser.add_argument("--with-mapped-flash",   action="store_true",              help="Enable Memory Mapped Flash")
+    parser.add_argument("--with-analyzer",       action="store_true",              help="Enable Analyzer support")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -150,6 +172,7 @@ def main():
         ident_version     = args.no_ident_version,
         with_jtagbone     = args.with_jtagbone,
         with_mapped_flash = args.with_mapped_flash,
+        with_analyzer     = args.with_analyzer,
         **soc_core_argdict(args)
     )
     if args.sdcard_adapter == "numato":
