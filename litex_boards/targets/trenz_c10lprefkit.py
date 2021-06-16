@@ -13,7 +13,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.platforms import c10lprefkit
+from litex_boards.platforms import trenz_c10lprefkit
 
 from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc_core import *
@@ -59,7 +59,7 @@ class BaseSoC(SoCCore):
     mem_map.update(SoCCore.mem_map)
 
     def __init__(self, sys_clk_freq=int(50e6), with_ethernet=False, **kwargs):
-        platform = c10lprefkit.Platform()
+        platform = trenz_c10lprefkit.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
