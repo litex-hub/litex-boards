@@ -3,7 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2021 Jakub Cabal <jakubcabal@gmail.com>
+# Copyright (c) 2019-2021 Antti Lukats <antti.lukats@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -11,7 +11,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.platforms import trenz_max1000
+from litex_boards.platforms import max1000
 
 from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc_core import *
@@ -48,7 +48,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), **kwargs):
-        platform = trenz_max1000.Platform()
+        platform = max1000.Platform()
 
         kwargs["integrated_rom_size"]  = 0x6000
         kwargs["integrated_sram_size"] = 0x1000
