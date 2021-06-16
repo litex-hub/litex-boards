@@ -11,7 +11,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.platforms import cyc1000
+from litex_boards.platforms import trenz_cyc1000
 
 from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc_core import *
@@ -48,7 +48,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), **kwargs):
-        platform = cyc1000.Platform()
+        platform = trenz_cyc1000.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
