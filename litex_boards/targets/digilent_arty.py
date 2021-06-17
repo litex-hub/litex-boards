@@ -61,7 +61,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, ident_version=True, with_jtagbone=True, with_mapped_flash=False, **kwargs):
+    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, eth_dhcp=False, ident_version=True, with_jtagbone=True, with_mapped_flash=False, **kwargs):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, with_dhcp=eth_dhcp)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
@@ -125,6 +125,7 @@ def main():
     ethopts.add_argument("--with-etherbone",     action="store_true",              help="Enable Etherbone support")
     parser.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
     parser.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting")
+    parser.add_argument("--eth-dhcp",            action="store_true",              help="Obtain an IP address from DHCP server")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support")
@@ -147,6 +148,7 @@ def main():
         with_etherbone    = args.with_etherbone,
         eth_ip            = args.eth_ip,
         eth_dynamic_ip    = args.eth_dynamic_ip,
+        eth_dhcp          = args.eth_dhcp,
         ident_version     = args.no_ident_version,
         with_jtagbone     = args.with_jtagbone,
         with_mapped_flash = args.with_mapped_flash,
