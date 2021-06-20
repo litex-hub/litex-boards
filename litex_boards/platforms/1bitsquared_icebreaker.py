@@ -96,6 +96,42 @@ dvi_pmod = [
     )
 ]
 
+usb_pmod_1a = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD1A:2")),
+        Subsignal("d_n",    Pins("PMOD1A:3")),
+        Subsignal("pullup", Pins("PMOD1A:0")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
+usb_pmod_1b = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD1B:2")),
+        Subsignal("d_n",    Pins("PMOD1B:3")),
+        Subsignal("pullup", Pins("PMOD1B:0")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
+usb_tnt = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD1B:3")),
+        Subsignal("d_n",    Pins("PMOD1B:2")),
+        Subsignal("pullup", Pins("PMOD1B:1")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
+usb_keckmann = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD1B:0")),
+        Subsignal("d_n",    Pins("PMOD1B:1")),
+        Subsignal("pullup", Pins("PMOD1B:2")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
