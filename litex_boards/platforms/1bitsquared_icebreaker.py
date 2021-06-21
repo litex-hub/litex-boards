@@ -7,7 +7,7 @@
 # iCEBreaker FPGA:
 # - Crowd Supply campaign: https://www.crowdsupply.com/1bitsquared/icebreaker
 # - 1BitSquared Store: https://1bitsquared.com/products/icebreaker
-# - Design files: https://github.com/icebreaker/icebreaker
+# - Design files: https://github.com/icebreaker-fpga/icebreaker
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
