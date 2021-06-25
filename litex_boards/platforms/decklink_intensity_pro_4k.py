@@ -16,13 +16,13 @@ _io = [
     # TODO.
 
     # Debug.
-    ("debug", 0, Pins("R22"), IOStandard("LVCMOS33")),
-    ("debug", 1, Pins("P21"), IOStandard("LVCMOS33")),
-    ("debug", 2, Pins("P23"), IOStandard("LVCMOS33")),
-    ("debug", 3, Pins("N23"), IOStandard("LVCMOS33")),
+    ("debug", 0, Pins("A15"), IOStandard("LVCMOS33")),
+    ("debug", 1, Pins("C14"), IOStandard("LVCMOS33")),
+    ("debug", 2, Pins("B14"), IOStandard("LVCMOS33")),
+    ("debug", 3, Pins("A14"), IOStandard("LVCMOS33")),
 
     # Fan.
-    ("fan", 0, Pins("K18"), IOStandard("LVCMOS33")),
+    ("fan", 0, Pins(""), IOStandard("LVCMOS33")),
 
     # Flash.
     ("flash_cs_n", 0, Pins("C23"), IOStandard("LVCMOS33")),
@@ -36,7 +36,7 @@ _io = [
 
     # PCIe.
     ("pcie_x4", 0,
-        Subsignal("rst_n", Pins("K15"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+        Subsignal("rst_n", Pins("K21"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("K6")),
         Subsignal("clk_n", Pins("K5")),
         Subsignal("rx_p",  Pins("J4 L4 N4 R4")),
@@ -44,6 +44,8 @@ _io = [
         Subsignal("tx_p",  Pins("H2 K2 M2 P2")),
         Subsignal("tx_n",  Pins("H1 K1 M1 P1"))
     ),
+
+    # DRAM (MT47H64M16).
 
     # HDMI Out.
 

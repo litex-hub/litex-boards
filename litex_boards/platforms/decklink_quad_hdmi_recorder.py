@@ -56,6 +56,10 @@ _io = [
         Subsignal("tx_n",  Pins("AC3 AE3 AG3 AH5 AK5 AL3 AM5 AN3"))
     ),
 
+    # DRAM (H5TQ4G63CFR).
+
+    # TODO.
+
     # HDMI (through PI3HDX1204)
     ("hdmi_in", 0, # PCIe Edge Side.
         #Subsignal("clk_p",   Pins(""), IOStandard("")),
