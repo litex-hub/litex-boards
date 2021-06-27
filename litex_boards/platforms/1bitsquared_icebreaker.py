@@ -114,6 +114,15 @@ usb_pmod_1b = [
     )
 ]
 
+usb_pmod_2 = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD2:2")),
+        Subsignal("d_n",    Pins("PMOD2:3")),
+        Subsignal("pullup", Pins("PMOD2:0")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
 usb_tnt = [
     ("usb", 0,
         Subsignal("d_p",    Pins("PMOD1B:3")),
@@ -123,7 +132,7 @@ usb_tnt = [
     )
 ]
 
-usb_keckmann = [
+usb_kbeckmann = [
     ("usb", 0,
         Subsignal("d_p",    Pins("PMOD1B:0")),
         Subsignal("d_n",    Pins("PMOD1B:1")),
