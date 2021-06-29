@@ -61,7 +61,13 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, ident_version=True, with_jtagbone=True, with_mapped_flash=False, **kwargs):
+
+    mem_map = {
+        "spiflash": 0x01000000,
+    }
+    mem_map.update(SoCCore.mem_map)
+
+    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, ident_version=True, with_jtagbone=True, with_mapped_flash=False, with_save_env=False, **kwargs):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -106,6 +112,15 @@ class BaseSoC(SoCCore):
             spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=S25FL128L.total_size, cached=False)
             self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)
 
+        # Save environment variables
+        if with_save_env:
+            self.add_spi_flash(dummy_cycles=9, mode="1x")
+            self.add_constant("SPIFLASH_PAGE_SIZE", 256)
+            self.add_constant("SPIFLASH_SECTOR_SIZE", 65536)
+            self.add_constant("SPIFLASH_SUBSECTOR_SIZE", 4096)
+            self.add_constant("FLASH_SAVE_ENV")
+            assert(eth_dynamic_ip)
+
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -132,12 +147,14 @@ def main():
     parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
     parser.add_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support")
     parser.add_argument("--with-mapped-flash",   action="store_true",              help="Enable Memory Mapped Flash")
+    parser.add_argument("--with-save-env",       action="store_true",              help="Use Flash memory to save environment parameters")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
+    assert not (args.with_save_env and args.with_mapped_flash)
 
     soc = BaseSoC(
         variant           = args.variant,
@@ -150,6 +167,7 @@ def main():
         ident_version     = args.no_ident_version,
         with_jtagbone     = args.with_jtagbone,
         with_mapped_flash = args.with_mapped_flash,
+        with_save_env     = args.with_save_env,
         **soc_core_argdict(args)
     )
     if args.sdcard_adapter == "numato":
