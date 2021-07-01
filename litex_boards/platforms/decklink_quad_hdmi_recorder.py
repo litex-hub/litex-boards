@@ -12,15 +12,21 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk / Rst (SI5338A).
-
-    # TODO (We'll use the 100MHz PCIe Clock for now).
+    # Clk / Rst.
+    # TODO: Document SI5338A.
+    ("clk24",  0, Pins("P26"),  IOStandard("LVCMOS15")),
+    ("clk200", 0,
+        Subsignal("p", Pins("AJ29"), IOStandard("LVDS")),
+        Subsignal("n", Pins("AK30"), IOStandard("LVDS"))
+    ),
+    ("clk",   0, Pins("AJ29"), IOStandard("LVCMOS15")),
+    ("clk",   0, Pins("AK30"), IOStandard("LVCMOS15")),
 
     # Debug.
-    ("debug", 0, Pins("AL34"), IOStandard("LVCMOS25")),
-    ("debug", 1, Pins("AM34"), IOStandard("LVCMOS25")),
-    ("debug", 2, Pins("AN34"), IOStandard("LVCMOS25")),
-    ("debug", 3, Pins("AP34"), IOStandard("LVCMOS25")),
+    ("debug", 0, Pins("AL34"), IOStandard("LVCMOS15")),
+    ("debug", 1, Pins("AM34"), IOStandard("LVCMOS15")),
+    ("debug", 2, Pins("AN34"), IOStandard("LVCMOS15")),
+    ("debug", 3, Pins("AP34"), IOStandard("LVCMOS15")),
 
     # SPIFlash (MX25L25645GSXDI).
 
@@ -153,6 +159,9 @@ _io = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
+    default_clk_name   = "clk200"
+    default_clk_period = 1e9/200e6
+
     def __init__(self):
         XilinxPlatform.__init__(self, "xcku040-ffva1156-2-e", _io, toolchain="vivado")
 
@@ -161,3 +170,5 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk24",  loose=True), 1e9/24e6)
+        self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)

@@ -19,6 +19,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
+from litedram.common import PHYPadsReducer
 from litedram.modules import MT41J256M16
 from litedram.phy import usddrphy
 
@@ -37,8 +38,7 @@ class _CRG(Module):
         # # #
 
         self.submodules.pll = pll = USMMCM(speedgrade=-2)
-        self.comb += pll.reset.eq(ResetSignal("pcie"))
-        pll.register_clkin(ClockSignal("pcie"), 250e6)
+        pll.register_clkin(platform.request("clk200"), 200e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
         pll.create_clkout(self.cd_idelay, 200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
@@ -54,7 +54,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(200e6), with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, **kwargs):
         platform = quad_hdmi_recorder.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -67,9 +67,13 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # JTAGBone  --------------------------------------------------------------------------------
+        self.add_jtagbone()
+
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USDDRPHY(platform.request("ddram"),
+            self.submodules.ddrphy = usddrphy.USDDRPHY(
+                pads             = PHYPadsReducer(platform.request("ddram"), [0]),
                 memtype          = "DDR3",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
@@ -87,9 +91,9 @@ class BaseSoC(SoCCore):
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
-        # False Paths (FIXME: Improve integration).
-        platform.toolchain.pre_placement_commands.append("set_false_path -from [get_clocks sys_clk_1] -to [get_clocks pcie_clk_1]")
-        platform.toolchain.pre_placement_commands.append("set_false_path -from [get_clocks pcie_clk_1] -to [get_clocks sys_clk_1]")
+            # False Paths (FIXME: Improve integration).
+            platform.toolchain.pre_placement_commands.append("set_false_path -from [get_clocks sys_clk_1] -to [get_clocks pcie_clk_1]")
+            platform.toolchain.pre_placement_commands.append("set_false_path -from [get_clocks pcie_clk_1] -to [get_clocks sys_clk_1]")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -97,7 +101,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Blackmagic Decklink Quad HDMI Recorder")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=200e6,       help="System clock frequency (default: 200MHz)")
+    parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency (default: 125MHz)")
     parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support")
     parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver")
     builder_args(parser)
