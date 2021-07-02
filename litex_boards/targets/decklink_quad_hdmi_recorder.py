@@ -6,9 +6,10 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# Work-In-Progress...
-
+# Build/Load bitstream:
 # ./decklink_quad_hdmi_recorder.py --csr-csv=csr.csv --build --load
+#
+# Use:
 # litex_server --jtag --jtag-config=openocd_xc7_ft232.cfg
 # litex_term bridge
 
