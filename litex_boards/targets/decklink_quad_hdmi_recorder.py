@@ -77,7 +77,7 @@ class BaseSoC(SoCCore):
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = usddrphy.USDDRPHY(
-                pads             = PHYPadsReducer(platform.request("ddram"), [0, 1]),
+                pads             = PHYPadsReducer(platform.request("ddram"), [0, 1, 2, 3]),
                 memtype          = "DDR3",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
