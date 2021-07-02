@@ -8,6 +8,10 @@
 
 # Work-In-Progress...
 
+# ./decklink_quad_hdmi_recorder.py --csr-csv=csr.csv --build --load
+# litex_server --jtag --jtag-config=openocd_xc7_ft232.cfg
+# litex_term bridge
+
 import os
 import argparse
 
@@ -73,14 +77,13 @@ class BaseSoC(SoCCore):
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = usddrphy.USDDRPHY(
-                pads             = PHYPadsReducer(platform.request("ddram"), [0]),
+                pads             = PHYPadsReducer(platform.request("ddram"), [0, 1]),
                 memtype          = "DDR3",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = MT41J256M16(sys_clk_freq, "1:4"),
-                size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -92,8 +95,8 @@ class BaseSoC(SoCCore):
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
             # False Paths (FIXME: Improve integration).
-            platform.toolchain.pre_placement_commands.append("set_false_path -from [get_clocks sys_clk_1] -to [get_clocks pcie_clk_1]")
-            platform.toolchain.pre_placement_commands.append("set_false_path -from [get_clocks pcie_clk_1] -to [get_clocks sys_clk_1]")
+            platform.toolchain.pre_placement_commands.append("set_false_path -from [get_clocks sys_clk] -to [get_clocks pcie_clk_1]")
+            platform.toolchain.pre_placement_commands.append("set_false_path -from [get_clocks pcie_clk_1] -to [get_clocks sys_clk]")
 
 # Build --------------------------------------------------------------------------------------------
 
