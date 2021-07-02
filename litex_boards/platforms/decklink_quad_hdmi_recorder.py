@@ -172,3 +172,6 @@ class Platform(XilinxPlatform):
         XilinxPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk24",  loose=True), 1e9/24e6)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)
+        self.add_platform_command("set_property INTERNAL_VREF 0.75 [get_iobanks 44]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.75 [get_iobanks 45]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.75 [get_iobanks 46]")
