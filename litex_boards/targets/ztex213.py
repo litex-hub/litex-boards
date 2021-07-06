@@ -62,7 +62,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="ztex2.13a", sys_clk_freq=int(100e6), expansion="debug", **kwargs):
+    def __init__(self, variant="ztex2.13a", sys_clk_freq=int(100e6), expansion="debug",
+                 with_led_chaser=True, **kwargs):
         platform = ztex213.Platform(variant=variant, expansion=expansion)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -87,9 +88,10 @@ class BaseSoC(SoCCore):
             )
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

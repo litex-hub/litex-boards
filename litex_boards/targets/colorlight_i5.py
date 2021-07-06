@@ -99,7 +99,10 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0xd0000000}}
-    def __init__(self, board="i5", revision="7.0", sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, local_ip="", remote_ip="", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
+    def __init__(self, board="i5", revision="7.0", sys_clk_freq=60e6, with_ethernet=False,
+                 with_etherbone=False, local_ip="", remote_ip="", eth_phy=0, with_led_chaser=True, 
+                 use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
+                 with_video_framebuffer=False, **kwargs):
         board = board.lower()
         assert board in ["i5"]
         if board == "i5":
@@ -117,8 +120,9 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq, use_internal_osc=use_internal_osc, with_usb_pll=with_usb_pll, with_video_pll=with_video_pll, sdram_rate=sdram_rate)
 
         # Leds -------------------------------------------------------------------------------------
-        ledn = platform.request_all("user_led_n")
-        self.submodules.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
+        if with_led_chaser:
+            ledn = platform.request_all("user_led_n")
+            self.submodules.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
         self.add_spi_flash(mode="1x", dummy_cycles=8)

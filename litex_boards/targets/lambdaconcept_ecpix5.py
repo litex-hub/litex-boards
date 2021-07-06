@@ -78,7 +78,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, device="85F", sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, **kwargs):
+    def __init__(self, device="85F", sys_clk_freq=int(75e6), with_ethernet=False,
+                 with_etherbone=False, with_led_chaser=True, **kwargs):
         platform = ecpix5.Platform(device=device, toolchain="trellis")
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -115,14 +116,15 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy)
 
         # Leds -------------------------------------------------------------------------------------
-        leds_pads = []
-        for i in range(4):
-            rgb_led_pads = platform.request("rgb_led", i)
-            self.comb += [getattr(rgb_led_pads, n).eq(1) for n in "gb"] # Disable Green/Blue Leds.
-            leds_pads += [getattr(rgb_led_pads, n) for n in "r"]
-        self.submodules.leds = LedChaser(
-            pads         = Cat(leds_pads),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            leds_pads = []
+            for i in range(4):
+                rgb_led_pads = platform.request("rgb_led", i)
+                self.comb += [getattr(rgb_led_pads, n).eq(1) for n in "gb"] # Disable Green/Blue Leds.
+                leds_pads += [getattr(rgb_led_pads, n) for n in "r"]
+            self.submodules.leds = LedChaser(
+                pads         = Cat(leds_pads),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

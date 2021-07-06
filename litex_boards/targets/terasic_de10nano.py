@@ -64,7 +64,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_mister_sdram=True, with_mister_video_terminal=False, sdram_rate="1:1", **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, with_mister_sdram=True,
+                 with_mister_video_terminal=False, sdram_rate="1:1", **kwargs):
         platform = de10nano.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -92,9 +93,10 @@ class BaseSoC(SoCCore):
             self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

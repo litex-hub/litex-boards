@@ -153,7 +153,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, **kwargs):
+    def __init__(self, with_led_chaser=True, **kwargs):
         sys_clk_freq = (83 + Fraction(1, 3))*1000*1000
         platform     = pipistrello.Platform()
 
@@ -185,9 +185,10 @@ class BaseSoC(SoCCore):
             )
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

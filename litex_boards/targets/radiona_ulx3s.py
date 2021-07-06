@@ -92,7 +92,8 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, device="LFE5U-45F", revision="2.0", toolchain="trellis",
         sys_clk_freq=int(50e6), sdram_module_cls="MT48LC16M16", sdram_rate="1:1",
-        with_video_terminal=False, with_video_framebuffer=False, spiflash=False, **kwargs):
+        with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
+        spiflash=False, **kwargs):
         platform = ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
         if spiflash:
             self.mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
@@ -130,9 +131,10 @@ class BaseSoC(SoCCore):
                 self.comb += platform.request("ext0p").eq(self.video_framebuffer.underflow) # FIXME: Remove, used to debug SDRAM underflows.
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
     def add_oled(self):
         pads = self.platform.request("oled_spi")

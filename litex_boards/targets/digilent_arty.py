@@ -61,7 +61,10 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False, ident_version=True, with_jtagbone=True, with_mapped_flash=False, **kwargs):
+    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6),
+                 with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
+                 eth_dynamic_ip=False, ident_version=True, with_led_chaser=True, with_jtagbone=True,
+                 with_mapped_flash=False, **kwargs):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -107,9 +110,10 @@ class BaseSoC(SoCCore):
             self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

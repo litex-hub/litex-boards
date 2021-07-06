@@ -147,7 +147,7 @@ class _CRGSDRAM(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, revision="0.2", device="25F", sdram_device="MT41K64M16",
-                 sys_clk_freq=int(48e6), toolchain="trellis", **kwargs):
+                 sys_clk_freq=int(48e6), toolchain="trellis", with_led_chaser=True, **kwargs):
         platform = orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # Serial -----------------------------------------------------------------------------------
@@ -197,9 +197,10 @@ class BaseSoC(SoCCore):
             )
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

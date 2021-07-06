@@ -69,7 +69,8 @@ class BaseSoC(SoCCore):
         "sram": 0x40000000,
         "csr":  0xf0000000,
     }
-    def __init__(self, sys_clk_freq=int(75e6), hyperram="none", toolchain="radiant", **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), hyperram="none", toolchain="radiant",
+                 with_led_chaser=True, **kwargs):
         platform = crosslink_nx_vip.Platform(toolchain=toolchain)
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
 
@@ -98,9 +99,10 @@ class BaseSoC(SoCCore):
             self.register_mem("sram", self.mem_map["sram"], self.hyperram.bus, size)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = Cat(*[platform.request("user_led", i) for i in range(4)]),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = Cat(*[platform.request("user_led", i) for i in range(4)]),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

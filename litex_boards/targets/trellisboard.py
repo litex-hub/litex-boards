@@ -111,7 +111,8 @@ class _CRGSDRAM(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), toolchain="trellis", with_ethernet=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), toolchain="trellis", with_ethernet=False,
+                 with_led_chaser=True, **kwargs):
         platform = trellisboard.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -145,9 +146,10 @@ class BaseSoC(SoCCore):
             self.add_ethernet(phy=self.ethphy)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

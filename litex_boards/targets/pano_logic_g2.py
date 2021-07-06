@@ -44,7 +44,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, revision, sys_clk_freq=int(50e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", **kwargs):
+    def __init__(self, revision, sys_clk_freq=int(50e6), with_ethernet=False, with_etherbone=False,
+                 eth_ip="192.168.1.50", with_led_chaser=True, **kwargs):
         platform = pano_logic_g2.Platform(revision=revision)
         if with_etherbone:
             sys_clk_freq = int(125e6)
@@ -71,9 +72,10 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

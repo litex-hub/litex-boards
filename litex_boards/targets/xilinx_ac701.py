@@ -56,7 +56,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, eth_phy="rgmii", with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, eth_phy="rgmii",
+                 with_led_chaser=True, with_pcie=False, **kwargs):
         platform = ac701.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -127,9 +128,10 @@ class BaseSoC(SoCCore):
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 def main():

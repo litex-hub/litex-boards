@@ -70,7 +70,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), with_led_chaser=True, **kwargs):
         kwargs["uart_name"] = "usb_acm" # Enforce UART to USB-ACM
         platform = fomu_pvt.Platform()
 
@@ -110,9 +110,10 @@ class BaseSoC(SoCCore):
         )
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led_n"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led_n"),
+                sys_clk_freq = sys_clk_freq)
 
 # Flash --------------------------------------------------------------------------------------------
 

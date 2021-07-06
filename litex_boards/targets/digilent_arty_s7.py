@@ -51,7 +51,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="s7-50", sys_clk_freq=int(100e6), **kwargs):
+    def __init__(self, variant="s7-50", sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
         platform = arty_s7.Platform(variant=variant)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -76,9 +76,10 @@ class BaseSoC(SoCCore):
             )
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

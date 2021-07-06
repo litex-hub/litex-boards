@@ -61,7 +61,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="a7-35", sys_clk_freq=int(100e6), with_pcie=False, with_ethernet=False, **kwargs):
+    def __init__(self, variant="a7-35", sys_clk_freq=int(100e6), with_pcie=False,
+                 with_ethernet=False, with_led_chaser=True, **kwargs):
         platform = netv2.Platform(variant=variant)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -100,9 +101,10 @@ class BaseSoC(SoCCore):
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
