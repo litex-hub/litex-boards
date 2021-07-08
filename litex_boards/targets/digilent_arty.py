@@ -34,7 +34,7 @@ from litespi import LiteSPI
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, with_mapped_flash):
+    def __init__(self, platform, sys_clk_freq, with_mapped_flash=False):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
