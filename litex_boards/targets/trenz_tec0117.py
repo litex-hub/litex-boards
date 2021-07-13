@@ -59,8 +59,8 @@ class BaseSoC(SoCCore):
         # Use custom default configuration to fit in LittleBee.
         kwargs["integrated_sram_size"] = 0x1000
         kwargs["integrated_rom_size"]  = 0x6000
-        kwargs["cpu_type"]     = "vexriscv"
-        kwargs["cpu_variant"]  = "lite"
+        if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
+            kwargs["cpu_variant"]  = "lite"
 
         # Set CPU variant / reset address
         kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
