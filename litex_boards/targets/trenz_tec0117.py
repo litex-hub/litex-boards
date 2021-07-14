@@ -47,7 +47,6 @@ class _CRG(Module):
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
-        self.comb += self.cd_sys.rst.eq(~rst_n) # FIXME: Move to GW1NPLL and use lock.
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
