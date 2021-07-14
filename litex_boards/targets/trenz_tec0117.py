@@ -12,6 +12,7 @@ import argparse
 import importlib
 
 from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
@@ -35,6 +36,7 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys   = ClockDomain()
+        self.clock_domains.cd_sys2x = ClockDomain()
 
         # # #
 
@@ -46,7 +48,14 @@ class _CRG(Module):
         self.submodules.pll = pll = GW1NPLL(device="GW1N9K")
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk100, 100e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        pll.create_clkout(self.cd_sys2x, 2*sys_clk_freq, with_reset=False)
+        self.specials += Instance("CLKDIV",
+            p_DIV_MODE= "2",
+            i_RESETN = rst_n,
+            i_HCLKIN = self.cd_sys2x.clk,
+            o_CLKOUT = self.cd_sys.clk
+        )
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -100,7 +109,8 @@ class BaseSoC(SoCCore):
                     self.dq    = platform.request("IO_sdram_dq")
             sdram_pads = SDRAMPads()
 
-            self.specials += DDROutput(0, 1, sdram_pads.clk, ClockSignal("sys")) # FIXME: use phase shift from PLL.
+            sdram_clk = ClockSignal("sys2x" if sdram_rate == "1:2" else "sys") # FIXME: use phase shift from PLL.
+            self.specials += DDROutput(0, 1, sdram_pads.clk, sdram_clk)
 
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
