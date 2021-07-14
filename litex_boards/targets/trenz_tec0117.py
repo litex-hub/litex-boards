@@ -13,7 +13,7 @@ import importlib
 
 from migen import *
 
-from litex.build.io import CRG
+from litex.build.io import DDROutput
 
 from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
 from litex.soc.integration.soc_core import *
@@ -100,7 +100,7 @@ class BaseSoC(SoCCore):
                     self.dq    = platform.request("IO_sdram_dq")
             sdram_pads = SDRAMPads()
 
-            self.comb += sdram_pads.clk.eq(~ClockSignal("sys")) # FIXME: use phase shift from PLL.
+            self.specials += DDROutput(0, 1, sdram_pads.clk, ClockSignal("sys")) # FIXME: use phase shift from PLL.
 
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
