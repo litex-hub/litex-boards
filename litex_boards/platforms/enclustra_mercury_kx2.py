@@ -21,8 +21,8 @@ _io = [
     # Leds
     ("user_led", 0, Pins("U9"),  IOStandard("LVCMOS15")),
     ("user_led", 1, Pins("V12"), IOStandard("LVCMOS15")),
-    ("user_led", 2, Pins("V13"), IOStandard("LVCMOS15")),
-    ("user_led", 3, Pins("W13"), IOStandard("LVCMOS15")),
+    #("user_led", 2, Pins("V13"), IOStandard("LVCMOS15")),
+    #("user_led", 3, Pins("W13"), IOStandard("LVCMOS15")),
 
     # Serial
     ("serial", 0,

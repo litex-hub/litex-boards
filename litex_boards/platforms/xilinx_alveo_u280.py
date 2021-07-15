@@ -258,3 +258,6 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]")
         self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN Pullup [current_design]")
         self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR Yes [current_design]")
+
+        # For HBM2 IP in Vivado 2019.2 (https://www.xilinx.com/support/answers/72607.html)
+        self.add_platform_command("connect_debug_port dbg_hub/clk [get_nets apb_clk]")

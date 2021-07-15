@@ -3,7 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2021 Jakub Cabal <jakubcabal@gmail.com>
+# Copyright (c) 2019-2021 Antti Lukats <antti.lukats@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -11,9 +11,9 @@ import argparse
 
 from migen import *
 
-from litex_boards.platforms import cyc1000
+from litex_boards.platforms import max1000
 
-from litex.soc.cores.clock import Cyclone10LPPLL
+from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -35,7 +35,7 @@ class _CRG(Module):
         clk12 = platform.request("clk12")
 
         # PLL
-        self.submodules.pll = pll = Cyclone10LPPLL(speedgrade="-C8")
+        self.submodules.pll = pll = CycloneVPLL(speedgrade="-C8")
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -48,7 +48,10 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), **kwargs):
-        platform = cyc1000.Platform()
+        platform = max1000.Platform()
+
+        kwargs["integrated_rom_size"]  = 0x6000
+        kwargs["integrated_sram_size"] = 0x1000
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -65,7 +68,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = M12L64322A(sys_clk_freq, "1:1"), # Winbond W9864G6JT
-                l2_cache_size = kwargs.get("l2_size", 8192)
+                l2_cache_size = kwargs.get("l2_size", 0)
             )
 
         # Leds -------------------------------------------------------------------------------------
@@ -76,7 +79,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on CYC1000")
+    parser = argparse.ArgumentParser(description="LiteX SoC on MAX1000")
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",  default=50e6,        help="System clock frequency (default: 50MHz)")

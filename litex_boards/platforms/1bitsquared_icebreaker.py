@@ -7,7 +7,7 @@
 # iCEBreaker FPGA:
 # - Crowd Supply campaign: https://www.crowdsupply.com/1bitsquared/icebreaker
 # - 1BitSquared Store: https://1bitsquared.com/products/icebreaker
-# - Design files: https://github.com/icebreaker/icebreaker
+# - Design files: https://github.com/icebreaker-fpga/icebreaker
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
@@ -92,6 +92,51 @@ dvi_pmod = [
         Subsignal("r",     Pins("PMOD1A:5 PMOD1A:1 PMOD1A:4 PMOD1A:0")),
         Subsignal("g",     Pins("PMOD1A:7 PMOD1A:3 PMOD1A:6 PMOD1A:2")),
         Subsignal("b",     Pins("PMOD1B:2 PMOD1B:5 PMOD1B:4 PMOD1B:0")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
+usb_pmod_1a = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD1A:2")),
+        Subsignal("d_n",    Pins("PMOD1A:3")),
+        Subsignal("pullup", Pins("PMOD1A:0")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
+usb_pmod_1b = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD1B:2")),
+        Subsignal("d_n",    Pins("PMOD1B:3")),
+        Subsignal("pullup", Pins("PMOD1B:0")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
+usb_pmod_2 = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD2:2")),
+        Subsignal("d_n",    Pins("PMOD2:3")),
+        Subsignal("pullup", Pins("PMOD2:0")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
+usb_tnt = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD1B:3")),
+        Subsignal("d_n",    Pins("PMOD1B:2")),
+        Subsignal("pullup", Pins("PMOD1B:1")),
+        IOStandard("LVCMOS33"),
+    )
+]
+
+usb_kbeckmann = [
+    ("usb", 0,
+        Subsignal("d_p",    Pins("PMOD1B:0")),
+        Subsignal("d_n",    Pins("PMOD1B:1")),
+        Subsignal("pullup", Pins("PMOD1B:2")),
         IOStandard("LVCMOS33"),
     )
 ]

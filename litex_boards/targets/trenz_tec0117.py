@@ -12,8 +12,9 @@ import argparse
 import importlib
 
 from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.build.io import CRG
+from litex.build.io import DDROutput
 
 from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
 from litex.soc.integration.soc_core import *
@@ -35,6 +36,7 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys   = ClockDomain()
+        self.clock_domains.cd_sys2x = ClockDomain()
 
         # # #
 
@@ -46,8 +48,14 @@ class _CRG(Module):
         self.submodules.pll = pll = GW1NPLL(device="GW1N9K")
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk100, 100e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq)
-        self.comb += self.cd_sys.rst.eq(~rst_n) # FIXME: Move to GW1NPLL and use lock.
+        pll.create_clkout(self.cd_sys2x, 2*sys_clk_freq, with_reset=False)
+        self.specials += Instance("CLKDIV",
+            p_DIV_MODE= "2",
+            i_RESETN = rst_n,
+            i_HCLKIN = self.cd_sys2x.clk,
+            o_CLKOUT = self.cd_sys.clk
+        )
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -56,14 +64,9 @@ class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, sys_clk_freq=int(25e6), sdram_rate="1:1", **kwargs):
         platform = tec0117.Platform()
 
-        # Use custom default configuration to fit in LittleBee.
-        kwargs["integrated_sram_size"] = 0x1000
-        kwargs["integrated_rom_size"]  = 0x6000
-        kwargs["cpu_type"]     = "vexriscv"
-        kwargs["cpu_variant"]  = "lite"
-
-        # Set CPU variant / reset address
-        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
+        # Put BIOS in SPIFlash to save BlockRAMs.
+        kwargs["integrated_rom_size"] = 0
+        kwargs["cpu_reset_address"]   = self.mem_map["spiflash"] + bios_flash_offset
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -75,15 +78,14 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
-        self.add_spi_flash(mode="1x", dummy_cycles=8)
+        self.add_spi_flash(mode="4x", dummy_cycles=6)
 
         # Add ROM linker region --------------------------------------------------------------------
-        # FIXME: SPI Flash does not seem responding, power down set after loading bitstream?
-        #self.bus.add_region("rom", SoCRegion(
-        #    origin = self.mem_map["spiflash"] + bios_flash_offset,
-        #    size   = 32*kB,
-        #    linker = True)
-        #)
+        self.bus.add_region("rom", SoCRegion(
+            origin = self.mem_map["spiflash"] + bios_flash_offset,
+            size   = 32*kB,
+            linker = True)
+        )
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -101,7 +103,8 @@ class BaseSoC(SoCCore):
                     self.dq    = platform.request("IO_sdram_dq")
             sdram_pads = SDRAMPads()
 
-            self.comb += sdram_pads.clk.eq(~ClockSignal("sys")) # FIXME: use phase shift from PLL.
+            sdram_clk = ClockSignal("sys2x" if sdram_rate == "1:2" else "sys") # FIXME: use phase shift from PLL.
+            self.specials += DDROutput(0, 1, sdram_pads.clk, sdram_clk)
 
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
@@ -120,34 +123,6 @@ class BaseSoC(SoCCore):
 # Flash --------------------------------------------------------------------------------------------
 
 def flash(bios_flash_offset):
-    # Prepare Flash image.
-    # --------------------
-    bitstream  = open("build/tec0117/gateware/impl/pnr/project.bin",  "rb")
-    bios       = open("build/tec0117/software/bios/bios.bin", "rb")
-    image      = open("build/tec0117/image.bin", "wb")
-    # Copy Bitstream at 0.
-    blength = 0
-    while True:
-        b = bitstream.read(1)
-        if not b:
-            break
-        else:
-           image.write(b)
-           blength += 1
-    # Check Bitstream/BIOS overlap.
-    if blength > bios_flash_offset:
-        raise ValueError(f"Bitstream/BIOS overlap 0x{blength:08x} vs 0x{bios_flash_offset:08x}, increase BIOS Flash offset.")
-    # Fill Gap between Bitstream/BIOS with zeroes.
-    for i in range(bios_flash_offset - blength):
-         image.write(0x00.to_bytes(1, "big"))
-    # Copy BIOS at bios_flash_offset
-    while True:
-        b = bios.read(1)
-        if not b:
-            break
-        else:
-           image.write(b)
-
     # Create FTDI <--> SPI Flash proxy bitstream and load it.
     # -------------------------------------------------------
     platform = tec0117.Platform()
@@ -171,10 +146,10 @@ def flash(bios_flash_offset):
     dev.TIMINGS["chip"] = (4, 60) # Chip is too slow
     print("Erasing flash...")
     dev.erase(0, -1)
-    with open("build/tec0117/image.bin", "rb") as f:
-        image = f.read()
+    with open("build/trenz_tec0117/software/bios/bios.bin", "rb") as f:
+        bios = f.read()
     print("Programming flash...")
-    dev.write(0, image)
+    dev.write(bios_flash_offset, bios)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -182,7 +157,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on TEC0117")
     parser.add_argument("--build",             action="store_true", help="Build bitstream")
     parser.add_argument("--load",              action="store_true", help="Load bitstream")
-    parser.add_argument("--bios-flash-offset", default=0x80000,     help="BIOS offset in SPI Flash (0x00000 default)")
+    parser.add_argument("--bios-flash-offset", default=0x0000,      help="BIOS offset in SPI Flash (0x00000 default)")
     parser.add_argument("--flash",             action="store_true", help="Flash Bitstream and BIOS")
     parser.add_argument("--sys-clk-freq",      default=25e6,        help="System clock frequency (default: 25MHz)")
     builder_args(parser)
@@ -202,9 +177,9 @@ def main():
         prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
 
     if args.flash:
-        # flash(args.bios_flash_offset) FIXME.
         prog = soc.platform.create_programmer()
         prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        flash(args.bios_flash_offset)
 
 if __name__ == "__main__":
     main()

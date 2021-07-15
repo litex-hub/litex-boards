@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 import os
 import argparse
@@ -61,7 +64,7 @@ class BaseSoC(SoCMini):
         # SoCCore ----------------------------------------------------------------------------------
         kwargs["uart_name"] = "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Blackmagic Declkink Mini 4K",
+            ident          = "LiteX SoC on Blackmagic Decklink Mini 4K",
             ident_version  = True,
             **kwargs)
 

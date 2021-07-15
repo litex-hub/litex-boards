@@ -34,7 +34,7 @@ _io_v6_1 = [ # Documented by @smunaut
     # SPIFlash (GD25Q16CSIG)
     ("spiflash", 0,
         Subsignal("cs_n", Pins("R2")),
-        Subsignal("clk",  Pins("U3")),
+        #Subsignal("clk",  Pins("")), driven through USRMCLK
         Subsignal("mosi", Pins("W2")),
         Subsignal("miso", Pins("V2")),
         IOStandard("LVCMOS33"),
