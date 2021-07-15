@@ -2541,8 +2541,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.WRITE_PERCENT_31">40</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.Component_Name">hbm_0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.HBM_MMCM1_CLKOUTDIV0">2</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.HBM_MMCM1_DIVCLK_DIV0">2</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.HBM_MMCM1_FBOUT_MULT0">18</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.HBM_MMCM1_DIVCLK_DIV0">1</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.HBM_MMCM1_FBOUT_MULT0">9</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.HBM_MMCM_CLKOUTDIV0">2</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.HBM_MMCM_DIVCLK_DIV0">2</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.HBM_MMCM_FBOUT_MULT0">18</spirit:configurableElementValue>
@@ -2556,9 +2556,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_CLK1_FREQ">450</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_CLK_FREQ">450</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK1_FREQ">100</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK1_NS">10.000</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK1_NS">10</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK1_PS">10000</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK1_XDC">10.000</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK1_XDC">10</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK_FREQ">100</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK_NS">10.000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK_PS">10000</spirit:configurableElementValue>
@@ -2599,8 +2599,8 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_CLK_SEL_LIST0">AXI_07_ACLK</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_CLK_SEL_LIST1">AXI_23_ACLK</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_DEBUG_EN">FALSE</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_DFI_CLK0_FREQ">450.000</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_DFI_CLK1_FREQ">450.000</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_DFI_CLK0_FREQ">450</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_DFI_CLK1_FREQ">450</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_DIS_REF_CLK_BUFG">FALSE</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_ENABLE_DQS_TRAINING_0">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_ENABLE_DQS_TRAINING_1">false</spirit:configurableElementValue>
@@ -2674,9 +2674,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_HBM_RES_1">10</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_HBM_STACK">2</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_HBM_TCK_0">900</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_HBM_TCK_0_PERIOD">1.1111111111111112</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_HBM_TCK_0_PERIOD">1.111</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_HBM_TCK_1">900</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_HBM_TCK_1_PERIOD">1.1111111111111112</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_HBM_TCK_1_PERIOD">1.111</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_HYNIX_MEM">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_INIT_BYPASS">FALSE</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_INIT_TIMEOUT_VAL">10000000</spirit:configurableElementValue>
@@ -2699,7 +2699,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_COL_ADDR_HIGH">0xa</spirit:configurableElementValue>
@@ -2721,9 +2721,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_LADDR_BA5_MAP">0x00</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -2747,9 +2747,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC0_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -2759,7 +2759,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -2781,9 +2781,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -2807,9 +2807,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC10_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -2819,7 +2819,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -2841,9 +2841,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -2867,9 +2867,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC11_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -2879,7 +2879,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -2901,9 +2901,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -2927,9 +2927,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC12_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -2939,7 +2939,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -2961,9 +2961,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -2987,9 +2987,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC13_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -2999,7 +2999,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3021,9 +3021,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3047,9 +3047,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC14_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3059,7 +3059,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3081,9 +3081,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3107,9 +3107,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC15_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3119,7 +3119,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3141,9 +3141,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3167,9 +3167,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC1_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3179,7 +3179,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3201,9 +3201,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3227,9 +3227,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC2_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3239,7 +3239,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3261,9 +3261,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3287,9 +3287,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC3_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3299,7 +3299,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3321,9 +3321,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3347,9 +3347,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC4_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3359,7 +3359,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3381,9 +3381,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3407,9 +3407,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC5_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3419,7 +3419,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3441,9 +3441,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3467,9 +3467,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC6_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3479,7 +3479,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3501,9 +3501,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3527,9 +3527,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC7_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3539,7 +3539,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3561,9 +3561,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3587,9 +3587,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC8_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3599,7 +3599,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_ADDR_BIT">RA13,RA12,RA11,RA10,RA9,RA8,RA7,RA6,RA5,RA4,RA3,RA2,RA1,RA0,BG1,BA1,BA0,CA5,CA4,CA3,CA2,CA1,BG0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_BG_INTERLEAVE_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_BURST_RW_REFRESH_HOLDOFF">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_CA0_CA5_MAP">0x1c61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_CA0_CA5_MAP">0x185103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_CA_PARITY_EN">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_CLOSE_PAGE_REORDER">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_COL_ADDR_HIGH">0x4</spirit:configurableElementValue>
@@ -3621,9 +3621,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_INITILIZE_MEM_USING_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_INITILIZE_MEM_USING_RMW_ECC_SCRUB">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_INIT_PERR_RETRY_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_LADDR_BA0_BA4_MAP">0x00282248</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_LADDR_BA0_BA4_MAP">0x00289207</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_LADDR_BA5_MAP">0x05</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_LADDR_CA0_CA4_MAP">0xc61440c0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_LADDR_CA0_CA4_MAP">0x85103080</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_LADDR_CA10_CA15_MAP">0x00000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_LADDR_CA5_CA9_MAP">0x00000001</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_LADDR_RA0_RA4_MAP">0x0f38d30b</spirit:configurableElementValue>
@@ -3647,9 +3647,9 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_REF_TEMP_COMP">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_REORDER_EN">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_REORDER_QUEUE_EN">true</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_REORDER_RW_ONLY">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_REORDER_RW_ONLY">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_RMW_EN">false</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_SBREF_ISSUE_PER">0x01E</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_SBREF_ISSUE_PER">0x01e</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_TEMP_CTRL_SELF_REF_INTVL">false</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_TRAFFIC_OPTION">User_Defined</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_MC9_USER_PARITY_EN">false</spirit:configurableElementValue>
@@ -3827,14 +3827,14 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRCDWR_1">0x09</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRC_0">0x2B</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRC_1">0x2B</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRFCSB_0">0x90</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRFCSB_1">0x90</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRFC_0">0x0EA</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRFC_1">0x0EA</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRFCSB_0">0x91</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRFCSB_1">0x91</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRFC_0">0x0EB</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRFC_1">0x0EB</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRP_0">0x0D</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRP_1">0x0D</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRRDL_0">0x04</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRRDL_1">0x04</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRRDL_0">0x06</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRRDL_1">0x06</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRRDS_0">0x04</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRRDS_1">0x04</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.USER_tRREFD_0">0x8</spirit:configurableElementValue>
@@ -5374,9 +5374,161 @@
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SAXI_31_8HI.RUSER_WIDTH" xilinx:valueSource="constant"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SAXI_31_8HI.SUPPORTS_NARROW_BURST" xilinx:valueSource="auto"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SAXI_31_8HI.WUSER_WIDTH" xilinx:valueSource="constant"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.HBM_MMCM1_DIVCLK_DIV0" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.HBM_MMCM1_FBOUT_MULT0" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK1_NS" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_AXI_INPUT_CLK1_XDC" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_CLK_SEL_LIST1" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_DFI_CLK0_FREQ" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_DFI_CLK1_FREQ" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_HBM_DENSITY" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_HBM_STACK" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_HBM_TCK_0_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_HBM_TCK_1_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC0_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC0_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC0_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC0_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC0_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC0_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC0_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC0_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC0_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC10_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC10_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC10_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC10_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC10_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC10_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC10_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC10_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC10_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC11_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC11_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC11_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC11_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC11_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC11_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC11_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC11_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC11_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC12_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC12_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC12_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC12_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC12_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC12_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC12_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC12_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC12_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC13_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC13_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC13_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC13_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC13_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC13_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC13_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC13_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC13_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC14_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC14_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC14_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC14_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC14_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC14_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC14_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC14_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC14_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC15_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC15_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC15_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC15_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC15_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC15_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC15_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC15_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC15_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC1_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC1_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC1_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC1_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC1_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC1_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC1_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC1_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC1_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC2_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC2_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC2_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC2_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC2_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC2_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC2_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC2_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC2_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC3_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC3_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC3_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC3_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC3_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC3_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC3_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC3_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC3_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC4_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC4_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC4_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC4_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC4_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC4_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC4_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC4_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC4_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC5_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC5_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC5_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC5_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC5_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC5_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC5_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC5_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC5_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC6_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC6_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC6_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC6_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC6_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC6_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC6_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC6_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC6_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC7_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC7_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC7_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC7_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC7_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC7_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC7_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC7_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC7_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC8_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC8_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC8_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC8_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC8_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC8_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC8_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC8_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC8_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC9_ADDR_BIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC9_BG_INTERLEAVE_EN" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC9_CA0_CA5_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC9_LADDR_BA0_BA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC9_LADDR_CA0_CA4_MAP" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC9_Q_AGE_LIMIT" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC9_REF_CMD_PERIOD" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC9_REORDER_RW_ONLY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC9_SBREF_ISSUE_PER" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC_ENABLE_08" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC_ENABLE_09" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC_ENABLE_10" xilinx:valueSource="user"/>
@@ -5387,6 +5539,8 @@
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC_ENABLE_15" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MC_ENABLE_APB_01" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_MEMORY_DISPLAY" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_PAGEHIT_PERCENT_00" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_PAGEHIT_PERCENT_01" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_PHY_ENABLE_08" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_PHY_ENABLE_09" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_PHY_ENABLE_10" xilinx:valueSource="user"/>
@@ -5395,7 +5549,78 @@
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_PHY_ENABLE_13" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_PHY_ENABLE_14" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_PHY_ENABLE_15" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_00" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_01" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_02" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_03" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_04" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_05" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_06" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_07" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_08" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_09" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_10" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_11" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_12" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_13" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_14" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_15" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_16" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_17" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_18" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_19" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_20" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_21" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_22" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_23" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_24" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_25" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_26" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_27" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_28" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_29" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_30" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_READ_PERCENT_31" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_SINGLE_STACK_SELECTION" xilinx:valueSource="user"/>
             <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_SWITCH_ENABLE_01" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_00" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_01" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_02" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_03" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_04" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_05" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_06" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_07" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_08" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_09" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_10" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_11" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_12" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_13" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_14" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_15" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_16" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_17" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_18" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_19" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_20" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_21" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_22" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_23" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_24" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_25" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_26" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_27" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_28" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_29" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_30" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_WRITE_PERCENT_31" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_tRFCSB_0" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_tRFCSB_1" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_tRFC_0" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_tRFC_1" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_tRRDL_0" xilinx:valueSource="user"/>
+            <xilinx:configElementInfo xilinx:referenceId="PARAM_VALUE.USER_tRRDL_1" xilinx:valueSource="user"/>
           </xilinx:configElementInfos>
         </xilinx:componentInstanceExtensions>
       </spirit:vendorExtensions>
