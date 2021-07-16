@@ -119,7 +119,9 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board, revision, sys_clk_freq=60e6, with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_phy=0, use_internal_osc=False, sdram_rate="1:1", **kwargs):
+    def __init__(self, board, revision, sys_clk_freq=60e6, with_ethernet=False,
+                 with_etherbone=False, eth_ip="192.168.1.50", eth_phy=0, with_led_chaser=True,
+                 use_internal_osc=False, sdram_rate="1:1", **kwargs):
         board = board.lower()
         assert board in ["5a-75b", "5a-75e"]
         if board == "5a-75b":
@@ -167,7 +169,8 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # Leds -------------------------------------------------------------------------------------
-        if platform.lookup_request("serial", loose=True) is None: # Disable leds when serial is used.
+        # Disable leds when serial is used.
+        if platform.lookup_request("serial", loose=True) is None and with_led_chaser:
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)

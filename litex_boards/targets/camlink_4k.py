@@ -72,7 +72,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="trellis", **kwargs):
+    def __init__(self, toolchain="trellis", with_led_chaser=True, **kwargs):
         platform     = camlink_4k.Platform(toolchain=toolchain)
         sys_clk_freq = int(81e6)
 
@@ -98,7 +98,8 @@ class BaseSoC(SoCCore):
             )
 
         # Leds -------------------------------------------------------------------------------------
-        if platform.lookup_request("serial", loose=True) is None: # Disable leds when serial is used.
+        # Disable leds when serial is used.
+        if platform.lookup_request("serial", loose=True) is None and with_led_chaser:
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)

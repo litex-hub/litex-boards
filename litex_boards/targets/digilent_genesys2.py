@@ -47,7 +47,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False,
+                 with_led_chaser=True, **kwargs):
         platform = genesys2.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -82,9 +83,10 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

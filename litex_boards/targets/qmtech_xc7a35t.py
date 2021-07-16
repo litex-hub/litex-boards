@@ -76,7 +76,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_daughterboard=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
-                 with_video_terminal=False, with_video_framebuffer=False,
+                 with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
                  ident_version=True, with_jtagbone=True, with_mapped_flash=False, **kwargs):
         platform = qmtech_xc7a35t.Platform(toolchain=toolchain, with_daughterboard=with_daughterboard)
 
@@ -133,9 +133,10 @@ class BaseSoC(SoCCore):
                 self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
         if not with_daughterboard and kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "jtag_serial"

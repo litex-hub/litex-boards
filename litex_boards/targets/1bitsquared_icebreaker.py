@@ -70,7 +70,8 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(24e6), with_video_terminal=False, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=int(24e6), with_led_chaser=True,
+                 with_video_terminal=False, **kwargs):
         platform = icebreaker.Platform()
         platform.add_extension(icebreaker.break_off_pmod)
 
@@ -111,9 +112,10 @@ class BaseSoC(SoCCore):
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="sys")
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Flash --------------------------------------------------------------------------------------------
 

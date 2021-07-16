@@ -58,7 +58,7 @@ class BaseSoC(SoCCore):
     }
     mem_map.update(SoCCore.mem_map)
 
-    def __init__(self, sys_clk_freq=int(50e6), with_ethernet=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_ethernet=False, with_led_chaser=True, **kwargs):
         platform = c10lprefkit.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -92,9 +92,10 @@ class BaseSoC(SoCCore):
             self.add_ethernet(phy=self.ethphy)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

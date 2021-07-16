@@ -74,7 +74,9 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", with_video_terminal=False, with_video_framebuffer=False, video_timing="640x480@60Hz", **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False,
+                 eth_ip="192.168.1.50", with_led_chaser=True, with_video_terminal=False,
+                 with_video_framebuffer=False, video_timing="640x480@60Hz", **kwargs):
         platform = qmtech_wukong.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -111,9 +113,10 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:

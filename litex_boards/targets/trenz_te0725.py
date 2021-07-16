@@ -44,7 +44,7 @@ class BaseSoC(SoCCore):
         }
     }
 
-    def __init__(self, sys_clk_freq=int(100e6), **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
         platform = trenz_te0725.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -63,10 +63,11 @@ class BaseSoC(SoCCore):
         self.register_mem("hyperram", self.mem_map["hyperram"], self.hyperram.bus, size)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
+            self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
