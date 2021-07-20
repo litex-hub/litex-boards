@@ -75,8 +75,32 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    ("PMOD", "47 41 38 40 - - 36 42 39 37"),
+    ("pmod", "47 41 38 40 36 42 39 37"),
 ]
+
+# PMODs --------------------------------------------------------------------------------------------
+
+def sdcard_pmod_io(pmod):
+    return [
+        # SDCard PMOD:
+        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
+        # - https://github.com/antmicro/arty-expansion-board
+        ("spisdcard", 0,
+            Subsignal("clk",  Pins(f"{pmod}:3")),
+            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULL_MODE=UP")),
+            Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULL_MODE=UP")),
+            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULL_MODE=UP")),
+            IOStandard("LVCMOS33"),
+        ),
+        ("sdcard", 0,
+            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("PULL_MODE=UP")),
+            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULL_MODE=UP")),
+            Subsignal("clk",  Pins(f"{pmod}:3")),
+            Subsignal("cd",   Pins(f"{pmod}:6")),
+            IOStandard("LVCMOS33"),
+        ),
+]
+_sdcard_pmod_io = sdcard_pmod_io("pmod")
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -85,7 +109,7 @@ class Platform(GowinPlatform):
     default_clk_period = 1e9/12e6
 
     def __init__(self):
-        GowinPlatform.__init__(self, "GW1NR-LV9QN88C6/I5", _io, toolchain="gowin", devicename='GW1NR-9')
+        GowinPlatform.__init__(self, "GW1NR-LV9QN88C6/I5", _io, _connectors, toolchain="gowin", devicename='GW1NR-9')
 
     def create_programmer(self):
         return OpenFPGALoader("littlebee")

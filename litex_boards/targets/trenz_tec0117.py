@@ -60,8 +60,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(25e6), sdram_rate="1:1",
+    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x00000000}}
+    def __init__(self, bios_flash_offset=0x0000, sys_clk_freq=int(25e6), sdram_rate="1:1",
                  with_led_chaser=True, **kwargs):
         platform = tec0117.Platform()
 
@@ -84,7 +84,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.mem_map["spiflash"] + bios_flash_offset,
-            size   = 32*kB,
+            size   = 64*kB,
             linker = True)
         )
 
@@ -110,10 +110,9 @@ class BaseSoC(SoCCore):
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
             self.add_sdram("sdram",
-                phy                     = self.sdrphy,
-                module                  = MT48LC4M16(sys_clk_freq, sdram_rate), # FIXME.
-                l2_cache_size           = 128,
-                l2_cache_min_data_width = 256,
+                phy           = self.sdrphy,
+                module        = MT48LC4M16(sys_clk_freq, sdram_rate), # FIXME.
+                l2_cache_size = 128,
             )
 
         # Leds -------------------------------------------------------------------------------------
@@ -162,6 +161,9 @@ def main():
     parser.add_argument("--bios-flash-offset", default=0x0000,      help="BIOS offset in SPI Flash (0x00000 default)")
     parser.add_argument("--flash",             action="store_true", help="Flash Bitstream and BIOS")
     parser.add_argument("--sys-clk-freq",      default=25e6,        help="System clock frequency (default: 25MHz)")
+    sdopts = parser.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",     action="store_true", help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",         action="store_true", help="Enable SDCard support")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -171,7 +173,13 @@ def main():
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
-    builder = Builder(soc, **builder_argdict(args), bios_options=["TERM_MINI"])
+    soc.platform.add_extension(tec0117._sdcard_pmod_io)
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
+
+    builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
     if args.load:
