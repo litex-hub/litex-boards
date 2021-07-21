@@ -20,6 +20,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOTristate
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
@@ -64,7 +65,7 @@ class BaseSoC(SoCCore):
     def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6),
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
                  eth_dynamic_ip=False, ident_version=True, with_led_chaser=True, with_jtagbone=True,
-                 with_mapped_flash=False, **kwargs):
+                 with_mapped_flash=False, with_pmod_gpio=False, **kwargs):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -115,6 +116,11 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # GPIOs ------------------------------------------------------------------------------------
+        if with_pmod_gpio:
+            platform.add_extension(arty.raw_pmod_io("pmoda"))
+            self.submodules.gpio = GPIOTristate(platform.request("pmoda"))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -136,6 +142,7 @@ def main():
     parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
     parser.add_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support")
     parser.add_argument("--with-mapped-flash",   action="store_true",              help="Enable Memory Mapped Flash")
+    parser.add_argument("--with-pmod-gpio",      action="store_true",              help="Enable GPIOs through PMOD") # FIXME: Temporary test.
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -154,6 +161,7 @@ def main():
         ident_version     = args.no_ident_version,
         with_jtagbone     = args.with_jtagbone,
         with_mapped_flash = args.with_mapped_flash,
+        with_pmod_gpio    = args.with_pmod_gpio,
         **soc_core_argdict(args)
     )
     if args.sdcard_adapter == "numato":

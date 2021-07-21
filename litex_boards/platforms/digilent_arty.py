@@ -250,6 +250,9 @@ _connectors = [
 
 # PMODS --------------------------------------------------------------------------------------------
 
+def raw_pmod_io(pmod):
+    return [(pmod, 0, Pins(" ".join([f"{pmod}:{i:d}" for i in range(8)])), IOStandard("LVCMOS33"))]
+
 def usb_pmod_io(pmod):
     return [
         # USB-UART PMOD: https://store.digilentinc.com/pmod-usbuart-usb-to-uart-interface/
