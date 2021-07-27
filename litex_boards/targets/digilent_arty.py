@@ -27,11 +27,6 @@ from litedram.phy import s7ddrphy
 
 from liteeth.phy.mii import LiteEthPHYMII
 
-from litespi.modules import S25FL128L
-from litespi.opcodes import SpiNorFlashOpCodes as Codes
-from litespi.phy.generic import LiteSPIPHY
-from litespi import LiteSPI
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -105,10 +100,9 @@ class BaseSoC(SoCCore):
 
         # Flash (through LiteSPI, experimental).
         if with_mapped_flash:
-            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash4x"), S25FL128L(Codes.READ_1_1_4))
-            self.submodules.spiflash_mmap = LiteSPI(self.spiflash_phy, clk_freq=sys_clk_freq, mmap_endianness=self.cpu.endianness)
-            spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=S25FL128L.total_size, cached=False)
-            self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)
+            from litespi.modules import S25FL128L
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=S25FL128L(Codes.READ_1_1_4), with_master=True)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
