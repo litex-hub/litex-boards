@@ -104,7 +104,7 @@ class BaseSoC(SoCCore):
             from litespi.phy.generic import LiteSPIPHY
             from litespi import LiteSPI
             self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash4x"), W25Q128JV(Codes.READ_1_1_4))
-            self.submodules.spiflash_mmap = LiteSPI(self.spiflash_phy, clk_freq=sys_clk_freq, mmap_endianness=self.cpu.endianness)
+            self.submodules.spiflash_mmap = LiteSPI(self.spiflash_phy, clk_freq=sys_clk_freq, with_master=False, mmap_endianness=self.cpu.endianness)
             spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=W25Q128JV.total_size, cached=False)
             self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)
         else:
