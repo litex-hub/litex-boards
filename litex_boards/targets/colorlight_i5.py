@@ -19,7 +19,6 @@ from litex_boards.platforms import colorlight_i5
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
 from litex.soc.cores.clock import *
-from litex.soc.cores.spi_flash import SpiFlash
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoECP5HDMIPHY

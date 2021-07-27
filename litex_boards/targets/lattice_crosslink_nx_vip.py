@@ -22,7 +22,6 @@ from litex_boards.platforms import crosslink_nx_vip
 from litehyperbus.core.hyperbus import HyperRAM
 
 from litex.soc.cores.ram import NXLRAM
-from litex.soc.cores.spi_flash import SpiFlash
 from litex.build.io import CRG
 from litex.build.generic_platform import *
 

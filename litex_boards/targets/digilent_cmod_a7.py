@@ -17,7 +17,6 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex_boards.platforms import digilent_cmod_a7
 
-#from litex.soc.cores.spi_flash import SpiFlash
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion

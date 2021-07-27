@@ -16,7 +16,6 @@ from litex.build.io import CRG
 
 from litex_boards.platforms import tinyfpga_bx
 
-from litex.soc.cores.spi_flash import SpiFlash
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
