@@ -97,18 +97,10 @@ class BaseSoC(SoCCore):
 
 
         # SPI Flash --------------------------------------------------------------------------------
-        use_litespi = False
-        if use_litespi:
-            from litespi.modules import W25Q128JV
-            from litespi.opcodes import SpiNorFlashOpCodes as Codes
-            from litespi.phy.generic import LiteSPIPHY
-            from litespi import LiteSPI
-            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash4x"), W25Q128JV(Codes.READ_1_1_4))
-            self.submodules.spiflash_mmap = LiteSPI(self.spiflash_phy, clk_freq=sys_clk_freq, master_fifo_depth=1, mmap_endianness=self.cpu.endianness)
-            spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=W25Q128JV.total_size, cached=False)
-            self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)
-        else:
-            self.add_spi_flash(mode="1x", dummy_cycles=8)
+        from litespi.modules import W25Q128JV
+        from litespi.opcodes import SpiNorFlashOpCodes as Codes
+        self.add_spi_flash(mode="4x", module=W25Q128JV(Codes.READ_1_1_4), with_master=False)
+        #self.add_spi_flash(mode="1x", dummy_cycles=8) # LiteX SPI Flash Core.
 
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
