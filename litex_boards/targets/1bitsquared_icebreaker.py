@@ -95,7 +95,6 @@ class BaseSoC(SoCCore):
         self.submodules.spram = Up5kSPRAM(size=128*kB)
         self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=128*kB))
 
-
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q128JV
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
