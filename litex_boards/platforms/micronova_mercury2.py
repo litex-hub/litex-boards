@@ -3,6 +3,7 @@
 #
 # Copyright (c) 2018 William D. Jones <thor0505@comcast.net>
 # Copyright (c) 2020 Staf Verhaegen <staf@fibraservi.eu>
+# Copyright (c) 2021 Michael T. Mayers <michael@tweakoz.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
