@@ -98,7 +98,7 @@ class BaseSoC(SoCCore):
         if with_jtagbone:
             self.add_jtagbone()
 
-        # Flash (through LiteSPI, experimental).
+        # SPI Flash --------------------------------------------------------------------------------
         if with_mapped_flash:
             from litespi.modules import S25FL128L
             from litespi.opcodes import SpiNorFlashOpCodes as Codes

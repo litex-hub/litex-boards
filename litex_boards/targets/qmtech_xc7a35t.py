@@ -26,11 +26,6 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT41J128M16
 from litedram.phy import s7ddrphy
 
-from litespi.modules import MT25QL128
-from litespi.opcodes import SpiNorFlashOpCodes as Codes
-from litespi.phy.generic import LiteSPIPHY
-from litespi import LiteSPI
-
 from liteeth.phy.mii import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -117,12 +112,11 @@ class BaseSoC(SoCCore):
         if with_jtagbone:
             self.add_jtagbone()
 
-        # Flash (through LiteSPI, experimental).
+        # SPI Flash --------------------------------------------------------------------------------
         if with_mapped_flash:
-            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash4x"), MT25QL128(Codes.READ_1_1_1))
-            self.submodules.spiflash_mmap = LiteSPI(self.spiflash_phy, clk_freq=sys_clk_freq, mmap_endianness=self.cpu.endianness)
-            spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=MT25QL128.total_size, cached=False)
-            self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)
+            from litespi.modules import MT25QL128
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=MT25QL128(Codes.READ_1_1_1), with_master=True)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
