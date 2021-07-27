@@ -168,7 +168,7 @@ def addCellularRAM(soc, platform, name, origin):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), with_led_chaser=True, with_ethernet=False, with_etherbone=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = digilent_nexys4.Platform()
 
         # SoCCore ----------------------------------_-----------------------------------------------
@@ -201,9 +201,10 @@ class BaseSoC(SoCCore):
                 self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

@@ -112,11 +112,11 @@ class BaseSoC(SoCCore):
     def __init__(self, 
                  variant="a7-35", 
                  toolchain="vivado", 
-                 sys_clk_freq=int(100e6), 
+                 sys_clk_freq=int(100e6),
+                 with_led_chaser=True,
                  ident_version=True, 
                  with_jtagbone=True, 
                  with_mapped_flash=False, 
-                 enable_leds = True,
                  **kwargs):
 
         platform = micronova_mercury2.Platform()
@@ -136,10 +136,10 @@ class BaseSoC(SoCCore):
         #self.add_timer()
 
         # Leds -------------------------------------------------------------------------------------
-        if enable_leds:
-          self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

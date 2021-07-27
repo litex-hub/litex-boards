@@ -115,7 +115,8 @@ def addAsyncSram(soc, platform, name, origin, size):
 class BaseSoC(SoCCore):
     def __init__(self,  variant="a7-35",
                  toolchain="vivado",
-                 sys_clk_freq=int(100e6), 
+                 sys_clk_freq=int(100e6),
+                 with_led_chaser=True,
                  ident_version=True, 
                  with_jtagbone=True, 
                  with_mapped_flash=False, 
@@ -136,9 +137,10 @@ class BaseSoC(SoCCore):
         addAsyncSram(self,platform,"main_ram",0x40000000,512*1024)        
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
-            pads         = platform.request_all("user_led"),
-            sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
