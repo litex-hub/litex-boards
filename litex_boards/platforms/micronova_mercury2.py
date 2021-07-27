@@ -45,26 +45,18 @@ _io = [
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
-_connectors = [
-]
+
+_connectors = []
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Xc7A35t_Platform(XilinxPlatform):
-    def __init__(self, io, conns ):
-        XilinxPlatform.__init__(self, "xc7a35tftg256-1", io, conns, toolchain="vivado")
-    def do_finalize(self,fragment):
-        self.add_period_constraint(self.lookup_request("clk50", loose=True), self.default_clk_period)
-
-def get_platform(base_platform):
-  class the_platform(base_platform):
+class Platform(XilinxPlatform):
+    default_clk_name   = "clk50"
+    default_clk_period = 1e9/50e6
 
     def __init__(self):
-        self.default_clk_name   = "clk50"
-        self.default_clk_period = 1e9/50e6
-        base_platform.__init__(self,_io, _connectors)
+        XilinxPlatform.__init__(self, "xc7a35tftg256-1", _io, _connectors, toolchain="vivado")
 
-    def do_finalize(self, fragment):
-        base_platform.do_finalize(self, fragment)
-
-  return the_platform()
+    def do_finalize(self,fragment):
+        XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk50", loose=True), self.default_clk_period)

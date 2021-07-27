@@ -119,8 +119,7 @@ class BaseSoC(SoCCore):
                  enable_leds = True,
                  **kwargs):
 
-        xc7a35t_base = micronova_mercury2.Xc7A35t_Platform
-        platform = micronova_mercury2.get_platform(xc7a35t_base)
+        platform = micronova_mercury2.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,

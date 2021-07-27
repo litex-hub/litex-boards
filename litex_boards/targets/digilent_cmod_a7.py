@@ -113,17 +113,15 @@ def addAsyncSram(soc, platform, name, origin, size):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, 
-                 variant="a7-35", 
-                 toolchain="vivado", 
+    def __init__(self,  variant="a7-35",
+                 toolchain="vivado",
                  sys_clk_freq=int(100e6), 
                  ident_version=True, 
                  with_jtagbone=True, 
                  with_mapped_flash=False, 
                  **kwargs):
 
-        xc7a35t_base = digilent_cmod_a7.Xc7A35t_Platform
-        platform = digilent_cmod_a7.get_platform(xc7a35t_base)
+        platform = digilent_cmod_a7.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
