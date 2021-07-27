@@ -16,9 +16,9 @@ _io = [
     # Clk / Rst
     ("clk12", 0, Pins("L17"), IOStandard("LVCMOS33")),
 
-    ## Buttons
+    # Buttons
     ("cpu_reset", 0, Pins("A18"), IOStandard("LVCMOS33")),
-    ("user_btn", 0, Pins("B18"), IOStandard("LVCMOS33")),
+    ("user_btn",  0, Pins("B18"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("A17"), IOStandard("LVCMOS33")),
@@ -37,22 +37,20 @@ _io = [
         Subsignal("rx", Pins("J17")),
         IOStandard("LVCMOS33")),
 
+    # SRAM
     ("issiram", 0,
-        Subsignal(
-            "addr",
-            Pins("M18 M19 K17 N17 P17 P18 R18 W19",
-                 "U19 V19 W18 T17 T18 U17 U18 V16",
-                 "W16 W17 V15"),
+        Subsignal("addr", Pins(
+            "M18 M19 K17 N17 P17 P18 R18 W19",
+            "U19 V19 W18 T17 T18 U17 U18 V16",
+            "W16 W17 V15"),
             IOStandard("LVCMOS33")),
-        Subsignal(
-            "data",
-            Pins("W15 W13 W14 U15 U16 V13 V14 U14"),
+        Subsignal("data", Pins(
+            "W15 W13 W14 U15 U16 V13 V14 U14"),
             IOStandard("LVCMOS33")),
         Subsignal("wen", Pins("R19"), IOStandard("LVCMOS33")),
         Subsignal("cen", Pins("N19"), IOStandard("LVCMOS33")),
         Misc("SLEW=FAST"),
     ),
-
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

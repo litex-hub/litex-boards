@@ -13,7 +13,7 @@ from litex.build.openocd import OpenOCD
 
 _io = [
     # Clk / Rst
-    ("clk100", 0, Pins("E3"), IOStandard("LVCMOS33")),
+    ("clk100",    0, Pins("E3"),  IOStandard("LVCMOS33")),
     ("cpu_reset", 0, Pins("C12"), IOStandard("LVCMOS33")),
 
     # Leds
@@ -118,24 +118,26 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # SRAM
     ("cellularram", 0,
-        Subsignal(
-            "addr",
-            Pins("J18 H17 H15 J17 H16 K15 K13 N15 V16 U14 V14 V12 P14 U16 R15 N14 N16 M13 V17 U17 T10 M16 U13"),
-            ),
-        Subsignal(
-            "data",
-            Pins("R12 T11 U12 R13 U18 R17 T18 R18 F18 G18 G17 M18 M17 P18 N17 P17"),
-            ),
-        Subsignal("oen", Pins("H14")),
-        Subsignal("wen", Pins("R11")),
-        Subsignal("clk", Pins("T15")),
-        Subsignal("adv", Pins("T13")),
+        Subsignal("addr", Pins(
+            "J18 H17 H15 J17 H16 K15 K13 N15",
+            "V16 U14 V14 V12 P14 U16 R15 N14",
+            "N16 M13 V17 U17 T10 M16 U13"),
+        ),
+        Subsignal("data", Pins(
+            "R12 T11 U12 R13 U18 R17 T18 R18",
+            "F18 G18 G17 M18 M17 P18 N17 P17"),
+        ),
+        Subsignal("oen",  Pins("H14")),
+        Subsignal("wen",  Pins("R11")),
+        Subsignal("clk",  Pins("T15")),
+        Subsignal("adv",  Pins("T13")),
         Subsignal("wait", Pins("T14")),
-        Subsignal("cen", Pins("L18")),
-        Subsignal("ub", Pins("J13")),
-        Subsignal("lb", Pins("J15")),
-        Subsignal("cre", Pins("J14")),
+        Subsignal("cen",  Pins("L18")),
+        Subsignal("ub",   Pins("J13")),
+        Subsignal("lb",   Pins("J15")),
+        Subsignal("cre",  Pins("J14")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33"),
     ),
@@ -179,10 +181,10 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    ("pmoda", "B13 F14 D17 E17 G13 C17 D18 E18"),
-    ("pmodb", "G14 P15 V11 V15 K16 R16 T9 U11"),
-    ("pmodc", "K2 E7 J3 J4 K1 E6 J2 G6"),
-    ("pmodd", "H4 H1 G1 G3 H2 G4 G2 F3"),
+    ("pmoda",    "B13 F14 D17 E17 G13 C17 D18 E18"),
+    ("pmodb",    "G14 P15 V11 V15 K16 R16  T9 U11"),
+    ("pmodc",    "K2   E7  J3  J4  K1  E6  J2  G6"),
+    ("pmodd",    "H4   H1  G1  G3  H2  G4  G2  F3"),
     ("pmodxdac", "A13 A15 B16 B18 A14 A16 B17 A18"),
 ]
 

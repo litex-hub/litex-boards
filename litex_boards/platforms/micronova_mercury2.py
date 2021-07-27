@@ -17,7 +17,7 @@ _io = [
     ("clk50", 0, Pins("N14"), IOStandard("LVCMOS33")),
 
     # Leds
-    ("user_led", 0, Pins("M1"), IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("M1"),  IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("A14"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("A13"), IOStandard("LVCMOS33")),
 
@@ -28,9 +28,16 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # SRAM
     ("issiram", 0,
-        Subsignal("addr", Pins("M4 N3 N4 P3 M5 E5 D5 D3  B7 B4 J4 H4 H3 G4 E6 A7  A5 A4 C4"), IOStandard("LVCMOS33")),
-        Subsignal("data", Pins("L5 L3 L4 R2 F3 F4 E3 D6"), IOStandard("LVCMOS33")),
+        Subsignal("addr", Pins(
+            "M4 N3 N4 P3 M5 E5 D5 D3",
+            "B7 B4 J4 H4 H3 G4 E6 A7",
+            "A5 A4 C4"),
+            IOStandard("LVCMOS33")),
+        Subsignal("data", Pins(
+            "L5 L3 L4 R2 F3 F4 E3 D6"),
+            IOStandard("LVCMOS33")),
         Subsignal("wen", Pins("R1"), IOStandard("LVCMOS33")),
         Subsignal("cen", Pins("M6"), IOStandard("LVCMOS33")),
         Misc("SLEW=FAST"),
