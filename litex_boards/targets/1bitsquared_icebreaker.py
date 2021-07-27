@@ -92,8 +92,8 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
-        self.submodules.spram = Up5kSPRAM(size=64*kB)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=64*kB))
+        self.submodules.spram = Up5kSPRAM(size=128*kB)
+        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=128*kB))
 
         # SPI Flash --------------------------------------------------------------------------------
         self.add_spi_flash(mode="1x", dummy_cycles=8)
