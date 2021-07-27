@@ -184,7 +184,7 @@ class Platform(XilinxPlatform):
 
     def __init__(self):
         XilinxPlatform.__init__(self, "xc7a100t-CSG324-1", _io, _connectors, toolchain="vivado")
-        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.900 [get_iobanks 34]")
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a100t.bit")
