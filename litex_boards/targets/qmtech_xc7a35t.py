@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_daughterboard=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
-                 ident_version=True, with_jtagbone=True, with_mapped_flash=False, **kwargs):
+                 ident_version=True, with_jtagbone=True, with_spi_flash=False, **kwargs):
         platform = qmtech_xc7a35t.Platform(toolchain=toolchain, with_daughterboard=with_daughterboard)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ class BaseSoC(SoCCore):
             self.add_jtagbone()
 
         # SPI Flash --------------------------------------------------------------------------------
-        if with_mapped_flash:
+        if with_spi_flash:
             from litespi.modules import MT25QL128
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="4x", module=MT25QL128(Codes.READ_1_1_1), with_master=True)
@@ -154,7 +154,7 @@ def main():
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support")
     parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
     parser.add_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support")
-    parser.add_argument("--with-mapped-flash",   action="store_true",              help="Enable Memory Mapped Flash")
+    parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed)")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA)")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA)")
@@ -173,7 +173,7 @@ def main():
         eth_dynamic_ip         = args.eth_dynamic_ip,
         ident_version          = args.no_ident_version,
         with_jtagbone          = args.with_jtagbone,
-        with_mapped_flash      = args.with_mapped_flash,
+        with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
