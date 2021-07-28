@@ -11,6 +11,9 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [ # Documented by https://github.com/360nosc0pe project.
+    # Clk.
+    ("clk25", 0, Pins("C17"), IOStandard("LVCMOS33")), # eth_clocks:rx
+
     # Leds
     ("user_led", 0, Pins("G16"), IOStandard("LVCMOS33")),
 
@@ -106,6 +109,9 @@ _connectors = []
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
+    default_clk_name   = "clk25"
+    default_clk_period = 1e9/25e6
+
     def __init__(self):
         XilinxPlatform.__init__(self, "xc7z020-clg484-1", _io,  _connectors, toolchain="vivado")
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 33]")
