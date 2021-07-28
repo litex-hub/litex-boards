@@ -69,7 +69,8 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), with_led_chaser=True, **kwargs):
+    def __init__(self, bios_flash_offset, spi_chip='AT25SF161', sys_clk_freq=int(12e6),
+                 with_led_chaser=True, **kwargs):
         kwargs["uart_name"] = "usb_acm" # Enforce UART to USB-ACM
         platform = fomu_pvt.Platform()
 
@@ -99,9 +100,18 @@ class BaseSoC(SoCCore):
         self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=128*kB))
 
         # SPI Flash --------------------------------------------------------------------------------
-        from litespi.modules import AT25SF161
+        from litespi.modules import AT25SF161, GD25Q16C, MX25R1635F, W25Q128JV
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        self.add_spi_flash(mode="4x", module=AT25SF161(Codes.READ_1_1_4), with_master=False)
+
+        # lambdas for lazy module instantiation.
+        spi_provider = {
+            'AT25SF161': lambda: AT25SF161(Codes.READ_1_1_4),
+            'GD25Q16C': lambda: GD25Q16C(Codes.READ_1_1_1),
+            'MX25R1635F': lambda: MX25R1635F(Codes.READ_1_1_4),
+            'W25Q128JV': lambda: W25Q128JV(Codes.READ_1_1_4),
+        }
+
+        self.add_spi_flash(mode="4x", module=spi_provider[spi_chip](), with_master=False)
         #self.add_spi_flash(mode="1x", dummy_cycles=8) # LiteX SPI Flash Core.
 
         # Add ROM linker region --------------------------------------------------------------------
