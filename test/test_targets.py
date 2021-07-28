@@ -13,20 +13,9 @@ from migen import *
 
 from litex.soc.integration.builder import *
 
-def build_test(socs):
-    errors = 0
-    for soc in socs:
-        os.system("rm -rf build")
-        builder = Builder(soc, output_dir="./build", compile_software=False, compile_gateware=False)
-        builder.build()
-        errors += not os.path.isfile("./build/gateware/top.v")
-    os.system("rm -rf build")
-    return errors
-
-
 class TestTargets(unittest.TestCase):
     # Build simple design for all platforms.
-    def test_simple(self):
+    def test_platforms(self):
         # Collect platforms.
         platforms = []
         for file in os.listdir("./litex_boards/platforms/"):
@@ -43,5 +32,25 @@ python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
     --no-compile-software   \
     --no-compile-gateware   \
     --uart-name="stub"      \
+""".format(name)
+                subprocess.check_call(cmd, shell=True)
+
+    # Build default configuration for all targets.
+    def test_targets(self):
+        # Collect targets.
+        targets = []
+        for file in os.listdir("./litex_boards/targets/"):
+            if file.endswith(".py"):
+                file = file.replace(".py", "")
+                if file not in ["__init__", "simple"]:
+                    targets.append(file)
+
+        # Test targets.
+        for name in targets:
+            with self.subTest(target=name):
+                cmd = """\
+python3 -m litex_boards.targets.{} \
+    --no-compile-software   \
+    --no-compile-gateware   \
 """.format(name)
                 subprocess.check_call(cmd, shell=True)
