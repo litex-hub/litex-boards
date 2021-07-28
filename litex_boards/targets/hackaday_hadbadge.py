@@ -45,6 +45,7 @@ class _CRG(Module):
 
         # PLL
         self.submodules.pll = pll = ECP5PLL()
+        pll.pfd_freq_range = (8e6, 400e6) # Lower Min from 10MHz to 8MHz.
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk8, 8e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
