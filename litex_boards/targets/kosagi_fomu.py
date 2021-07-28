@@ -101,7 +101,7 @@ class BaseSoC(SoCCore):
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import AT25SF161
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        self.add_spi_flash(mode="4x", module=AT25SF161(Codes.READ_1_1_1), with_master=False)
+        self.add_spi_flash(mode="4x", module=AT25SF161(Codes.READ_1_1_4), with_master=False)
         #self.add_spi_flash(mode="1x", dummy_cycles=8) # LiteX SPI Flash Core.
 
         # Add ROM linker region --------------------------------------------------------------------
