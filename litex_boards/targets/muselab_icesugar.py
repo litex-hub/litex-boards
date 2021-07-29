@@ -84,7 +84,9 @@ class BaseSoC(SoCCore):
         self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=64*kB))
 
         # SPI Flash --------------------------------------------------------------------------------
-        self.add_spi_flash(mode="1x", dummy_cycles=8)
+        from litespi.modules import W25Q64FV
+        from litespi.opcodes import SpiNorFlashOpCodes as Codes
+        self.add_spi_flash(mode="1x", module=W25Q64FV(Codes.READ_1_1_1))
 
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
