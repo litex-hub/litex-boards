@@ -98,7 +98,6 @@ class BaseSoC(SoCCore):
         from litespi.modules import W25Q128JV
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
         self.add_spi_flash(mode="4x", module=W25Q128JV(Codes.READ_1_1_4), with_master=False)
-        #self.add_spi_flash(mode="1x", dummy_cycles=8) # LiteX SPI Flash Core.
 
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(

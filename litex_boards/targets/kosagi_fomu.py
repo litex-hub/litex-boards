@@ -111,7 +111,6 @@ class BaseSoC(SoCCore):
             "W25Q128JV":  lambda: W25Q128JV( Codes.READ_1_1_4),
         }
         self.add_spi_flash(mode="4x", module=spi_flash_modules[spi_flash_module](), with_master=False)
-        #self.add_spi_flash(mode="1x", dummy_cycles=8) # LiteX SPI Flash Core.
 
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
