@@ -124,9 +124,9 @@ class BaseSoC(SoCCore):
             self.submodules.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
-        self.add_spi_flash(mode="1x", dummy_cycles=8)
-        self.add_constant("SPIFLASH_PAGE_SIZE", 256)
-        self.add_constant("SPIFLASH_SECTOR_SIZE", 4096)
+        from litespi.modules import GD25Q16
+        from litespi.opcodes import SpiNorFlashOpCodes as Codes
+        self.add_spi_flash(mode="1x", module=GD25Q16(Codes.READ_1_1_1))
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
