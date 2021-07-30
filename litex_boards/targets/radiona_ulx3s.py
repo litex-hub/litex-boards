@@ -90,13 +90,12 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
+    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, device="LFE5U-45F", revision="2.0", toolchain="trellis",
         sys_clk_freq=int(50e6), sdram_module_cls="MT48LC16M16", sdram_rate="1:1",
         with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
-        spiflash=False, **kwargs):
+        with_spi_flash=False, **kwargs):
         platform = ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
-        if spiflash:
-            self.mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -130,6 +129,12 @@ class BaseSoC(SoCCore):
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
                 self.comb += platform.request("ext0p").eq(self.video_framebuffer.underflow) # FIXME: Remove, used to debug SDRAM underflows.
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import IS25LP128
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=IS25LP128(Codes.READ_1_1_4))
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
@@ -155,8 +160,7 @@ def main():
     parser.add_argument("--revision",        default="2.0",         help="Board revision: 2.0 (default) or 1.7")
     parser.add_argument("--sys-clk-freq",    default=50e6,          help="System clock frequency  (default: 50MHz)")
     parser.add_argument("--sdram-module",    default="MT48LC16M16", help="SDRAM module: MT48LC16M16 (default), AS4C32M16 or AS4C16M16")
-    parser.add_argument("--with-spiflash",   action="store_true",   help="Make the SPI Flash accessible from the SoC")
-    parser.add_argument("--flash-boot-adr",  type=lambda x: int(x,0), default=None, help="Flash boot address")
+    parser.add_argument("--with-spi-flash",  action="store_true",   help="Enable SPI Flash (MMAPed)")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true",   help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",     action="store_true",   help="Enable SDCard support")
@@ -179,7 +183,7 @@ def main():
         sdram_rate             = args.sdram_rate,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        spiflash               = args.with_spiflash,
+        with_spi_flash         = args.with_spi_flash,
         **soc_core_argdict(args))
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
@@ -187,10 +191,6 @@ def main():
         soc.add_sdcard()
     if args.with_oled:
         soc.add_oled()
-    if args.with_spiflash:
-        soc.add_spi_flash(mode="1x", dummy_cycles=8)
-        if args.flash_boot_adr:
-            soc.add_constant("FLASH_BOOT_ADDRESS", args.flash_boot_adr)
 
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
