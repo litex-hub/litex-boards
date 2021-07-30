@@ -47,7 +47,9 @@ class BaseSoC(SoCCore):
         self.submodules.crg = CRG(platform.request("clk16"))
 
         # SPI Flash --------------------------------------------------------------------------------
-        self.add_spi_flash(mode="1x", dummy_cycles=8)
+        from litespi.modules import AT25SF081
+        from litespi.opcodes import SpiNorFlashOpCodes as Codes
+        self.add_spi_flash(mode="1x", module=AT25SF081(Codes.READ_1_1_1), with_master=False)
 
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
