@@ -29,6 +29,7 @@ vendors = [
     "sqrl",
     "terasic",
     "trenz",
+    "tul",
     "xilinx",
 ]
 
