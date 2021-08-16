@@ -56,7 +56,7 @@ Please use `./target.py --help` to see the pre-built various possibilities.
 
 Hoping you will find this useful and enjoy it, please contribute back if you make improvements that could be useful to others or find issues!
 
-**A question or want to get in touch? Our IRC channel is [#litex at freenode.net](https://webchat.freenode.net/?channels=litex)**
+**A question or want to get in touch? Our IRC channel is [#litex at irc.libera.chat](https://web.libera.chat/#litex)**
 
 > **Note:** All boards with >= 32MB of memory and enough logic can be considered as Linux Capable.
 
