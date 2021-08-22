@@ -57,7 +57,7 @@ class BaseSoC(SoCCore):
 
         # Limit internal rom and sram size
         kwargs["integrated_rom_size"]  = 0x6000
-        kwargs["integrated_sram_size"] = 0x800
+        kwargs["integrated_sram_size"] = 0x1000
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -69,13 +69,13 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SDR SDRAM --------------------------------------------------------------------------------
-        if not self.integrated_main_ram_size:
-            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
-            self.add_sdram("sdram",
-                phy           = self.sdrphy,
-                module        = HY57V641620FTP(sys_clk_freq, "1:1"), # Hynix
-                l2_cache_size = kwargs.get("l2_size", 0)
-            )
+        # if not self.integrated_main_ram_size:
+        #     self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+        #     self.add_sdram("sdram",
+        #         phy           = self.sdrphy,
+        #         module        = HY57V641620FTP(sys_clk_freq, "1:1"), # Hynix
+        #         l2_cache_size = 0
+        #     )
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
