@@ -26,6 +26,25 @@ _io = [
         Subsignal("tx", Pins("114"), IOStandard("3.3-V LVTTL")),
         Subsignal("rx", Pins("115"), IOStandard("3.3-V LVTTL"))
     ),
+
+    # SDRAM
+    ("sdram_clock", 0, Pins("43"), IOStandard("3.3-V LVTTL")),
+    ("sdram", 0,
+        Subsignal("a", Pins(
+            "76 77 80 83 68 67 66 65",
+            "64 60 75 59")),
+        Subsignal("ba",    Pins("73 74")),
+        Subsignal("cs_n",  Pins("72")),
+        Subsignal("cke",   Pins("58")),
+        Subsignal("ras_n", Pins("71")),
+        Subsignal("cas_n", Pins("70")),
+        Subsignal("we_n",  Pins("69")),
+        Subsignal("dq", Pins(
+            "28 30 31 32 33 34 38 39",
+            "54 53 52 51 50 49 46 44")),
+        Subsignal("dm", Pins("42 55")),
+        IOStandard("3.3-V LVTTL")
+    ),
 ]
 
 
@@ -44,3 +63,7 @@ class Platform(AlteraPlatform):
     def do_finalize(self, fragment):
         AlteraPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+        # Generate PLL clock in STA
+        self.toolchain.additional_sdc_commands.append("derive_pll_clocks")
+        # Calculates clock uncertainties
+        self.toolchain.additional_sdc_commands.append("derive_clock_uncertainty")

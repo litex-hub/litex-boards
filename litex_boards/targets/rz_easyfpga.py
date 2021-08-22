@@ -20,12 +20,16 @@ from litex.soc.integration.builder import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.cores.led import LedChaser
 
+from litedram.modules import HY57V641620FTP
+from litedram.phy import GENSDRPHY
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, sdram_rate="1:1"):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
 
         # # #
 
@@ -33,15 +37,19 @@ class _CRG(Module):
         clk50 = platform.request("clk50")
 
         # PLL
-        self.submodules.pll = pll = CycloneIVPLL(speedgrade="-6")
+        self.submodules.pll = pll = CycloneIVPLL(speedgrade="-8")
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
+        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+
+        # SDRAM clock
+        self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, sdram_rate="1:1", **kwargs):
 
         print(kwargs)
 
@@ -49,7 +57,7 @@ class BaseSoC(SoCCore):
 
         # Limit internal rom and sram size
         kwargs["integrated_rom_size"]  = 0x6000
-        kwargs["integrated_sram_size"] = 0x1000
+        kwargs["integrated_sram_size"] = 0x800
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -59,6 +67,15 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SDR SDRAM --------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+            self.add_sdram("sdram",
+                phy           = self.sdrphy,
+                module        = HY57V641620FTP(sys_clk_freq, "1:1"), # Hynix
+                l2_cache_size = kwargs.get("l2_size", 0)
+            )
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
