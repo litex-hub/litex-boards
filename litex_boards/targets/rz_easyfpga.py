@@ -69,13 +69,14 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SDR SDRAM --------------------------------------------------------------------------------
-        # if not self.integrated_main_ram_size:
-        #     self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
-        #     self.add_sdram("sdram",
-        #         phy           = self.sdrphy,
-        #         module        = HY57V641620FTP(sys_clk_freq, "1:1"), # Hynix
-        #         l2_cache_size = 0
-        #     )
+        self.integrated_main_ram_size = 0
+
+        self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+        self.add_sdram("sdram",
+            phy           = self.sdrphy,
+            module        = HY57V641620FTP(sys_clk_freq, "1:1"), # Hynix
+            l2_cache_size = 0
+        )
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
