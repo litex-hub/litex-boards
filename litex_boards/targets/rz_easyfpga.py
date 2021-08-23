@@ -56,7 +56,7 @@ class BaseSoC(SoCCore):
         platform = rz_easyfpga.Platform()
 
         # Limit internal rom and sram size
-        kwargs["integrated_rom_size"]  = 0x6000
+        kwargs["integrated_rom_size"]  = 0x6200
         kwargs["integrated_sram_size"] = 0x1000
 
         # SoCCore ----------------------------------------------------------------------------------
