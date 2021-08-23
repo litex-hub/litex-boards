@@ -51,6 +51,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
+    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, variant="s7-50", sys_clk_freq=int(100e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = arty_s7.Platform(variant=variant)
 
