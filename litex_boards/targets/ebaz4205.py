@@ -56,15 +56,7 @@ class BaseSoC(SoCCore):
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
-            self.cpu.set_ps7_xci("xci/ebaz4205_ps7.xci")
-
-            # Connect AXI GP0 to the SoC with base address of 0x43c00000 (default one)
-            wb_gp0  = wishbone.Interface()
-            self.submodules += axi.AXI2Wishbone(
-                axi          = self.cpu.add_axi_gp_master(),
-                wishbone     = wb_gp0,
-                base_address = 0x43c00000)
-            self.add_wb_master(wb_gp0)
+            raise NotImplementedError
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
