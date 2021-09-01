@@ -21,6 +21,7 @@ vendors = [
     "muselab",
     "numato",
     "qmtech",
+    "quertyembedded",
     "radiona",
     "rhsresearchllc",
     "saanlima",
