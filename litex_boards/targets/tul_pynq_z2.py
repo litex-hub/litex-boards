@@ -3,7 +3,8 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>,
+# Copyright (c) 2021 Martin Troiber <martin.troiber@gmail.com>
+# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -58,19 +59,7 @@ class BaseSoC(SoCCore):
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
-            # Get and set the pre-generated .xci FIXME: change location? add it to the repository?
-            os.system("wget https://github.com/litex-hub/litex-boards/files/4967144/zybo_z7_ps7.txt")
-            os.makedirs("xci", exist_ok=True)
-            os.system("mv zybo_z7_ps7.txt xci/zybo_z7_ps7.xci")
-            self.cpu.set_ps7_xci("xci/zybo_z7_ps7.xci")
-
-            # Connect AXI GP0 to the SoC with base address of 0x43c00000 (default one)
-            wb_gp0  = wishbone.Interface()
-            self.submodules += axi.AXI2Wishbone(
-                axi          = self.cpu.add_axi_gp_master(),
-                wishbone     = wb_gp0,
-                base_address = 0x43c00000)
-            self.add_wb_master(wb_gp0)
+            raise NotImplementedError
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
