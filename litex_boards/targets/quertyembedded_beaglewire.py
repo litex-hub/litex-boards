@@ -13,26 +13,20 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.build.io import DDROutput
-
-from litex.build.io import CRG
-
-
 from litex_boards.platforms import beaglewire
 
-from litex.soc.interconnect import wishbone
-from litex.soc.cores.spi_flash import SpiFlash
+from litex.build.io import DDROutput
+
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
+from litex.soc.cores.spi_flash import SpiFlash
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.uart import UARTWishboneBridge
-from litedram import modules as litedram_modules
+
 from litedram.phy import GENSDRPHY
 from litedram.modules import MT48LC32M8
-from litex.soc.integration.builder import Builder
-from litex.soc.interconnect.csr import AutoCSR, CSRStatus, CSRStorage
 
 kB = 1024
 mB = 1024*kB
@@ -49,7 +43,7 @@ class _CRG(Module):
 
         # Clk/Rst
         clk100 = platform.request("clk100")
-        rst_n = platform.request("user_btn_n")
+        rst_n  = platform.request("user_btn_n")
 
         # Power On Reset
         por_count = Signal(16, reset=2**16-1)
@@ -78,11 +72,10 @@ class BaseSoC(SoCCore):
 
         # Disable Integrated ROM since too large for iCE40.
         kwargs["integrated_rom_size"]  = 0
-        kwargs["integrated_sram_size"]  = 2*kB
+        kwargs["integrated_sram_size"] = 2*kB
 
-        # Set CPU variant / reset address
+        # Set CPU reset address
         kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
-        kwargs["uart_name"]   = "crossover"
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, 
@@ -93,12 +86,14 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
-        # Wishbone ---------------------------------------------------------------------------------
-        self.submodules.uart_bridge = UARTWishboneBridge(
-               platform.request("serial"),
-               sys_clk_freq,
-               baudrate=115200)
-        self.add_wb_master(self.uart_bridge.wishbone)
+        # SDR SDRAM --------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+            self.add_sdram("sdram",
+                phy                     = self.sdrphy,
+                module                  = MT48LC32M8(sys_clk_freq, "1:1"),
+                l2_cache_size           = kwargs.get("l2_size", 1024)
+            )
 
         # SPI Flash --------------------------------------------------------------------------------
         self.add_spi_flash(mode="1x", dummy_cycles=8)
@@ -114,15 +109,6 @@ class BaseSoC(SoCCore):
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
-
-        self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq )
-        self.add_sdram("sdram",
-            phy                     = self.sdrphy,
-            module                  = MT48LC32M8(sys_clk_freq, "1:1"),
-            l2_cache_size           = kwargs.get("l2_size", 1024)
-        )
-
 
 # Build --------------------------------------------------------------------------------------------
 

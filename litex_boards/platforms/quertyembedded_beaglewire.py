@@ -39,7 +39,8 @@ _io = [
         Subsignal("cke",   Pins("88")),
         Subsignal("ba",    Pins("121 120")),
         Subsignal("dm",    Pins("94")),
-        IOStandard("LVCMOS33"), Misc("SLEWRATE=FAST")
+        IOStandard("LVCMOS33"),
+        Misc("SLEWRATE=FAST")
     ),
 ]
 
@@ -49,11 +50,11 @@ _connectors = [
     # A2-H2, Pins 1-13
     # H9-A6, Pins 14-24
     # G1-J2, Pins 25-31
-    ("GPIO",  "37 39 42 44 38 41 43 45"),
-    ("GPIO1", "47  49  55  60  48  52  56  62"),
+    ("GPIO",  " 37  39  42  44  38  41  43  45"),
+    ("GPIO1", " 47  49  55  60  48  52  56  62"),
     ("GPIO2", "107 112 114 129 110 113 115 130"),
-    ("GPIO3", "7   9   15  12  4   8   10  11"),
-    ("grove", "73 74 75 76 104 102 106 105")
+    ("GPIO3", "  7   9  15  12   4   8  10  11"),
+    ("grove", " 73  74  75  76 104 102 106 105")
 ]
 
 # Default peripherals
