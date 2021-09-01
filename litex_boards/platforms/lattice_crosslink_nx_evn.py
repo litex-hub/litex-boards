@@ -249,9 +249,14 @@ class Platform(LatticePlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
-    def __init__(self, device="LIFCL", toolchain="radiant", **kwargs):
-        assert device in ["LIFCL"]
-        LatticePlatform.__init__(self, device + "-40-9BG400C", _io, _connectors, toolchain=toolchain, **kwargs)
+    def __init__(self, device="LIFCL-40-9BG400C", toolchain="radiant", **kwargs):
+        # Accept "LIFCL" for backwards compatibility.
+        # LIFCL just means Crosslink-NX so we can expect every
+        # Crosslink-NX Evaluation Board to have a LIFCL part.
+        if device == "LIFCL":
+            device == "LIFCL-40-9BG400C"
+        assert device in ["LIFCL-40-9BG400C", "LIFCL-40-8BG400CES"]
+        LatticePlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self, mode = "direct"):
         assert mode in ["direct","flash"]
