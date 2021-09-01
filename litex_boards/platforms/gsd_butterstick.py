@@ -29,6 +29,32 @@ _io_r1_0 = [
     ("user_btn", 0, Pins("U16"), IOStandard("SSTL135_I")),
     ("user_btn", 1, Pins("T17"), IOStandard("SSTL135_I")),
 
+    # DDR3 SDRAM
+    ("ddram", 0,
+        Subsignal("a", Pins(
+            "G16 E19 E20 F16 F19 E16 F17 L20 "
+            "M20 E18 G18 D18 H18 C18 D17 G20 "),
+            IOStandard("SSTL135_I")),
+        Subsignal("ba",    Pins("H16 F20 H20"), IOStandard("SSTL135_I")),
+        Subsignal("ras_n", Pins("K18"),     IOStandard("SSTL135_I")),
+        Subsignal("cas_n", Pins("J17"),     IOStandard("SSTL135_I")),
+        Subsignal("we_n",  Pins("G19"),     IOStandard("SSTL135_I")),
+        Subsignal("cs_n",  Pins("J20 J16"), IOStandard("SSTL135_I")),
+        Subsignal("dm", Pins("U20 L18"), IOStandard("SSTL135_I")),
+        Subsignal("dq", Pins(
+            "U19 T18 U18 R20 P18 P19 P20 N20",
+            "L19 L17 L16 R16 N18 R17 N17 P17"),
+            IOStandard("SSTL135_I"),
+            Misc("TERMINATION=75")),
+        Subsignal("dqs_p", Pins("T19 N16"), IOStandard("SSTL135D_I"),
+            Misc("TERMINATION=OFF"),
+            Misc("DIFFRESISTOR=100")),
+        Subsignal("clk_p",   Pins("C20 J19"), IOStandard("SSTL135D_I")),
+        Subsignal("cke",     Pins("F18 J18"), IOStandard("SSTL135_I")),
+        Subsignal("odt",     Pins("K20 H17"), IOStandard("SSTL135_I")),
+        Subsignal("reset_n", Pins("E17"), IOStandard("SSTL135_I")),
+        Misc("SLEWRATE=FAST")
+    ),
 
     # RGMII Ethernet
     ("eth_clocks", 0,
