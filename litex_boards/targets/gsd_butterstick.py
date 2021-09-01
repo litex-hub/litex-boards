@@ -7,6 +7,11 @@
 # Copyright (c) 2021 Greg Davill <greg.davill@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Build/Use:
+# ./gsd_butterstick.py --uart-name=crossover --with-etherbone --csr-csv=csr.csv --build --load
+# litex_server --udp
+# litex_term bridge
+
 import os
 import sys
 import argparse
@@ -20,6 +25,8 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+
+from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # CRG ---------------------------------------------------------------------------------------------
 
@@ -51,7 +58,10 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, revision="1.0", device="25F", sys_clk_freq=int(60e6), toolchain="trellis", with_led_chaser=True, **kwargs):
+    def __init__(self, revision="1.0", device="25F", sys_clk_freq=int(60e6), toolchain="trellis",
+        with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
+        with_led_chaser=True,
+        **kwargs)       :
         platform = butterstick.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -62,6 +72,16 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.submodules.ethphy = LiteEthPHYRGMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"))
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -75,22 +95,33 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ButterStick")
-    parser.add_argument("--build",           action="store_true",  help="Build bitstream")
-    parser.add_argument("--load",            action="store_true",  help="Load bitstream")
-    parser.add_argument("--toolchain",       default="trellis",    help="FPGA  use, trellis (default) or diamond")
-    parser.add_argument("--sys-clk-freq",    default=60e6,         help="System clock frequency (default: 60MHz)")
-    parser.add_argument("--revision",        default="1.0",        help="Board Revision: 1.0 (default)")
-    parser.add_argument("--device",          default="85F",        help="ECP5 device (default: 85F)")
+    parser.add_argument("--build",           action="store_true",    help="Build bitstream")
+    parser.add_argument("--load",            action="store_true",    help="Load bitstream")
+    parser.add_argument("--toolchain",       default="trellis",      help="FPGA  use, trellis (default) or diamond")
+    parser.add_argument("--sys-clk-freq",    default=125e6,           help="System clock frequency (default: 125MHz)")
+    parser.add_argument("--revision",        default="1.0",          help="Board Revision: 1.0 (default)")
+    parser.add_argument("--device",          default="85F",          help="ECP5 device (default: 85F)")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet")
+    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone")
+    parser.add_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address")
+    parser.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
+    assert not (args.with_etherbone and args.eth_dynamic_ip)
+
     soc = BaseSoC(
-        toolchain    = args.toolchain,
-        revision     = args.revision,
-        device       = args.device,
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        toolchain      = args.toolchain,
+        revision       = args.revision,
+        device         = args.device,
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}

@@ -28,6 +28,27 @@ _io_r1_0 = [
     # Buttons
     ("user_btn", 0, Pins("U16"), IOStandard("SSTL135_I")),
     ("user_btn", 1, Pins("T17"), IOStandard("SSTL135_I")),
+
+
+    # RGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("E15")),
+        Subsignal("rx", Pins("D11")),
+        IOStandard("LVCMOS33"),
+        Misc("SLEWRATE=FAST"),
+    ),
+
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("B20")),
+        Subsignal("mdio",    Pins("D16")),
+        Subsignal("mdc",     Pins("A19")),
+        Subsignal("rx_data", Pins("A16 C17 B17 A17")),
+        Subsignal("tx_ctl",  Pins("D15")),
+        Subsignal("rx_ctl",  Pins("B18")),
+        Subsignal("tx_data", Pins("C15 B16 A18 B19")),
+        IOStandard("LVCMOS33"),
+        Misc("SLEWRATE=FAST")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
