@@ -37,6 +37,25 @@ _io_r1_0 = [
         IOStandard("LVCMOS33")
     ),
 
+
+    # SDCard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins(f"B15")),
+        Subsignal("mosi", Pins(f"A13"), Misc("PULLMODE=UP")),
+        Subsignal("cs_n", Pins(f"A14"), Misc("PULLMODE=UP")),
+        Subsignal("miso", Pins(f"C12"), Misc("PULLMODE=UP")),
+        Misc("SLEWRATE=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+    ("sdcard", 0,
+        Subsignal("data", Pins("C12 A12 D14 A14"), Misc("PULLMODE=UP")),
+        Subsignal("cmd",  Pins("A13"), Misc("PULLMODE=UP")),
+        Subsignal("clk",  Pins("B13")),
+        Subsignal("cd",   Pins("B15")),
+        Misc("SLEWRATE=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+
     # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(

@@ -8,7 +8,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Build/Use:
-# ./gsd_butterstick.py --uart-name=crossover --with-etherbone --with-spi-flash --csr-csv=csr.csv --build --load
+# ./gsd_butterstick.py --uart-name=crossover --with-etherbone --csr-csv=csr.csv --build --load
 # litex_server --udp
 # litex_term bridge
 
@@ -159,6 +159,9 @@ def main():
     parser.add_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address")
     parser.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting")
     parser.add_argument("--with-spi-flash",  action="store_true",    help="Enable SPI Flash (MMAPed)")
+    sdopts = parser.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -177,6 +180,10 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         with_spi_flash = args.with_spi_flash,
         **soc_core_argdict(args))
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     builder.build(**builder_kargs, run=args.build)
