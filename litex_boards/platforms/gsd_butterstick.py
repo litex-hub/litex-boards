@@ -29,6 +29,14 @@ _io_r1_0 = [
     ("user_btn", 0, Pins("U16"), IOStandard("SSTL135_I")),
     ("user_btn", 1, Pins("T17"), IOStandard("SSTL135_I")),
 
+    # SPIFlash
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("R2")),
+        #Subsignal("clk",  Pins("U3")),
+        Subsignal("dq",   Pins("W2 V2 Y2 W1")),
+        IOStandard("LVCMOS33")
+    ),
+
     # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(

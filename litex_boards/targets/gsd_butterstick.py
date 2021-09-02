@@ -8,7 +8,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Build/Use:
-# ./gsd_butterstick.py --uart-name=crossover --with-etherbone --csr-csv=csr.csv --build --load
+# ./gsd_butterstick.py --uart-name=crossover --with-etherbone --with-spi-flash --csr-csv=csr.csv --build --load
 # litex_server --udp
 # litex_term bridge
 
@@ -90,8 +90,10 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
+    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, revision="1.0", device="25F", sys_clk_freq=int(60e6), toolchain="trellis",
         with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
+        with_spi_flash=False,
         with_led_chaser=True,
         **kwargs)       :
         platform = butterstick.Platform(revision=revision, device=device ,toolchain=toolchain)
@@ -128,13 +130,18 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import W25Q128JV
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=W25Q128JV(Codes.READ_1_1_4), with_master=False)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.comb += platform.request("user_led_color").eq(0b010) # Blue.
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
-
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -151,6 +158,7 @@ def main():
     ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone")
     parser.add_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address")
     parser.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting")
+    parser.add_argument("--with-spi-flash",  action="store_true",    help="Enable SPI Flash (MMAPed)")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -167,6 +175,7 @@ def main():
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
+        with_spi_flash = args.with_spi_flash,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
