@@ -99,6 +99,8 @@ class BaseSoC(SoCCore):
         platform = butterstick.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
+        if kwargs["uart_name"] == "serial":
+            kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on ButterStick",
             ident_version  = True,
