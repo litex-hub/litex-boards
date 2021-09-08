@@ -27,7 +27,7 @@ vendors = [
     "saanlima",
     "scarabhardware",
     "siglent",
-    "sispeed",
+    "sipeed",
     "sqrl",
     "terasic",
     "trenz",
