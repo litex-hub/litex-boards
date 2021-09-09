@@ -17,7 +17,6 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
 from litex_boards.platforms import tang_nano_4k
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -29,7 +28,7 @@ class _CRG(Module):
 
         # Clk / Rst
         clk27 = platform.request("clk27")
-        rst_n = platform.request("rst_n")
+        rst_n = platform.request("user_btn", 0)
         self.comb += self.cd_sys.clk.eq(clk27)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
 
@@ -38,6 +37,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(27e6), with_led_chaser=True, **kwargs):
         platform = tang_nano_4k.Platform()
+
 
         # Disable CPU/UART for now.
         kwargs["cpu_type"]  = None
@@ -64,7 +64,8 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Tang Nano 4K")
     parser.add_argument("--build",       action="store_true", help="Build bitstream")
     parser.add_argument("--load",        action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency (default: 25MHz)")
+    parser.add_argument("--flash",       action="store_true", help="Flash Bitstream")
+    parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency (default: 27MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -80,6 +81,10 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+
+    if args.flash:
+        prog = soc.platform.create_programmer()
+        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
 
 if __name__ == "__main__":
     main()
