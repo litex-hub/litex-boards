@@ -23,8 +23,8 @@ _io = [
     ("serial", 0,
         # Compatible with cheap FT232 based cables (ex: Gaoominy 6Pin Ftdi Ft232Rl Ft232)
         # GND on JP1 Pin 12.
-        Subsignal("tx", Pins("128"), IOStandard("3.3-V LVTTL")),
-        Subsignal("rx", Pins("126"), IOStandard("3.3-V LVTTL"))
+        Subsignal("tx", Pins("114"), IOStandard("3.3-V LVTTL")),
+        Subsignal("rx", Pins("115"), IOStandard("3.3-V LVTTL"))
     ),
 
     # SDRAM

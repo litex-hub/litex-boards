@@ -21,7 +21,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import HY57V641620FTP
-from litedram.phy import GENSDRPHY
+from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -41,10 +41,17 @@ class _CRG(Module):
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
-        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+        if sdram_rate == "1:2":
+            pll.create_clkout(self.cd_sys2x,    2*sys_clk_freq)
+            # theoretically 90 degrees, but increase to relax timing
+            pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180)
+        else:
+            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
 
         # SDRAM clock
-        self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
+        sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
+        self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
+
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -69,14 +76,14 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SDR SDRAM --------------------------------------------------------------------------------
-        self.integrated_main_ram_size = 0
-
-        self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
-        self.add_sdram("sdram",
-            phy           = self.sdrphy,
-            module        = HY57V641620FTP(sys_clk_freq, "1:1"), # Hynix
-            l2_cache_size = 0
-        )
+        if not self.integrated_main_ram_size:
+            sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
+            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
+            self.add_sdram("sdram",
+                phy           = self.sdrphy,
+                module        = HY57V641620FTP(sys_clk_freq, sdram_rate), # Hynix
+                l2_cache_size = 0
+            )
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -90,7 +97,8 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on RZ-EasyFPGA")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default) or 1:2 Half Rate")
+    parser.add_argument("--sys-clk-freq", default=25e6,        help="System clock frequency (default: 25MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
