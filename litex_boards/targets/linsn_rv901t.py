@@ -24,7 +24,6 @@ from litedram.modules import M12L64322A
 from litedram.phy import GENSDRPHY
 
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
-from liteeth.mac import LiteEthMAC
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -50,7 +49,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, eth_phy=0, with_led_chaser=True, **kwargs):
         platform     = linsn_rv901t.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -71,12 +70,19 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
-        # Ethernet ---------------------------------------------------------------------------------
-        if with_ethernet:
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
-                pads       = self.platform.request("eth", eth_phy))
-            self.add_ethernet(phy=self.ethphy)
+                pads       = self.platform.request("eth", eth_phy),
+                tx_delay   = 0e-9)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, with_timing_constraints=False)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, with_timing_constraints=False)
+            # Timing Constraints.
+            platform.add_period_constraint(platform.lookup_request("eth_clocks", eth_phy).rx, 1e9/125e6)
+            platform.add_false_path_constraints(self.crg.cd_sys.clk, platform.lookup_request("eth_clocks", eth_phy).rx)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -91,15 +97,20 @@ def main():
     parser.add_argument("--build",         action="store_true", help="Build bitstream")
     parser.add_argument("--load",          action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency (default: 75MHz)")
-    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
-    parser.add_argument("--eth-phy",       default=0, type=int, help="Ethernet PHY: 0 (default) or 1")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
+    parser.add_argument("--eth-phy",         default=0, type=int, help="Ethernet PHY: 0 (default) or 1")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-         sys_clk_freq = int(float(args.sys_clk_freq)),
-         **soc_core_argdict(args)
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_phy        = int(args.eth_phy),
+        **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
