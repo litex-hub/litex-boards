@@ -104,12 +104,12 @@ class BaseSoC(SoCCore):
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
-            # FIXME: Improve (Make it generic and apply it to all targets).
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks main_crg_clkout0] -group [get_clocks userclk2] -asynchronous",)
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks main_crg_clkout0] -group [get_clocks clk_125mhz] -asynchronous")
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks main_crg_clkout0] -group [get_clocks clk_250mhz] -asynchronous")
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clk_125mhz] -group [get_clocks clk_250mhz] -asynchronous")
-
+            # FIXME: Apply it to all targets (integrate it in LitePCIe?).
+            platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
+            platform.toolchain.pre_placement_commands.add("set_clock_groups -group [get_clocks {sys_clk}] -group [get_clocks userclk2] -asynchronous", sys_clk=self.crg.cd_sys.clk)
+            platform.toolchain.pre_placement_commands.add("set_clock_groups -group [get_clocks {sys_clk}] -group [get_clocks clk_125mhz] -asynchronous", sys_clk=self.crg.cd_sys.clk)
+            platform.toolchain.pre_placement_commands.add("set_clock_groups -group [get_clocks {sys_clk}] -group [get_clocks clk_250mhz] -asynchronous", sys_clk=self.crg.cd_sys.clk)
+            platform.toolchain.pre_placement_commands.add("set_clock_groups -group [get_clocks clk_125mhz] -group [get_clocks clk_250mhz] -asynchronous")
 
             # ICAP (For FPGA reload over PCIe).
             from litex.soc.cores.icap import ICAP
