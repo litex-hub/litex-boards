@@ -91,4 +91,4 @@ class Platform(GowinPlatform):
 
     def do_finalize(self, fragment):
         GowinPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk27", loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request("clk27", loose=True), 1e9/27e6)
