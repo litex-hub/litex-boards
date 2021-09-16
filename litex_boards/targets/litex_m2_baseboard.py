@@ -20,13 +20,16 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
+from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
-        self.clock_domains.cd_por     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys     = ClockDomain()
+        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys = ClockDomain()
+
         # # #
 
         # Clk / Rst
@@ -48,7 +51,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, **kwargs):
         platform = litex_m2_baseboard.Platform(toolchain="trellis")
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -60,6 +63,17 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.submodules.ethphy = LiteEthPHYRGMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"),
+                rx_delay   = 0e-9)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -68,13 +82,18 @@ def main():
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
     parser.add_argument("--flash",        action="store_true", help="Flash bitstream to SPI Flash")
     parser.add_argument("--sys-clk-freq", default=75e6,        help="System clock frequency (default: 75MHz)")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))

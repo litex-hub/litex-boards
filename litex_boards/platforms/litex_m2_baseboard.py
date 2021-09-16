@@ -24,6 +24,24 @@ _io = [
     # Buttons
     ("user_btn", 0, Pins("M19"), IOStandard("LVCMOS33")),
     ("user_btn", 1, Pins("M20"), IOStandard("LVCMOS33")),
+
+    # RGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("M1")),
+        Subsignal("rx", Pins("H2")),
+        IOStandard("LVCMOS25")
+    ),
+    ("eth", 0,
+        Subsignal("int_n",   Pins("F1")),
+        Subsignal("rst_n",   Pins("J3")),
+        Subsignal("mdio",    Pins("G2")),
+        Subsignal("mdc",     Pins("G1")),
+        Subsignal("rx_ctl",  Pins("H1")),
+        Subsignal("rx_data", Pins("J1 K2 K1 L2"), Misc("PULLMODE=UP")), # RGMII mode - Advertise all capabilities.
+        Subsignal("tx_ctl",  Pins("L1")),
+        Subsignal("tx_data", Pins("P1 P2 N1 N2")),
+        IOStandard("LVCMOS25")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
