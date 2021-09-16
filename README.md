@@ -105,13 +105,14 @@ PCIe accelerators boards that you could use to accelerate your applications, Lit
 
 Repurposed FPGA hardware that has been "documented" by enthusiasts :), allows you to discover FPGAs for very cheap (starting at 15$)!
 
-| Name         | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM         |       Ethernet     |    Flash    |
-|--------------|---------------------|---------------|----------|------|--------------------|--------------------|-------------|
-| SDS1104X-E   | Xilinx Zynq         | XC7Z020       |  100MHz  | Eth  | 32-bit 256MB DDR3  | 100Mbps MII        |      ?      |
-| Colorlight5A | Lattice ECP5        | LFE5U-25F     |   60MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
-| Linsn RV901  | Xilinx Spartan6     | XC6SLX16      |   75MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
-| PanoLogic G2 | Xilinx Spartan6     | XC6SLX100-150 |   50MHz  | IOs  | 32-bit 128MB DDR2  | 1Gbps GMII         |  16MB QSPI  |
-| Camlink-4K   | Lattice ECP5        | LFE5U-25F     |   81MHz  | IOs  | 16-bit 128MB DDR3  |        No          |   ?MB QSPI  |
+| Name         | FPGA Family         | FPGA device   | Sys-Clk   | TTY  |       DRAM         |       Ethernet     |    Flash    |
+|--------------|---------------------|---------------|-----------|------|--------------------|--------------------|-------------|
+| SDS1104X-E   | Xilinx Zynq         | XC7Z020       |  100MHz   | Eth  | 32-bit 256MB DDR3  | 100Mbps MII        |      ?      |
+| Colorlight5A | Lattice ECP5        | LFE5U-25F     |   60MHz   | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
+| Linsn RV901  | Xilinx Spartan6     | XC6SLX16      |   75MHz   | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
+| PanoLogic G2 | Xilinx Spartan6     | XC6SLX100-150 |   50MHz   | IOs  | 32-bit 128MB DDR2  | 1Gbps GMII         |  16MB QSPI  |
+| Camlink-4K   | Lattice ECP5        | LFE5U-25F     |   81MHz   | IOs  | 16-bit 128MB DDR3  |        No          |   ?MB QSPI  |
+| EBAZ4205     | Xilinx Zynq         | XC7Z010 (28k) | 33.333MHz | IOs  | 256MB DDR3         | 100Mbps RMII       |  128MB NAND |
 
 The Colorlight5A is a very nice board to start with, cheap, powerful, easy to use with the open-source toolchain, you can find a specific LiteX project [here](https://github.com/enjoy-digital/colorlite)
 

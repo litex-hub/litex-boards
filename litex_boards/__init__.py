@@ -21,14 +21,17 @@ vendors = [
     "muselab",
     "numato",
     "qmtech",
+    "qwertyembedded",
     "radiona",
     "rhsresearchllc",
     "saanlima",
     "scarabhardware",
     "siglent",
+    "sipeed",
     "sqrl",
     "terasic",
     "trenz",
+    "tul",
     "xilinx",
 ]
 

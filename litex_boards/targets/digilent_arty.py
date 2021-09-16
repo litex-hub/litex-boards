@@ -103,7 +103,7 @@ class BaseSoC(SoCCore):
         if with_spi_flash:
             from litespi.modules import S25FL128L
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
-            self.add_spi_flash(mode="4x", module=S25FL128L(Codes.READ_1_1_4), with_master=True)
+            self.add_spi_flash(mode="4x", module=S25FL128L(Codes.READ_1_1_4), rate="1:2", with_master=True)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

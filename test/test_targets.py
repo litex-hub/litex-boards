@@ -27,6 +27,7 @@ class TestTargets(unittest.TestCase):
         # Test platforms with simple design.
         for name in platforms:
             with self.subTest(platform=name):
+                os.system("rm -rf build")
                 cmd = """\
 python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
     --no-compile-software   \
@@ -48,6 +49,7 @@ python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
         # Test targets.
         for name in targets:
             with self.subTest(target=name):
+                os.system("rm -rf build")
                 cmd = """\
 python3 -m litex_boards.targets.{} \
     --no-compile-software   \

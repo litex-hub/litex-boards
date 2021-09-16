@@ -207,10 +207,10 @@ feather_i2c = [
 ]
 
 feather_spi = [
-    ("spi",0,
+    ("spi", 0,
         Subsignal("miso", Pins("GPIO:14"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("GPIO:16"), IOStandard("LVCMOS33")),
-        Subsignal("sck",  Pins("GPIO:15"), IOStandard("LVCMOS33"))
+        Subsignal("clk",  Pins("GPIO:15"), IOStandard("LVCMOS33"))
     )
 ]
 
