@@ -151,6 +151,7 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 | Nexys4DDR      | Xilinx Artix7       | XC7A100T      | 100MHz  | FTDI | 16-bit 128MB DDR2  |     No    | 100Mbps RMII   |  16MB QSPI* |   Yes  |
 | Nexys Video    | Xilinx Artix7       | XC7A200T      | 100MHz  | FTDI | 16-bit 512MB DDR3  |     No    |   1Gbps RMII   |  32MB QSPI* |   Yes  |
 | QMTech XC7A35T | Xilinx Artix7       | XC7A35T       | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    |   1Gbps GMII** |  16MB QSPI  |   Yes**|
+| RZ-EasyFPGA    | Intel Cyclone4      | EP4CE6        |  25MHz  | IOs  | 16-bit   8MB SDR   |     No    |       No       |      No     |   No   |
 | SP605          | Xilinx Spartan6     | XC6SLX45T     | 100MHz  | FTDI | 16-bit 128MB DDR3* |  Gen1 X1* |   1Gbps GMII   |   8MB QSPI* |   Yes* |
 | Tagus          | Xilinx Artix7       | XC7A200T      | 100MHz  | PCIe | 16-bit 256MB DDR3  |  Gen2 X1  |  1Gbps-BASE-X* |  16MB QSPI* |   No   |
 | VC707          | Xilinx Virex7       | XC7VX485T     | 125MHz  | FTDI | 64-bit   1GB DDR3  |  Gen3 X8* |   1Gbps GMII   |  16MB QSPI* |   Yes* |

@@ -28,8 +28,8 @@ _io = [
     ),
 
     # SDRAM
-    # It may help to add a header cable to some pins to mitigate potential electrical problems on the board
-    # (especially pin 67, but perhaps also 66 and 68)
+    # It may help to add a header cable to some pins to mitigate suspected electrical problems on the board
+    # (especially pin 67, but perhaps also 66 and 68; adding pins to the whole addr bus seemed to work too)
     ("sdram_clock", 0, Pins("43"), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
         Subsignal("a", Pins(
