@@ -19,6 +19,7 @@ vendors = [
     "lambdaconcept",
     "linsn",
     "muselab",
+    "myminieye",
     "numato",
     "qmtech",
     "qwertyembedded",

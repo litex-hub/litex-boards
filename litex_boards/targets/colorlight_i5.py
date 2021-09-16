@@ -97,7 +97,6 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0xd0000000}}
     def __init__(self, board="i5", revision="7.0", sys_clk_freq=60e6, with_ethernet=False,
                  with_etherbone=False, local_ip="", remote_ip="", eth_phy=0, with_led_chaser=True, 
                  use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,

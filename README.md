@@ -157,7 +157,7 @@ The Colorlight5A is a very nice board to start with, cheap, powerful, easy to us
 | VCU118         | Xilinx VirtexU+     | XCVU9P        | 125MHz  | FTDI | 2 x 64-bit 4GB DDR4|  Gen3 X16*|  1Gbps SGMII   |  16MB QSPI* |   Yes* |
 | Versa ECP5     | Lattice ECP5        | LFE5UM5G-45F  |  75MHz  | FTDI | 16-bit 128MB DDR3  |  Gen1 X1* | 1Gbps RGMII    |  16MB QSPI* |   No   |
 | ZCU104         | Xilinx ZynqU+       | XCZU7EV       | 125MHz  | FTDI | 64-bit   1GB DDR4  |     No    | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
-| Zybo Z7        | Xilinx ZynqU+       | XC7Z010       | 125MHz  | FTDI | 64-bit   1GB DDR4  |     No    | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
+| Zybo Z7        | Xilinx Zynq         | XC7Z010       | 125MHz  | FTDI | 64-bit   1GB DDR4  |     No    | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
 
 \* Present on the board but not yet supported or validated with LiteX.
 \*\* available on the daughterboard

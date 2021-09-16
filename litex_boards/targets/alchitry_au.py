@@ -53,7 +53,6 @@ class CRG(Module):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, variant="au", sys_clk_freq=int(83333333), with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = alchitry_au.Platform(variant=variant)
 
