@@ -85,6 +85,9 @@ def main():
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
+    sdopts = parser.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -96,6 +99,10 @@ def main():
         with_etherbone = args.with_etherbone,
         **soc_core_argdict(args)
     )
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**trellis_argdict(args), run=args.build)
 

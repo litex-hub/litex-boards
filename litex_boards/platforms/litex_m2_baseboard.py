@@ -42,6 +42,25 @@ _io = [
         Subsignal("tx_data", Pins("P1 P2 N1 N2")),
         IOStandard("LVCMOS25")
     ),
+
+    # SDCard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("P19")),
+        Subsignal("cs_n", Pins("U19"), Misc("PULLMODE=UP")),
+        Subsignal("mosi", Pins("T20"), Misc("PULLMODE=UP")),
+        Subsignal("miso", Pins("N20"), Misc("PULLMODE=UP")),
+        Misc("SLEWRATE=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+
+    ("sdcard", 0,
+        Subsignal("clk",  Pins("P19")),
+        Subsignal("cd",   Pins("T18"),             Misc("PULLMODE=UP")),
+        Subsignal("cmd",  Pins("T20"),             Misc("PULLMODE=UP")),
+        Subsignal("data", Pins("N20 N19 U20 U19"), Misc("PULLMODE=UP")),
+        Misc("SLEWRATE=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
