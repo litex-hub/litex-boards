@@ -1,6 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
+# Copyright (c) 2021 Alain Lou <alainzlou@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -21,13 +22,14 @@ _io = [
 
     # Serial
     ("serial", 0,
-        # Compatible with cheap FT232 based cables (ex: Gaoominy 6Pin Ftdi Ft232Rl Ft232)
-        # GND on JP1 Pin 12.
+        # Uses the 9 pin serial connector
         Subsignal("tx", Pins("114"), IOStandard("3.3-V LVTTL")),
         Subsignal("rx", Pins("115"), IOStandard("3.3-V LVTTL"))
     ),
 
     # SDRAM
+    # It may help to add a header cable to some pins to mitigate potential electrical problems on the board
+    # (especially pin 67, but perhaps also 66 and 68)
     ("sdram_clock", 0, Pins("43"), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
         Subsignal("a", Pins(
