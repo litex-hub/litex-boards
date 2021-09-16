@@ -61,6 +61,19 @@ _io = [
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
+
+    # HDMI
+    ("hdmi_i2c", 0,
+        Subsignal("scl", Pins("C9")),
+        Subsignal("sda", Pins("C8")),
+        IOStandard("LVCMOS33")
+    ),
+    ("hdmi", 0,
+        Subsignal("clk_p",   Pins("C4"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data0_p", Pins("A4"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data1_p", Pins("A2"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")), # P/N Swap on PCB, invert in logic.
+        Subsignal("data2_p", Pins("C1"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")), # P/N Swap on PCB, invert in logic.
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

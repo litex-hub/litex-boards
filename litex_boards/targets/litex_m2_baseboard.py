@@ -19,13 +19,14 @@ from litex.build.lattice.trellis import trellis_args, trellis_argdict
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoECP5HDMIPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
         self.rst = Signal()
         self.clock_domains.cd_por = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys = ClockDomain()
@@ -48,10 +49,24 @@ class _CRG(Module):
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+        # Video PLL
+        if with_video_pll:
+            self.submodules.video_pll = video_pll = ECP5PLL()
+            self.comb += pll.reset.eq(~por_done | self.rst)
+            video_pll.register_clkin(clk50, 50e6)
+            self.clock_domains.cd_hdmi   = ClockDomain()
+            self.clock_domains.cd_hdmi5x = ClockDomain()
+            video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(75e6),
+        with_ethernet       = False,
+        with_etherbone      = False,
+        with_video_terminal = False,
+        **kwargs):
         platform = litex_m2_baseboard.Platform(toolchain="trellis")
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -61,7 +76,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -73,6 +88,12 @@ class BaseSoC(SoCCore):
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
+
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            self.submodules.videophy = VideoECP5HDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["g", "b"])
+            self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -88,15 +109,18 @@ def main():
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    viopts = parser.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI)")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
-        with_ethernet  = args.with_ethernet,
-        with_etherbone = args.with_etherbone,
+        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        with_ethernet       = args.with_ethernet,
+        with_etherbone      = args.with_etherbone,
+        with_video_terminal = args.with_video_terminal,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
