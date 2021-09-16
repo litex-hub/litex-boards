@@ -26,8 +26,15 @@ _io = [
     ("user_led", 2, Pins("18"), IOStandard("LVCMOS33")),
 
     # Buttons.
-    ("user_btn", 0, Pins("15"),  IOStandard("LVCMOS18")),
-    ("user_btn", 0, Pins("14"),  IOStandard("LVCMOS18")),
+    ("user_btn", 0, Pins("15"),  IOStandard("LVCMOS33")),
+    ("user_btn", 0, Pins("14"),  IOStandard("LVCMOS33")),
+
+    # Serial
+    ("serial", 0,
+        Subsignal("tx", Pins("8")),
+        Subsignal("rx", Pins("9")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -42,6 +49,7 @@ class Platform(GowinPlatform):
 
     def __init__(self):
         GowinPlatform.__init__(self, "GW1N-LV1QN48C6/I5", _io, _connectors, toolchain="gowin", devicename="GW1N-1")
+        self.toolchain.options["use_done_as_gpio"] = 1
 
     def create_programmer(self):
         return OpenFPGALoader("tangnano")

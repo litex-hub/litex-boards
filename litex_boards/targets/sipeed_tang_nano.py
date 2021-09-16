@@ -44,6 +44,10 @@ class BaseSoC(SoCCore):
         kwargs["cpu_type"]  = None
         kwargs["with_uart"] = False
 
+        # UART loopback.
+        serial_pads = platform.request("serial")
+        self.comb += serial_pads.tx.eq(serial_pads.rx)
+
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident         = "LiteX SoC on Tang Nano",
