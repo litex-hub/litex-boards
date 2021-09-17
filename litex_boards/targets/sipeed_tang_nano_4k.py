@@ -19,6 +19,8 @@ from litex.soc.cores.led import LedChaser
 
 from litex_boards.platforms import tang_nano_4k
 
+from litehyperbus.core.hyperbus import HyperRAM
+
 kB = 1024
 mB = 1024*kB
 
@@ -41,7 +43,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, sys_clk_freq=int(27e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(27e6), with_hyperram=True, with_led_chaser=True, **kwargs):
         platform = tang_nano_4k.Platform()
 
         # Put BIOS in SPIFlash to save BlockRAMs.
@@ -68,6 +70,22 @@ class BaseSoC(SoCCore):
             size   = 64*kB,
             linker = True)
         )
+
+        # HyperRAM ---------------------------------------------------------------------------------
+        if with_hyperram:
+            class HyperRAMPads:
+                def __init__(self):
+                    self.clk   = Signal()
+                    self.rst_n = platform.request("O_hpram_reset_n")
+                    self.dq    = platform.request("IO_hpram_dq")
+                    self.cs_n  = platform.request("O_hpram_cs_n")
+                    self.rwds  = platform.request("IO_hpram_rwds")
+
+            hyperram_pads = HyperRAMPads()
+            self.comb += platform.request("O_hpram_ck").eq(hyperram_pads.clk)
+            self.comb += platform.request("O_hpram_ck_n").eq(~hyperram_pads.clk)
+            self.submodules.hyperram = HyperRAM(hyperram_pads)
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8*1024*1024))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
