@@ -16,7 +16,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litex_boards.platforms import tang_nano_4k
+from litex_boards.platforms import tang_nano
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -28,25 +28,29 @@ class _CRG(Module):
         # # #
 
         # Clk / Rst
-        clk27 = platform.request("clk27")
+        clk24 = platform.request("clk24")
         rst_n = platform.request("user_btn", 0)
-        self.comb += self.cd_sys.clk.eq(clk27)
+        self.comb += self.cd_sys.clk.eq(clk24)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(27e6), with_led_chaser=True, **kwargs):
-        platform = tang_nano_4k.Platform()
+    def __init__(self, sys_clk_freq=int(24e6), with_led_chaser=True, **kwargs):
+        platform = tang_nano.Platform()
 
 
         # Disable CPU/UART for now.
         kwargs["cpu_type"]  = None
         kwargs["with_uart"] = False
 
+        # UART loopback.
+        serial_pads = platform.request("serial")
+        self.comb += serial_pads.tx.eq(serial_pads.rx)
+
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident         = "LiteX SoC on Tang Nano 4K",
+            ident         = "LiteX SoC on Tang Nano",
             ident_version = True,
             **kwargs)
 
@@ -62,11 +66,11 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Tang Nano 4K")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Tang Nano")
     parser.add_argument("--build",       action="store_true", help="Build bitstream")
     parser.add_argument("--load",        action="store_true", help="Load bitstream")
     parser.add_argument("--flash",       action="store_true", help="Flash Bitstream")
-    parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency (default: 27MHz)")
+    parser.add_argument("--sys-clk-freq",default=24e6,        help="System clock frequency (default: 24MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
