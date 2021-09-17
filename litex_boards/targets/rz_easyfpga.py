@@ -12,7 +12,7 @@ from migen import *
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import rz_easyfpga
+from litex_boards.platforms import easyfpga
 
 from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.integration.soc_core import *
@@ -49,7 +49,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(25e6), with_led_chaser=True, **kwargs):
-        platform = rz_easyfpga.Platform()
+        platform = easyfpga.Platform()
 
         # Limit internal rom and sram size
         kwargs["integrated_rom_size"]  = 0x6200
