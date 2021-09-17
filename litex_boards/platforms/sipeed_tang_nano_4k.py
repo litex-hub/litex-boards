@@ -28,6 +28,13 @@ _io = [
     ("user_btn", 0, Pins("14"),  IOStandard("LVCMOS18")),
     ("user_btn", 1, Pins("15"),  IOStandard("LVCMOS18")),
 
+    # Serial (FIXME: For tests, change or remove.)
+    ("serial", 0,
+        Subsignal("rx", Pins("44")), # CAM_SCL
+        Subsignal("tx", Pins("46")), # CAM_SDA
+        IOStandard("LVCMOS33")
+    ),
+
     # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("2"), IOStandard("LVCMOS33")),

@@ -13,10 +13,14 @@ from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
 from litex_boards.platforms import tang_nano_4k
+
+kB = 1024
+mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -36,13 +40,13 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
+    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, sys_clk_freq=int(27e6), with_led_chaser=True, **kwargs):
         platform = tang_nano_4k.Platform()
 
-
-        # Disable CPU/UART for now.
-        kwargs["cpu_type"]  = None
-        kwargs["with_uart"] = False
+        # Put BIOS in SPIFlash to save BlockRAMs.
+        kwargs["integrated_rom_size"] = 0
+        kwargs["cpu_reset_address"]   = self.mem_map["spiflash"] + 0
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -52,6 +56,18 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SPI Flash --------------------------------------------------------------------------------
+        from litespi.modules import W25Q32
+        from litespi.opcodes import SpiNorFlashOpCodes as Codes
+        self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
+
+        # Add ROM linker region --------------------------------------------------------------------
+        self.bus.add_region("rom", SoCRegion(
+            origin = self.mem_map["spiflash"] + 0,
+            size   = 64*kB,
+            linker = True)
+        )
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -86,6 +102,7 @@ def main():
     if args.flash:
         prog = soc.platform.create_programmer()
         prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.flash(0, "build/sipeed_tang_nano_4k/software/bios/bios.bin", external=True)
 
 if __name__ == "__main__":
     main()
