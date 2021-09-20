@@ -19,7 +19,7 @@ from litex.build.lattice.trellis import trellis_args, trellis_argdict
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.video import VideoECP5HDMIPHY
+from litex.soc.cores.video import VideoHDMIPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
@@ -92,7 +92,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
-            self.submodules.videophy = VideoECP5HDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["g", "b"])
+            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["g", "b"])
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
 # Build --------------------------------------------------------------------------------------------

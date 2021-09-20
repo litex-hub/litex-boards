@@ -21,7 +21,7 @@ from litex.build.lattice.trellis import trellis_args, trellis_argdict
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.video import VideoECP5HDMIPHY
+from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.led import LedChaser
 
 from litex.soc.interconnect.csr import *
@@ -124,7 +124,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoECP5HDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
+            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
             if with_video_framebuffer:
