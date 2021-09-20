@@ -12,6 +12,7 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.soc.cores.clock.gowin_gw1nsr import  GW1NSRPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
@@ -29,15 +30,19 @@ mB = 1024*kB
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
-        self.clock_domains.cd_sys   = ClockDomain()
+        self.clock_domains.cd_sys = ClockDomain()
 
         # # #
 
         # Clk / Rst
         clk27 = platform.request("clk27")
         rst_n = platform.request("user_btn", 0)
-        self.comb += self.cd_sys.clk.eq(clk27)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
+
+        # PLL
+        self.submodules.pll = pll = GW1NSRPLL(device="GW1NSR-4C")
+        self.comb += pll.reset.eq(~rst_n)
+        pll.register_clkin(clk27, 27e6)
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
