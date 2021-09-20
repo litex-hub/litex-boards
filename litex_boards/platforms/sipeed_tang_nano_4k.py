@@ -25,8 +25,8 @@ _io = [
     ("user_led", 0, Pins("10"), IOStandard("LVCMOS33")),
 
     # Buttons.
-    ("user_btn", 0, Pins("14"),  IOStandard("LVCMOS18")),
-    ("user_btn", 1, Pins("15"),  IOStandard("LVCMOS18")),
+    ("user_btn", 0, Pins("14"), IOStandard("LVCMOS18")),
+    ("user_btn", 1, Pins("15"), IOStandard("LVCMOS18")),
 
     # Serial (FIXME: For tests, change or remove.)
     ("serial", 0,
@@ -37,12 +37,12 @@ _io = [
 
     # SPIFlash
     ("spiflash", 0,
-        Subsignal("cs_n", Pins("2"), IOStandard("LVCMOS33")),
-        Subsignal("clk",  Pins("1"), IOStandard("LVCMOS33")),
+        Subsignal("cs_n", Pins("2"),  IOStandard("LVCMOS33")),
+        Subsignal("clk",  Pins("1"),  IOStandard("LVCMOS33")),
         Subsignal("miso", Pins("47"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("48"), IOStandard("LVCMOS33")),
-        Subsignal("wp",   Pins("8"), IOStandard("LVCMOS33")),
-        Subsignal("hold", Pins("9"), IOStandard("LVCMOS33")),
+        Subsignal("wp",   Pins("8"),  IOStandard("LVCMOS33")),
+        Subsignal("hold", Pins("9"),  IOStandard("LVCMOS33")),
     ),
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("2")),
@@ -52,12 +52,12 @@ _io = [
     ),
 
     # HyperRAM (embedded in SIP, requires specific IO naming).
-    ("O_hpram_ck",      0, Pins(1), IOStandard("LVCMOS33")),
-    ("O_hpram_ck_n",    0, Pins(1), IOStandard("LVCMOS33")),
-    ("O_hpram_cs_n",    0, Pins(1), IOStandard("LVCMOS33")),
-    ("O_hpram_reset_n", 0, Pins(1), IOStandard("LVCMOS33")),
-    ("IO_hpram_dq",     0, Pins(8), IOStandard("LVCMOS33")),
-    ("IO_hpram_rwds",   0, Pins(1), IOStandard("LVCMOS33")),
+    ("O_hpram_ck",      0, Pins(1)),
+    ("O_hpram_ck_n",    0, Pins(1)),
+    ("O_hpram_cs_n",    0, Pins(1)),
+    ("O_hpram_reset_n", 0, Pins(1)),
+    ("IO_hpram_dq",     0, Pins(8)),
+    ("IO_hpram_rwds",   0, Pins(1)),
 
     # HDMI.
     ("hdmi", 0,
