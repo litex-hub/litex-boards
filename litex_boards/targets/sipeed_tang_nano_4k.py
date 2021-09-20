@@ -17,6 +17,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.video import *
 
 from litex_boards.platforms import tang_nano_4k
 
@@ -28,7 +29,7 @@ mB = 1024*kB
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
 
@@ -44,11 +45,27 @@ class _CRG(Module):
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+
+        # Video PLL
+        if with_video_pll:
+            self.submodules.video_pll = video_pll = GW1NSRPLL(device="GW1NSR-4C")
+            self.comb += video_pll.reset.eq(~rst_n)
+            video_pll.register_clkin(clk27, 27e6)
+            self.clock_domains.cd_hdmi   = ClockDomain()
+            self.clock_domains.cd_hdmi5x = ClockDomain()
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6)
+            self.specials += Instance("CLKDIV",
+                p_DIV_MODE= "5",
+                i_RESETN = rst_n,
+                i_HCLKIN = self.cd_hdmi5x.clk,
+                o_CLKOUT = self.cd_hdmi.clk
+            )
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, sys_clk_freq=int(27e6), with_hyperram=True, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(27e6), with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
         platform = tang_nano_4k.Platform()
 
         # Put BIOS in SPIFlash to save BlockRAMs.
@@ -62,7 +79,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q32
@@ -91,6 +108,12 @@ class BaseSoC(SoCCore):
             self.comb += platform.request("O_hpram_ck_n").eq(~hyperram_pads.clk)
             self.submodules.hyperram = HyperRAM(hyperram_pads)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8*1024*1024))
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.add_video_colorbars(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+            #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Free up BRAMs.
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

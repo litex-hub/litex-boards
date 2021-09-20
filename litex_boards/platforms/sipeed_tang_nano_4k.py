@@ -59,8 +59,8 @@ _io = [
     ("IO_hpram_dq",     0, Pins(8), IOStandard("LVCMOS33")),
     ("IO_hpram_rwds",   0, Pins(1), IOStandard("LVCMOS33")),
 
-    # HDMI Out.
-    ("hdmi_out", 0,
+    # HDMI.
+    ("hdmi", 0,
         Subsignal("clk_p",   Pins("28")),
         Subsignal("clk_n",   Pins("27")),
         Subsignal("data0_p", Pins("30")),
@@ -70,7 +70,6 @@ _io = [
         Subsignal("data2_p", Pins("35")),
         Subsignal("data2_n", Pins("34")),
         Misc("PULL_MODE=NONE"),
-        Misc("DRIVE=3.5"),
     ),
 ]
 
