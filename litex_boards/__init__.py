@@ -25,6 +25,7 @@ vendors = [
     "qwertyembedded",
     "radiona",
     "rhsresearchllc",
+    "rz",
     "saanlima",
     "scarabhardware",
     "siglent",
