@@ -21,19 +21,11 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex_boards.platforms import atlys
 
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT47H64M16
 from litedram.phy import s6ddrphy
-
-from liteeth.phy import LiteEthPHYGMII
-
-# LiteEthPHY
-#from liteeth.phy.mii import LiteEthMAC
-
-from liteeth.phy.mii import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -58,8 +50,8 @@ class _CRG(Module):
             i_I=clk100, o_DIVCLK=clk100b)
 
         # PLL --------------------------------------------------------------------------------------
-        pll_lckd           = Signal()
-        pll_fb             = Signal()
+        pll_lckd         = Signal()
+        pll_fb           = Signal()
         pll_sdram_full   = Signal()
         pll_sdram_half_a = Signal()
         pll_sdram_half_b = Signal()
@@ -120,10 +112,6 @@ class _CRG(Module):
         # System clock
         self.specials += Instance("BUFG", i_I=pll_sys, o_O=self.cd_sys.clk)
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
-
-        print("-- self.cd_sys.clk:")
-        print( self.cd_sys.clk)
-
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd | (por > 0))
 
         # SDRAM clocks -----------------------------------------------------------------------------
@@ -151,32 +139,18 @@ class _CRG(Module):
         output_clk = Signal()
         clk = platform.request("ddram_clock")
         self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
-                                  p_INIT=0, p_SRTYPE="SYNC",
-                                  i_D0=1, i_D1=0, i_S=0, i_R=0, i_CE=1,
-                                  i_C0=clk_sdram_half_shifted,
-                                  i_C1=~clk_sdram_half_shifted,
-                                  o_Q=output_clk)
+            p_INIT=0, p_SRTYPE="SYNC",
+            i_D0=1, i_D1=0, i_S=0, i_R=0, i_CE=1,
+            i_C0=clk_sdram_half_shifted,
+            i_C1=~clk_sdram_half_shifted,
+            o_Q=output_clk)
         self.specials += Instance("OBUFDS", i_I=output_clk, o_O=clk.p, o_OB=clk.n)
-        #
-        #
-        # self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
-        #     p_INIT=0, p_SRTYPE="SYNC",
-        #     i_D0=1, i_D1=0, i_S=0, i_R=0, i_CE=1,
-        #     i_C0=clk_sdram_half_shifted,
-        #     i_C1=~clk_sdram_half_shifted,
-        #     o_Q=clk.p)
-        # self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
-        #     p_INIT=0, p_SRTYPE="SYNC",
-        #     i_D0=0, i_D1=1, i_S=0, i_R=0, i_CE=1,
-        #     i_C0=clk_sdram_half_shifted,
-        #     i_C1=~clk_sdram_half_shifted,
-        #     o_Q=clk.n)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, with_ethernet=True, with_etherbone=False, eth_phy=0, **kwargs):
-        sys_clk_freq = int(75e6) # Fraction(75*1000*1000,1) # (83 + Fraction(1, 3))*1000*1000
+        sys_clk_freq = int(75e6)
         platform     = atlys.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -189,7 +163,7 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
 
-        # DDR2 SDRAM ------------------------------------------------------------------------------
+        # DDR2 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(platform.request("ddram"),
                 memtype           = "DDR2",
@@ -200,15 +174,10 @@ class BaseSoC(SoCCore):
                 self.ddrphy.clk4x_wr_strb.eq(self.crg.clk4x_wr_strb),
                 self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
             ]
-            self.add_csr("ddrphy")
             self.add_sdram("sdram",
-                phy                     = self.ddrphy,
-                module                  = MT47H64M16(sys_clk_freq, "1:2"),
-                origin                  = self.mem_map["main_ram"],
-                size                    = kwargs.get("max_sdram_size", 0x4000000), # 0x100000000),
-                l2_cache_size           = kwargs.get("l2_size", 8192),
-                l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
-                l2_cache_reverse        = True
+                phy           = self.ddrphy,
+                module        = MT47H64M16(sys_clk_freq, "1:2"),
+                l2_cache_size = kwargs.get("l2_size", 8192),
             )
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
@@ -218,35 +187,20 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 clk_freq   = int(self.sys_clk_freq))
-            self.add_csr("ethphy")
-
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                print("etherbone")
                 self.add_etherbone(phy=self.ethphy)
-
             self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
             self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
-
-            # FIXME: This is probably too tight?
-#            self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
-
-
             self.platform.add_platform_command("""
-# FIXME: ERROR:Place:1108 - A clock IOB / BUFGMUX clock component pair have
-# been found that are not placed at an optimal clock IOB / BUFGMUX site pair.
-# The clock IOB component <eth_clocks_rx> is placed at site <K15>.
 NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-# The IOB component <eth_clocks_tx> is placed at site <K16>.
 NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
 """,
             eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
             eth_clocks_tx=platform.lookup_request("eth_clocks").tx,
             )
 
-
-            # self.add_interrupt("ethmac")
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
@@ -263,10 +217,10 @@ def main():
     parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
 
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_sdram_argdict(args))
+    soc = BaseSoC(**soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args), )
     builder.build(run=args.build)
 
