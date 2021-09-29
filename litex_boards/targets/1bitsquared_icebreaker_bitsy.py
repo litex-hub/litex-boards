@@ -85,9 +85,15 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
-        # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
+        # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
         self.submodules.spram = Up5kSPRAM(size=128*kB)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=128*kB))
+        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=64*kB))
+        if not self.integrated_main_ram_size:
+            self.bus.add_region("main_ram", SoCRegion(
+                origin = self.bus.regions["sram"].origin + 64*kB,
+                size   = 64*kB,
+                linker = True)
+            )
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q128JV
