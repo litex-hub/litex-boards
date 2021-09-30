@@ -20,6 +20,8 @@ from litex.soc.integration.builder import *
 from litedram.modules import MT41K512M16 # FIXME: IS43TR16512B
 from litedram.phy import s7ddrphy
 
+from liteeth.phy.s7rgmii import LiteEthPHYRGMII
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -44,7 +46,8 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_spi_flash=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False,
+        with_spi_flash=False, **kwargs):
         platform = mnt_rkx7.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -75,6 +78,17 @@ class BaseSoC(SoCCore):
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="4x", module=W25Q128JV(Codes.READ_1_1_4), rate="1:1", with_master=True)
 
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.submodules.ethphy = LiteEthPHYRGMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"))
+            platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets {{main_ethphy_eth_rx_clk_ibuf}}]")
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -84,12 +98,17 @@ def main():
     parser.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
     parser.add_argument("--with-sdcard",    action="store_true", help="Enable SDCard support")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
         with_spi_flash = args.with_spi_flash,
         **soc_core_argdict(args)
     )

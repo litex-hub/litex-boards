@@ -38,6 +38,24 @@ _io = [
         IOStandard("LVCMOS18"),
     ),
 
+    # RGMII Ethernet
+    ("eth_refclk", 0, Pins("F17"), IOStandard("LVCMOS33")), # CHECKME: Drive it?
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("E18")),
+        Subsignal("rx", Pins("D18")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("G17"), IOStandard("LVCMOS33")),
+        Subsignal("int_n",   Pins("E16"), IOStandard("LVCMOS33")),
+        Subsignal("mdio",    Pins("E15"), IOStandard("LVCMOS33")),
+        Subsignal("mdc",     Pins("E17"), IOStandard("LVCMOS33")),
+        Subsignal("rx_ctl",  Pins("F15"), IOStandard("LVCMOS33")),
+        Subsignal("rx_data", Pins("J15 J16 F20 D20"), IOStandard("LVCMOS33")),
+        Subsignal("tx_ctl",  Pins("D19"), IOStandard("LVCMOS33")),
+        Subsignal("tx_data", Pins("H18 H17 G19 F18"), IOStandard("LVCMOS33")),
+    ),
+
     # DDR3 SDRAM.
     ("ddram", 0,
         Subsignal("a",       Pins(
