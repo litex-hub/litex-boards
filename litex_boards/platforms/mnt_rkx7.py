@@ -28,6 +28,16 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # SDCard.
+    ("sdcard", 0,
+        Subsignal("data", Pins("A14 B10 A12 B15"), Misc("PULLUP True")),
+        Subsignal("cmd",  Pins("A15"), Misc("PULLUP True")),
+        Subsignal("clk",  Pins("C11")),
+        Subsignal("cd",   Pins("A10")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS18"),
+    ),
+
     # DDR3 SDRAM.
     ("ddram", 0,
         Subsignal("a",       Pins(
