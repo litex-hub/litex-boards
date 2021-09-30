@@ -56,6 +56,13 @@ _io = [
         Subsignal("tx_data", Pins("H18 H17 G19 F18"), IOStandard("LVCMOS33")),
     ),
 
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("G12")),
+        Subsignal("sda", Pins("A13")),
+        IOStandard("LVCMOS18"),
+    ),
+
     # DDR3 SDRAM.
     ("ddram", 0,
         Subsignal("a",       Pins(

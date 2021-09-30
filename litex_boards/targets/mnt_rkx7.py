@@ -16,6 +16,7 @@ from litex_boards.platforms import mnt_rkx7
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.bitbang import I2CMaster
 
 from litedram.modules import MT41K512M16 # FIXME: IS43TR16512B
 from litedram.phy import s7ddrphy
@@ -88,6 +89,10 @@ class BaseSoC(SoCCore):
                 self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
+
+
+        # I2C --------------------------------------------------------------------------------------
+        self.submodules.i2c = I2CMaster(platform.request("i2c"))
 
 # Build --------------------------------------------------------------------------------------------
 
