@@ -90,7 +90,6 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
 
-
         # I2C --------------------------------------------------------------------------------------
         self.submodules.i2c = I2CMaster(platform.request("i2c"))
 
@@ -102,7 +101,9 @@ def main():
     parser.add_argument("--load",           action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",   default=125e6,       help="System clock frequency (default: 125MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
-    parser.add_argument("--with-sdcard",    action="store_true", help="Enable SDCard support")
+    sdopts = parser.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support")
+    sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support")
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
@@ -117,6 +118,8 @@ def main():
         with_spi_flash = args.with_spi_flash,
         **soc_core_argdict(args)
     )
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
