@@ -18,7 +18,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.bitbang import I2CMaster
 
-from litedram.modules import MT41K512M16 # FIXME: IS43TR16512B
+from litedram.modules import IS43TR16512B
 from litedram.phy import s7ddrphy
 
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
@@ -68,7 +68,7 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41K512M16(sys_clk_freq, "1:4"),
+                module        = IS43TR16512B(sys_clk_freq, "1:4"),
                 size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192),
             )
