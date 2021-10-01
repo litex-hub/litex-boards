@@ -14,6 +14,9 @@ from migen import *
 from litex.soc.integration.builder import *
 
 class TestTargets(unittest.TestCase):
+    excluded_platforms = ["qmtech_daughterboard", "quicklogic_quickfeather"]
+    excluded_targets   = ["simple", "quicklogic_quickfeather"]
+
     # Build simple design for all platforms.
     def test_platforms(self):
         # Collect platforms.
@@ -21,7 +24,7 @@ class TestTargets(unittest.TestCase):
         for file in os.listdir("./litex_boards/platforms/"):
             if file.endswith(".py"):
                 file = file.replace(".py", "")
-                if file not in ["__init__", "qmtech_daughterboard"]:
+                if file not in ["__init__"] + self.excluded_platforms:
                     platforms.append(file)
 
         # Test platforms with simple design.
@@ -43,7 +46,7 @@ python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
         for file in os.listdir("./litex_boards/targets/"):
             if file.endswith(".py"):
                 file = file.replace(".py", "")
-                if file not in ["__init__", "simple"]:
+                if file not in ["__init__"] + self.excluded_targets:
                     targets.append(file)
 
         # Test targets.
