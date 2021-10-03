@@ -2,6 +2,7 @@
 
 #
 # This file is part of LiteX-Boards.
+#
 # Copyright (c) 2021 Alain Lou <alainzlou@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -63,6 +64,10 @@ class BaseSoC(SoCCore):
         # Limit internal rom and sram size
         kwargs["integrated_rom_size"]  = 0x6200
         kwargs["integrated_sram_size"] = 0x1000
+
+        # Can only support minimal variant of vexriscv
+        if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
+            kwargs["cpu_variant"] = "minimal"
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
