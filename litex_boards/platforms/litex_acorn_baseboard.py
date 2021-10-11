@@ -5,6 +5,8 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# https://github.com/enjoy-digital/litex-acorn-baseboard
+
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
 from litex.build.openfpgaloader import OpenFPGALoader

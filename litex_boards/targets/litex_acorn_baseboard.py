@@ -12,7 +12,7 @@ import sys
 
 from migen import *
 
-from litex_boards.platforms import litex_m2_baseboard
+from litex_boards.platforms import litex_acorn_baseboard
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -69,7 +69,7 @@ class BaseSoC(SoCCore):
         with_video_terminal = False,
         with_lcd            = False,
         **kwargs):
-        platform = litex_m2_baseboard.Platform(toolchain="trellis")
+        platform = litex_acorn_baseboard.Platform(toolchain="trellis")
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -103,7 +103,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on LiteX M2 Baseboard")
+    parser = argparse.ArgumentParser(description="LiteX SoC on LiteX Acorn Baseboard")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
     parser.add_argument("--flash",        action="store_true", help="Flash bitstream to SPI Flash")
