@@ -20,6 +20,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOTristate
 
 from litedram.modules import MT41J256M16
 from litedram.phy import ECP5DDRPHY
@@ -112,7 +113,7 @@ class _CRGSDRAM(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), toolchain="trellis", with_ethernet=False,
-                 with_led_chaser=True, **kwargs):
+                 with_led_chaser=True, with_pmod_gpio=False, **kwargs):
         platform = trellisboard.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -135,7 +136,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = MT41J256M16(sys_clk_freq, "1:2"),
-                l2_cache_size = kwargs.get("l2_size", 8192)
+                l2_cache_size = kwargs.get("l2_size", 8192),
             )
 
         # Ethernet ---------------------------------------------------------------------------------
@@ -151,6 +152,11 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # GPIOs ------------------------------------------------------------------------------------
+        if with_pmod_gpio:
+            platform.add_extension(trellisboard.raw_pmod_io("pmoda"))
+            self.submodules.gpio = GPIOTristate(platform.request("pmoda"))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -163,6 +169,7 @@ def main():
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    parser.add_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD") # FIXME: Temporary test.
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -171,6 +178,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         with_ethernet = args.with_ethernet,
+        with_pmod_gpio = args.with_pmod_gpio,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:

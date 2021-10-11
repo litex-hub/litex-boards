@@ -229,6 +229,9 @@ _connectors = [
 
 # PMODS --------------------------------------------------------------------------------------------
 
+def raw_pmod_io(pmod):
+    return [(pmod, 0, Pins(" ".join([f"{pmod}:{i:d}" for i in range(8)])), IOStandard("LVCMOS33"))]
+
 def sdcard_pmod_io(pmod):
     return [
         # SDCard PMOD:
