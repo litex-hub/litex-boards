@@ -25,6 +25,13 @@ _io = [
     ("user_btn", 0, Pins("M19"), IOStandard("LVCMOS33")),
     ("user_btn", 1, Pins("M20"), IOStandard("LVCMOS33")),
 
+    # LCD
+    ("lcd", 0,
+        Subsignal("scl", Pins("P18"), Misc("PULLMODE=UP")),
+        Subsignal("sda", Pins("L20"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33")
+    ),
+
     # RGMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("M1")),

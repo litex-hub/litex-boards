@@ -20,6 +20,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoHDMIPHY
+from litex.soc.cores.bitbang import I2CMaster
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
@@ -66,6 +67,7 @@ class BaseSoC(SoCCore):
         with_ethernet       = False,
         with_etherbone      = False,
         with_video_terminal = False,
+        with_lcd            = False,
         **kwargs):
         platform = litex_m2_baseboard.Platform(toolchain="trellis")
 
@@ -89,11 +91,14 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
 
-
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
             self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["g", "b"])
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+
+        # LCD --------------------------------------------------------------------------------------
+        if with_lcd:
+            self.submodules.i2c = I2CMaster(platform.request("lcd"))
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -111,6 +116,8 @@ def main():
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI)")
+    parser.add_argument("--with-lcd", action="store_true", help="Enable OLED LCD support")
+
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -121,6 +128,7 @@ def main():
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         with_video_terminal = args.with_video_terminal,
+        with_lcd            = args.with_lcd,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
