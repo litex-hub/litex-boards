@@ -100,6 +100,9 @@ class BaseSoC(SoCCore):
         if with_lcd:
             self.submodules.i2c = I2CMaster(platform.request("lcd"))
 
+        # M2 --------------------------------------------------------------------------------------
+        self.comb += platform.request("m2_devslp").eq(0) # Enable SATA M2.
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():

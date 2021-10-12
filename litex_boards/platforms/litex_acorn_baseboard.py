@@ -71,6 +71,12 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # M2
+    ("m2_devslp", 0, Pins("U18"), IOStandard("LVCMOS33")),
+    ("m2_perst",  0, Pins("U17"), IOStandard("LVCMOS33")),
+    ("m2_pewake", 0, Pins("R16"), IOStandard("LVCMOS33")),
+    ("m2_pedet",  0, Pins("T17"), IOStandard("LVCMOS33")),
+
     # HDMI
     ("hdmi_i2c", 0,
         Subsignal("scl", Pins("C9")),
