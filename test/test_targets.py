@@ -14,8 +14,16 @@ from migen import *
 from litex.soc.integration.builder import *
 
 class TestTargets(unittest.TestCase):
-    excluded_platforms = ["qmtech_daughterboard", "quicklogic_quickfeather"]
-    excluded_targets   = ["simple", "quicklogic_quickfeather"]
+    excluded_platforms = [
+        "qmtech_daughterboard",             # Reason: Not a real platform.
+        "quicklogic_quickfeather",          # Reason: No default clock.
+        "efinix_trion_t120_bga576_dev_kit", # Reason: Require Efinity toolchain.
+    ]
+    excluded_targets   = [
+        "simple",                           # Reason: Generic target.
+        "quicklogic_quickfeather",          # Reason: No default clock.
+        "efinix_trion_t120_bga576_dev_kit", # Reason: Require Efinity toolchain.
+    ]
 
     # Build simple design for all platforms.
     def test_platforms(self):
