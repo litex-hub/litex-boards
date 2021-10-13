@@ -58,7 +58,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Basys3")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
     builder_args(parser)
