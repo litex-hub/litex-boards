@@ -10,6 +10,7 @@
 import argparse
 
 from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import efinix_trion_t120_bga576_dev_kit
 
@@ -26,8 +27,10 @@ class _CRG(Module):
         # # #
 
         clk40 = platform.request("clk40")
+        rst_n = platform.request("user_btn", 0)
 
         self.comb += self.cd_sys.clk.eq(clk40)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -35,9 +38,10 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(40e6), with_led_chaser=True, **kwargs):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
 
-        # SoCMini ----------------------------------------------------------------------------------
-        kwargs["with_uart"] = False
-        SoCMini.__init__(self, platform, sys_clk_freq,
+        # SoCCore ----------------------------------------------------------------------------------
+        kwargs["integrated_rom_no_we"]  = True # FIXME: Avoid this.
+        kwargs["integrated_sram_no_we"] = True # FIXME: Avoid this.
+        SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Efinix Trion T120 BGA576 Dev Kit",
             ident_version  = True,
             **kwargs)
