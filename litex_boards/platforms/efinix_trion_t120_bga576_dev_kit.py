@@ -36,14 +36,33 @@ _io = [
     ("user_sw", 1, Pins("T16"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_sw", 2, Pins("T15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_sw", 3, Pins("U15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
-
-    # Serial / PMOD USB-UART on PMOD E.
-    ("serial", 0,
-        Subsignal("tx", Pins("B23")),
-        Subsignal("rx", Pins("A20")),
-        IOStandard("3.3_V_LVTTL_/_LVCMOS")
-    ),
 ]
+
+# Connectors ---------------------------------------------------------------------------------------
+
+_connectors = [
+    ("pmod_a", " T12  V11  Y12  Y10  U12  U11  W12  Y11"),
+    ("pmod_b", "AD11 AD10 AC10  W10 AA11 AC11 AA10  V10"),
+    ("pmod_c", " A11  D11  J11  G10  B11  E11  H11  F10"),
+    ("pmod_d", " D10  A10   A9   D9  E10  B10   B9   C9"),
+    ("pmod_e", " C24  B23  A20  A22  B24  A23  B20  B22"),
+    ("pmod_f", " V21  V20 AD20 AD19  U21  V19 AC20 AC19"),
+]
+
+# PMODS --------------------------------------------------------------------------------------------
+
+def raw_pmod_io(pmod):
+    return [(pmod, 0, Pins(" ".join([f"{pmod}:{i:d}" for i in range(8)])), IOStandard("3.3_V_LVTTL_/_LVCMOS"))]
+
+def usb_pmod_io(pmod):
+    return [
+        # USB-UART PMOD: https://store.digilentinc.com/pmod-usbuart-usb-to-uart-interface/
+        ("usb_uart", 0,
+            Subsignal("tx", Pins(f"{pmod}:1")),
+            Subsignal("rx", Pins(f"{pmod}:2")),
+            IOStandard("3.3_V_LVTTL_/_LVCMOS")
+        ),
+    ]
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -52,7 +71,7 @@ class Platform(EfinixPlatform):
     default_clk_period = 1e9/40e6
 
     def __init__(self):
-        EfinixPlatform.__init__(self, "T120F576", _io, toolchain="efinity")
+        EfinixPlatform.__init__(self, "T120F576", _io, _connectors, toolchain="efinity")
 
     def create_programmer(self):
         return EfinixProgrammer()

@@ -38,6 +38,10 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(40e6), with_led_chaser=True, **kwargs):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
 
+        # USBUART PMOD as Serial--------------------------------------------------------------------
+        platform.add_extension(efinix_trion_t120_bga576_dev_kit.usb_pmod_io("pmod_e"))
+        kwargs["uart_name"] = "usb_uart"
+
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             #ident          = "LiteX SoC on Efinix Trion T120 BGA576 Dev Kit", # FIXME: Crash design.
