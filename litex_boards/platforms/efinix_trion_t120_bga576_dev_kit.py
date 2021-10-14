@@ -31,6 +31,12 @@ _io = [
     ("user_btn", 2, Pins("W15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_btn", 3, Pins("V15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
 
+    # Switches
+    ("user_sw", 0, Pins("U16"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_sw", 1, Pins("T16"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_sw", 2, Pins("T15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_sw", 3, Pins("U15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+
     # Serial / PMOD USB-UART on PMOD E.
     ("serial", 0,
         Subsignal("tx", Pins("B23")),
