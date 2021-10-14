@@ -39,12 +39,13 @@ class BaseSoC(SoCCore):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["integrated_rom_no_we"]  = True # FIXME: Avoid this.
-        kwargs["integrated_sram_no_we"] = True # FIXME: Avoid this.
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Efinix Trion T120 BGA576 Dev Kit",
-            ident_version  = True,
-            **kwargs)
+            #ident          = "LiteX SoC on Efinix Trion T120 BGA576 Dev Kit", # FIXME: Crash design.
+            #ident_version  = True,
+            integrated_rom_no_we  = True, # FIXME: Avoid this.
+            integrated_sram_no_we = True, # FIXME: Avoid this.
+            **kwargs
+        )
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform)
