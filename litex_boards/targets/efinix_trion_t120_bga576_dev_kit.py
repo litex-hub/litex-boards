@@ -14,6 +14,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import efinix_trion_t120_bga576_dev_kit
 
+from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -21,7 +22,7 @@ from litex.soc.cores.led import LedChaser
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform):
+    def __init__(self, platform, sys_clk_freq):
         self.clock_domains.cd_sys = ClockDomain()
 
         # # #
@@ -29,13 +30,17 @@ class _CRG(Module):
         clk40 = platform.request("clk40")
         rst_n = platform.request("user_btn", 0)
 
-        self.comb += self.cd_sys.clk.eq(clk40)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
+
+        # PLL
+        self.submodules.pll = pll = TRIONPLL(platform)
+        self.comb += pll.reset.eq(~rst_n)
+        pll.register_clkin(clk40, 40e6)
+        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(40e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
@@ -53,7 +58,7 @@ class BaseSoC(SoCCore):
         )
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform)
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -65,13 +70,14 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
+    parser.add_argument("--build",        action="store_true", help="Build bitstream")
+    parser.add_argument("--load",         action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq", default=100e6,       help="System clock frequency (default: 100MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc     = BaseSoC(**soc_core_argdict(args))
+    soc     = BaseSoC(int(float(args.sys_clk_freq)), **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
