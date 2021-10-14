@@ -36,6 +36,42 @@ _io = [
     ("user_sw", 1, Pins("T16"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_sw", 2, Pins("T15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_sw", 3, Pins("U15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+
+
+    # RGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("L16")),
+        Subsignal("rx", Pins("M23")),
+        IOStandard("3.3_V_LVTTL_/_LVCMOS")
+    ),
+
+    ("eth", 0,
+        Subsignal("rx_ctl",  Pins("F24")),
+        Subsignal("rx_data", Pins("J20 K20 J19 H20")),
+        Subsignal("tx_ctl",  Pins("G24")),
+        Subsignal("tx_data", Pins("L23 L22 K21 K19")),
+        Subsignal("rst_n",   Pins("F21")),
+        Subsignal("mdc",     Pins("G21")),
+        Subsignal("mdio",    Pins("G19")),
+        IOStandard("3.3_V_LVTTL_/_LVCMOS")
+    ),
+
+    ("eth_clocks", 1,
+        Subsignal("tx", Pins("M18")),
+        Subsignal("rx", Pins("M24")),
+        IOStandard("3.3_V_LVTTL_/_LVCMOS")
+    ),
+
+    ("eth", 1,
+        Subsignal("rx_ctl",  Pins("D23")),
+        Subsignal("rx_data", Pins("M8 L7 M7 N6")),
+        Subsignal("tx_ctl",  Pins("E24")),
+        Subsignal("tx_data", Pins("N7 N9 N8 N5")),
+        Subsignal("rst_n",   Pins("E23")),
+        Subsignal("mdc",     Pins("E22")),
+        Subsignal("mdio",    Pins("D24")),
+        IOStandard("3.3_V_LVTTL_/_LVCMOS")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
