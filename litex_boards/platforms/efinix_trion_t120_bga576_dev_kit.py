@@ -37,6 +37,23 @@ _io = [
     ("user_sw", 2, Pins("T15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_sw", 3, Pins("U15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
 
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("R23")),
+        Subsignal("clk",  Pins("P22")),
+        Subsignal("mosi", Pins("N24")),
+        Subsignal("miso", Pins("N23")),
+        #Subsignal("wp",   Pins("R19")),
+        #Subsignal("hold", Pins("R17")),
+        IOStandard("3.3_V_LVTTL_/_LVCMOS")
+    ),
+
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("R23")),
+        Subsignal("clk",  Pins("P22")),
+        Subsignal("dq",   Pins("N24 N23 R19 R17")),
+        IOStandard("3.3_V_LVTTL_/_LVCMOS")
+    ),
 
     # RGMII Ethernet
     ("eth_clocks", 0,

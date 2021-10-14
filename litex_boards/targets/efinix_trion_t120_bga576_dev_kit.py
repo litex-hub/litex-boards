@@ -40,7 +40,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
@@ -60,6 +60,12 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import W25Q128JV
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="1x", module=W25Q128JV(Codes.READ_1_1_1), with_master=True)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
@@ -70,14 +76,18 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=100e6,       help="System clock frequency (default: 100MHz)")
+    parser.add_argument("--build",          action="store_true", help="Build bitstream")
+    parser.add_argument("--load",           action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency (default: 100MHz)")
+    parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc     = BaseSoC(int(float(args.sys_clk_freq)), **soc_core_argdict(args))
+    soc     = BaseSoC(
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_spi_flash = args.with_spi_flash,
+         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
