@@ -34,6 +34,14 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # SPIFlash
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("R2")),
+        #Subsignal("clk",  Pins("U3")),
+        Subsignal("dq",   Pins("W2 V2 Y2 W1")),
+        IOStandard("LVCMOS33")
+    ),
+
     # RGMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("M1")),

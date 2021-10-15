@@ -64,6 +64,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6),
+        with_spi_flash      = False,
         with_ethernet       = False,
         with_etherbone      = False,
         with_video_terminal = False,
@@ -79,6 +80,12 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import W25Q128JV
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=W25Q128JV(Codes.READ_1_1_4), with_master=True)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -119,7 +126,8 @@ def main():
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI)")
-    parser.add_argument("--with-lcd", action="store_true", help="Enable OLED LCD support")
+    parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
+    parser.add_argument("--with-lcd",       action="store_true", help="Enable OLED LCD support")
 
     builder_args(parser)
     soc_core_args(parser)
@@ -128,6 +136,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq        = int(float(args.sys_clk_freq)),
+        with_spi_flash      = args.with_spi_flash,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         with_video_terminal = args.with_video_terminal,
