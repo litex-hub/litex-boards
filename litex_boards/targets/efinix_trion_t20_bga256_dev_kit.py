@@ -86,6 +86,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Trion T20 BGA256 Dev Kit")
     parser.add_argument("--build",          action="store_true", help="Build bitstream")
     parser.add_argument("--load",           action="store_true", help="Load bitstream")
+    parser.add_argument("--flash",          action="store_true", help="Flash bitstream")
     parser.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
     builder_args(parser)
@@ -102,6 +103,11 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.bit"))
+
+    if args.flash:
+        from litex.build.openfpgaloader import OpenFPGALoader
+        prog = OpenFPGALoader("trion_t120_bga576")
+        prog.flash(0, os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.hex"))
 
 if __name__ == "__main__":
     main()
