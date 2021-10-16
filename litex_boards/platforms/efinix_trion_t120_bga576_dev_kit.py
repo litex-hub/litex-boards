@@ -124,7 +124,7 @@ class Platform(EfinixPlatform):
     default_clk_period = 1e9/40e6
 
     def __init__(self):
-        EfinixPlatform.__init__(self, "T120F576", _io, _connectors, toolchain="efinity")
+        EfinixPlatform.__init__(self, "T120F576I4", _io, _connectors, toolchain="efinity")
 
     def create_programmer(self):
         return EfinixProgrammer()
