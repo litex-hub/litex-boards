@@ -57,8 +57,8 @@ class _CRG(Module):
             video_pll.register_clkin(clk50, 50e6)
             self.clock_domains.cd_hdmi   = ClockDomain()
             self.clock_domains.cd_hdmi5x = ClockDomain()
-            video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
-            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi,    40e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi5x, 200e6, margin=0)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -101,7 +101,7 @@ class BaseSoC(SoCCore):
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
             self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["g", "b"])
-            self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+            self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
 
         # LCD --------------------------------------------------------------------------------------
         if with_lcd:
