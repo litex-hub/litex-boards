@@ -25,15 +25,6 @@ _io = [
         IOStandard("3.3_V_LVTTL_/_LVCMOS")
      ),
 
-    ("spiflash2x", 0,
-        Subsignal("cs_n", Pins("J4")),  # net SPI_SS
-        Subsignal("clk",  Pins("H4")),  # net SPI_SCLK
-        Subsignal("dq", Pins("F4 H3")),  # DI DO nets SPI_MOSI, SPI_MISO
-        #Subsignal("wp",   Pins("")),
-        #Subsignal("hold", Pins("")),
-        IOStandard("3.3_V_LVTTL_/_LVCMOS")
-     ),
-
     # SDCard
     ("spisdcard", 0,
         # all 4 SPI signals below have 10k pullup on dev board
@@ -47,20 +38,14 @@ _io = [
      ),
 
     # Leds  # nets LED1-4
-    ("user_led", 0, Pins("B3"), IOStandard(
-        "3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
-    ("user_led", 1, Pins("J6"), IOStandard(
-        "3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
-    ("user_led", 2, Pins("D7"),  IOStandard(
-        "3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
-    ("user_led", 3, Pins("D8"),  IOStandard(
-        "3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
+    ("user_led", 0, Pins("B3"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
+    ("user_led", 1, Pins("J6"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
+    ("user_led", 2, Pins("D7"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
+    ("user_led", 3, Pins("D8"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
 
     # Buttons nets BTN1-2
-    ("user_btn", 0, Pins("C5"), IOStandard(
-        "3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
-    ("user_btn", 1, Pins("C9"),  IOStandard(
-        "3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn", 0, Pins("C5"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn", 1, Pins("C9"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
 
     # Serial / PMOD USB-UART on PMOD E.
     ("serial", 0,
@@ -84,19 +69,16 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-
 class Platform(EfinixPlatform):
     default_clk_name = "clk33"
     default_clk_period = 1e9/33.333e6
 
     def __init__(self):
-        EfinixPlatform.__init__(self, "T8F81C2", _io,
-                                _connectors, toolchain="efinity")
+        EfinixPlatform.__init__(self, "T8F81C2", _io, _connectors, toolchain="efinity")
 
     def create_programmer(self):
         return EfinixProgrammer()
 
     def do_finalize(self, fragment):
         EfinixPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request(
-            "clk33", loose=True), 1e9/33.333e6)
+        self.add_period_constraint(self.lookup_request("clk33", loose=True), 1e9/33.333e6)

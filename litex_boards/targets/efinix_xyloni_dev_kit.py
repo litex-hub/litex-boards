@@ -21,8 +21,10 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-# CRG ----------------------------------------------------------------------------------------------
+kB = 1024
+mB = 1024*kB
 
+# CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
@@ -45,105 +47,79 @@ class _CRG(Module):
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
-
 class BaseSoC(SoCCore):
-    mem_map = {**{"sram": 0x01000000}, **{"spiflash": 0x80000000}}
-
-    def __init__(self, sys_clk_freq, bios_flash_offset, with_uartbone=False, with_spi_flash=False, with_led_chaser=True, **kwargs):
+    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
+    def __init__(self, bios_flash_offset, sys_clk_freq, with_led_chaser=True, **kwargs):
         platform = efinix_xyloni_dev_kit.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        kwargs["integrated_sram_size"] = 0xC00
-        # kwargs["integrated_rom_size"]  = 0x6000 # doesn't fit
-        kwargs["integrated_rom_size"] = 0
+        # Disable Integrated ROM since too large for this device.
+        kwargs["integrated_rom_size"]  = 0
 
         # Set CPU variant / reset address
-        if with_spi_flash:
-            kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + \
-                bios_flash_offset
+        kwargs["cpu_variant"]       = "minimal"
+        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
 
-        # Can probably only support minimal variant of vexriscv
-        if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
-            kwargs["cpu_variant"] = "minimal"
-
+        # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-                         ident="LiteX SoC on Efinix Xyloni Dev Kit",
-                         ident_version=True,
-                         integrated_rom_no_we=True,  # FIXME: Avoid this.
-                         integrated_sram_no_we=True,  # FIXME: Avoid this.
-                         integrated_main_ram_no_we=True,  # FIXME: Avoid this.
-                         **kwargs)
+            #ident         = "LiteX SoC on Efinix Xyloni Dev Kit", # FIXME: Crash design.
+            #ident_version = True,
+            integrated_rom_no_we      = True,  # FIXME: Avoid this.
+            integrated_sram_no_we     = True,  # FIXME: Avoid this.
+            integrated_main_ram_no_we = True,  # FIXME: Avoid this.
+            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
-        if with_spi_flash:
-            from litespi.modules import W25Q128JV
-            from litespi.opcodes import SpiNorFlashOpCodes as Codes
-            self.add_spi_flash(mode="1x", module=W25Q128JV(
-                Codes.READ_1_1_1), with_master=True)
+        from litespi.modules import W25Q128JV
+        from litespi.opcodes import SpiNorFlashOpCodes as Codes
+        self.add_spi_flash(mode="1x", module=W25Q128JV(Codes.READ_1_1_1), with_master=False)
 
-            # Add ROM linker region --------------------------------------------------------------------
-            self.bus.add_region("rom", SoCRegion(
-                origin=self.mem_map["spiflash"] + bios_flash_offset,
-                size=32*1024,
-                linker=True)
-            )
-
-        # UartBone ---------------------------------------------------------------------------------
-        if with_uartbone:
-            self.add_uartbone("serial", baudrate=1e6)
+        # Add ROM linker region --------------------------------------------------------------------
+        self.bus.add_region("rom", SoCRegion(
+            origin = self.mem_map["spiflash"] + bios_flash_offset,
+            size   = 32*kB,
+            linker = True)
+        )
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
-                pads=platform.request_all("user_led"),
-                sys_clk_freq=sys_clk_freq)
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="LiteX SoC on Efinix Xyloni Dev Kit")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Xyloni Dev Kit")
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load",  action="store_true", help="Load bitstream")
     parser.add_argument("--flash", action="store_true", help="Flash Bitstream")
-    # TODO: try a differnet frequency when PLL is supported
-    parser.add_argument("--sys-clk-freq", default=33.333e6,
-                        help="System clock frequency (default: 33.333MHz)")
-    parser.add_argument("--with-uartbone",  action="store_true",
-                        help="Enable Uartbone support")
-    parser.add_argument("--with-spi-flash", action="store_true",
-                        help="Enable SPI Flash (MMAPed)")
-    parser.add_argument("--bios-flash-offset", default=0x40000,
-                        help="BIOS offset in SPI Flash (default: 0x40000)")
+    parser.add_argument("--sys-clk-freq",      default=33.333e6, help="System clock frequency (default: 33.333MHz)")
+    parser.add_argument("--bios-flash-offset", default=0x40000,  help="BIOS offset in SPI Flash (default: 0x40000)")
 
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        int(float(args.sys_clk_freq)),
-        bios_flash_offset=args.bios_flash_offset,
-        with_uartbone=args.with_uartbone,
-        with_spi_flash=args.with_spi_flash,
+        bios_flash_offset = args.bios_flash_offset,
+        sys_clk_freq      = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(
-            builder.gateware_dir, f"outflow/{soc.build_name}.bit"))
+        prog.load_bitstream(os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.bit"))
 
     if args.flash:
         from litex.build.openfpgaloader import OpenFPGALoader
         prog = OpenFPGALoader("xyloni_spi")
-        prog.flash(0, os.path.join(builder.gateware_dir,
-                   f"outflow/{soc.build_name}.hex"))
-
+        prog.flash(0, os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.hex"))
+        prog.flash(args.bios_flash_offset, os.path.join(builder.software_dir, "bios/bios.bin"))
 
 if __name__ == "__main__":
     main()
