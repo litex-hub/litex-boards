@@ -19,12 +19,14 @@ class TestTargets(unittest.TestCase):
         "quicklogic_quickfeather",          # Reason: No default clock.
         "efinix_trion_t120_bga576_dev_kit", # Reason: Require Efinity toolchain.
         "efinix_trion_t20_bga256_dev_kit",  # Reason: Require Efinity toolchain.
+        "efinix_xyloni_dev_kit",            # Reason: Require Efinity toolchain.
     ]
     excluded_targets   = [
         "simple",                           # Reason: Generic target.
         "quicklogic_quickfeather",          # Reason: No default clock.
         "efinix_trion_t120_bga576_dev_kit", # Reason: Require Efinity toolchain.
         "efinix_trion_t20_bga256_dev_kit",  # Reason: Require Efinity toolchain.
+        "efinix_xyloni_dev_kit",            # Reason: Require Efinity toolchain.
     ]
 
     # Build simple design for all platforms.
