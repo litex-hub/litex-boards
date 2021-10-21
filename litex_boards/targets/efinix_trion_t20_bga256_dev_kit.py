@@ -39,21 +39,11 @@ class _CRG(Module):
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
 
-# Default peripherals
-serial = [
-    ("serial", 0,
-        Subsignal("tx", Pins("H4:18")), # 27 on H4
-        Subsignal("rx", Pins("H4:19")), # 28 on H4
-        IOStandard("3.3_V_LVTTL_/_LVCMOS") , Misc("WEAK_PULLUP")
-    )
-]
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = efinix_trion_t20_bga256_dev_kit.Platform()
-        platform.add_extension(serial)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,

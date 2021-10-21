@@ -2,8 +2,6 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2021 Miodrag Milanovic <mmicko@gmail.com>
-# Copyright (c) 2021 Franck Jullien <franck.jullien@collshade.fr>
-# Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -15,6 +13,13 @@ from litex.build.efinix import EfinixProgrammer
 _io = [
     # Clk
     ("clk50", 0, Pins("L13"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+
+    # Serial
+    ("serial", 0,
+        Subsignal("tx", Pins("H4:18")), # 27 on H4
+        Subsignal("rx", Pins("H4:19")), # 28 on H4
+        IOStandard("3.3_V_LVTTL_/_LVCMOS") , Misc("WEAK_PULLUP")
+    ),
 
     # Leds
     ("user_led", 0, Pins("D14"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
