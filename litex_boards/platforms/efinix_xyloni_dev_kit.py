@@ -11,8 +11,25 @@ from litex.build.efinix import EfinixProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk 33.333MHz Oscillator
+    # Clk
     ("clk33", 0, Pins("C3"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),  # net PLL_IN
+
+    # Buttons
+    ("user_btn", 0, Pins("C5"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn", 1, Pins("C9"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+
+    # Leds
+    ("user_led", 0, Pins("B3"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
+    ("user_led", 1, Pins("J6"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
+    ("user_led", 2, Pins("D7"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
+    ("user_led", 3, Pins("D8"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
+
+    # Serial
+    ("serial", 0,
+        Subsignal("tx", Pins("F3")),  # net TXD
+        Subsignal("rx", Pins("H2")),  # net RXD
+        IOStandard("3.3_V_LVTTL_/_LVCMOS")
+     ),
 
     # SPIFlash (W25Q128JVSIM)
     ("spiflash", 0,
@@ -27,30 +44,13 @@ _io = [
 
     # SDCard
     ("spisdcard", 0,
-        # all 4 SPI signals below have 10k pullup on dev board
+        # All 4 SPI signals below have 10k pullup on dev board
         Subsignal("clk",  Pins("J2")),  # net SD_SCLK
         Subsignal("cs_n", Pins("G5")),  # net SD_CS
         Subsignal("mosi", Pins("G4")),  # net SD_DI
         Subsignal("miso", Pins("J3")),  # net SD_DO
         Subsignal("det",  Pins("G3")),  # net CD2
         Misc("SLEW=FAST"),
-        IOStandard("3.3_V_LVTTL_/_LVCMOS")
-     ),
-
-    # Leds  # nets LED1-4
-    ("user_led", 0, Pins("B3"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
-    ("user_led", 1, Pins("J6"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
-    ("user_led", 2, Pins("D7"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
-    ("user_led", 3, Pins("D8"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
-
-    # Buttons nets BTN1-2
-    ("user_btn", 0, Pins("C5"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
-    ("user_btn", 1, Pins("C9"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
-
-    # Serial / PMOD USB-UART on PMOD E.
-    ("serial", 0,
-        Subsignal("tx", Pins("F3")),  # net TXD
-        Subsignal("rx", Pins("H2")),  # net RXD
         IOStandard("3.3_V_LVTTL_/_LVCMOS")
      ),
 ]
