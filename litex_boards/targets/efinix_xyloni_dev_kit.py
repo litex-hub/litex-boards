@@ -56,7 +56,8 @@ class BaseSoC(SoCCore):
         kwargs["integrated_rom_size"]  = 0
 
         # Set CPU variant / reset address
-        kwargs["cpu_variant"]       = "minimal"
+        if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
+            kwargs["cpu_variant"] = "minimal"
         kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
 
         # SoCCore ----------------------------------------------------------------------------------
