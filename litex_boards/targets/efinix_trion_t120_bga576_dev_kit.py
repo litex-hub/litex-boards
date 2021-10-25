@@ -72,6 +72,49 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # SDRTristate Test -------------------------------------------------------------------------
+        from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
+        from litex.soc.cores.bitbang import I2CMaster
+        platform.add_extension([("i2c", 0,
+            Subsignal("sda",   Pins("T12")),
+            Subsignal("scl",   Pins("V11")),
+            IOStandard("3.3_V_LVTTL_/_LVCMOS"),
+        )])
+
+        if True:
+            self.submodules.i2c = I2CMaster(pads=platform.request("i2c"))
+
+        if False:
+            it6263 = platform.request("i2c")
+
+            name = platform.get_pin_name(it6263.sda)
+            pad = platform.get_pin_location(it6263.sda)
+            sda_oe = platform.add_iface_io(name + '_OE')
+            sda_i  = platform.add_iface_io(name + '_IN')
+            sda_o  = platform.add_iface_io(name + '_OUT')
+
+            block = {'type':'GPIO',
+                     'mode':'INOUT',
+                     'name':name,
+                     'location':[pad[0]],
+            }
+            platform.toolchain.ifacewriter.blocks.append(block)
+            platform.delete(it6263.sda)
+
+            name = platform.get_pin_name(it6263.scl)
+            pad = platform.get_pin_location(it6263.scl)
+            scl_oe = platform.add_iface_io(name + '_OE')
+            scl_i  = platform.add_iface_io(name + '_IN')
+            scl_o  = platform.add_iface_io(name + '_OUT')
+
+            block = {'type':'GPIO',
+                     'mode':'INOUT',
+                     'name':name,
+                     'location':[pad[0]],
+            }
+            platform.toolchain.ifacewriter.blocks.append(block)
+            platform.delete(it6263.scl)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
