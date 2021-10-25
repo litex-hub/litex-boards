@@ -110,11 +110,10 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.bit"))
+        prog.load_bitstream(os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.hex"))
 
     if args.flash:
-        from litex.build.openfpgaloader import OpenFPGALoader
-        prog = OpenFPGALoader("xyloni_spi")
+        prog = soc.platform.create_programmer()
         prog.flash(0, os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.hex"))
         prog.flash(args.bios_flash_offset, os.path.join(builder.software_dir, "bios/bios.bin"))
 

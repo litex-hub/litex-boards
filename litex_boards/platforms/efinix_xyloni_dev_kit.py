@@ -6,7 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.efinix.platform import EfinixPlatform
-from litex.build.efinix import EfinixProgrammer
+from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ class Platform(EfinixPlatform):
         EfinixPlatform.__init__(self, "T8F81C2", _io, _connectors, toolchain="efinity")
 
     def create_programmer(self):
-        return EfinixProgrammer()
+        return OpenFPGALoader("xyloni_spi")
 
     def do_finalize(self, fragment):
         EfinixPlatform.do_finalize(self, fragment)
