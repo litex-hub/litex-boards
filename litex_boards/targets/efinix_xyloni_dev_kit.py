@@ -35,15 +35,11 @@ class _CRG(Module):
         clk33 = platform.request("clk33")
         rst_n = platform.request("user_btn", 0)
 
-        if sys_clk_freq == int(33.333e6):
-            self.comb += self.cd_sys.clk.eq(clk33)
-            self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
-        else:
-            # PLL TODO: V1 simple pll not supported in infrastructure yet
-            self.submodules.pll = pll = TRIONPLL(platform)
-            self.comb += pll.reset.eq(~rst_n)
-            pll.register_clkin(clk33, 33.333e6)
-            pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
+        # PLL.
+        self.submodules.pll = pll = TRIONPLL(platform)
+        self.comb += pll.reset.eq(~rst_n)
+        pll.register_clkin(clk33, 33.333e6)
+        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
