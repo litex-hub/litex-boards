@@ -60,9 +60,6 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq,
             #ident         = "LiteX SoC on Efinix Xyloni Dev Kit", # FIXME: Crash design.
             #ident_version = True,
-            integrated_rom_no_we      = True,  # FIXME: Avoid this.
-            integrated_sram_no_we     = True,  # FIXME: Avoid this.
-            integrated_main_ram_no_we = True,  # FIXME: Avoid this.
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
