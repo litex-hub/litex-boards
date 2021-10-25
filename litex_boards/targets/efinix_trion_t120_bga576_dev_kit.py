@@ -40,7 +40,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
@@ -64,7 +64,8 @@ class BaseSoC(SoCCore):
         if with_spi_flash:
             from litespi.modules import W25Q128JV
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
-            self.add_spi_flash(mode="1x", module=W25Q128JV(Codes.READ_1_1_1), with_master=True)
+            self.add_spi_flash(mode="4x", module=W25Q128JV(Codes.READ_1_1_4), with_master=True)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("spiflash4x").dq)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -72,7 +73,7 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
-        # SDRTristate Test -------------------------------------------------------------------------
+        # Tristate Test ----------------------------------------------------------------------------
         from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
         from litex.soc.cores.bitbang import I2CMaster
         platform.add_extension([("i2c", 0,
@@ -80,40 +81,7 @@ class BaseSoC(SoCCore):
             Subsignal("scl",   Pins("V11")),
             IOStandard("3.3_V_LVTTL_/_LVCMOS"),
         )])
-
-        if True:
-            self.submodules.i2c = I2CMaster(pads=platform.request("i2c"))
-
-        if False:
-            it6263 = platform.request("i2c")
-
-            name = platform.get_pin_name(it6263.sda)
-            pad = platform.get_pin_location(it6263.sda)
-            sda_oe = platform.add_iface_io(name + '_OE')
-            sda_i  = platform.add_iface_io(name + '_IN')
-            sda_o  = platform.add_iface_io(name + '_OUT')
-
-            block = {'type':'GPIO',
-                     'mode':'INOUT',
-                     'name':name,
-                     'location':[pad[0]],
-            }
-            platform.toolchain.ifacewriter.blocks.append(block)
-            platform.delete(it6263.sda)
-
-            name = platform.get_pin_name(it6263.scl)
-            pad = platform.get_pin_location(it6263.scl)
-            scl_oe = platform.add_iface_io(name + '_OE')
-            scl_i  = platform.add_iface_io(name + '_IN')
-            scl_o  = platform.add_iface_io(name + '_OUT')
-
-            block = {'type':'GPIO',
-                     'mode':'INOUT',
-                     'name':name,
-                     'location':[pad[0]],
-            }
-            platform.toolchain.ifacewriter.blocks.append(block)
-            platform.delete(it6263.scl)
+        self.submodules.i2c = I2CMaster(pads=platform.request("i2c"))
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -122,7 +90,7 @@ def main():
     parser.add_argument("--build",          action="store_true", help="Build bitstream")
     parser.add_argument("--load",           action="store_true", help="Load bitstream")
     parser.add_argument("--flash",          action="store_true", help="Flash bitstream")
-    parser.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency (default: 100MHz)")
+    parser.add_argument("--sys-clk-freq",   default=50e6,        help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
     builder_args(parser)
     soc_core_args(parser)
