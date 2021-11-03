@@ -16,8 +16,8 @@ _io = [
 
     # Serial
     ("serial", 0,
-        Subsignal("tx", Pins("AB22"), IOStandard("3.3-V LVTTL")), # JP5 GPIO[0]
-        Subsignal("rx", Pins("AC15"), IOStandard("3.3-V LVTTL"))  # JP5 GPIO[1]
+        Subsignal("tx", Pins("G9"), IOStandard("3.3-V LVTTL")), # Use built-in Tx RS32 port
+        Subsignal("rx", Pins("G12"), IOStandard("3.3-V LVTTL"))  #  Use built-in Rx RS32 port
     ),
 
     # SDR SDRAM
