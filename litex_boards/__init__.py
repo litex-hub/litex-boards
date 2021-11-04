@@ -8,6 +8,7 @@ import importlib
 vendors = [
     "1bitsquared",
     "antmicro",
+    "berkeleylab",
     "colorlight",
     "decklink",
     "digilent",

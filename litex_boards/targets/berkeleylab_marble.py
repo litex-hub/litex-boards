@@ -29,7 +29,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.platforms import marble
+from litex_boards.platforms import berkeleylab_marble
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -80,11 +80,11 @@ class BaseSoC(SoCCore):
         spd_dump=None,
         **kwargs
     ):
-        platform = marble.Platform()
+        platform = berkeleylab_marble.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Marble",
+            ident          = "LiteX SoC on Berkeley-Lab Marble",
             ident_version  = True,
             **kwargs)
 
