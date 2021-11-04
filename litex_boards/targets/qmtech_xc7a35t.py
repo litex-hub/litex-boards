@@ -76,8 +76,6 @@ class BaseSoC(SoCCore):
         platform = qmtech_xc7a35t.Platform(toolchain=toolchain, with_daughterboard=with_daughterboard)
 
         # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on QMTech XC7A35T" + (" + Daughterboard" if with_daughterboard else ""),
             ident_version  = ident_version,
