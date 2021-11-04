@@ -69,6 +69,7 @@ class BaseSoC(SoCCore):
         with_etherbone      = False,
         with_video_terminal = False,
         with_lcd            = False,
+        with_ws2812         = False,
         **kwargs):
         platform = litex_acorn_baseboard.Platform(toolchain="trellis")
 
@@ -110,6 +111,18 @@ class BaseSoC(SoCCore):
         # M2 --------------------------------------------------------------------------------------
         self.comb += platform.request("m2_devslp").eq(0) # Enable SATA M2.
 
+        # WS2812 ----------------------------------------------------------------------------------
+        if with_ws2812:
+            from litex.build.generic_platform import Pins, IOStandard
+            from litex.soc.integration.soc import SoCRegion
+            from litex.soc.cores.led import WS2812
+            platform.add_extension([("ws2812", 0, Pins("pmod1:0"), IOStandard("LVCMOS33"))])
+            self.submodules.ws2812 = WS2812(platform.request("ws2812"), nleds=64, sys_clk_freq=sys_clk_freq)
+            self.bus.add_slave(name="ws2812", slave=self.ws2812.bus, region=SoCRegion(
+                origin = 0x2000_0000,
+                size   = 64*4,
+            ))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -128,6 +141,7 @@ def main():
     viopts.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
     parser.add_argument("--with-lcd",       action="store_true", help="Enable OLED LCD support")
+    parser.add_argument("--with-ws2812",    action="store_true", help="Enable WS2812 on PMOD1:0")
 
     builder_args(parser)
     soc_core_args(parser)
@@ -141,6 +155,7 @@ def main():
         with_etherbone      = args.with_etherbone,
         with_video_terminal = args.with_video_terminal,
         with_lcd            = args.with_lcd,
+        with_ws2812         = args.with_ws2812,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
