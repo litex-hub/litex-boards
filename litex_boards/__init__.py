@@ -14,6 +14,7 @@ vendors = [
     "digilent",
     "enclustra",
     "gsd",
+    "fairwaves",
     "hackaday",
     "kosagi",
     "lattice",
