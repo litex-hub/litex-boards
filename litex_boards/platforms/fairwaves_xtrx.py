@@ -13,6 +13,9 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk/Rst.
+    ("clk60", 0, Pins("C16"), IOStandard("LVCMOS25")),
+
     # Leds.
     ("user_led", 0, Pins("N18"),  IOStandard("LVCMOS25")),
 
@@ -51,3 +54,4 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk60", loose=True), 1e9/60e6)

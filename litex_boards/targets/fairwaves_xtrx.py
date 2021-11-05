@@ -45,32 +45,37 @@ from litepcie.software import generate_litepcie_software
 
 class CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_pcie=False):
-        assert sys_clk_freq == int(125e6)
         self.clock_domains.cd_sys = ClockDomain()
 
         # # #
 
-        self.comb += [
-            self.cd_sys.clk.eq(ClockSignal("pcie")),
-            self.cd_sys.rst.eq(ResetSignal("pcie")),
-
-        ]
+        if with_pcie:
+            assert sys_clk_freq == int(125e6)
+            self.comb += [
+                self.cd_sys.clk.eq(ClockSignal("pcie")),
+                self.cd_sys.rst.eq(ResetSignal("pcie")),
+            ]
+        else:
+            self.submodules.pll = pll = S7PLL(speedgrade=-2)
+            pll.register_clkin(platform.request("clk60"), 60e6)
+            pll.create_clkout(self.cd_sys, sys_clk_freq)
 
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, with_led_chaser=True, **kwargs):
-        assert with_pcie
         platform = fairwaves_xtrx.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
+        if kwargs["uart_name"] == "serial":
+            kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Fairwaves XTRX",
             ident_version  = True,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(platform, sys_clk_freq)
+        self.submodules.crg = CRG(platform, sys_clk_freq, with_pcie)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
