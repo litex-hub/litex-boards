@@ -144,6 +144,7 @@ def main():
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support")
+    parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed)")
     parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA)")
@@ -163,6 +164,7 @@ def main():
         ident_version          = args.no_ident_version,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+        with_spi_flash         = args.with_spi_flash,
         sdram_rate             = args.sdram_rate,
         **soc_core_argdict(args)
     )
