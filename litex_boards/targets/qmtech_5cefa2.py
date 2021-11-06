@@ -22,7 +22,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import IS42S16160
+from litedram.modules import W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from litex.soc.cores.video import VideoVGAPHY
@@ -62,7 +62,8 @@ class _CRG(Module):
             # theoretically 90 degrees, but increase to relax timing
             pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180)
         else:
-            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+            # for 105 MHz: 10; 95 MHz: 15; 85MHz: 30 work
+            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=10)
 
         if with_ethernet:
             pll.create_clkout(self.cd_eth,   25e6)
@@ -76,7 +77,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(75e6), with_daughterboard=False,
+    def __init__(self, sys_clk_freq=int(105e6), with_daughterboard=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
                  ident_version=True, sdram_rate="1:1", **kwargs):
@@ -100,7 +101,7 @@ class BaseSoC(SoCCore):
             self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = IS42S16160(sys_clk_freq, sdram_rate),
+                module        = W9825G6KH6(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -134,7 +135,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on QMTECH 5CEFA2")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=75e6,        help="System clock frequency (default: 75MHz)")
+    parser.add_argument("--sys-clk-freq", default=105e6,        help="System clock frequency (default: 105MHz)")
     parser.add_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default) or 1:2 Half Rate")
     parser.add_argument("--with-daughterboard",  action="store_true",              help="Whether the core board is plugged into the QMTech daughterboard")
     ethopts = parser.add_mutually_exclusive_group()

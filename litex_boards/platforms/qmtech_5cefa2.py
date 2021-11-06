@@ -18,12 +18,6 @@ _io = [
     ("key", 0, Pins("AB13"),  IOStandard("3.3-V LVTTL")),
     ("key", 1, Pins("V18"),  IOStandard("3.3-V LVTTL")),
 
-    # Serial
-    ("serial", 0,
-        Subsignal("tx", Pins("J3:8"), IOStandard("3.3-V LVTTL")),
-        Subsignal("rx", Pins("J3:7"), IOStandard("3.3-V LVTTL"))
-    ),
-
     # SPIFlash (MT25QL128ABA)
     ("spiflash", 0,
         # clk
@@ -127,7 +121,13 @@ _connectors = [
 class Platform(AlteraPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
-    core_resources = [ ("user_led", 0, Pins("D17"), IOStandard("3.3-V LVTTL")) ]
+    core_resources = [
+        ("user_led", 0, Pins("D17"), IOStandard("3.3-V LVTTL")),
+        ("serial", 0,
+            Subsignal("tx", Pins("J3:8"), IOStandard("3.3-V LVTTL")),
+            Subsignal("rx", Pins("J3:7"), IOStandard("3.3-V LVTTL"))
+        ),
+ ]
 
     def __init__(self, with_daughterboard=False):
         device = "5CEFA2F23C8"
@@ -145,7 +145,7 @@ class Platform(AlteraPlatform):
         AlteraPlatform.__init__(self, device, io, connectors)
 
         if with_daughterboard:
-            # an ethernet pin takes the config pin, so make it available
+            # ethernet takes the config pin, so make it available
             self.add_platform_command("set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION \"USE AS REGULAR IO\"")
 
         # Generate PLL clock in STA

@@ -77,7 +77,6 @@ class QMTechDaughterboard:
                 Subsignal("cmd",  Pins("J3:12")),
                 Subsignal("clk",  Pins("J3:11")),
                 Subsignal("cd",   Pins("J3:8")),
-                Misc("SLEW=FAST"),
                 io_standard,
             ),
         ]
