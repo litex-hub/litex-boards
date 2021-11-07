@@ -12,7 +12,7 @@
 # RHSResearchLLC that are documented at: https://github.com/RHSResearchLLC/NiteFury-and-LiteFury.
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -130,8 +130,12 @@ class Platform(XilinxPlatform):
             ["write_cfgmem -force -format bin -interface spix4 -size 16 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
-    def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a200t.bit")
+    def create_programmer(self, name='openocd'):
+        if name == 'openocd':
+            return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a200t.bit")
+        elif name == 'vivado':
+            # TODO: some board versions may have s25fl128s
+            return VivadoProgrammer(flash_part='s25fl256sxxxxxx0-spi-x1_x2_x4')
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
