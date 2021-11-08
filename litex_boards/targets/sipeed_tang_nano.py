@@ -6,12 +6,37 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Build/Use
+# ---------
+# 1) Update CH552 firmware: https://qiita.com/ciniml/items/05ac7fd2515ceed3f88d
+# 2) Build/Load design: ./sipeed_tang_nano.py --csr-csv=csr.csv --build --load
+# 3) Patch litex_server (CH552 firmware seems to require receiving a few bytes before
+# operating correctly...):
+#diff --git a/litex/tools/remote/comm_uart.py b/litex/tools/remote/comm_uart.py
+#index bb124fb3..d5a075fd 100644
+#--- a/litex/tools/remote/comm_uart.py
+#+++ b/litex/tools/remote/comm_uart.py
+#@@ -29,6 +29,8 @@ class CommUART(CSRBuilder):
+#         if hasattr(self, "port"):
+#             return
+#         self.port.open()
+#+        for i in range(256):
+#+            self.port.write(0)
+#
+#     def close(self):
+#         if not hasattr(self, "port"):
+# 4) Start litex_server at 1MBps (CH552 does not seem to work at traditional baudrates...):
+# litex_server --uart --uart-port=/dev/ttyUSBX --uart-baudrate=1000000
+# 5) Test UARTBone ex: litex_cli --regs
+
+
 import os
 import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -27,35 +52,32 @@ class _CRG(Module):
 
         # # #
 
-        # Clk / Rst
+        # Clk / Rst.
         clk24 = platform.request("clk24")
         rst_n = platform.request("user_btn", 0)
-        self.comb += self.cd_sys.clk.eq(clk24)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
+
+        # PLL.
+        self.submodules.pll = pll = GW1NPLL(device="GW1N-1")
+        self.comb += pll.reset.eq(~rst_n)
+        pll.register_clkin(clk24, 24e6)
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
-class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(24e6), with_led_chaser=True, **kwargs):
+class BaseSoC(SoCMini):
+    def __init__(self, sys_clk_freq=int(48e6), with_led_chaser=True, **kwargs):
         platform = tang_nano.Platform()
 
-
-        # Disable CPU/UART for now.
-        kwargs["cpu_type"]  = None
-        kwargs["with_uart"] = False
-
-        # UART loopback.
-        serial_pads = platform.request("serial")
-        self.comb += serial_pads.tx.eq(serial_pads.rx)
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
+        # SoCMini ----------------------------------------------------------------------------------
+        SoCMini.__init__(self, platform, sys_clk_freq,
             ident         = "LiteX SoC on Tang Nano",
-            ident_version = True,
-            **kwargs)
+            ident_version = True)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # UARTBone ---------------------------------------------------------------------------------
+        self.add_uartbone(baudrate=int(1e6)) # CH552 firmware does not support traditional baudrates.
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -70,7 +92,7 @@ def main():
     parser.add_argument("--build",       action="store_true", help="Build bitstream")
     parser.add_argument("--load",        action="store_true", help="Load bitstream")
     parser.add_argument("--flash",       action="store_true", help="Flash Bitstream")
-    parser.add_argument("--sys-clk-freq",default=24e6,        help="System clock frequency (default: 24MHz)")
+    parser.add_argument("--sys-clk-freq",default=48e6,        help="System clock frequency (default: 48MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
