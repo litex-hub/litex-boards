@@ -27,6 +27,7 @@ from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -89,13 +90,13 @@ class BaseSoC(SoCCore):
             # 128KB LRAM (used as SRAM) ------------------------------------------------------------
             size = 128*kB
             self.submodules.spram = NXLRAM(32, size)
-            self.register_mem("sram", self.mem_map["sram"], self.spram.bus, size)
+            self.bus.add_slave("sram", slave=self.spram.bus, region=SoCRegion(size=size))
         else:
             # Use HyperRAM generic PHY as SRAM -----------------------------------------------------
             size = 8*1024*kB
             hr_pads = platform.request("hyperram", int(hyperram))
             self.submodules.hyperram = HyperRAM(hr_pads)
-            self.register_mem("sram", self.mem_map["sram"], self.hyperram.bus, size)
+            self.bus.add_slave("sram", slave=self.hyperram.bus, region=SoCRegion(size=size))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

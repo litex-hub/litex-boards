@@ -15,6 +15,7 @@ from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -47,11 +48,6 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {
-        "hyperram": 0x20000000,
-    }
-    mem_map.update(SoCCore.mem_map)
-
     def __init__(self, *, sys_clk_freq=int(50e6), iodelay_clk_freq=200e6,
             with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
             with_hyperram=False, with_sdcard=False, with_jtagbone=True, with_uartbone=False,
@@ -83,7 +79,7 @@ class BaseSoC(SoCCore):
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
             self.submodules.hyperram = HyperRAM(platform.request("hyperram"))
-            self.register_mem("hyperram", self.mem_map["hyperram"], self.hyperram.bus, 8*1024*1024)
+            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8*1024*1024))
 
         # SD Card ----------------------------------------------------------------------------------
         if with_sdcard:

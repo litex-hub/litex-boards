@@ -37,13 +37,6 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {
-        **SoCCore.mem_map,
-        **{
-            "hyperram": 0x20000000,
-        }
-    }
-
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
         platform = trenz_te0725.Platform()
 
@@ -60,7 +53,7 @@ class BaseSoC(SoCCore):
         size = int((64*1024*1024) / 8)
         hr_pads = platform.request("hyperram", 0)
         self.submodules.hyperram = HyperRAM(hr_pads)
-        self.register_mem("hyperram", self.mem_map["hyperram"], self.hyperram.bus, size)
+        self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=size))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
