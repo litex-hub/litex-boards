@@ -16,8 +16,10 @@ from litex_boards.platforms import efinix_trion_t120_bga576_dev_kit
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.interconnect import axi
 
 from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 
@@ -107,6 +109,81 @@ class BaseSoC(SoCCore):
             platform.toolchain.excluded_ios.append(platform.lookup_request("eth").tx_data)
             platform.toolchain.excluded_ios.append(platform.lookup_request("eth").rx_data)
             platform.toolchain.excluded_ios.append(platform.lookup_request("eth").mdio)
+
+        # LPDDR3 SDRAM -----------------------------------------------------------------------------
+        if False:
+            block = {"type" : "DRAM"}
+            platform.toolchain.ifacewriter.xml_blocks.append(block)
+            axi_port = axi.AXIInterface(data_width=256, address_width=32, id_width=8)
+            ios = [("axi", 0,
+                Subsignal("wdata",   Pins(256)),
+                Subsignal("wready",  Pins(1)),
+                Subsignal("wid",     Pins(8)),
+                Subsignal("bready",  Pins(1)),
+                Subsignal("rdata",   Pins(256)),
+                Subsignal("aid",     Pins(8)),
+                Subsignal("bvalid",  Pins(1)),
+                Subsignal("rlast",   Pins(1)),
+                Subsignal("bid",     Pins(8)),
+                Subsignal("asize",   Pins(3)),
+                Subsignal("atype",   Pins(1)),
+                Subsignal("aburst",  Pins(2)),
+                Subsignal("wvalid",  Pins(1)),
+                Subsignal("aaddr",   Pins(32)),
+                Subsignal("rid",     Pins(8)),
+                Subsignal("avalid",  Pins(1)),
+                Subsignal("rvalid",  Pins(1)),
+                Subsignal("alock",   Pins(2)),
+                Subsignal("rready",  Pins(1)),
+                Subsignal("rresp",   Pins(2)),
+                Subsignal("wstrb",   Pins(32)),
+                Subsignal("aready",  Pins(1)),
+                Subsignal("alen",    Pins(8)),
+                Subsignal("wlast",   Pins(1)),
+            )]
+            io   = platform.add_iface_ios(ios)
+            rw_n = Signal()
+            self.comb += rw_n.eq(axi_port.ar.valid)
+            self.comb += [
+                # Pseudo AW/AR Channels.
+                io.atype.eq(~rw_n),
+                io.aaddr.eq(  Mux(rw_n,      axi_port.ar.addr,      axi_port.aw.addr)),
+                io.aid.eq(    Mux(rw_n,        axi_port.ar.id,        axi_port.aw.id)),
+                io.alen.eq(   Mux(rw_n,       axi_port.ar.len,       axi_port.aw.len)),
+                io.asize.eq(  Mux(rw_n, axi_port.ar.size[0:4], axi_port.aw.size[0:4])), # CHECKME.
+                io.aburst.eq( Mux(rw_n,     axi_port.ar.burst,     axi_port.aw.burst)),
+                io.alock.eq(  Mux(rw_n,      axi_port.ar.lock,      axi_port.aw.lock)),
+                io.avalid.eq( Mux(rw_n,     axi_port.ar.valid,     axi_port.aw.valid)),
+                axi_port.aw.ready.eq(~rw_n & io.aready),
+                axi_port.ar.ready.eq( rw_n & io.aready),
+
+                # R Channel.
+                axi_port.r.id.eq(io.rid),
+                axi_port.r.data.eq(io.rdata),
+                axi_port.r.last.eq(io.rlast),
+                axi_port.r.resp.eq(io.rresp),
+                axi_port.r.valid.eq(io.rvalid),
+                io.rready.eq(axi_port.r.ready),
+
+                # W Channel.
+                io.wid.eq(axi_port.w.id),
+                io.wstrb.eq(axi_port.w.strb),
+                io.wdata.eq(axi_port.w.data),
+                io.wlast.eq(axi_port.w.last),
+                io.wvalid.eq(axi_port.w.valid),
+                axi_port.w.ready.eq(io.wready),
+
+                # B Channel.
+                axi_port.b.id.eq(io.bid),
+                axi_port.b.valid.eq(io.bvalid),
+                io.bready.eq(axi_port.b.ready),
+                # axi_port.b.resp ??
+            ]
+
+            # Connect AXI interface to the main bus of the SoC.
+            axi_lite_port = axi.AXILiteInterface(data_width=256, address_width=32)
+            self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
+            self.bus.add_slave("main_ram", axi_lite_port, SoCRegion(origin=0x4000_0000, size=0x1000_0000)) # 256MB.
 
 # Build --------------------------------------------------------------------------------------------
 
