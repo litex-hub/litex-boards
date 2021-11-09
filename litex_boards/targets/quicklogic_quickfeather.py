@@ -4,6 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2021 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -21,28 +22,37 @@ from litex.soc.cores.led import LedChaser
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform):
+    def __init__(self, platform, is_eoss3_cpu=False):
+        self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
 
         # # #
 
         class Open(Signal): pass
 
-        self.specials += Instance("qlal4s3b_cell_macro",
-            o_Sys_Clk0     = self.cd_sys.clk,
-            o_Sys_Clk0_Rst = self.cd_sys.rst,
-            o_Sys_Clk1     = Open(),
-            o_Sys_Clk1_Rst = Open(),
-        )
+        if is_eoss3_cpu:
+            self.comb += ClockSignal("sys").eq(ClockSignal("Sys_Clk0"))
+            self.comb += ResetSignal("sys").eq(ResetSignal("Sys_Clk0") | self.rst)
+        else:
+            self.specials += Instance("qlal4s3b_cell_macro",
+                o_Sys_Clk0     = self.cd_sys.clk,
+                o_Sys_Clk0_Rst = self.cd_sys.rst,
+                o_Sys_Clk1     = Open(),
+                o_Sys_Clk1_Rst = Open(),
+            )
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(60e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(10e6), with_led_chaser=True, **kwargs):
         platform = quicklogic_quickfeather.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["cpu_type"]  = None
+        if kwargs.get("cpu_type", None) == "eos-s3":
+            is_eoss3_cpu = True
+        else:
+            is_eoss3_cpu = False
+            kwargs["cpu_type"]  = None
         kwargs["with_uart"] = False
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on QuickLogic QuickFeather",
@@ -50,13 +60,14 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform)
+        self.submodules.crg = _CRG(platform, is_eoss3_cpu)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
+            self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
