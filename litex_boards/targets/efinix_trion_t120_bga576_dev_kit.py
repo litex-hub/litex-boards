@@ -19,6 +19,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from liteeth.phy.trionrgmii import LiteEthPHYRGMII
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -40,7 +42,14 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6),
+        with_spi_flash  = False,
+        with_ethernet   = False,
+        with_etherbone  = False,
+        eth_phy         = 0,
+        eth_ip          = "192.168.1.50",
+        with_led_chaser = True,
+        **kwargs):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
@@ -80,6 +89,25 @@ class BaseSoC(SoCCore):
         )])
         self.submodules.i2c = I2CMaster(pads=platform.request("i2c"))
 
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.submodules.ethphy = LiteEthPHYRGMII(
+                platform           = platform,
+                clock_pads         = platform.request("eth_clocks", eth_phy),
+                pads               = platform.request("eth", eth_phy),
+                with_hw_init_reset = False)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, software_debug=True)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy)
+
+            # FIXME: Avoid this.
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth_clocks").tx)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth_clocks").rx)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth").tx_data)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth").rx_data)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth").mdio)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -89,14 +117,23 @@ def main():
     parser.add_argument("--flash",          action="store_true", help="Flash bitstream")
     parser.add_argument("--sys-clk-freq",   default=50e6,        help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")
+    ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
+    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
+    parser.add_argument("--eth-phy",         default=0, type=int,              help="Ethernet PHY: 0 (default) or 1")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc     = BaseSoC(
+    soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_spi_flash = args.with_spi_flash,
-         **soc_core_argdict(args))
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        eth_phy        = args.eth_phy,
+        **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
