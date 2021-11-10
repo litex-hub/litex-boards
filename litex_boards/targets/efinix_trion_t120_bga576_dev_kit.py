@@ -114,7 +114,7 @@ class BaseSoC(SoCCore):
         if False:
             # DRAM / PLL Blocks.
             # ------------------
-            dram_clk = platform.request("clk50")
+            dram_clk = platform.request("br0_pll_clkin")
             platform.toolchain.excluded_ios.append(dram_clk)
 
             block = {"type" : "DRAM"}
@@ -124,8 +124,8 @@ class BaseSoC(SoCCore):
 
             # DRAM Rst.
             # ---------
-            pll_dram_rstn = platform.add_iface_io("pll_dram_rstn")
-            self.comb += pll_dram_rstn.eq(platform.request("user_btn", 1))
+            br0_pll_rstn = platform.add_iface_io("br0_pll_rstn")
+            self.comb += br0_pll_rstn.eq(platform.request("user_btn", 1))
             self.specials += Instance("ddr_reset_sequencer",
                  i_ddr_rstn_i        = ~ResetSignal("sys"),
                  i_clk               = ClockSignal("sys"),

@@ -14,7 +14,6 @@ from litex.build.efinix import EfinixProgrammer
 _io = [
     # Clk
     ("clk40", 0, Pins("P19"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
-    ("clk50", 0, Pins("AA8"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 
     # Leds
     ("user_led", 0, Pins("AB16"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
@@ -90,6 +89,10 @@ _io = [
         Subsignal("mdio",    Pins("D24")),
         IOStandard("3.3_V_LVTTL_/_LVCMOS")
     ),
+
+    # DRAM.
+    ("br0_pll_clkin", 0, Pins("AA8"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("br1_pll_clkin", 0, Pins("AA9"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
