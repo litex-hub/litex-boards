@@ -39,7 +39,7 @@ class _CRG(Module):
         self.submodules.pll = pll = TRIONPLL(platform)
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk40, 40e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
+        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True, name="axi_clk")
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -112,10 +112,34 @@ class BaseSoC(SoCCore):
 
         # LPDDR3 SDRAM -----------------------------------------------------------------------------
         if False:
+            # DRAM / PLL Blocks.
+            # ------------------
+            dram_clk = platform.request("clk50")
+            platform.toolchain.excluded_ios.append(dram_clk)
+
             block = {"type" : "DRAM"}
             platform.toolchain.ifacewriter.xml_blocks.append(block)
+            block = {"type" : "PLL_DRAM"}
+            platform.toolchain.ifacewriter.blocks.append(block)
+
+            # DRAM Rst.
+            # ---------
+            pll_dram_rstn = platform.add_iface_io("pll_dram_rstn")
+            self.comb += pll_dram_rstn.eq(platform.request("user_btn", 1))
+            self.specials += Instance("ddr_reset_sequencer",
+                 i_ddr_rstn_i        = ~ResetSignal("sys"),
+                 i_clk               = ClockSignal("sys"),
+                 o_ddr_rstn          = platform.add_iface_io("ddr_inst1_RSTN"),
+                 o_ddr_cfg_seq_rst   = platform.add_iface_io("ddr_inst1_CFG_SEQ_RST"),
+                 o_ddr_cfg_seq_start = platform.add_iface_io("ddr_inst1_CFG_SEQ_START"),
+                 o_ddr_init_done     = Signal(),
+             )
+            platform.add_source("ddr_reset_sequencer.v") # FIXME: From example design.
+
+            # DRAM AXI-Port.
+            # --------------
             axi_port = axi.AXIInterface(data_width=256, address_width=32, id_width=8)
-            ios = [("axi", 0,
+            ios = [("axi0", 0,
                 Subsignal("wdata",   Pins(256)),
                 Subsignal("wready",  Pins(1)),
                 Subsignal("wid",     Pins(8)),
@@ -177,7 +201,6 @@ class BaseSoC(SoCCore):
                 axi_port.b.id.eq(io.bid),
                 axi_port.b.valid.eq(io.bvalid),
                 io.bready.eq(axi_port.b.ready),
-                # axi_port.b.resp ??
             ]
 
             # Connect AXI interface to the main bus of the SoC.
