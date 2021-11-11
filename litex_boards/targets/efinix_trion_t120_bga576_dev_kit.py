@@ -239,12 +239,12 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.bit"))
+        prog.load_bitstream(os.path.join(builder.gateware_dir, f"{soc.build_name}.bit"))
 
     if args.flash:
         from litex.build.openfpgaloader import OpenFPGALoader
         prog = OpenFPGALoader("trion_t120_bga576")
-        prog.flash(0, os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.hex"))
+        prog.flash(0, os.path.join(builder.gateware_dir, f"{soc.build_name}.hex"))
 
 if __name__ == "__main__":
     main()

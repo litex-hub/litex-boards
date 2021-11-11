@@ -107,11 +107,11 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.hex"))
+        prog.load_bitstream(os.path.join(builder.gateware_dir, f"{soc.build_name}.hex"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, f"outflow/{soc.build_name}.hex"))
+        prog.flash(0, os.path.join(builder.gateware_dir, f"{soc.build_name}.hex"))
         prog.flash(args.bios_flash_offset, os.path.join(builder.software_dir, "bios/bios.bin"))
 
 if __name__ == "__main__":
