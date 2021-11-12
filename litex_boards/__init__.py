@@ -12,6 +12,7 @@ vendors = [
     "colorlight",
     "decklink",
     "digilent",
+    "efinix",
     "enclustra",
     "gsd",
     "fairwaves",
