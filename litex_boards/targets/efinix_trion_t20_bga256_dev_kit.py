@@ -42,7 +42,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = efinix_trion_t20_bga256_dev_kit.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ def main():
     parser.add_argument("--build",          action="store_true", help="Build bitstream")
     parser.add_argument("--load",           action="store_true", help="Load bitstream")
     parser.add_argument("--flash",          action="store_true", help="Flash bitstream")
-    parser.add_argument("--sys-clk-freq",   default=50e6,        help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--sys-clk-freq",   default=100e6,        help="System clock frequency (default: 100MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
     builder_args(parser)
     soc_core_args(parser)
