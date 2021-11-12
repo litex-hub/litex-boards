@@ -51,12 +51,13 @@ class BaseSoC(SoCCore):
         eth_phy         = 0,
         eth_ip          = "192.168.1.50",
         with_led_chaser = True,
+        with_lpddr3     = False,
         **kwargs):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
         platform.add_extension(efinix_trion_t120_bga576_dev_kit.usb_pmod_io("pmod_e"))
-        kwargs["uart_name"] = "usb_uart"
+        kwargs["uart_name"] = "crossover"
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -64,6 +65,9 @@ class BaseSoC(SoCCore):
             ident_version = True,
             **kwargs
         )
+
+        # UARTBone ---------------------------------------------------------------------------------
+        self.add_uartbone("usb_uart")
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -76,7 +80,7 @@ class BaseSoC(SoCCore):
             platform.toolchain.excluded_ios.append(platform.lookup_request("spiflash4x").dq)
 
         # Leds -------------------------------------------------------------------------------------
-        if with_led_chaser:
+        if with_led_chaser and not with_lpddr3:
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
@@ -111,11 +115,14 @@ class BaseSoC(SoCCore):
             platform.toolchain.excluded_ios.append(platform.lookup_request("eth").mdio)
 
         # LPDDR3 SDRAM -----------------------------------------------------------------------------
-        if False:
+        if with_lpddr3:
+            #./efinix_trion_t120_bga576_dev_kit.py --with-lpddr3 --sys-clk-freq=50e6 --csr-csv=csr.csv --build --load
+
             # DRAM / PLL Blocks.
             # ------------------
-            dram_clk = platform.request("br0_pll_clkin")
-            platform.toolchain.excluded_ios.append(dram_clk)
+            br0_pll_clkin = platform.request("br0_pll_clkin")
+            platform.toolchain.excluded_ios.append(br0_pll_clkin)
+            self.platform.toolchain.additional_sdc_commands.append(f"create_clock -period {1e9/50e6} br0_pll_clkin")
 
             block = {"type" : "DRAM"}
             platform.toolchain.ifacewriter.xml_blocks.append(block)
@@ -127,12 +134,12 @@ class BaseSoC(SoCCore):
             br0_pll_rstn = platform.add_iface_io("br0_pll_rstn")
             self.comb += br0_pll_rstn.eq(platform.request("user_btn", 1))
             self.specials += Instance("ddr_reset_sequencer",
-                 i_ddr_rstn_i        = ~ResetSignal("sys"),
-                 i_clk               = ClockSignal("sys"),
+                 i_ddr_rstn_i        = br0_pll_rstn,
+                 i_clk               = br0_pll_clkin,
                  o_ddr_rstn          = platform.add_iface_io("ddr_inst1_RSTN"),
                  o_ddr_cfg_seq_rst   = platform.add_iface_io("ddr_inst1_CFG_SEQ_RST"),
                  o_ddr_cfg_seq_start = platform.add_iface_io("ddr_inst1_CFG_SEQ_START"),
-                 o_ddr_init_done     = Signal(),
+                 o_ddr_init_done     = platform.request("user_led", 0),
              )
             platform.add_source("ddr_reset_sequencer.v") # FIXME: From example design.
 
@@ -171,7 +178,7 @@ class BaseSoC(SoCCore):
             self.comb += [
                 # Pseudo AW/AR Channels.
                 io.atype.eq(~rw_n),
-                io.aaddr.eq(  Mux(rw_n,      axi_port.ar.addr,      axi_port.aw.addr)),
+                io.aaddr[:28].eq(  Mux(rw_n,      axi_port.ar.addr,      axi_port.aw.addr)), # FIXME: Clear 4-LSBs.
                 io.aid.eq(    Mux(rw_n,        axi_port.ar.id,        axi_port.aw.id)),
                 io.alen.eq(   Mux(rw_n,       axi_port.ar.len,       axi_port.aw.len)),
                 io.asize.eq(  Mux(rw_n, axi_port.ar.size[0:4], axi_port.aw.size[0:4])), # CHECKME.
@@ -208,6 +215,16 @@ class BaseSoC(SoCCore):
             self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
             self.bus.add_slave("main_ram", axi_lite_port, SoCRegion(origin=0x4000_0000, size=0x1000_0000)) # 256MB.
 
+            # Analyzer.
+            from litescope import LiteScopeAnalyzer
+            analyzer_signals = [io]
+            self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals,
+                depth        = 64,
+                clock_domain = "sys",
+                csr_csv      = "analyzer.csv",
+                register     = True,
+            )
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -222,6 +239,7 @@ def main():
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
     parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
     parser.add_argument("--eth-phy",         default=0, type=int,              help="Ethernet PHY: 0 (default) or 1")
+    parser.add_argument("--with-lpddr3",     action="store_true",              help="Enable LPDDR3 (WIP)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -233,6 +251,7 @@ def main():
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
         eth_phy        = args.eth_phy,
+        with_lpddr3    = args.with_lpddr3,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
