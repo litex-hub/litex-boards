@@ -112,8 +112,6 @@ class BaseSoC(SoCCore):
 
         # LPDDR3 SDRAM -----------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            #./efinix_trion_t120_bga576_dev_kit.py --with-lpddr3 --sys-clk-freq=50e6 --csr-csv=csr.csv --build --load
-
             # DRAM / PLL Blocks.
             # ------------------
             br0_pll_clkin = platform.request("br0_pll_clkin")
