@@ -18,6 +18,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import *
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -44,7 +45,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(10e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(10e6), with_led_chaser=True, with_gpioin=True, **kwargs):
         platform = quicklogic_quickfeather.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -62,12 +63,19 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, is_eoss3_cpu)
 
+        # GPIOIn -> interrupt test
+        if with_gpioin:
+            self.submodules.gpio = GPIOIn(
+                pads         = platform.request_all("user_btn_n"), with_irq=True)
+            self.add_csr("gpio")
+            self.irq.add("gpio", use_loc_if_exists=True)
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
-            self.add_csr("leds")
+            if is_eoss3_cpu:
+                self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

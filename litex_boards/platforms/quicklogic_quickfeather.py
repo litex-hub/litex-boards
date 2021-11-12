@@ -11,9 +11,12 @@ from litex.build.quicklogic import QuickLogicPlatform
 
 _io = [
     # Leds
-    ("user_led", 0, Pins("38"), IOStandard("LVCMOS33")), # blue
-    ("user_led", 1, Pins("39"), IOStandard("LVCMOS33")), # green
-    ("user_led", 2, Pins("34"), IOStandard("LVCMOS33")), # red
+    ("user_led",   0, Pins("38"), IOStandard("LVCMOS33")), # blue
+    ("user_led",   1, Pins("39"), IOStandard("LVCMOS33")), # green
+    ("user_led",   2, Pins("34"), IOStandard("LVCMOS33")), # red
+
+    # Button
+    ("user_btn_n", 0, Pins("62"), IOStandard("LVCMOS33")),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
