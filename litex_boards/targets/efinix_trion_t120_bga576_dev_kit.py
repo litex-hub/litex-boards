@@ -44,7 +44,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6),
+    def __init__(self, sys_clk_freq=int(75e6),
         with_spi_flash  = False,
         with_ethernet   = False,
         with_etherbone  = False,
@@ -114,9 +114,9 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             # DRAM / PLL Blocks.
             # ------------------
-            br0_pll_clkin = platform.request("br0_pll_clkin")
-            platform.toolchain.excluded_ios.append(br0_pll_clkin)
-            self.platform.toolchain.additional_sdc_commands.append(f"create_clock -period {1e9/50e6} br0_pll_clkin")
+            dram_pll_refclk = platform.request("dram_pll_refclk")
+            platform.toolchain.excluded_ios.append(dram_pll_refclk)
+            self.platform.toolchain.additional_sdc_commands.append(f"create_clock -period {1e9/50e6} dram_pll_refclk")
 
             block = {"type" : "DRAM"}
             platform.toolchain.ifacewriter.xml_blocks.append(block)
@@ -125,11 +125,11 @@ class BaseSoC(SoCCore):
 
             # DRAM Rst.
             # ---------
-            br0_pll_rstn = platform.add_iface_io("br0_pll_rstn")
-            self.comb += br0_pll_rstn.eq(platform.request("user_btn", 1))
+            dram_pll_rst_n = platform.add_iface_io("dram_pll_rst_n")
+            self.comb += dram_pll_rst_n.eq(platform.request("user_btn", 1))
             self.specials += Instance("ddr_reset_sequencer",
-                 i_ddr_rstn_i        = br0_pll_rstn,
-                 i_clk               = br0_pll_clkin,
+                 i_ddr_rstn_i        = dram_pll_rst_n,
+                 i_clk               = dram_pll_refclk,
                  o_ddr_rstn          = platform.add_iface_io("ddr_inst1_RSTN"),
                  o_ddr_cfg_seq_rst   = platform.add_iface_io("ddr_inst1_CFG_SEQ_RST"),
                  o_ddr_cfg_seq_start = platform.add_iface_io("ddr_inst1_CFG_SEQ_START"),
@@ -139,7 +139,7 @@ class BaseSoC(SoCCore):
 
             # DRAM AXI-Port.
             # --------------
-            axi_port = axi.AXIInterface(data_width=256, address_width=32, id_width=8)
+            axi_port = axi.AXIInterface(data_width=256, address_width=28, id_width=8) # 256MB.
             ios = [("axi0", 0,
                 Subsignal("wdata",   Pins(256)),
                 Subsignal("wready",  Pins(1)),
@@ -167,18 +167,17 @@ class BaseSoC(SoCCore):
                 Subsignal("wlast",   Pins(1)),
             )]
             io   = platform.add_iface_ios(ios)
-            rw_n = Signal()
-            self.comb += rw_n.eq(axi_port.ar.valid)
+            rw_n = axi_port.ar.valid
             self.comb += [
                 # Pseudo AW/AR Channels.
                 io.atype.eq(~rw_n),
-                io.aaddr[:28].eq(  Mux(rw_n,      axi_port.ar.addr,      axi_port.aw.addr)), # FIXME: Clear 4-LSBs / Limit to 256MB.
-                io.aid.eq(    Mux(rw_n,        axi_port.ar.id,        axi_port.aw.id)),
-                io.alen.eq(   Mux(rw_n,       axi_port.ar.len,       axi_port.aw.len)),
-                io.asize.eq(  Mux(rw_n, axi_port.ar.size[0:4], axi_port.aw.size[0:4])), # CHECKME.
-                io.aburst.eq( Mux(rw_n,     axi_port.ar.burst,     axi_port.aw.burst)),
-                io.alock.eq(  Mux(rw_n,      axi_port.ar.lock,      axi_port.aw.lock)),
-                io.avalid.eq( Mux(rw_n,     axi_port.ar.valid,     axi_port.aw.valid)),
+                io.aaddr.eq(  Mux(rw_n,   axi_port.ar.addr,  axi_port.aw.addr)),
+                io.aid.eq(    Mux(rw_n,     axi_port.ar.id,    axi_port.aw.id)),
+                io.alen.eq(   Mux(rw_n,    axi_port.ar.len,   axi_port.aw.len)),
+                io.asize.eq(  Mux(rw_n,   axi_port.ar.size,  axi_port.aw.size)),
+                io.aburst.eq( Mux(rw_n,  axi_port.ar.burst, axi_port.aw.burst)),
+                io.alock.eq(  Mux(rw_n,   axi_port.ar.lock,  axi_port.aw.lock)),
+                io.avalid.eq( Mux(rw_n,  axi_port.ar.valid, axi_port.aw.valid)),
                 axi_port.aw.ready.eq(~rw_n & io.aready),
                 axi_port.ar.ready.eq( rw_n & io.aready),
 
@@ -205,7 +204,7 @@ class BaseSoC(SoCCore):
             ]
 
             # Connect AXI interface to the main bus of the SoC.
-            axi_lite_port = axi.AXILiteInterface(data_width=256, address_width=32)
+            axi_lite_port = axi.AXILiteInterface(data_width=256, address_width=28)
             self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
             self.bus.add_slave("main_ram", axi_lite_port, SoCRegion(origin=0x4000_0000, size=0x1000_0000)) # 256MB.
 
@@ -216,7 +215,7 @@ def main():
     parser.add_argument("--build",          action="store_true", help="Build bitstream")
     parser.add_argument("--load",           action="store_true", help="Load bitstream")
     parser.add_argument("--flash",          action="store_true", help="Flash bitstream")
-    parser.add_argument("--sys-clk-freq",   default=50e6,       help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--sys-clk-freq",   default=75e6,       help="System clock frequency (default: 75MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")

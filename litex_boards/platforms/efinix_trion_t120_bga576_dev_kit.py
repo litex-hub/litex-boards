@@ -91,8 +91,7 @@ _io = [
     ),
 
     # DRAM.
-    ("br0_pll_clkin", 0, Pins("AA8"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
-    ("br1_pll_clkin", 0, Pins("AA9"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("dram_pll_refclk", 0, Pins("AA8"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
