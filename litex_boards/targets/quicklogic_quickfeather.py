@@ -32,8 +32,8 @@ class _CRG(Module):
         class Open(Signal): pass
 
         if is_eoss3_cpu:
-            self.comb += ClockSignal("sys").eq(ClockSignal("Sys_Clk0"))
-            self.comb += ResetSignal("sys").eq(ResetSignal("Sys_Clk0") | self.rst)
+            self.comb += ClockSignal("sys").eq(ClockSignal("eos_s3_0"))
+            self.comb += ResetSignal("sys").eq(ResetSignal("eos_s3_0") | self.rst)
         else:
             self.specials += Instance("qlal4s3b_cell_macro",
                 o_Sys_Clk0     = self.cd_sys.clk,
