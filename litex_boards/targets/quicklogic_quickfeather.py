@@ -67,15 +67,12 @@ class BaseSoC(SoCCore):
         if with_gpioin:
             self.submodules.gpio = GPIOIn(
                 pads         = platform.request_all("user_btn_n"), with_irq=True)
-            self.add_csr("gpio")
             self.irq.add("gpio", use_loc_if_exists=True)
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
-            if is_eoss3_cpu:
-                self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
