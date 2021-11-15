@@ -29,7 +29,7 @@ _io = [
     ),
 
     # SDR SDRAM
-    ("sdram_clock", 0, Pins("Y6"), IOStandard("3.3-V LVTTL")),
+    ("sdram_clock", 0, Pins("P2"), IOStandard("3.3-V LVTTL")),
     ("sdram", 0,
         Subsignal("a",     Pins(
             "R7 T7 R8 T8 R6 T5 R5 T4",
