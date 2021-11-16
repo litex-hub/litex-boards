@@ -153,7 +153,7 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
                         cs_speedbin     = "800",
                         target0_enable  = "true",
                         target1_enable  = "false",
-                        ctrl_type       = "ena_user_rst"
+                        ctrl_type       = "none"
                     )
 
                     gen_pin_target0 = et.SubElement(ddr, "efxpt:gen_pin_target0")
@@ -211,12 +211,12 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="axi_clk",     type_name=f"ACLK_1",   is_bus="false", is_clk="true", is_clk_invert="false")
 
                     gen_pin_config = et.SubElement(ddr, "efxpt:gen_pin_config")
-                    et.SubElement(gen_pin_config, "efxpt:pin", name="ddr_inst1_CFG_SEQ_RST",   type_name="CFG_SEQ_RST",   is_bus="false")
-                    et.SubElement(gen_pin_config, "efxpt:pin", name="",                        type_name="CFG_SCL_IN",    is_bus="false")
-                    et.SubElement(gen_pin_config, "efxpt:pin", name="ddr_inst1_CFG_SEQ_START", type_name="CFG_SEQ_START", is_bus="false")
-                    et.SubElement(gen_pin_config, "efxpt:pin", name="ddr_inst1_RSTN",          type_name="RSTN",          is_bus="false")
-                    et.SubElement(gen_pin_config, "efxpt:pin", name="",                        type_name="CFG_SDA_IN",    is_bus="false")
-                    et.SubElement(gen_pin_config, "efxpt:pin", name="",                        type_name="CFG_SDA_OEN",   is_bus="false")
+                    et.SubElement(gen_pin_config, "efxpt:pin", name="", type_name="CFG_SEQ_RST",   is_bus="false")
+                    et.SubElement(gen_pin_config, "efxpt:pin", name="", type_name="CFG_SCL_IN",    is_bus="false")
+                    et.SubElement(gen_pin_config, "efxpt:pin", name="", type_name="CFG_SEQ_START", is_bus="false")
+                    et.SubElement(gen_pin_config, "efxpt:pin", name="", type_name="RSTN",          is_bus="false")
+                    et.SubElement(gen_pin_config, "efxpt:pin", name="", type_name="CFG_SDA_IN",    is_bus="false")
+                    et.SubElement(gen_pin_config, "efxpt:pin", name="", type_name="CFG_SDA_OEN",   is_bus="false")
 
                     cs_fpga = et.SubElement(ddr, "efxpt:cs_fpga")
                     et.SubElement(cs_fpga, "efxpt:param", name="FPGA_ITERM", value="120", value_type="str")
@@ -255,15 +255,6 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
             # ---------
             dram_pll_rst_n = platform.add_iface_io("dram_pll_rst_n")
             self.comb += dram_pll_rst_n.eq(platform.request("user_btn", 1))
-            self.specials += Instance("ddr_reset_sequencer",
-                 i_ddr_rstn_i        = dram_pll_rst_n,
-                 i_clk               = dram_pll_refclk,
-                 o_ddr_rstn          = platform.add_iface_io("ddr_inst1_RSTN"),
-                 o_ddr_cfg_seq_rst   = platform.add_iface_io("ddr_inst1_CFG_SEQ_RST"),
-                 o_ddr_cfg_seq_start = platform.add_iface_io("ddr_inst1_CFG_SEQ_START"),
-                 o_ddr_init_done     = Signal(),
-             )
-            platform.add_source("ddr_reset_sequencer.v") # FIXME: From example design.
 
             # DRAM AXI-Port.
             # --------------
