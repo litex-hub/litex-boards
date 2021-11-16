@@ -152,7 +152,7 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
                         cs_dram_density = "8G",
                         cs_speedbin     = "800",
                         target0_enable  = "true",
-                        target1_enable  = "false",
+                        target1_enable  = "true",
                         ctrl_type       = "none"
                     )
 
@@ -256,76 +256,87 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
             dram_pll_rst_n = platform.add_iface_io("dram_pll_rst_n")
             self.comb += dram_pll_rst_n.eq(platform.request("user_btn", 1))
 
-            # DRAM AXI-Port.
+            # DRAM AXI-Ports.
             # --------------
-            axi_port = axi.AXIInterface(data_width=256, address_width=28, id_width=8) # 256MB.
-            ios = [("axi0", 0,
-                Subsignal("wdata",   Pins(256)),
-                Subsignal("wready",  Pins(1)),
-                Subsignal("wid",     Pins(8)),
-                Subsignal("bready",  Pins(1)),
-                Subsignal("rdata",   Pins(256)),
-                Subsignal("aid",     Pins(8)),
-                Subsignal("bvalid",  Pins(1)),
-                Subsignal("rlast",   Pins(1)),
-                Subsignal("bid",     Pins(8)),
-                Subsignal("asize",   Pins(3)),
-                Subsignal("atype",   Pins(1)),
-                Subsignal("aburst",  Pins(2)),
-                Subsignal("wvalid",  Pins(1)),
-                Subsignal("aaddr",   Pins(32)),
-                Subsignal("rid",     Pins(8)),
-                Subsignal("avalid",  Pins(1)),
-                Subsignal("rvalid",  Pins(1)),
-                Subsignal("alock",   Pins(2)),
-                Subsignal("rready",  Pins(1)),
-                Subsignal("rresp",   Pins(2)),
-                Subsignal("wstrb",   Pins(32)),
-                Subsignal("aready",  Pins(1)),
-                Subsignal("alen",    Pins(8)),
-                Subsignal("wlast",   Pins(1)),
-            )]
-            io   = platform.add_iface_ios(ios)
-            rw_n = axi_port.ar.valid
-            self.comb += [
-                # Pseudo AW/AR Channels.
-                io.atype.eq(~rw_n),
-                io.aaddr.eq(  Mux(rw_n,   axi_port.ar.addr,  axi_port.aw.addr)),
-                io.aid.eq(    Mux(rw_n,     axi_port.ar.id,    axi_port.aw.id)),
-                io.alen.eq(   Mux(rw_n,    axi_port.ar.len,   axi_port.aw.len)),
-                io.asize.eq(  Mux(rw_n,   axi_port.ar.size,  axi_port.aw.size)),
-                io.aburst.eq( Mux(rw_n,  axi_port.ar.burst, axi_port.aw.burst)),
-                io.alock.eq(  Mux(rw_n,   axi_port.ar.lock,  axi_port.aw.lock)),
-                io.avalid.eq( Mux(rw_n,  axi_port.ar.valid, axi_port.aw.valid)),
-                axi_port.aw.ready.eq(~rw_n & io.aready),
-                axi_port.ar.ready.eq( rw_n & io.aready),
+            for n, data_width in {
+                0: 256, # target0: 256-bit.
+                1: 128, # target1: 128-bit
+            }.items():
+                axi_port = axi.AXIInterface(data_width=data_width, address_width=28, id_width=8) # 256MB.
+                ios = [(f"axi{n}", 0,
+                    Subsignal("wdata",   Pins(data_width)),
+                    Subsignal("wready",  Pins(1)),
+                    Subsignal("wid",     Pins(8)),
+                    Subsignal("bready",  Pins(1)),
+                    Subsignal("rdata",   Pins(data_width)),
+                    Subsignal("aid",     Pins(8)),
+                    Subsignal("bvalid",  Pins(1)),
+                    Subsignal("rlast",   Pins(1)),
+                    Subsignal("bid",     Pins(8)),
+                    Subsignal("asize",   Pins(3)),
+                    Subsignal("atype",   Pins(1)),
+                    Subsignal("aburst",  Pins(2)),
+                    Subsignal("wvalid",  Pins(1)),
+                    Subsignal("aaddr",   Pins(32)),
+                    Subsignal("rid",     Pins(8)),
+                    Subsignal("avalid",  Pins(1)),
+                    Subsignal("rvalid",  Pins(1)),
+                    Subsignal("alock",   Pins(2)),
+                    Subsignal("rready",  Pins(1)),
+                    Subsignal("rresp",   Pins(2)),
+                    Subsignal("wstrb",   Pins(data_width//8)),
+                    Subsignal("aready",  Pins(1)),
+                    Subsignal("alen",    Pins(8)),
+                    Subsignal("wlast",   Pins(1)),
+                )]
+                io   = platform.add_iface_ios(ios)
+                rw_n = axi_port.ar.valid
+                self.comb += [
+                    # Pseudo AW/AR Channels.
+                    io.atype.eq(~rw_n),
+                    io.aaddr.eq(  Mux(rw_n,   axi_port.ar.addr,  axi_port.aw.addr)),
+                    io.aid.eq(    Mux(rw_n,     axi_port.ar.id,    axi_port.aw.id)),
+                    io.alen.eq(   Mux(rw_n,    axi_port.ar.len,   axi_port.aw.len)),
+                    io.asize.eq(  Mux(rw_n,   axi_port.ar.size,  axi_port.aw.size)),
+                    io.aburst.eq( Mux(rw_n,  axi_port.ar.burst, axi_port.aw.burst)),
+                    io.alock.eq(  Mux(rw_n,   axi_port.ar.lock,  axi_port.aw.lock)),
+                    io.avalid.eq( Mux(rw_n,  axi_port.ar.valid, axi_port.aw.valid)),
+                    axi_port.aw.ready.eq(~rw_n & io.aready),
+                    axi_port.ar.ready.eq( rw_n & io.aready),
 
-                # R Channel.
-                axi_port.r.id.eq(io.rid),
-                axi_port.r.data.eq(io.rdata),
-                axi_port.r.last.eq(io.rlast),
-                axi_port.r.resp.eq(io.rresp),
-                axi_port.r.valid.eq(io.rvalid),
-                io.rready.eq(axi_port.r.ready),
+                    # R Channel.
+                    axi_port.r.id.eq(io.rid),
+                    axi_port.r.data.eq(io.rdata),
+                    axi_port.r.last.eq(io.rlast),
+                    axi_port.r.resp.eq(io.rresp),
+                    axi_port.r.valid.eq(io.rvalid),
+                    io.rready.eq(axi_port.r.ready),
 
-                # W Channel.
-                io.wid.eq(axi_port.w.id),
-                io.wstrb.eq(axi_port.w.strb),
-                io.wdata.eq(axi_port.w.data),
-                io.wlast.eq(axi_port.w.last),
-                io.wvalid.eq(axi_port.w.valid),
-                axi_port.w.ready.eq(io.wready),
+                    # W Channel.
+                    io.wid.eq(axi_port.w.id),
+                    io.wstrb.eq(axi_port.w.strb),
+                    io.wdata.eq(axi_port.w.data),
+                    io.wlast.eq(axi_port.w.last),
+                    io.wvalid.eq(axi_port.w.valid),
+                    axi_port.w.ready.eq(io.wready),
 
-                # B Channel.
-                axi_port.b.id.eq(io.bid),
-                axi_port.b.valid.eq(io.bvalid),
-                io.bready.eq(axi_port.b.ready),
-            ]
+                    # B Channel.
+                    axi_port.b.id.eq(io.bid),
+                    axi_port.b.valid.eq(io.bvalid),
+                    io.bready.eq(axi_port.b.ready),
+                ]
 
-            # Connect AXI interface to the main bus of the SoC.
-            axi_lite_port = axi.AXILiteInterface(data_width=256, address_width=28)
-            self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
-            self.bus.add_slave("main_ram", axi_lite_port, SoCRegion(origin=0x4000_0000, size=0x1000_0000)) # 256MB.
+                # Connect AXI interface to the main bus of the SoC.
+                axi_lite_port = axi.AXILiteInterface(data_width=data_width, address_width=28)
+                self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
+                self.bus.add_slave(f"target{n}", axi_lite_port, SoCRegion(origin=0x4000_0000 + 0x1000_0000*n, size=0x1000_0000)) # 256MB.
+
+        # Use DRAM's target0 port as Main Ram  -----------------------------------------------------
+        self.bus.add_region("main_ram", SoCRegion(
+            origin = 0x4000_0000,
+            size   = 0x1000_0000, # 256MB.
+            linker = True)
+        )
 
 # Build --------------------------------------------------------------------------------------------
 
