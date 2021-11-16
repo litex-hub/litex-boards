@@ -82,8 +82,8 @@ _io = [
     # RGMII Ethernet
     ("eth_ref_clk", 0, Pins("AA23"), IOStandard("LVCMOS33")),
     ("eth_clocks", 0,
-        Subsignal("tx", Pins("Y23")),
-        Subsignal("rx", Pins("AA24")),
+        Subsignal("rx", Pins("Y23")),
+        Subsignal("tx", Pins("AA24")),
         IOStandard("LVCMOS33")
     ),
     ("eth", 0,
