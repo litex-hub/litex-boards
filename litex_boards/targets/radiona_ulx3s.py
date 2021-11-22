@@ -126,7 +126,6 @@ class BaseSoC(SoCCore):
                 self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
-                self.comb += platform.request("ext0p").eq(self.video_framebuffer.underflow) # FIXME: Remove, used to debug SDRAM underflows.
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
