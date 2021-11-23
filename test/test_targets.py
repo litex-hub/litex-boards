@@ -21,6 +21,7 @@ class TestTargets(unittest.TestCase):
         "efinix_trion_t20_bga256_dev_kit",  # Reason: Require Efinity toolchain.
         "efinix_trion_t20_mipi_dev_kit",    # Reason: Require Efinity toolchain.
         "efinix_xyloni_dev_kit",            # Reason: Require Efinity toolchain.
+        "sipeed_tang_primer",               # Reason: Require Anlogic toolchain.
         "jungle_electronics_fireant",       # Reason: Require Efinity toolchain.
     ]
     excluded_targets   = [
@@ -30,6 +31,7 @@ class TestTargets(unittest.TestCase):
         "efinix_trion_t20_bga256_dev_kit",  # Reason: Require Efinity toolchain.
         "efinix_trion_t20_mipi_dev_kit",    # Reason: Require Efinity toolchain.
         "efinix_xyloni_dev_kit",            # Reason: Require Efinity toolchain.
+        "sipeed_tang_primer",               # Reason: Require Anlogic toolchain.
         "jungle_electronics_fireant",       # Reason: Require Efinity toolchain.
     ]
 
