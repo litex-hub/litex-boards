@@ -4,6 +4,14 @@
 # Copyright (c) 2021 Miodrag Milanovic <mmicko@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+#
+# Tech data:
+# https://tang.sipeed.com/en/hardware-overview/lichee-tang/
+#
+# Board diagram/pinout:
+# https://tang.sipeed.com/hardware-overview/lichee-tang/images/newtang_pinout.png
+# https://tang.sipeed.com/hardware-overview/lichee-tang/images/E203_pin.png
+
 from migen import *
 
 from litex.build.generic_platform import *
