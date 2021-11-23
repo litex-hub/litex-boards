@@ -21,6 +21,7 @@ class TestTargets(unittest.TestCase):
         "efinix_trion_t20_bga256_dev_kit",  # Reason: Require Efinity toolchain.
         "efinix_trion_t20_mipi_dev_kit",    # Reason: Require Efinity toolchain.
         "efinix_xyloni_dev_kit",            # Reason: Require Efinity toolchain.
+        "jungle_electronics_fireant",       # Reason: Require Efinity toolchain.
     ]
     excluded_targets   = [
         "simple",                           # Reason: Generic target.
@@ -29,6 +30,7 @@ class TestTargets(unittest.TestCase):
         "efinix_trion_t20_bga256_dev_kit",  # Reason: Require Efinity toolchain.
         "efinix_trion_t20_mipi_dev_kit",    # Reason: Require Efinity toolchain.
         "efinix_xyloni_dev_kit",            # Reason: Require Efinity toolchain.
+        "jungle_electronics_fireant",       # Reason: Require Efinity toolchain.
     ]
 
     # Build simple design for all platforms.
