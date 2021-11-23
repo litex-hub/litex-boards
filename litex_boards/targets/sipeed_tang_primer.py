@@ -43,6 +43,10 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(24e6), with_led_chaser=True, **kwargs):
         platform = sipeed_tang_primer.Platform()
 
+        # Set CPU variant
+        if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
+            kwargs["cpu_variant"] = "minimal"
+
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident         = "LiteX SoC on Tang Primer",
