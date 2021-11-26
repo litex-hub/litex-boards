@@ -84,6 +84,19 @@ class BaseSoC(SoCCore):
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
+            # ICAP (For FPGA reload over PCIe).
+            from litex.soc.cores.icap import ICAP
+            self.submodules.icap = ICAP()
+            self.icap.add_reload()
+            self.icap.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
+
+            # Flash (For SPIFlash update over PCIe). FIXME: Should probably be updated to use SpiFlashSingle/SpiFlashDualQuad (so MMAPed and do the update with bit-banging)
+            from litex.soc.cores.gpio import GPIOOut
+            from litex.soc.cores.spi_flash import S7SPIFlash
+            self.submodules.flash_cs_n = GPIOOut(platform.request("flash_cs_n"))
+            self.submodules.flash      = S7SPIFlash(platform.request("flash"), sys_clk_freq, 25e6)
+
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
