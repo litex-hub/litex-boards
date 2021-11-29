@@ -72,6 +72,9 @@ class BaseSoC(SoCCore):
         kwargs["integrated_rom_size"] = 0
         kwargs["cpu_reset_address"]   = self.mem_map["spiflash"] + 0
 
+        kwargs["cpu_type"] = 'vexriscv'
+        kwargs["cpu_variant"] = 'minimal'
+
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident         = "LiteX SoC on Tang Nano 4K",
