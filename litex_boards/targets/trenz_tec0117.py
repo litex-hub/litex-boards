@@ -45,7 +45,7 @@ class _CRG(Module):
         rst_n  = platform.request("rst_n")
 
         # PLL
-        self.submodules.pll = pll = GW1NPLL(device="GW1N9K")
+        self.submodules.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys2x, 2*sys_clk_freq, with_reset=False)
