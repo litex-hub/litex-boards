@@ -12,7 +12,7 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.soc.cores.clock.gowin_gw1nsr import  GW1NSRPLL
+from litex.soc.cores.clock.gowin_gw1n import GW1NPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
@@ -40,7 +40,7 @@ class _CRG(Module):
         rst_n = platform.request("user_btn", 0)
 
         # PLL
-        self.submodules.pll = pll = GW1NSRPLL(device="GW1NSR-4C")
+        self.submodules.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -48,7 +48,7 @@ class _CRG(Module):
 
         # Video PLL
         if with_video_pll:
-            self.submodules.video_pll = video_pll = GW1NSRPLL(device="GW1NSR-4C")
+            self.submodules.video_pll = video_pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
             self.comb += video_pll.reset.eq(~rst_n)
             video_pll.register_clkin(clk27, 27e6)
             self.clock_domains.cd_hdmi   = ClockDomain()
@@ -71,6 +71,9 @@ class BaseSoC(SoCCore):
         # Put BIOS in SPIFlash to save BlockRAMs.
         kwargs["integrated_rom_size"] = 0
         kwargs["cpu_reset_address"]   = self.mem_map["spiflash"] + 0
+
+        kwargs["cpu_type"] = 'vexriscv'
+        kwargs["cpu_variant"] = 'minimal'
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
