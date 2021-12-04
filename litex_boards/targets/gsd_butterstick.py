@@ -28,7 +28,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT41K256M16
+from litedram.modules import MT41K64M16,MT41K128M16,MT41K256M16,MT41K512M16
 from litedram.phy import ECP5DDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
@@ -84,8 +84,9 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, revision="1.0", device="85F", sys_clk_freq=int(60e6), toolchain="trellis",
-        with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
+    def __init__(self, revision="1.0", device="85F", sdram_device="MT41K64M16", sys_clk_freq=int(60e6), 
+        toolchain="trellis", with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", 
+        eth_dynamic_ip=False,
         with_spi_flash=False,
         with_led_chaser=True,
         **kwargs)       :
@@ -104,6 +105,14 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
+            available_sdram_modules = {
+                "MT41K64M16":  MT41K64M16,
+                "MT41K128M16": MT41K128M16,
+                "MT41K256M16": MT41K256M16,
+                "MT41K512M16": MT41K512M16,
+            }
+            sdram_module = available_sdram_modules.get(sdram_device)
+
             self.submodules.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
@@ -111,7 +120,7 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41K256M16(sys_clk_freq, "1:2"),
+                module        = sdram_module(sys_clk_freq, "1:2"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -148,6 +157,7 @@ def main():
     parser.add_argument("--sys-clk-freq",    default=75e6,           help="System clock frequency (default: 75MHz)")
     parser.add_argument("--revision",        default="1.0",          help="Board Revision: 1.0 (default)")
     parser.add_argument("--device",          default="85F",          help="ECP5 device (default: 85F)")
+    parser.add_argument("--sdram-device",    default="MT41K64M16",   help="SDRAM device (default: MT41K64M16)")
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet")
     ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone")
