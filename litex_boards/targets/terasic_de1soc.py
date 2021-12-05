@@ -19,6 +19,7 @@ from litex_boards.platforms import de1soc
 from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.led import LedChaser
 
 from litedram.modules import IS42S16320
 from litedram.phy import GENSDRPHY
@@ -49,7 +50,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, **kwargs):
         platform = de1soc.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -69,6 +70,12 @@ class BaseSoC(SoCCore):
                 module        = IS42S16320(sys_clk_freq, "1:1"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
+
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
