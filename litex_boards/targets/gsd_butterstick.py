@@ -178,6 +178,7 @@ def main():
         toolchain      = args.toolchain,
         revision       = args.revision,
         device         = args.device,
+        sdram_device   = args.sdram_device,
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,

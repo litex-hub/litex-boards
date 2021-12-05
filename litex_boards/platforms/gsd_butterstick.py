@@ -83,6 +83,11 @@ _io_r1_0 = [
         Misc("SLEWRATE=FAST")
     ),
 
+    ("vccio_ctrl", 0, 
+        Subsignal("pdm", Pins("V1 E11 T2")),
+        Subsignal("en", Pins("E12"))
+    ),
+
     # RGMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("E15")),
@@ -102,6 +107,16 @@ _io_r1_0 = [
         IOStandard("LVCMOS33"),
         Misc("SLEWRATE=FAST")
     ),
+
+    ("ulpi", 0,
+        Subsignal("data",  Pins("B9 C6 A7 E9 A8 D9 C10 C7")),
+        Subsignal("clk",   Pins("B6")),
+        Subsignal("dir",   Pins("A6")),
+        Subsignal("nxt",   Pins("B8")),
+        Subsignal("stp",   Pins("C8")),
+        Subsignal("rst",   Pins("C9")),
+        IOStandard("LVCMOS18"),Misc("SLEWRATE=FAST")
+    ), 
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -109,11 +124,11 @@ _io_r1_0 = [
 _connectors_r1_0 = [
     ("SYZYGY0", {
         # single ended
-        "S0":"G2",  "S1":"J3",
-        "S2":"F1",  "S3":"K3",
-        "S4":"J4",  "S5":"K2",
-        "S6":"J5",  "S7":"J1",
-        "S8":"N2",  "S9":"L3",
+        "S0": "G2", "S1": "J3",
+        "S2": "F1", "S3": "K3",
+        "S4": "J4", "S5": "K2",
+        "S6": "J5", "S7": "J1",
+        "S8": "N2", "S9": "L3",
         "S10":"M1", "S11":"L2",
         "S12":"N3", "S13":"N4",
         "S14":"M3", "S15":"P5",
@@ -129,11 +144,11 @@ _connectors_r1_0 = [
     ),
     ("SYZYGY1", {
         # single ended
-        "S0":"E4", "S1":"A4", 
-        "S2":"D5", "S3":"A5",
-        "S4":"C4", "S5":"B2", 
-        "S6":"B4", "S7":"C2", 
-        "S8":"A2", "S9":"C1", 
+        "S0": "E4", "S1": "A4", 
+        "S2": "D5", "S3": "A5",
+        "S4": "C4", "S5": "B2", 
+        "S6": "B4", "S7": "C2", 
+        "S8": "A2", "S9": "C1", 
         "S10":"B1", "S11":"D1", 
         "S12":"F4", "S13":"D2", 
         "S14":"E3", "S15":"E1", 
@@ -149,12 +164,12 @@ _connectors_r1_0 = [
     ),
     ("SYZYGY2", {
         # single ended
-        "S0":"C11", "S1":"B11", 
-        "S2":"D6", "S3":"D7", 
-        "S4":"E6", "S5":"E7", 
-        "S6":"D8", "S7":"E8", 
-        "S8":"E10", "S9":"D10", 
-        "S10":"A9", "S11":"A10",
+        "S0": "C11", "S1": "B11", 
+        "S2": "D6",  "S3": "D7", 
+        "S4": "E6",  "S5": "E7", 
+        "S6": "D8",  "S7": "E8", 
+        "S8": "E10", "S9": "D10", 
+        "S10":"A9",  "S11":"A10",
         "S12":"B10", "S13":"A11"
         }
     ),
