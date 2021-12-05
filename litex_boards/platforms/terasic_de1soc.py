@@ -134,7 +134,7 @@ class Platform(AlteraPlatform):
         AlteraPlatform.__init__(self, "5CSEMA5F31C6", _io, _connectors)
 
     def create_programmer(self):
-        return USBBlaster()
+        return USBBlaster(cable_name="DE-SoC", device_id=2)
 
     def do_finalize(self, fragment):
         AlteraPlatform.do_finalize(self, fragment)
