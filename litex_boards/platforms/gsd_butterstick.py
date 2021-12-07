@@ -51,7 +51,7 @@ _io_r1_0 = [
         Subsignal("data", Pins("C12 A12 D14 A14"), Misc("PULLMODE=UP")),
         Subsignal("cmd",  Pins("A13"), Misc("PULLMODE=UP")),
         Subsignal("clk",  Pins("B13")),
-        Subsignal("cd",   Pins("B15")),
+        Subsignal("cd",   Pins("B15"), Misc("PULLMODE=UP")),
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
