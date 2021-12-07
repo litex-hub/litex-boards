@@ -12,6 +12,7 @@ from litex.build.efinix import EfinixProgrammer
 
 _io = [
     # Clk
+    ("clk26", 0, Pins("F11"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
     ("clk50", 0, Pins("D13"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 
     # Leds
