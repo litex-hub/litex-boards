@@ -20,14 +20,14 @@ _io = [
     ("user_led", 0, Pins("N18"),  IOStandard("LVCMOS25")),
 
     # PCIe.
-    ("pcie_x1", 0,
+    ("pcie_x2", 0,
         Subsignal("rst_n", Pins("T3"), IOStandard("LVCMOS25"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("B8")),
         Subsignal("clk_n", Pins("A8")),
-        Subsignal("rx_p",  Pins("B10")),
-        Subsignal("rx_n",  Pins("A10")),
-        Subsignal("tx_p",  Pins("B6")),
-        Subsignal("tx_n",  Pins("A6")),
+        Subsignal("rx_p",  Pins("B6 B4")),
+        Subsignal("rx_n",  Pins("A6 A4")),
+        Subsignal("tx_p",  Pins("B2 D2")),
+        Subsignal("tx_n",  Pins("A2 D1")),
     ),
 
     # SPIFlash.
