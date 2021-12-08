@@ -41,6 +41,21 @@ _io = [
     ),
 ]
 
+# Bank voltage ---------------------------------------------------------------------------------------
+
+_bank_info = [
+            ("1A",       "3.3 V LVTTL / LVCMOS"),
+            ("1B_1C_1D", "3.3 V LVTTL / LVCMOS"),
+            ("1E",       "1.8 V"),
+            ("3A_3B",    "3.3 V LVTTL / LVCMOS"),
+            ("3C_3D_3E", "3.3 V LVTTL / LVCMOS"),
+            ("4A",       "3.3 V LVTTL / LVCMOS"),
+            ("4B",       "3.3 V LVTTL / LVCMOS"),
+            ("BR",       "1.2 V"),
+            ("TL",       "1.2 V"),
+            ("TR",       "1.2 V"),
+]
+
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = []
@@ -52,7 +67,7 @@ class Platform(EfinixPlatform):
     default_clk_period = 1e9/50e6
 
     def __init__(self):
-        EfinixPlatform.__init__(self, "T20F169C4", _io, _connectors, toolchain="efinity")
+        EfinixPlatform.__init__(self, "T20F169C4", _io, _connectors, iobank_info=_bank_info, toolchain="efinity")
 
     def create_programmer(self):
         return EfinixProgrammer()

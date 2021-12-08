@@ -94,6 +94,29 @@ _io = [
     ("dram_pll_refclk", 0, Pins("AA8"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 ]
 
+# Bank voltage ---------------------------------------------------------------------------------------
+
+_bank_info = [
+            ("1A",          "3.3 V LVTTL / LVCMOS"),
+            ("1B_1C",       "3.3 V LVTTL / LVCMOS"),
+            ("1D_1E_1F_1G", "3.3 V LVTTL / LVCMOS"),
+            ("2A",          "3.3 V LVTTL / LVCMOS"),
+            ("2B",          "3.3 V LVTTL / LVCMOS"),
+            ("2C",          "3.3 V LVTTL / LVCMOS"),
+            ("2D",          "3.3 V LVTTL / LVCMOS"),
+            ("2E",          "3.3 V LVTTL / LVCMOS"),
+            ("2F",          "3.3 V LVTTL / LVCMOS"),
+            ("3D_TR_BR",    "3.3 V LVTTL / LVCMOS"),
+            ("4A",          "3.3 V LVTTL / LVCMOS"),
+            ("4B",          "3.3 V LVTTL / LVCMOS"),
+            ("4C",          "3.3 V LVTTL / LVCMOS"),
+            ("4D",          "3.3 V LVTTL / LVCMOS"),
+            ("4E",          "3.3 V LVTTL / LVCMOS"),
+            ("4F",          "3.3 V LVTTL / LVCMOS"),
+            ("BL",          "1.2 V"),
+            ("TL",          "1.2 V"),
+]
+
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
@@ -127,7 +150,7 @@ class Platform(EfinixPlatform):
     default_clk_period = 1e9/40e6
 
     def __init__(self):
-        EfinixPlatform.__init__(self, "T120F576I4", _io, _connectors, toolchain="efinity")
+        EfinixPlatform.__init__(self, "T120F576I4", _io, _connectors, iobank_info=_bank_info, toolchain="efinity")
 
     def create_programmer(self):
         return EfinixProgrammer()
