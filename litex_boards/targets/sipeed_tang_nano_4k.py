@@ -148,14 +148,12 @@ def main():
         # FIXME: ARM software not supported yet
         args.no_compile_software = True
 
-    soc_core_kwargs = soc_core_argdict(args)
     soc = BaseSoC(
         sys_clk_freq=int(float(args.sys_clk_freq)),
-        **soc_core_kwargs
+        **soc_core_argdict(args)
     )
 
-    builder_kwargs = builder_argdict(args)
-    builder = Builder(soc, **builder_kwargs)
+    builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
     if args.load:
