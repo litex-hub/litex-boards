@@ -94,7 +94,9 @@ class BaseSoC(SoCCore):
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
         self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
 
-        if self.cpu_type != 'gowin_emcu':
+        if self.cpu_type == 'gowin_emcu':
+            self.cpu.connect_uart(platform.request('serial'))
+        else:
         # Add ROM linker region --------------------------------------------------------------------
             self.bus.add_region("rom", SoCRegion(
                 origin = self.mem_map["spiflash"] + 0,
