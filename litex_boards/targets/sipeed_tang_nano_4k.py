@@ -72,14 +72,14 @@ class BaseSoC(SoCCore):
         kwargs["integrated_rom_size"] = 0
         kwargs["cpu_reset_address"]   = self.mem_map["spiflash"] + 0
 
-        kwargs["cpu_type"] = 'vexriscv'
-        kwargs["cpu_variant"] = 'minimal'
-
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident         = "LiteX SoC on Tang Nano 4K",
             ident_version = True,
             **kwargs)
+
+        if self.cpu_type == 'vexriscv':
+            assert self.cpu_variant == 'minimal', 'use --cpu-variant=minimal to fit into number of BSRAMs'
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
