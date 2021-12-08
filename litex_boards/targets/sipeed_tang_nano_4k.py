@@ -64,13 +64,18 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, sys_clk_freq=int(27e6), with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
         platform = tang_nano_4k.Platform()
 
-        # Put BIOS in SPIFlash to save BlockRAMs.
-        kwargs["integrated_rom_size"] = 0
-        kwargs["cpu_reset_address"]   = self.mem_map["spiflash"] + 0
+        if 'cpu_type' in kwargs and kwargs['cpu_type'] == 'gowin_emcu':
+            kwargs['with_uart'] = False  # CPU has own UART
+            kwargs['integrated_sram_size'] = 0  # SRAM is directly attached to CPU
+            kwargs["integrated_rom_size"] = 0  # boot flash directly attached to CPU
+        else:
+            # Put BIOS in SPIFlash to save BlockRAMs.
+            self.mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
+            kwargs["integrated_rom_size"] = 0
+            kwargs["cpu_reset_address"]   = self.mem_map["spiflash"] + 0
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -89,12 +94,13 @@ class BaseSoC(SoCCore):
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
         self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
 
+        if self.cpu_type != 'gowin_emcu':
         # Add ROM linker region --------------------------------------------------------------------
-        self.bus.add_region("rom", SoCRegion(
-            origin = self.mem_map["spiflash"] + 0,
-            size   = 64*kB,
-            linker = True)
-        )
+            self.bus.add_region("rom", SoCRegion(
+                origin = self.mem_map["spiflash"] + 0,
+                size   = 64*kB,
+                linker = True)
+            )
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
@@ -136,12 +142,18 @@ def main():
     soc_core_args(parser)
     args = parser.parse_args()
 
+    if args.cpu_type == 'gowin_emcu':
+        # FIXME: ARM software not supported yet
+        args.no_compile_software = True
+
+    soc_core_kwargs = soc_core_argdict(args)
     soc = BaseSoC(
-        sys_clk_freq      = int(float(args.sys_clk_freq)),
-        **soc_core_argdict(args)
+        sys_clk_freq=int(float(args.sys_clk_freq)),
+        **soc_core_kwargs
     )
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder_kwargs = builder_argdict(args)
+    builder = Builder(soc, **builder_kwargs)
     builder.build(run=args.build)
 
     if args.load:
