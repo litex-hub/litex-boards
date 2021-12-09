@@ -73,6 +73,8 @@ python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
                 os.system("rm -rf build")
                 cmd = """\
 python3 -m litex_boards.targets.{} \
+    --cpu-type=vexriscv     \
+    --cpu-variant=minimal   \
     --no-compile-software   \
     --no-compile-gateware   \
 """.format(name)
