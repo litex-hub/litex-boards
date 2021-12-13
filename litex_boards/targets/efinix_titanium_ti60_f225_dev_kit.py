@@ -11,7 +11,7 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import efinix_titanium_ti60_bga225_dev_kit
+from litex_boards.platforms import efinix_titanium_ti60_f225_dev_kit
 
 from litex.build.generic_platform import *
 
@@ -46,11 +46,11 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_spi_flash=False, with_led_chaser=False, **kwargs):
-        platform = efinix_titanium_ti60_bga225_dev_kit.Platform()
+        platform = efinix_titanium_ti60_f225_dev_kit.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident         = "LiteX SoC on Efinix Titanium Ti60 BGA225 Dev Kit",
+            ident         = "LiteX SoC on Efinix Titanium Ti60 F225 Dev Kit",
             ident_version = True,
             **kwargs
         )

@@ -15,24 +15,26 @@ from litex.soc.integration.builder import *
 
 class TestTargets(unittest.TestCase):
     excluded_platforms = [
-        "qmtech_daughterboard",             # Reason: Not a real platform.
-        "quicklogic_quickfeather",          # Reason: No default clock.
-        "efinix_trion_t120_bga576_dev_kit", # Reason: Require Efinity toolchain.
-        "efinix_trion_t20_bga256_dev_kit",  # Reason: Require Efinity toolchain.
-        "efinix_trion_t20_mipi_dev_kit",    # Reason: Require Efinity toolchain.
-        "efinix_xyloni_dev_kit",            # Reason: Require Efinity toolchain.
-        "sipeed_tang_primer",               # Reason: Require Anlogic toolchain.
-        "jungle_electronics_fireant",       # Reason: Require Efinity toolchain.
+        "qmtech_daughterboard",              # Reason: Not a real platform.
+        "quicklogic_quickfeather",           # Reason: No default clock.
+        "efinix_titanium_ti60_f225_dev_kit", # Reason: Require Efinity toolchain.
+        "efinix_trion_t120_bga576_dev_kit",  # Reason: Require Efinity toolchain.
+        "efinix_trion_t20_bga256_dev_kit",   # Reason: Require Efinity toolchain.
+        "efinix_trion_t20_mipi_dev_kit",     # Reason: Require Efinity toolchain.
+        "efinix_xyloni_dev_kit",             # Reason: Require Efinity toolchain.
+        "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
+        "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
     ]
     excluded_targets   = [
-        "simple",                           # Reason: Generic target.
-        "quicklogic_quickfeather",          # Reason: No default clock.
-        "efinix_trion_t120_bga576_dev_kit", # Reason: Require Efinity toolchain.
-        "efinix_trion_t20_bga256_dev_kit",  # Reason: Require Efinity toolchain.
-        "efinix_trion_t20_mipi_dev_kit",    # Reason: Require Efinity toolchain.
-        "efinix_xyloni_dev_kit",            # Reason: Require Efinity toolchain.
-        "sipeed_tang_primer",               # Reason: Require Anlogic toolchain.
-        "jungle_electronics_fireant",       # Reason: Require Efinity toolchain.
+        "simple",                            # Reason: Generic target.
+        "quicklogic_quickfeather",           # Reason: No default clock.
+        "efinix_titanium_ti60_f225_dev_kit", # Reason: Require Efinity toolchain.
+        "efinix_trion_t120_bga576_dev_kit",  # Reason: Require Efinity toolchain.
+        "efinix_trion_t20_bga256_dev_kit",   # Reason: Require Efinity toolchain.
+        "efinix_trion_t20_mipi_dev_kit",     # Reason: Require Efinity toolchain.
+        "efinix_xyloni_dev_kit",             # Reason: Require Efinity toolchain.
+        "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
+        "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
     ]
 
     # Build simple design for all platforms.
