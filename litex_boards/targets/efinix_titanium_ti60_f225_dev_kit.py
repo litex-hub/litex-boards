@@ -18,7 +18,6 @@ from litex.build.generic_platform import *
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -45,7 +44,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_spi_flash=False, with_led_chaser=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_spi_flash=False, **kwargs):
         platform = efinix_titanium_ti60_f225_dev_kit.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -67,11 +66,11 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Trion T20 BGA256 Dev Kit")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Titanium Ti60 F225 Dev Kit")
     parser.add_argument("--build",          action="store_true", help="Build bitstream")
     parser.add_argument("--load",           action="store_true", help="Load bitstream")
     parser.add_argument("--flash",          action="store_true", help="Flash bitstream")
-    parser.add_argument("--sys-clk-freq",   default=50e6,       help="System clock frequency (default: 100MHz)")
+    parser.add_argument("--sys-clk-freq",   default=50e6,       help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
     builder_args(parser)
     soc_core_args(parser)
@@ -90,7 +89,7 @@ def main():
 
     if args.flash:
         from litex.build.openfpgaloader import OpenFPGALoader
-        prog = OpenFPGALoader("titanium_ti60_bga225")
+        prog = OpenFPGALoader("titanium_ti60_f225")
         prog.flash(0, os.path.join(builder.gateware_dir, f"{soc.build_name}.hex"))
 
 if __name__ == "__main__":
