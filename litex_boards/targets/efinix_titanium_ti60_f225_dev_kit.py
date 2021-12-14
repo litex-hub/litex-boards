@@ -59,9 +59,9 @@ class BaseSoC(SoCCore):
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
-            from litespi.modules import W25Q32JV
+            from litespi.modules import W25Q64JW
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
-            self.add_spi_flash(mode="1x", module=W25Q32JV(Codes.READ_1_1_1), with_master=True)
+            self.add_spi_flash(mode="1x", module=W25Q64JW(Codes.READ_1_1_1), with_master=True)
 
 # Build --------------------------------------------------------------------------------------------
 
