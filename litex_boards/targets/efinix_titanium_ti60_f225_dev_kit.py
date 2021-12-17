@@ -18,6 +18,9 @@ from litex.build.generic_platform import *
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.integration.soc import SoCRegion
+
+from litehyperbus.core.hyperbus import HyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -44,7 +47,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_spi_flash=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_spi_flash=False, with_hyperram=False, **kwargs):
         platform = efinix_titanium_ti60_f225_dev_kit.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -63,6 +66,10 @@ class BaseSoC(SoCCore):
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=W25Q64JW(Codes.READ_1_1_1), with_master=True)
 
+        if with_hyperram:
+            self.submodules.hyperram = HyperRAM(platform.request("hyperram"), latency=7)
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=16*1024*1024))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -72,6 +79,7 @@ def main():
     parser.add_argument("--flash",          action="store_true", help="Flash bitstream")
     parser.add_argument("--sys-clk-freq",   default=50e6,       help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
+    parser.add_argument("--with-hyperram",  action="store_true", help="Enable HyperRAM")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -79,6 +87,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_spi_flash = args.with_spi_flash,
+        with_hyperram  = args.with_hyperram,
          **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)

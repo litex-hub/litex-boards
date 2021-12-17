@@ -70,8 +70,7 @@ _io = [
         Subsignal("rwds", Pins("B8 C8"), IOStandard("1.8_V_LVCMOS")),
         Subsignal("cs_n", Pins("A8"), IOStandard("1.8_V_LVCMOS")),
         Subsignal("rst_n", Pins("D5"), IOStandard("1.8_V_LVCMOS")),
-        Subsignal("clk", Pins("B7"), IOStandard("LVDS")),
-        # Subsignal("clk_n", Pins("T7"), IOStandard("LVDS")),
+        Subsignal("clk", Pins("B7"), IOStandard("1.8_V_LVCMOS")),
         Misc("SLEWRATE=FAST")
     ),
 ]
