@@ -78,7 +78,7 @@ class BaseSoC(SoCCore):
         kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, 
+        SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Beaglewire",
             ident_version  = True,
             **kwargs)
@@ -115,16 +115,14 @@ class BaseSoC(SoCCore):
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Beaglewire")
     parser.add_argument("--build",             action="store_true", help="Build bitstream")
-    parser.add_argument("--bios-flash-offset", default=0x60000,     help="BIOS offset in SPI Flash (default: 0x60000)")
+    parser.add_argument("--bios-flash-offset", default="0x60000",   help="BIOS offset in SPI Flash (default: 0x60000)")
     parser.add_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency (default: 50MHz)")
-    parser.add_argument("--output_dir",        default="build",         help="Output directory of csr")
-    parser.add_argument("--csr_csv",           default="build/csr.csv", help="csr.csv")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-         bios_flash_offset = args.bios_flash_offset,
+         bios_flash_offset = int(args.bios_flash_offset, 0),
          sys_clk_freq      = int(float(args.sys_clk_freq)),
          **soc_core_argdict(args)
     )

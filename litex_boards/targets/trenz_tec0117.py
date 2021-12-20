@@ -160,7 +160,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on TEC0117")
     parser.add_argument("--build",             action="store_true", help="Build bitstream")
     parser.add_argument("--load",              action="store_true", help="Load bitstream")
-    parser.add_argument("--bios-flash-offset", default=0x0000,      help="BIOS offset in SPI Flash (0x00000 default)")
+    parser.add_argument("--bios-flash-offset", default="0x0000",    help="BIOS offset in SPI Flash (0x00000 default)")
     parser.add_argument("--flash",             action="store_true", help="Flash Bitstream and BIOS")
     parser.add_argument("--sys-clk-freq",      default=25e6,        help="System clock frequency (default: 25MHz)")
     sdopts = parser.add_mutually_exclusive_group()
@@ -171,7 +171,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        bios_flash_offset = args.bios_flash_offset,
+        bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
@@ -191,7 +191,7 @@ def main():
     if args.flash:
         prog = soc.platform.create_programmer()
         prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
-        flash(args.bios_flash_offset)
+        flash(int(args.bios_flash_offset, 0))
 
 if __name__ == "__main__":
     main()

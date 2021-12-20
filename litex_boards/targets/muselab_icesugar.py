@@ -118,13 +118,13 @@ def main():
     parser.add_argument("--load",                action="store_true", help="Load bitstream")
     parser.add_argument("--flash",               action="store_true", help="Flash Bitstream")
     parser.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency (default: 24MHz)")
-    parser.add_argument("--bios-flash-offset",   default=0x40000,     help="BIOS offset in SPI Flash (default: 0x40000)")
+    parser.add_argument("--bios-flash-offset",   default="0x40000",   help="BIOS offset in SPI Flash (default: 0x40000)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        bios_flash_offset   = args.bios_flash_offset,
+        bios_flash_offset   = int(args.bios_flash_offset, 0),
         sys_clk_freq        = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
@@ -136,7 +136,7 @@ def main():
         prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
 
     if args.flash:
-        flash(args.bios_flash_offset)
+        flash(int(args.bios_flash_offset, 0))
 
 if __name__ == "__main__":
     main()

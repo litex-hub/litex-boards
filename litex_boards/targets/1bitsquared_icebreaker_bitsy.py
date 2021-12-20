@@ -119,14 +119,14 @@ def main():
     parser.add_argument("--build",               action="store_true", help="Build bitstream")
     parser.add_argument("--flash",               action="store_true", help="Flash bitstream and bios")
     parser.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency (default: 24MHz)")
-    parser.add_argument("--bios-flash-offset",   default=0xa0000,     help="BIOS offset in SPI Flash (default: 0xa0000)")
+    parser.add_argument("--bios-flash-offset",   default="0xa0000",   help="BIOS offset in SPI Flash (default: 0xa0000)")
     parser.add_argument("--revision",            default="v1",        help="Board revision 'v0' or 'v1'")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        bios_flash_offset   = args.bios_flash_offset,
+        bios_flash_offset   = int(args.bios_flash_offset, 0),
         sys_clk_freq        = int(float(args.sys_clk_freq)),
 		revision            = args.revision,
         **soc_core_argdict(args)
