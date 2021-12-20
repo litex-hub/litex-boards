@@ -87,7 +87,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=60e6, with_led_chaser=True, 
+    def __init__(self, sys_clk_freq=60e6, with_led_chaser=True, with_spi_flash=False,
                  use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
                  with_video_framebuffer=False, **kwargs):
         platform = muselab_icesugar_pro.Platform()
@@ -108,9 +108,10 @@ class BaseSoC(SoCCore):
             self.submodules.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
-        from litespi.modules import W25Q256
-        from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        self.add_spi_flash(mode="1x", module=W25Q256(Codes.READ_1_1_1))
+        if with_spi_flash:
+            from litespi.modules import W25Q256
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="1x", module=W25Q256(Codes.READ_1_1_1))
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -140,6 +141,7 @@ def main():
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",  action="store_true",  help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",      action="store_true",  help="Enable SDCard support")
+    parser.add_argument("--with-spi-flash",   action="store_true",  help="Enable SPI Flash (MMAPed)")
     parser.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator")
     parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
     viopts = parser.add_mutually_exclusive_group()
@@ -155,6 +157,7 @@ def main():
         use_internal_osc       = args.use_internal_osc,
         sdram_rate             = args.sdram_rate,
         l2_size                = args.l2_size,
+        with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
