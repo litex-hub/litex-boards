@@ -22,23 +22,9 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
-# CRG ----------------------------------------------------------------------------------------------
+from litex.build.generic_platform import Pins, IOStandard, Subsignal
 
-class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, use_ps7_clk=True):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
-
-        # # #
-
-        if use_ps7_clk:
-            assert sys_clk_freq == 100e6
-            self.comb += ClockSignal("sys").eq(ClockSignal("ps7"))
-            self.comb += ResetSignal("sys").eq(ResetSignal("ps7") | self.rst)
-        else:
-            raise NotImplementedError
-
-# BaseSoC ------------------------------------------------------------------------------------------
+# UTILS ---------------------------------------------------------------------------------------------
 
 def load_ps7(soc, xci_file):
     odir = os.path.join("build", "snickerdoodle", "gateware", "xci")
@@ -52,31 +38,61 @@ def load_ps7(soc, xci_file):
         os.system("cp -p  " + xci_file + " " + dst)
     soc.cpu.set_ps7_xci(dst)
 
-def blinky(soc, platform):
-    from litex.build.generic_platform import Pins, IOStandard
-    platform.add_extension([("blinky_led", 0, Pins("ja1:3"), IOStandard("LVCMOS33"))])
-    led = platform.request("blinky_led")
-    soc.submodules.blinky = blinky = Module()
-    counter = Signal(27)
-    blinky.comb += led.eq(counter[counter.nbits-1])
-    blinky.sync += counter.eq(counter + 1)
+class Blinky(Module):
+    def __init__(self, led, sys_clk_freq, period=1e0):
+        counter = Signal(max=int(period * sys_clk_freq))
+        self.comb += led.eq(counter[counter.nbits-1])
+        self.sync += counter.eq(counter + 1)
+
+# CRG ----------------------------------------------------------------------------------------------
+
+class _CRG(Module):
+    def __init__(self, platform, sys_clk_freq, use_ps7_clk=False, ext_freq=10e6):
+        self.rst = Signal()
+        self.clock_domains.cd_sys = ClockDomain()
+
+        # # #
+
+        if use_ps7_clk:
+            assert sys_clk_freq == 100e6
+            self.comb += ClockSignal("sys").eq(ClockSignal("ps7"))
+            self.comb += ResetSignal("sys").eq(ResetSignal("ps7") | self.rst)
+        else:
+            self.submodules.pll = pll = S7MMCM(speedgrade=-1)
+            self.comb += pll.reset.eq(self.rst)
+            pll.register_clkin(platform.request(platform.default_clk_name),
+                               platform.default_clk_freq)
+            pll.create_clkout(self.cd_sys, sys_clk_freq)
+            # Ignore sys_clk to pll.clkin path created by SoC's rst.
+            platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
+
+# BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
 
-    def __init__(self, sys_clk_freq=int(100e6),
-        with_blinky = False,
-        blinky_led = "ja1:3",
-        xci_file = None,
-        **kwargs):
+    def __init__(self,
+                 sys_clk_freq = int(100e6),
+                 ext_clk_freq = None,
+                 with_blinky  = True,
+                 xci_file     = None,
+                 **kwargs):
 
         platform = snickerdoodle.Platform()
 
-        kwargs["with_uart"] = False
-        kwargs["cpu_type"] = "zynq7000"
+        if ext_clk_freq:
+            platform.default_clk_freq = ext_clk_freq
+            platform.default_clk_period = 1e9 / ext_clk_freq
+
+        if kwargs.get("cpu_type", None) == "zynq7000":
+            kwargs['integrated_sram_size'] = 0
+            kwargs['with_uart'] = False
+            self.mem_map = {
+                'csr': 0x4000_0000,  # Zynq GP0 default
+            }
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "Snickerdoodle",
+            ident          = "LiteX SoC on Snickerdoodle",
             ident_version  = True,
             **kwargs)
 
@@ -89,36 +105,46 @@ class BaseSoC(SoCCore):
             self.submodules += axi.AXI2Wishbone(
                 axi          = self.cpu.add_axi_gp_master(),
                 wishbone     = wb_gp0,
-                base_address = 0x43c00000)
+                base_address = self.mem_map['csr'])
             self.add_wb_master(wb_gp0)
 
+            use_ps7_clk = True
+        else:
+            use_ps7_clk = False
+
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         platform.add_platform_command("set_property BITSTREAM.GENERAL.COMPRESS True [current_design]")
 
         if with_blinky:
-            blinky(self, platform)
+            self.submodules.blinky = Blinky(
+                 led = platform.request("user_led"),
+                 sys_clk_freq = sys_clk_freq,
+                 period = 1
+            )
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Snickerdoodle")
-    parser.add_argument("--build",       action="store_true", help="Build bitstream")
-    parser.add_argument("--load",        action="store_true", help="Load bitstream")
-    parser.add_argument("--with-blinky", action="store_true", help="Enable Blinky")
-    parser.add_argument("--blinky-led",  default="ja1:3", help="Blinky LED")
-    parser.add_argument("--xci-file",    help="XCI for PS7 configuration")
-    parser.add_argument("--target",      help="Programmer target")
+    parser.add_argument("--build",        action="store_true", help="Build bitstream")
+    parser.add_argument("--load",         action="store_true", help="Load bitstream")
+    parser.add_argument("--with-blinky",  default=True, action="store_true", help="Enable Blinky")
+    parser.add_argument("--ext-clk-freq", default=10e6,  type=float, help="External Clock Frequency")
+    parser.add_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency")
+    parser.add_argument("--xci-file",     help="XCI file for PS7 configuration")
+    parser.add_argument("--target",       help="Vivado programmer target")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        with_blinky = args.with_blinky,
-        blinky_led = args.blinky_led,
-        xci_file = args.xci_file,
+        sys_clk_freq = args.sys_clk_freq,
+        ext_clk_freq = args.ext_clk_freq,
+        with_blinky  = args.with_blinky,
+        xci_file     = args.xci_file,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
@@ -126,7 +152,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        bitstream = os.path.join(builder.gateware_dir, soc.build_name + ".bit")
+        bitstream = os.path.join(builder.gateware_dir, soc.build_name + soc.platform.bitstream_ext)
         prog.load_bitstream(bitstream, target=args.target, device=1)
 
 if __name__ == "__main__":
