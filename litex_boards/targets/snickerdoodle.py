@@ -47,7 +47,7 @@ class Blinky(Module):
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, use_ps7_clk=False, ext_freq=10e6):
+    def __init__(self, platform, sys_clk_freq, use_ps7_clk=False):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
 
