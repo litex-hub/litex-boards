@@ -8,13 +8,22 @@
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
-
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-]
+    # Clk / Rst - A placeholder for an external clock
+    ("clk100", 0, Pins("H16"), IOStandard("LVCMOS33")),
 
-_ps7_io = [
+    # Leds - A placeholder for an external LED
+    ("user_led", 0, Pins("G14"), IOStandard("LVCMOS33")),
+
+    # UART - A placeholder for an external UART
+    ("serial", 0,
+        Subsignal("tx", Pins("D19")),
+        Subsignal("rx", Pins("D20")),
+        IOStandard("LVCMOS33"),
+    ),
+
     # PS7
     ("ps7_clk",   0, Pins(1)),
     ("ps7_porb",  0, Pins(1)),
@@ -59,15 +68,16 @@ _connectors = [
 class Platform(XilinxPlatform):
     # The clock speed depends on the PS7 PLL configuration for the FCLK_CLK0 signal.
     default_clk_name   = "clk100"
-    default_clk_period = 1e9/100e6
+    default_clk_freq   = 100e6
 
     def __init__(self):
         XilinxPlatform.__init__(self, "xc7z010-clg400-1", _io,  _connectors, toolchain="vivado")
-        self.add_extension(_ps7_io)
+        self.default_clk_period = 1e9 / self.default_clk_freq
 
     def create_programmer(self):
         return VivadoProgrammer(flash_part="n25q128a")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request(self.default_clk_name, loose=True),
+                                   self.default_clk_period)
