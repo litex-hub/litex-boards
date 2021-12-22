@@ -38,13 +38,6 @@ _io = [
     ("user_btn_r", 0, Pins("R18"), IOStandard("LVCMOS25")),
     ("user_btn_u", 0, Pins("T18"), IOStandard("LVCMOS25")),
 
-    # Serial (ust to make CI pass)
-    # Unfortunately the only USB UART is hard-wired to the ARM CPU
-    ("serial", 0,
-        Subsignal("tx", Pins("-")),
-        Subsignal("rx", Pins("-"))
-    ),
-
     # OLED (UG-2832HSWEG04/ssd1306)
     ("zed_oled", 0,
         Subsignal("clk",     Pins("AB12")),
