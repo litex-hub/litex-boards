@@ -53,7 +53,6 @@ class BaseSoC(SoCCore):
 
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs['integrated_sram_size'] = 0
-            kwargs['with_uart'] = False
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -159,6 +158,7 @@ def main():
     soc_core_args(parser)
     vivado_build_args(parser)
     parser.set_defaults(cpu_type="zynq7000")
+    parser.set_defaults(no_uart=True)
     args = parser.parse_args()
 
     soc = BaseSoC(
