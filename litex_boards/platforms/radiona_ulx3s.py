@@ -96,21 +96,6 @@ _io_common = [
         IOStandard("LVCMOS33")
     ),
 
-    # GPDI
-    ("gpdi", 0,
-        Subsignal("clk_p",   Pins("A17"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("clk_n",   Pins("B18"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data0_p", Pins("A12"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("data0_n", Pins("A13"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data1_p", Pins("A14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("data1_n", Pins("C14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data2_p", Pins("A16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("data2_n", Pins("B16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("cec",     Pins("A18"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        #Subsignal("scl",     Pins("E19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
-    ),
-
     # OLED
     ("oled_spi", 0,
         Subsignal("clk",  Pins("P4")),
@@ -147,6 +132,21 @@ _io_1_7 = [
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
+
+    # GPDI
+    ("gpdi", 0,
+        Subsignal("clk_p",    Pins("A17"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("clk_n",   Pins("B18"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data0_p",  Pins("A12"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("data0_n", Pins("A13"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data1_p",  Pins("A14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("data1_n", Pins("C14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data2_p",  Pins("A16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("data2_n", Pins("B16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("cec",     Pins("A18"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+        #Subsignal("scl",     Pins("E19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+        #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
+    ),
 ]
 
 _io_2_0 = [
@@ -167,6 +167,21 @@ _io_2_0 = [
         Subsignal("wp", Pins("P5")),
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
+    ),
+
+    # GPDI
+    ("gpdi", 0,
+        Subsignal("clk_p",    Pins("A17"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("clk_n",   Pins("B18"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data0_p",  Pins("A16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("data0_n", Pins("B16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data1_p",  Pins("A14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("data1_n", Pins("C14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data2_p",  Pins("A12"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("data2_n", Pins("A13"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("cec",     Pins("A18"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+        #Subsignal("scl",     Pins("E19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+        #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
     ),
 ]
 
