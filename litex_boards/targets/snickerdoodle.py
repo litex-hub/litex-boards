@@ -21,8 +21,7 @@ from litex.soc.interconnect import wishbone
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-
-from litex.build.generic_platform import Pins, IOStandard, Subsignal
+from litex.soc.cores.led import LedChaser
 
 # UTILS ---------------------------------------------------------------------------------------------
 
@@ -37,12 +36,6 @@ def load_ps7(soc, xci_file):
     else:
         os.system("cp -p  " + xci_file + " " + dst)
     soc.cpu.set_ps7_xci(dst)
-
-class Blinky(Module):
-    def __init__(self, led, sys_clk_freq, period=1e0):
-        counter = Signal(max=int(period * sys_clk_freq))
-        self.comb += led.eq(counter[counter.nbits-1])
-        self.sync += counter.eq(counter + 1)
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -71,10 +64,10 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
 
     def __init__(self,
-                 sys_clk_freq = int(100e6),
-                 ext_clk_freq = None,
-                 with_blinky  = True,
-                 xci_file     = None,
+                 sys_clk_freq    = int(100e6),
+                 ext_clk_freq    = None,
+                 with_led_chaser = True,
+                 xci_file        = None,
                  **kwargs):
 
         platform = snickerdoodle.Platform()
@@ -117,12 +110,11 @@ class BaseSoC(SoCCore):
 
         platform.add_platform_command("set_property BITSTREAM.GENERAL.COMPRESS True [current_design]")
 
-        if with_blinky:
-            self.submodules.blinky = Blinky(
-                 led = platform.request("user_led"),
-                 sys_clk_freq = sys_clk_freq,
-                 period = 1
-            )
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -130,7 +122,6 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Snickerdoodle")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--with-blinky",  default=True, action="store_true", help="Enable Blinky")
     parser.add_argument("--ext-clk-freq", default=10e6,  type=float, help="External Clock Frequency")
     parser.add_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency")
     parser.add_argument("--xci-file",     help="XCI file for PS7 configuration")
@@ -143,7 +134,6 @@ def main():
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
         ext_clk_freq = args.ext_clk_freq,
-        with_blinky  = args.with_blinky,
         xci_file     = args.xci_file,
         **soc_core_argdict(args)
     )
