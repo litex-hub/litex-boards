@@ -22,7 +22,7 @@ _io = [
 
     ("dac", 0,
         Subsignal("data",
-            Pins("M19 M20 L19 L20 K19 J19 K20 H20 G19 G20 F19 F20 D20 D19"),
+            Pins("M19 M20 L19 L20 K19 J19 J20 H20 G19 G20 F19 F20 D20 D19"),
             Drive(4), Misc("SLEW SLOW")),
         Subsignal("wrt", Pins("M17"), Drive(8), Misc("SLEW FAST")),
         Subsignal("sel", Pins("N16"), Drive(8), Misc("SLEW FAST")),
