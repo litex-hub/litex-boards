@@ -33,6 +33,7 @@ _serial_io= [("serial", 0,
 
 # CRG ----------------------------------------------------------------------------------------------
 
+
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_video_pll):
         clk100 = platform.request("clk100")
@@ -120,8 +121,6 @@ def main():
     soc_core_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
-
-
 
     soc = BaseSoC(
 
