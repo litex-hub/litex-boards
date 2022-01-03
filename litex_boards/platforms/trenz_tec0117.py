@@ -112,7 +112,7 @@ class Platform(GowinPlatform):
         GowinPlatform.__init__(self, "GW1NR-LV9QN88C6/I5", _io, _connectors, toolchain="gowin", devicename='GW1NR-9')
 
     def create_programmer(self):
-        return OpenFPGALoader("littlebee")
+        return OpenFPGALoader("littleBee")
 
     def do_finalize(self, fragment):
         GowinPlatform.do_finalize(self, fragment)
