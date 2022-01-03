@@ -1,8 +1,8 @@
 #
 # This file is part of LiteX-Boards.
 #
+# Copyright (c) 2021 Derek Mulcahy <derekmulcahy@gmail.com>
 # Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# Copyright (c) 2021 Derek Mulcahy <derekmulcahy@gmail.com>,
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -11,13 +11,13 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk / Rst - A placeholder for an external clock
+    # Clk / Rst - FIXME: A placeholder for an external clock
     ("clk100", 0, Pins("H16"), IOStandard("LVCMOS33")),
 
-    # Leds - A placeholder for an external LED
+    # Leds - FIXME: A placeholder for an external LED
     ("user_led", 0, Pins("G14"), IOStandard("LVCMOS33")),
 
-    # UART - A placeholder for an external UART
+    # UART - FIXME: A placeholder for an external UART
     ("serial", 0,
         Subsignal("tx", Pins("D19")),
         Subsignal("rx", Pins("D20")),
@@ -73,11 +73,13 @@ class Platform(XilinxPlatform):
     def __init__(self):
         XilinxPlatform.__init__(self, "xc7z010-clg400-1", _io,  _connectors, toolchain="vivado")
         self.default_clk_period = 1e9 / self.default_clk_freq
+        self.toolchain.bitstream_commands = [
+            "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]"
+        ]
 
     def create_programmer(self):
         return VivadoProgrammer(flash_part="n25q128a")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request(self.default_clk_name, loose=True),
-                                   self.default_clk_period)
+        self.add_period_constraint(self.lookup_request(self.default_clk_name, loose=True), self.default_clk_period)

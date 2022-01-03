@@ -18,6 +18,7 @@ vendors = [
     "fairwaves",
     "hackaday",
     "kosagi",
+    "krtkl",
     "lattice",
     "lambdaconcept",
     "linsn",

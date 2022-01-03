@@ -3,8 +3,8 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>,
-# Copyright (c) 2021 Derek Mulcahy <derekmulcahy@gmail.com>,
+# Copyright (c) 2021 Derek Mulcahy <derekmulcahy@gmail.com>
+# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -63,12 +63,10 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
 
-    def __init__(self,
-                 sys_clk_freq    = int(100e6),
-                 ext_clk_freq    = None,
-                 with_led_chaser = True,
-                 xci_file        = None,
-                 **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True,
+        ext_clk_freq = None,
+        xci_file     = None,
+        **kwargs):
 
         platform = snickerdoodle.Platform()
 
@@ -77,11 +75,9 @@ class BaseSoC(SoCCore):
             platform.default_clk_period = 1e9 / ext_clk_freq
 
         if kwargs.get("cpu_type", None) == "zynq7000":
-            kwargs['integrated_sram_size'] = 0
-            kwargs['with_uart'] = False
-            self.mem_map = {
-                'csr': 0x4000_0000,  # Zynq GP0 default
-            }
+            kwargs["integrated_sram_size"] = 0
+            kwargs["with_uart"]            = False
+            self.mem_map = {"csr": 0x4000_0000}  # Zynq GP0 default
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -107,8 +103,6 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
-
-        platform.add_platform_command("set_property BITSTREAM.GENERAL.COMPRESS True [current_design]")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
