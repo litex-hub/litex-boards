@@ -38,13 +38,6 @@ _io = [
     ("user_btn_r", 0, Pins("R18"), IOStandard("LVCMOS25")),
     ("user_btn_u", 0, Pins("T18"), IOStandard("LVCMOS25")),
 
-    # Serial (ust to make CI pass)
-    # Unfortunately the only USB UART is hard-wired to the ARM CPU
-    ("serial", 0,
-        Subsignal("tx", Pins("-")),
-        Subsignal("rx", Pins("-"))
-    ),
-
     # OLED (UG-2832HSWEG04/ssd1306)
     ("zed_oled", 0,
         Subsignal("clk",     Pins("AB12")),
@@ -213,6 +206,9 @@ class Platform(XilinxPlatform):
 
     def __init__(self):
         XilinxPlatform.__init__(self, "xc7z020clg484-1", _io, _connectors, toolchain="vivado")
+        self.toolchain.bitstream_commands = \
+            ["set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]", ]
+        self.default_clk_freq = 1e9 / self.default_clk_period
 
     def create_programmer(self):
         return OpenOCD(config="board/digilent_zedboard.cfg")
