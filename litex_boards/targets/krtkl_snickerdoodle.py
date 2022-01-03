@@ -63,12 +63,12 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
 
-    def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True,
+    def __init__(self, variant="z7-10", sys_clk_freq=int(100e6), with_led_chaser=True,
         ext_clk_freq = None,
         xci_file     = None,
         **kwargs):
 
-        platform = snickerdoodle.Platform()
+        platform = snickerdoodle.Platform(variant=variant)
 
         if ext_clk_freq:
             platform.default_clk_freq = ext_clk_freq
@@ -116,6 +116,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Snickerdoodle")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
+    parser.add_argument("--variant",      default="z7-10",     help="Board variant: z7-10 (default) or z7-20")
     parser.add_argument("--ext-clk-freq", default=10e6,  type=float, help="External Clock Frequency")
     parser.add_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency")
     parser.add_argument("--xci-file",     help="XCI file for PS7 configuration")
@@ -126,6 +127,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        variant      = args.variant,
         sys_clk_freq = args.sys_clk_freq,
         ext_clk_freq = args.ext_clk_freq,
         xci_file     = args.xci_file,
