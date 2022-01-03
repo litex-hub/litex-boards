@@ -14,6 +14,9 @@ from litex.build.efinix import EfinixProgrammer
 _io = [
     # Clk
     ("clk40", 0, Pins("P19"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("clk50", 0, Pins("AA8"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("clk20", 0, Pins("AA9"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("clk74_25", 0, Pins("J9"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 
     # Leds
     ("user_led", 0, Pins("AB16"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
@@ -92,6 +95,9 @@ _io = [
 
     # DRAM.
     ("dram_pll_refclk", 0, Pins("AA8"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+
+    # MIPI
+    ("mipi_refclk", 0, Pins("G9"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 ]
 
 # Bank voltage ---------------------------------------------------------------------------------------
