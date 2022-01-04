@@ -66,6 +66,7 @@ class BaseSoC(SoCCore):
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=W25Q64JW(Codes.READ_1_1_1), with_master=True)
 
+        # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
             self.submodules.hyperram = HyperRAM(platform.request("hyperram"), latency=7)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=32*1024*1024))
