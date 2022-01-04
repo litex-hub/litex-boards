@@ -64,13 +64,16 @@ _io = [
         IOStandard("1.8_V_LVCMOS")
     ),
 
-    # HyperRAM
+    # HyperRAM (X16)
     ("hyperram", 0,
-        Subsignal("dq", Pins("B6 C6 A5 A6 F7 F8 E7 D7 B9 A9 F9 E9 C10 D10 A10 B10"), IOStandard("1.8_V_LVCMOS")),
-        Subsignal("rwds", Pins("B8 C8"), IOStandard("1.8_V_LVCMOS")),
-        Subsignal("cs_n", Pins("A8"), IOStandard("1.8_V_LVCMOS")),
-        Subsignal("rst_n", Pins("D5"), IOStandard("1.8_V_LVCMOS")),
-        Subsignal("clk", Pins("B7"), IOStandard("1.8_V_LVCMOS")),
+        Subsignal("dq",  Pins(
+            "B6 C6 A5 A6  F7  F8  E7  D7",
+            "B9 A9 F9 E9 C10 D10 A10 B10"
+        ), IOStandard("1.8_V_LVCMOS")),
+        Subsignal("rwds",  Pins("B8 C8"), IOStandard("1.8_V_LVCMOS")),
+        Subsignal("cs_n",  Pins("A8"),    IOStandard("1.8_V_LVCMOS")),
+        Subsignal("rst_n", Pins("D5"),    IOStandard("1.8_V_LVCMOS")),
+        Subsignal("clk",   Pins("B7"),    IOStandard("1.8_V_LVCMOS")),
         Misc("SLEWRATE=FAST")
     ),
 ]
