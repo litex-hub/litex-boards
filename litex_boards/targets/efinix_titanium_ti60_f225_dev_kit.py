@@ -47,7 +47,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_spi_flash=False, with_hyperram=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(200e6), with_spi_flash=False, with_hyperram=False, **kwargs):
         platform = efinix_titanium_ti60_f225_dev_kit.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ class BaseSoC(SoCCore):
 
         if with_hyperram:
             self.submodules.hyperram = HyperRAM(platform.request("hyperram"), latency=7)
-            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=16*1024*1024))
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=32*1024*1024))
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ def main():
     parser.add_argument("--build",          action="store_true", help="Build bitstream")
     parser.add_argument("--load",           action="store_true", help="Load bitstream")
     parser.add_argument("--flash",          action="store_true", help="Flash bitstream")
-    parser.add_argument("--sys-clk-freq",   default=50e6,       help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--sys-clk-freq",   default=200e6,       help="System clock frequency (default: 200MHz)")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
     parser.add_argument("--with-hyperram",  action="store_true", help="Enable HyperRAM")
     builder_args(parser)
