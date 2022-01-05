@@ -136,10 +136,10 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Tang Nano 4K")
-    parser.add_argument("--build",       action="store_true", help="Build bitstream")
-    parser.add_argument("--load",        action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",       action="store_true", help="Flash Bitstream")
-    parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency (default: 27MHz)")
+    parser.add_argument("--build",       action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",        action="store_true", help="Load bitstream.")
+    parser.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
+    parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

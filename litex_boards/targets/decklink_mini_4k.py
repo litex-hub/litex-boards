@@ -105,15 +105,15 @@ class BaseSoC(SoCMini):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC Blackmagic Decklink Mini 4K.")
-    parser.add_argument("--build",                  action="store_true", help="Build bitstream")
-    parser.add_argument("--load",                   action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",           default=148.5e6,       help="System clock frequency (default: 100MHz)")
-    parser.add_argument("--with-pcie",              action="store_true", help="Enable PCIe support")
-    parser.add_argument("--driver",                 action="store_true", help="Generate PCIe driver")
+    parser = argparse.ArgumentParser(description="LiteX SoC Blackmagic Decklink Mini 4K")
+    parser.add_argument("--build",                  action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",                   action="store_true", help="Load bitstream.")
+    parser.add_argument("--sys-clk-freq",           default=148.5e6,     help="System clock frequency.")
+    parser.add_argument("--with-pcie",              action="store_true", help="Enable PCIe support.")
+    parser.add_argument("--driver",                 action="store_true", help="Generate PCIe driver.")
     viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
-    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)

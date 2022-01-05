@@ -152,18 +152,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawTextHelpFormatter
-    )
-    parser.add_argument("--build",         action="store_true", help="Build bitstream")
-    parser.add_argument("--load",          action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",  default=125e6,       help="System clock frequency (default: 125MHz)")
-    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
-    parser.add_argument("--with-rts-reset", action="store_true", help="Connect UART RTS line to sys_clk reset")
-    parser.add_argument("--with-bist",     action="store_true", help="Add DDR3 BIST Generator/Checker")
-    parser.add_argument("--spd-dump", type=str, help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS")
+    parser = argparse.ArgumentParser(description="LiteX SoC on BerkeleyLab Marble")
+    parser.add_argument("--build",          action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",           action="store_true", help="Load bitstream.")
+    parser.add_argument("--sys-clk-freq",   default=125e6,       help="System clock frequency.")
+    parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_argument("--with-rts-reset", action="store_true", help="Connect UART RTS line to sys_clk reset.")
+    parser.add_argument("--with-bist",      action="store_true", help="Add DDR3 BIST Generator/Checker.")
+    parser.add_argument("--spd-dump",       type=str,            help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

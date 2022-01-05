@@ -82,9 +82,9 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Hackaday Badge")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
-    parser.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency (default: 48MHz)")
+    parser.add_argument("--build",        action="store_true", help="Build bitstream.")
+    parser.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain (trellis or diamond).")
+    parser.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)

@@ -114,9 +114,9 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Beaglewire")
-    parser.add_argument("--build",             action="store_true", help="Build bitstream")
-    parser.add_argument("--bios-flash-offset", default="0x60000",   help="BIOS offset in SPI Flash (default: 0x60000)")
-    parser.add_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--build",             action="store_true", help="Build bitstream.")
+    parser.add_argument("--bios-flash-offset", default="0x60000",   help="BIOS offset in SPI Flash.")
+    parser.add_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

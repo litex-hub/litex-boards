@@ -71,11 +71,11 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Trion T20 BGA256 Dev Kit")
-    parser.add_argument("--build",          action="store_true", help="Build bitstream")
-    parser.add_argument("--load",           action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",          action="store_true", help="Flash bitstream")
-    parser.add_argument("--sys-clk-freq",   default=100e6,        help="System clock frequency (default: 100MHz)")
-    parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed)")
+    parser.add_argument("--build",          action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",           action="store_true", help="Load bitstream.")
+    parser.add_argument("--flash",          action="store_true", help="Flash bitstream.")
+    parser.add_argument("--sys-clk-freq",   default=100e6,        help="System clock frequency.")
+    parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

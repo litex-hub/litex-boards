@@ -97,12 +97,12 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Ztex 2.13")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    parser.add_argument("--expansion", default="debug", help="Expansion board, 'debug' (default) or 'sbus'")
-    parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency (default=100MHz)")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
-    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
+    parser.add_argument("--expansion",       default="debug",     help="Expansion board (debug or sbus).")
+    parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
+    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)

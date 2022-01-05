@@ -94,12 +94,12 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Alchitry Au(+)")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",           action="store_true", help="Flash bitstream")
-    parser.add_argument("--variant",         default="au",        help="Board variant: au (default) or au+")
-    parser.add_argument("--sys-clk-freq",    default=83333333,    help="System clock frequency (default: 83.333333 MHz)")
-    parser.add_argument("--with-spi-flash",  action="store_true", help="Enable SPI Flash (MMAPed)")
+    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
+    parser.add_argument("--flash",           action="store_true", help="Flash bitstream.")
+    parser.add_argument("--variant",         default="au",        help="Board variant (au or au+).")
+    parser.add_argument("--sys-clk-freq",    default=83333333,    help="System clock frequency.")
+    parser.add_argument("--with-spi-flash",  action="store_true", help="Enable SPI Flash (MMAPed).")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)

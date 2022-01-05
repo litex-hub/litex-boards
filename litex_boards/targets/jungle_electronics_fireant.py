@@ -103,11 +103,11 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Jungle Electronics FireAnt")
-    parser.add_argument("--build", action="store_true",           help="Build bitstream")
-    parser.add_argument("--load",  action="store_true",           help="Load bitstream")
-    parser.add_argument("--flash", action="store_true",           help="Flash Bitstream")
-    parser.add_argument("--sys-clk-freq",      default=33.333e6,  help="System clock frequency (default: 33.333MHz)")
-    parser.add_argument("--bios-flash-offset", default="0x40000", help="BIOS offset in SPI Flash (default: 0x40000)")
+    parser.add_argument("--build", action="store_true",           help="Build bitstream.")
+    parser.add_argument("--load",  action="store_true",           help="Load bitstream.")
+    parser.add_argument("--flash", action="store_true",           help="Flash Bitstream.")
+    parser.add_argument("--sys-clk-freq",      default=33.333e6,  help="System clock frequency.")
+    parser.add_argument("--bios-flash-offset", default="0x40000", help="BIOS offset in SPI Flash.")
 
     builder_args(parser)
     soc_core_args(parser)

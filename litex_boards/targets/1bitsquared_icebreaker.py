@@ -141,12 +141,12 @@ def flash(build_dir, build_name, bios_flash_offset):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
-    parser.add_argument("--build",               action="store_true", help="Build bitstream")
-    parser.add_argument("--load",                action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",               action="store_true", help="Flash Bitstream")
-    parser.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency (default: 24MHz)")
-    parser.add_argument("--bios-flash-offset",   default="0x40000",   help="BIOS offset in SPI Flash (default: 0x40000)")
-    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (with DVI PMOD)")
+    parser.add_argument("--build",               action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",                action="store_true", help="Load bitstream.")
+    parser.add_argument("--flash",               action="store_true", help="Flash Bitstream and BIOS.")
+    parser.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")
+    parser.add_argument("--bios-flash-offset",   default="0x40000",   help="BIOS offset in SPI Flash.")
+    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (with DVI PMOD).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

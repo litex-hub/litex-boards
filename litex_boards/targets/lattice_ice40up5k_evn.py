@@ -147,10 +147,10 @@ def flash(bios_flash_offset):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Lattice iCE40UP5k EVN breakout board")
-    parser.add_argument("--build",             action="store_true", help="Build bitstream")
-    parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency (default: 12MHz)")
-    parser.add_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash (default: 0x20000)")
-    parser.add_argument("--flash",             action="store_true", help="Flash Bitstream")
+    parser.add_argument("--build",             action="store_true", help="Build bitstream.")
+    parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
+    parser.add_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")
+    parser.add_argument("--flash",             action="store_true", help="Flash Bitstream.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

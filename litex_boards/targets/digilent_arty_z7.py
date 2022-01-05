@@ -98,10 +98,10 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Arty Z7")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--variant",      default="z7-20",     help="Board variant: z7-20 (default) or z7-10")
-    parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency (default: %(default)d)")
+    parser.add_argument("--build",        action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",         action="store_true", help="Load bitstream.")
+    parser.add_argument("--variant",      default="z7-20",     help="Board variant (z7-20 or z7-10).")
+    parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)

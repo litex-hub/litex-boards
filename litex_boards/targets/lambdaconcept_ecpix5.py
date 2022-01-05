@@ -130,15 +130,15 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on ECPIX-5")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",           action="store_true", help="Flash bitstream to SPI Flash")
-    parser.add_argument("--device",          default="85F",       help="ECP5 device (default: 85F)")
-    parser.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency (default: 75MHz)")
-    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
+    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
+    parser.add_argument("--flash",           action="store_true", help="Flash bitstream to SPI Flash.")
+    parser.add_argument("--device",          default="85F",       help="ECP5 device (45F or 85F).")
+    parser.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
+    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
-    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
 
     builder_args(parser)
     soc_core_args(parser)

@@ -66,10 +66,10 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Trenz TE0725")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",           action="store_true", help="Flash bitstream")
-    parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency (default: 100MHz)")
+    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
+    parser.add_argument("--flash",           action="store_true", help="Flash bitstream.")
+    parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
 
     builder_args(parser)
     soc_core_args(parser)

@@ -76,7 +76,7 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Quicklogic QuickFeather")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
+    parser.add_argument("--build", action="store_true", help="Build bitstream.")
     soc_core_args(parser)
     args = parser.parse_args()
 

@@ -211,10 +211,10 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Atlys")
-    parser.add_argument("--build", action="store_true", help="Build bitstream")
-    parser.add_argument("--load",  action="store_true", help="Load bitstream")
-    parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
-    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
+    parser.add_argument("--build",          action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",           action="store_true", help="Load bitstream.")
+    parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
 
     builder_args(parser)
     soc_core_args(parser)

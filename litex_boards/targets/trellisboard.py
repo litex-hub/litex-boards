@@ -161,15 +161,15 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Trellis Board")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream")
-    parser.add_argument("--toolchain",       default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
-    parser.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency (default: 75MHz)")
-    parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support")
+    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
+    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
+    parser.add_argument("--toolchain",       default="trellis",   help="FPGA toolchain (trellis or diamond).")
+    parser.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
+    parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support.")
     sdopts = parser.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support")
-    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support")
-    parser.add_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD") # FIXME: Temporary test.
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
