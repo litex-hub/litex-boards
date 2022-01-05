@@ -174,7 +174,6 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_video_colorbars   = args.with_video_colorbars,
-        uart_baudrate          = 500000,
         **soc_core_argdict(args)
     )
 
