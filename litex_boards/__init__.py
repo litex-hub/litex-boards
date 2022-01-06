@@ -34,6 +34,7 @@ vendors = [
     "scarabhardware",
     "siglent",
     "sipeed",
+    "seeedstudio",
     "sqrl",
     "terasic",
     "trenz",
