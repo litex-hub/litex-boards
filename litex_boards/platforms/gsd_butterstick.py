@@ -175,6 +175,11 @@ _connectors_r1_0 = [
     ),
 ]
 
+# SYZYGY -------------------------------------------------------------------------------------------
+
+def raw_syzygy_io(syzygy, iostandard="LVCMOS33"):
+    return [(syzygy, 0, Pins(" ".join([f"{syzygy}:S{i:d}" for i in range(32)])), IOStandard(iostandard))]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
