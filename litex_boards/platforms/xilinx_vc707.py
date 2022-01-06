@@ -87,7 +87,7 @@ _io = [
         Subsignal("cmd", Pins("AP30")),
         Subsignal("det", Pins("AP32")),
         Subsignal("wp",  Pins("AR32")),
-        Subsignal("dat", Pins("AR30 AU31 AV31 AT30")),
+        Subsignal("data", Pins("AR30 AU31 AV31 AT30")),
         IOStandard("LVCMOS18"),
     ),
 
