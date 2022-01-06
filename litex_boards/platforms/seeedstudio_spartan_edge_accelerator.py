@@ -12,16 +12,22 @@ from litex.build.openocd import OpenOCD
 
 _io = [
     # Clk / Rst
-    ("clk100",    0, Pins("H4"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("D14"), IOStandard("LVCMOS33")), #Reset is active low
+    ("clk100", 0, Pins("H4"),  IOStandard("LVCMOS33")),
+    ("rst_n",  0, Pins("D14"), IOStandard("LVCMOS33")),
 
 
-    # Leds - Board has 2
-    ("user_led", 0, Pins("J1"),  IOStandard("LVCMOS33")),  #green
-    ("user_led", 1, Pins("A13"),  IOStandard("LVCMOS33")), #red
+    # Leds
+    ("user_led", 0, Pins("J1"),  IOStandard("LVCMOS33")), # Green.
+    ("user_led", 1, Pins("A13"), IOStandard("LVCMOS33")), # Red.
 
+    # RGB Leds (2 X SK6805 Leds)
+    ("rgb", 0, Pins("N11"),IOStandard("LVCMOS33")),
 
-    # Mini HDMI Interface
+    # Buttons
+    ("user_btn", 0, Pins("C3"), IOStandard("LVCMOS33")),
+    ("user_btn", 1, Pins("M4"), IOStandard("LVCMOS33")),
+
+    # Mini HDMI
     ("hdmi", 0,
         Subsignal("clk_p",   Pins("G4"),IOStandard("LVCMOS33")),
         Subsignal("clk_n",   Pins("F4"),IOStandard("LVCMOS33")),
@@ -33,28 +39,17 @@ _io = [
         Subsignal("data2_n", Pins("C1"),IOStandard("LVCMOS33")),
         Subsignal("scl",     Pins("F3"),IOStandard("LVCMOS33")),   
         Subsignal("sda",     Pins("F2"),IOStandard("LVCMOS33")),  
-        Subsignal("hpd",  Pins("D4"),IOStandard("LVCMOS33")), 
+        Subsignal("hpd",     Pins("D4"),IOStandard("LVCMOS33")),
         Subsignal("cec",     Pins("E4"),IOStandard("LVCMOS33"))  
     ),
 
-
-    #Interface to 2 RGB SK6805 LEDs
-    ("rgb", 0, Pins("N11"),IOStandard("LVCMOS33")),
-
-
-    # Buttons
-    ("user_btn", 0, Pins("C3"), IOStandard("LVCMOS33")),
-    ("user_btn", 1, Pins("M4"), IOStandard("LVCMOS33")),
-
-
-    # MIPI pins not tested
-    ("camera", 0,
-        Subsignal("clkp", Pins("G11"), IOStandard("MIPI_DPHY")),
-        Subsignal("clkn", Pins("F11"), IOStandard("LVCMOS12H")),
-        Subsignal("dp", Pins("J11 P10"), IOStandard("MIPI_DPHY")),
-        Subsignal("dn", Pins("J12 P11"), IOStandard("LVCMOS12H")),
+    # MIPI (Untested)
+    ("mipi", 0,
+        Subsignal("clkp", Pins("G11"),     IOStandard("MIPI_DPHY")),
+        Subsignal("clkn", Pins("F11"),     IOStandard("LVCMOS12H")),
+        Subsignal("dp",   Pins("J11 P10"), IOStandard("MIPI_DPHY")),
+        Subsignal("dn",   Pins("J12 P11"), IOStandard("LVCMOS12H")),
     ),
-
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -70,17 +65,16 @@ _connectors = [
         "j10_6"   : "B14",
         "j10_7"   : "D3",
         "j10_8"   : "P5",
-        "j10_9"   : "E11"
+        "j10_9"   : "E11",
         }
     ),
     
     ("digital_d2",{
         "d2_0"    : "A10",
-        "d2_1"    : "B6"
+        "d2_1"    : "B6",
     }),
 
-    ("i2c", "P12 P13"), #SCL, SDA  
-
+    ("i2c", "P12 P13"), # SCL, SDA
 
     ("ar_io", {
         # Outer Digital Header
@@ -107,24 +101,18 @@ _connectors = [
         "a3" : "E7",
         "a4" : "D7",
         "a5" : "D5",
-
         } )
-    
 ]
-
 
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
+    default_clk_name   = "clk100"
+    default_clk_period = 1e9/100e6
 
-    def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7s15-ftgb196", _io, _connectors, toolchain=toolchain)
+    def __init__(self):
+        XilinxPlatform.__init__(self, "xc7s15-ftgb196", _io, _connectors, toolchain="vivado")
 
-       
-    #Image needs to manually copy to SD card in the Spartan Edge Accelerator
     def do_finalize(self, fragment):
-        default_clk_period = 1e9/100e6
-        default_clk_name   = "clk100"
         XilinxPlatform.do_finalize(self, fragment)
-        from litex.build.xilinx import symbiflow
-        self.add_period_constraint(self.lookup_request(default_clk_name, loose=True), default_clk_period )
+        self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
