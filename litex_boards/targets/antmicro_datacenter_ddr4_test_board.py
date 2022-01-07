@@ -7,6 +7,7 @@
 
 import os
 import argparse
+import math
 
 from migen import *
 
@@ -51,7 +52,7 @@ class BaseSoC(SoCCore):
     def __init__(self, *, sys_clk_freq=int(100e6), iodelay_clk_freq=200e6,
             with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
             with_hyperram=False, with_sdcard=False, with_jtagbone=True, with_uartbone=False,
-            with_led_chaser=True, ident_version=True, **kwargs):
+            with_led_chaser=True, ident_version=True, eth_reset_time, **kwargs):
         platform = datacenter_ddr4_test_board.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -97,6 +98,7 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 rx_delay   = 0.8e-9,
+                hw_reset_cycles = math.ceil(float(eth_reset_time) * self.sys_clk_freq)
             )
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
@@ -128,6 +130,7 @@ def main():
     ethopts.add_argument("--with-etherbone",  action="store_true",    help="Add EtherBone.")
     target.add_argument("--eth-ip",           default="192.168.1.50", help="Ethernet/Etherbone IP address.")
     target.add_argument("--eth-dynamic-ip",   action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    target.add_argument("--eth-reset-time",   default="10e-3",        help="Duration of Ethernet PHY reset")
     target.add_argument("--with-hyperram",    action="store_true",    help="Add HyperRAM.")
     target.add_argument("--with-sdcard",      action="store_true",    help="Add SDCard.")
     target.add_argument("--with-jtagbone",    action="store_true",    help="Add JTAGBone.")
@@ -147,6 +150,7 @@ def main():
         with_etherbone    = args.with_etherbone,
         eth_ip            = args.eth_ip,
         eth_dynamic_ip    = args.eth_dynamic_ip,
+        eth_reset_time    = args.eth_reset_time,
         with_hyperram     = args.with_hyperram,
         with_sdcard       = args.with_sdcard,
         with_jtagbone     = args.with_jtagbone,

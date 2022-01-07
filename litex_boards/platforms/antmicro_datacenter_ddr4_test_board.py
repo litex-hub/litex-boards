@@ -11,8 +11,7 @@ from litex.build.openocd import OpenOCD
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # TODO: change clock when assigned to schematic
-    ("clk100", 0, Pins("AC23"), IOStandard("LVCMOS33")),
+    ("clk100", 0, Pins("C12"), IOStandard("LVCMOS33")),
 
     ("user_led", 0, Pins("D21"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("B20"), IOStandard("LVCMOS33")),
