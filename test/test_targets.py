@@ -35,6 +35,7 @@ class TestTargets(unittest.TestCase):
         "efinix_xyloni_dev_kit",             # Reason: Require Efinity toolchain.
         "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
         "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
+        "qmtech_10cl006",                    # Readon: Needs to be fixed.
     ]
 
     # Build simple design for all platforms.

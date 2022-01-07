@@ -57,7 +57,6 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, bios_flash_offset, sys_clk_freq=int(24e6), with_led_chaser=True,
                  with_video_terminal=False, **kwargs):
         platform = muselab_icesugar.Platform()
@@ -66,9 +65,9 @@ class BaseSoC(SoCCore):
         kwargs["integrated_sram_size"] = 0
         kwargs["integrated_rom_size"]  = 0
 
-        # Set CPU variant / reset address
-        kwargs["cpu_variant"]  = "lite"
-        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
+        # Set CPU variant
+        if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
+            kwargs["cpu_variant"] = "lite"
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -90,10 +89,13 @@ class BaseSoC(SoCCore):
 
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
-            origin = self.mem_map["spiflash"] + bios_flash_offset,
+            origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
             size   = 32*kB,
             linker = True)
         )
+        # Set CPU reset address to ROM.
+        if hasattr(self.cpu, "set_reset_address"):
+            self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
