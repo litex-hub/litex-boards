@@ -90,7 +90,7 @@ class BaseSoC(SoCCore):
             self.icap.add_reload()
             self.icap.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
-            # Flash (For SPIFlash update over PCIe). FIXME: Should probably be updated to use SpiFlashSingle/SpiFlashDualQuad (so MMAPed and do the update with bit-banging)
+            # Flash (For SPIFlash update over PCIe).
             from litex.soc.cores.gpio import GPIOOut
             from litex.soc.cores.spi_flash import S7SPIFlash
             self.submodules.flash_cs_n = GPIOOut(platform.request("flash_cs_n"))
