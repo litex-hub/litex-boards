@@ -125,9 +125,7 @@ class BaseSoC(SoCCore):
             size   = 32*kB,
             linker = True)
         )
-        # Set CPU reset address to ROM.
-        if hasattr(self.cpu, "set_reset_address"):
-            self.cpu.set_reset_address(self.bus.regions["rom"].origin)
+        self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
