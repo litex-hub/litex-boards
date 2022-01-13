@@ -1,7 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2022 Rakesh Peter <rakesh@stanproc.in>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -10,7 +10,7 @@ from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk / Rst
+    # Clk
     ("sysclk", 0, Pins("H16"), IOStandard("LVCMOS33")),
 
     # Leds
@@ -37,8 +37,8 @@ _io = [
 
     #Serial
     ("serial", 0,
-        Subsignal("tx", Pins("pmoda:1")),
-        Subsignal("rx", Pins("pmoda:2")),
+        Subsignal("tx", Pins("pmoda:0")),
+        Subsignal("rx", Pins("pmoda:1")),
         IOStandard("LVCMOS33")
     ),
 
@@ -118,16 +118,6 @@ _ps7_io = [
     ),
 ]
 
-_usb_uart_pmod_io = [
-    # USB-UART PMOD on JB:
-    # - https://store.digilentinc.com/pmod-usbuart-usb-to-uart-interface/
-    ("usb_uart", 0,
-        Subsignal("tx", Pins("pmodb:1")),
-        Subsignal("rx", Pins("pmodb:2")),
-        IOStandard("LVCMOS33")
-    ),
-]
-
 _hdmi_rx_io = [
     # HDMI Rx
      ("hdmi_rx", 0,
@@ -180,7 +170,6 @@ class Platform(XilinxPlatform):
     def __init__(self):
         XilinxPlatform.__init__(self, "xc7z020-clg400-1", _io,  _connectors, toolchain="vivado")
         self.add_extension(_ps7_io)
-        self.add_extension(_usb_uart_pmod_io)
         self.add_extension(_hdmi_rx_io)
         self.add_extension(_hdmi_tx_io)
 
