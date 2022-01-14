@@ -130,8 +130,11 @@ class Platform(AlteraPlatform):
         ),
     ]
 
-    def __init__(self, with_daughterboard=False):
-        device = "EP4CE55F23C8"
+    def __init__(self, variant="ep4ce15", with_daughterboard=False):
+        device = {
+            "ep4ce15": "EP4CE15F23C8",
+            "ep4ce55": "EP4CE55F23C8"
+        }[variant]
         io = _io
         connectors = _connectors
 

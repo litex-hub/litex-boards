@@ -14,7 +14,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import qmtech_ep4ce55
+from litex_boards.platforms import qmtech_ep4cex5
 
 from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.integration.soc_core import *
@@ -73,15 +73,15 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_daughterboard=False,
+    def __init__(self, variant="ep4ce15", sys_clk_freq=int(50e6), with_daughterboard=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
                  ident_version=True, sdram_rate="1:1", **kwargs):
-        platform = qmtech_ep4ce55.Platform(with_daughterboard=with_daughterboard)
+        platform = qmtech_ep4cex5.Platform(variant=variant, with_daughterboard=with_daughterboard)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on QMTECH EP4CE55" + (" + Daughterboard" if with_daughterboard else ""),
+            ident          = "LiteX SoC on QMTECH EP4CE15" + (" + Daughterboard" if with_daughterboard else ""),
             ident_version  = ident_version,
             **kwargs)
 
@@ -128,9 +128,10 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTECH EP4CE55")
+    parser = argparse.ArgumentParser(description="LiteX SoC on QMTECH EP4CE15")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
+    parser.add_argument("--variant",      default="ep4ce15",   help="Board variant (ep4ce15 or ep4ce55).")
     parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency.")
     parser.add_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     parser.add_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")
@@ -152,7 +153,8 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        variant                = args.variant,
+        sys_clk_freq           = int(float(args.sys_clk_freq)),
         with_daughterboard     = args.with_daughterboard,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
