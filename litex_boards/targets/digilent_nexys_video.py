@@ -72,7 +72,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False,
-                 with_led_chaser=True, with_sata=False, sata_gen = "gen2", vadj="1.2V", with_video_terminal=False,
+                 with_led_chaser=True, with_sata=False, sata_gen="gen2", vadj="1.2V", with_video_terminal=False,
                  with_video_framebuffer=False, **kwargs):
         platform = nexys_video.Platform(toolchain=toolchain)
 
@@ -165,7 +165,7 @@ def main():
     sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support.")
     parser.add_argument("--with-sata",              action="store_true", help="Enable SATA support (over FMCRAID).")
-    parser.add_argument("--sata-gen",               default="2",         help="SATA Gen.", choices=["1", "2", "3"])
+    parser.add_argument("--sata-gen",               default="2",         help="SATA Gen.", choices=["1", "2"])
     parser.add_argument("--vadj",                   default="1.2V",      help="FMC VADJ value.", choices=["1.2V", "1.8V", "2.5V", "3.3V"])
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
