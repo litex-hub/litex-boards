@@ -357,5 +357,4 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        from litex.build.xilinx import symbiflow
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
