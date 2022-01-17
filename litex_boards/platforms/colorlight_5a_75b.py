@@ -241,7 +241,7 @@ _io_v8_0 = [
         IOStandard("LVCMOS33")
     ),
     ("eth", 0,
-        Subsignal("rst_n",   Pins("R6")),
+        #Subsignal("rst_n",   Pins("R6")),
         Subsignal("mdio",    Pins("T4")),
         Subsignal("mdc",     Pins("R5")),
         Subsignal("rx_ctl",  Pins("J2")),
@@ -256,7 +256,7 @@ _io_v8_0 = [
         IOStandard("LVCMOS33")
     ),
     ("eth", 1,
-        Subsignal("rst_n",   Pins("R6")),
+        #Subsignal("rst_n",   Pins("R6")),
         Subsignal("mdio",    Pins("T4")),
         Subsignal("mdc",     Pins("R5")),
         Subsignal("rx_ctl",  Pins("P16")),
