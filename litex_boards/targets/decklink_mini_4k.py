@@ -39,9 +39,15 @@ class _CRG(Module):
 
         # # #
 
+        # Clk.
+        clk100 = platform.request("clk100")
+        platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk100_IBUF]")
+        platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets main_s7pll0_clkin]")
+
+        # Main PLL.
         self.submodules.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(self.rst)
-        pll.register_clkin(platform.request("clk100"), 100e6)
+        pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
@@ -49,9 +55,15 @@ class _CRG(Module):
         pll.create_clkout(self.cd_hdmi,      148.5e6, margin=2e-2) # FIXME: Use a second PLL or move to clkout0 that has fractional support.
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
+        # IDELAY Ctrl.
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
-        platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk100_IBUF]")
+        # SATA PLL.
+        self.clock_domains.cd_sata_refclk = ClockDomain()
+        self.submodules.sata_pll = sata_pll = S7PLL(speedgrade=-1)
+        self.comb += sata_pll.reset.eq(self.rst)
+        sata_pll.register_clkin(clk100, 100e6)
+        sata_pll.create_clkout(self.cd_sata_refclk, 150e6)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -108,14 +120,11 @@ class BaseSoC(SoCMini):
             platform.add_extension(_sata_io)
 
             # RefClk, Generate 150MHz from PLL.
-            self.clock_domains.cd_sata_refclk = ClockDomain()
-            self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
-            sata_refclk = ClockSignal("sata_refclk")
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
 
             # PHY
             self.submodules.sata_phy = LiteSATAPHY(platform.device,
-                refclk     = sata_refclk,
+                refclk     = ClockSignal("sata_refclk"),
                 pads       = platform.request("pcie2sata"),
                 gen        = "gen2",
                 clk_freq   = sys_clk_freq,
