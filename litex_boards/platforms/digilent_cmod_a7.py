@@ -63,9 +63,13 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a35t-cpg236-1", _io, _connectors, toolchain="vivado")
+    def __init__(self, variant="a7-35", toolchain="vivado"):
+        device = {
+                "a7-35": "xc7a35tcpg236-1"
+                }[variant]
+        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
 
     def do_finalize(self,fragment):
         XilinxPlatform.do_finalize(self, fragment)
+        from litex.build.xilinx import symbiflow
         self.add_period_constraint(self.lookup_request("clk12", loose=True), self.default_clk_period)

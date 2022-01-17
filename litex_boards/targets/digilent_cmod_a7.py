@@ -121,7 +121,7 @@ class BaseSoC(SoCCore):
                  with_mapped_flash=False, 
                  **kwargs):
 
-        platform = digilent_cmod_a7.Platform()
+        platform = digilent_cmod_a7.Platform(variant=variant, toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -144,7 +144,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Arty A7")
+    parser = argparse.ArgumentParser(description="LiteX SoC on CMOD A7")
     parser.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado or symbiflow).")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
@@ -167,6 +167,7 @@ def main():
 
     builder = Builder(soc, **builder_argd)
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
+
     builder.build(**builder_kwargs, run=args.build)
 
 if __name__ == "__main__":
