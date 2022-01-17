@@ -61,7 +61,7 @@ _io = [
                 "AF17 AE17 AF20 AD19 AE15 AE16 AF19 AD18",
                 "Y18  Y17  W14  V14  AA20 AA15 V18  W16",
                 "AA18 AB19 V16  W15  AB17 AA17 V19  V17"),
-            IOStandard("SSTL12")),
+            IOStandard("SSTL12_T_DCI")),
         Subsignal("dqs_p",   Pins(
                 "W10 W6  AB1 AA5 AD20 AE18 W18 Y15 AF5",
                 "B17 D19 L19 J15 T24  P19  R16 M25 AC8"),
@@ -134,6 +134,7 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.6 [get_iobanks 32]")
         self.add_platform_command("set_property INTERNAL_VREF 0.6 [get_iobanks 33]")
         self.add_platform_command("set_property INTERNAL_VREF 0.6 [get_iobanks 34]")
+        self.add_platform_command("set_property DCI_CASCADE {{32 34}} [get_iobanks 33]")
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft4232.cfg", "bscan_spi_xc7k100t.bit")
