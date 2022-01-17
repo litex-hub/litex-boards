@@ -130,7 +130,7 @@ class Platform(AlteraPlatform):
         AlteraPlatform.__init__(self, "10CL055YU484A7G", _io)
 
     def create_programmer(self):
-        return USBBlaster()
+        return USBBlaster(cable_name="Arrow-USB-Blaster")
 
     def do_finalize(self, fragment):
         AlteraPlatform.do_finalize(self, fragment)
