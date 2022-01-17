@@ -7,13 +7,15 @@
 # Copyright (c) 2021 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+import os
 import argparse
-import os.path
+
+from migen import *
 
 from litex_boards.platforms import quicklogic_quickfeather
 
-from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
+from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import *
