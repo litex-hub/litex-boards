@@ -56,7 +56,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCMini):
-    def __init__(self, sys_clk_freq=int(100e6), with_pcie=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_pcie=False, with_sata=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         if with_video_terminal or with_video_framebuffer:
             sys_clk_freq = int(148.5e6) # FIXME: For now requires sys_clk >= video_clk.
         platform = mini_4k.Platform()
@@ -90,6 +90,39 @@ class BaseSoC(SoCMini):
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
+        # SATA -------------------------------------------------------------------------------------
+        if with_sata:
+            from litex.build.generic_platform import Subsignal, Pins
+            from litesata.phy import LiteSATAPHY
+
+            # IOs
+            _sata_io = [
+                 # PCIe 2 SATA Custom Adapter (With PCIe Riser / SATA cable mod).
+                ("pcie2sata", 0,
+                    Subsignal("tx_p",  Pins("B7")),
+                    Subsignal("tx_n",  Pins("A7")),
+                    Subsignal("rx_p",  Pins("B11")),
+                    Subsignal("rx_n",  Pins("A11")),
+                ),
+            ]
+            platform.add_extension(_sata_io)
+
+            # RefClk, Generate 150MHz from PLL.
+            self.clock_domains.cd_sata_refclk = ClockDomain()
+            self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
+            sata_refclk = ClockSignal("sata_refclk")
+            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
+
+            # PHY
+            self.submodules.sata_phy = LiteSATAPHY(platform.device,
+                refclk     = sata_refclk,
+                pads       = platform.request("pcie2sata"),
+                gen        = "gen2",
+                clk_freq   = sys_clk_freq,
+                data_width = 16)
+
+            # Core
+            self.add_sata(phy=self.sata_phy, mode="read+write")
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
             self.submodules.videophy = VideoS7GTPHDMIPHY(platform.request("hdmi_out"),
@@ -109,11 +142,13 @@ def main():
     parser.add_argument("--build",                  action="store_true", help="Build bitstream.")
     parser.add_argument("--load",                   action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",           default=148.5e6,     help="System clock frequency.")
-    parser.add_argument("--with-pcie",              action="store_true", help="Enable PCIe support.")
+    pcieopts = parser.add_mutually_exclusive_group()
+    pcieopts.add_argument("--with-pcie",            action="store_true", help="Enable PCIe support.")
     parser.add_argument("--driver",                 action="store_true", help="Generate PCIe driver.")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    pcieopts.add_argument("--with-sata",            action="store_true", help="Enable SATA support (over PCIe2SATA).")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -122,6 +157,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq           = int(float(args.sys_clk_freq)),
         with_pcie              = args.with_pcie,
+        with_sata              = args.with_sata,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
