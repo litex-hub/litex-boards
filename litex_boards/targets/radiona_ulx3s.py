@@ -112,11 +112,10 @@ class BaseSoC(SoCCore):
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
-                phy              = self.sdrphy,
-                module           = getattr(litedram_modules, sdram_module_cls)(sys_clk_freq, sdram_rate),
-                size             = 0x40000000,
-                l2_cache_size    = kwargs.get("l2_size", 8192),
-                l2_cache_reverse = False
+                phy           = self.sdrphy,
+                module        = getattr(litedram_modules, sdram_module_cls)(sys_clk_freq, sdram_rate),
+                size          = 0x40000000,
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # Video ------------------------------------------------------------------------------------
