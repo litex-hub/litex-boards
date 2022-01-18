@@ -54,14 +54,12 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, with_video_terminal=False,
-                 **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, with_video_terminal=False, **kwargs):
         platform = mist.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on MIST",
-            ident_version  = True,
+            ident = "LiteX SoC on MIST",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

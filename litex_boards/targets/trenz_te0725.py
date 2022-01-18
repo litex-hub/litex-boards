@@ -42,8 +42,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Trenz TE0725 Board",
-            ident_version  = True,
+            ident = "LiteX SoC on Trenz TE0725 Board",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

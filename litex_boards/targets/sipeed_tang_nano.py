@@ -70,8 +70,7 @@ class BaseSoC(SoCMini):
 
         # SoCMini ----------------------------------------------------------------------------------
         SoCMini.__init__(self, platform, sys_clk_freq,
-            ident         = "LiteX SoC on Tang Nano",
-            ident_version = True)
+            ident = "LiteX SoC on Tang Nano")
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

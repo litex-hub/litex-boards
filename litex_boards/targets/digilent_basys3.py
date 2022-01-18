@@ -45,8 +45,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------_-----------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Basys3",
-            ident_version  = True,
+            ident = "LiteX SoC on Basys3",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

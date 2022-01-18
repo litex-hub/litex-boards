@@ -94,8 +94,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, int(sys_clk_freq),
-            ident          = "LiteX SoC on Muselab iCESugar Pro",
-            ident_version  = True,
+            ident = "LiteX SoC on Muselab iCESugar Pro",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

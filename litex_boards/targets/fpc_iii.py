@@ -91,8 +91,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on FPC-III",
-            ident_version  = True,
+            ident = "LiteX SoC on FPC-III",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

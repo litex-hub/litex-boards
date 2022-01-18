@@ -109,21 +109,17 @@ def addAsyncSram(soc, platform, name, origin, size):
 
 class BaseSoC(SoCCore):
     def __init__(self, 
-                 variant="a7-35", 
-                 toolchain="vivado", 
-                 sys_clk_freq=int(100e6),
-                 with_led_chaser=True,
-                 ident_version=True, 
-                 with_jtagbone=True, 
-                 with_mapped_flash=False, 
-                 **kwargs):
+        variant         = "a7-35",
+        toolchain       = "vivado",
+        sys_clk_freq    = int(100e6),
+        with_led_chaser = True,
+        **kwargs):
 
         platform = micronova_mercury2.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on MicroNova Mercury2",
-            ident_version  = True,
+            ident = "LiteX SoC on MicroNova Mercury2",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

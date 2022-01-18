@@ -92,11 +92,11 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, revision="rev0", device="45F", sdram_device="MT41K512M16",
-                 sys_clk_freq    = int(75e6),
-                 with_ethernet   = False,
-                 with_led_chaser = True,
-                 toolchain       = "trellis",
-                 **kwargs):
+        sys_clk_freq    = int(75e6),
+        with_ethernet   = False,
+        with_led_chaser = True,
+        toolchain       = "trellis",
+        **kwargs):
         platform = logicbone.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # Serial -----------------------------------------------------------------------------------
@@ -107,8 +107,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Logicbone",
-            ident_version  = True,
+            ident = "LiteX SoC on Logicbone",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

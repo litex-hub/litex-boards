@@ -80,7 +80,7 @@ class BaseSoC(SoCCore):
             kwargs["uart_name"] = "gpio_serial"
 
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on QMTech XC7A35T" + (" + Daughterboard" if with_daughterboard else ""),
+            ident = "LiteX SoC on QMTech XC7A35T" + (" + Daughterboard" if with_daughterboard else ""),
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

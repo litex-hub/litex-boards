@@ -76,8 +76,7 @@ class BaseSoC(SoCMini):
         # SoCCore ----------------------------------------------------------------------------------
         kwargs["uart_name"] = "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Blackmagic Decklink Mini 4K",
-            ident_version  = True,
+            ident = "LiteX SoC on Blackmagic Decklink Mini 4K",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

@@ -98,8 +98,7 @@ class BaseSoC(SoCCore):
         if kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on ButterStick",
-            ident_version  = True,
+            ident = "LiteX SoC on ButterStick",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

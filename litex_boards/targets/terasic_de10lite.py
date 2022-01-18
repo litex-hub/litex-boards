@@ -60,8 +60,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on DE10-Lite",
-            ident_version  = True,
+            ident = "LiteX SoC on DE10-Lite",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

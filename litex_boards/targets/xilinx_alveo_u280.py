@@ -201,8 +201,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Alveo U280 (ES1)",
-            ident_version  = True,
+            ident = "LiteX SoC on Alveo U280 (ES1)",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

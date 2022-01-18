@@ -50,8 +50,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "EBAZ4205 'Development' Board",
-            ident_version  = True,
+            ident = "EBAZ4205 'Development' Board",
             **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------

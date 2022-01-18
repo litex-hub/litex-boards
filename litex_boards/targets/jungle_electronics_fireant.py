@@ -72,8 +72,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident         = "LiteX SoC on Jungle Electronics FireAnt",
-            ident_version = True,
+            ident = "LiteX SoC on Jungle Electronics FireAnt",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

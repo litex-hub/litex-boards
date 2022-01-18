@@ -74,8 +74,7 @@ class BaseSoC(SoCCore):
         if kwargs.get("uart_name", "serial") == "serial":
             kwargs["uart_name"] = "crossover" # Defaults to Crossover UART.
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Siglent SDS1104X-E",
-            ident_version  = True,
+            ident = "LiteX SoC on Siglent SDS1104X-E",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

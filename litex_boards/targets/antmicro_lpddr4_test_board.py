@@ -56,7 +56,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident         = "LiteX SoC on LPDDR4 Test Board",
+            ident = "LiteX SoC on LPDDR4 Test Board",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

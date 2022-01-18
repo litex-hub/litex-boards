@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Seeedstudio Spartan Edge Accelerator",
+            ident = "LiteX SoC on Seeedstudio Spartan Edge Accelerator",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------

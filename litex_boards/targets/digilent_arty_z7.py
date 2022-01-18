@@ -62,8 +62,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Arty Z7",
-            ident_version  = True,
+            ident = "LiteX SoC on Arty Z7",
             **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------

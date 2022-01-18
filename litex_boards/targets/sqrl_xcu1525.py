@@ -63,8 +63,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on XCU1525",
-            ident_version  = True,
+            ident = "LiteX SoC on XCU1525",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
