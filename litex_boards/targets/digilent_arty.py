@@ -62,14 +62,13 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6),
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
-                 eth_dynamic_ip=False, ident_version=True, with_led_chaser=True, with_jtagbone=True,
+                 eth_dynamic_ip=False, with_led_chaser=True, with_jtagbone=True,
                  with_spi_flash=False, with_pmod_gpio=False, **kwargs):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Arty A7",
-            ident_version  = ident_version,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -136,7 +135,6 @@ def main():
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support.")
     parser.add_argument("--sdcard-adapter",      type=str,                         help="SDCard PMOD adapter (digilent or numato).")
-    parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output.")
     parser.add_argument("--with-jtagbone",       action="store_true",              help="Enable JTAGbone support.")
     parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
     parser.add_argument("--with-pmod-gpio",      action="store_true",              help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
@@ -155,7 +153,6 @@ def main():
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
-        ident_version  = args.no_ident_version,
         with_jtagbone  = args.with_jtagbone,
         with_spi_flash = args.with_spi_flash,
         with_pmod_gpio = args.with_pmod_gpio,

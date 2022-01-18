@@ -80,13 +80,12 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(105e6), with_daughterboard=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
-                 ident_version=True, sdram_rate="1:1", **kwargs):
+                 sdram_rate="1:1", **kwargs):
         platform = qmtech_5cefa2.Platform(with_daughterboard=with_daughterboard)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on QMTECH 5CEFA2" + (" + Daughterboard" if with_daughterboard else ""),
-            ident_version  = ident_version,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -147,11 +146,9 @@ def main():
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support.")
     parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
-    parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output.")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
-
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -163,7 +160,6 @@ def main():
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
-        ident_version          = args.no_ident_version,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_spi_flash         = args.with_spi_flash,

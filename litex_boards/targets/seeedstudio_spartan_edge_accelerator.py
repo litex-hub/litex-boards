@@ -61,7 +61,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     
-    def __init__(self, sys_clk_freq=int(100e6), ident_version=True,
+    def __init__(self, sys_clk_freq=int(100e6),
         with_led_chaser     = True,
         with_jtagbone       = False,
         with_video_terminal = True,
@@ -73,7 +73,6 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on Seeedstudio Spartan Edge Accelerator",
-            ident_version  = ident_version,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -110,7 +109,6 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Spartan Edge Accelerator")
     parser.add_argument("--build",               action="store_true",  help="Build bitstream.")
     parser.add_argument("--sys-clk-freq",        default=100e6,        help="System clock frequency.")
-    parser.add_argument("--no-ident-version",    action="store_false", help="Disable build time output")
     parser.add_argument("--with-jtagbone",       action="store_true",  help="Enable Jtagbone support.")
     parser.add_argument("--with-video-terminal", action="store_true",  help="Enable Video Colorbars (HDMI).")
     parser.add_argument("--with-neopixel",       action="store_true",  help="Enable onboard 2 Neopixels Leds.")
@@ -121,7 +119,6 @@ def main():
     args = parser.parse_args()
     soc = BaseSoC(
         sys_clk_freq        = int(float(args.sys_clk_freq)),
-        ident_version       = args.no_ident_version,
         with_jtagbone       = args.with_jtagbone,
         with_video_terminal = args.with_video_terminal,
         with_neopixel       = args.with_neopixel,

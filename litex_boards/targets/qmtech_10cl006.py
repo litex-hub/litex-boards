@@ -67,7 +67,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_daughterboard=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
-                 ident_version=True, sdram_rate="1:1", **kwargs):
+                 sdram_rate="1:1", **kwargs):
         platform = qmtech_10cl006.Platform(with_daughterboard=with_daughterboard)
 
         # unfornunately not even SERV would fit the devices
@@ -80,7 +80,6 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on QMTECH 10CL006" + (" + Daughterboard" if with_daughterboard else ""),
-            ident_version  = ident_version,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -117,8 +116,6 @@ def main():
     sdopts.add_argument("--with-spi-sdcard",     action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true", help="Enable SDCard support.")
     parser.add_argument("--with-spi-flash",      action="store_true", help="Enable SPI Flash (MMAPed).")
-    parser.add_argument("--no-ident-version",    action="store_false",help="Disable build time output.")
-
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -126,7 +123,6 @@ def main():
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         with_daughterboard     = args.with_daughterboard,
-        ident_version          = args.no_ident_version,
         with_spi_flash         = args.with_spi_flash,
         sdram_rate             = args.sdram_rate,
         **soc_core_argdict(args)
