@@ -10,7 +10,7 @@
 # Build/Use:
 # ./gsd_butterstick.py --uart-name=crossover --with-etherbone --csr-csv=csr.csv --build --load
 # litex_server --udp
-# litex_term bridge
+# litex_term crossover
 
 import os
 import sys

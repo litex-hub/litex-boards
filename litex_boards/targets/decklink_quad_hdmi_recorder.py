@@ -11,7 +11,7 @@
 #
 # Use:
 # litex_server --jtag --jtag-config=openocd_xc7_ft232.cfg
-# litex_term bridge
+# litex_term crossover
 
 import os
 import argparse

@@ -100,16 +100,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
 
-        # Add a UART-Wishbone bridge -----------------------------------------
-        debug_uart=False
+        # Add a UARTBone bridge --------------------------------------------------------------------
+        debug_uart = False
         if debug_uart:
-            # This will add a bridge on the second serial port defined in platform
-            from litex.soc.cores.uart import UARTWishboneBridge
-            self.submodules.uart_bridge = UARTWishboneBridge(
-                platform.request("serial"),
-                sys_clk_freq,
-                baudrate=115200)
-            self.add_wb_master(self.uart_bridge.wishbone)
+            self.add_uartbone(name="serial")
 
 # Flash --------------------------------------------------------------------------------------------
 
