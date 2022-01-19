@@ -63,12 +63,12 @@ _io = [
                 "AA18 AB19 V16  W15  AB17 AA17 V19  V17"),
             IOStandard("SSTL12_T_DCI")),
         Subsignal("dqs_p",   Pins(
-                "W10 W6  AB1 AA5 AD20 AE18 W18 Y15 AF5",
-                "B17 D19 L19 J15 T24  P19  R16 M25 AC8"),
+                "W10  B17 W6   D19 AB1 L19 AA5 J15",
+                "AD20 T24 AE18 P19 W18 R16 Y15 M25"),
             IOStandard("DIFF_HSUL_12")),
         Subsignal("dqs_n",   Pins(
-                "W9  W5  AC1 AB5 AE20 AF18 W19 Y16 AF4",
-                "A17 D20 L20 J16 T25  P20  R17 L25 AD8"),
+                "W9   A17 W5   D20 AC1 L20 AB5 J16",
+                "AE20 T25 AF18 P20 W19 R17 Y16 L25"),
             IOStandard("DIFF_HSUL_12")),
         Subsignal("clk_p",   Pins("AE12 AB12"), IOStandard("DIFF_SSTL12_DCI")),
         Subsignal("clk_n",   Pins("AF12 AC12"), IOStandard("DIFF_SSTL12_DCI")),
