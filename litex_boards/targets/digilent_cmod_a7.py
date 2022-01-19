@@ -32,26 +32,19 @@ mB = 1024*kB
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
-        self.cpu_reset = Signal()
-
-        self.clock_domains.cd_sys       = ClockDomain()
-        #self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        #self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys = ClockDomain()
 
         # # #
 
-        plls_clk12 = platform.request("clk12")
-        rst_n  = platform.request("cpu_reset")
-        self.comb += self.cpu_reset.eq(rst_n)
+        # Clk/Rst.
+        clk12 = platform.request("clk12")
+        rst   = platform.request("cpu_reset")
 
+        # PLL.
         self.submodules.pll = pll = S7MMCM(speedgrade=-1)
-        self.comb += pll.reset.eq(self.cpu_reset | self.rst)
-
-        pll.register_clkin(plls_clk12, 12e6)
-        pll.create_clkout(self.cd_sys,       sys_clk_freq)
-        #pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
-        #pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
-
+        self.comb += pll.reset.eq(rst | self.rst)
+        pll.register_clkin(clk12, 12e6)
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
 # AsyncSRAM ------------------------------------------------------------------------------------------
