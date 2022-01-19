@@ -8,6 +8,7 @@
 import os
 import argparse
 import math
+import json
 
 from migen import *
 
@@ -22,6 +23,9 @@ from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy.s7ddrphy import A7DDRPHY
+from litedram.init import get_sdram_phy_py_header
+from litedram.core.controller import ControllerSettings
+from litedram.common import PhySettings, GeomSettings, TimingSettings
 
 from liteeth.phy import LiteEthS7PHYRGMII
 from litex.soc.cores.hyperbus import HyperRAM
@@ -116,7 +120,28 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+    def generate_sdram_phy_py_header(self, output_file):
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        f = open(output_file, "w")
+        f.write(get_sdram_phy_py_header(
+            self.sdram.controller.settings.phy,
+            self.sdram.controller.settings.timing))
+        f.close()
+
+
 # Build --------------------------------------------------------------------------------------------
+
+class LiteDRAMSettingsEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, (ControllerSettings, GeomSettings, PhySettings, TimingSettings)):
+            ignored = ['self', 'refresh_cls']
+            return {k: v for k, v in vars(o).items() if k not in ignored}
+        elif isinstance(o, Signal) and isinstance(o.reset, Constant):
+            return o.reset
+        elif isinstance(o, Constant):
+            return o.value
+        print('o', end=' = '); __import__('pprint').pprint(o)
+        return super().default(o)
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on LPDDR4 Test Board")
@@ -158,6 +183,12 @@ def main():
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     vns = builder.build(**vivado_build_argdict(args), run=args.build)
+
+    builder.soc.generate_sdram_phy_py_header(os.path.join(builder.output_dir, "sdram_init.py"))
+
+    # LiteDRAM settings (controller, phy, geom, timing)
+    with open(os.path.join(builder.output_dir, 'litedram_settings.json'), 'w') as f:
+        json.dump(builder.soc.sdram.controller.settings, f, cls=LiteDRAMSettingsEncoder, indent=4)
 
     if args.load:
         prog = soc.platform.create_programmer()
