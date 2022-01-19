@@ -35,8 +35,8 @@ class _CRG(Module):
         self.cpu_reset = Signal()
 
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        #self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
+        #self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
 
         # # #
 
@@ -49,8 +49,8 @@ class _CRG(Module):
 
         pll.register_clkin(plls_clk12, 12e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
+        #pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
+        #pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
 
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
