@@ -84,7 +84,6 @@ class BaseSoC(SoCCore):
                 size=256 * 1024 * 1024 // 8,
                 linker=True)
             )
-            self.cpu.use_rom = True
             self.constants['CONFIG_CLOCK_FREQUENCY'] = 666666687
 
             use_ps7_clk = True
