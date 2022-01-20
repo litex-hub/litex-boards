@@ -99,10 +99,11 @@ def main():
     soc = BaseSoC(**soc_core_argdict(args))
     builder = Builder(soc)
     if args.cpu_type == "eos_s3":
-        if not os.path.exists("libeos"):
-            os.system("wget https://github.com/litex-hub/litex-boards/files/7880350/libeos.zip")
-            os.system("unzip libeos.zip -d libeos")
-        builder.add_software_package("libeos", src_dir="libeos")
+        libeos_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "libeos")
+        if not os.path.exists(libeos_path):
+            os.system("wget -nc https://github.com/litex-hub/litex-boards/files/7880350/libeos.zip")
+            os.system(f"unzip libeos.zip -d {libeos_path}")
+        builder.add_software_package("libeos", src_dir=libeos_path)
         builder.add_software_library("libeos")
     builder.build(run=args.build)
 
