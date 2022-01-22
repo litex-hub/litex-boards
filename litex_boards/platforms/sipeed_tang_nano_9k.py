@@ -1,13 +1,8 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2022 Icenowy Zheng <icenowy@aosc.io>
 # SPDX-License-Identifier: BSD-2-Clause
-
-# Board diagram/pinout:
-# http://www.fabienm.eu/flf/wp-content/uploads/2021/08/Tang-Nano-4K-specifications.jpg
-# http://www.fabienm.eu/flf/wp-content/uploads/2021/08/Tang-Nano-4K-GW1NSR-4C-FPGA-board-pinout-diagram.jpg
-
 
 from migen import *
 
