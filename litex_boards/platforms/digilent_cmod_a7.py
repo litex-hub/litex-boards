@@ -51,6 +51,24 @@ _io = [
         Subsignal("cen", Pins("N19"), IOStandard("LVCMOS33")),
         Misc("SLEW=FAST"),
     ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("K19")),
+        Subsignal("clk",  Pins("E19")),
+        Subsignal("mosi", Pins("D18")),
+        Subsignal("miso", Pins("D19")),
+        Subsignal("wp",   Pins("G18")),
+        Subsignal("hold", Pins("F18")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("K19")),
+        Subsignal("clk",  Pins("E19")),
+        Subsignal("dq",   Pins("D18 D19 G18 F18")),
+        IOStandard("LVCMOS33")
+    ),
+
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
