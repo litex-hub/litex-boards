@@ -93,6 +93,15 @@ class BaseSoC(SoCCore):
 
         if self.cpu_type == "gowin_emcu":
             self.cpu.connect_uart(platform.request("serial"))
+            self.bus.add_region("sram", SoCRegion(
+                origin=self.cpu.mem_map["sram"],
+                size=16 * 1024)
+            )
+            self.bus.add_region("rom", SoCRegion(
+                origin=self.cpu.mem_map["rom"],
+                size=32 * 1024,
+                linker=True)
+            )
         else:
             # Add ROM linker region --------------------------------------------------------------------
             self.bus.add_region("rom", SoCRegion(
@@ -140,11 +149,8 @@ def main():
     parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
+    parser.set_defaults(cpu_type="gowin_emcu")
     args = parser.parse_args()
-
-    if args.cpu_type == 'gowin_emcu':
-        # FIXME: ARM software not supported yet
-        args.no_compile_software = True
 
     soc = BaseSoC(
         sys_clk_freq=int(float(args.sys_clk_freq)),
@@ -162,6 +168,7 @@ def main():
         prog = soc.platform.create_programmer()
         prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
         prog.flash(0, "build/sipeed_tang_nano_4k/software/bios/bios.bin", external=True)
+
 
 if __name__ == "__main__":
     main()
