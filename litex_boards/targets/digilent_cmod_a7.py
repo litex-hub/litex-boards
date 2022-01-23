@@ -109,6 +109,7 @@ class BaseSoC(SoCCore):
         toolchain       = "vivado",
         sys_clk_freq    = int(100e6),
         with_led_chaser = True,
+        with_spi_flash  = False,
         **kwargs):
 
         platform = digilent_cmod_a7.Platform(variant=variant, toolchain=toolchain)
@@ -129,6 +130,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import MX25U3235F
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=MX25U3235F(Codes.READ_1_1_4), with_master=True)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -136,8 +143,11 @@ def main():
     parser.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado or symbiflow).")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
+    parser.add_argument("--flash",        action="store_true", help="Flash bitstream.")
     parser.add_argument("--variant",      default="a7-35",     help="Board variant (a7-35 or a7-100).")
     parser.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
+    parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+
 
     builder_args(parser)
     soc_core_args(parser)
@@ -148,6 +158,7 @@ def main():
         variant           = args.variant,
         toolchain         = args.toolchain,
         sys_clk_freq      = int(float(args.sys_clk_freq)),
+        with_spi_flash    = args.with_spi_flash,
         **soc_core_argdict(args)
     )
 
@@ -161,6 +172,10 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+
+    if args.flash:
+        prog = soc.platform.create_programmer()
+        prog.flash(0, os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
 
 if __name__ == "__main__":
     main()
