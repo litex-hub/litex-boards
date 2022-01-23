@@ -83,8 +83,8 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(GowinPlatform):
-    default_clk_name   = "clk27"
-    default_clk_period = 1e9/27e6
+    default_clk_name = "clk27"
+    default_clk_freq = 27e6
 
     def __init__(self):
         GowinPlatform.__init__(self, "GW1NSR-LV4CQN48PC7/I6", _io, _connectors, toolchain="gowin", devicename="GW1NSR-4C")
@@ -97,4 +97,4 @@ class Platform(GowinPlatform):
 
     def do_finalize(self, fragment):
         GowinPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk27", loose=True), 1e9/27e6)
+        self.add_period_constraint(self.lookup_request("clk27", loose=True), 1e9 / self.default_clk_freq)
