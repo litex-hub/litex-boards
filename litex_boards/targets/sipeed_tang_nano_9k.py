@@ -21,6 +21,8 @@ from litex.soc.cores.video import *
 
 from litex_boards.platforms import tang_nano_9k
 
+from litehyperbus.core.hyperbus import HyperRAM
+
 kB = 1024
 mB = 1024*kB
 
@@ -74,6 +76,29 @@ class BaseSoC(SoCCore):
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
+        # HyperRam ---------------------------------------------------------------------------------
+        dq = platform.request("IO_psram_dq")
+        rwds = platform.request("IO_psram_rwds")
+        reset_n = platform.request("O_psram_reset_n")
+        cs_n = platform.request("O_psram_cs_n")
+        ck = platform.request("O_psram_ck")
+        ck_n = platform.request("O_psram_ck_n")
+        class HyperRAMPads:
+            def __init__(self, n):
+                self.clk   = Signal()
+                self.rst_n = reset_n[n]
+                self.dq    = dq[8*n:8*(n+1)]
+                self.cs_n  = cs_n[n]
+                self.rwds  = rwds[n]
+
+        hyperram_pads = HyperRAMPads(0)
+        self.comb += ck[0].eq(hyperram_pads.clk)
+        self.comb += ck_n[0].eq(~hyperram0_pads.clk)
+        self.submodules.hyperram0 = HyperRAM(hyperram_pads)
+        self.bus.add_slave("main_ram", slave=self.hyperram.bus,
+                           region=SoCRegion(origin=self.mem_map["main_ram"], size=4*mB))
+        # TODO: utilize another 32Mbit PSRAM chip
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
@@ -89,6 +114,7 @@ def main():
     parser.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
     parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
     parser.add_argument("--bios-flash-offset", default="0x0", help="BIOS offset in SPI Flash.")
+    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -98,6 +124,9 @@ def main():
         bios_flash_offset=int(args.bios_flash_offset, 0),
         **soc_core_argdict(args)
     )
+
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)

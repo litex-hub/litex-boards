@@ -51,7 +51,15 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # TODO: SPI/RGB LCD, copackaged PSRAM
+    # PSRAM
+    ("O_psram_ck",      0, Pins(2)),
+    ("O_psram_ck_n",    0, Pins(2)),
+    ("O_psram_cs_n",    0, Pins(2)),
+    ("O_psram_reset_n", 0, Pins(2)),
+    ("IO_psram_dq",     0, Pins(16)),
+    ("IO_psram_rwds",   0, Pins(2)),
+
+    # TODO: SPI/RGB LCD
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
