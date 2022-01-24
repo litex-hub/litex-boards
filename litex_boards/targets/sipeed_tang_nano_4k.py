@@ -23,11 +23,8 @@ from litex_boards.platforms import tang_nano_4k
 
 from litehyperbus.core.hyperbus import HyperRAM
 
-from litespi.modules import W25Q32
-from litespi.opcodes import SpiNorFlashOpCodes as Codes
-
 kB = 1024
-MB = 1024 * kB
+mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -39,13 +36,13 @@ class _CRG(Module):
         # # #
 
         # Clk / Rst
-        default_clk = platform.request(platform.default_clk_name)
+        clk27 = platform.request("clk27")
         rst_n = platform.request("user_btn", 0)
 
         # PLL
         self.submodules.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~rst_n)
-        pll.register_clkin(default_clk, platform.default_clk_freq)
+        pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
 
@@ -53,7 +50,7 @@ class _CRG(Module):
         if with_video_pll:
             self.submodules.video_pll = video_pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
             self.comb += video_pll.reset.eq(~rst_n)
-            video_pll.register_clkin(default_clk, platform.default_clk_freq)
+            video_pll.register_clkin(clk27, 27e6)
             self.clock_domains.cd_hdmi   = ClockDomain()
             self.clock_domains.cd_hdmi5x = ClockDomain()
             video_pll.create_clkout(self.cd_hdmi5x, 125e6)
@@ -67,7 +64,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq, with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(27e6), with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
         platform = tang_nano_4k.Platform()
 
         if "cpu_type" in kwargs and kwargs["cpu_type"] == "gowin_emcu":
@@ -102,6 +99,8 @@ class BaseSoC(SoCCore):
             )
         else:
             # SPI Flash --------------------------------------------------------------------------------
+            from litespi.modules import W25Q32
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
             # Add ROM linker region --------------------------------------------------------------------
             self.bus.add_region("rom", SoCRegion(
@@ -125,7 +124,7 @@ class BaseSoC(SoCCore):
             self.comb += platform.request("O_hpram_ck").eq(hyperram_pads.clk)
             self.comb += platform.request("O_hpram_ck_n").eq(~hyperram_pads.clk)
             self.submodules.hyperram = HyperRAM(hyperram_pads)
-            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8*1024*1024))
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8*mB))
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
@@ -149,7 +148,6 @@ def main():
     parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
-    parser.set_defaults(cpu_type="gowin_emcu")
     args = parser.parse_args()
 
     soc = BaseSoC(
