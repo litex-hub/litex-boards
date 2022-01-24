@@ -23,8 +23,11 @@ from litex_boards.platforms import tang_nano_4k
 
 from litehyperbus.core.hyperbus import HyperRAM
 
+from litespi.modules import W25Q32
+from litespi.opcodes import SpiNorFlashOpCodes as Codes
+
 kB = 1024
-mB = 1024*kB
+MB = 1024 * kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -36,13 +39,13 @@ class _CRG(Module):
         # # #
 
         # Clk / Rst
-        clk27 = platform.request("clk27")
+        default_clk = platform.request(platform.default_clk_name)
         rst_n = platform.request("user_btn", 0)
 
         # PLL
         self.submodules.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~rst_n)
-        pll.register_clkin(clk27, 27e6)
+        pll.register_clkin(default_clk, platform.default_clk_freq)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
 
@@ -50,7 +53,7 @@ class _CRG(Module):
         if with_video_pll:
             self.submodules.video_pll = video_pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
             self.comb += video_pll.reset.eq(~rst_n)
-            video_pll.register_clkin(clk27, 27e6)
+            video_pll.register_clkin(default_clk, platform.default_clk_freq)
             self.clock_domains.cd_hdmi   = ClockDomain()
             self.clock_domains.cd_hdmi5x = ClockDomain()
             video_pll.create_clkout(self.cd_hdmi5x, 125e6)
@@ -64,7 +67,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(27e6), with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
+    def __init__(self, sys_clk_freq, with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
         platform = tang_nano_4k.Platform()
 
         if "cpu_type" in kwargs and kwargs["cpu_type"] == "gowin_emcu":
@@ -86,14 +89,20 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
-        # SPI Flash --------------------------------------------------------------------------------
-        from litespi.modules import W25Q32
-        from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
-
         if self.cpu_type == "gowin_emcu":
             self.cpu.connect_uart(platform.request("serial"))
+            self.bus.add_region("sram", SoCRegion(
+                origin=self.cpu.mem_map["sram"],
+                size=16 * kB)
+            )
+            self.bus.add_region("rom", SoCRegion(
+                origin=self.cpu.mem_map["rom"],
+                size=32 * kB,
+                linker=True)
+            )
         else:
+            # SPI Flash --------------------------------------------------------------------------------
+            self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
             # Add ROM linker region --------------------------------------------------------------------
             self.bus.add_region("rom", SoCRegion(
                 origin = self.bus.regions["spiflash"].origin,
@@ -140,11 +149,8 @@ def main():
     parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
+    parser.set_defaults(cpu_type="gowin_emcu")
     args = parser.parse_args()
-
-    if args.cpu_type == 'gowin_emcu':
-        # FIXME: ARM software not supported yet
-        args.no_compile_software = True
 
     soc = BaseSoC(
         sys_clk_freq=int(float(args.sys_clk_freq)),
@@ -161,7 +167,8 @@ def main():
     if args.flash:
         prog = soc.platform.create_programmer()
         prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
-        prog.flash(0, "build/sipeed_tang_nano_4k/software/bios/bios.bin", external=True)
+        prog.flash(0, os.path.join(builder.software_dir, "bios", "bios.bin"), external=True)
+
 
 if __name__ == "__main__":
     main()
