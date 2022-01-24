@@ -48,7 +48,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(27e6), bios_flash_offset=0x0, 
+    def __init__(self, sys_clk_freq=int(27e6), bios_flash_offset=0x0,
                  with_led_chaser=True, **kwargs):
         platform = tang_nano_9k.Platform()
 
@@ -76,28 +76,28 @@ class BaseSoC(SoCCore):
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
-        # HyperRam ---------------------------------------------------------------------------------
-        dq = platform.request("IO_psram_dq")
-        rwds = platform.request("IO_psram_rwds")
-        reset_n = platform.request("O_psram_reset_n")
-        cs_n = platform.request("O_psram_cs_n")
-        ck = platform.request("O_psram_ck")
-        ck_n = platform.request("O_psram_ck_n")
-        class HyperRAMPads:
-            def __init__(self, n):
-                self.clk   = Signal()
-                self.rst_n = reset_n[n]
-                self.dq    = dq[8*n:8*(n+1)]
-                self.cs_n  = cs_n[n]
-                self.rwds  = rwds[n]
+        # HyperRAM ---------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            # TODO: Use second 32Mbit PSRAM chip.
+            dq      = platform.request("IO_psram_dq")
+            rwds    = platform.request("IO_psram_rwds")
+            reset_n = platform.request("O_psram_reset_n")
+            cs_n    = platform.request("O_psram_cs_n")
+            ck      = platform.request("O_psram_ck")
+            ck_n    = platform.request("O_psram_ck_n")
+            class HyperRAMPads:
+                def __init__(self, n):
+                    self.clk   = Signal()
+                    self.rst_n = reset_n[n]
+                    self.dq    = dq[8*n:8*(n+1)]
+                    self.cs_n  = cs_n[n]
+                    self.rwds  = rwds[n]
 
-        hyperram_pads = HyperRAMPads(0)
-        self.comb += ck[0].eq(hyperram_pads.clk)
-        self.comb += ck_n[0].eq(~hyperram0_pads.clk)
-        self.submodules.hyperram0 = HyperRAM(hyperram_pads)
-        self.bus.add_slave("main_ram", slave=self.hyperram.bus,
-                           region=SoCRegion(origin=self.mem_map["main_ram"], size=4*mB))
-        # TODO: utilize another 32Mbit PSRAM chip
+            hyperram_pads = HyperRAMPads(0)
+            self.comb += ck[0].eq(hyperram_pads.clk)
+            self.comb += ck_n[0].eq(~hyperram_pads.clk)
+            self.submodules.hyperram = HyperRAM(hyperram_pads)
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4*mB))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
