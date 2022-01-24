@@ -8,10 +8,8 @@
 # Copyright (c) 2022 Victor Suarez Rovere <suarezvictor@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-#NOTE: for yosys+nextpnr toolchain DDR3 should be disabled
-#and max frequency should be according to CPU.
-#Example:
-#./digilent_arty.py --sys-clk-freq=50e6 --integrated-main-ram-size=8192 --cpu-type=femtorv --toolchain=yosys+nextpnr --build
+# Note: For now, with --toolchain=yosys+nextpnr, DDR3 should be disabled and sys_clk_freq lowered, ex:
+# python3 -m litex_boards.targets.digilent_arty.py --sys-clk-freq=50e6 --integrated-main-ram-size=8192 --toolchain=yosys+nextpnr --build
 
 import os
 import argparse
@@ -36,33 +34,38 @@ from liteeth.phy.mii import LiteEthPHYMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, with_rst=True, use_delayctrl=True):
+    def __init__(self, platform, sys_clk_freq, with_dram=True, with_rst=True):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
-        self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
+        if with_dram:
+            self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+            self.clock_domains.cd_idelay    = ClockDomain()
+
 
         # # #
 
+        # Clk/Rst.
         clk100 = platform.request("clk100")
         rst    = ~platform.request("cpu_reset") if with_rst else 0
 
+        # PLL.
         self.submodules.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(rst | self.rst)
         pll.register_clkin(clk100, 100e6)
-        pll.create_clkout(self.cd_sys,       sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
-        pll.create_clkout(self.cd_idelay,    200e6)
-        pll.create_clkout(self.cd_eth,       25e6)
-        platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
-
-        if use_delayctrl: #should be skipped for yosys+nextpnr
-                self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
-
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        pll.create_clkout(self.cd_eth, 25e6)
         self.comb += platform.request("eth_ref_clk").eq(self.cd_eth.clk)
+        platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
+        if with_dram:
+            pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
+            pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
+            pll.create_clkout(self.cd_idelay,    200e6)
+
+        # IdelayCtrl.
+        if with_dram:
+            self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -79,7 +82,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_delayctrl = (toolchain != "yosys+nextpnr"))
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_dram=not self.integrated_main_ram_size)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -128,7 +131,7 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Arty A7")
-    parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado or symbiflow).")
+    parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     parser.add_argument("--build",               action="store_true",              help="Build bitstream.")
     parser.add_argument("--load",                action="store_true",              help="Load bitstream.")
     parser.add_argument("--variant",             default="a7-35",                  help="Board variant (a7-35 or a7-100).")
