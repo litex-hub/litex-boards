@@ -295,7 +295,7 @@ def sdcard_pmod_io(pmod):
             Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP True")),
             Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULLUP True")),
             Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP True")),
-            Misc("SLEW=FAST"),
+            Misc("SLEW=FAST"), #NOTE: this is not supported by yosys+nextprn toolchain
             IOStandard("LVCMOS33"),
         ),
         ("sdcard", 0,
@@ -303,7 +303,7 @@ def sdcard_pmod_io(pmod):
             Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP True")),
             Subsignal("clk",  Pins(f"{pmod}:3")),
             Subsignal("cd",   Pins(f"{pmod}:6")),
-            Misc("SLEW=FAST"),
+            Misc("SLEW=FAST"), #NOTE: this and all Misc() is not supported by yosys+nextprn toolchain
             IOStandard("LVCMOS33"),
         ),
 ]
@@ -349,7 +349,8 @@ class Platform(XilinxPlatform):
         self.toolchain.additional_commands = \
             ["write_cfgmem -force -format bin -interface spix4 -size 16 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
-        self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 34]")
+        if toolchain != "yosys+nextpnr": #this is not supported by yosys+pnr
+            self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 34]")
 
     def create_programmer(self):
         bscan_spi = "bscan_spi_xc7a100t.bit" if "xc7a100t" in self.device else "bscan_spi_xc7a35t.bit"
