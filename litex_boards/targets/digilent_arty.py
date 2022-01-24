@@ -5,7 +5,13 @@
 #
 # Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # Copyright (c) 2020 Antmicro <www.antmicro.com>
+# Copyright (c) 2022 Victor Suarez Rovere <suarezvictor@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
+
+#NOTE: for yosys+nextpnr toolchain DDR3 should be disabled
+#and max frequency should be according to CPU.
+#Example:
+#./digilent_arty.py --sys-clk-freq=50e6 --integrated-main-ram-size=8192 --cpu-type=femtorv --toolchain=yosys+nextpnr --build
 
 import os
 import argparse
@@ -30,7 +36,7 @@ from liteeth.phy.mii import LiteEthPHYMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, with_rst=True):
+    def __init__(self, platform, sys_clk_freq, with_rst=True, use_delayctrl=True):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
@@ -53,7 +59,8 @@ class _CRG(Module):
         pll.create_clkout(self.cd_eth,       25e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+        if use_delayctrl: #should be skipped for yosys+nextpnr
+                self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
         self.comb += platform.request("eth_ref_clk").eq(self.cd_eth.clk)
 
@@ -72,7 +79,7 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_delayctrl = (toolchain != "yosys+nextpnr"))
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
