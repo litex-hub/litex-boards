@@ -46,7 +46,7 @@ _io = [
         Subsignal("ras_n",   Pins("AA12"), IOStandard("SSTL12_DCI")), # A16
         Subsignal("cas_n",   Pins("AF13"), IOStandard("SSTL12_DCI")), # A15
         Subsignal("we_n",    Pins("AA13"), IOStandard("SSTL12_DCI")), # A14
-        Subsignal("cs_n",    Pins("W13 AA14 AC14 AF15"), IOStandard("SSTL12_DCI")),
+        Subsignal("cs_n",    Pins("W13"), IOStandard("SSTL12_DCI")),
         Subsignal("act_n",   Pins("Y8"), IOStandard("SSTL12_DCI")),
         Subsignal("alert_n", Pins("AE10"), IOStandard("SSTL12_DCI")),
         Subsignal("par",     Pins("AE13"), IOStandard("SSTL12_DCI")),
@@ -70,10 +70,10 @@ _io = [
                 "W9   A17 W5   D20 AC1 L20 AB5 J16",
                 "AE20 T25 AF18 P20 W19 R17 Y16 L25"),
             IOStandard("DIFF_HSUL_12")),
-        Subsignal("clk_p",   Pins("AE12 AB12"), IOStandard("DIFF_SSTL12_DCI")),
-        Subsignal("clk_n",   Pins("AF12 AC12"), IOStandard("DIFF_SSTL12_DCI")),
-        Subsignal("cke",     Pins("AA8 AA7"), IOStandard("SSTL12_DCI")), # also AM15 for larger SODIMMs
-        Subsignal("odt",     Pins("Y13 AB14"), IOStandard("SSTL12_DCI")), # also AM16 for larger SODIMMs
+        Subsignal("clk_p",   Pins("AE12"), IOStandard("DIFF_SSTL12_DCI")),
+        Subsignal("clk_n",   Pins("AF12"), IOStandard("DIFF_SSTL12_DCI")),
+        Subsignal("cke",     Pins("AA8"), IOStandard("SSTL12_DCI")), # also AM15 for larger SODIMMs
+        Subsignal("odt",     Pins("Y13"), IOStandard("SSTL12_DCI")), # also AM16 for larger SODIMMs
         Subsignal("reset_n", Pins("AB6"), IOStandard("SSTL12")),
         Misc("SLEW=FAST"),
     ),
