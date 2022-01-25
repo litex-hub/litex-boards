@@ -25,16 +25,17 @@ from litex.soc.cores.led import LedChaser
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
-        self.clock_domains.cd_pll4x  = ClockDomain(reset_less=True)
-        self.clock_domains.cd_idelay = ClockDomain()
+        self.clock_domains.cd_sys = ClockDomain()
 
         # # #
 
+        # Clk
+        clk25 = platform.request("clk25")
+
+        # PLL
         self.submodules.pll = pll = USMMCM(speedgrade=-1)
         self.comb += pll.reset.eq(self.rst)
-        pll.register_clkin(platform.request("clk25"), 25e6)
+        pll.register_clkin(clk25, 25e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         # Ignore sys_clk to pll.clkin path created by SoC's rst.
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
@@ -65,7 +66,7 @@ def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Alinx AXU2CGA")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
-    parser.add_argument("--cable",        default="ft232",     help="jtag interface.")
+    parser.add_argument("--cable",        default="ft232",     help="JTAG interface.")
     parser.add_argument("--sys-clk-freq", default=25e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
