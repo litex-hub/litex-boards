@@ -7,6 +7,7 @@ import importlib
 
 vendors = [
     "1bitsquared",
+    "alinx",
     "antmicro",
     "berkeleylab",
     "colorlight",
