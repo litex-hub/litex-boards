@@ -224,7 +224,7 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk125"
     default_clk_freq = 125e6
 
-    def __init__(self, variant="z7-20"):
+    def __init__(self, variant="z7-20", toolchain="vivado"):
         device = {
             "z7-10": "xc7z010clg400-1",
             "z7-20": "xc7z020clg400-1"
@@ -235,7 +235,7 @@ class Platform(XilinxPlatform):
         }[variant]
 
         XilinxPlatform.__init__(self, device, _io, _connectors,
-                                toolchain="vivado")
+                                toolchain=toolchain)
         self.default_clk_period = 1e9 / self.default_clk_freq
 
     def create_programmer(self):
