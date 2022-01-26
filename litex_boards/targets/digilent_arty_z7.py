@@ -50,8 +50,9 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="z7-20", sys_clk_freq=int(125e6), with_led_chaser=True, **kwargs):
-        platform = digilent_arty_z7.Platform(variant)
+    def __init__(self, variant="z7-20", toolchain="vivado", sys_clk_freq=int(125e6),
+                 with_led_chaser=True, **kwargs):
+        platform = digilent_arty_z7.Platform(variant=variant, toolchain=toolchain)
 
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs['integrated_sram_size'] = 0
@@ -67,6 +68,8 @@ class BaseSoC(SoCCore):
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
+            assert toolchain == "vivado", ' not tested / specific vivado cmds'
+
             preset_name = "arty_z7_20.tcl" if variant == "z7-20" else "arty_z7_10.tcl"
 
             os.system("wget http://kmf2.trabucayre.com/" + preset_name)
@@ -97,6 +100,7 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on Arty Z7")
+    parser.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
     parser.add_argument("--variant",      default="z7-20",     help="Board variant (z7-20 or z7-10).")
@@ -109,12 +113,13 @@ def main():
 
     soc = BaseSoC(
         variant = args.variant,
+        toolchain = args.toolchain,
         sys_clk_freq=int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    print(builder.compile_software)
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
+    builder.build(**builder_kwargs, run=args.build)
 
     if args.load:
         prog = soc.platform.create_programmer()
