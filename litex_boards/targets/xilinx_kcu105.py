@@ -19,6 +19,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from litex.config import DEFAULT_IP_PREFIX
+
 from litedram.modules import EDY4016A
 from litedram.phy import usddrphy
 
@@ -62,7 +64,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_etherbone=False,
-                 eth_ip="192.168.1.50", with_led_chaser=True, with_pcie=False, with_sata=False,
+                 eth_ip=DEFAULT_IP_PREFIX + "50", with_led_chaser=True, with_pcie=False, with_sata=False,
                  **kwargs):
         platform = kcu105.Platform()
 
@@ -156,7 +158,7 @@ def main():
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_argument("--eth-ip",          default=DEFAULT_IP_PREFIX + "50", type=str, help="Ethernet/Etherbone IP address.")
     parser.add_argument("--with-pcie",       action="store_true",              help="Enable PCIe support.")
     parser.add_argument("--driver",          action="store_true",              help="Generate PCIe driver.")
     parser.add_argument("--with-sata",       action="store_true",              help="Enable SATA support (over SFP2SATA).")

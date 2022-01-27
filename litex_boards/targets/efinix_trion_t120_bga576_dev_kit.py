@@ -21,6 +21,8 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.interconnect import axi
 
+from litex.config import DEFAULT_IP_PREFIX
+
 from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -49,7 +51,7 @@ class BaseSoC(SoCCore):
         with_ethernet   = False,
         with_etherbone  = False,
         eth_phy         = 0,
-        eth_ip          = "192.168.1.50",
+        eth_ip          = DEFAULT_IP_PREFIX + "50",
         with_led_chaser = True,
         **kwargs):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
@@ -349,7 +351,7 @@ def main():
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_argument("--eth-ip",          default=DEFAULT_IP_PREFIX + "50", type=str, help="Ethernet/Etherbone IP address.")
     parser.add_argument("--eth-phy",         default=0, type=int,              help="Ethernet PHY: 0 (default) or 1.")
     builder_args(parser)
     soc_core_args(parser)

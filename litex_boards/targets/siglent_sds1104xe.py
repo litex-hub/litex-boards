@@ -31,6 +31,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 
+from litex.config import DEFAULT_IP_PREFIX
+
 from litedram.modules import MT41K64M16
 from litedram.phy import s7ddrphy
 
@@ -67,7 +69,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=True, eth_ip="192.168.1.50", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_etherbone=True, eth_ip=DEFAULT_IP_PREFIX + "50", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = sds1104xe.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -108,7 +110,7 @@ class BaseSoC(SoCCore):
             self.submodules.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            etherbone_ip_address  = convert_ip("192.168.1.51")
+            etherbone_ip_address  = convert_ip(DEFAULT_IP_PREFIX + "51")
             etherbone_mac_address = 0x10e2d5000001
 
             # Ethernet MAC
@@ -168,7 +170,7 @@ def main():
     parser.add_argument("--load",           action="store_true",              help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",   default=100e6,                    help="System clock frequency.")
     parser.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_argument("--eth-ip",         default=DEFAULT_IP_PREFIX + "50", type=str, help="Ethernet/Etherbone IP address.")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")

@@ -22,6 +22,8 @@ from litex.soc.cores.video import video_timings
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
 
+from litex.config import DEFAULT_IP_PREFIX
+
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
 
@@ -76,7 +78,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), board_version=1, speed_grade=-2,
                  with_ethernet=False, with_etherbone=False,
-                 eth_ip="192.168.1.50", with_led_chaser=True, with_video_terminal=False,
+                 eth_ip=DEFAULT_IP_PREFIX + "50", with_led_chaser=True, with_video_terminal=False,
                  with_video_framebuffer=False, video_timing="640x480@60Hz", **kwargs):
         platform = qmtech_wukong.Platform(board_version=board_version,speed_grade=speed_grade)
 
@@ -138,7 +140,7 @@ def main():
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_argument("--eth-ip",          default=DEFAULT_IP_PREFIX + "50", type=str, help="Ethernet/Etherbone IP address.")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true",              help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true",              help="Enable SDCard support.")

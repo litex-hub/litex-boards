@@ -26,6 +26,8 @@ from litex.soc.cores.led import LedChaser
 
 from litex.soc.interconnect.csr import *
 
+from litex.config import DEFAULT_IP_PREFIX
+
 from litedram.modules import M12L64322A # Compatible with EM638325-6H.
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
@@ -181,8 +183,8 @@ def main():
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",  action="store_true",      help="Enable Etherbone support.")
-    parser.add_argument("--remote-ip",        default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_argument("--local-ip",         default="192.168.1.50",   help="Local IP address.")
+    parser.add_argument("--remote-ip",        default=DEFAULT_IP_PREFIX + "100",  help="Remote IP address of TFTP server.")
+    parser.add_argument("--local-ip",         default=DEFAULT_IP_PREFIX + "50",   help="Local IP address.")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",  action="store_true",	    help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",      action="store_true",	    help="Enable SDCard support.")

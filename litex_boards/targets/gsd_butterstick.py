@@ -29,6 +29,8 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOTristate
 
+from litex.config import DEFAULT_IP_PREFIX
+
 from litedram.modules import MT41K64M16,MT41K128M16,MT41K256M16,MT41K512M16
 from litedram.phy import ECP5DDRPHY
 
@@ -86,7 +88,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, revision="1.0", device="85F", sdram_device="MT41K64M16", sys_clk_freq=int(60e6), 
-        toolchain="trellis", with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", 
+        toolchain="trellis", with_ethernet=False, with_etherbone=False, eth_ip=DEFAULT_IP_PREFIX + "50", 
         eth_dynamic_ip   = False,
         with_spi_flash   = False,
         with_led_chaser  = True,
@@ -167,7 +169,7 @@ def main():
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
     ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_argument("--eth-ip",          default=DEFAULT_IP_PREFIX + "50", help="Ethernet/Etherbone IP address.")
     parser.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_argument("--with-spi-flash",  action="store_true",    help="Enable SPI Flash (MMAPed).")
     sdopts = parser.add_mutually_exclusive_group()

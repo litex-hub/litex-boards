@@ -22,6 +22,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from litex.config import DEFAULT_IP_PREFIX
+
 from litedram.modules import MT41K64M16
 from litedram.phy import ECP5DDRPHY
 
@@ -79,7 +81,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), device="LFE5UM5G", with_ethernet=False,
-                 with_etherbone=False, with_led_chaser=True, eth_ip="192.168.1.50", eth_phy=0,
+                 with_etherbone=False, with_led_chaser=True, eth_ip=DEFAULT_IP_PREFIX + "50", eth_phy=0,
                  toolchain="trellis", **kwargs):
         platform = versa_ecp5.Platform(toolchain=toolchain, device=device)
 
@@ -138,7 +140,7 @@ def main():
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_argument("--eth-ip",          default=DEFAULT_IP_PREFIX + "50", type=str, help="Ethernet/Etherbone IP address.")
     parser.add_argument("--eth-phy",         default=0, type=int,              help="Ethernet PHY (0 or 1).")
     builder_args(parser)
     soc_core_args(parser)

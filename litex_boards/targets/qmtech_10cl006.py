@@ -21,6 +21,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from litex.config import DEFAULT_IP_PREFIX
+
 from litedram.modules import W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
@@ -65,7 +67,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_daughterboard=False,
-                 with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
+                 with_ethernet=False, with_etherbone=False, eth_ip=DEFAULT_IP_PREFIX + "50", eth_dynamic_ip=False,
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
                  sdram_rate="1:1", **kwargs):
         platform = qmtech_10cl006.Platform(with_daughterboard=with_daughterboard)

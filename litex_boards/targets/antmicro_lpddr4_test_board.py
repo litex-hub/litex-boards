@@ -19,6 +19,8 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from litex.config import DEFAULT_IP_PREFIX
+
 from litedram.modules import MT53E256M16D1
 from litedram.phy import lpddr4
 
@@ -49,7 +51,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, *, sys_clk_freq=int(50e6), iodelay_clk_freq=200e6,
-            with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
+            with_ethernet=False, with_etherbone=False, eth_ip=DEFAULT_IP_PREFIX + "50", eth_dynamic_ip=False,
             with_hyperram=False, with_sdcard=False, with_jtagbone=True, with_uartbone=False,
             with_led_chaser=True, **kwargs):
         platform = lpddr4_test_board.Platform()
@@ -126,7 +128,7 @@ def main():
     ethopts = target.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",   action="store_true",    help="Add Ethernet.")
     ethopts.add_argument("--with-etherbone",  action="store_true",    help="Add EtherBone.")
-    target.add_argument("--eth-ip",           default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    target.add_argument("--eth-ip",           default=DEFAULT_IP_PREFIX + "50", help="Ethernet/Etherbone IP address.")
     target.add_argument("--eth-dynamic-ip",   action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
     target.add_argument("--with-hyperram",    action="store_true",    help="Add HyperRAM.")
     target.add_argument("--with-sdcard",      action="store_true",    help="Add SDCard.")
