@@ -191,7 +191,7 @@ _io = [
         Subsignal("tx_data", Pins("U2 W1 N9 W2")),
         Subsignal("col",     Pins("R4")),
         Subsignal("crs",     Pins("P5")),
-        Subsignal("pcf_en",  Pins("V9"), IOStandard("3.3 V")),
+        Subsignal("pcf_en",  Pins("V9"), IOStandard("3.3-V LVTTL")),
         IOStandard("2.5 V"),
     ),
 
@@ -306,3 +306,6 @@ class Platform(AlteraPlatform):
     def do_finalize(self, fragment):
         AlteraPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+        # Generate PLL clocsk in STA
+        self.toolchain.additional_sdc_commands.append("derive_pll_clocks -create_base_clocks -use_net_name")
+        self.toolchain.additional_sdc_commands.append("derive_clock_uncertainty")

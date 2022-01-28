@@ -17,7 +17,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoDVIPHY
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.bitbang import I2CMaster
+
+from liteeth.phy.mii import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -53,6 +54,8 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, with_video_terminal=False,
+                 with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
+                 eth_dynamic_ip=False,
                  **kwargs):
         self.platform = platform = deca.Platform()
 
@@ -67,6 +70,23 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=False)
+
+        # Ethernet ---------------------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.platform.toolchain.additional_sdc_commands += [
+                'create_clock -name eth_rx_clk -period 40.0 [get_ports {eth_clocks_rx}]',
+                'create_clock -name eth_tx_clk -period 40.0 [get_ports {eth_clocks_tx}]',
+                'set_false_path -from [get_clocks {sys_clk}] -to [get_clocks {eth_rx_clk}]',
+                'set_false_path -from [get_clocks {sys_clk}] -to [get_clocks {eth_tx_clk}]',
+                'set_false_path -from [get_clocks {eth_rx_clk}] -to [get_clocks {eth_tx_clk}]',
+            ]
+            self.submodules.ethphy = LiteEthPHYMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"))
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
@@ -86,6 +106,11 @@ def main():
     parser.add_argument("--build",               action="store_true", help="Build bitstream.")
     parser.add_argument("--load",                action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",      action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",     action="store_true", help="Enable Etherbone support.")
+    parser.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_argument("--eth-dynamic-ip",      action="store_true", help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
     builder_args(parser)
     soc_core_args(parser)
@@ -93,6 +118,10 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq             = int(float(args.sys_clk_freq)),
+        with_ethernet            = args.with_ethernet,
+        with_etherbone           = args.with_etherbone,
+        eth_ip                   = args.eth_ip,
+        eth_dynamic_ip           = args.eth_dynamic_ip,
         with_video_terminal      = args.with_video_terminal,
         **soc_core_argdict(args)
     )
