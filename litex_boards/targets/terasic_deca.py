@@ -53,15 +53,21 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, with_video_terminal=False,
+    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, with_uartbone=False, with_jtagbone=False, with_video_terminal=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
                  eth_dynamic_ip=False,
                  **kwargs):
         self.platform = platform = deca.Platform()
 
         # Defaults to JTAG-UART since no hardware UART.
-        if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "jtag_atlantic"
+        real_uart_name = kwargs["uart_name"]
+        if real_uart_name == "serial":
+            if with_jtagbone:
+                kwargs["uart_name"] = "crossover"
+            else:
+                kwargs["uart_name"] = "jtag_atlantic"
+        if with_uartbone:
+            kwargs["uart_name"] = "crossover"
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -71,6 +77,14 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=False)
 
+        # UARTbone ---------------------------------------------------------------------------------
+        if with_uartbone:
+            self.add_uartbone(name=real_uart_name, baudrate=kwargs["uart_baudrate"])
+
+        # JTAGbone ---------------------------------------------------------------------------------
+        if with_jtagbone:
+            self.add_jtagbone()
+        
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.platform.toolchain.additional_sdc_commands += [
@@ -111,6 +125,8 @@ def main():
     ethopts.add_argument("--with-etherbone",     action="store_true", help="Enable Etherbone support.")
     parser.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
     parser.add_argument("--eth-dynamic-ip",      action="store_true", help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_argument("--with-uartbone",       action="store_true", help="Enable UARTbone support.")
+    parser.add_argument("--with-jtagbone",       action="store_true", help="Enable JTAGbone support.")
     parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
     builder_args(parser)
     soc_core_args(parser)
@@ -122,6 +138,8 @@ def main():
         with_etherbone           = args.with_etherbone,
         eth_ip                   = args.eth_ip,
         eth_dynamic_ip           = args.eth_dynamic_ip,
+        with_uartbone            = args.with_uartbone,
+        with_jtagbone            = args.with_jtagbone,
         with_video_terminal      = args.with_video_terminal,
         **soc_core_argdict(args)
     )
