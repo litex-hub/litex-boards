@@ -6,6 +6,10 @@
 # Copyright (c) 2015-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Build/Use:
+# ./terasic_de0nano.py --uart-name=jtag_uart --build --load
+# litex_term --jtag-config ../prog/openocd_max10_blaster.cfg jtag
+
 import os
 import argparse
 
