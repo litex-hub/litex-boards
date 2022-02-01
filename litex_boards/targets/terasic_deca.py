@@ -6,6 +6,10 @@
 # Copyright (c) 2019 msloniewski <marcin.sloniewski@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Build/Use:
+# ./terasic_deca.py --uart-name jtag_uart --build --load
+# litex_term --jtag-config ../prog/openocd_max10_blaster2.cfg jtag
+
 import os
 import argparse
 
@@ -65,7 +69,7 @@ class BaseSoC(SoCCore):
             if with_jtagbone:
                 kwargs["uart_name"] = "crossover"
             else:
-                kwargs["uart_name"] = "jtag_atlantic"
+                kwargs["uart_name"] = "jtag_uart"
         if with_uartbone:
             kwargs["uart_name"] = "crossover"
 

@@ -69,11 +69,9 @@ class BaseSoC(SoCCore):
                  with_led_chaser=True, with_video_terminal=False, **kwargs):
         platform = terasic_sockit.Platform(revision)
 
-        # Defaults to UART over JTAG because serial is attached to the HPS and cannot be used.
-        if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "jtag_atlantic"
-
         # SoCCore ----------------------------------------------------------------------------------
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG-UART.
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on the Terasic SoCKit",
             **kwargs)
