@@ -158,7 +158,7 @@ class BaseSoC(SoCCore):
             hdmi_pads = platform.request("hdmi")
             self.submodules.videophy = VideoDVIPHY(hdmi_pads, clock_domain="init")
             self.submodules.hdmi_i2c = I2CMaster(hdmi_pads)
-            self.add_i2c_init_table("hdmi_i2c", i2c_addr=0x38, table=[
+            self.hdmi_i2c.add_init(addr=0x38, init=[
                 (0x08, 0x35) # CTL_1_MODE: Normal operation, 24-bit, HSYNC/VSYNC.
             ])
 
