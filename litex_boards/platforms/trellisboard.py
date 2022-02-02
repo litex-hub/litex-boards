@@ -200,14 +200,13 @@ _io = [
 
     # HDMI
     ("hdmi", 0,
-        Subsignal("d", Pins(
-            "C11 A11 B11 A10 B10 C10  A8  B7",
-            "B8   A7  C8  C9 F11 E11 E10 D10",
-            "F10  F9  D9  D8  C7  F8  E8 D11")),
-        Subsignal("de",    Pins("F14")),
-        Subsignal("clk",   Pins("A9")),
-        Subsignal("vsync", Pins("E14")),
-        Subsignal("hsync", Pins("F13")),
+        Subsignal("r", Pins("F10  F9  D9  D8  C7  F8  E8 D11")),
+        Subsignal("g", Pins("B8   A7  C8  C9 F11 E11 E10 D10")),
+        Subsignal("b", Pins("C11 A11 B11 A10 B10 C10  A8  B7")),
+        Subsignal("de",      Pins("F14")),
+        Subsignal("clk",     Pins("A9")),
+        Subsignal("vsync_n", Pins("E14")),
+        Subsignal("hsync_n", Pins("F13")),
         Subsignal("sda", Pins("D13")),
         Subsignal("scl", Pins("C13")),
         IOStandard("LVCMOS33")
