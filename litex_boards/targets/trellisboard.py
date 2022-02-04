@@ -157,8 +157,8 @@ class BaseSoC(SoCCore):
             # PHY + TP410 I2C initialization.
             hdmi_pads = platform.request("hdmi")
             self.submodules.videophy = VideoDVIPHY(hdmi_pads, clock_domain="init")
-            self.submodules.i2c = I2CMaster(hdmi_pads)
-            self.i2c.add_init(addr=0x38, init=[
+            self.submodules.videoi2c = I2CMaster(hdmi_pads)
+            self.videoi2c.add_init(addr=0x38, init=[
                 (0x08, 0x35) # CTL_1_MODE: Normal operation, 24-bit, HSYNC/VSYNC.
             ])
 
