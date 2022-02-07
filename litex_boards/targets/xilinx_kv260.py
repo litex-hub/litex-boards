@@ -6,6 +6,16 @@
 # Copyright (c) 2022 Ilia Sergachev <ilia@sergachev.ch>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Build/Use:
+# The current support is sufficient to run LiteX BIOS on Cortex-A53 core #0:
+# ./xilinx_kv260.py --build --load
+# LiteX BIOS can then be executed on hardware using JTAG with the following xsct script from:
+# https://github.com/sergachev/litex-template/tree/kv260
+# make -f Makefile.kv260 load will build everything and run xsct in the end.
+#
+# Relies on https://github.com/lucaceresoli/zynqmp-pmufw-builder to create a generic PMU firmware;
+# first build will take a while because it includes a cross-toolchain.
+
 import argparse
 
 from migen import *
@@ -23,7 +33,6 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 
 # CRG ----------------------------------------------------------------------------------------------
-
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, use_ps7_clk=False):
@@ -45,7 +54,6 @@ class _CRG(Module):
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
-
 class BaseSoC(SoCCore):
     mem_map = {"csr": 0xA000_0000}  # default GP0 address on ZynqMP
 
@@ -60,7 +68,7 @@ class BaseSoC(SoCCore):
             ident = "LiteX SoC on KV260",
             **kwargs)
 
-        # ZynqMP Integration ---------------------------------------------------------------------
+        # ZynqMP Integration -----------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
             self.cpu.config.update({
                 'PSU_MIO_36_DIRECTION': 'out',
@@ -201,7 +209,6 @@ class BaseSoC(SoCCore):
 
 
 # Build --------------------------------------------------------------------------------------------
-
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on KV260")

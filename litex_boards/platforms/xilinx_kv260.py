@@ -8,17 +8,22 @@ from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
 
+# IOs ----------------------------------------------------------------------------------------------
+
 _io = [
+    # Fan.
     ("fan", 0, Pins("A12"), IOStandard("LVCMOS33")),
-    # seems like there are no on-board clock sources for PL when PS is not used
-    # so here a clock-capable PMOD connector pin is added as a possible clock input (not tested)
+
+    # Seems like there are no on-board clock sources for PL when PS is not used so here a
+    # clock-capable PMOD connector pin is added as a possible clock input (not tested).
     ("pmod_hda16_cc", 0, Pins("B21"), IOStandard("LVCMOS33")),
 ]
 
+# Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    default_clk_name = 'pmod_hda16_cc'
-    default_clk_period = 10.0
+    default_clk_name   = "pmod_hda16_cc"
+    default_clk_period = 1e9/100e6
 
     def __init__(self):
         XilinxPlatform.__init__(self, "xck26-sfvc784-2lv-c", _io, toolchain="vivado")
@@ -31,4 +36,4 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment, *args, **kwargs):
         XilinxPlatform.do_finalize(self, fragment, *args, **kwargs)
-        self.add_period_constraint(self.lookup_request("pmod_hda16_cc", loose=True), self.default_clk_period)
+        self.add_period_constraint(self.lookup_request("pmod_hda16_cc", loose=True), 1e9/100e6)
