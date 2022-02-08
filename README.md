@@ -96,7 +96,7 @@ PCIe accelerators boards that you could use to accelerate your applications, Lit
 | ForestKitten33 | Xilinx Ultrascale+  | XCVU33P       | 125MHz   | PCIe | 2 x 1024-bit 4GB HBM2*|  Gen3 X16     |     ?       |
 | BCU1525        | Xilinx Ultrascale+  | XCVU9P        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM  |  Gen3 X16     |     ?       |
 | AlveoU250      | Xilinx Ultrascale+  | XCU250        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM  |  Gen2 X16     |     ?       |
-| AlveoU280      | Xilinx Ultrascale+  | XCU280-ES1    | 150MHz   | PCIe* | 2 x 64-bit DDR4 DIMM <BR> 2 x 1024-bit 4GB HBM2* |  Gen2 X16     |     ?       |
+| AlveoU280      | Xilinx Ultrascale+  | XCU280-ES1    | 150MHz   | PCIe* | 2 x 64-bit 16GB DDR4 DIMM* <BR> 2 x 1024-bit 4GB HBM2 |  Gen2 X16     |     ?       |
 
 \* Present on the board but not yet supported or validated with LiteX.
 
