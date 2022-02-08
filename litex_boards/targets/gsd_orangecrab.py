@@ -210,7 +210,7 @@ def main():
     parser.add_argument("--toolchain",       default="trellis",    help="FPGA toolchain (trellis or diamond).")
     parser.add_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
     parser.add_argument("--revision",        default="0.2",        help="Board Revision (0.1 or 0.2).")
-    parser.add_argument("--device",          default="25F",        help="ECP5 device (25F or 45F).")
+    parser.add_argument("--device",          default="25F",        help="ECP5 device (25F, 45F or 85F).")
     parser.add_argument("--sdram-device",    default="MT41K64M16", help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
     parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
     builder_args(parser)
