@@ -35,7 +35,7 @@ _io = [
     ("seven_seg", 2, Pins("AB23 AE29 AD29 AC28 AD30 AC29 AC30"), IOStandard("3.3-V LVTTL")),
     ("seven_seg", 3, Pins("AD26 AC27 AD25 AC25 AB28 AB25 AB22"), IOStandard("3.3-V LVTTL")),
     ("seven_seg", 4, Pins("AA24 Y23  Y24  W22  W24  V23  W25"),  IOStandard("3.3-V LVTTL")),
-    ("seven_seg", 5, Pins("V25  AA28 Y27  AB27 AB26 AA26 AA2"),  IOStandard("3.3-V LVTTL")),
+    ("seven_seg", 5, Pins("V25  AA28 Y27  AB27 AB26 AA26 AA25"), IOStandard("3.3-V LVTTL")),
 
     # Button
     ("key", 0, Pins("AA14"), IOStandard("3.3-V LVTTL")),
