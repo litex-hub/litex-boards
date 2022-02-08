@@ -9,6 +9,9 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
+# To interface via the serial port use:
+#     lxterm /dev/ttyUSBx --speed=115200
+
 import argparse, os
 
 from migen import *
