@@ -9,6 +9,9 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
+# To interface via the serial port use:
+#     lxterm /dev/ttyUSBx --speed=115200
+
 import argparse, os
 
 from migen import *
@@ -220,6 +223,9 @@ class BaseSoC(SoCCore):
                 axi_lite_hbm = AXILiteInterface(data_width=256, address_width=33)
                 self.submodules += AXILite2AXI(axi_lite_hbm, axi_hbm)
                 self.bus.add_slave(f"hbm{i}", axi_lite_hbm, SoCRegion(origin=0x4000_0000 + 0x1000_0000*i, size=0x1000_0000)) # 256MB.
+            # Link HBM2 channel 0 as main RAM
+            self.bus.add_region("main_ram", SoCRegion(origin=0x4000_0000, size=0x1000_0000, linker=True)) # 256MB.
+
         else:
             # DDR4 SDRAM -------------------------------------------------------------------------------
             if not self.integrated_main_ram_size:
