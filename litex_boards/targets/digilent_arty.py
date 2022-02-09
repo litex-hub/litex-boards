@@ -134,6 +134,7 @@ def main():
     parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     parser.add_argument("--build",               action="store_true",              help="Build bitstream.")
     parser.add_argument("--load",                action="store_true",              help="Load bitstream.")
+    parser.add_argument("--flash",               action="store_true",              help="Flash bitstream.")
     parser.add_argument("--variant",             default="a7-35",                  help="Board variant (a7-35 or a7-100).")
     parser.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
     ethopts = parser.add_mutually_exclusive_group()
@@ -184,6 +185,10 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+
+    if args.flash:
+        prog = soc.platform.create_programmer()
+        prog.flash(0, os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
 
 if __name__ == "__main__":
     main()
