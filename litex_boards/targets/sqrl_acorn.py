@@ -149,7 +149,7 @@ class BaseSoC(SoCCore):
             self.submodules.sata_phy = LiteSATAPHY(platform.device,
                 refclk     = sata_refclk,
                 pads       = platform.request("pcie2sata"),
-                gen        = "gen2",
+                gen        = "gen1",
                 clk_freq   = sys_clk_freq,
                 data_width = 16)
 
