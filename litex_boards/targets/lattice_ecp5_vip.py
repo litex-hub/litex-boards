@@ -4,6 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2019 Arnaud Durand <arnaud.durand@unifr.ch>
+# Copyright (c) 2022 Martin Hubacek @hubmartin (Twitter)
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -18,9 +19,9 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.soc import SoCRegion
-from litex.soc.cores.led import LedChaser, WS2812
+from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT41J128M16, MT41K64M16
+from litedram.modules import MT41K64M16
 from litedram.phy import ECP5DDRPHY
 from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.bitbang import I2CMaster
@@ -38,7 +39,6 @@ class _CRG_VERSA(Module):
         self.clock_domains.cd_sys2x_i = ClockDomain(reset_less=True)
 
         # # #
-
         self.stop  = Signal()
         self.reset = Signal()
 
@@ -76,22 +76,17 @@ class _CRG_VERSA(Module):
 
         # HDMI
         self.clock_domains.cd_hdmi   = ClockDomain(reset_less=True)
-        #pll.create_clkout(self.cd_hdmi,  25.175e6) # 40e6)
-        #pll.create_clkout(self.cd_hdmi, 40e6) # for terminal "800x600@60Hz"
-        
         #pll.create_clkout(self.cd_hdmi, 148.5e6) # for terminal "1920x1080@60Hz"
         #pll.create_clkout(self.cd_hdmi, 160e6) # for terminal "1920x1080@60Hz"
         #pll.create_clkout(self.cd_hdmi, 80e6) # for terminal "1920x1080@30Hz"
         pll.create_clkout(self.cd_hdmi, 40e6) # for terminal "800x600@60Hz"
-
-       
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     #mem_map = {**SoCCore.mem_map, **{"spiflash": 0x1000000}}
-    def __init__(self, sys_clk_freq=int(50e6), x5_clk_freq=None, toolchain="trellis",
+    def __init__(self, sys_clk_freq=int(50e6), toolchain="trellis",
                  with_led_chaser=True, 
                  with_video_terminal=True,
                  with_video_framebuffer=False,**kwargs):
@@ -182,19 +177,11 @@ class BaseSoC(SoCCore):
                 #self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
                 
-
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
-
-        # WS2812
-        self.submodules.ws2812 = WS2812(platform.request("ws2812"), nleds=4, sys_clk_freq=sys_clk_freq)
-        self.bus.add_slave(name="ws2812", slave=self.ws2812.bus, region=SoCRegion(
-            origin = 0x2000_0000,
-            size   = 4*4,
-        ))
 
         # Running code from SPI flash had some side effects on BIOS with enabled DDR3 memory
         # So I reverted to the FPGA BRAM for BIOS.
@@ -219,14 +206,12 @@ def main():
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
     parser.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
     parser.add_argument("--sys-clk-freq", default=60e6,        help="System clock frequency (default: 60MHz)")
-    parser.add_argument("--x5-clk-freq",  type=int,            help="Use X5 oscillator as system clock at the specified frequency")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(toolchain=args.toolchain,
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        x5_clk_freq  = args.x5_clk_freq,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
