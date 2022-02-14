@@ -140,7 +140,7 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
-    def __init__(self, variant="ztex2.13a", expansion="debug"):
+    def __init__(self, variant="ztex2.13a", toolchain="vivado", expansion="debug"):
         device = {
             "ztex2.13a":  "xc7a35tcsg324-1",
             #"ztex2.13b":  "xc7a50tcsg324-1", #untested
@@ -148,7 +148,7 @@ class Platform(XilinxPlatform):
             #"ztex2.13c":  "xc7a75tcsg324-2", #untested
             #"ztex2.13d":  "xc7a100tcsg324-2", #untested
         }[variant]
-        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain="vivado")
+        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         if (expansion == "debug"):
             self.add_extension(_debug_io)
         else:

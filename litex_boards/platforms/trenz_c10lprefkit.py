@@ -126,8 +126,8 @@ class Platform(AlteraPlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
-    def __init__(self):
-        AlteraPlatform.__init__(self, "10CL055YU484A7G", _io)
+    def __init__(self, toolchain="quartus"):
+        AlteraPlatform.__init__(self, "10CL055YU484A7G", _io, toolchain=toolchain)
 
     def create_programmer(self):
         return USBBlaster(cable_name="Arrow-USB-Blaster")

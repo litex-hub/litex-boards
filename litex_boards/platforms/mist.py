@@ -81,8 +81,8 @@ class Platform(AlteraPlatform):
     default_clk_name   = "clk27"
     default_clk_period = 1e9/27e6
 
-    def __init__(self):
-        AlteraPlatform.__init__(self, "EP3C25E144C8", _io)
+    def __init__(self, toolchain="quartus"):
+        AlteraPlatform.__init__(self, "EP3C25E144C8", _io, toolchain="quartus")
         self.add_platform_command("set_global_assignment -name FAMILY \"Cyclone III\"")
         self.add_platform_command("set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144")
         self.add_platform_command("set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE BALANCED")

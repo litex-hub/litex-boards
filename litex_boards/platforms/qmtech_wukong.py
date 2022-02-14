@@ -200,13 +200,13 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self, board_version=1, speed_grade=-2):
+    def __init__(self, board_version=1, speed_grade=-2, toolchain="vivado"):
         io = _io_common
         if board_version < 2:
             io.extend(_io_v1)
         else:
             io.extend(_io_v2)
-        XilinxPlatform.__init__(self, "xc7a100t{}fgg676".format(speed_grade), io, _connectors,  toolchain="vivado")
+        XilinxPlatform.__init__(self, "xc7a100t{}fgg676".format(speed_grade), io, _connectors,  toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = \

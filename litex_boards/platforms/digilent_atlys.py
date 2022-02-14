@@ -219,8 +219,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
-    def __init__(self,):
-        XilinxPlatform.__init__(self,  "xc6slx45-csg324-3", _io, _connectors)
+    def __init__(self, toolchain="ise"):
+        XilinxPlatform.__init__(self,  "xc6slx45-csg324-3", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("""CONFIG VCCAUX="3.3";""")
 
     def create_programmer(self):
@@ -228,8 +228,8 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk100",           loose=True),  1e9/100e6)
-        self.add_period_constraint(self.lookup_request("hdmi_in:clk_p", 0, loose=True),  1e9/74.25e6)
-        self.add_period_constraint(self.lookup_request("hdmi_in:clk_p", 1, loose=True),  1e9/74.25e6)
-        self.add_period_constraint(self.lookup_request("eth_clocks:rx",    loose=True),  1e9/25e6)
-        self.add_period_constraint(self.lookup_request("fx2:ifclk",        loose=True),  1e9/100e6)
+        self.add_period_constraint(self.lookup_request("clk100",           loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request("hdmi_in:clk_p", 0, loose=True), 1e9/74.25e6)
+        self.add_period_constraint(self.lookup_request("hdmi_in:clk_p", 1, loose=True), 1e9/74.25e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks:rx",    loose=True), 1e9/25e6)
+        self.add_period_constraint(self.lookup_request("fx2:ifclk",        loose=True), 1e9/100e6)

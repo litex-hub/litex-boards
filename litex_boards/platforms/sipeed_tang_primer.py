@@ -50,8 +50,8 @@ class Platform(AnlogicPlatform):
     default_clk_name   = "clk24"
     default_clk_period = 1e9/24e6
 
-    def __init__(self):
-        AnlogicPlatform.__init__(self, "EG4S20BG256", _io, _connectors, toolchain="td")
+    def __init__(self, toolchain="td"):
+        AnlogicPlatform.__init__(self, "EG4S20BG256", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return OpenFPGALoader("licheeTang")

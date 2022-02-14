@@ -110,8 +110,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7s15-ftgb196", _io, _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7s15-ftgb196", _io, _connectors, toolchain=toolchain)
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)

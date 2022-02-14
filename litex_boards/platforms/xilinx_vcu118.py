@@ -181,7 +181,7 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk125"
     default_clk_period = 1e9/125e6
 
-    def __init__(self):
+    def __init__(self, toolchain="vivado"):
         XilinxPlatform.__init__(self, "xcvu9p-flga2104-2-e", _io, _connectors, toolchain="vivado")
 
     def create_programmer(self):

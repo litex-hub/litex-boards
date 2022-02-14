@@ -130,7 +130,7 @@ class Platform(AlteraPlatform):
         ),
     ]
 
-    def __init__(self, variant="ep4ce15", with_daughterboard=False):
+    def __init__(self, variant="ep4ce15", toolchain="quartus", with_daughterboard=False):
         device = {
             "ep4ce15": "EP4CE15F23C8",
             "ep4ce55": "EP4CE55F23C8"
@@ -146,7 +146,7 @@ class Platform(AlteraPlatform):
         else:
             io += self.core_resources
 
-        AlteraPlatform.__init__(self, device, io, connectors)
+        AlteraPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
 
         if with_daughterboard:
             # an ethernet pin takes K22, so make it available

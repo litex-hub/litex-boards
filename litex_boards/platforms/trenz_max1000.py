@@ -86,8 +86,8 @@ class Platform(AlteraPlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
-    def __init__(self):
-        AlteraPlatform.__init__(self, "10M08SAU169C8G", _io)
+    def __init__(self, toolchain="quartus"):
+        AlteraPlatform.__init__(self, "10M08SAU169C8G", _io, toolchain=toolchain)
         self.add_platform_command("set_global_assignment -name FAMILY \"MAX 10\"")
         self.add_platform_command("set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF")
         self.add_platform_command("set_global_assignment -name INTERNAL_FLASH_UPDATE_MODE \"SINGLE IMAGE WITH ERAM\"")

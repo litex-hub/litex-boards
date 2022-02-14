@@ -73,8 +73,8 @@ class Platform(EfinixPlatform):
     default_clk_name = "clk33"
     default_clk_period = 1e9/33.333e6
 
-    def __init__(self):
-        EfinixPlatform.__init__(self, "T8F81C2", _io, _connectors, toolchain="efinity")
+    def __init__(self, toolchain="efinity"):
+        EfinixPlatform.__init__(self, "T8F81C2", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return OpenFPGALoader("xyloni_spi")

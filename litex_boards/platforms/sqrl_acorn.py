@@ -109,14 +109,14 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
-    def __init__(self, variant="cle-215+"):
+    def __init__(self, variant="cle-215+", toolchain="vivado"):
         device = {
             "cle-101":  "xc7a100t-fgg484-2",
             "cle-215":  "xc7a200t-fbg484-2",
             "cle-215+": "xc7a200t-fbg484-3"
         }[variant]
 
-        XilinxPlatform.__init__(self, device, _io, toolchain="vivado")
+        XilinxPlatform.__init__(self, device, _io, toolchain=toolchain)
         self.add_extension(_serial_io)
         self.add_extension(_sdcard_io)
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
