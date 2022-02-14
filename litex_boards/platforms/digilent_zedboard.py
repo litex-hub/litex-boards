@@ -205,7 +205,7 @@ class Platform(XilinxPlatform):
     default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7z020clg484-1", _io, _connectors, toolchain=toolchains)
+        XilinxPlatform.__init__(self, "xc7z020clg484-1", _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]", ]
 
