@@ -116,6 +116,49 @@ _connectors = [
     })
 ]
 
+# PSU config ---------------------------------------------------------------------------------------
+psu_config = {
+    "PSU__DPAUX__PERIPHERAL__IO":              "MIO 27 .. 30",
+    "PSU__ENET3__PERIPHERAL__ENABLE":          "1",
+    "PSU__ENET3__GRP_MDIO__ENABLE":            "1",
+    "PSU__I2C1__PERIPHERAL__ENABLE":           "1",
+    "PSU__I2C1__PERIPHERAL__IO":               "MIO 32 .. 33",
+    "PSU__PCIE__PERIPHERAL__ENABLE":           "1",
+    "PSU__PCIE__PERIPHERAL__ROOTPORT_IO":      "MIO 37",
+    "PSU__USB0__REF_CLK_SEL":                  "Ref Clk1",
+    "PSU__PCIE__DEVICE_PORT_TYPE":             "Root Port",
+    "PSU__PCIE__CLASS_CODE_SUB":               "0x04",
+    "SUBPRESET1":                              "DDR4_MICRON_MT40A256M16GE_083E",
+    "PSU__QSPI__PERIPHERAL__ENABLE":           "1",
+    "PSU__QSPI__PERIPHERAL__DATA_MODE":        "x4",
+    "PSU__QSPI__GRP_FBCLK__ENABLE":            "1",
+    "PSU__SD1__PERIPHERAL__ENABLE":            "1",
+    "PSU__SD1__PERIPHERAL__IO":                "MIO 46 .. 51",
+    "PSU__SD1__GRP_CD__ENABLE":                "1",
+    "PSU__SD1__SLOT_TYPE":                     "SD 2.0",
+    "PSU__TTC0__PERIPHERAL__ENABLE":           "1",
+    "PSU__TTC1__PERIPHERAL__ENABLE":           "1",
+    "PSU__TTC2__PERIPHERAL__ENABLE":           "1",
+    "PSU__TTC3__PERIPHERAL__ENABLE":           "1",
+    "PSU__DDRC__BUS_WIDTH":                    "32 Bit",
+    "PSU__UART1__PERIPHERAL__ENABLE":          "1",
+    "PSU__UART1__PERIPHERAL__IO":              "MIO 24 .. 25",
+    "PSU__USB0__PERIPHERAL__ENABLE":           "1",
+    "PSU__USB0__RESET__ENABLE":                "1",
+    "PSU__USB0__RESET__IO":                    "MIO 44",
+    "PSU__USB__RESET__MODE":                   "Shared MIO Pin",
+    "PSU__USB3_0__PERIPHERAL__ENABLE":         "1",
+    "PSU__USB3_0__PERIPHERAL__IO":             "GT Lane1",
+    "PSU_BANK_0_IO_STANDARD":                  "LVCMOS18",
+    "PSU_BANK_1_IO_STANDARD":                  "LVCMOS18",
+    "PSU_BANK_2_IO_STANDARD":                  "LVCMOS18",
+    "PSU__DISPLAYPORT__PERIPHERAL__ENABLE":    "1",
+    "PSU__CRF_APB__DP_VIDEO_REF_CTRL__SRCSEL": "VPLL",
+    "PSU__CRF_APB__DP_AUDIO_REF_CTRL__SRCSEL": "RPLL",
+    "PSU__CRF_APB__DP_STC_REF_CTRL__SRCSEL":   "RPLL",
+    "PSU__CRF_APB__TOPSW_MAIN_CTRL__SRCSEL":   "APLL",
+}
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
