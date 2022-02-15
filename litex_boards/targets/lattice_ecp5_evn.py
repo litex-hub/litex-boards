@@ -28,7 +28,7 @@ class _CRG(Module):
 
         # # #
 
-        # clk / rst
+        # Clk / Rst.
         clk = clk12 = platform.request("clk12")
         rst_n = platform.request("rst_n")
         if x5_clk_freq is not None:
@@ -36,7 +36,7 @@ class _CRG(Module):
             self.comb += platform.request("ext_clk50_en").eq(1)
             platform.add_period_constraint(clk50, 1e9/x5_clk_freq)
 
-        # pll
+        # PLL.
         self.submodules.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk, x5_clk_freq or 12e6)

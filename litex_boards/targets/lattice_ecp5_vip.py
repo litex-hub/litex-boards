@@ -29,7 +29,7 @@ from litex.soc.cores.bitbang import I2CMaster
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG_VERSA(Module):
+class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_init    = ClockDomain()
@@ -85,11 +85,11 @@ class _CRG_VERSA(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    #mem_map = {**SoCCore.mem_map, **{"spiflash": 0x1000000}}
     def __init__(self, sys_clk_freq=int(50e6), toolchain="trellis",
-                 with_led_chaser=True, 
-                 with_video_terminal=True,
-                 with_video_framebuffer=False,**kwargs):
+        with_led_chaser        = True,
+        with_video_terminal    = True,
+        with_video_framebuffer = False,
+        **kwargs):
         platform = ecp5_vip.Platform(toolchain=toolchain)
 
         #bios_flash_offset = 0x400000
@@ -101,27 +101,24 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident          = "LiteX SoC on ECP5 Evaluation Board",
-            #ident_version  = True,
             #integrated_main_ram_size = 0x4000,
-            integrated_main_ram_size = 0,
+            #integrated_main_ram_size = 0,
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        crg_cls = _CRG_VERSA
-        self.submodules.crg = crg_cls(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
-        if crg_cls == _CRG_VERSA:
-            self.submodules.ddrphy = ECP5DDRPHY(
-                platform.request("ddram"),
-                sys_clk_freq=sys_clk_freq)
-            self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
-            self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
-            self.add_sdram("sdram",
-                phy           = self.ddrphy,
-                module        = MT41K64M16(sys_clk_freq, "1:2"), # Not entirely MT41J64M16 but similar and works(c)
-                l2_cache_size = kwargs.get("l2_size", 8192),
-            )
+        self.submodules.ddrphy = ECP5DDRPHY(
+            platform.request("ddram"),
+            sys_clk_freq=sys_clk_freq)
+        self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
+        self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
+        self.add_sdram("sdram",
+            phy           = self.ddrphy,
+            module        = MT41K64M16(sys_clk_freq, "1:2"), # Not entirely MT41J64M16 but similar and works(c)
+            l2_cache_size = kwargs.get("l2_size", 8192),
+        )
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
@@ -193,7 +190,7 @@ class BaseSoC(SoCCore):
 
         # # Add ROM linker region --------------------------------------------------------------------
         # self.bus.add_region("rom", SoCRegion(
-        #     origin = self.mem_map["spiflash"] + bios_flash_offset,
+        #     origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
         #     size   = (16-4)*1024*1024,
         #     linker = True)
         # )
@@ -210,7 +207,8 @@ def main():
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(toolchain=args.toolchain,
+    soc = BaseSoC(
+        toolchain    = args.toolchain,
         sys_clk_freq = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))

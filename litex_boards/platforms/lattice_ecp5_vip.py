@@ -2,6 +2,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2019 Arnaud Durand <arnaud.durand@unifr.ch>
+# Copyright (c) 2022 Martin Hubacek @hubmartin (Twitter)
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -14,11 +15,11 @@ import os
 
 _io = [
     # Clk / Rst
-    ("clk27",  0, Pins("E17"), IOStandard("LVCMOS33")), ##
-    ("clk100", 0, Pins("C5"), IOStandard("LVDS")), ##
+    ("clk27",        0, Pins("E17"), IOStandard("LVCMOS33")),
+    ("clk100",       0, Pins("C5"),  IOStandard("LVDS")),
     ("ext_clk50",    0, Pins("B11"), IOStandard("LVCMOS33")),
     ("ext_clk50_en", 0, Pins("C11"), IOStandard("LVCMOS33")),
-    ("rst_n",        0, Pins("AH1"),  IOStandard("LVCMOS33")),##
+    ("rst_n",        0, Pins("AH1"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("AG30"), IOStandard("LVCMOS25")),
@@ -115,8 +116,8 @@ _io = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name   = "clk12"
-    default_clk_period = 1e9/12e6
+    default_clk_name   = "clk27"
+    default_clk_period = 1e9/27e6
 
     def __init__(self, toolchain="trellis", **kwargs):
         LatticePlatform.__init__(self, "LFE5UM-85F-8BG756", _io, toolchain=toolchain, **kwargs)
@@ -140,5 +141,5 @@ class Platform(LatticePlatform):
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk12",  loose=True), 1e9/12e6)
-        self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)
+        self.add_period_constraint(self.lookup_request("clk27",  loose=True), 1e9/27e6)
+        self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
