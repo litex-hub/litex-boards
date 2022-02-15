@@ -155,8 +155,8 @@ class Platform(EfinixPlatform):
     default_clk_name   = "clk40"
     default_clk_period = 1e9/40e6
 
-    def __init__(self):
-        EfinixPlatform.__init__(self, "T120F576I4", _io, _connectors, iobank_info=_bank_info, toolchain="efinity")
+    def __init__(self, toolchain="efinity"):
+        EfinixPlatform.__init__(self, "T120F576I4", _io, _connectors, iobank_info=_bank_info, toolchain=toolchain)
 
     def create_programmer(self):
         return EfinixProgrammer()

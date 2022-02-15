@@ -39,10 +39,14 @@ class _CRG(Module):
             self.comb += ClockSignal("sys").eq(ClockSignal("ps7"))
             self.comb += ResetSignal("sys").eq(ResetSignal("ps7") | self.rst)
         else:
+            # Clk.
+            clk125 = platform.request("clk125")
+
+            # PLL.
             self.submodules.pll = pll = S7PLL(speedgrade=-1)
             self.comb += pll.reset.eq(self.rst)
-            pll.register_clkin(platform.request(platform.default_clk_name), platform.default_clk_freq)
-            pll.create_clkout(self.cd_sys,      sys_clk_freq)
+            pll.register_clkin(clk125, 125e6)
+            pll.create_clkout(self.cd_sys, sys_clk_freq)
             # Ignore sys_clk to pll.clkin path created by SoC's rst.
             platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
 

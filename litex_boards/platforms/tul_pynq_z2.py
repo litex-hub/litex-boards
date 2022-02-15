@@ -87,8 +87,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk125"
     default_clk_period = 1e9/125e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7z020clg400-1", _io,  _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7z020clg400-1", _io,  _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
         self.add_extension(_usb_uart_pmod_io)
 

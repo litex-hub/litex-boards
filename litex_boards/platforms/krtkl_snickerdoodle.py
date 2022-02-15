@@ -70,12 +70,12 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk100"
     default_clk_freq   = 100e6
 
-    def __init__(self, variant="z7-10"):
+    def __init__(self, variant="z7-10", toolchain="vivado"):
         device = {
             "z7-10": "xc7z010-clg400-1",
             "z7-20": "xc7z020-clg400-3"
         }[variant]
-        XilinxPlatform.__init__(self, device, _io,  _connectors, toolchain="vivado")
+        XilinxPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
         self.default_clk_period = 1e9 / self.default_clk_freq
         self.toolchain.bitstream_commands = [
             "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]"

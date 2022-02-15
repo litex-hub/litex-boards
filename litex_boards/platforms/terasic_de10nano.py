@@ -166,8 +166,8 @@ class Platform(AlteraPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self):
-        AlteraPlatform.__init__(self, "5CSEBA6U23I7", _io)
+    def __init__(self, toolchain="quartus"):
+        AlteraPlatform.__init__(self, "5CSEBA6U23I7", _io, toolchain=toolchain)
         self.add_extension(_mister_sdram_module_io)
 
     def create_programmer(self):

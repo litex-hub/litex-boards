@@ -25,8 +25,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "pmod_hda16_cc"
     default_clk_period = 1e9/100e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xck26-sfvc784-2lv-c", _io, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xck26-sfvc784-2lv-c", _io, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]", ]
         self.default_clk_freq = 1e9 / self.default_clk_period

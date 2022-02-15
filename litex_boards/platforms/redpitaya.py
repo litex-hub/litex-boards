@@ -139,7 +139,7 @@ _connectors = [
 
 class Platform(XilinxPlatform):
 
-    def __init__(self, board="redpitaya14"):
+    def __init__(self, board="redpitaya14", toolchain="vivado"):
         if board == "redpitaya14":
             device = "xc7z010clg400-1"
             extension = _io_14
@@ -153,7 +153,7 @@ class Platform(XilinxPlatform):
 
         self.default_clk_period = 1e9/self.default_clk_freq
 
-        XilinxPlatform.__init__(self, device, _io,  _connectors, toolchain="vivado")
+        XilinxPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
         self.add_extension(extension)
         self.add_extension(_ps7_io)
         self.add_extension(_uart_io)

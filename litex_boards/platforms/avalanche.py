@@ -99,8 +99,8 @@ class Platform(MicrosemiPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self):
-        MicrosemiPlatform.__init__(self, "MPF300TS_ES-FCG484-1", _io)
+    def __init__(self, toolchain="libero_soc_polarfire"):
+        MicrosemiPlatform.__init__(self, "MPF300TS_ES-FCG484-1", _io, toolchain=toolchain)
 
     def do_finalize(self, fragment):
         MicrosemiPlatform.do_finalize(self, fragment)

@@ -103,8 +103,8 @@ class Platform(GowinPlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
-    def __init__(self):
-        GowinPlatform.__init__(self, "GW1N-UV4LQ144C6/I5", _io, _connectors, toolchain="gowin", devicename="GW1N-4")
+    def __init__(self, toolchain="gowin"):
+        GowinPlatform.__init__(self, "GW1N-UV4LQ144C6/I5", _io, _connectors, toolchain=toolchain, devicename="GW1N-4")
         self.toolchain.options["use_mspi_as_gpio"] = 1
 
     def create_programmer(self):

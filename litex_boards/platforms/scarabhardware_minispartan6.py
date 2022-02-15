@@ -154,9 +154,9 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk32"
     default_clk_period = 1e9/32e6
 
-    def __init__(self, device="xc6slx25"):
+    def __init__(self, device="xc6slx25", toolchain="ise"):
         assert device in ["xc6slx9", "xc6slx25"]
-        XilinxPlatform.__init__(self, device+"-3-ftg256", _io, _connectors)
+        XilinxPlatform.__init__(self, device+"-3-ftg256", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return XC3SProg(cable="ftdi")

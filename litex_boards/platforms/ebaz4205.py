@@ -66,8 +66,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk33_333"
     default_clk_period = 1e9/33.333e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7z010-clg400-1", _io,  _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7z010-clg400-1", _io,  _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
 
     def create_programmer(self):

@@ -132,10 +132,10 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk125"
     default_clk_period = 1e9/125e6
 
-    def __init__(self, revision="c"):
+    def __init__(self, revision="c", toolchain="ise"):
         assert revision in ["b", "c"]
         device = {"b": "xc6slx150-2-fgg484", "c": "xc6slx100-2-fgg484"}[revision]
-        XilinxPlatform.__init__(self, device, _io)
+        XilinxPlatform.__init__(self, device, _io, toolchain=toolchain)
         self.add_platform_command("""CONFIG VCCAUX="2.5";""")
         self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
 

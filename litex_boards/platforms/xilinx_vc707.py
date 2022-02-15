@@ -631,8 +631,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk156"
     default_clk_period = 1e9/156.25e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7vx485tffg1761-2", _io, _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7vx485tffg1761-2", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("""set_property CFGBVS VCCO [current_design]""")
         self.add_platform_command("""set_property CONFIG_VOLTAGE 2.5 [current_design]""")
 

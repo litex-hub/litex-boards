@@ -156,8 +156,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a200t-fbg484-2", _io, _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7a200t-fbg484-2", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
         self.toolchain.bitstream_commands = [

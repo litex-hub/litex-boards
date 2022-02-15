@@ -86,8 +86,8 @@ class Platform(GowinPlatform):
     default_clk_name   = "clk27"
     default_clk_period = 1e9/27e6
 
-    def __init__(self):
-        GowinPlatform.__init__(self, "GW1NSR-LV4CQN48PC7/I6", _io, _connectors, toolchain="gowin", devicename="GW1NSR-4C")
+    def __init__(self, toolchain="gowin"):
+        GowinPlatform.__init__(self, "GW1NSR-LV4CQN48PC7/I6", _io, _connectors, toolchain=toolchain, devicename="GW1NSR-4C")
         self.toolchain.options["use_mode_as_gpio"] = 1
         self.toolchain.options["use_mspi_as_gpio"] = 1
         self.toolchain.options["use_done_as_gpio"] = 1

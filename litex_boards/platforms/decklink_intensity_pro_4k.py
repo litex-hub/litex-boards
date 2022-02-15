@@ -64,8 +64,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "debug"   # FIXME.
     default_clk_period = 1e9/100e6 # FIXME.
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7k70t-fbg676-1", _io, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7k70t-fbg676-1", _io, toolchain=toolchain)
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a70t.bit")

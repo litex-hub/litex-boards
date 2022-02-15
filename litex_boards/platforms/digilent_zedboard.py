@@ -201,14 +201,13 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    default_clk_name = "clk100"
-    default_clk_period = 10.0
+    default_clk_name   = "clk100"
+    default_clk_period = 1e9/100e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7z020clg484-1", _io, _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7z020clg484-1", _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]", ]
-        self.default_clk_freq = 1e9 / self.default_clk_period
 
     def create_programmer(self):
         return OpenOCD(config="board/digilent_zedboard.cfg")

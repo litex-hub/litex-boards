@@ -83,8 +83,8 @@ class Platform(XilinxPlatform):
 
     def __init__(self, variant="a7-35", toolchain="vivado"):
         device = {
-                "a7-35": "xc7a35tcpg236-1"
-                }[variant]
+            "a7-35": "xc7a35tcpg236-1"
+        }[variant]
         XilinxPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):

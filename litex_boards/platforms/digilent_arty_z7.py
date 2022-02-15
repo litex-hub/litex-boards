@@ -221,8 +221,8 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    default_clk_name = "clk125"
-    default_clk_freq = 125e6
+    default_clk_name   = "clk125"
+    default_clk_period = 1e9/125e6
 
     def __init__(self, variant="z7-20", toolchain="vivado"):
         device = {
@@ -234,14 +234,11 @@ class Platform(XilinxPlatform):
             "z7-20": "arty_z7_20"
         }[variant]
 
-        XilinxPlatform.__init__(self, device, _io, _connectors,
-                                toolchain=toolchain)
-        self.default_clk_period = 1e9 / self.default_clk_freq
+        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return OpenFPGALoader(self.board)
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request(self.default_clk_name, loose=True),
-                                   self.default_clk_period)
+        self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e6/125e6)

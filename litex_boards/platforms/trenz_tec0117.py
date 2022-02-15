@@ -108,8 +108,8 @@ class Platform(GowinPlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
-    def __init__(self):
-        GowinPlatform.__init__(self, "GW1NR-LV9QN88C6/I5", _io, _connectors, toolchain="gowin", devicename='GW1NR-9')
+    def __init__(self, toolchain="gowin"):
+        GowinPlatform.__init__(self, "GW1NR-LV9QN88C6/I5", _io, _connectors, toolchain=toolchain, devicename="GW1NR-9")
 
     def create_programmer(self):
         return OpenFPGALoader("littleBee")
