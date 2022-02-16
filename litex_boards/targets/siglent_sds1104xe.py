@@ -31,6 +31,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 
+from litedram.common import PHYPadsReducer
 from litedram.modules import MT41K64M16
 from litedram.phy import s7ddrphy
 
@@ -82,7 +83,8 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
+            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(
+                pads           = PHYPadsReducer(platform.request("ddram"), [0, 1]), # FIXME: Reduce to 16-bit for use with NaxRiscv.
                 memtype        = "DDR3",
                 nphases        = 4,
                 sys_clk_freq   = sys_clk_freq)
