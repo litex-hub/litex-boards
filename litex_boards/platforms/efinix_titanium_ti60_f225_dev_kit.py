@@ -17,9 +17,16 @@ _io = [
     ("clk74_25", 0, Pins("A11"), IOStandard("1.8_V_LVCMOS")),
 
     # SD-Card
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("B12")),
+        Subsignal("mosi", Pins("C12"), Misc("WEAK_PULLUP")),
+        Subsignal("cs_n", Pins("A12"), Misc("WEAK_PULLUP")),
+        Subsignal("miso", Pins("B14"), Misc("WEAK_PULLUP")),
+        IOStandard("1.8_V_LVCMOS"),
+    ),
     ("sdcard", 0,
-        Subsignal("data", Pins("B14 A14 D12 A12")),
-        Subsignal("cmd",  Pins("C12")),
+        Subsignal("data", Pins("B14 A14 D12 A12"), Misc("WEAK_PULLUP")),
+        Subsignal("cmd",  Pins("C12"), Misc("WEAK_PULLUP")),
         Subsignal("clk",  Pins("B12")),
         IOStandard("3.3_V_LVCMOS"),
     ),

@@ -80,6 +80,9 @@ def main():
     parser.add_argument("--sys-clk-freq",   default=200e6,       help="System clock frequency.")
     parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
     parser.add_argument("--with-hyperram",  action="store_true", help="Enable HyperRAM.")
+    sdopts = parser.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -89,6 +92,10 @@ def main():
         with_spi_flash = args.with_spi_flash,
         with_hyperram  = args.with_hyperram,
          **soc_core_argdict(args))
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
