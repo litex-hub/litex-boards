@@ -20,6 +20,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.bitbang import I2CMaster
 
 from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy.s7ddrphy import A7DDRPHY
@@ -75,7 +76,6 @@ class BaseSoC(SoCCore):
                 memtype         = "DDR4",
                 iodelay_clk_freq = iodelay_clk_freq,
                 sys_clk_freq     = sys_clk_freq,
-                cmd_latency      = 1,
                 is_rdimm         = True,
             )
             self.add_sdram("sdram",
@@ -121,6 +121,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # System I2C (behing multiplexer) ----------------------------------------------------------
+        i2c_pads = platform.request('i2c')
+        self.submodules.i2c = I2CMaster(i2c_pads)
+
     def generate_sdram_phy_py_header(self, output_file):
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         f = open(output_file, "w")
@@ -150,7 +154,7 @@ def main():
     target.add_argument("--build",            action="store_true",    help="Build bitstream.")
     target.add_argument("--load",             action="store_true",    help="Load bitstream.")
     target.add_argument("--flash",            action="store_true",    help="Flash bitstream.")
-    target.add_argument("--sys-clk-freq",     default=50e6,           help="System clock frequency.")
+    target.add_argument("--sys-clk-freq",     default=100e6,           help="System clock frequency.")
     target.add_argument("--iodelay-clk-freq", default=200e6,          help="IODELAYCTRL frequency.")
     ethopts = target.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",   action="store_true",    help="Add Ethernet.")

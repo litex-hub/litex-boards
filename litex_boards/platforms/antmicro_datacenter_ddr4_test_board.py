@@ -116,6 +116,13 @@ _io = [
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33"),
     ),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("Y6")),
+        Subsignal("sda", Pins("Y5")),
+        IOStandard("SSTL12_T_DCI"),
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
