@@ -12,26 +12,22 @@ from litex.build.openocd import OpenOCD
 
 _io = [
     # Clk / Rst
+    ("cpu_reset_n", 0, Pins("AC16"), IOStandard("LVCMOS15")),
+    ("clk100",      0, Pins("F17"), IOStandard("LVCMOS25")),
     ("clk200", 0,
         Subsignal("p", Pins("AB11"), IOStandard("DIFF_SSTL15")),
         Subsignal("n", Pins("AC11"), IOStandard("DIFF_SSTL15"))
     ),
-    # TODO verify / test (in docs)
-    ("clk156", 0,
-     Subsignal("p", Pins("D6"), IOStandard("LVDS")),
-     Subsignal("n", Pins("D5"), IOStandard("LVDS")),
-     ),
-    # TODO verify / test (in docs)
-    ("clk150", 0,
-     Subsignal("p", Pins("F6"), IOStandard("LVDS")),
-     Subsignal("n", Pins("F5"), IOStandard("LVDS")),
-     ),
-    ("clk100", 0, Pins("F17"), IOStandard("LVCMOS25")),
+    ("clk156", 0, # TODO verify / test (in docs)
+        Subsignal("p", Pins("D6"), IOStandard("LVDS")),
+        Subsignal("n", Pins("D5"), IOStandard("LVDS")),
+    ),
+    ("clk150", 0, # TODO verify / test (in docs)
+        Subsignal("p", Pins("F6"), IOStandard("LVDS")),
+        Subsignal("n", Pins("F5"), IOStandard("LVDS")),
+    ),
 
-    # active low
-    ("cpu_reset_n", 0, Pins("AC16"), IOStandard("LVCMOS15")),
-
-    # active low
+    # Leds
     ("user_led_n", 0, Pins("AA2"),  IOStandard("LVCMOS15")),
     ("user_led_n", 1, Pins("AD5"),  IOStandard("LVCMOS15")),
     ("user_led_n", 2, Pins("W10"),  IOStandard("LVCMOS15")),
@@ -41,15 +37,16 @@ _io = [
     ("user_led_n", 6, Pins("V11"),  IOStandard("LVCMOS15")),
     ("user_led_n", 7, Pins("Y12"),  IOStandard("LVCMOS15")),
 
-    # active low
-    ("user_key2_n", 0, Pins("AC16"), IOStandard("LVCMOS15")),
-    ("user_key3_n", 0, Pins("C24"),  IOStandard("LVCMOS33")),  # J4 jumper 2.5V or 3.3V
+    # Buttons
+    ("user_btn_n", 0, Pins("AC16"), IOStandard("LVCMOS15")),
+    ("user_btn_n", 0, Pins("C24"),  IOStandard("LVCMOS33")), # J4 jumper 2.5V or 3.3V
 
-    # I2C
-    ("i2c", 0,  # AT24C04
+    # I2C / AT24C04
+    ("i2c", 0,
         Subsignal("scl", Pins("U19")),
         Subsignal("sda", Pins("U20")),
-        IOStandard("LVCMOS25")),
+        IOStandard("LVCMOS25")
+    ),
 
     # Serial
     ("serial", 0,
@@ -60,16 +57,15 @@ _io = [
 
     # DDR3 SDRAM
     ("ddram", 0,
-        Subsignal("a",       Pins(
-            "AB7 AD11 AA8 AF10 AC7 AE11 AC8 AD8",
-            "AC13 AF12 AF9 AD10 AE13 AF7 AB12"),
+        Subsignal("a",     Pins(
+            "AB7  AD11 AA8 AF10  AC7 AE11  AC8 AD8",
+            "AC13 AF12 AF9 AD10 AE13  AF7 AB12"),
             IOStandard("SSTL15")),
-        Subsignal("ba",      Pins("AE8 AA7 AF13"), IOStandard("SSTL15")),
-        Subsignal("ras_n",   Pins("Y7"),  IOStandard("SSTL15")),
-        Subsignal("cas_n",   Pins("AE7"), IOStandard("SSTL15")),
-        Subsignal("we_n",    Pins("AF8"),  IOStandard("SSTL15")),
-        Subsignal("cs_n",    Pins("AA13"), IOStandard("SSTL15")),  # 1R
-        # Subsignal("cs_n",    Pins("AD13"), IOStandard("SSTL15")),  # 2R
+        Subsignal("ba",    Pins("AE8 AA7 AF13"), IOStandard("SSTL15")),
+        Subsignal("ras_n", Pins("Y7"),  IOStandard("SSTL15")),
+        Subsignal("cas_n", Pins("AE7"), IOStandard("SSTL15")),
+        Subsignal("we_n",  Pins("AF8"),  IOStandard("SSTL15")),
+        Subsignal("cs_n",  Pins("AA13"), IOStandard("SSTL15")),
         Subsignal("dm",      Pins(
             "AD16 AB16 AB19 V17 U1 AA3 AD6 AE1"),
             IOStandard("SSTL15")),
@@ -77,28 +73,30 @@ _io = [
             "AF17 AE17 AF15 AF14 AE15 AD15 AF20 AF19",
             "AA15 AA14 AC14 AD14 AB14 AB15 AA18 AA17",
             "AC18 AD18 AC17 AB17 AA20 AA19 AD19 AC19",
-            "W14 V14 V19 V18 V16 W15 W16 Y17",
-            "V4 U6 U5 U2 V3 W3 U7 V6",
-            "Y3 Y2 V2 V1 W1 Y1 AB2 AC2",
-            "AA4 AB4 AC4 AC3 AC6 AB6 Y6 Y5",
-            "AD4 AD1 AF2 AE2 AE6 AE5 AF3 AE3"),
+            " W14  V14  V19  V18  V16  W15  W16  Y17",
+            "  V4   U6   U5   U2   V3   W3   U7   V6",
+            "  Y3   Y2   V2   V1   W1   Y1  AB2  AC2",
+            " AA4  AB4  AC4  AC3  AC6  AB6   Y6   Y5",
+            " AD4  AD1  AF2  AE2  AE6  AE5  AF3  AE3"),
             IOStandard("SSTL15_T_DCI")),
         Subsignal("dqs_p",   Pins("AE18 Y15 AD20 W18 W6 AB1 AA5 AF5"),
             IOStandard("DIFF_SSTL15")),
         Subsignal("dqs_n",   Pins("AF18 Y16 AE20 W19 W5 AC1 AB5 AF4"),
             IOStandard("DIFF_SSTL15")),
-        Subsignal("clk_p",   Pins("AC9"), IOStandard("DIFF_SSTL15")),  # 1R
-        Subsignal("clk_n",   Pins("AD9"), IOStandard("DIFF_SSTL15")),  # 1R
-        # Subsignal("clk_p",   Pins("AA10"), IOStandard("DIFF_SSTL15")),  # 2R
-        # Subsignal("clk_n",   Pins("AB10"), IOStandard("DIFF_SSTL15")),  # 2R
-        Subsignal("cke",     Pins("AB9"), IOStandard("SSTL15")),  # 1R
-        # Subsignal("cke",     Pins("AA9"), IOStandard("SSTL15")),  # 2R
-        Subsignal("odt",     Pins("AA12"),  IOStandard("SSTL15")),  # 1R
-        # Subsignal("odt",     Pins("Y13"),  IOStandard("SSTL15")),  # 2R
-        Subsignal("reset_n", Pins("AB20"),  IOStandard("LVCMOS15")),
+        Subsignal("clk_p",   Pins("AC9"),  IOStandard("DIFF_SSTL15")),
+        Subsignal("clk_n",   Pins("AD9"),  IOStandard("DIFF_SSTL15")),
+        Subsignal("cke",     Pins("AB9"),  IOStandard("SSTL15")),
+        #Subsignal("odt",     Pins("AA12"), IOStandard("SSTL15")),
+        Subsignal("reset_n", Pins("AB20"), IOStandard("LVCMOS15")),
         Misc("SLEW=FAST"),
         Misc("VCCAUX_IO=NORMAL")
     ),
+    # 2 Rank Signals:
+    # Subsignal("cs_n",  Pins("AD13"), IOStandard("SSTL15")),
+    # Subsignal("clk_p", Pins("AA10"), IOStandard("DIFF_SSTL15")),
+    # Subsignal("clk_n", Pins("AB10"), IOStandard("DIFF_SSTL15")),
+    # Subsignal("cke",   Pins("AA9"), IOStandard("SSTL15")),
+    # Subsignal("odt",   Pins("Y13"),  IOStandard("SSTL15")),
 
     ## TODO verify / test
     # # SPIFlash
@@ -303,7 +301,7 @@ set_property CONFIG_VOLTAGE 2.5 [current_design]
         self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a325t.bit")
+        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a325t.bit")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)

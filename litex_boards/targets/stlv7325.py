@@ -22,7 +22,6 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
 
-from litedram.modules import DDR3Module
 from litedram.modules import MT8JTF12864
 from litedram.phy import s7ddrphy
 
@@ -42,9 +41,14 @@ class _CRG(Module):
 
         # # #
 
+        # Clk/Rst.
+        clk200 = platform.request("clk200")
+        rst_n  = platform.request("cpu_reset_n")
+
+        # PLL.
         self.submodules.pll = pll = S7MMCM(speedgrade=-2)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
-        pll.register_clkin(platform.request("clk200"), 200e6)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
+        pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)
         pll.create_clkout(self.cd_idelay, 200e6)
@@ -72,12 +76,12 @@ class BaseSoC(SoCCore):
             self.submodules.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
                 memtype      = "DDR3",
                 nphases      = 4,
-                sys_clk_freq = sys_clk_freq)
+                sys_clk_freq = sys_clk_freq,
+            )
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = MT8JTF12864(sys_clk_freq, "1:4"),
-                size          = 0x40000000,
-                l2_cache_size = kwargs.get("l2_size", 8192)
+                l2_cache_size = kwargs.get("l2_size", 8192),
             )
 
         # Ethernet ---------------------------------------------------------------------------------
