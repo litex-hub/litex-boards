@@ -153,6 +153,9 @@ def main():
     parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
     parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
     parser.add_argument("--with-sata",       action="store_true", help="Enable SATA support.")
+    sdopts = parser.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -167,6 +170,10 @@ def main():
         with_sata      = args.with_sata,
         **soc_core_argdict(args)
     )
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
