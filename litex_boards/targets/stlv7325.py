@@ -59,8 +59,12 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_led_chaser=True,
-                 with_pcie=False, with_sata=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6),
+        with_ethernet   = False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
+        with_led_chaser = True,
+        with_pcie       = False,
+        with_sata       = False,
+        **kwargs):
         platform = stlv7325.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -84,13 +88,16 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192),
             )
 
-        # Ethernet ---------------------------------------------------------------------------------
-        if with_ethernet:
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHY(
                 clock_pads = self.platform.request("eth_clocks", 0),
                 pads       = self.platform.request("eth", 0),
                 clk_freq   = self.clk_freq)
-            self.add_ethernet(phy=self.ethphy)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -138,19 +145,26 @@ def main():
     parser.add_argument("--build",         action="store_true", help="Build bitstream.")
     parser.add_argument("--load",          action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",  default=125e6,       help="System clock frequency.")
-    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support.")
-    parser.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support.")
-    parser.add_argument("--driver",        action="store_true", help="Generate PCIe driver.")
-    parser.add_argument("--with-sata",     action="store_true", help="Enable SATA support (over SFP2SATA).")
+    ethopts = parser.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
+    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_argument("--eth-dynamic-ip",  action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
+    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
+    parser.add_argument("--with-sata",       action="store_true", help="Enable SATA support.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq  = int(float(args.sys_clk_freq)),
-        with_ethernet = args.with_ethernet,
-        with_pcie     = args.with_pcie,
-        with_sata     = args.with_sata,
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        with_pcie      = args.with_pcie,
+        with_sata      = args.with_sata,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
