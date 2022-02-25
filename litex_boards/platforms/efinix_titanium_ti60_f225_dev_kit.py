@@ -76,6 +76,16 @@ _io = [
         Subsignal("clk",   Pins("B7"),    IOStandard("1.8_V_LVCMOS")),
         Misc("SLEWRATE=FAST")
     ),
+
+    # MIPI
+    ("mipi_tx", 0,
+        Subsignal("clk",   Pins("D13"), IOStandard("1.2_V_LVCMOS")),
+        Subsignal("data0", Pins("C15"), IOStandard("1.2_V_LVCMOS")),
+        Subsignal("data1", Pins("D14"), IOStandard("1.2_V_LVCMOS")),
+        Subsignal("data2", Pins("E14"), IOStandard("1.2_V_LVCMOS")),
+        Subsignal("data3", Pins("E12"), IOStandard("1.2_V_LVCMOS")),
+        Misc("SLEWRATE=FAST")
+    ),
 ]
 
 iobank_info = [
