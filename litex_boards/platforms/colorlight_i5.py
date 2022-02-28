@@ -7,6 +7,8 @@
 # The Colorlight i5 PCB and IOs have been documented by @wuxx
 # https://github.com/wuxx/Colorlight-FPGA-Projects
 
+import copy
+
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
 from litex.build.lattice.programmer import EcpDapProgrammer
@@ -116,6 +118,45 @@ _connectors_v7_0 = [
     ("pmodf", "D1  C1  C2  E3  E2  D2  B1  A3"),
 ]
 
+# ColorLight i9 V 7.2 hardware
+# See https://github.com/wuxx/Colorlight-FPGA-Projects/blob/master/colorlight_i9_v7.2.md
+
+# SPIFlash (W25Q64JVSIQ)
+
+_io_v7_2 = copy.deepcopy(_io_v7_0)
+
+# Change the LED pin to "L2"
+
+for i, x in enumerate(_io_v7_2):
+    if x[:2] == ("user_led_n", 0):
+        _io_v7_2[i] = ("user_led_n", 0, Pins("L2"), IOStandard("LVCMOS33"))
+        break
+
+# optional, alternative uart location
+# requires "--uart-name serialx"
+_io_v7_2 += [ 
+    ("serialx", 0, Subsignal("tx", Pins("E5")), Subsignal("rx", Pins("F4")), IOStandard("LVCMOS33")) 
+]
+
+_connectors_v7_2 = copy.deepcopy(_connectors_v7_0)
+
+# Append the rest of the pmod interfaces
+
+_connectors_v7_2 += [
+    # P2
+    ("pmodc", "P17 R18 C18 L2 M17 R17 T18 K18"),
+    ("pmodd", "J20 L18 M18 N17 G20 K20 L20 N18"),
+    # P4
+    ("pmodg", "H4 G3 F1 F2 H3 F3 E4 E1"),
+    ("pmodh", "- E19 B3 K5 - B2 K4 A2"),
+    # P5
+    ("pmodi", "D18 G5 F5 E5 D17 D16 E6 F4"),
+    ("pmodj", "J17 H17 H16 G16 H18 G18 F18 E18"),
+    # P6
+    ("pmodk", "R3 M4 L5 J16 N4 L4 P16 J18"),
+    ("pmodl", "R1 U1 W1 M1 T1 Y2 V1 N2"),
+]
+
 # PMODS --------------------------------------------------------------------------------------------
 
 def sdcard_pmod_io(pmod):
@@ -147,12 +188,20 @@ class Platform(LatticePlatform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
-    def __init__(self, revision="7.0", toolchain="trellis"):
-        assert revision in ["7.0"]
-        self.revision = revision
-        device     = {"7.0": "LFE5U-25F-6BG381C"}[revision]
-        io         = {"7.0": _io_v7_0}[revision]
-        connectors = {"7.0": _connectors_v7_0}[revision]
+    def __init__(self, board="i5", revision="7.0", toolchain="trellis"):
+        if board == "i5":
+            assert revision in ["7.0"]
+            self.revision = revision
+            device     = {"7.0": "LFE5U-25F-6BG381C"}[revision]
+            io         = {"7.0": _io_v7_0}[revision]
+            connectors = {"7.0": _connectors_v7_0}[revision]
+        if board == "i9":
+            assert revision in ["7.2"]
+            self.revision = revision
+            device     = {"7.2": "LFE5U-45F-6BG381C"}[revision]
+            io         = {"7.2": _io_v7_2}[revision]
+            connectors = {"7.2": _connectors_v7_2}[revision]
+
         LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
 
     def create_programmer(self):
