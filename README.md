@@ -73,7 +73,7 @@ Most of the peripherals present are generally supported: DRAM, UART, Ethernet, S
 
 <figure>
 <p align="center">
-<img src="https://user-images.githubusercontent.com/1450143/156153536-297e2ff8-6ff5-4ec9-a497-b6fa90e26b46.png">
+<img src="https://user-images.githubusercontent.com/1450143/156173620-355c6f1d-87dc-4dda-be45-910bf379ae9a.jpg">
 </p>
 <figcaption>
 <p align="center">
