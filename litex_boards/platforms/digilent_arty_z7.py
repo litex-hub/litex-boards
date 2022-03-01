@@ -2,8 +2,7 @@
 # License: BSD
 
 from litex.build.generic_platform import Pins, IOStandard, Subsignal
-from litex.build.xilinx import XilinxPlatform
-from litex.build.openfpgaloader import OpenFPGALoader
+from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -237,7 +236,7 @@ class Platform(XilinxPlatform):
         XilinxPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
-        return OpenFPGALoader(self.board)
+        return VivadoProgrammer()
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
