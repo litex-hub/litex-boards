@@ -100,14 +100,14 @@ iobank_info = [
             ("1B", "1.8 V LVCMOS"),
             ("2A", "1.8 V LVCMOS"),
             ("2B", "1.8 V LVCMOS"),
-            ("3A", "1.8 V LVCMOS"),
-            ("3B", "1.8 V LVCMOS"),
-            ("4A", "1.8 V LVCMOS"),
-            ("4B", "1.8 V LVCMOS"),
-            ("BL", "3.3 V LVCMOS"),
+            ("3A", "1.2 V LVCMOS"),
+            ("3B", "1.2 V LVCMOS"),
+            ("4A", "1.2 V LVCMOS"),
+            ("4B", "1.2 V LVCMOS"),
+            ("BL", "1.8 V LVCMOS"),
             ("BR", "1.8 V LVCMOS"),
             ("TL", "1.8 V LVCMOS"),
-            ("TR", "3.3 V LVCMOS"),
+            ("TR", "1.8 V LVCMOS"),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
