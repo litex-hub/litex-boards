@@ -113,6 +113,7 @@ def main():
     soc_core_args(parser)
     vivado_build_args(parser)
     parser.set_defaults(cpu_type="zynq7000")
+    parser.set_defaults(no_uart=True)
     args = parser.parse_args()
 
     soc = BaseSoC(
