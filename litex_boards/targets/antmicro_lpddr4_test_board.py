@@ -23,7 +23,7 @@ from litedram.modules import MT53E256M16D1
 from litedram.phy import lpddr4
 
 from liteeth.phy import LiteEthS7PHYRGMII
-from litehyperbus.core.hyperbus import HyperRAM
+from litex.soc.cores.hyperbus import HyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 

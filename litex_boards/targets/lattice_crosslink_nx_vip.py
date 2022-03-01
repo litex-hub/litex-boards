@@ -19,7 +19,7 @@ from litex_boards.platforms import crosslink_nx_vip
 
 from litex_boards.platforms import crosslink_nx_vip
 
-from litehyperbus.core.hyperbus import HyperRAM
+from litex.soc.cores.hyperbus import HyperRAM
 
 from litex.soc.cores.ram import NXLRAM
 from litex.build.io import CRG

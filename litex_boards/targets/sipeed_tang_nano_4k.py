@@ -21,7 +21,7 @@ from litex.soc.cores.video import *
 
 from litex_boards.platforms import tang_nano_4k
 
-from litehyperbus.core.hyperbus import HyperRAM
+from litex.soc.cores.hyperbus import HyperRAM
 
 kB = 1024
 mB = 1024*kB

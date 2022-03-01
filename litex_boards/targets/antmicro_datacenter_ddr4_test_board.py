@@ -24,7 +24,7 @@ from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy.s7ddrphy import K7DDRPHY
 
 from liteeth.phy import LiteEthS7PHYRGMII
-from litehyperbus.core.hyperbus import HyperRAM
+from litex.soc.cores.hyperbus import HyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 
