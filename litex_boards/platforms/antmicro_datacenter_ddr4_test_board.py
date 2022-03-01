@@ -119,8 +119,8 @@ _io = [
 
     # I2C
     ("i2c", 0,
-        Subsignal("scl", Pins("Y6")),
-        Subsignal("sda", Pins("Y5")),
+        Subsignal("scl", Pins("Y5")),
+        Subsignal("sda", Pins("Y6")),
         IOStandard("SSTL12_T_DCI"),
     ),
 ]
