@@ -102,9 +102,8 @@ class BaseSoC(SoCCore):
                  use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
                  with_video_framebuffer=False, **kwargs):
         board = board.lower()
-        assert board in ["i5"]
-        if board == "i5":
-            platform = colorlight_i5.Platform(revision=revision)
+        assert board in ["i5", "i9"]
+        platform = colorlight_i5.Platform(board=board, revision=revision)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, int(sys_clk_freq),
@@ -122,9 +121,13 @@ class BaseSoC(SoCCore):
             self.submodules.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
-        from litespi.modules import GD25Q16
+        if board == "i5":
+            from litespi.modules import GD25Q16 as SpiFlashModule
+        if board == "i9":
+            from litespi.modules import W25Q64 as SpiFlashModule
+
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        self.add_spi_flash(mode="1x", module=GD25Q16(Codes.READ_1_1_1))
+        self.add_spi_flash(mode="1x", module=SpiFlashModule(Codes.READ_1_1_1))
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
