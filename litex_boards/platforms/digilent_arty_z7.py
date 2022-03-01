@@ -38,14 +38,6 @@ _io = [
     ("user_btn", 2, Pins("L20"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("L19"), IOStandard("LVCMOS33")),
 
-    # Serial (ust to make CI pass)
-    # Unfortunately the only USB UART is hard-wired to the ARM CPU
-    ("serial", 0,
-        Subsignal("tx", Pins("Y18")),
-        Subsignal("rx", Pins("Y19")),
-        IOStandard("LVCMOS33"),
-    ),
-
 	# SPI
     ("spi", 0,
         Subsignal("clk",  Pins("H15")),
