@@ -3,8 +3,13 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2020-2022 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
+
+# Build/Use:
+# python3 -m litex_boards.targets.sqrl_fk33 --with-hbm --sys-clk-freq=250e6 --csr-csv=csr.csv --build --load
+# litex_server --jtag --jtag-config=openocd_xc7_ft2232.cfg --jtag-chain=2
+# litex_term crossover
 
 import os
 import argparse
@@ -16,8 +21,10 @@ from litex_boards.platforms import fk33
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.integration.soc import SoCRegion
+from litex.soc.interconnect.axi import *
+from litex.soc.cores.ram.xilinx_usp_hbm2 import USPHBM2
 from litex.soc.cores.led import LedChaser
-
 
 from litepcie.phy.usppciephy import USPHBMPCIEPHY
 from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
@@ -28,9 +35,12 @@ from litepcie.software import generate_litepcie_software
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_hbm):
         self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.clock_domains.cd_sys = ClockDomain()
+        if with_hbm:
+            self.clock_domains.cd_hbm_ref = ClockDomain()
+            self.clock_domains.cd_apb     = ClockDomain()
 
         # # #
 
@@ -40,21 +50,49 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
+        if with_hbm:
+            pll.create_clkout(self.cd_hbm_ref, 100e6)
+            pll.create_clkout(self.cd_apb,     100e6)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, with_pcie=False, with_hbm=False, **kwargs):
         platform = fk33.Platform()
+        if with_hbm:
+            assert 225e6 <= sys_clk_freq <= 450e6
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG-UART.
+            kwargs["uart_name"] = "crossover" # Defaults to Crossover-UART.
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on FK33",
             **kwargs)
 
+        # JTAGBone --------------------------------------------------------------------------------
+        self.add_jtagbone(chain=2) # Chain 1 already used by HBM2 debug probes.
+
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_hbm)
+
+        # HBM --------------------------------------------------------------------------------------
+        if with_hbm:
+            # Add HBM Core.
+            self.submodules.hbm = hbm = ClockDomainsRenamer({"axi": "sys"})(USPHBM2(platform))
+
+            # Get HBM .xci.
+            os.system("wget https://github.com/litex-hub/litex-boards/files/8178874/hbm_0.xci.txt")
+            os.makedirs("ip/hbm", exist_ok=True)
+            os.system("mv hbm_0.xci.txt ip/hbm/hbm_0.xci")
+
+            # Connect four of the HBM's AXI interfaces to the main bus of the SoC.
+            for i in range(4):
+                axi_hbm      = hbm.axi[i]
+                axi_lite_hbm = AXILiteInterface(data_width=256, address_width=33)
+                self.submodules += AXILite2AXI(axi_lite_hbm, axi_hbm)
+                self.bus.add_slave(f"hbm{i}", axi_lite_hbm, SoCRegion(origin=0x4000_0000 + 0x1000_0000*i, size=0x1000_0000)) # 256MB.
+            # Link HBM2 channel 0 as main RAM
+            self.bus.add_region("main_ram", SoCRegion(origin=0x4000_0000, size=0x1000_0000, linker=True)) # 256MB.
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -104,6 +142,7 @@ def main():
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
     parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
+    parser.add_argument("--with-hbm",     action="store_true", help="Use HBM2.")
     parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver.")
     builder_args(parser)
     soc_core_args(parser)
@@ -111,7 +150,8 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        with_pcie=args.with_pcie,
+        with_pcie    = args.with_pcie,
+        with_hbm     = args.with_hbm,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
