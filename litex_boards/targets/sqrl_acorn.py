@@ -87,11 +87,10 @@ class BaseSoC(SoCCore):
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
-                memtype                   = "DDR3",
-                nphases                   = 4,
-                sys_clk_freq              = sys_clk_freq,
-                iodelay_clk_freq          = 200e6,
-                write_latency_calibration = False)
+                memtype          = "DDR3",
+                nphases          = 4,
+                sys_clk_freq     = sys_clk_freq,
+                iodelay_clk_freq = 200e6)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = MT41K512M16(sys_clk_freq, "1:4"),
