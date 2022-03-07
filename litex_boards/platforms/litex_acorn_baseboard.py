@@ -79,11 +79,25 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # SerDes
+    ("refclk", 0,
+        Subsignal("p", Pins("Y11")),
+        Subsignal("n", Pins("Y12")),
+    ),
+
     # M2
     ("m2_devslp", 0, Pins("U18"), IOStandard("LVCMOS33")),
     ("m2_perst",  0, Pins("U17"), IOStandard("LVCMOS33")),
     ("m2_pewake", 0, Pins("R16"), IOStandard("LVCMOS33")),
     ("m2_pedet",  0, Pins("T17"), IOStandard("LVCMOS33")),
+    ("m2_tx", 0,
+        Subsignal("p", Pins("W4")),
+        Subsignal("n", Pins("W5")),
+    ),
+    ("m2_rx", 0,
+        Subsignal("p", Pins("Y5")),
+        Subsignal("n", Pins("Y6")),
+    ),
 
     # HDMI
     ("hdmi_i2c", 0,
