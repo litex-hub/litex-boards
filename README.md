@@ -86,6 +86,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
 ---------------
     ├── 1bitsquared_icebreaker_bitsy
     ├── 1bitsquared_icebreaker
+    ├── adi_adrv2crr_fmc
     ├── alchitry_au
     ├── alchitry_mojo
     ├── alinx_axu2cga
