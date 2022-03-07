@@ -98,13 +98,12 @@ _io = [
 
     # HyperRAM
     ("hyperram", 0,
-        Subsignal("clk_n", Pins("AE26")),
-        Subsignal("clk_p", Pins("AD26")),
-        Subsignal("rst_n", Pins("AC24")),
-        Subsignal("cs_n",  Pins("AC26")),
-        Subsignal("dq",    Pins("AE23 AD25 AF24 AE22 AF23 AF25 AE25 AD24")),
-        Subsignal("rwds",  Pins("AD23")),
-        IOStandard("LVCMOS33")
+        Subsignal("clk_n", Pins("AE26"), IOStandard("TMDS_33")),
+        Subsignal("clk_p", Pins("AD26"), IOStandard("TMDS_33")),
+        Subsignal("rst_n", Pins("AC24"), IOStandard("LVCMOS33")),
+        Subsignal("cs_n",  Pins("AC26"), IOStandard("LVCMOS33")),
+        Subsignal("dq",    Pins("AE23 AD25 AF24 AE22 AF23 AF25 AE25 AD24"), IOStandard("LVCMOS33")),
+        Subsignal("rwds",  Pins("AD23"), IOStandard("LVCMOS33")),
     ),
 
     # SD Card
@@ -122,6 +121,18 @@ _io = [
         Subsignal("scl", Pins("Y5")),
         Subsignal("sda", Pins("Y6")),
         IOStandard("SSTL12_T_DCI"),
+    ),
+
+    # HDMI Out
+    ("hdmi_out", 0,
+        Subsignal("clk_p",   Pins("B15"),   IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("A15"),   IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("B14"),   IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("A14"),   IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("A13"),  IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("A12"),  IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("B10"),  IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("A10"),  IOStandard("TMDS_33")),
     ),
 ]
 
