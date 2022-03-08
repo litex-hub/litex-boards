@@ -8,7 +8,9 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
+from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
+
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -78,8 +80,11 @@ class Platform(GowinPlatform):
         GowinPlatform.__init__(self, "GW1NR-LV9QN88PC6/I5", _io, _connectors, toolchain=toolchain, devicename="GW1NR-9C")
         self.toolchain.options["use_mspi_as_gpio"] = 1
 
-    def create_programmer(self):
-        return OpenFPGALoader(cable="ft2232")
+    def create_programmer(self, kit="openfpgaloader"):
+        if kit == "gowin":
+            return GowinProgrammer(self.devicename)
+        else: 
+            return OpenFPGALoader(cable="ft2232")
 
     def do_finalize(self, fragment):
         GowinPlatform.do_finalize(self, fragment)

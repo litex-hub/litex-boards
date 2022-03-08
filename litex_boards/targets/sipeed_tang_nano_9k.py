@@ -115,6 +115,7 @@ def main():
     parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
     parser.add_argument("--bios-flash-offset", default="0x0", help="BIOS offset in SPI Flash.")
     parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    parser.add_argument("--prog-kit", default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -132,13 +133,16 @@ def main():
     builder.build(run=args.build)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
-        prog.flash(int(args.bios_flash_offset, 0), "build/sipeed_tang_nano_9k/software/bios/bios.bin", external=True)
+        # external SPI programming not supported by gowin 'programmer_cli' now!
+        # if needed, use openFPGALoader or Gowin programmer GUI
+        if args.prog_kit == "openfpgaloader":
+            prog.flash(int(args.bios_flash_offset, 0), os.path.join(builder.software_dir, "bios", "bios.bin"), external=True)
 
 if __name__ == "__main__":
     main()
