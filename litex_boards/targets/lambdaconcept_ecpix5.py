@@ -3,7 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2020-2022 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -21,6 +21,8 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.video import VideoDVIPHY
+from litex.soc.cores.bitbang import I2CMaster
 
 from litedram.modules import MT41K256M16
 from litedram.phy import ECP5DDRPHY
@@ -78,8 +80,13 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, device="85F", sys_clk_freq=int(75e6), with_ethernet=False,
-                 with_etherbone=False, with_led_chaser=True, **kwargs):
+    def __init__(self, device="85F", sys_clk_freq=int(75e6),
+        with_ethernet          = False,
+        with_etherbone         = False,
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        with_led_chaser        = True,
+        **kwargs):
         platform = ecpix5.Platform(device=device, toolchain="trellis")
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -114,6 +121,98 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
 
+        # HDMI -------------------------------------------------------------------------------------
+        if with_video_terminal or with_video_framebuffer:
+            # PHY + IT6613 I2C initialization.
+            hdmi_pads = platform.request("hdmi")
+            self.submodules.videophy = VideoDVIPHY(hdmi_pads, clock_domain="init")
+            self.submodules.videoi2c = I2CMaster(hdmi_pads)
+
+            # I2C initialization adapted from https://github.com/ultraembedded/ecpix-5
+            # Copyright (c) 2020 https://github.com/ultraembedded
+            # Adapted from C to Python.
+            REG_TX_SW_RST = 0x04
+            B_ENTEST   = (1<<7)
+            B_REF_RST  = (1<<5)
+            B_AREF_RST = (1<<4)
+            B_VID_RST  = (1<<3)
+            B_AUD_RST  = (1<<2)
+            B_HDMI_RST = (1<<1)
+            B_HDCP_RST = (1<<0)
+
+            REG_TX_AFE_DRV_CTRL = 0x61
+            B_AFE_DRV_PWD     = (1<<5)
+            B_AFE_DRV_RST     = (1<<4)
+            B_AFE_DRV_PDRXDET = (1<<2)
+            B_AFE_DRV_TERMON  = (1<<1)
+            B_AFE_DRV_ENCAL   = (1<<0)
+
+            REG_TX_AFE_XP_CTRL = 0x62
+            B_AFE_XP_GAINBIT   = (1<<7)
+            B_AFE_XP_PWDPLL    = (1<<6)
+            B_AFE_XP_ENI       = (1<<5)
+            B_AFE_XP_ER0       = (1<<4)
+            B_AFE_XP_RESETB    = (1<<3)
+            B_AFE_XP_PWDI      = (1<<2)
+            B_AFE_XP_DEI       = (1<<1)
+            B_AFE_XP_DER       = (1<<0)
+
+            REG_TX_AFE_ISW_CTRL = 0x63
+            B_AFE_RTERM_SEL = (1<<7)
+            B_AFE_IP_BYPASS = (1<<6)
+            M_AFE_DRV_ISW   = (7<<3)
+            O_AFE_DRV_ISW   = 3
+            B_AFE_DRV_ISWK  = 7
+
+            REG_TX_AFE_IP_CTRL = 0x64
+            B_AFE_IP_GAINBIT = (1<<7)
+            B_AFE_IP_PWDPLL  = (1<<6)
+            M_AFE_IP_CKSEL   = (3<<4)
+            O_AFE_IP_CKSEL   = 4
+            B_AFE_IP_ER0     = (1<<3)
+            B_AFE_IP_RESETB  = (1<<2)
+            B_AFE_IP_ENC     = (1<<1)
+            B_AFE_IP_EC1     = (1<<0)
+
+            REG_TX_HDMI_MODE = 0xC0
+            B_TX_HDMI_MODE = 1
+            B_TX_DVI_MODE  = 0
+
+            REG_TX_GCP = 0xC1
+            B_CLR_AVMUTE    = 0
+            B_SET_AVMUTE    = 1
+            B_TX_SETAVMUTE  = (1<<0)
+            B_BLUE_SCR_MUTE = (1<<1)
+            B_NODEF_PHASE   = (1<<2)
+            B_PHASE_RESYNC  = (1<<3)
+
+            self.videoi2c.add_init(addr=0x4c, init=[
+                # Reset.
+                (REG_TX_SW_RST, B_REF_RST | B_VID_RST | B_AUD_RST | B_AREF_RST | B_HDCP_RST),
+                (REG_TX_SW_RST, 0),
+
+                # Select DVI Mode.
+                (REG_TX_HDMI_MODE, B_TX_DVI_MODE),
+
+                # Configure Clks.
+                (REG_TX_SW_RST,       B_AUD_RST | B_AREF_RST | B_HDCP_RST),
+                (REG_TX_AFE_DRV_CTRL, B_AFE_DRV_RST),
+                (REG_TX_AFE_XP_CTRL,  0x18),
+                (REG_TX_AFE_ISW_CTRL, 0x10),
+                (REG_TX_AFE_IP_CTRL,  0x0C),
+
+                # Enable Clks.
+                (REG_TX_AFE_DRV_CTRL, 0),
+
+                # Enable Video.
+                (REG_TX_GCP, 0),
+            ])
+            # Video Terminal/Framebuffer.
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="init")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="init")
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             leds_pads = []
@@ -138,6 +237,9 @@ def main():
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    viopts = parser.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
 
     builder_args(parser)
     soc_core_args(parser)
@@ -145,10 +247,12 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        device         = args.device,
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
-        with_ethernet  = args.with_ethernet,
-        with_etherbone = args.with_etherbone,
+        device                 = args.device,
+        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        with_ethernet          = args.with_ethernet,
+        with_etherbone         = args.with_etherbone,
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
     )
     if args.with_sdcard:
