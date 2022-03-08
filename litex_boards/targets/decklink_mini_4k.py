@@ -6,6 +6,10 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Build/Use:
+# ./decklink_mini_4k.py --build --load
+# litex_term jtag --jtag-config=openocd_xc7_ft232.cfg
+
 import os
 import argparse
 
