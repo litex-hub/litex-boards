@@ -20,7 +20,7 @@ _io = [
     ("user_led", 4, Pins("F9"), IOStandard("LVCMOS33")),
 
     ("user_btn", 0, Pins("E8"), IOStandard("LVCMOS33")),
-    ("user_btn", 1, Pins("B9"), IOStandard("LVCMOS33")),
+    ("user_btn", 1, Pins("B8"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("C9"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("E9"), IOStandard("LVCMOS33")),
 
