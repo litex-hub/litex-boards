@@ -28,7 +28,7 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, toolchain="vivado", with_video_pll=False):
+    def __init__(self, platform, sys_clk_freq, toolchain="vivado", with_sata_pll_refclk=False, with_video_pll=False):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
@@ -60,6 +60,12 @@ class _CRG(Module):
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
+        # SATA PLL.
+        if with_sata_pll_refclk:
+            self.clock_domains.cd_sata_refclk = ClockDomain()
+            pll.create_clkout(self.cd_sata_refclk, 150e6)
+            platform.add_platform_command("set_property SEVERITY {{WARNING}} [get_drc_checks REQP-49]")
+
         # Video PLL.
         if with_video_pll:
             self.submodules.video_pll = video_pll = S7MMCM(speedgrade=-1)
@@ -72,7 +78,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False,
-                 with_led_chaser=True, with_sata=False, sata_gen="gen2", vadj="1.2V", with_video_terminal=False,
+                 with_led_chaser=True, with_sata=False, sata_gen="gen2", with_sata_pll_refclk=False, vadj="1.2V", with_video_terminal=False,
                  with_video_framebuffer=False, **kwargs):
         platform = nexys_video.Platform(toolchain=toolchain)
 
@@ -83,7 +89,7 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)
-        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain, with_video_pll=with_video_pll)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain, with_sata_pll_refclk=with_sata_pll_refclk, with_video_pll=with_video_pll)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -125,6 +131,7 @@ class BaseSoC(SoCCore):
 
             # PHY
             self.submodules.sata_phy = LiteSATAPHY(platform.device,
+                refclk     = None if not with_sata_pll_refclk else self.crg.cd_sata_refclk.clk,
                 pads       = platform.request("fmc2sata"),
                 gen        = sata_gen,
                 clk_freq   = sys_clk_freq,
@@ -165,6 +172,7 @@ def main():
     sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support.")
     parser.add_argument("--with-sata",              action="store_true", help="Enable SATA support (over FMCRAID).")
     parser.add_argument("--sata-gen",               default="2",         help="SATA Gen.", choices=["1", "2"])
+    parser.add_argument("--with-sata-pll-refclk",   action="store_true", help="Generate SATA RefClk from PLL.")
     parser.add_argument("--vadj",                   default="1.2V",      help="FMC VADJ value.", choices=["1.2V", "1.8V", "2.5V", "3.3V"])
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
@@ -180,6 +188,7 @@ def main():
         with_ethernet          = args.with_ethernet,
         with_sata              = args.with_sata,
         sata_gen               = "gen" + args.sata_gen,
+        with_sata_pll_refclk   = args.with_sata_pll_refclk,
         vadj                   = args.vadj,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
