@@ -31,6 +31,9 @@ from litedram.common import PhySettings, GeomSettings, TimingSettings
 from liteeth.phy import LiteEthS7PHYRGMII
 from litex.soc.cores.hyperbus import HyperRAM
 
+from litespi.modules import S25FL128S0
+from litespi.opcodes import SpiNorFlashOpCodes as Codes
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -71,8 +74,8 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, *, sys_clk_freq=int(100e6), iodelay_clk_freq=200e6,
-            with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
-            with_hyperram=False, with_sdcard=False, with_jtagbone=True, with_uartbone=False,
+            with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_reset_time="10e-3", eth_dynamic_ip=False,
+            with_hyperram=False, with_sdcard=False, with_jtagbone=True, with_uartbone=False, with_spi_flash=False,
             with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = datacenter_ddr4_test_board.Platform()
 
@@ -144,6 +147,10 @@ class BaseSoC(SoCCore):
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            self.add_spi_flash(mode="4x", module=S25FL128S0(Codes.READ_1_1_4), with_master=True)
+
         # System I2C (behing multiplexer) ----------------------------------------------------------
         i2c_pads = platform.request('i2c')
         self.submodules.i2c = I2CMaster(i2c_pads)
@@ -180,7 +187,7 @@ def main():
     target_group.add_argument("--flash",                  action="store_true",    help="Flash bitstream")
     target_group.add_argument("--sys-clk-freq",           default=100e6,           help="System clock frequency")
     target_group.add_argument("--iodelay-clk-freq",       default=200e6,          help="IODELAYCTRL frequency")
-    ethopts = target.add_mutually_exclusive_group()
+    ethopts = target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet")
     ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone")
     target_group.add_argument("--eth-ip",                 default="192.168.1.50", help="Ethernet/Etherbone IP address")
@@ -192,6 +199,7 @@ def main():
     target_group.add_argument("--with-uartbone",          action="store_true",    help="Add UartBone on 2nd serial")
     target_group.add_argument("--with-video-terminal",    action="store_true",    help="Enable Video Terminal (HDMI)")
     target_group.add_argument("--with-video-framebuffer", action="store_true",    help="Enable Video Framebuffer (HDMI)")
+    target_group.add_argument("--with-spi-flash",         action="store_true",    help="Enable SPI Flash (MMAPed).")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -210,6 +218,7 @@ def main():
         with_sdcard            = args.with_sdcard,
         with_jtagbone          = args.with_jtagbone,
         with_uartbone          = args.with_uartbone,
+        with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args))
