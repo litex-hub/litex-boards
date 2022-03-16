@@ -8,7 +8,7 @@ from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
 
-# IOs ------------------------------------
+# IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     # Clk / Rst
@@ -28,9 +28,9 @@ _io = [
     ("user_led", 2, Pins("AE13"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("AJ14"), IOStandard("LVCMOS33")),
     ("user_led", 4, Pins("AJ15"), IOStandard("LVCMOS33")),
-    ("user_led", 5, Pins("AH13"), IOStandard("LVCMOS33"))
-    ("user_led", 6, Pins("AH14"), IOStandard("LVCMOS33"))
-    ("user_led", 7, Pins("AL12"), IOStandard("LVCMOS33"))
+    ("user_led", 5, Pins("AH13"), IOStandard("LVCMOS33")),
+    ("user_led", 6, Pins("AH14"), IOStandard("LVCMOS33")),
+    ("user_led", 7, Pins("AL12"), IOStandard("LVCMOS33")),
 
     # Buttons
     ("user_btn", 0, Pins("AG15"), IOStandard("LVCMOS33")),
@@ -54,8 +54,8 @@ _io = [
     ("serial", 0,
         Subsignal("cts", Pins("E12")),
         Subsignal("rts", Pins("D12")),
-        Subsignal("tx", Pins("E13")),
-        Subsignal("rx", Pins("F13")),
+        Subsignal("tx",  Pins("E13")),
+        Subsignal("rx",  Pins("F13")),
         IOStandard("LVCMOS18")
     ),
 
@@ -83,6 +83,3 @@ class Platform(XilinxPlatform):
         XilinxPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("clk300", loose=True), 1e9/300e6)
-        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
-        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 65]")
-        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")
