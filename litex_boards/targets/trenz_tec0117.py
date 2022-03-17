@@ -138,7 +138,7 @@ def flash(bios_flash_offset):
     ]
     platform.build(module)
     prog = platform.create_programmer()
-    prog.load_bitstream("build/impl/pnr/project.fs")
+    prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
 
     # Flash Image through proxy Bitstream.
     # ------------------------------------
@@ -184,11 +184,11 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME.
+        prog.flash(0, builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME.
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
         flash(int(args.bios_flash_offset, 0))
 
 if __name__ == "__main__":

@@ -134,12 +134,12 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer(kit=args.prog_kit)
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer(kit=args.prog_kit)
-        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME
-        # external SPI programming not supported by gowin 'programmer_cli' now!
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
+        # Axternal SPI programming not supported by gowin 'programmer_cli' now!
         # if needed, use openFPGALoader or Gowin programmer GUI
         if args.prog_kit == "openfpgaloader":
             prog.flash(int(args.bios_flash_offset, 0), builder.get_bios_filename(), external=True)
