@@ -135,8 +135,8 @@ def main():
         prog_gw = DFUProg(vid="1d50", pid="0x6146", alt=0)
         prog_sw = DFUProg(vid="1d50", pid="0x6146", alt=1)
 
-        prog_gw.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bin"), reset=False)
-        prog_sw.load_bitstream(os.path.join(builder.software_dir, 'bios/bios.bin'))
+        prog_gw.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".bin"), reset=False) # FIXME
+        prog_sw.load_bitstream(builder.get_bios_filename())
 
 if __name__ == "__main__":
     main()

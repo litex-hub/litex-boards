@@ -106,11 +106,11 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME
 
 if __name__ == "__main__":
     main()

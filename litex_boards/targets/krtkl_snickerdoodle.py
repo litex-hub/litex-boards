@@ -137,8 +137,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        bitstream = os.path.join(builder.gateware_dir, soc.build_name + soc.platform.bitstream_ext)
-        prog.load_bitstream(bitstream, target=args.target, device=1)
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"), target=args.target, device=1)
 
 if __name__ == "__main__":
     main()

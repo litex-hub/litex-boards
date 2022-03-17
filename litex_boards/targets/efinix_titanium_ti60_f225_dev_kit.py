@@ -101,12 +101,12 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, f"{soc.build_name}.bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         from litex.build.openfpgaloader import OpenFPGALoader
         prog = OpenFPGALoader("titanium_ti60_f225")
-        prog.flash(0, os.path.join(builder.gateware_dir, f"{soc.build_name}.hex"))
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".hex")) # FIXME
 
 if __name__ == "__main__":
     main()

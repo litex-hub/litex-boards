@@ -84,12 +84,11 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
-        
+        prog.load_bitstream(builder.get_bitstream_filename(mode="flash", ext=".bin")) # FIXME
 
 
 if __name__ == "__main__":

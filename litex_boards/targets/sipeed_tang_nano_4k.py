@@ -160,12 +160,12 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
-        prog.flash(0, os.path.join(builder.software_dir, "bios", "bios.bin"), external=True)
+        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME
+        prog.flash(0, builder.get_bios_filename(), external=True)
 
 
 if __name__ == "__main__":

@@ -134,15 +134,15 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer(kit=args.prog_kit)
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME
 
     if args.flash:
         prog = soc.platform.create_programmer(kit=args.prog_kit)
-        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs")) # FIXME
         # external SPI programming not supported by gowin 'programmer_cli' now!
         # if needed, use openFPGALoader or Gowin programmer GUI
         if args.prog_kit == "openfpgaloader":
-            prog.flash(int(args.bios_flash_offset, 0), os.path.join(builder.software_dir, "bios", "bios.bin"), external=True)
+            prog.flash(int(args.bios_flash_offset, 0), builder.get_bios_filename(), external=True)
 
 if __name__ == "__main__":
     main()

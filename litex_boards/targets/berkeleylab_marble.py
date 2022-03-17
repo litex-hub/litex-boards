@@ -70,14 +70,12 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(
-        self,
-        sys_clk_freq=int(125e6),
-        with_ethernet=False,
-        with_etherbone=False,
-        with_rts_reset=False,
-        with_led_chaser=True,
-        spd_dump=None,
+    def __init__(self, sys_clk_freq=int(125e6),
+        with_ethernet   = False,
+        with_etherbone  = False,
+        with_rts_reset  = False,
+        with_led_chaser = True,
+        spd_dump        = None,
         **kwargs
     ):
         platform = berkeleylab_marble.Platform()
@@ -177,7 +175,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()
