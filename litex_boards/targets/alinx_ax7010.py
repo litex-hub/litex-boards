@@ -11,7 +11,7 @@ import argparse
 
 from migen import *
 
-from litex_boards.platforms import zynq_xc7z010 
+from litex_boards.platforms import ax7010
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.interconnect import axi
@@ -30,7 +30,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys = ClockDomain()
 
         self.submodules.pll = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(self.rst)# | platform.request("cpu_reset"))
+        self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
@@ -39,14 +39,14 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
-        platform = zynq_xc7z010.Platform()
+        platform = ax7010.Platform()
 
         #if kwargs["uart_name"] == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
         kwargs["uart_name"] = "serial"
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on alinx ax7010",
+            ident          = "LiteX SoC on Alinx AX7010",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"), device=1)
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"), device=1)
 
 if __name__ == "__main__":
     main()

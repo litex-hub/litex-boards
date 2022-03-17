@@ -7,28 +7,25 @@
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
-#DDR3 SDRAM, QSPI, UART, IIC, 
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     # Clk / Rst
     ("clk100",    0, Pins("U18"), IOStandard("LVCMOS33")),
-    #("sys_clk",    0, Pins("V15"), IOStandard("LVCMOS33")),
-    #("cpu_reset", 0, Pins("U18"), IOStandard("LVCMOS33")),
 
-    # Leds Done
+    # Leds
     ("user_led", 0, Pins("M14"),  IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("M15"),  IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("K16"),  IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("J18"),  IOStandard("LVCMOS33")),
 
-    # Buttons Done
+    # Buttons
     ("user_btn", 0, Pins("N15"), IOStandard("LVCMOS33")),
     ("user_btn", 1, Pins("N16"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("R17"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("T17"), IOStandard("LVCMOS33")),
 
-    # Serial Done
+    # Serial
     ("serial", 0,
         Subsignal("tx", Pins("W19"), IOStandard("LVCMOS33")),
         Subsignal("rx", Pins("W18"), IOStandard("LVCMOS33")),
@@ -65,10 +62,10 @@ _ps7_io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    ("pmodb", "B12 B12 C12"),
+    ("pmodb",    "B12 B12 C12"),
     ("pmodhdmi", "N18 P19 V20 W20 T20 U20 N20 P20 R18 R16 Y18 Y19 V16"),
-    ("pmodj10", "W19 W18 R14 P14 Y17 Y16 W15 V15 Y14 W14 P18 N17 U15 U14 P16 P15 U17 T16 V18 V17 T15 T14 V13 U13 W13 V12 U12 T12 T10 T11 A20 B19 B20 C20"),
-    ("pmodj11", "F17 F16 F20 F19 G20 G19 H18 J18 L20 L19 M20 M19 K18 K17 J19 K19 H20 J20 L17 L16 M18 M17 D20 D19 E19 E18 G18 G17 H17 H16 G15 H15 J14 K14"),
+    ("pmodj10",  "W19 W18 R14 P14 Y17 Y16 W15 V15 Y14 W14 P18 N17 U15 U14 P16 P15 U17 T16 V18 V17 T15 T14 V13 U13 W13 V12 U12 T12 T10 T11 A20 B19 B20 C20"),
+    ("pmodj11",  "F17 F16 F20 F19 G20 G19 H18 J18 L20 L19 M20 M19 K18 K17 J19 K19 H20 J20 L17 L16 M18 M17 D20 D19 E19 E18 G18 G17 H17 H16 G15 H15 J14 K14"),
 ]
 
 # PMODS --------------------------------------------------------------------------------------------
@@ -82,8 +79,6 @@ _usb_uart_pmod_io = [
         IOStandard("LVCMOS33")
     ),
 ]
-
-
 
 # Platform -----------------------------------------------------------------------------------------
 
