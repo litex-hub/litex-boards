@@ -3,7 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>,
+# Copyright (c) 2022 Yonggang Liu <ggang.liu@gmail.com>,
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -46,8 +46,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on zynq xc7z010",
-            ident_version  = True,
+            ident          = "LiteX SoC on alinx ax7010",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
