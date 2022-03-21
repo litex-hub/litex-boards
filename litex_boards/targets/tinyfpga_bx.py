@@ -6,10 +6,6 @@
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import sys
-import argparse
-
 from migen import *
 
 from litex.build.io import CRG
@@ -63,7 +59,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on TinyFPGA BX")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on TinyFPGA BX")
     parser.add_argument("--build",             action="store_true", help="Build bitstream.")
     parser.add_argument("--bios-flash-offset", default="0x50000",   help="BIOS offset in SPI Flash.")
     parser.add_argument("--sys-clk-freq",      default=16e6,        help="System clock frequency.")

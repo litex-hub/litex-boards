@@ -6,9 +6,6 @@
 # Copyright (c) 2022 Icenowy Zheng <icenowy@aosc.io>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -108,7 +105,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Tang Nano 9K")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Nano 9K")
     parser.add_argument("--build",       action="store_true", help="Build bitstream.")
     parser.add_argument("--load",        action="store_true", help="Load bitstream.")
     parser.add_argument("--flash",       action="store_true", help="Flash Bitstream.")

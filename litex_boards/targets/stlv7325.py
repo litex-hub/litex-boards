@@ -10,7 +10,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
 
 from migen import *
 
@@ -141,7 +140,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on STLV7325")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on STLV7325")
     parser.add_argument("--build",         action="store_true", help="Build bitstream.")
     parser.add_argument("--load",          action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency.")

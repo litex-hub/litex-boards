@@ -7,10 +7,6 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-import importlib
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -155,7 +151,8 @@ def flash(bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on TEC0117")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on TEC0117")
     parser.add_argument("--build",             action="store_true", help="Build bitstream.")
     parser.add_argument("--load",              action="store_true", help="Load bitstream.")
     parser.add_argument("--bios-flash-offset", default="0x0000",    help="BIOS offset in SPI Flash.")

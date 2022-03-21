@@ -6,9 +6,6 @@
 # Copyright (c) 2021 Alain Lou <alainzlou@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 
 from litex.build.io import DDROutput
@@ -96,7 +93,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on RZ-EasyFPGA")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on RZ-EasyFPGA")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency.")

@@ -11,9 +11,6 @@
 # Note: For now, with --toolchain=yosys+nextpnr, DDR3 should be disabled and sys_clk_freq lowered, ex:
 # python3 -m litex_boards.targets.digilent_arty.py --sys-clk-freq=50e6 --integrated-main-ram-size=8192 --toolchain=yosys+nextpnr --build
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import arty
@@ -130,7 +127,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Arty A7")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Arty A7")
     parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     parser.add_argument("--build",               action="store_true",              help="Build bitstream.")
     parser.add_argument("--load",                action="store_true",              help="Load bitstream.")

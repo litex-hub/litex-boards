@@ -5,9 +5,6 @@
 # Copyright (c) 2021 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import lpddr4_test_board
@@ -116,7 +113,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on LPDDR4 Test Board")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on LPDDR4 Test Board")
     target = parser.add_argument_group(title="Target options")
     target.add_argument("--build",            action="store_true",    help="Build bitstream.")
     target.add_argument("--load",             action="store_true",    help="Load bitstream.")

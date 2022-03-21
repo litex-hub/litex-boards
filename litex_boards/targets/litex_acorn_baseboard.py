@@ -6,10 +6,6 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-import sys
-
 from migen import *
 
 from litex_boards.platforms import litex_acorn_baseboard
@@ -125,7 +121,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on LiteX Acorn Baseboard")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on LiteX Acorn Baseboard")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
     parser.add_argument("--flash",        action="store_true", help="Flash bitstream to SPI Flash.")

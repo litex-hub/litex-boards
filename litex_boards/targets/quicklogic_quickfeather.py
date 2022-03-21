@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
 
 from migen import *
 
@@ -90,7 +89,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QuickLogic QuickFeather")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on QuickLogic QuickFeather")
     parser.add_argument("--build", action="store_true", help="Build bitstream.")
     soc_core_args(parser)
     parser.set_defaults(cpu_type="eos_s3")

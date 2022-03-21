@@ -8,9 +8,6 @@
 
 # iCESugar FPGA: https://www.aliexpress.com/item/4001201771358.html
 
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -112,7 +109,8 @@ def flash(bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on iCEBreaker")
     parser.add_argument("--build",               action="store_true", help="Build bitstream.")
     parser.add_argument("--load",                action="store_true", help="Load bitstream.")
     parser.add_argument("--flash",               action="store_true", help="Flash Bitstream.")

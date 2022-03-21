@@ -6,8 +6,6 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -67,7 +65,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Trion T20 MIPI Dev Kit")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Efinix Trion T20 MIPI Dev Kit")
     parser.add_argument("--build",          action="store_true", help="Build bitstream.")
     parser.add_argument("--load",           action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",   default=100e6,        help="System clock frequency.")

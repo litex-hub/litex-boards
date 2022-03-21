@@ -6,10 +6,6 @@
 # Copyright (c) 2021 Kazumoto Kojima <kkojima@rr.iij4u.or.jp>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-import sys
-
 from migen import *
 
 from litex.build.io import DDROutput
@@ -53,8 +49,9 @@ class _CRG(Module):
             clk = Signal()
             div = 5
             self.specials += Instance("OSCG",
-                                p_DIV = div,
-                                o_OSC = clk)
+                p_DIV = div,
+                o_OSC = clk
+            )
             clk_freq = 310e6/div
 
         rst_n = platform.request("cpu_reset_n")
@@ -175,7 +172,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight I5")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Colorlight I5")
     parser.add_argument("--build",            action="store_true",      help="Build bitstream.")
     parser.add_argument("--load",             action="store_true",      help="Load bitstream.")
     parser.add_argument("--board",            default="i5",             help="Board type (i5).")

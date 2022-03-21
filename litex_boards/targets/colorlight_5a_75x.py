@@ -40,10 +40,6 @@
 # Etherbone stack that need to be optimized. It was initially just used to validate the reversed
 # pinout but happens to work on hardware...
 
-import os
-import argparse
-import sys
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -179,7 +175,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight 5A-75X")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Colorlight 5A-75X")
     parser.add_argument("--build",             action="store_true",              help="Build bitstream.")
     parser.add_argument("--load",              action="store_true",              help="Load bitstream.")
     parser.add_argument("--board",             default="5a-75b",                 help="Board type (5a-75b or 5a-75e).")

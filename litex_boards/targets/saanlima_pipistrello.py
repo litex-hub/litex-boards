@@ -10,9 +10,6 @@
 # Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from fractions import Fraction
 
 from migen import *
@@ -192,7 +189,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Pipistrello")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Pipistrello")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
     builder_args(parser)

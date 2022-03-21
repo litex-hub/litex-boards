@@ -10,9 +10,6 @@
 # ./terasic_deca.py --uart-name jtag_uart --build --load
 # litex_term --jtag-config ../prog/openocd_max10_blaster2.cfg jtag
 
-import os
-import argparse
-
 from migen import *
 from litex_boards.platforms import deca
 
@@ -120,7 +117,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on DECA")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on DECA")
     parser.add_argument("--build",               action="store_true", help="Build bitstream.")
     parser.add_argument("--load",                action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")

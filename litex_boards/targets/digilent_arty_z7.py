@@ -6,9 +6,6 @@
 # Copyright (c) 2021 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import argparse
-import subprocess
-
 from migen import *
 
 from litex_boards.platforms import digilent_arty_z7
@@ -103,7 +100,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Arty Z7")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Arty Z7")
     parser.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")

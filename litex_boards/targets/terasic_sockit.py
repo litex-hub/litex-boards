@@ -5,9 +5,6 @@
 # Copyright (c) 2020 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 from litex_boards.platforms import terasic_sockit
 
@@ -107,7 +104,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on the Terasic SoCKit")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on the Terasic SoCKit")
     parser.add_argument("--single-rate-sdram",   action="store_true", help="Clock SDRAM with 1x the sytem clock (instead of 2x).")
     parser.add_argument("--mister-sdram-xs-v22", action="store_true", help="Use optional MiSTer SDRAM module XS v2.2 on J2 on GPIO daughter card.")
     parser.add_argument("--mister-sdram-xs-v24", action="store_true", help="Use optional MiSTer SDRAM module XS v2.4 on J2 on GPIO daughter card.")

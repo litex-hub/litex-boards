@@ -6,10 +6,6 @@
 # Copyright (c) 2021 Michael T. Mayers <michael@tweakoz.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import sys
-import argparse
-
 from migen import *
 
 from litex.build.io import CRG
@@ -139,7 +135,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on CMOD A7")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on CMOD A7")
     parser.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado or symbiflow).")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")

@@ -39,10 +39,6 @@
 # litex> # Turn screen Red
 # litex> mem_write 0x40c00000 0xffff0000 307200
 
-import os
-import argparse
-import sys
-
 from migen import *
 
 from litex.build.io import DDROutput
@@ -147,7 +143,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Alchitry Mojo")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Alchitry Mojo")
     parser.add_argument("--build",                  action="store_true", help="Build bitstream.")
     parser.add_argument("--sys-clk-freq",           default=62.5e6,      help="System clock frequency.")
     parser.add_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")

@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -79,7 +78,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Pano Logic G2")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Pano Logic G2")
     parser.add_argument("--build",           action="store_true",              help="Build bitstream.")
     parser.add_argument("--load",            action="store_true",              help="Load bitstream.")
     parser.add_argument("--revision",        default="c",                      help="Board revision (b or c).")

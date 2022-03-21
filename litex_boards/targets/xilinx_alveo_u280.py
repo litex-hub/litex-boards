@@ -12,7 +12,7 @@
 # To interface via the serial port use:
 #     lxterm /dev/ttyUSBx --speed=115200
 
-import argparse, os
+import os
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -154,7 +154,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Alveo U280")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Alveo U280")
     parser.add_argument("--build",           action="store_true", help="Build bitstream.")
     parser.add_argument("--load",            action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",    default=150e6,       help="System clock frequency.") # HBM2 with 250MHz, DDR4 with 150MHz (1:4)

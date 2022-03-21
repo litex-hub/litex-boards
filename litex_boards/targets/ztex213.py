@@ -13,9 +13,6 @@
 # Or the SBusFPGA adapter board:
 # https://github.com/rdolbeau/SBusFPGA
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import ztex213
@@ -95,7 +92,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Ztex 2.13")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Ztex 2.13")
     parser.add_argument("--build",           action="store_true", help="Build bitstream.")
     parser.add_argument("--load",            action="store_true", help="Load bitstream.")
     parser.add_argument("--expansion",       default="debug",     help="Expansion board (debug or sbus).")

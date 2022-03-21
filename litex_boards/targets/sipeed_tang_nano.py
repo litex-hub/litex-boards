@@ -29,10 +29,6 @@
 # litex_server --uart --uart-port=/dev/ttyUSBX --uart-baudrate=1000000
 # 5) Test UARTBone ex: litex_cli --regs
 
-
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -87,7 +83,8 @@ class BaseSoC(SoCMini):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Tang Nano")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Nano")
     parser.add_argument("--build",       action="store_true", help="Build bitstream.")
     parser.add_argument("--load",        action="store_true", help="Load bitstream.")
     parser.add_argument("--flash",       action="store_true", help="Flash Bitstream.")

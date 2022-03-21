@@ -8,9 +8,6 @@
 
 # https://www.aliexpress.com/item/1000006630084.html
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import qmtech_xc7a35t
@@ -140,7 +137,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTech XC7A35T")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTech XC7A35T")
     parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado or symbiflow).")
     parser.add_argument("--build",               action="store_true",              help="Build bitstream.")
     parser.add_argument("--load",                action="store_true",              help="Load bitstream.")

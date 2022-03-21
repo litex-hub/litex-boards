@@ -8,7 +8,6 @@
 
 import os
 import sys
-import argparse
 
 from migen import *
 from migen.genlib.misc import WaitTimer
@@ -205,7 +204,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on OrangeCrab")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on OrangeCrab")
     parser.add_argument("--build",           action="store_true",  help="Build bitstream.")
     parser.add_argument("--load",            action="store_true",  help="Load bitstream.")
     parser.add_argument("--toolchain",       default="trellis",    help="FPGA toolchain (trellis or diamond).")

@@ -24,9 +24,6 @@ then test and benchmark the etherbone link:
   litex/liteeth/bench/test_etherbone.py --udp --ident --access --sram --speed
 '''
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import berkeleylab_marble
@@ -149,7 +146,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on BerkeleyLab Marble")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on BerkeleyLab Marble")
     parser.add_argument("--build",          action="store_true", help="Build bitstream.")
     parser.add_argument("--load",           action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",   default=125e6,       help="System clock frequency.")

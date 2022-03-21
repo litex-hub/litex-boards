@@ -8,9 +8,6 @@
 #
 # Note: The CPU actually runs at over 100MHz, but the SDRAM only works up to 75MHz
 
-import os
-import argparse
-
 from migen import *
 
 from litex.build.io import DDROutput
@@ -131,7 +128,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTECH 5CEFA2")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTECH 5CEFA2")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq", default=105e6,       help="System clock frequency.")

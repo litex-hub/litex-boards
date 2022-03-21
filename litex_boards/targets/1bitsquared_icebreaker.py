@@ -17,9 +17,6 @@
 # with more features, examples to run C/Rust code on the RISC-V CPU and documentation can be found
 # at: https://github.com/icebreaker-fpga/icebreaker-litex-examples
 
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -136,7 +133,8 @@ def flash(build_dir, build_name, bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on iCEBreaker")
     parser.add_argument("--build",               action="store_true", help="Build bitstream.")
     parser.add_argument("--load",                action="store_true", help="Load bitstream.")
     parser.add_argument("--flash",               action="store_true", help="Flash Bitstream and BIOS.")

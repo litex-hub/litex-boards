@@ -6,13 +6,13 @@
 # Copyright (c) 2022 Primesh Pinto <primeshp@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
+
 from litex.build.generic_platform import *
-from litex_boards.platforms import spartan_edge_accelerator
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
+
+from litex_boards.platforms import spartan_edge_accelerator
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
@@ -106,7 +106,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Spartan Edge Accelerator")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Spartan Edge Accelerator")
     parser.add_argument("--build",               action="store_true",  help="Build bitstream.")
     parser.add_argument("--sys-clk-freq",        default=100e6,        help="System clock frequency.")
     parser.add_argument("--with-jtagbone",       action="store_true",  help="Enable Jtagbone support.")

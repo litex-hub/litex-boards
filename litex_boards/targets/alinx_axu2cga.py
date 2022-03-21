@@ -17,7 +17,6 @@
 # first build will take a while because it includes a cross-toolchain.
 
 import os
-import argparse
 
 from migen import *
 
@@ -178,7 +177,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Alinx AXU2CGA")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Alinx AXU2CGA")
     parser.add_argument("--build",        action="store_true", help="Build bitstream.")
     parser.add_argument("--load",         action="store_true", help="Load bitstream.")
     parser.add_argument("--cable",        default="ft232",     help="JTAG interface.")

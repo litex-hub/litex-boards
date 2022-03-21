@@ -6,9 +6,6 @@
 # Copyright (c) 2020 Shinken Sanada <sanadashinken@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import qmtech_wukong
@@ -129,7 +126,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTECH Wukong Board")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTECH Wukong Board")
     parser.add_argument("--build",           action="store_true",              help="Build bitstream.")
     parser.add_argument("--load",            action="store_true",              help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",    default=100e6,                    help="System clock frequency.")

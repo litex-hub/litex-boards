@@ -8,12 +8,6 @@
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import sys
-import argparse
-
-target="lattice_ice40up5k_evn"
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -107,7 +101,7 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(bios_flash_offset):
+def flash(bios_flash_offset, target="lattice_ice40up5k_evn"):
     from litex.build.dfu import DFUProg
     prog = IceStormProgrammer()
     bitstream  = open("build/"+target+"/gateware/"+target+".bin",  "rb")
@@ -136,7 +130,8 @@ def flash(bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Lattice iCE40UP5k EVN breakout board")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Lattice iCE40UP5k EVN breakout board")
     parser.add_argument("--build",             action="store_true", help="Build bitstream.")
     parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
     parser.add_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")

@@ -10,9 +10,6 @@
 # Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from fractions import Fraction
 
 from migen import *
@@ -209,7 +206,8 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Atlys")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Atlys")
     parser.add_argument("--build",          action="store_true", help="Build bitstream.")
     parser.add_argument("--load",           action="store_true", help="Load bitstream.")
     parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")

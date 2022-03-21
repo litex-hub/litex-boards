@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
 
 from migen import *
 
@@ -134,7 +133,8 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on AC701")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on AC701")
     builder_args(parser)
     soc_core_args(parser)
     parser.add_argument("--build",         action="store_true", help="Build bitstream.")
