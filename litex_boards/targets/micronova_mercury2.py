@@ -137,11 +137,12 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on MicroNova Mercury2")
-    parser.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado or symbiflow).")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream.")
-    parser.add_argument("--variant",      default="a7-35",     help="Board variant (a7-35 or a7-100).")
-    parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency.")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado or symbiflow).")
+    target_group.add_argument("--build",        action="store_true", help="Build bitstream.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--variant",      default="a7-35",     help="Board variant (a7-35 or a7-100).")
+    target_group.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency.")
 
     builder_args(parser)
     soc_core_args(parser)

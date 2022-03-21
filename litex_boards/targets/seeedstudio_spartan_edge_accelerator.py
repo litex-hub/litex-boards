@@ -108,11 +108,12 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Spartan Edge Accelerator")
-    parser.add_argument("--build",               action="store_true",  help="Build bitstream.")
-    parser.add_argument("--sys-clk-freq",        default=100e6,        help="System clock frequency.")
-    parser.add_argument("--with-jtagbone",       action="store_true",  help="Enable Jtagbone support.")
-    parser.add_argument("--with-video-terminal", action="store_true",  help="Enable Video Colorbars (HDMI).")
-    parser.add_argument("--with-neopixel",       action="store_true",  help="Enable onboard 2 Neopixels Leds.")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",               action="store_true",  help="Build bitstream.")
+    target_group.add_argument("--sys-clk-freq",        default=100e6,        help="System clock frequency.")
+    target_group.add_argument("--with-jtagbone",       action="store_true",  help="Enable Jtagbone support.")
+    target_group.add_argument("--with-video-terminal", action="store_true",  help="Enable Video Colorbars (HDMI).")
+    target_group.add_argument("--with-neopixel",       action="store_true",  help="Enable onboard 2 Neopixels Leds.")
 
     builder_args(parser)
     soc_core_args(parser)

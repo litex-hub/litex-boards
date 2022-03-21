@@ -110,11 +110,12 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on iCEBreaker")
-    parser.add_argument("--build",               action="store_true", help="Build bitstream.")
-    parser.add_argument("--flash",               action="store_true", help="Flash bitstream and BIOS.")
-    parser.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")
-    parser.add_argument("--bios-flash-offset",   default="0xa0000",   help="BIOS offset in SPI Flash.")
-    parser.add_argument("--revision",            default="v1",        help="Board revision (v0 or v1).")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",               action="store_true", help="Build bitstream.")
+    target_group.add_argument("--flash",               action="store_true", help="Flash bitstream and BIOS.")
+    target_group.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")
+    target_group.add_argument("--bios-flash-offset",   default="0xa0000",   help="BIOS offset in SPI Flash.")
+    target_group.add_argument("--revision",            default="v1",        help="Board revision (v0 or v1).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

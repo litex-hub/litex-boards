@@ -88,11 +88,12 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Arty S7")
-    parser.add_argument("--build",          action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",           action="store_true", help="Load bitstream.")
-    parser.add_argument("--variant",        default="s7-50",     help="Board variant (s7-50 or s7-25).")
-    parser.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency.")
-    parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",          action="store_true", help="Build bitstream.")
+    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
+    target_group.add_argument("--variant",        default="s7-50",     help="Board variant (s7-50 or s7-25).")
+    target_group.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency.")
+    target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)

@@ -145,17 +145,17 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Alchitry Mojo")
-    parser.add_argument("--build",                  action="store_true", help="Build bitstream.")
-    parser.add_argument("--sys-clk-freq",           default=62.5e6,      help="System clock frequency.")
-    parser.add_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
-    shields1 = parser.add_mutually_exclusive_group()
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",                  action="store_true", help="Build bitstream.")
+    target_group.add_argument("--sys-clk-freq",           default=62.5e6,      help="System clock frequency.")
+    target_group.add_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
+    shields1 = target_group.add_mutually_exclusive_group()
     shields1.add_argument("--with-hdmi-shield",     action="store_true", help="Enable HDMI Shield.")
     shields1.add_argument("--with-sdram-shield",    action="store_true", help="Enable SDRAM Shield.")
-    viopts = parser.add_mutually_exclusive_group()
+    viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (HDMI).")
-
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

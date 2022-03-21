@@ -108,14 +108,15 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on NeTV2")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
-    parser.add_argument("--variant",         default="a7-35",     help="Board variant (a7-35 or a7-100).")
-    parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
-    parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support.")
-    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
-    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
-    sdopts = parser.add_mutually_exclusive_group()
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true", help="Build bitstream.")
+    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--variant",         default="a7-35",     help="Board variant (a7-35 or a7-100).")
+    target_group.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
+    target_group.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support.")
+    target_group.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
+    target_group.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
+    sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 

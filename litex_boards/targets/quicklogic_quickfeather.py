@@ -91,7 +91,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on QuickLogic QuickFeather")
-    parser.add_argument("--build", action="store_true", help="Build bitstream.")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build", action="store_true", help="Build bitstream.")
     soc_core_args(parser)
     parser.set_defaults(cpu_type="eos_s3")
     args = parser.parse_args()

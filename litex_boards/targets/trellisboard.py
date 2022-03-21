@@ -181,18 +181,19 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Trellis Board")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
-    parser.add_argument("--toolchain",       default="trellis",   help="FPGA toolchain (trellis or diamond).")
-    parser.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
-    parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support.")
-    viopts = parser.add_mutually_exclusive_group()
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true", help="Build bitstream.")
+    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--toolchain",       default="trellis",   help="FPGA toolchain (trellis or diamond).")
+    target_group.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
+    target_group.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support.")
+    viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
-    sdopts = parser.add_mutually_exclusive_group()
+    sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    parser.add_argument("--with-pmod-gpio",  action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    target_group.add_argument("--with-pmod-gpio",  action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)

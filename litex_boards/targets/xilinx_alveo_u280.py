@@ -156,15 +156,16 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Alveo U280")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",    default=150e6,       help="System clock frequency.") # HBM2 with 250MHz, DDR4 with 150MHz (1:4)
-    parser.add_argument("--ddram-channel",   default="0",         help="DDRAM channel (0, 1, 2 or 3).") # also selects clk 0 or 1
-    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
-    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
-    parser.add_argument("--with-hbm",        action="store_true", help="Use HBM2.")
-    parser.add_argument("--with-analyzer",   action="store_true", help="Enable Analyzer.")
-    parser.add_argument("--with-led-chaser", action="store_true", help="Enable LED Chaser.")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true", help="Build bitstream.")
+    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",    default=150e6,       help="System clock frequency.") # HBM2 with 250MHz, DDR4 with 150MHz (1:4)
+    target_group.add_argument("--ddram-channel",   default="0",         help="DDRAM channel (0, 1, 2 or 3).") # also selects clk 0 or 1
+    target_group.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
+    target_group.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
+    target_group.add_argument("--with-hbm",        action="store_true", help="Use HBM2.")
+    target_group.add_argument("--with-analyzer",   action="store_true", help="Enable Analyzer.")
+    target_group.add_argument("--with-led-chaser", action="store_true", help="Enable LED Chaser.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
