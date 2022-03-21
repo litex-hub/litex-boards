@@ -217,8 +217,11 @@ def main():
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_core_argdict(args))
-    builder = Builder(soc, **builder_argdict(args), )
+    soc = BaseSoC(
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        **soc_core_argdict(args))
+    builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
 
     if args.load:
