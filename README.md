@@ -92,6 +92,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── alinx_axu2cga
     ├── antmicro_datacenter_ddr4_test_board
     ├── antmicro_lpddr4_test_board
+    ├── arduino_mkrvidor4000
     ├── avalanche
     ├── berkeleylab_marblemini
     ├── berkeleylab_marble

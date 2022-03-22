@@ -9,6 +9,7 @@ vendors = [
     "1bitsquared",
     "alinx",
     "antmicro",
+    "arduino",
     "berkeleylab",
     "colorlight",
     "decklink",
