@@ -78,7 +78,7 @@ class _CRGSDRAM(Module):
         self.clock_domains.cd_init     = ClockDomain()
         self.clock_domains.cd_por      = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys      = ClockDomain()
-        self.clock_domains.cd_sys2x    = ClockDomain()
+        self.clock_domains.cd_sys2x    = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys2x_i  = ClockDomain(reset_less=True)
 
         # # #
@@ -120,8 +120,7 @@ class _CRGSDRAM(Module):
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.reset,
                 o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys,   ~pll.locked | self.reset),
-            AsyncResetSynchronizer(self.cd_sys2x, ~pll.locked | self.reset),
+            AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
         ]
 
         # USB PLL
