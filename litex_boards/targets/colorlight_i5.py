@@ -208,7 +208,6 @@ def main():
         eth_phy                = args.eth_phy,
         use_internal_osc       = args.use_internal_osc,
         sdram_rate             = args.sdram_rate,
-        l2_size	               = args.l2_size,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)

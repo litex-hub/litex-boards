@@ -154,7 +154,6 @@ def main():
         sys_clk_freq           = int(float(args.sys_clk_freq)),
         use_internal_osc       = args.use_internal_osc,
         sdram_rate             = args.sdram_rate,
-        l2_size                = args.l2_size,
         with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
