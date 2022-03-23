@@ -60,6 +60,7 @@ _io = [
 
     # I2C
         # On the ADRV9009_ZU11EG SoM
+        # ADM1266 @ 0x48
         # AD9542  @ 0x4B
         # ADM1177 @ 0x58
     ("i2c", 0,
@@ -70,6 +71,13 @@ _io = [
 
         # On the ADRV2CRR_FMC carrier
         # (through TCA9548A, connects to SFP/QSFP/Audio/AD9545/PTN5150/FMC)
+        # ADAU1761 @ bus 0 - 0x3b
+        # AD9545   @ bus 1 - 0x4a
+        # PTN5150  @ bus 2 - 0x1d
+        # QSFP     @ bus 3 - 0x5[0-3]
+        # SFP      @ bus 4 - 0x5[0-3]
+        # FMC_HPC  @ bus 5
+        # TCA9548A @       - 0x70
     ("i2c", 1,
         Subsignal("sda", Pins("AN18")),
         Subsignal("scl", Pins("AN19")),
