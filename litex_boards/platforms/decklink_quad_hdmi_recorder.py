@@ -26,6 +26,14 @@ _io = [
     ("debug", 2, Pins("AN34"), IOStandard("LVCMOS15")),
     ("debug", 3, Pins("AP34"), IOStandard("LVCMOS15")),
 
+
+    # Serial
+    ("serial", 0,
+        Subsignal("tx", Pins("AP9")),
+        Subsignal("rx", Pins("AN9")),
+        IOStandard("LVCMOS15")
+    ),
+
     # SPIFlash (MX25L25645GSXDI).
 
     # TODO (Probably similar to KCU105).
