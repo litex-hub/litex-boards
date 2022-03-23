@@ -292,6 +292,9 @@ _io = [
         IOStandard("LVCMOS18")
     ),
 
+    # AD9545
+    ("ad9545_car_reset_n", 0, Pins("AR19"), IOStandard("LVCMOS18"), Misc("PULLUP")),
+
     # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n",  Pins("AH17"), IOStandard("LVCMOS18")),
