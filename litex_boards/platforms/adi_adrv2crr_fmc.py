@@ -476,7 +476,7 @@ class Platform(XilinxPlatform):
     default_clk_period = 1e9/122.88e6
 
     def __init__(self):
-        XilinxPlatform.__init__(self, "xczu11eg-ffvf1517-1-i", _io, _connectors, toolchain="vivado")
+        XilinxPlatform.__init__(self, "xczu11eg-ffvf1517-2-i", _io, _connectors, toolchain="vivado")
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
