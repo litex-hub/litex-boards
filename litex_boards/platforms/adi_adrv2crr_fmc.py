@@ -71,8 +71,8 @@ _io = [
         # On the ADRV2CRR_FMC carrier
         # (through TCA9548A, connects to SFP/QSFP/Audio/AD9545/PTN5150/FMC)
     ("i2c", 1,
-        Subsignal("sda", Pins("AR24")),
-        Subsignal("scl", Pins("AP24")),
+        Subsignal("sda", Pins("AN18")),
+        Subsignal("scl", Pins("AN19")),
         IOStandard("LVCMOS18")
     ),
 
