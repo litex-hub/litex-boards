@@ -58,7 +58,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(200e6), with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(200e6), with_pcie=False, pcie_lanes=4, **kwargs):
         platform = quad_hdmi_recorder.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -87,10 +87,16 @@ class BaseSoC(SoCCore):
             )
 
         # PCIe -------------------------------------------------------------------------------------
+        # FIXME: Does not seem to be working when also enabling DRAM. Has been tested succesfully by
+        # disabling DRAM with --integrated-main-ram-size=0x100.
         if with_pcie:
-            self.submodules.pcie_phy = USPCIEPHY(platform, platform.request("pcie_x4"),
+            data_width = {
+                4 : 128,
+                8 : 256,
+            }[pcie_lanes]
+            self.submodules.pcie_phy = USPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 speed      = "gen3",
-                data_width = 128,
+                data_width = data_width,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
             # False Paths (FIXME: Improve integration).
