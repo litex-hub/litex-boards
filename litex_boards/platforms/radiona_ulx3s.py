@@ -110,7 +110,6 @@ _io_common = [
     ),
 
     # Others
-    ("wifi_gpio0", 0, Pins("L2"), IOStandard("LVCMOS33")),
     ("ext0p", 0, Pins("B11"), IOStandard("LVCMOS33")),
     ("ext1p", 0, Pins("A10"), IOStandard("LVCMOS33")),
 ]
@@ -147,6 +146,8 @@ _io_1_7 = [
         #Subsignal("scl",     Pins("E19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
         #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
     ),
+    # Wifi power
+    ("wifi_gpio0", 0, Pins("L2"), IOStandard("LVCMOS33")),
 ]
 
 _io_2_0 = [
@@ -163,8 +164,8 @@ _io_2_0 = [
         Subsignal("clk",  Pins("H2")),
         Subsignal("cmd",  Pins("J1"), Misc("PULLMODE=UP")),
         Subsignal("data", Pins("J3 H1 K1 K2"), Misc("PULLMODE=UP")),
-        Subsignal("cd", Pins("N5")),
-        Subsignal("wp", Pins("P5")),
+        #Subsignal("cd", Pins("N5")), # Not connected
+        #Subsignal("wp", Pins("P5")), # Not connected
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
@@ -183,6 +184,8 @@ _io_2_0 = [
         #Subsignal("scl",     Pins("E19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
         #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
     ),
+    # Wifi power
+    ("wifi_gpio0", 0, Pins("F1"), IOStandard("LVCMOS33")),    
 ]
 
 # Platform -----------------------------------------------------------------------------------------
