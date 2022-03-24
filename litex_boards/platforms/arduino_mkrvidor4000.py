@@ -49,8 +49,8 @@ _io = [
 
     # Serial
     ("serial", 0,
-        Subsignal("tx", Pins("G1"),  IOStandard("3.3-V LVTTL")), # User I/O port on Mister
-        Subsignal("rx", Pins("N3"), IOStandard("3.3-V LVTTL"))  # User I/O port on Mister
+        Subsignal("tx", Pins("G1"),  IOStandard("3.3-V LVTTL")), # Pin D0
+        Subsignal("rx", Pins("N3"), IOStandard("3.3-V LVTTL"))  # Pin D1
     ),
 
 #     # USB FIFO
