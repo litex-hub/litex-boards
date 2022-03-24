@@ -13,8 +13,6 @@ from migen import *
 
 from litex_boards.platforms import arduino_mkrvidor4000
 
-from litex.build.io import DDROutput
-
 from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -57,7 +55,8 @@ class BaseSoC(SoCCore):
             ident = "LiteX SoC on MKR Vidor 4000",
             **kwargs)
 
-       
+        self.add_jtagbone() # TODO: untested
+
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
@@ -66,7 +65,7 @@ class BaseSoC(SoCCore):
             self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = AS4C4M16(sys_clk_freq, "1:1"), # Winbond W9864G6JT
+                module        = AS4C4M16(sys_clk_freq, "1:1"), # Alliance Memory AS4C4M16
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
