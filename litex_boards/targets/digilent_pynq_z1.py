@@ -69,7 +69,7 @@ class BaseSoC(SoCCore):
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
             # Get and set the pre-generated .xci FIXME: change location? add it to the repository?
-            os.system("wget https://github.com/litex-hub/litex-boards/files/4967144/zybo_z7_ps7.txt")
+            os.system("wget https://github.com/litex-hub/litex-boards/files/8339591/zybo_z7_ps7.txt)")
             os.makedirs("xci", exist_ok=True)
             os.system("mv zybo_z7_ps7.txt xci/zybo_z7_ps7.xci")
             self.cpu.set_ps7_xci("xci/zybo_z7_ps7.xci")
