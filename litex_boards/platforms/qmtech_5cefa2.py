@@ -124,8 +124,8 @@ class Platform(AlteraPlatform):
     core_resources = [
         ("user_led", 0, Pins("D17"), IOStandard("3.3-V LVTTL")),
         ("serial", 0,
-            Subsignal("tx", Pins("J3:8"), IOStandard("3.3-V LVTTL")),
-            Subsignal("rx", Pins("J3:7"), IOStandard("3.3-V LVTTL"))
+            Subsignal("tx", Pins("J3:7"), IOStandard("3.3-V LVTTL")),
+            Subsignal("rx", Pins("J3:8"), IOStandard("3.3-V LVTTL"))
         ),
  ]
 
