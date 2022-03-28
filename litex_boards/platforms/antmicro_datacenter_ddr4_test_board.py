@@ -29,9 +29,10 @@ _io = [
         Subsignal("rx", Pins("F25")),
         IOStandard("LVCMOS33")
     ),
-    ("serial", 1,
-        Subsignal("tx", Pins("D26")),
-        Subsignal("rx", Pins("E25")),
+
+    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+        Subsignal("cs_n", Pins("C23")),
+        Subsignal("dq",   Pins("B24", "A25", "B22", "A22")),
         IOStandard("LVCMOS33")
     ),
 
@@ -98,8 +99,7 @@ _io = [
 
     # HyperRAM
     ("hyperram", 0,
-        Subsignal("clk_n", Pins("AE26")),
-        Subsignal("clk_p", Pins("AD26")),
+        Subsignal("clk", Pins("AD26")), # clk_n AE26
         Subsignal("rst_n", Pins("AC24")),
         Subsignal("cs_n",  Pins("AC26")),
         Subsignal("dq",    Pins("AE23 AD25 AF24 AE22 AF23 AF25 AE25 AD24")),
@@ -119,9 +119,21 @@ _io = [
 
     # I2C
     ("i2c", 0,
-        Subsignal("scl", Pins("Y5")),
-        Subsignal("sda", Pins("Y6")),
-        IOStandard("SSTL12_T_DCI"),
+        Subsignal("scl", Pins("E25")),
+        Subsignal("sda", Pins("D26")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # HDMI Out
+    ("hdmi_out", 0,
+        Subsignal("clk_p",   Pins("B15"),   IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("A15"),   IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("B14"),   IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("A14"),   IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("A13"),  IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("A12"),  IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("B10"),  IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("A10"),  IOStandard("TMDS_33")),
     ),
 ]
 
@@ -144,7 +156,8 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property DCI_CASCADE {{32 34}} [get_iobanks 33]")
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft4232.cfg", "bscan_spi_xc7k100t.bit")
+        bscan_spi = "bscan_spi_xc7k160t.bit" if "xc7k160t" in self.device else "bscan_spi_xc7k160t.bit"
+        return OpenOCD("openocd_xc7_ft4232.cfg", bscan_spi)
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
