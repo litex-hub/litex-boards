@@ -24,6 +24,7 @@ class TestTargets(unittest.TestCase):
         "efinix_xyloni_dev_kit",             # Reason: Require Efinity toolchain.
         "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
         "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
+        "efinix_t8f81_dev_kit",              # Reason: Require Efinity toolchain.
     ]
     excluded_targets   = [
         "simple",                            # Reason: Generic target.
@@ -35,6 +36,7 @@ class TestTargets(unittest.TestCase):
         "efinix_xyloni_dev_kit",             # Reason: Require Efinity toolchain.
         "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
         "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
+        "efinix_t8f81_dev_kit",              # Reason: Require Efinity toolchain.
     ]
 
     # Build simple design for all platforms.
