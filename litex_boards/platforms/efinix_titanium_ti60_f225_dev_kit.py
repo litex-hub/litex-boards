@@ -93,6 +93,21 @@ _io = [
         Subsignal("data3", Pins("E12"), IOStandard("1.2_V_LVCMOS")),
         Misc("SLEWRATE=FAST")
     ),
+
+    # MIPI
+    ("mipi_rx", 0,
+        Subsignal("clk",   Pins("M15"), IOStandard("1.2_V_LVCMOS")),
+        Subsignal("data0", Pins("K11"), IOStandard("1.2_V_LVCMOS")),
+        Subsignal("data1", Pins("L13"), IOStandard("1.2_V_LVCMOS")),
+        Misc("SLEWRATE=FAST")
+    ),
+
+    ("cam_i2c", 0,
+        Subsignal("sda",   Pins("H4"), Misc("WEAK_PULLUP")),
+        Subsignal("scl",   Pins("H5"), Misc("WEAK_PULLUP")),
+        Subsignal("reset", Pins("R14")),
+        IOStandard("1.8_V_LVCMOS")
+    ),
 ]
 
 iobank_info = [
