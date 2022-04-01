@@ -19,6 +19,9 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT40A256M16
 from litedram.phy import usddrphy
 
+from litepcie.phy.usppciephy import USPPCIEPHY
+from litepcie.software import generate_litepcie_software
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -54,7 +57,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, with_pcie=False, **kwargs):
         platform = zcu106.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -78,6 +81,14 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
+        # PCIe -------------------------------------------------------------------------------------
+        if with_pcie:
+            self.submodules.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+                speed      = "gen3",
+                data_width = 128,
+                bar0_size  = 0x20000)
+            self.add_pcie(phy=self.pcie_phy, ndmas=1)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
@@ -93,12 +104,14 @@ def main():
     target_group.add_argument("--build",        action="store_true", help="Build bitstream.")
     target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
     target_group.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
+    target_group.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
+        with_pcie    = args.with_pcie,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
