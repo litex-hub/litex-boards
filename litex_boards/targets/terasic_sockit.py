@@ -27,13 +27,13 @@ class _CRG(Module):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
         if with_video_terminal:
-            self.clock_domains.cd_vga = ClockDomain(reset_less=True)
+            self.clock_domains.cd_vga = ClockDomain()
         if with_sdram:
             if sdram_rate == "1:2":
                 self.clock_domains.cd_sys2x    = ClockDomain()
-                self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+                self.clock_domains.cd_sys2x_ps = ClockDomain()
             else:
-                self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+                self.clock_domains.cd_sys_ps = ClockDomain()
 
         # Clk / Rst
         clk50 = platform.request("clk50")

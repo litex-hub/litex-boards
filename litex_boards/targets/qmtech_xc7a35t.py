@@ -31,14 +31,14 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_ethernet, with_vga):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
         if with_ethernet:
             self.clock_domains.cd_eth   = ClockDomain()
         if with_vga:
-            self.clock_domains.cd_vga   = ClockDomain(reset_less=True)
+            self.clock_domains.cd_vga   = ClockDomain()
 
         # # #
 

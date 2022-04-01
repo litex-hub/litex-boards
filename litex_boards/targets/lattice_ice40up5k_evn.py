@@ -32,7 +32,7 @@ class _CRG(Module):
         assert sys_clk_freq == 12e6
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_por    = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por    = ClockDomain()
 
         # # #
 

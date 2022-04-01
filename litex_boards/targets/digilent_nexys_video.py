@@ -28,8 +28,8 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, toolchain="vivado", with_sata_pll_refclk=False, with_video_pll=False):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_hdmi      = ClockDomain()
         self.clock_domains.cd_hdmi5x    = ClockDomain()

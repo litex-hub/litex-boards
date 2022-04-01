@@ -36,8 +36,8 @@ class _CRG(Module):
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
         if with_dram:
-            self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-            self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys4x     = ClockDomain()
+            self.clock_domains.cd_sys4x_dqs = ClockDomain()
             self.clock_domains.cd_idelay    = ClockDomain()
 
 

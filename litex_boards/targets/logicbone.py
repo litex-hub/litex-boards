@@ -31,10 +31,10 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
         self.rst = Signal()
         self.clock_domains.cd_init     = ClockDomain()
-        self.clock_domains.cd_por      = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por      = ClockDomain()
         self.clock_domains.cd_sys      = ClockDomain()
-        self.clock_domains.cd_sys2x    = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys2x_i  = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys2x    = ClockDomain()
+        self.clock_domains.cd_sys2x_i  = ClockDomain()
 
         # # #
 

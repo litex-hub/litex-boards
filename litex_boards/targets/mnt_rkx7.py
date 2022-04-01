@@ -26,7 +26,7 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x  = ClockDomain()
         self.clock_domains.cd_idelay = ClockDomain()
 
         # # #

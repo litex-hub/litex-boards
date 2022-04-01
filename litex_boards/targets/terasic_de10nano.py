@@ -31,10 +31,10 @@ class _CRG(Module):
         self.clock_domains.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
             self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
-        self.clock_domains.cd_vga    = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys_ps = ClockDomain()
+        self.clock_domains.cd_vga    = ClockDomain()
 
         # # #
 

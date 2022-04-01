@@ -31,10 +31,10 @@ from litedram.phy import s7ddrphy
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
-        self.clock_domains.cd_por       = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por       = ClockDomain()
 
         # # #
         clk48 = platform.request("clk48")

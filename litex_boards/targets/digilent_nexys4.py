@@ -32,11 +32,11 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys2x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys2x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys2x     = ClockDomain()
+        self.clock_domains.cd_sys2x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
-        self.clock_domains.cd_vga       = ClockDomain(reset_less=True)
+        self.clock_domains.cd_vga       = ClockDomain()
         # # #
 
         self.submodules.pll = pll = S7MMCM(speedgrade=-1)

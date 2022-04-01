@@ -27,8 +27,8 @@ from litex.soc.cores.hyperbus import HyperRAM
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, iodelay_clk_freq):
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys2x  = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys8x  = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys2x  = ClockDomain()
+        self.clock_domains.cd_sys8x  = ClockDomain()
         self.clock_domains.cd_idelay = ClockDomain()
 
         # # #

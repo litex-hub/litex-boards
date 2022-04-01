@@ -50,8 +50,8 @@ class _CRG(Module):
         else: # ddr4
             self.rst = Signal()
             self.clock_domains.cd_sys    = ClockDomain()
-            self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
-            self.clock_domains.cd_pll4x  = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys4x  = ClockDomain()
+            self.clock_domains.cd_pll4x  = ClockDomain()
             self.clock_domains.cd_idelay = ClockDomain()
 
         # # #

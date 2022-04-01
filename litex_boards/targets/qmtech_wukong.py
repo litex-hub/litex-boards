@@ -31,8 +31,8 @@ class _CRG(Module):
     def __init__(self, platform, speed_grade, sys_clk_freq, with_video_pll=False, pix_clk=25.175e6):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_clk100    = ClockDomain()
         self.clock_domains.cd_hdmi      = ClockDomain()

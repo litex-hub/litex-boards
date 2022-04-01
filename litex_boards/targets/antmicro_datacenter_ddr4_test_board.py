@@ -39,9 +39,9 @@ from litespi.opcodes import SpiNorFlashOpCodes as Codes
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, iodelay_clk_freq, with_video_pll=False):
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys2x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys2x     = ClockDomain()
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
 
         self.clock_domains.cd_hdmi      = ClockDomain()
