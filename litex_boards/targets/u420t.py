@@ -6,15 +6,15 @@
 # Copyright (c) 2020-2021 Xuanyu Hu <xuanyu.hu@whu.edu.cn>
 # SPDX-License-Identifier: BSD-2-Clause
 # ported by Alex Petrov aka sysman
-# Kintex7-420T
-# Part xc7k420tiffg901-2L
+# Kintex7-420T aliexpress
+# Part xc7k420tiffg901-2L v0.2
 
 from migen import *
 
 from litex_boards.platforms import u420t
 from litex.soc.interconnect import wishbone
 from litex.soc.cores.clock import *
-#from litex.soc.integration.soc import SoCRegion
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -28,14 +28,10 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
         self.clock_domains.cd_idelay = ClockDomain()
 
-        # # #
-        #clk100 = platform.request("clk100")
-
         # board is grade 2, but to fix halts use -1
         self.submodules.pll = pll = S7MMCM(speedgrade=-2)
         ##self.submodules.pll = pll = S7MMCM(speedgrade=-1)
-        #self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
-        self.comb += pll.reset.eq(platform.request("user_btn_k3") | self.rst)
+        self.comb += pll.reset.eq(~platform.request("user_btn_k3") | self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         #workaround to bypass for clk100 error: No nets matched 'clk100'
         #line:940 litex/litex/build/xilinx/vivado.py " [get_ports {clk}]", clk=clk)
@@ -52,13 +48,14 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, with_spi_flash=False, **kwargs):
         platform = u420t.Platform()
 
         # --- add more sram for riscv comfort
+        # xc7k420t BRAMs: 1670 (col length: RAMB18 160 RAMB36 80)
         kwargs["integrated_rom_size"]  = 0x8000 # 8kb
         kwargs["integrated_sram_size"] = 0x10000 # 64kb
-        kwargs["integrated_main_ram_size"] = 0x20000 # 128kb
+        kwargs["integrated_main_ram_size"] = 0x40000 # 256kb ## change if needed
 
         # SoCCore ----------------------------------_-----------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -72,10 +69,10 @@ class BaseSoC(SoCCore):
         # no video
         # no ram
 	# SPI Flash --------------------------------------------------------------------------------
-        #if with_spi_flash:
-        #    from litespi.modules import W25Q256
-        #    from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        #    self.add_spi_flash(mode="1x", module=W25Q256(Codes.READ_1_1_1))
+        if with_spi_flash:
+            from litespi.modules import N25Q256
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=W25Q256(Codes.READ_1_1_4))
 
 
         # Leds -------------------------------------------------------------------------------------
@@ -102,14 +99,13 @@ def main():
     target_group.add_argument("--load",                action="store_true", help="Load bitstream.")
     target_group.add_argument("--sys-clk-freq",        default=100e6,        help="System clock frequency.")
 #    sdopts = target_group.add_mutually_exclusive_group()
-#    sdopts.add_argument("--with-spi-flash",     action="store_true", help="Enable SPI-mode flash support.")
+    sdopts.add_argument("--with-spi-flash",     action="store_true", help="Enable SPI-mode flash support.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq           = int(float(args.sys_clk_freq)),
-#        with_video_terminal    = args.with_video_terminal,
         **soc_core_argdict(args)
     )
 #    soc.platform.add_extension(u420t._sdcard_pmod_io)

@@ -4,7 +4,7 @@
 # Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 # Kintex7-420T
-# Part xc7k420tiffg901-2L
+# Part xc7k420tiffg901-2L v0.2 update
 # ported by Alex Petrov aka sysman
 
 from litex.build.generic_platform import *
@@ -47,20 +47,52 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # SPIFlash (Micron N25Q256A / mt25ql256 (32MB))
-    #("spiflash4x", 0,
-    #    Subsignal("cs_n", Pins("V26")),
+    # SPIFlash (Micron N25Q256A (32MB))
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("V26"), IOStandard("LVCMOS33")),
+        #Subsignal("clk",  Pins("G7"), IOStandard("LVCMOS33")),
+        Subsignal("mosi", Pins("R30"), IOStandard("LVCMOS33")),
+        Subsignal("miso", Pins("T30"), IOStandard("LVCMOS33")),
+        Subsignal("wp",   Pins("R28"), IOStandard("LVCMOS33")),
+        Subsignal("hold", Pins("T28"), IOStandard("LVCMOS33"))
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("V26"), IOStandard("LVCMOS33")),
         #Subsignal("clk",  Pins("")), # driven through JTAG H13 #T22 ?
-    #    Subsignal("dq", Pins("R30","T30","R28","T28")),
-    #    IOStandard("LVCMOS33"),
-    #),
-
+        Subsignal("dq",   Pins("R30 T30 R28 T28"), IOStandard("LVCMOS33"))
+    ),
 
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
-# to add connector 
-_connectors = []
+# to add connector
+_connectors = [
+# main board connector, pins as marked
+( "main", {
+   #    usb- 1 2 usb+ not used U3 usb3320 don't use
+   #    GND  3 4 GND
+   # QSPI_CS 5 6 QSPI_D1
+   # QSPI_D0 7 8 QSPI_CLK
+   9:  "B29",
+   # 10: "Program_B"  key3 reset button
+   11: "A28",
+   12: "B27",
+   13: "A27",
+   14: "A26",
+   15: "B25",
+   16: "A25",
+   17: "B24",
+   18: "B23",
+   19: "A23",
+   20: "B22",
+   21: "A22",
+   22: "A21",
+   23: "B20",
+   24: "A20",
+   # 25,26,27,28: GND
+   # 29,30,31,32: V12
+ })
+]
 
 # PMODS --------------------------------------------------------------------------------------------
 
