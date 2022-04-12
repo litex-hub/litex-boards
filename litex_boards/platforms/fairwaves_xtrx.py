@@ -20,6 +20,16 @@ _io = [
     ("user_led", 0, Pins("N18"),  IOStandard("LVCMOS25")),
 
     # PCIe.
+    ("pcie_x1", 0,
+        Subsignal("rst_n", Pins("T3"), IOStandard("LVCMOS25"), Misc("PULLUP=TRUE")),
+        Subsignal("clk_p", Pins("B8")),
+        Subsignal("clk_n", Pins("A8")),
+        Subsignal("rx_p",  Pins("B6")),
+        Subsignal("rx_n",  Pins("A6")),
+        Subsignal("tx_p",  Pins("B2")),
+        Subsignal("tx_n",  Pins("A2")),
+    ),
+
     ("pcie_x2", 0,
         Subsignal("rst_n", Pins("T3"), IOStandard("LVCMOS25"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("B8")),
@@ -40,8 +50,16 @@ _io = [
         IOStandard("LVCMOS25")
     ),
 
-    # I2C
+    # Power-Down.
+    ("pwrdwn_n", 0, Pins("R19"), IOStandard("LVCMOS25")),
+
+    # I2C buses.
     ("i2c", 0,
+        Subsignal("scl", Pins("U14"), Misc("PULLUP=True")),
+        Subsignal("sda", Pins("U15"), Misc("PULLUP=True")),
+        IOStandard("LVCMOS25"),
+    ),
+    ("i2c", 1,
         Subsignal("scl", Pins("M1"), Misc("PULLUP=True")),
         Subsignal("sda", Pins("N1"), Misc("PULLUP=True")),
         IOStandard("LVCMOS33"),
@@ -49,50 +67,56 @@ _io = [
 
     # GPS.
     ("gps", 0,
-        Subsignal("pps", Pins("P3"), Misc("PULLDOWN=True")),
-        Subsignal("txd", Pins("N2"), Misc("PULLUP=True")),
-        Subsignal("rxd", Pins("L1"), Misc("PULLUP=True")),
+        Subsignal("rst",    Pins("L18"), IOStandard("LVCMOS25")),
+        Subsignal("pps",    Pins("P3"),  Misc("PULLDOWN=True")),
+        Subsignal("rx" ,    Pins("N2"),  Misc("PULLUP=True")),
+        Subsignal("tx" ,    Pins("L1"),  Misc("PULLUP=True")),
         IOStandard("LVCMOS33")
     ),
 
-    # AUX. (Split/Move/Rename?)
-    ("aux", 0,
-        Subsignal("fpga_clk_vctcxo", Pins("N17"), Misc("PULLDOWN=True")),
-        Subsignal("en_tcxo",         Pins("R19"), Misc("PULLUP=True")),
-        Subsignal("ext_clk",         Pins("V17"), Misc("PULLDOWN=True")),
-        Subsignal("en_gps",          Pins("L18")),
-        Subsignal("iovcc_sel",       Pins("V19")),
-        Subsignal("en_smsigio",      Pins("D17")),
+    # VCTCXO.
+    ("vctcxo", 0,
+        Subsignal("sel",    Pins("V17"), Misc("PULLDOWN=True")),
+        Subsignal("clk",    Pins("N17"), Misc("PULLDOWN=True")),
+        IOStandard("LVCMOS25")
+    ),
+
+    # GPIO.
+    ("gpio", 0,
+        Subsignal("iovcc_sel",  Pins("V19")),
+        Subsignal("en_smsigio", Pins("D17")),
         IOStandard("LVCMOS25")
     ),
 
     # RF-Switches / SKY13330, SKY13384.
-    ("rfswitches", 0,
+    ("rf_switches", 0,
         Subsignal("tx", Pins("P1"),    Misc("PULLUP=True")),
         Subsignal("rx", Pins("K3 J3"), Misc("PULLUP=True")),
         IOStandard("LVCMOS33")
     ),
 
     # RF-IC / LMS7002M.
-    ("rfic",
-        # SPI / Control.
-        Subsignal("saen",    Pins("W13")),
-        Subsignal("sdio",    Pins("W16"), Misc("PULLDOWN=True")),
-        Subsignal("sdo",     Pins("W15"), Misc("PULLDOWN=True")),
-        Subsignal("sclk",    Pins("W14")),
-        Subsignal("reset",   Pins("U19")),
-        Subsignal("gpwrdwn", Pins("W17")),
-        Subsignal("rxen",    Pins("W18")),
-        Subsignal("txen",    Pins("W19")),
+    ("lms7002m", 0,
+        # Control.
+        Subsignal("rst_n",    Pins("U19")),
+        Subsignal("pwrdwn_n", Pins("W17")),
+        Subsignal("rxen",     Pins("W18")),
+        Subsignal("txen",     Pins("W19")),
 
-        # Port1.
+        # SPI.
+        Subsignal("clk",  Pins("W14")),
+        Subsignal("cs_n", Pins("W13")),
+        Subsignal("mosi", Pins("W16"), Misc("PULLDOWN=True")),
+        Subsignal("miso", Pins("W15"), Misc("PULLDOWN=True")),
+
+        # RX-Interface (LMS -> FPGA).
         Subsignal("diq1",   Pins("J19 H17 G17 K17 H19 U16 J17 P19 U17 N19 V15 V16")),
         Subsignal("txnrx1", Pins("M19")),
         Subsignal("iqsel1", Pins("P17")),
         Subsignal("mclk1",  Pins("L17")),
         Subsignal("fclk1",  Pins("G19")),
 
-        # Port2.
+        # RX-Interface (FPGA -> LMS).
         Subsignal("diq2",   Pins("W2 U2 V3 V4 V5 W7 V2 W4 U5 V8 U7 U8")),
         Subsignal("txnrx2", Pins("U4")),
         Subsignal("iqsel2", Pins("U3")),
