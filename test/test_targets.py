@@ -25,6 +25,7 @@ class TestTargets(unittest.TestCase):
         "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
         "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
         "efinix_t8f81_dev_kit",              # Reason: Require Efinity toolchain.
+        "adi_plutosdr",                      # Reason: No default clock.
     ]
     excluded_targets   = [
         "simple",                            # Reason: Generic target.
