@@ -87,8 +87,10 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── 1bitsquared_icebreaker_bitsy
     ├── 1bitsquared_icebreaker
     ├── adi_adrv2crr_fmc
+    ├── adi_plutosdr
     ├── alchitry_au
     ├── alchitry_mojo
+    ├── alinx_ax7010
     ├── alinx_axu2cga
     ├── antmicro_datacenter_ddr4_test_board
     ├── antmicro_lpddr4_test_board
@@ -117,6 +119,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── digilent_zedboard
     ├── digilent_zybo_z7
     ├── ebaz4205
+    ├── efinix_t8f81_dev_kit
     ├── efinix_titanium_ti60_f225_dev_kit
     ├── efinix_trion_t120_bga576_dev_kit
     ├── efinix_trion_t20_bga256_dev_kit
@@ -137,6 +140,8 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── kosagi_netv2
     ├── krtkl_snickerdoodle
     ├── lambdaconcept_ecpix5
+    ├── lambdaconcept_pcie_screamer_m2
+    ├── lambdaconcept_pcie_screamer
     ├── lattice_crosslink_nx_evn
     ├── lattice_crosslink_nx_vip
     ├── lattice_ecp5_evn
@@ -208,6 +213,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── xilinx_sp605
     ├── xilinx_vc707
     ├── xilinx_vcu118
+    ├── xilinx_zcu102
     ├── xilinx_zcu104
     ├── xilinx_zcu106
     ├── xilinx_zcu216
