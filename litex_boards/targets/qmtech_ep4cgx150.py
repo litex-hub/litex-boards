@@ -129,7 +129,7 @@ def main():
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--build",        action="store_true", help="Build bitstream.")
     target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency.")
+    target_group.add_argument("--sys-clk-freq", default=80e6,        help="System clock frequency.")
     target_group.add_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     target_group.add_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")
     ethopts = target_group.add_mutually_exclusive_group()
