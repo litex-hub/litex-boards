@@ -124,7 +124,9 @@ class BaseSoC(SoCCore):
         if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"))
+                pads       = self.platform.request("eth"),
+                rx_delay   = 0e-9, # KSZ9031RNX phy adds a 1.2ns RX delay
+                )
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
