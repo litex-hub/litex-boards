@@ -9,6 +9,7 @@ vendors = [
     "1bitsquared",
     "adi",
     "alinx",
+    "aliexpress",
     "antmicro",
     "arduino",
     "berkeleylab",
