@@ -99,14 +99,11 @@ class BaseSoC(SoCCore):
         platform = logicbone.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll=True)
 
         # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] == "usb_acm":
-            # FIXME: do proper install of ValentyUSB.
-            os.system("git clone https://github.com/litex-hub/valentyusb -b hw_cdc_eptri")
-            sys.path.append("valentyusb")
+        # Defaults to USB ACM through ValentyUSB.
+        kwargs["uart_name"] = "usb_acm"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Logicbone", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------

@@ -75,11 +75,8 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        # Enforce UART to USB-ACM
+        # Defaults to USB ACM through ValentyUSB.
         kwargs["uart_name"] = "usb_acm"
-        # FIXME: do proper install of ValentyUSB.
-        os.system("git clone https://github.com/litex-hub/valentyusb -b hw_cdc_eptri")
-        sys.path.append("valentyusb")
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
         kwargs["integrated_sram_size"] = 0
         kwargs["integrated_rom_size"]  = 0
