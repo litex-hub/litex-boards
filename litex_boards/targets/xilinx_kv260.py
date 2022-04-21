@@ -60,69 +60,70 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq, **kwargs):
         platform = xilinx_kv260.Platform()
 
-        if kwargs.get("cpu_type", None) == "zynqmp":
-            kwargs['integrated_sram_size'] = 0
+        # CRG --------------------------------------------------------------------------------------
+        use_ps7_clk = (kwargs.get("cpu_type", None) == "zynqmp")
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on KV260",
-            **kwargs)
+        if kwargs.get("cpu_type", None) == "zynqmp":
+            kwargs['integrated_sram_size'] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on KV260", **kwargs)
 
         # ZynqMP Integration -----------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
             self.cpu.config.update({
-                'PSU_MIO_36_DIRECTION': 'out',
-                'PSU_MIO_37_DIRECTION': 'in',
-                'PSU__UART1__BAUD_RATE': 115200,
-                'PSU__CRL_APB__UART1_REF_CTRL__DIVISOR0': 10,
+                'PSU_MIO_36_DIRECTION'                   : 'out',
+                'PSU_MIO_37_DIRECTION'                   : 'in',
+                'PSU__UART1__BAUD_RATE'                  : 115200,
+                'PSU__CRL_APB__UART1_REF_CTRL__DIVISOR0' : 10,
             })
             # generated from board xml presets
             self.cpu.config.update({
-                'PSU__CRF_APB__ACPU_CTRL__FREQMHZ': '1333.333',
-                'PSU__DDRC__BANK_ADDR_COUNT': '2',
-                'PSU__DDRC__BG_ADDR_COUNT': '1',
-                'PSU__DDRC__BRC_MAPPING': 'ROW_BANK_COL',
-                'PSU__DDRC__BUS_WIDTH': '64 Bit',
-                'PSU__DDRC__CL': '16',
-                'PSU__DDRC__CLOCK_STOP_EN': '0',
-                'PSU__DDRC__COL_ADDR_COUNT': '10',
-                'PSU__DDRC__COMPONENTS': 'Components',
-                'PSU__DDRC__CWL': '12',
-                'PSU__DDRC__DDR4_ADDR_MAPPING': '0',
-                'PSU__DDRC__DDR4_CAL_MODE_ENABLE': '0',
-                'PSU__DDRC__DDR4_CRC_CONTROL': '0',
-                'PSU__DDRC__DDR4_T_REF_MODE': '0',
-                'PSU__DDRC__DDR4_T_REF_RANGE': 'Normal (0-85)',
-                'PSU__DDRC__DEVICE_CAPACITY': '8192 MBits',
-                'PSU__DDRC__DIMM_ADDR_MIRROR': '0',
-                'PSU__DDRC__DM_DBI': 'DM_NO_DBI',
-                'PSU__DDRC__DRAM_WIDTH': '16 Bits',
-                'PSU__DDRC__ECC': 'Disabled',
-                'PSU__DDRC__FGRM': '1X',
-                'PSU__DDRC__LP_ASR': 'manual normal',
-                'PSU__DDRC__MEMORY_TYPE': 'DDR 4',
-                'PSU__DDRC__PARITY_ENABLE': '0',
-                'PSU__DDRC__PER_BANK_REFRESH': '0',
-                'PSU__DDRC__PHY_DBI_MODE': '0',
-                'PSU__DDRC__RANK_ADDR_COUNT': '0',
-                'PSU__DDRC__ROW_ADDR_COUNT': '16',
-                'PSU__DDRC__SELF_REF_ABORT': '0',
-                'PSU__DDRC__SPEED_BIN': 'DDR4_2400R',
-                'PSU__DDRC__STATIC_RD_MODE': '0',
-                'PSU__DDRC__TRAIN_DATA_EYE': '1',
-                'PSU__DDRC__TRAIN_READ_GATE': '1',
-                'PSU__DDRC__TRAIN_WRITE_LEVEL': '1',
-                'PSU__DDRC__T_FAW': '30.0',
-                'PSU__DDRC__T_RAS_MIN': '33',
-                'PSU__DDRC__T_RC': '47.06',
-                'PSU__DDRC__T_RCD': '16',
-                'PSU__DDRC__T_RP': '16',
-                'PSU__DDRC__VREF': '1',
-                'PSU__FPGA_PL0_ENABLE': '1',
-                'PSU__PMU__GPO4__ENABLE': '0',  # these 2 are disabled for uart1
-                'PSU__PMU__GPO5__ENABLE': '0',
-                'PSU__UART1__PERIPHERAL__ENABLE': '1',
-                'PSU__UART1__PERIPHERAL__IO': 'MIO 36 .. 37',
+                'PSU__CRF_APB__ACPU_CTRL__FREQMHZ' : '1333.333',
+                'PSU__DDRC__BANK_ADDR_COUNT'       : '2',
+                'PSU__DDRC__BG_ADDR_COUNT'         : '1',
+                'PSU__DDRC__BRC_MAPPING'           : 'ROW_BANK_COL',
+                'PSU__DDRC__BUS_WIDTH'             : '64 Bit',
+                'PSU__DDRC__CL'                    : '16',
+                'PSU__DDRC__CLOCK_STOP_EN'         : '0',
+                'PSU__DDRC__COL_ADDR_COUNT'        : '10',
+                'PSU__DDRC__COMPONENTS'            : 'Components',
+                'PSU__DDRC__CWL'                   : '12',
+                'PSU__DDRC__DDR4_ADDR_MAPPING'     : '0',
+                'PSU__DDRC__DDR4_CAL_MODE_ENABLE'  : '0',
+                'PSU__DDRC__DDR4_CRC_CONTROL'      : '0',
+                'PSU__DDRC__DDR4_T_REF_MODE'       : '0',
+                'PSU__DDRC__DDR4_T_REF_RANGE'      : 'Normal (0-85)',
+                'PSU__DDRC__DEVICE_CAPACITY'       : '8192 MBits',
+                'PSU__DDRC__DIMM_ADDR_MIRROR'      : '0',
+                'PSU__DDRC__DM_DBI'                : 'DM_NO_DBI',
+                'PSU__DDRC__DRAM_WIDTH'            : '16 Bits',
+                'PSU__DDRC__ECC'                   : 'Disabled',
+                'PSU__DDRC__FGRM'                  : '1X',
+                'PSU__DDRC__LP_ASR'                : 'manual normal',
+                'PSU__DDRC__MEMORY_TYPE'           : 'DDR 4',
+                'PSU__DDRC__PARITY_ENABLE'         : '0',
+                'PSU__DDRC__PER_BANK_REFRESH'      : '0',
+                'PSU__DDRC__PHY_DBI_MODE'          : '0',
+                'PSU__DDRC__RANK_ADDR_COUNT'       : '0',
+                'PSU__DDRC__ROW_ADDR_COUNT'        : '16',
+                'PSU__DDRC__SELF_REF_ABORT'        : '0',
+                'PSU__DDRC__SPEED_BIN'             : 'DDR4_2400R',
+                'PSU__DDRC__STATIC_RD_MODE'        : '0',
+                'PSU__DDRC__TRAIN_DATA_EYE'        : '1',
+                'PSU__DDRC__TRAIN_READ_GATE'       : '1',
+                'PSU__DDRC__TRAIN_WRITE_LEVEL'     : '1',
+                'PSU__DDRC__T_FAW'                 : '30.0',
+                'PSU__DDRC__T_RAS_MIN'             : '33',
+                'PSU__DDRC__T_RC'                  : '47.06',
+                'PSU__DDRC__T_RCD'                 : '16',
+                'PSU__DDRC__T_RP'                  : '16',
+                'PSU__DDRC__VREF'                  : '1',
+                'PSU__FPGA_PL0_ENABLE'             : '1',
+                'PSU__PMU__GPO4__ENABLE'           : '0',  # these 2 are disabled for uart1
+                'PSU__PMU__GPO5__ENABLE'           : '0',
+                'PSU__UART1__PERIPHERAL__ENABLE'   : '1',
+                'PSU__UART1__PERIPHERAL__IO'       : 'MIO 36 .. 37',
             })
 
             # Connect Zynq AXI master to the SoC
@@ -142,13 +143,6 @@ class BaseSoC(SoCCore):
                 linker=True)
             )
             self.constants['CONFIG_CLOCK_FREQUENCY'] = 1333333008
-
-            use_ps7_clk = True
-        else:
-            use_ps7_clk = False
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
     def finalize(self, *args, **kwargs):
         super(BaseSoC, self).finalize(*args, **kwargs)

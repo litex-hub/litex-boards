@@ -52,13 +52,11 @@ class BaseSoC(SoCCore):
     def __init__(self, variant="au", sys_clk_freq=int(83333333), with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = alchitry_au.Platform(variant=variant)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Alchitry Au(+)",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alchitry Au(+)", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

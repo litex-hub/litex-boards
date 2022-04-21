@@ -59,19 +59,15 @@ class CRG(Module):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-
     def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_led_chaser=True,
                  with_pcie=False, **kwargs):
-
         platform = adi_adrv2crr_fmc.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on ADI ADRV2CRR-FMC",
-            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq, ddram_channel)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ADI ADRV2CRR-FMC", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

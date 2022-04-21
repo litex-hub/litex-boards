@@ -89,15 +89,13 @@ class BaseSoC(SoCCore):
         **kwargs)       :
         platform = butterstick.Platform(revision=revision, device=device ,toolchain=toolchain)
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "crossover"
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on ButterStick",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ButterStick", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

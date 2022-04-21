@@ -56,13 +56,11 @@ class BaseSoC(SoCCore):
                  **kwargs):
         platform = nexys4ddr.Platform()
 
-        # SoCCore ----------------------------------_-----------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Nexys4DDR",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------_-----------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Nexys4DDR", **kwargs)
 
         # DDR2 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

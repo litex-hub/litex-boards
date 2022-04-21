@@ -35,18 +35,14 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(12e6), with_led_chaser=True, **kwargs):
         platform = runber.Platform()
 
-
-        # Disable CPU for now.
-        kwargs["cpu_type"] = None
-        kwargs["integrated_sram_size"] = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Runber",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Disable CPU for now.
+        kwargs["cpu_type"]             = None
+        kwargs["integrated_sram_size"] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Runber", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

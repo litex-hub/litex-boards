@@ -48,14 +48,11 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(200e6), with_spi_flash=False, with_hyperram=False, **kwargs):
         platform = efinix_titanium_ti60_f225_dev_kit.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Efinix Titanium Ti60 F225 Dev Kit",
-            **kwargs
-        )
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Titanium Ti60 F225 Dev Kit", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:

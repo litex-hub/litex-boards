@@ -69,13 +69,11 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = litex_acorn_baseboard.Platform(toolchain="trellis")
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on LiteX M2 Baseboard",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on LiteX M2 Baseboard", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:

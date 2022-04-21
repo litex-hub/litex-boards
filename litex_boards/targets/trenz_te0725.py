@@ -37,13 +37,11 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
         platform = trenz_te0725.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Trenz TE0725 Board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Trenz TE0725 Board", **kwargs)
 
         # Use HyperRAM generic PHY as SRAM ---------------------------------------------------------
         size = int((64*1024*1024) / 8)

@@ -68,15 +68,13 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_etherbone=True, eth_ip="192.168.1.50", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = sds1104xe.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_etherbone)
+
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
             kwargs["uart_name"] = "crossover" # Defaults to Crossover UART.
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Siglent SDS1104X-E",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_etherbone)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Siglent SDS1104X-E", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

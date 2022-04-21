@@ -167,16 +167,14 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), with_led_chaser=True, with_ethernet=False, with_etherbone=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = digilent_nexys4.Platform()
 
-        # SoCCore ----------------------------------_-----------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Nexys4",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # SoCCore ----------------------------------_-----------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Nexys4", **kwargs)
+
         # Cellular RAM -------------------------------------------------------------------------------
-        addCellularRAM(self,platform,"main_ram",0x40000000)        
+        addCellularRAM(self,platform,"main_ram", 0x40000000)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:

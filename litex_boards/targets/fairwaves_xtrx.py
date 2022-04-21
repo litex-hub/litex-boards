@@ -64,15 +64,13 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, with_led_chaser=True, **kwargs):
         platform = fairwaves_xtrx.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = CRG(platform, sys_clk_freq, with_pcie)
+
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "crossover"
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Fairwaves XTRX",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(platform, sys_clk_freq, with_pcie)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Fairwaves XTRX", **kwargs)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:

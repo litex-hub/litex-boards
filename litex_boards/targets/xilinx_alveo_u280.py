@@ -90,16 +90,15 @@ class BaseSoC(SoCCore):
         if with_hbm:
             assert 225e6 <= sys_clk_freq <= 450e6
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Alveo U280 (ES1)",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, ddram_channel, with_hbm)
 
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alveo U280 (ES1)", **kwargs)
+
+        # HBM / DRAM -------------------------------------------------------------------------------
         if with_hbm:
-            # JTAGBone --------------------------------------------------------------------------------
+            # JTAGBone -----------------------------------------------------------------------------
             #self.add_jtagbone(chain=2) # Chain 1 already used by HBM2 debug probes.
 
             # Add HBM Core.
@@ -135,7 +134,7 @@ class BaseSoC(SoCCore):
                     l2_cache_size = kwargs.get("l2_size", 8192)
                 )
 
-            # Firmware RAM (To ease initial LiteDRAM calibration support) ------------------------------
+            # Firmware RAM (To ease initial LiteDRAM calibration support) --------------------------
             self.add_ram("firmware_ram", 0x20000000, 0x8000)
 
         # PCIe -------------------------------------------------------------------------------------

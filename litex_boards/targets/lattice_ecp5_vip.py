@@ -88,21 +88,11 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = ecp5_vip.Platform(toolchain=toolchain)
 
-        #bios_flash_offset = 0x400000
-
-        # Set CPU variant / reset address
-        #kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
-        kwargs["integrated_rom_size"] = 0x10000
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on ECP5 Evaluation Board",
-            #integrated_main_ram_size = 0x4000,
-            #integrated_main_ram_size = 0,
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ECP5 Evaluation Board", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         self.submodules.ddrphy = ECP5DDRPHY(

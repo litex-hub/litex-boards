@@ -67,19 +67,15 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), device="LIFCL-40-9BG400C", toolchain="radiant", with_led_chaser=True, **kwargs):
         platform = crosslink_nx_evn.Platform(device=device, toolchain=toolchain)
 
-        # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
-        kwargs["integrated_sram_size"] = 0
-
-        # Make serial_pmods available
-        platform.add_extension(crosslink_nx_evn.serial_pmods)
-
-        # SoCCore -----------------------------------------_----------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Crosslink-NX Evaluation Board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore -----------------------------------------_----------------------------------------
+        # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
+        kwargs["integrated_sram_size"] = 0
+        # Make serial_pmods available
+        platform.add_extension(crosslink_nx_evn.serial_pmods)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Crosslink-NX Evaluation Board", **kwargs)
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
         size = 128*kB

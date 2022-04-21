@@ -80,18 +80,14 @@ class BaseSoC(SoCCore):
                  with_etherbone=False, with_led_chaser=True, **kwargs):
         platform = fpc_iii.Platform(toolchain=toolchain)
 
-        # Serial -----------------------------------------------------------------------------------
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
         if kwargs[ "uart_name" ] == "serial":
             # Defaults to USB FIFO since no real serial.
             kwargs[ "uart_name" ] = "usb_fifo"
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on FPC-III",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident = "LiteX SoC on FPC-III", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

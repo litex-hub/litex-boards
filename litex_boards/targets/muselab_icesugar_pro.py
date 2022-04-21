@@ -89,14 +89,12 @@ class BaseSoC(SoCCore):
                  with_video_framebuffer=False, **kwargs):
         platform = muselab_icesugar_pro.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, int(sys_clk_freq),
-            ident = "LiteX SoC on Muselab iCESugar Pro",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = with_video_terminal or with_video_framebuffer
         self.submodules.crg = _CRG(platform, sys_clk_freq, use_internal_osc=use_internal_osc, with_video_pll=with_video_pll, sdram_rate=sdram_rate)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, int(sys_clk_freq), ident="LiteX SoC on Muselab iCESugar Pro", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

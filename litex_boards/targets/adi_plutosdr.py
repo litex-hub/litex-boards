@@ -59,15 +59,12 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), **kwargs):
         platform = adi_plutosdr.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Pluto SDR",
-            **kwargs
-        )
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        kwargs["uart_name"] = "crossover"
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Pluto SDR", **kwargs)
 
         # JTAGBone ---------------------------------------------------------------------------------
         self.add_jtagbone()

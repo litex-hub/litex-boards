@@ -38,16 +38,13 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
         platform = ax7010.Platform()
 
-        #if kwargs["uart_name"] == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
-        kwargs["uart_name"] = "serial"
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Alinx AX7010",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        #if kwargs["uart_name"] == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
+        kwargs["uart_name"] = "serial"
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AX7010", **kwargs)
         
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

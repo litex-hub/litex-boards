@@ -56,14 +56,11 @@ class BaseSoC(SoCCore):
         platform.add_extension(efinix_trion_t120_bga576_dev_kit.usb_pmod_io("pmod_e"))
         kwargs["uart_name"] = "usb_uart"
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Efinix Trion T120 BGA576 Dev Kit",
-            **kwargs
-        )
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:

@@ -50,15 +50,13 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(48e6), **kwargs):
         platform = arduino_mkrvidor4000.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on MKR Vidor 4000",
-            **kwargs)
-
-        self.add_jtagbone() # TODO: untested
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on MKR Vidor 4000", **kwargs)
+
+        self.add_jtagbone() # TODO: untested
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

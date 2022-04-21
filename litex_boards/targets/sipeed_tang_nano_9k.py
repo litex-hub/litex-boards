@@ -49,16 +49,16 @@ class BaseSoC(SoCCore):
                  with_led_chaser=True, **kwargs):
         platform = tang_nano_9k.Platform()
 
-        # Disable Integrated ROM
-        kwargs["integrated_rom_size"] = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Tang Nano 9K",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Disable Integrated ROM
+        kwargs["integrated_rom_size"] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident = "LiteX SoC on Tang Nano 9K",
+            **kwargs
+        )
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q32

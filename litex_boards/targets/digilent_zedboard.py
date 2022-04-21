@@ -23,7 +23,6 @@ from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, use_ps7_clk=False):
         self.rst = Signal()
@@ -55,13 +54,14 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq, with_led_chaser=True, **kwargs):
         platform = digilent_zedboard.Platform()
 
-        if kwargs.get("cpu_type", None) == "zynq7000":
-            kwargs['integrated_sram_size'] = 0
+        # CRG --------------------------------------------------------------------------------------
+        use_ps7_clk = (kwargs.get("cpu_type", None) == "zynq7000")
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Zedboard",
-            **kwargs)
+        if kwargs.get("cpu_type", None) == "zynq7000":
+            kwargs["integrated_sram_size"] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zedboard", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
@@ -87,13 +87,6 @@ class BaseSoC(SoCCore):
                 linker=True)
             )
             self.constants['CONFIG_CLOCK_FREQUENCY'] = 666666687
-
-            use_ps7_clk = True
-        else:
-            use_ps7_clk = False
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

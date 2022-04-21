@@ -79,14 +79,12 @@ class BaseSoC(SoCCore):
             with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = datacenter_ddr4_test_board.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on data center test board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)
         self.submodules.crg = _CRG(platform, sys_clk_freq, iodelay_clk_freq=iodelay_clk_freq, with_video_pll=with_video_pll)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on data center test board", **kwargs)
 
         # DDR4 SDRAM RDIMM -------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

@@ -60,16 +60,13 @@ class BaseSoC(SoCCore):
                  with_led_chaser=True, **kwargs):
         platform = tec0117.Platform()
 
-        # Disable Integrated ROM.
-        kwargs["integrated_rom_size"] = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on TEC0117",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Disable Integrated ROM.
+        kwargs["integrated_rom_size"] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on TEC0117", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W74M64FV

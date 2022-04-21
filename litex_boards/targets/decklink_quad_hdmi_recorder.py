@@ -61,14 +61,12 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(200e6), with_pcie=False, pcie_lanes=4, **kwargs):
         platform = quad_hdmi_recorder.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Blackmagic Decklink Quad HDMI Recorder",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        kwargs["uart_name"] = "crossover"
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Blackmagic Decklink Quad HDMI Recorder", **kwargs)
 
         # JTAGBone  --------------------------------------------------------------------------------
         self.add_jtagbone()

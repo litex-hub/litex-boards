@@ -128,15 +128,18 @@ class BaseSoC(SoCCore):
         if board == "5a-75e" and revision == "6.0" and (with_etherbone or with_ethernet):
             assert use_internal_osc, "You cannot use the 25MHz clock as system clock since it is provided by the Ethernet PHY and will stop during PHY reset."
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, int(sys_clk_freq),
-            ident = "LiteX SoC on Colorlight " + board.upper(),
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
-        with_rst = kwargs["uart_name"] not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
+        with_rst     = kwargs["uart_name"] not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
         with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_internal_osc=use_internal_osc, with_usb_pll=with_usb_pll,with_rst=with_rst, sdram_rate=sdram_rate)
+        self.submodules.crg = _CRG(platform, sys_clk_freq,
+            use_internal_osc = use_internal_osc,
+            with_usb_pll     = with_usb_pll,
+            with_rst         = with_rst,
+            sdram_rate       = sdram_rate
+        )
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, int(sys_clk_freq), ident="LiteX SoC on Colorlight " + board.upper(), **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

@@ -69,19 +69,19 @@ class BaseSoC(SoCCore):
 
         platform = snickerdoodle.Platform(variant=variant)
 
+        # CRG --------------------------------------------------------------------------------------
         if ext_clk_freq:
-            platform.default_clk_freq = ext_clk_freq
+            platform.default_clk_freq   = ext_clk_freq
             platform.default_clk_period = 1e9 / ext_clk_freq
+        use_ps7_clk = (kwargs.get("cpu_type", None) == "zynq7000")
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
+        # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs["integrated_sram_size"] = 0
             kwargs["with_uart"]            = False
             self.mem_map = {"csr": 0x4000_0000}  # Zynq GP0 default
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Snickerdoodle",
-            **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Snickerdoodle", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
@@ -94,13 +94,6 @@ class BaseSoC(SoCCore):
                 wishbone     = wb_gp0,
                 base_address = self.mem_map['csr'])
             self.add_wb_master(wb_gp0)
-
-            use_ps7_clk = True
-        else:
-            use_ps7_clk = False
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

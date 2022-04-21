@@ -95,13 +95,11 @@ class BaseSoC(SoCCore):
                  with_video_framebuffer=False, with_video_colorbars=False, **kwargs):
         platform = alchitry_mojo.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Alchitry Mojo",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq, sdram_rate)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alchitry Mojo", **kwargs)
 
         # HDMI Shield ------------------------------------------------------------------------------
         if with_hdmi_shield:

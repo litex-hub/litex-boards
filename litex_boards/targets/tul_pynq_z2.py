@@ -46,19 +46,17 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), **kwargs):
         platform = pynq_z2.Platform()
 
-        if kwargs["uart_name"] == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Pynq Z2",
-            **kwargs)
+        if kwargs["uart_name"] == "serial":
+            kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Pynq Z2", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
             raise NotImplementedError
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(

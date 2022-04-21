@@ -71,17 +71,15 @@ class BaseSoC(SoCCore):
         platform = crosslink_nx_vip.Platform(toolchain=toolchain)
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
 
-        # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
-        kwargs["integrated_sram_size"] = 0
-
-        # SoCCore -----------------------------------------_----------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Crosslink-NX VIP Input Board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # SoCCore -----------------------------------------_----------------------------------------
+        # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
+        kwargs["integrated_sram_size"] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Crosslink-NX VIP Input Board", **kwargs)
+
+        # SRAM/HyperRAM ----------------------------------------------------------------------------
         if hyperram == "none":
             # 128KB LRAM (used as SRAM) ------------------------------------------------------------
             size = 128*kB

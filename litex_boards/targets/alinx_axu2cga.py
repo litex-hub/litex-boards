@@ -68,17 +68,18 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(25e6), with_led_chaser=True, **kwargs):
         platform = alinx_axu2cga.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        use_psu_clk = (kwargs.get("cpu_type", None) == "zynqmp")
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_psu_clk)
+
+        # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
             kwargs['integrated_sram_size'] = 0
             kwargs['with_uart'] = False
             self.mem_map = {
                 'csr': 0x8000_0000, # Zynq GP0 default
             }
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Alinx AXU2CGA",
-            **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AXU2CGA", **kwargs)
 
         # ZynqMP Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
@@ -93,22 +94,15 @@ class BaseSoC(SoCCore):
             self.add_wb_master(wb_lpd)
 
             self.bus.add_region("sram", SoCRegion(
-                origin=self.cpu.mem_map["sram"],
-                size=1 * 1024 * 1024 * 1024)  # DDR
+                origin = self.cpu.mem_map["sram"],
+                size   = 1 * 1024 * 1024 * 1024)  # DDR
             )
             self.bus.add_region("rom", SoCRegion(
-                origin=self.cpu.mem_map["rom"],
-                size=512 * 1024 * 1024 // 8,
-                linker=True)
+                origin = self.cpu.mem_map["rom"],
+                size   = 512 * 1024 * 1024 // 8,
+                linker = True)
             )
             self.constants['CONFIG_CLOCK_FREQUENCY'] = 1199880127
-
-            use_psu_clk = True
-        else:
-            use_psu_clk = False
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_psu_clk)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

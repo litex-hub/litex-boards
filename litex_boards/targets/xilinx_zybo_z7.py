@@ -45,12 +45,13 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
         platform = zybo_z7.Platform()
 
-        if kwargs["uart_name"] == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Zybo Z7",
-            **kwargs)
+        if kwargs["uart_name"] == "serial":
+            kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zybo Z7", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
@@ -67,9 +68,6 @@ class BaseSoC(SoCCore):
                 wishbone     = wb_gp0,
                 base_address = 0x43c00000)
             self.add_wb_master(wb_gp0)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

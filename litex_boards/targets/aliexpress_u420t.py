@@ -40,13 +40,11 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, with_spi_flash=False, **kwargs):
         platform = u420t.Platform()
 
-        # SoCCore ----------------------------------_-----------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on AliExpress u420t",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------_-----------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on AliExpress u420t", **kwargs)
 
 	   # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:

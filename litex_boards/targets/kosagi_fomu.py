@@ -69,25 +69,21 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, spi_flash_module="AT25SF161", sys_clk_freq=int(12e6),
                  with_led_chaser=True, **kwargs):
-        kwargs["uart_name"] = "usb_acm" # Enforce UART to USB-ACM
         platform = fomu_pvt.Platform()
-
-        # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
-        kwargs["integrated_sram_size"] = 0
-        kwargs["integrated_rom_size"]  = 0
-
-        # Serial -----------------------------------------------------------------------------------
-        # FIXME: do proper install of ValentyUSB.
-        os.system("git clone https://github.com/litex-hub/valentyusb -b hw_cdc_eptri")
-        sys.path.append("valentyusb")
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Fomu",
-            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Enforce UART to USB-ACM
+        kwargs["uart_name"] = "usb_acm"
+        # FIXME: do proper install of ValentyUSB.
+        os.system("git clone https://github.com/litex-hub/valentyusb -b hw_cdc_eptri")
+        sys.path.append("valentyusb")
+        # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
+        kwargs["integrated_sram_size"] = 0
+        kwargs["integrated_rom_size"]  = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Fomu", **kwargs)
 
         # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
         self.submodules.spram = Up5kSPRAM(size=128*kB)

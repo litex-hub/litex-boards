@@ -76,14 +76,12 @@ class BaseSoC(SoCMini):
             sys_clk_freq = int(148.5e6) # FIXME: For now requires sys_clk >= video_clk.
         platform = mini_4k.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "jtag_uart"
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Blackmagic Decklink Mini 4K",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        kwargs["uart_name"] = "jtag_uart"
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Blackmagic Decklink Mini 4K", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

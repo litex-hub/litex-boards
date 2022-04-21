@@ -51,13 +51,11 @@ class BaseSoC(SoCCore):
             with_led_chaser=True, **kwargs):
         platform = lpddr4_test_board.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on LPDDR4 Test Board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, iodelay_clk_freq=iodelay_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on LPDDR4 Test Board", **kwargs)
 
         # LDDR4 SDRAM ------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

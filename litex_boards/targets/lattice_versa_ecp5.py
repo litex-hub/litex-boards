@@ -79,17 +79,11 @@ class BaseSoC(SoCCore):
                  toolchain="trellis", **kwargs):
         platform = versa_ecp5.Platform(toolchain=toolchain, device=device)
 
-        # FIXME: adapt integrated rom size for Microwatt
-        if kwargs.get("cpu_type", None) == "microwatt":
-            kwargs["integrated_rom_size"] = 0xb000 if with_ethernet else 0x9000
-
-        # SoCCore -----------------------------------------_----------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Versa ECP5",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore -----------------------------------------_----------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Versa ECP5", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

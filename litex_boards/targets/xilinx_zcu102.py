@@ -24,13 +24,11 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq, with_ethernet=False, with_led_chaser=True, **kwargs):
         platform = zcu102.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident="LiteX SoC on ZCU102",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZCU102", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

@@ -79,14 +79,15 @@ class BaseSoC(SoCCore):
                  with_video_framebuffer=False, **kwargs):
         platform = nexys_video.Platform(toolchain=toolchain)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Nexys Video",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)
-        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain, with_sata_pll_refclk=with_sata_pll_refclk, with_video_pll=with_video_pll)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain,
+            with_sata_pll_refclk = with_sata_pll_refclk,
+            with_video_pll       = with_video_pll
+        )
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Nexys Video", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

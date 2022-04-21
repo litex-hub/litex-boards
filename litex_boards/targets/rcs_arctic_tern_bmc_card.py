@@ -105,21 +105,14 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = rcs_arctic_tern_bmc_card.Platform(toolchain=toolchain)
 
-        #bios_flash_offset = 0x400000
-
-        # Set CPU variant / reset address
-        #kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
-        kwargs["integrated_rom_size"] = 0x10000
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, irq_n_irqs=16, clk_freq=sys_clk_freq,
-            ident          = "LiteX SoC on Arctic Tern (BMC card carrier)",
-            #integrated_main_ram_size = 0x40000,
-            #integrated_main_ram_size = 0,
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+            ident = "LiteX SoC on Arctic Tern (BMC card carrier)",
+            **kwargs
+        )
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         self.submodules.ddrphy = ECP5DDRPHY(

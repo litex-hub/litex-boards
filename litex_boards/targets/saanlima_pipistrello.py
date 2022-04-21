@@ -111,6 +111,7 @@ class _CRG(Module):
         self.specials += Instance("BUFG", i_I=pll_sys, o_O=self.cd_sys.clk)
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd | (por > 0))
+        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
         # SDRAM clocks -----------------------------------------------------------------------------
         self.clk4x_wr_strb = Signal()
@@ -154,14 +155,11 @@ class BaseSoC(SoCCore):
         sys_clk_freq = (83 + Fraction(1, 3))*1000*1000
         platform     = pipistrello.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Pipistrello",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Pipistrello", **kwargs)
 
         # LPDDR SDRAM ------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

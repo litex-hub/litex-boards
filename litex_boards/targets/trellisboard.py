@@ -119,14 +119,12 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = trellisboard.Platform(toolchain=toolchain)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Trellis Board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
-        crg_cls = _CRGSDRAM if not self.integrated_main_ram_size else _CRG
+        crg_cls = _CRGSDRAM if kwargs.get("integrated_main_ram_size", 0) == 0 else _CRG
         self.submodules.crg = crg_cls(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Trellis Board", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

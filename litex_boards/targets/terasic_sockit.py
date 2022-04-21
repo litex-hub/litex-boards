@@ -66,15 +66,17 @@ class BaseSoC(SoCCore):
                  with_led_chaser=True, with_video_terminal=False, **kwargs):
         platform = terasic_sockit.Platform(revision)
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq,
+            with_sdram          = mister_sdram != None,
+            sdram_rate          = sdram_rate,
+            with_video_terminal = with_video_terminal
+        )
+
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
             kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG-UART.
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on the Terasic SoCKit",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=mister_sdram != None, sdram_rate=sdram_rate, with_video_terminal=with_video_terminal)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on the Terasic SoCKit", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if mister_sdram is not None:

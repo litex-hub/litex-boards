@@ -102,15 +102,18 @@ class BaseSoC(SoCCore):
         assert board in ["i5", "i9"]
         platform = colorlight_i5.Platform(board=board, revision=revision)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, int(sys_clk_freq),
-            ident = "LiteX SoC on Colorlight " + board.upper(),
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
+        with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_internal_osc=use_internal_osc, with_usb_pll=with_usb_pll, with_video_pll=with_video_pll, sdram_rate=sdram_rate)
+        self.submodules.crg = _CRG(platform, sys_clk_freq,
+            use_internal_osc = use_internal_osc,
+            with_usb_pll     = with_usb_pll,
+            with_video_pll   = with_video_pll,
+            sdram_rate       = sdram_rate
+        )
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, int(sys_clk_freq), ident = "LiteX SoC on Colorlight " + board.upper(), **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

@@ -64,12 +64,11 @@ class BaseSoC(SoCMini):
     def __init__(self, sys_clk_freq=int(48e6), with_led_chaser=True, **kwargs):
         platform = tang_nano.Platform()
 
-        # SoCMini ----------------------------------------------------------------------------------
-        SoCMini.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Tang Nano")
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCMini ----------------------------------------------------------------------------------
+        SoCMini.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano", **kwargs)
 
         # UARTBone ---------------------------------------------------------------------------------
         self.add_uartbone(baudrate=int(1e6)) # CH552 firmware does not support traditional baudrates.

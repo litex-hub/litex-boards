@@ -60,21 +60,17 @@ class BaseSoC(SoCCore):
         platform = jungle_electronics_fireant.Platform()
         platform.add_extension(serial)
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM since too large for this device.
         kwargs["integrated_rom_size"]  = 0
-
         # Set CPU variant / reset address
         if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
             kwargs["cpu_variant"] = "minimal"
         kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Jungle Electronics FireAnt",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Jungle Electronics FireAnt", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q80BV

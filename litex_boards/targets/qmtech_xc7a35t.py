@@ -72,16 +72,18 @@ class BaseSoC(SoCCore):
                  with_jtagbone=True, with_spi_flash=False, **kwargs):
         platform = qmtech_xc7a35t.Platform(toolchain=toolchain, with_daughterboard=with_daughterboard)
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq,
+            with_ethernet = (with_ethernet or with_etherbone),
+            with_vga      = (with_video_terminal or with_video_framebuffer)
+        )
+
         # SoCCore ----------------------------------------------------------------------------------
         if (kwargs["uart_name"] == "serial") and (not with_daughterboard):
             kwargs["uart_name"] = "gpio_serial"
-
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTech XC7A35T" + (" + Daughterboard" if with_daughterboard else ""),
             **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet or with_etherbone, with_video_terminal or with_video_framebuffer)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

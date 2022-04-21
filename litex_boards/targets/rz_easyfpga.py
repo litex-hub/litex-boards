@@ -58,21 +58,16 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, sdram_rate="1:1", **kwargs):
         platform = easyfpga.Platform()
 
-        # Limit internal rom and sram size
-        kwargs["integrated_rom_size"]  = 0x6200
-        kwargs["integrated_sram_size"] = 0x1000
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
 
+        # SoCCore ----------------------------------------------------------------------------------
+        # Limit internal SRAM size.
+        kwargs["integrated_sram_size"] = 0x1000
         # Can only support minimal variant of vexriscv
         if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
             kwargs["cpu_variant"] = "minimal"
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on RZ-EasyFPGA",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on RZ-EasyFPGA", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

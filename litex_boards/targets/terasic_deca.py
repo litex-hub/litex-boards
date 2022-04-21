@@ -60,6 +60,10 @@ class BaseSoC(SoCCore):
                  **kwargs):
         self.platform = platform = deca.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=False)
+
+        # SoCCore ----------------------------------------------------------------------------------
         # Defaults to JTAG-UART since no hardware UART.
         real_uart_name = kwargs["uart_name"]
         if real_uart_name == "serial":
@@ -69,14 +73,7 @@ class BaseSoC(SoCCore):
                 kwargs["uart_name"] = "jtag_uart"
         if with_uartbone:
             kwargs["uart_name"] = "crossover"
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Terasic DECA",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=False)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Terasic DECA", **kwargs)
 
         # UARTbone ---------------------------------------------------------------------------------
         if with_uartbone:

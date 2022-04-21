@@ -46,14 +46,11 @@ class BaseSoC(SoCCore):
                  with_led_chaser=True, **kwargs):
         platform = ecp5_evn.Platform(toolchain=toolchain)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on ECP5 Evaluation Board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
-        crg = _CRG(platform, sys_clk_freq, x5_clk_freq)
-        self.submodules.crg = crg
+        self.submodules.crg = _CRG(platform, sys_clk_freq, x5_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ECP5 Evaluation Board", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

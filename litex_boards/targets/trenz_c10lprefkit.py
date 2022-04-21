@@ -60,13 +60,11 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = c10lprefkit.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on C10 LP RefKit",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on C10 LP RefKit", **kwargs)
 
         # HyperRam ---------------------------------------------------------------------------------
         self.submodules.hyperram = HyperRAM(platform.request("hyperram"))

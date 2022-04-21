@@ -49,13 +49,12 @@ class BaseSoC(SoCCore):
         if with_etherbone:
             sys_clk_freq = int(125e6)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Pano Logic G2",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_ethernet or with_etherbone)
+        with_ethernet = (with_ethernet or with_etherbone)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_ethernet)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Pano Logic G2", **kwargs)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:

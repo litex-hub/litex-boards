@@ -70,13 +70,11 @@ class BaseSoC(SoCCore):
         platform = spartan_edge_accelerator.Platform()
         platform.add_extension(_serial_io)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Seeedstudio Spartan Edge Accelerator",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident = "LiteX SoC on Seeedstudio Spartan Edge Accelerator", **kwargs)
 
         # Jtagbone ---------------------------------------------------------------------------------
         if with_jtagbone:

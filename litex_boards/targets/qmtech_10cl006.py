@@ -67,20 +67,20 @@ class BaseSoC(SoCCore):
                  sdram_rate="1:1", **kwargs):
         platform = qmtech_10cl006.Platform(with_daughterboard=with_daughterboard)
 
-        # unfornunately not even SERV would fit the devices
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Unfornunately not even SERV would fit the devices
         kwargs["cpu_type"]  = None
         kwargs["integrated_sram_size"]  = 0
 
-        # interact with the sdram with uartbone by default
+        # Interact with the sdram with uartbone by default
         kwargs["uart_name"] = "uartbone"
-
-        # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTECH 10CL006" + (" + Daughterboard" if with_daughterboard else ""),
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
+            **kwargs
+        )
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

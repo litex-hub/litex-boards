@@ -61,18 +61,16 @@ class BaseSoC(SoCCore):
         if with_hbm:
             assert 225e6 <= sys_clk_freq <= 450e6
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_hbm)
+
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
             kwargs["uart_name"] = "crossover" # Defaults to Crossover-UART.
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on FK33",
-            **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on FK33", **kwargs)
 
         # JTAGBone --------------------------------------------------------------------------------
         self.add_jtagbone(chain=2) # Chain 1 already used by HBM2 debug probes.
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_hbm)
 
         # HBM --------------------------------------------------------------------------------------
         if with_hbm:

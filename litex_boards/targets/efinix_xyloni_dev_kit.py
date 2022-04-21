@@ -45,20 +45,16 @@ class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, sys_clk_freq, with_led_chaser=True, **kwargs):
         platform = efinix_xyloni_dev_kit.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM.
         kwargs["integrated_rom_size"]  = 0
-
         # Set CPU variant / reset address
         if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
             kwargs["cpu_variant"] = "minimal"
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Efinix Xyloni Dev Kit",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Xyloni Dev Kit", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q128JV

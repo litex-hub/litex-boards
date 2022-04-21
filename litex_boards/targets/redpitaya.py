@@ -49,15 +49,15 @@ class BaseSoC(SoCCore):
     def __init__(self, board, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
         platform = redpitaya.Platform(board)
 
-        if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "usb_uart"
-
-        use_ps7_clk = False
+        # CRG --------------------------------------------------------------------------------------
+        use_ps7_clk  = (kwargs.get("cpu_type", None) == "zynq7000")
+        sys_clk_freq = 125e6 if use_ps7_clk else sys_clk_freq
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Zebboard",
-            **kwargs)
+        if kwargs["uart_name"] == "serial":
+            kwargs["uart_name"] = "usb_uart"
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zebboard", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
@@ -74,11 +74,6 @@ class BaseSoC(SoCCore):
                 wishbone     = wb_gp0,
                 base_address = 0x43c00000)
             self.add_wb_master(wb_gp0)
-            use_ps7_clk = True
-            sys_clk_freq = 125e6
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

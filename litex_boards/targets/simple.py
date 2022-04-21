@@ -24,13 +24,11 @@ class BaseSoC(SoCCore):
     def __init__(self, platform, with_ethernet=False, with_led_chaser=True, **kwargs):
         sys_clk_freq = int(1e9/platform.default_clk_period)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX Simple SoC",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform.request(platform.default_clk_name))
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX Simple SoC", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         try:

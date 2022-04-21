@@ -61,10 +61,11 @@ class BaseSoC(SoCCore):
                 with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = pynq_z1.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain, with_video_pll=with_video_terminal)
+
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on PYNQ Z1",
-            **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on PYNQ Z1", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
@@ -81,9 +82,6 @@ class BaseSoC(SoCCore):
                 wishbone     = wb_gp0,
                 base_address = 0x43c00000)
             self.add_wb_master(wb_gp0)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain, with_video_pll=with_video_terminal)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:

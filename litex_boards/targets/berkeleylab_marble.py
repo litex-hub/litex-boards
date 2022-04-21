@@ -77,17 +77,15 @@ class BaseSoC(SoCCore):
     ):
         platform = berkeleylab_marble.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Berkeley-Lab Marble",
-            **kwargs)
-
         # CRG, resettable over USB serial RTS signal -----------------------------------------------
         resets = []
         if with_rts_reset:
             ser_pads = platform.lookup_request('serial')
             resets.append(ser_pads.rts)
         self.submodules.crg = _CRG(platform, sys_clk_freq, resets)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Berkeley-Lab Marble", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -106,28 +104,27 @@ class BaseSoC(SoCCore):
                 ram_module = MT8JTF12864(sys_clk_freq, "1:4")  # KC705 chip, 1 GB
                 print('DDR3: No spd data specified, falling back to MT8JTF12864')
 
-            self.add_sdram(
-                "sdram",
-                phy = self.ddrphy,
+            self.add_sdram("sdram",
+                phy    = self.ddrphy,
                 module = ram_module,
                 # size=0x40000000,  # Limit its size to 1 GB
                 l2_cache_size = kwargs.get("l2_size", 8192),
-                with_bist = kwargs.get("with_bist", False)
+                with_bist     = kwargs.get("with_bist", False)
             )
 
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
-                pads = self.platform.request("eth"),
-                tx_delay=0
+                pads       = self.platform.request("eth"),
+                tx_delay   = 0
             )
 
         if with_ethernet:
             self.add_ethernet(
-                phy=self.ethphy,
-                dynamic_ip=True,
-                software_debug=False
+                phy            = self.ethphy,
+                dynamic_ip     = True,
+                software_debug = False
             )
 
         if with_etherbone:

@@ -43,14 +43,12 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, **kwargs):
         platform = intensity_pro_4k.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Blackmagic Decklink Intensity Pro 4K",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        kwargs["uart_name"] = "crossover"
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Blackmagic Decklink Intensity Pro 4K", **kwargs)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:

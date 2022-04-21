@@ -65,13 +65,11 @@ class BaseSoC(SoCCore):
                  with_mister_video_terminal=False, sdram_rate="1:1", **kwargs):
         platform = de10nano.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on DE10-Nano",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=with_mister_sdram, sdram_rate=sdram_rate)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on DE10-Nano", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if with_mister_sdram and not self.integrated_main_ram_size:

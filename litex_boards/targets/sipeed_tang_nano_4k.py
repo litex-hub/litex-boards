@@ -64,6 +64,10 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(27e6), with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
         platform = tang_nano_4k.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+
+        # SoCCore ----------------------------------------------------------------------------------
         if "cpu_type" in kwargs and kwargs["cpu_type"] == "gowin_emcu":
             kwargs["with_uart"]            = False # CPU has own UART
             kwargs["integrated_sram_size"] = 0     # SRAM is directly attached to CPU
@@ -71,18 +75,12 @@ class BaseSoC(SoCCore):
         else:
             # Disable Integrated ROM
             kwargs["integrated_rom_size"] = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Tang Nano 4K",
-            **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano 4K", **kwargs)
 
         if self.cpu_type == 'vexriscv':
             assert self.cpu_variant == 'minimal', 'use --cpu-variant=minimal to fit into number of BSRAMs'
 
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
-
+        # Gowin EMCU Integration -------------------------------------------------------------------
         if self.cpu_type == "gowin_emcu":
             self.cpu.connect_uart(platform.request("serial"))
             self.bus.add_region("sram", SoCRegion(
@@ -95,11 +93,11 @@ class BaseSoC(SoCCore):
                 linker=True)
             )
         else:
-            # SPI Flash --------------------------------------------------------------------------------
+            # SPI Flash ----------------------------------------------------------------------------
             from litespi.modules import W25Q32
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
-            # Add ROM linker region --------------------------------------------------------------------
+            # Add ROM linker region ----------------------------------------------------------------
             self.bus.add_region("rom", SoCRegion(
                 origin = self.bus.regions["spiflash"].origin,
                 size   = 32*kB,

@@ -80,16 +80,17 @@ class BaseSoC(SoCCore):
                  sdram_rate="1:1", **kwargs):
         platform = qmtech_5cefa2.Platform(with_daughterboard=with_daughterboard)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on QMTECH 5CEFA2" + (" + Daughterboard" if with_daughterboard else ""),
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq,
             with_ethernet = with_ethernet or with_etherbone,
             with_vga      = with_video_terminal or with_video_framebuffer,
-            sdram_rate    = sdram_rate)
+            sdram_rate    = sdram_rate
+        )
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident = "LiteX SoC on QMTECH 5CEFA2" + (" + Daughterboard" if with_daughterboard else ""),
+            **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

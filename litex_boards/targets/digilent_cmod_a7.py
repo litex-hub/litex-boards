@@ -110,15 +110,14 @@ class BaseSoC(SoCCore):
 
         platform = digilent_cmod_a7.Platform(variant=variant, toolchain=toolchain)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Digilent CmodA7",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
-        addAsyncSram(self,platform,"main_ram",0x40000000,512*1024)        
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Digilent CmodA7", **kwargs)
+
+        # Async RAM --------------------------------------------------------------------------------
+        addAsyncSram(self,platform,"main_ram", 0x40000000, 512*1024)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

@@ -47,16 +47,13 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, **kwargs):
         platform = max1000.Platform()
 
-        kwargs["integrated_rom_size"]  = 0x6000
-        kwargs["integrated_sram_size"] = 0x1000
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on CYC1000",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Reduce SRAM size.
+        kwargs["integrated_sram_size"] = 0x1000
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on CYC1000", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

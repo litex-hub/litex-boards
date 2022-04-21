@@ -26,16 +26,13 @@ class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, sys_clk_freq=int(16e6), with_led_chaser=True, **kwargs):
         platform = tinyfpga_bx.Platform()
 
-        # Disable Integrated ROM since too large for iCE40.
-        kwargs["integrated_rom_size"]  = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on TinyFPGA BX",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform.request("clk16"))
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Disable Integrated ROM since too large for iCE40.
+        kwargs["integrated_rom_size"]  = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on TinyFPGA BX", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import AT25SF081

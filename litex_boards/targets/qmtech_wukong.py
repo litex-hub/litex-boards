@@ -77,15 +77,15 @@ class BaseSoC(SoCCore):
                  with_video_framebuffer=False, video_timing="640x480@60Hz", **kwargs):
         platform = qmtech_wukong.Platform(board_version=board_version,speed_grade=speed_grade)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on QMTECH Wukong Board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)
-        self.submodules.crg = _CRG(platform, speed_grade, sys_clk_freq, with_video_pll=with_video_pll,
-                                   pix_clk = video_timings[video_timing]["pix_clk"])
+        self.submodules.crg = _CRG(platform, speed_grade, sys_clk_freq,
+            with_video_pll = with_video_pll,
+            pix_clk        = video_timings[video_timing]["pix_clk"]
+        )
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on QMTECH Wukong Board", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

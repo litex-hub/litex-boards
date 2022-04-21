@@ -48,31 +48,29 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(10e6), with_led_chaser=True, with_gpio_in=True, **kwargs):
         platform = quicklogic_quickfeather.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, with_eos_s3=kwargs["cpu_type"] == "eos_s3")
+
         # SoCCore ----------------------------------------------------------------------------------
         kwargs["with_uart"] = False
         if kwargs.get("cpu_type", None) == "eos_s3":
             kwargs['integrated_sram_size'] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on QuickLogic QuickFeather", **kwargs)
 
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on QuickLogic QuickFeather",
-            **kwargs)
-
+        # EOS-S3 Integration -----------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "eos_s3":
             # in fact SRAM starts at 0x2000_0000 - but for some reason
             # this does not work and most QORC SDK linker scripts
             # use 0x2002_7000 + 0x0003_c800
             self.bus.add_region("sram", SoCRegion(
-                origin=0x2002_7000,
-                size=0x0003_c800)
+                origin = 0x2002_7000,
+                size   = 0x0003_c800)
             )
             self.bus.add_region("rom", SoCRegion(
-                origin=self.mem_map["rom"],
-                size=4 * 128 * 1024,
-                linker=True)
+                origin = self.mem_map["rom"],
+                size   = 4 * 128 * 1024,
+                linker = True)
             )
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, with_eos_s3=kwargs["cpu_type"] == "eos_s3")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

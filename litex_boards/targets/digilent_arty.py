@@ -73,13 +73,12 @@ class BaseSoC(SoCCore):
                  with_spi_flash=False, with_pmod_gpio=False, **kwargs):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Arty A7",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_dram=not self.integrated_main_ram_size)
+        with_dram = (kwargs.get("integrated_main_ram_size", 0) != 0)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_dram)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Arty A7", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
