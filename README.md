@@ -204,6 +204,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── trenz_te0725
     ├── trenz_tec0117
     ├── tul_pynq_z2
+    ├── u420t
     ├── xilinx_ac701
     ├── xilinx_alveo_u250
     ├── xilinx_alveo_u280
