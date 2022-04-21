@@ -68,7 +68,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on STLV7325",
+            ident = "LiteX SoC on AliExpress STLV7325",
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on STLV7325")
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on AliExpress STLV7325")
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--build",         action="store_true", help="Build bitstream.")
     target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
