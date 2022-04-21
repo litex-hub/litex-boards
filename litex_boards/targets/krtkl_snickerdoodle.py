@@ -93,7 +93,7 @@ class BaseSoC(SoCCore):
                 axi          = self.cpu.add_axi_gp_master(),
                 wishbone     = wb_gp0,
                 base_address = self.mem_map['csr'])
-            self.add_wb_master(wb_gp0)
+            self.bus.add_master(master=wb_gp0)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

@@ -81,7 +81,7 @@ class BaseSoC(SoCCore):
                 axi          = self.cpu.add_axi_gp_master(),
                 wishbone     = wb_gp0,
                 base_address = 0x43c00000)
-            self.add_wb_master(wb_gp0)
+            self.bus.add_master(master=wb_gp0)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:

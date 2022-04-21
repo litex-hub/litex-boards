@@ -129,7 +129,7 @@ class BaseSoC(SoCCore):
 
             # Etherbone
             self.submodules.etherbone = LiteEthEtherbone(self.udp, 1234, mode="master")
-            self.add_wb_master(self.etherbone.wishbone.bus)
+            self.bus.add_master(master=self.etherbone.wishbone.bus)
 
             # Timing constraints
             eth_rx_clk = self.ethphy.crg.cd_eth_rx.clk

@@ -91,7 +91,7 @@ class BaseSoC(SoCCore):
                 axi          = self.cpu.add_axi_gp_master(2, 32),
                 wishbone     = wb_lpd,
                 base_address = self.mem_map['csr'])
-            self.add_wb_master(wb_lpd)
+            self.bus.add_master(master=wb_lpd)
 
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],
