@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import u420t
+from litex_boards.platforms import xc7k420t
 
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -38,7 +38,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, with_spi_flash=False, **kwargs):
-        platform = u420t.Platform()
+        platform = xc7k420t.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
