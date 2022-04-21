@@ -66,7 +66,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
-            kwargs['integrated_sram_size'] = 0
+            kwargs["integrated_sram_size"] = 0
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on KV260", **kwargs)
 
         # ZynqMP Integration -----------------------------------------------------------------------
@@ -134,15 +134,15 @@ class BaseSoC(SoCCore):
                 base_address = self.mem_map["csr"])
             self.bus.add_master(master=wb_gp0)
             self.bus.add_region("sram", SoCRegion(
-                origin=self.cpu.mem_map["sram"],
-                size=2 * 1024 * 1024 * 1024)  # DDR
+                origin = self.cpu.mem_map["sram"],
+                size   = 2 * 1024 * 1024 * 1024)  # DDR
             )
             self.bus.add_region("rom", SoCRegion(
-                origin=self.cpu.mem_map["rom"],
-                size=512 * 1024 * 1024 // 8,
-                linker=True)
+                origin = self.cpu.mem_map["rom"],
+                size   = 512 * 1024 * 1024 // 8,
+                linker = True)
             )
-            self.constants['CONFIG_CLOCK_FREQUENCY'] = 1333333008
+            self.constants["CONFIG_CLOCK_FREQUENCY"] = 1333333008
 
     def finalize(self, *args, **kwargs):
         super(BaseSoC, self).finalize(*args, **kwargs)

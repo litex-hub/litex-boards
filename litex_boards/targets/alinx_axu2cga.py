@@ -74,10 +74,10 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
-            kwargs['integrated_sram_size'] = 0
-            kwargs['with_uart'] = False
+            kwargs["integrated_sram_size"] = 0
+            kwargs["with_uart"] = False
             self.mem_map = {
-                'csr': 0x8000_0000, # Zynq GP0 default
+                "csr": 0x8000_0000, # Zynq GP0 default
             }
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AXU2CGA", **kwargs)
 
@@ -90,7 +90,7 @@ class BaseSoC(SoCCore):
             self.submodules += axi.AXI2Wishbone(
                 axi          = self.cpu.add_axi_gp_master(2, 32),
                 wishbone     = wb_lpd,
-                base_address = self.mem_map['csr'])
+                base_address = self.mem_map["csr"])
             self.bus.add_master(master=wb_lpd)
 
             self.bus.add_region("sram", SoCRegion(
@@ -102,7 +102,7 @@ class BaseSoC(SoCCore):
                 size   = 512 * 1024 * 1024 // 8,
                 linker = True)
             )
-            self.constants['CONFIG_CLOCK_FREQUENCY'] = 1199880127
+            self.constants["CONFIG_CLOCK_FREQUENCY"] = 1199880127
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

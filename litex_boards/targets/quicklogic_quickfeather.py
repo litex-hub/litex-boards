@@ -54,7 +54,7 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         kwargs["with_uart"] = False
         if kwargs.get("cpu_type", None) == "eos_s3":
-            kwargs['integrated_sram_size'] = 0
+            kwargs["integrated_sram_size"] = 0
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on QuickLogic QuickFeather", **kwargs)
 
         # EOS-S3 Integration -----------------------------------------------------------------------

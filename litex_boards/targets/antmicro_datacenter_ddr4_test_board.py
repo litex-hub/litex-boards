@@ -167,7 +167,7 @@ class BaseSoC(SoCCore):
 class LiteDRAMSettingsEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, (ControllerSettings, GeomSettings, PhySettings, TimingSettings)):
-            ignored = ['self', 'refresh_cls']
+            ignored = ["self", "refresh_cls"]
             return {k: v for k, v in vars(o).items() if k not in ignored}
         elif isinstance(o, Signal) and isinstance(o.reset, Constant):
             return o.reset

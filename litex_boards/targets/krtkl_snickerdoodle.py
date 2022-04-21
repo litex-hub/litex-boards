@@ -92,7 +92,7 @@ class BaseSoC(SoCCore):
             self.submodules += axi.AXI2Wishbone(
                 axi          = self.cpu.add_axi_gp_master(),
                 wishbone     = wb_gp0,
-                base_address = self.mem_map['csr'])
+                base_address = self.mem_map["csr"])
             self.bus.add_master(master=wb_gp0)
 
         # Leds -------------------------------------------------------------------------------------

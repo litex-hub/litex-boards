@@ -55,7 +55,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
-            kwargs['integrated_sram_size'] = 0
+            kwargs["integrated_sram_size"] = 0
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZCU216", **kwargs)
 
         # ZynqMP Integration -----------------------------------------------------------------------
@@ -122,7 +122,7 @@ class BaseSoC(SoCCore):
                 size   = 512 * 1024 * 1024 // 8,
                 linker = True)
             )
-            self.constants['CONFIG_CLOCK_FREQUENCY'] = 1200000000
+            self.constants["CONFIG_CLOCK_FREQUENCY"] = 1200000000
 
         # LEDs -------------------------------------------------------------------------------------
         if with_led_chaser:

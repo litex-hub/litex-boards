@@ -61,8 +61,8 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
-            kwargs['integrated_sram_size'] = 0
-            kwargs['with_uart'] = False
+            kwargs["integrated_sram_size"] = 0
+            kwargs["with_uart"]            = False
             self.mem_map = {
                 'csr': 0x4000_0000,  # Zynq GP0 default
             }
@@ -82,7 +82,7 @@ class BaseSoC(SoCCore):
             self.submodules += axi.AXI2Wishbone(
                 axi          = self.cpu.add_axi_gp_master(),
                 wishbone     = wb_gp0,
-                base_address = self.mem_map['csr'])
+                base_address = self.mem_map["csr"])
             self.bus.add_master(master=wb_gp0)
 
         # Leds -------------------------------------------------------------------------------------
