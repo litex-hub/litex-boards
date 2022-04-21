@@ -90,6 +90,8 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── adi_plutosdr
     ├── alchitry_au
     ├── alchitry_mojo
+    ├── aliexpress_stlv7325
+    ├── aliexpress_u420t
     ├── alinx_ax7010
     ├── alinx_axu2cga
     ├── antmicro_datacenter_ddr4_test_board
@@ -169,6 +171,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── qmtech_5cefa2
     ├── qmtech_daughterboard
     ├── qmtech_ep4cex5
+    ├── qmtech_ep4cgx150
     ├── qmtech_wukong
     ├── qmtech_xc7a35t
     ├── quicklogic_quickfeather
@@ -188,7 +191,6 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── sqrl_acorn
     ├── sqrl_fk33
     ├── sqrl_xcu1525
-    ├── stlv7325
     ├── terasic_de0nano
     ├── terasic_de10lite
     ├── terasic_de10nano
@@ -204,7 +206,6 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── trenz_te0725
     ├── trenz_tec0117
     ├── tul_pynq_z2
-    ├── u420t
     ├── xilinx_ac701
     ├── xilinx_alveo_u250
     ├── xilinx_alveo_u280
