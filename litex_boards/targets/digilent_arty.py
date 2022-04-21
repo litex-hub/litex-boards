@@ -74,7 +74,7 @@ class BaseSoC(SoCCore):
         platform = arty.Platform(variant=variant, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_dram = (kwargs.get("integrated_main_ram_size", 0) != 0)
+        with_dram = (kwargs.get("integrated_main_ram_size", 0) == 0)
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_dram)
 
         # SoCCore ----------------------------------------------------------------------------------

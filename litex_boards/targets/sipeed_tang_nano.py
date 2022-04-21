@@ -68,6 +68,7 @@ class BaseSoC(SoCMini):
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SoCMini ----------------------------------------------------------------------------------
+        kwargs["uart_name"] = "crossover"
         SoCMini.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano", **kwargs)
 
         # UARTBone ---------------------------------------------------------------------------------
