@@ -164,9 +164,9 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth", eth_phy),
                 tx_delay   = 0e-9)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
+                self.add_ethernet(phy=self.ethphy, data_width=32)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, data_width=32)
 
         # Leds -------------------------------------------------------------------------------------
         # Disable leds when serial is used.
