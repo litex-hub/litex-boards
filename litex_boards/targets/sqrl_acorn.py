@@ -35,6 +35,8 @@ from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.xadc import XADC
+from litex.soc.cores.dna  import DNA
 
 from litedram.modules import MT41K512M16
 from litedram.phy import s7ddrphy
@@ -79,6 +81,13 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Acorn CLE-101/215(+)", **kwargs)
+
+        # XADC -------------------------------------------------------------------------------------
+        self.submodules.xadc = XADC()
+
+        # DNA --------------------------------------------------------------------------------------
+        self.submodules.dna = DNA()
+        self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
