@@ -56,7 +56,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, eth_phy="rgmii",
-                 with_led_chaser=True, with_pcie=False, **kwargs):
+                 with_spi_flash=False, with_led_chaser=True, with_pcie=False, **kwargs):
         platform = ac701.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -75,7 +75,6 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = MT8JTF12864(sys_clk_freq, "1:4"),
-                size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -116,6 +115,12 @@ class BaseSoC(SoCCore):
 
             self.add_ethernet(phy=self.ethphy)
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import N25Q256A
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=N25Q256A(Codes.READ_1_1_4), rate="1:1", with_master=True)
+
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
             self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
@@ -134,22 +139,24 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on AC701")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",         action="store_true", help="Build bitstream.")
-    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency.")
-    target_group.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support.")
-    target_group.add_argument("--eth-phy",       default="rgmii",     help="Select Ethernet PHY (rgmii or 1000basex).")
-    target_group.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support.")
-    target_group.add_argument("--driver",        action="store_true", help="Generate PCIe driver.")
+    target_group.add_argument("--build",          action="store_true", help="Build bitstream.")
+    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency.")
+    target_group.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    target_group.add_argument("--eth-phy",        default="rgmii",     help="Select Ethernet PHY (rgmii or 1000basex).")
+    target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    target_group.add_argument("--with-pcie",      action="store_true", help="Enable PCIe support.")
+    target_group.add_argument("--driver",         action="store_true", help="Generate PCIe driver.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq  = int(float(args.sys_clk_freq)),
-        with_ethernet = args.with_ethernet,
-        eth_phy       = args.eth_phy,
-        with_pcie     = args.with_pcie,
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_ethernet  = args.with_ethernet,
+        eth_phy        = args.eth_phy,
+        with_spi_flash = args.with_spi_flash,
+        with_pcie      = args.with_pcie,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))

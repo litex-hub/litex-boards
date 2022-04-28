@@ -92,6 +92,23 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("P18")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2
+        Subsignal("mosi", Pins("R14")),
+        Subsignal("miso", Pins("R15")),
+        Subsignal("wp",   Pins("P14")),
+        Subsignal("hold", Pins("N14")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("P18")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2
+        Subsignal("dq",   Pins("R14 R15 P14 N14")),
+        IOStandard("LVCMOS33")
+    ),
+
     # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("M20"), IOStandard("LVCMOS25")),
