@@ -89,12 +89,12 @@ class BaseSoC(SoCCore):
     def __init__(self, device="LFE5U-45F", revision="2.0", toolchain="trellis",
         sys_clk_freq=int(50e6), sdram_module_cls="MT48LC16M16", sdram_rate="1:1",
         with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
-        with_spi_flash=False, **kwargs):
+        with_video_textgrid=False, with_spi_flash=False, **kwargs):
         platform = ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
-        with_video_pll = with_video_terminal or with_video_framebuffer
+        with_video_pll = with_video_terminal or with_video_framebuffer or with_video_textgrid
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -112,12 +112,14 @@ class BaseSoC(SoCCore):
             )
 
         # Video ------------------------------------------------------------------------------------
-        if with_video_terminal or with_video_framebuffer:
+        if with_video_terminal or with_video_framebuffer or with_video_textgrid:
             self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+            if with_video_textgrid:
+                self.add_video_textgrid(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -161,6 +163,7 @@ def main():
     viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    viopts.add_argument("--with-video-textgrid",    action="store_true", help="Enable Video TextGrid (HDMI).")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -175,6 +178,7 @@ def main():
         sdram_rate             = args.sdram_rate,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+        with_video_textgrid    = args.with_video_textgrid,
         with_spi_flash         = args.with_spi_flash,
         **soc_core_argdict(args))
     if args.with_spi_sdcard:
