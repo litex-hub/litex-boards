@@ -6,7 +6,6 @@ import importlib
 # Boards Vendors.
 
 vendors = [
-    "1bitsquared",
     "adi",
     "alinx",
     "aliexpress",
