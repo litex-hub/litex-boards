@@ -11,7 +11,7 @@ import json
 
 from migen import *
 
-from litex_boards.platforms import datacenter_ddr4_test_board
+from litex_boards.platforms import antmicro_datacenter_ddr4_test_board
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -77,7 +77,7 @@ class BaseSoC(SoCCore):
             with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_reset_time="10e-3", eth_dynamic_ip=False,
             with_hyperram=False, with_sdcard=False, with_jtagbone=True, with_uartbone=False, with_spi_flash=False,
             with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
-        platform = datacenter_ddr4_test_board.Platform()
+        platform = antmicro_datacenter_ddr4_test_board.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)

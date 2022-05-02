@@ -11,7 +11,7 @@ import os
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import beaglewire
+from litex_boards.platforms import qwertyembedded_beaglewire
 
 from litex.build.io import DDROutput
 
@@ -64,7 +64,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, sys_clk_freq=int(50e6), **kwargs):
-        platform = beaglewire.Platform()
+        platform = qwertyembedded_beaglewire.Platform()
 
         # Disable Integrated ROM since too large for iCE40.
         kwargs["integrated_rom_size"]  = 0

@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import nexys4ddr
+from litex_boards.platforms import digilent_nexys4ddr
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -54,7 +54,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), with_ethernet=False, with_etherbone=False,
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
                  **kwargs):
-        platform = nexys4ddr.Platform()
+        platform = digilent_nexys4ddr.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

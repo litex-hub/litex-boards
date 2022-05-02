@@ -12,7 +12,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import ulx3s
+from litex_boards.platforms import radiona_ulx3s
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -90,7 +90,7 @@ class BaseSoC(SoCCore):
         sys_clk_freq=int(50e6), sdram_module_cls="MT48LC16M16", sdram_rate="1:1",
         with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
         with_spi_flash=False, **kwargs):
-        platform = ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
+        platform = radiona_ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"

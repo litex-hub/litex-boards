@@ -20,7 +20,7 @@
 
 from migen import *
 
-from litex_boards.platforms import sds1104xe
+from litex_boards.platforms import siglent_sds1104xe
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -66,7 +66,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_etherbone=True, eth_ip="192.168.1.50", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
-        platform = sds1104xe.Platform()
+        platform = siglent_sds1104xe.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_etherbone)

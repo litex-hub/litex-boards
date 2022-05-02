@@ -14,7 +14,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import mini_4k
+from litex_boards.platforms import decklink_mini_4k
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -74,7 +74,7 @@ class BaseSoC(SoCMini):
     def __init__(self, sys_clk_freq=int(100e6), with_pcie=False, with_sata=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         if with_video_terminal or with_video_framebuffer:
             sys_clk_freq = int(148.5e6) # FIXME: For now requires sys_clk >= video_clk.
-        platform = mini_4k.Platform()
+        platform = decklink_mini_4k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

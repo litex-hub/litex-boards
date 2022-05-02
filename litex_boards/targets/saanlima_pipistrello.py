@@ -15,7 +15,7 @@ from fractions import Fraction
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import pipistrello
+from litex_boards.platforms import saanlima_pipistrello
 
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -153,7 +153,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, with_led_chaser=True, **kwargs):
         sys_clk_freq = (83 + Fraction(1, 3))*1000*1000
-        platform     = pipistrello.Platform()
+        platform     = saanlima_pipistrello.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

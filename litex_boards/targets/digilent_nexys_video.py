@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import nexys_video
+from litex_boards.platforms import digilent_nexys_video
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -77,7 +77,7 @@ class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False,
                  with_led_chaser=True, with_sata=False, sata_gen="gen2", with_sata_pll_refclk=False, vadj="1.2V", with_video_terminal=False,
                  with_video_framebuffer=False, **kwargs):
-        platform = nexys_video.Platform(toolchain=toolchain)
+        platform = digilent_nexys_video.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)

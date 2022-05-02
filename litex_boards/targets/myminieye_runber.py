@@ -13,7 +13,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litex_boards.platforms import runber
+from litex_boards.platforms import myminieye_runber
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -33,7 +33,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(12e6), with_led_chaser=True, **kwargs):
-        platform = runber.Platform()
+        platform = myminieye_runber.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

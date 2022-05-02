@@ -15,7 +15,7 @@ from fractions import Fraction
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import atlys
+from litex_boards.platforms import digilent_atlys
 
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -149,7 +149,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, with_ethernet=True, with_etherbone=False, eth_phy=0, **kwargs):
         sys_clk_freq = int(75e6)
-        platform     = atlys.Platform()
+        platform     = digilent_atlys.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

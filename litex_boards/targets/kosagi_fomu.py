@@ -14,7 +14,7 @@ import sys
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import fomu_pvt
+from litex_boards.platforms import kosagi_fomu_pvt
 
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
@@ -69,7 +69,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, spi_flash_module="AT25SF161", sys_clk_freq=int(12e6),
                  with_led_chaser=True, **kwargs):
-        platform = fomu_pvt.Platform()
+        platform = kosagi_fomu_pvt.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

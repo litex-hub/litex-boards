@@ -12,9 +12,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import crosslink_nx_vip
-
-from litex_boards.platforms import crosslink_nx_vip
+from litex_boards.platforms import lattice_crosslink_nx_vip
 
 from litex.soc.cores.hyperbus import HyperRAM
 
@@ -68,7 +66,7 @@ class BaseSoC(SoCCore):
     }
     def __init__(self, sys_clk_freq=int(75e6), hyperram="none", toolchain="radiant",
                  with_led_chaser=True, **kwargs):
-        platform = crosslink_nx_vip.Platform(toolchain=toolchain)
+        platform = lattice_crosslink_nx_vip.Platform(toolchain=toolchain)
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
 
         # CRG --------------------------------------------------------------------------------------

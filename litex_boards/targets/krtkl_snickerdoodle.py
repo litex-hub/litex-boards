@@ -11,7 +11,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import snickerdoodle
+from litex_boards.platforms import krtkl_snickerdoodle
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.interconnect import axi
@@ -25,7 +25,7 @@ from litex.soc.cores.led import LedChaser
 # UTILS ---------------------------------------------------------------------------------------------
 
 def load_ps7(soc, xci_file):
-    odir = os.path.join("build", "snickerdoodle", "gateware", "xci")
+    odir = os.path.join("build", "krtkl_snickerdoodle", "gateware", "xci")
     os.makedirs(odir, exist_ok=True)
     file = "snickerdoodle_ps7.xci"
     dst = os.path.join(odir, file)
@@ -67,7 +67,7 @@ class BaseSoC(SoCCore):
         xci_file     = None,
         **kwargs):
 
-        platform = snickerdoodle.Platform(variant=variant)
+        platform = krtkl_snickerdoodle.Platform(variant=variant)
 
         # CRG --------------------------------------------------------------------------------------
         if ext_clk_freq:

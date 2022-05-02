@@ -7,7 +7,7 @@
 
 from migen import *
 
-from litex_boards.platforms import lpddr4_test_board
+from litex_boards.platforms import antmicro_lpddr4_test_board
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -49,7 +49,7 @@ class BaseSoC(SoCCore):
             with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
             with_hyperram=False, with_sdcard=False, with_jtagbone=True, with_uartbone=False,
             with_led_chaser=True, **kwargs):
-        platform = lpddr4_test_board.Platform()
+        platform = antmicro_lpddr4_test_board.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, iodelay_clk_freq=iodelay_clk_freq)

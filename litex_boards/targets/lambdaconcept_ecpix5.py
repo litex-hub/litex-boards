@@ -9,7 +9,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import ecpix5
+from litex_boards.platforms import lambdaconcept_ecpix5
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -82,7 +82,7 @@ class BaseSoC(SoCCore):
         with_video_framebuffer = False,
         with_led_chaser        = True,
         **kwargs):
-        platform = ecpix5.Platform(device=device, toolchain="trellis")
+        platform = lambdaconcept_ecpix5.Platform(device=device, toolchain="trellis")
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

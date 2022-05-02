@@ -9,7 +9,7 @@
 
 from migen import *
 
-from litex_boards.platforms import arty_s7
+from litex_boards.platforms import digilent_arty_s7
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -49,7 +49,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, variant="s7-50", sys_clk_freq=int(100e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
-        platform = arty_s7.Platform(variant=variant)
+        platform = digilent_arty_s7.Platform(variant=variant)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

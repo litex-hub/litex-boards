@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import basys3
+from litex_boards.platforms import digilent_basys3
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -38,7 +38,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), with_led_chaser=True, with_video_terminal=False, **kwargs):
-        platform = basys3.Platform()
+        platform = digilent_basys3.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -81,7 +81,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         **soc_core_argdict(args)
     )
-    soc.platform.add_extension(basys3._sdcard_pmod_io)
+    soc.platform.add_extension(digilent_basys3._sdcard_pmod_io)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

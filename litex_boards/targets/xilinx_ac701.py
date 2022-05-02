@@ -11,7 +11,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import ac701
+from litex_boards.platforms import xilinx_ac701
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -57,7 +57,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, eth_phy="rgmii",
                  with_spi_flash=False, with_led_chaser=True, with_pcie=False, **kwargs):
-        platform = ac701.Platform()
+        platform = xilinx_ac701.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

@@ -11,7 +11,7 @@ from migen import *
 from litex.build.generic_platform import *
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
-from litex_boards.platforms import spartan_edge_accelerator
+from litex_boards.platforms import seeedstudio_spartan_edge_accelerator
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -67,7 +67,7 @@ class BaseSoC(SoCCore):
         with_video_terminal = True,
         with_neopixel       = False,
         **kwargs):
-        platform = spartan_edge_accelerator.Platform()
+        platform = seeedstudio_spartan_edge_accelerator.Platform()
         platform.add_extension(_serial_io)
 
         # CRG --------------------------------------------------------------------------------------

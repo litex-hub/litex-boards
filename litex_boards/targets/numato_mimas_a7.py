@@ -9,7 +9,7 @@
 
 from migen import *
 
-from litex_boards.platforms import mimas_a7
+from litex_boards.platforms import numato_mimas_a7
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -50,7 +50,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, with_ethernet=False,
                  **kwargs):
-        platform = mimas_a7.Platform()
+        platform = numato_mimas_a7.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

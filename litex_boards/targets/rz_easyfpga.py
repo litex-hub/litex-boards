@@ -10,7 +10,7 @@ from migen import *
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import easyfpga
+from litex_boards.platforms import rz_easyfpga
 
 from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.integration.soc_core import *
@@ -56,7 +56,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, sdram_rate="1:1", **kwargs):
-        platform = easyfpga.Platform()
+        platform = rz_easyfpga.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)

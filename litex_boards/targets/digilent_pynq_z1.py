@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import pynq_z1
+from litex_boards.platforms import digilent_pynq_z1
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.interconnect import axi
@@ -59,7 +59,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_led_chaser=True,
                 with_video_terminal=False, with_video_framebuffer=False, **kwargs):
-        platform = pynq_z1.Platform()
+        platform = digilent_pynq_z1.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain, with_video_pll=with_video_terminal)

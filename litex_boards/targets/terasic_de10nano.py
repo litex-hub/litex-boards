@@ -11,7 +11,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import de10nano
+from litex_boards.platforms import terasic_de10nano
 
 from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc import SoCRegion
@@ -63,7 +63,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, with_mister_sdram=True,
                  with_mister_video_terminal=False, sdram_rate="1:1", **kwargs):
-        platform = de10nano.Platform()
+        platform = terasic_de10nano.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=with_mister_sdram, sdram_rate=sdram_rate)

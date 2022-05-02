@@ -9,7 +9,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import zcu106
+from litex_boards.platforms import xilinx_zcu106
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -58,7 +58,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, with_pcie=False, **kwargs):
-        platform = zcu106.Platform()
+        platform = xilinx_zcu106.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZCU106", **kwargs)

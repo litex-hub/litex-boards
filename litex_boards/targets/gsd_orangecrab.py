@@ -13,7 +13,7 @@ from migen import *
 from migen.genlib.misc import WaitTimer
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import orangecrab
+from litex_boards.platforms import gsd_orangecrab
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -146,7 +146,7 @@ class _CRGSDRAM(Module):
 class BaseSoC(SoCCore):
     def __init__(self, revision="0.2", device="25F", sdram_device="MT41K64M16",
                  sys_clk_freq=int(48e6), toolchain="trellis", with_led_chaser=True, **kwargs):
-        platform = orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
+        platform = gsd_orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         crg_cls      = _CRGSDRAM if kwargs.get("integrated_main_ram_size", 0) == 0 else _CRG

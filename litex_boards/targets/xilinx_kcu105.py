@@ -11,7 +11,7 @@ import os
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import kcu105
+from litex_boards.platforms import xilinx_kcu105
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -63,7 +63,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_etherbone=False,
                  eth_ip="192.168.1.50", with_led_chaser=True, with_pcie=False, with_sata=False,
                  **kwargs):
-        platform = kcu105.Platform()
+        platform = xilinx_kcu105.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

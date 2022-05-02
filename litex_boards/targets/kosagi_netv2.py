@@ -10,7 +10,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import netv2
+from litex_boards.platforms import kosagi_netv2
 
 from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
@@ -61,7 +61,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, variant="a7-35", sys_clk_freq=int(100e6), with_pcie=False,
                  with_ethernet=False, with_led_chaser=True, **kwargs):
-        platform = netv2.Platform(variant=variant)
+        platform = kosagi_netv2.Platform(variant=variant)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

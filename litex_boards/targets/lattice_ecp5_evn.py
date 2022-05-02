@@ -9,7 +9,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import ecp5_evn
+from litex_boards.platforms import lattice_ecp5_evn
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -44,7 +44,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), x5_clk_freq=None, toolchain="trellis",
                  with_led_chaser=True, **kwargs):
-        platform = ecp5_evn.Platform(toolchain=toolchain)
+        platform = lattice_ecp5_evn.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, x5_clk_freq)

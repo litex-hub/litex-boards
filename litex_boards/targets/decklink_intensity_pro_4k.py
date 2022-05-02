@@ -12,7 +12,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import intensity_pro_4k
+from litex_boards.platforms import decklink_intensity_pro_4k
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -41,7 +41,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, **kwargs):
-        platform = intensity_pro_4k.Platform()
+        platform = decklink_intensity_pro_4k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

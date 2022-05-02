@@ -11,7 +11,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import tagus
+from litex_boards.platforms import numato_tagus
 
 from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
@@ -56,7 +56,7 @@ class CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, with_pcie=False, **kwargs):
-        platform = tagus.Platform()
+        platform = numato_tagus.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)

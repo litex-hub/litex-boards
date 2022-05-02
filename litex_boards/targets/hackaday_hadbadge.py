@@ -14,7 +14,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import hadbadge
+from litex_boards.platforms import hackaday_hadbadge
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -54,7 +54,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="trellis", sys_clk_freq=int(48e6), sdram_module_cls="AS4C32M8", **kwargs):
-        platform = hadbadge.Platform(toolchain=toolchain)
+        platform = hackaday_hadbadge.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

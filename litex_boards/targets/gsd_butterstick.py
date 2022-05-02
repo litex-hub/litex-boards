@@ -15,7 +15,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import butterstick
+from litex_boards.platforms import gsd_butterstick
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -87,7 +87,7 @@ class BaseSoC(SoCCore):
         with_led_chaser  = True,
         with_syzygy_gpio = True,
         **kwargs)       :
-        platform = butterstick.Platform(revision=revision, device=device ,toolchain=toolchain)
+        platform = gsd_butterstick.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -145,7 +145,7 @@ class BaseSoC(SoCCore):
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_syzygy_gpio:
-            platform.add_extension(butterstick.raw_syzygy_io("SYZYGY0"))
+            platform.add_extension(gsd_butterstick.raw_syzygy_io("SYZYGY0"))
             self.submodules.gpio = GPIOTristate(platform.request("SYZYGY0"))
 
 # Build --------------------------------------------------------------------------------------------

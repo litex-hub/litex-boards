@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import mercury_kx2
+from litex_boards.platforms import enclustra_mercury_kx2
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -44,7 +44,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, **kwargs):
-        platform = mercury_kx2.Platform()
+        platform = enclustra_mercury_kx2.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

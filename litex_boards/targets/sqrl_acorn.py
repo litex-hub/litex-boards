@@ -27,7 +27,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import acorn
+from litex_boards.platforms import sqrl_acorn
 
 from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
@@ -74,7 +74,7 @@ class CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, variant="cle-215+", sys_clk_freq=int(100e6), with_led_chaser=True,
                  with_pcie=False, with_sata=False, **kwargs):
-        platform = acorn.Platform(variant=variant)
+        platform = sqrl_acorn.Platform(variant=variant)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)
@@ -104,7 +104,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)

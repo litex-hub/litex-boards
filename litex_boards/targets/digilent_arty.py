@@ -13,7 +13,7 @@
 
 from migen import *
 
-from litex_boards.platforms import arty
+from litex_boards.platforms import digilent_arty
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -71,7 +71,7 @@ class BaseSoC(SoCCore):
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
                  eth_dynamic_ip=False, with_led_chaser=True, with_jtagbone=True,
                  with_spi_flash=False, with_pmod_gpio=False, **kwargs):
-        platform = arty.Platform(variant=variant, toolchain=toolchain)
+        platform = digilent_arty.Platform(variant=variant, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         with_dram = (kwargs.get("integrated_main_ram_size", 0) == 0)
@@ -120,7 +120,7 @@ class BaseSoC(SoCCore):
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
-            platform.add_extension(arty.raw_pmod_io("pmoda"))
+            platform.add_extension(digilent_arty.raw_pmod_io("pmoda"))
             self.submodules.gpio = GPIOTristate(platform.request("pmoda"))
 
 # Build --------------------------------------------------------------------------------------------
@@ -168,9 +168,9 @@ def main():
         **soc_core_argdict(args)
     )
     if args.sdcard_adapter == "numato":
-        soc.platform.add_extension(arty._numato_sdcard_pmod_io)
+        soc.platform.add_extension(digilent_arty._numato_sdcard_pmod_io)
     else:
-        soc.platform.add_extension(arty._sdcard_pmod_io)
+        soc.platform.add_extension(digilent_arty._sdcard_pmod_io)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

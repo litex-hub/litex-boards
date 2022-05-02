@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import genesys2
+from litex_boards.platforms import digilent_genesys2
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -46,7 +46,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False,
                  with_led_chaser=True, **kwargs):
-        platform = genesys2.Platform()
+        platform = digilent_genesys2.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

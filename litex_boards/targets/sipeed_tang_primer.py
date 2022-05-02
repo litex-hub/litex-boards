@@ -69,7 +69,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq      = int(float(args.sys_clk_freq)),
+        sys_clk_freq = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
 

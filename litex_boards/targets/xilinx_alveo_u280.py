@@ -17,7 +17,7 @@ import os
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import alveo_u280
+from litex_boards.platforms import xilinx_alveo_u280
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -86,7 +86,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_pcie=False, with_led_chaser=False, with_hbm=False, **kwargs):
-        platform = alveo_u280.Platform()
+        platform = xilinx_alveo_u280.Platform()
         if with_hbm:
             assert 225e6 <= sys_clk_freq <= 450e6
 

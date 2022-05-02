@@ -12,7 +12,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import kc705
+from litex_boards.platforms import xilinx_kc705
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -53,7 +53,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_led_chaser=True,
                  with_spi_flash=False, with_pcie=False, with_sata=False, **kwargs):
-        platform = kc705.Platform()
+        platform = xilinx_kc705.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

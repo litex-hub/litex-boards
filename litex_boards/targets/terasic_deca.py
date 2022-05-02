@@ -11,7 +11,7 @@
 # litex_term --jtag-config ../prog/openocd_max10_blaster2.cfg jtag
 
 from migen import *
-from litex_boards.platforms import deca
+from litex_boards.platforms import terasic_deca
 
 from litex.soc.cores.clock import Max10PLL
 from litex.soc.integration.soc_core import *
@@ -58,7 +58,7 @@ class BaseSoC(SoCCore):
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
                  eth_dynamic_ip=False,
                  **kwargs):
-        self.platform = platform = deca.Platform()
+        self.platform = platform = terasic_deca.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=False)

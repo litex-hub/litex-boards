@@ -13,7 +13,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import minispartan6
+from litex_boards.platforms import scarabhardware_minispartan6
 
 from litex.soc.cores.clock import S6PLL
 from litex.soc.integration.soc_core import *
@@ -66,7 +66,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(80e6), sdram_rate="1:1", with_led_chaser=True,
                  with_video_terminal=False, with_video_framebuffer=False, **kwargs):
-        platform = minispartan6.Platform()
+        platform = scarabhardware_minispartan6.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)

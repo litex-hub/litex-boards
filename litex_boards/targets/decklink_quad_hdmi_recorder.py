@@ -17,7 +17,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import quad_hdmi_recorder
+from litex_boards.platforms import decklink_quad_hdmi_recorder
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -59,7 +59,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(200e6), with_pcie=False, pcie_lanes=4, **kwargs):
-        platform = quad_hdmi_recorder.Platform()
+        platform = decklink_quad_hdmi_recorder.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

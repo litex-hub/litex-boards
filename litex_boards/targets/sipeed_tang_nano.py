@@ -30,14 +30,13 @@
 # 5) Test UARTBone ex: litex_cli --regs
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
+
+from litex_boards.platforms import sipeed_tang_nano
 
 from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-
-from litex_boards.platforms import tang_nano
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -62,7 +61,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCMini):
     def __init__(self, sys_clk_freq=int(48e6), with_led_chaser=True, **kwargs):
-        platform = tang_nano.Platform()
+        platform = sipeed_tang_nano.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

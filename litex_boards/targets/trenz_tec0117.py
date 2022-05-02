@@ -10,6 +10,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex_boards.platforms import trenz_tec0117
+
 from litex.build.io import DDROutput
 
 from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
@@ -17,8 +19,6 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-
-from litex_boards.platforms import tec0117
 
 from litedram.modules import MT48LC4M16  # FIXME: use EtronTech reference.
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -58,7 +58,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset=0x0000, sys_clk_freq=int(25e6), sdram_rate="1:1",
                  with_led_chaser=True, **kwargs):
-        platform = tec0117.Platform()
+        platform = trenz_tec0117.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -119,7 +119,7 @@ class BaseSoC(SoCCore):
 def flash(bios_flash_offset):
     # Create FTDI <--> SPI Flash proxy bitstream and load it.
     # -------------------------------------------------------
-    platform = tec0117.Platform()
+    platform = trenz_tec0117.Platform()
     flash    = platform.request("spiflash", 0)
     bus      = platform.request("spiflash", 1)
     module = Module()
@@ -168,7 +168,7 @@ def main():
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
-    soc.platform.add_extension(tec0117._sdcard_pmod_io)
+    soc.platform.add_extension(trenz_tec0117._sdcard_pmod_io)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

@@ -10,7 +10,7 @@
 
 from migen import *
 
-from litex_boards.platforms import c10lprefkit
+from litex_boards.platforms import trenz_c10lprefkit
 
 from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc_core import *
@@ -58,7 +58,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True,
         with_ethernet=False, with_etherbone=False,
         **kwargs):
-        platform = c10lprefkit.Platform()
+        platform = trenz_c10lprefkit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

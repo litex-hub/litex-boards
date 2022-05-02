@@ -9,7 +9,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import vc707
+from litex_boards.platforms import xilinx_vc707
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -48,7 +48,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, with_pcie=False, **kwargs):
-        platform = vc707.Platform()
+        platform = xilinx_vc707.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

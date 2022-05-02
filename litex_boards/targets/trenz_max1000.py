@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import max1000
+from litex_boards.platforms import trenz_max1000
 
 from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc_core import *
@@ -45,7 +45,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, **kwargs):
-        platform = max1000.Platform()
+        platform = trenz_max1000.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

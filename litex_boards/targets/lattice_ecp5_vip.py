@@ -10,7 +10,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import ecp5_vip
+from litex_boards.platforms import lattice_ecp5_vip
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -86,7 +86,7 @@ class BaseSoC(SoCCore):
         with_video_terminal    = True,
         with_video_framebuffer = False,
         **kwargs):
-        platform = ecp5_vip.Platform(toolchain=toolchain)
+        platform = lattice_ecp5_vip.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

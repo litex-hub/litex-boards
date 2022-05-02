@@ -10,7 +10,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import versa_ecp5
+from litex_boards.platforms import lattice_versa_ecp5
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -77,7 +77,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), device="LFE5UM5G", with_ethernet=False,
                  with_etherbone=False, with_led_chaser=True, eth_ip="192.168.1.50", eth_phy=0,
                  toolchain="trellis", **kwargs):
-        platform = versa_ecp5.Platform(toolchain=toolchain, device=device)
+        platform = lattice_versa_ecp5.Platform(toolchain=toolchain, device=device)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

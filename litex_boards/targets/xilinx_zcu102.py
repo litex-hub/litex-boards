@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import zcu102
+from litex_boards.platforms import xilinx_zcu102
 
 from litex.build.io import CRG
 
@@ -22,7 +22,7 @@ from litex.soc.cores.led import LedChaser
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq, with_ethernet=False, with_led_chaser=True, **kwargs):
-        platform = zcu102.Platform()
+        platform = xilinx_zcu102.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(sys_clk_freq)
