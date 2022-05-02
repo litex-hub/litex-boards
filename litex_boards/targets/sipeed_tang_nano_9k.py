@@ -92,7 +92,7 @@ class BaseSoC(SoCCore):
             hyperram_pads = HyperRAMPads(0)
             self.comb += ck[0].eq(hyperram_pads.clk)
             self.comb += ck_n[0].eq(~hyperram_pads.clk)
-            self.submodules.hyperram = HyperRAM(hyperram_pads)
+            self.submodules.hyperram = HyperRAM(hyperram_pads, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4*mB))
 
         # Leds -------------------------------------------------------------------------------------

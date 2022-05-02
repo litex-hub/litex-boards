@@ -62,7 +62,7 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.submodules.hyperram = HyperRAM(platform.request("hyperram"), latency=7)
+            self.submodules.hyperram = HyperRAM(platform.request("hyperram"), latency=7, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=32*1024*1024))
 
 # Build --------------------------------------------------------------------------------------------

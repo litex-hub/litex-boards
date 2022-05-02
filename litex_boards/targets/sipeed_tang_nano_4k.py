@@ -117,7 +117,7 @@ class BaseSoC(SoCCore):
             hyperram_pads = HyperRAMPads()
             self.comb += platform.request("O_hpram_ck").eq(hyperram_pads.clk)
             self.comb += platform.request("O_hpram_ck_n").eq(~hyperram_pads.clk)
-            self.submodules.hyperram = HyperRAM(hyperram_pads)
+            self.submodules.hyperram = HyperRAM(hyperram_pads, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8*mB))
 
         # Video ------------------------------------------------------------------------------------

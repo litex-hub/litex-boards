@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.submodules.hyperram = HyperRAM(platform.request("hyperram"))
+            self.submodules.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8*1024*1024))
 
         # SD Card ----------------------------------------------------------------------------------

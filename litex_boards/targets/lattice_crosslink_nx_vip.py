@@ -87,7 +87,7 @@ class BaseSoC(SoCCore):
             # Use HyperRAM generic PHY as SRAM -----------------------------------------------------
             size = 8*1024*kB
             hr_pads = platform.request("hyperram", int(hyperram))
-            self.submodules.hyperram = HyperRAM(hr_pads)
+            self.submodules.hyperram = HyperRAM(hr_pads, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("sram", slave=self.hyperram.bus, region=SoCRegion(size=size))
 
         # Leds -------------------------------------------------------------------------------------

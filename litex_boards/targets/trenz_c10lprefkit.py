@@ -67,7 +67,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on C10 LP RefKit", **kwargs)
 
         # HyperRam ---------------------------------------------------------------------------------
-        self.submodules.hyperram = HyperRAM(platform.request("hyperram"))
+        self.submodules.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
         self.add_wb_slave(self.mem_map["hyperram"], self.hyperram.bus)
         self.add_memory_region("hyperram", self.mem_map["hyperram"], 8*1024*1024)
 
