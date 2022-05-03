@@ -152,6 +152,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── lattice_machxo3
     ├── lattice_versa_ecp5
     ├── linsn_rv901t
+    ├── limesdr_mini_v2
     ├── litex_acorn_baseboard
     ├── logicbone
     ├── marblemini
