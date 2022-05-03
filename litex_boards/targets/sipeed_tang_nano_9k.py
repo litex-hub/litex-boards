@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex_boards.platforms import tang_nano_9k
+from litex_boards.platforms import sipeed_tang_nano_9k
 
 from litex.soc.cores.clock.gowin_gw1n import GW1NPLL
 from litex.soc.integration.soc_core import *
@@ -46,7 +46,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(27e6), bios_flash_offset=0x0,
                  with_led_chaser=True, **kwargs):
-        platform = tang_nano_9k.Platform()
+        platform = sipeed_tang_nano_9k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)

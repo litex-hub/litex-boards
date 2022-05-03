@@ -11,8 +11,6 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import versa_ecp5
-
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
 from litex_boards.platforms import rcs_arctic_tern_bmc_card
