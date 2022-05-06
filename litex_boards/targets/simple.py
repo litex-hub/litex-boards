@@ -46,7 +46,7 @@ def main():
     parser = LiteXSoCArgumentParser(description="Generic LiteX SoC")
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("platform",                             help="Module name of the platform to build for.")
-    target_group.add_argument("--build",         action="store_true", help="Build bitstream.")
+    target_group.add_argument("--build",         action="store_true", help="Build design.")
     target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
     target_group.add_argument("--toolchain",     default=None,        help="FPGA toolchain.")
     builder_args(parser)
@@ -60,7 +60,8 @@ def main():
     platform = platform_module.Platform(**platform_kwargs)
     soc = BaseSoC(platform,**soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()

@@ -139,7 +139,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on LimeSDR-Mini-V2")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true", help="Build bitstream.")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
     target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
     target_group.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain (trellis or diamond).")
     target_group.add_argument("--sys-clk-freq", default=80e6,        help="System clock frequency.")
@@ -155,7 +155,8 @@ def main():
     )
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
-    builder.build(**builder_kargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer()

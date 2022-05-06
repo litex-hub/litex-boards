@@ -71,7 +71,7 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on MKR Vidor 4000")
-    parser.add_argument("--build",         action="store_true", help="Build bitstream.")
+    parser.add_argument("--build",         action="store_true", help="Build design.")
     parser.add_argument("--load",          action="store_true", help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",  default=48e6,        help="System clock frequency.")
     builder_args(parser)
@@ -83,7 +83,8 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()

@@ -108,7 +108,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on iCEBreaker")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",               action="store_true", help="Build bitstream.")
+    target_group.add_argument("--build",               action="store_true", help="Build design.")
     target_group.add_argument("--flash",               action="store_true", help="Flash bitstream and BIOS.")
     target_group.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")
     target_group.add_argument("--bios-flash-offset",   default="0xa0000",   help="BIOS offset in SPI Flash.")
@@ -124,7 +124,8 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.flash:
         from litex.build.dfu import DFUProg

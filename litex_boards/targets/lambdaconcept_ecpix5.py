@@ -223,7 +223,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on ECPIX-5")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true", help="Build bitstream.")
+    target_group.add_argument("--build",           action="store_true", help="Build design.")
     target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
     target_group.add_argument("--flash",           action="store_true", help="Flash bitstream to SPI Flash.")
     target_group.add_argument("--device",          default="85F",       help="ECP5 device (45F or 85F).")
@@ -253,7 +253,8 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**trellis_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**trellis_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()

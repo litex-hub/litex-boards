@@ -150,7 +150,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC Blackmagic Decklink Mini 4K")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",                  action="store_true", help="Build bitstream.")
+    target_group.add_argument("--build",                  action="store_true", help="Build design.")
     target_group.add_argument("--load",                   action="store_true", help="Load bitstream.")
     target_group.add_argument("--sys-clk-freq",           default=148.5e6,     help="System clock frequency.")
     pcieopts = target_group.add_mutually_exclusive_group()
@@ -175,7 +175,8 @@ def main():
     )
     builder = Builder(soc, **builder_argdict(args))
     builder_kwargs = vivado_build_argdict(args)
-    builder.build(**builder_kwargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kwargs)
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

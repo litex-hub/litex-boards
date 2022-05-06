@@ -149,7 +149,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on KCU105")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true",    help="Build bitstream.")
+    target_group.add_argument("--build",           action="store_true",    help="Build design.")
     target_group.add_argument("--load",            action="store_true",    help="Load bitstream.")
     target_group.add_argument("--sys-clk-freq",    default=125e6,          help="System clock frequency.")
     ethopts = target_group.add_mutually_exclusive_group()
@@ -173,7 +173,8 @@ def main():
         **soc_core_argdict(args)
 	)
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

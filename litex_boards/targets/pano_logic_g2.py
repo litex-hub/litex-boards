@@ -80,7 +80,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Pano Logic G2")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true",              help="Build bitstream.")
+    target_group.add_argument("--build",           action="store_true",              help="Build design.")
     target_group.add_argument("--load",            action="store_true",              help="Load bitstream.")
     target_group.add_argument("--revision",        default="c",                      help="Board revision (b or c).")
     target_group.add_argument("--sys-clk-freq",    default=50e6,                     help="System clock frequency.")
@@ -101,7 +101,8 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()

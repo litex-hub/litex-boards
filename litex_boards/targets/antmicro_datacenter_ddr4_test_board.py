@@ -180,7 +180,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on DDR4 Datacenter Test Board")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",                  action="store_true",    help="Build bitstream")
+    target_group.add_argument("--build",                  action="store_true",    help="Build design")
     target_group.add_argument("--load",                   action="store_true",    help="Load bitstream")
     target_group.add_argument("--flash",                  action="store_true",    help="Flash bitstream")
     target_group.add_argument("--sys-clk-freq",           default=100e6,           help="System clock frequency")
@@ -221,13 +221,12 @@ def main():
         with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    vns = builder.build(**vivado_build_argdict(args), run=args.build)
-
-    builder.soc.generate_sdram_phy_py_header(os.path.join(builder.output_dir, "sdram_init.py"))
-
-    # LiteDRAM settings (controller, phy, geom, timing)
-    with open(os.path.join(builder.output_dir, 'litedram_settings.json'), 'w') as f:
-        json.dump(builder.soc.sdram.controller.settings, f, cls=LiteDRAMSettingsEncoder, indent=4)
+    if args.build:
+        builder.build(**vivado_build_argdict(args))
+        builder.soc.generate_sdram_phy_py_header(os.path.join(builder.output_dir, "sdram_init.py"))
+        # LiteDRAM settings (controller, phy, geom, timing)
+        with open(os.path.join(builder.output_dir, 'litedram_settings.json'), 'w') as f:
+            json.dump(builder.soc.sdram.controller.settings, f, cls=LiteDRAMSettingsEncoder, indent=4)
 
     if args.load:
         prog = soc.platform.create_programmer()

@@ -143,7 +143,7 @@ def main():
     parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTech XC7A35T")
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado or symbiflow).")
-    target_group.add_argument("--build",               action="store_true",              help="Build bitstream.")
+    target_group.add_argument("--build",               action="store_true",              help="Build design.")
     target_group.add_argument("--load",                action="store_true",              help="Load bitstream.")
     target_group.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
     target_group.add_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")
@@ -187,7 +187,8 @@ def main():
 
     builder = Builder(soc, **builder_argdict(args))
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
-    builder.build(**builder_kwargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kwargs)
 
     if args.load:
         prog = soc.platform.create_programmer()

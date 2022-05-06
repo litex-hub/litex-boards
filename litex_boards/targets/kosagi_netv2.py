@@ -107,7 +107,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on NeTV2")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true", help="Build bitstream.")
+    target_group.add_argument("--build",           action="store_true", help="Build design.")
     target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
     target_group.add_argument("--variant",         default="a7-35",     help="Board variant (a7-35 or a7-100).")
     target_group.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
@@ -134,7 +134,8 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

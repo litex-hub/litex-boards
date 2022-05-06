@@ -40,6 +40,13 @@ You can then open a terminal on the main UART of the board and interact with the
 
 <p align="center"><img src="https://raw.githubusercontent.com/enjoy-digital/litex/master/doc/bios_screenshot.png"></p>
 
+**Build/Compilation behavior:**
+- python3 -m litex_boards.targets.board : Test LiteX/Migen syntax but does not generate anything.
+- Add `--build` to generate the SoC/Software headers and run the Software/Gateware compilation.
+- Add `--no-compile` to disable the Softwate/Gateware compilation.
+- Add `--no-compile-software` to disable the Software compilation.
+- Add `--no-compile-gateware` to disable the Gateware compilation.
+
 But this is just the starting point to create your own hardware! You can then:
 
 - Change the CPU: add `--cpu-type=lm32, microwatt, serv, rocket, etc... `

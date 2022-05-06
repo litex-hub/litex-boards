@@ -107,7 +107,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Spartan Edge Accelerator")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",               action="store_true",  help="Build bitstream.")
+    target_group.add_argument("--build",               action="store_true",  help="Build design.")
     target_group.add_argument("--sys-clk-freq",        default=100e6,        help="System clock frequency.")
     target_group.add_argument("--with-jtagbone",       action="store_true",  help="Enable Jtagbone support.")
     target_group.add_argument("--with-video-terminal", action="store_true",  help="Enable Video Colorbars (HDMI).")
@@ -127,7 +127,8 @@ def main():
 
     builder = Builder(soc, **builder_argdict(args))
     builder_kwargs = vivado_build_argdict(args)
-    builder.build(**builder_kwargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kwargs)
 
 if __name__ == "__main__":
     main()

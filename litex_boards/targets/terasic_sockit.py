@@ -112,7 +112,7 @@ def main():
     target_group.add_argument("--single-rate-sdram",   action="store_true", help="Clock SDRAM with 1x the sytem clock (instead of 2x).")
     target_group.add_argument("--mister-sdram-xs-v22", action="store_true", help="Use optional MiSTer SDRAM module XS v2.2 on J2 on GPIO daughter card.")
     target_group.add_argument("--mister-sdram-xs-v24", action="store_true", help="Use optional MiSTer SDRAM module XS v2.4 on J2 on GPIO daughter card.")
-    target_group.add_argument("--build",               action="store_true", help="Build bitstream.")
+    target_group.add_argument("--build",               action="store_true", help="Build design.")
     target_group.add_argument("--load",                action="store_true", help="Load bitstream.")
     target_group.add_argument("--revision",            default="revd",      help="Board revision (revb, revc or revd).")
     target_group.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
@@ -130,7 +130,8 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()

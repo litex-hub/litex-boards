@@ -178,7 +178,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Colorlight I5")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",            action="store_true",      help="Build bitstream.")
+    target_group.add_argument("--build",            action="store_true",      help="Build design.")
     target_group.add_argument("--load",             action="store_true",      help="Load bitstream.")
     target_group.add_argument("--board",            default="i5",             help="Board type (i5).")
     target_group.add_argument("--revision",         default="7.0", type=str,  help="Board revision (7.0).")
@@ -222,8 +222,8 @@ def main():
         soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
-
-    builder.build(**trellis_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**trellis_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()

@@ -130,7 +130,7 @@ def main():
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Arty A7")
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    target_group.add_argument("--build",               action="store_true",              help="Build bitstream.")
+    target_group.add_argument("--build",               action="store_true",              help="Build design.")
     target_group.add_argument("--load",                action="store_true",              help="Load bitstream.")
     target_group.add_argument("--flash",               action="store_true",              help="Flash bitstream.")
     target_group.add_argument("--variant",             default="a7-35",                  help="Board variant (a7-35 or a7-100).")
@@ -178,7 +178,8 @@ def main():
 
     builder = Builder(soc, **builder_argdict(args))
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
-    builder.build(**builder_kwargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kwargs)
 
     if args.load:
         prog = soc.platform.create_programmer()

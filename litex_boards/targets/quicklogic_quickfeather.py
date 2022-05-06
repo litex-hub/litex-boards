@@ -90,7 +90,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on QuickLogic QuickFeather")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build", action="store_true", help="Build bitstream.")
+    target_group.add_argument("--build", action="store_true", help="Build design.")
     soc_core_args(parser)
     parser.set_defaults(cpu_type="eos_s3")
     args = parser.parse_args()
@@ -104,7 +104,8 @@ def main():
             os.system(f"unzip libeos.zip -d {libeos_path}")
         builder.add_software_package("libeos", src_dir=libeos_path)
         builder.add_software_library("libeos")
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
 
 if __name__ == "__main__":

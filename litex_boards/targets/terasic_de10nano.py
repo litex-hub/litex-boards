@@ -98,7 +98,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on DE10-Nano")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",                      action="store_true", help="Build bitstream.")
+    target_group.add_argument("--build",                      action="store_true", help="Build design.")
     target_group.add_argument("--load",                       action="store_true", help="Load bitstream.")
     target_group.add_argument("--sys-clk-freq",               default=50e6,        help="System clock frequency.")
     target_group.add_argument("--with-mister-sdram",          action="store_true", help="Enable SDRAM with MiSTer expansion board.")
@@ -116,7 +116,8 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
