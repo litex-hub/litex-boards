@@ -17,7 +17,7 @@ import os
 
 from migen import *
 
-from litex_boards.platforms import aliexpress_stlv7325
+from litex_boards.platforms import hpcstore_xc7k420t
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -25,7 +25,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
 
-from litedram.modules import MT8JTF12864
+from litedram.modules import K4B1G0446F
 from litedram.phy import s7ddrphy
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
@@ -36,9 +36,10 @@ from litepcie.software import generate_litepcie_software
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain()
-        self.clock_domains.cd_idelay = ClockDomain()
+        self.clock_domains.cd_sys        = ClockDomain()
+        self.clock_domains.cd_sys4x      = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs  = ClockDomain()
+        self.clock_domains.cd_idelay     = ClockDomain()
 
         # # #
 
@@ -47,12 +48,13 @@ class _CRG(Module):
         rst_n  = platform.request("cpu_reset_n")
 
         # PLL.
-        self.submodules.pll = pll = S7MMCM(speedgrade=-2)
+        self.submodules.pll = pll = S7PLL(speedgrade=-2)
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk100, 100e6)
-        pll.create_clkout(self.cd_sys,    sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)
-        pll.create_clkout(self.cd_idelay, 200e6)
+        pll.create_clkout(self.cd_sys,       sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
+        pll.create_clkout(self.cd_idelay,    200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
@@ -61,11 +63,12 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6),
+        io_voltage="3.3V",
         with_led_chaser = True,
         with_pcie       = False,
         with_sata       = False,
         **kwargs):
-        platform = aliexpress_stlv7325.Platform()
+        platform = hpcstore_xc7k420t.Platform(io_voltage)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -75,14 +78,16 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
+            # we need to use A7DDRPHY instead of K7DDRPHY, because the 420T has no ODELAYE2
+            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram", 0),
                 memtype      = "DDR3",
                 nphases      = 4,
                 sys_clk_freq = sys_clk_freq,
+                iodelay_clk_freq = 200e6
             )
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT8JTF12864(sys_clk_freq, "1:4"),
+                module        = K4B1G0446F(sys_clk_freq, "1:4", "800"),
                 l2_cache_size = kwargs.get("l2_size", 8192),
             )
 
@@ -131,10 +136,10 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on AliExpress HPC Store XC7K420T")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",         action="store_true", help="Build design.")
-    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    target_group.add_argument("--build",           action="store_true", help="Build design.")
+    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
+    target_group.add_argument("--io-voltage",      default="3.3V",       help="IO voltage chosen by Jumper J3. Can be: '3.3V' or '2.5V'")
     target_group.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
     target_group.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
     target_group.add_argument("--with-sata",       action="store_true", help="Enable SATA support.")
@@ -144,6 +149,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
+        io_voltage     = args.io_voltage,
         with_pcie      = args.with_pcie,
         with_sata      = args.with_sata,
         **soc_core_argdict(args)
