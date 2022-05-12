@@ -74,8 +74,8 @@ class _CRG(Module):
             video_pll.register_clkin(clk, clk_freq)
             self.clock_domains.cd_hdmi   = ClockDomain()
             self.clock_domains.cd_hdmi5x = ClockDomain()
-            video_pll.create_clkout(self.cd_hdmi,    40e6, margin=0)
-            video_pll.create_clkout(self.cd_hdmi5x, 200e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
 
         # SDRAM clock
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
@@ -84,7 +84,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=60e6, with_led_chaser=True, with_spi_flash=False,
+    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, with_spi_flash=False,
                  use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
                  with_video_framebuffer=False, **kwargs):
         platform = muselab_icesugar_pro.Platform()
@@ -119,11 +119,11 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
+            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi", drive_both=True)
             if with_video_terminal:
-                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             if with_video_framebuffer:
-                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -133,7 +133,7 @@ def main():
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--build",            action="store_true",      help="Build design.")
     target_group.add_argument("--load",             action="store_true",      help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",     default=60e6,             help="System clock frequency.")
+    target_group.add_argument("--sys-clk-freq",     default=50e6,             help="System clock frequency.")
     sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",  action="store_true",  help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",      action="store_true",  help="Enable SDCard support.")

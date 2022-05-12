@@ -89,13 +89,13 @@ _io = [
     # GPDI
     ("gpdi", 0,
         Subsignal("clk_p",   Pins("E2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
-        # Subsignal("clk_n",   Pins("D3"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
+        Subsignal("clk_n",   Pins("D3"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
         Subsignal("data0_p", Pins("G1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
-        # Subsignal("data0_n", Pins("F1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
+        Subsignal("data0_n", Pins("F1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
         Subsignal("data1_p", Pins("J1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
-        # Subsignal("data1_n", Pins("H2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
+        Subsignal("data1_n", Pins("H2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
         Subsignal("data2_p", Pins("L1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
-        # Subsignal("data2_n", Pins("K2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
+        Subsignal("data2_n", Pins("K2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
     ),
 ]
 
