@@ -119,7 +119,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi", drive_both=True)
+            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             if with_video_framebuffer:
