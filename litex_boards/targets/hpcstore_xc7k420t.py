@@ -25,8 +25,9 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
 
-from litedram.modules import K4B1G0446F
 from litedram.phy import s7ddrphy
+from litedram.common import PHYPadsReducer
+from litedram.modules import K4B1G0446F
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.software import generate_litepcie_software
@@ -44,7 +45,7 @@ class _CRG(Module):
         # # #
 
         # Clk/Rst.
-        clk100 = platform.request("diffclk100")
+        clk100 = platform.request("clk100")
         rst_n  = platform.request("cpu_reset_n")
 
         # PLL.
@@ -79,7 +80,8 @@ class BaseSoC(SoCCore):
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             # we need to use A7DDRPHY instead of K7DDRPHY, because the 420T has no ODELAYE2
-            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram", 0),
+            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(
+                pads         = PHYPadsReducer(platform.request("ddram", 0), [0, 1, 2]),
                 memtype      = "DDR3",
                 nphases      = 4,
                 sys_clk_freq = sys_clk_freq,
@@ -87,7 +89,7 @@ class BaseSoC(SoCCore):
             )
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = K4B1G0446F(sys_clk_freq, "1:4", "800"),
+                module        = K4B1G0446F(sys_clk_freq, "1:4", "1066"),
                 l2_cache_size = kwargs.get("l2_size", 8192),
             )
 

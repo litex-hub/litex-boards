@@ -74,8 +74,8 @@ def _get_io(io_standard):
                 IOStandard("DIFF_SSTL15")),
             Subsignal("dqs_n",   Pins("A18 D23 G19 J21 K24 M19 M27 M30"),
                 IOStandard("DIFF_SSTL15")),
-            Subsignal("clk_p",   Pins("J26"),  IOStandard("DIFF_SSTL15")),
-            Subsignal("clk_n",   Pins("J27"),  IOStandard("DIFF_SSTL15")),
+            Subsignal("clk_p",   Pins("J26"),  IOStandard("DIFF_SSTL15"), Misc("IO_BUFFER_TYPE=NONE")),
+            Subsignal("clk_n",   Pins("J27"),  IOStandard("DIFF_SSTL15"), Misc("IO_BUFFER_TYPE=NONE")),
             Subsignal("cke",     Pins("G25"),  IOStandard("SSTL15")),
             Subsignal("odt",     Pins("J28"),  IOStandard("SSTL15")),
             Subsignal("reset_n", Pins("F27"),  IOStandard("LVCMOS15")),
@@ -119,14 +119,12 @@ def _get_io(io_standard):
             Subsignal("rx_n", Pins("C11")),
             Subsignal("tx_p", Pins("A12")),
             Subsignal("tx_n", Pins("A11")),
-            IOStandard("LVDS"),
         ),
         ("sata", 1,
             Subsignal("rx_p", Pins("E12")),
             Subsignal("rx_n", Pins("E11")),
             Subsignal("tx_p", Pins("B10")),
             Subsignal("tx_n", Pins("B9")),
-            IOStandard("LVDS"),
         ),
 
         # PCIe
@@ -314,7 +312,7 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    default_clk_name   = "diffclk100"
+    default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
     def __init__(self, io_voltage="3.3V"):
@@ -322,10 +320,17 @@ class Platform(XilinxPlatform):
         io_standard = IOStandard("LVCMOS33") if io_voltage == "3.3V" else IOStandard("LVCMOS25")
         _io = _get_io(io_standard)
 
-        XilinxPlatform.__init__(self, "xc7k420t-ffg901-2", _io, _connectors, toolchain="ise")
+        XilinxPlatform.__init__(self, "xc7k420t-ffg901-2", _io, _connectors, toolchain="vivado")
+        self.add_platform_command("""
+        set_property CONFIG_VOLTAGE 3.3 [current_design]
+        set_property CFGBVS VCCO [current_design]""")
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 11]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 12]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 13]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 16]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 17]")
+
         self.toolchain.bitstream_commands = [
-            "set_property CONFIG_VOLTAGE 3.3 [current_design]",
-            "set_property CFGBVS VCCO [current_design]",
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
             "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]",
             "set_property BITSTREAM.CONFIG.CCLK_TRISTATE TRUE [current_design]",
