@@ -41,15 +41,30 @@ class _CRG(Module):
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+        # Video PLL
+        if with_video_pll:
+            self.submodules.video_pll = video_pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
+            self.comb += video_pll.reset.eq(~rst_n)
+            video_pll.register_clkin(clk27, 27e6)
+            self.clock_domains.cd_hdmi   = ClockDomain()
+            self.clock_domains.cd_hdmi5x = ClockDomain()
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6)
+            self.specials += Instance("CLKDIV",
+                p_DIV_MODE= "5",
+                i_RESETN = rst_n,
+                i_HCLKIN = self.cd_hdmi5x.clk,
+                o_CLKOUT = self.cd_hdmi.clk
+            )
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(27e6), bios_flash_offset=0x0,
-                 with_led_chaser=True, **kwargs):
+                 with_led_chaser=True,  with_video_terminal=True, **kwargs):
         platform = sipeed_tang_nano_9k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM
@@ -94,6 +109,13 @@ class BaseSoC(SoCCore):
             self.comb += ck_n[0].eq(~hyperram_pads.clk)
             self.submodules.hyperram = HyperRAM(hyperram_pads, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4*mB))
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Free up BRAMs.
+
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
