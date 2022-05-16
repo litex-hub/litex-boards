@@ -54,7 +54,7 @@ class _CRG(Module):
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
+        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=120)
         pll.create_clkout(self.cd_idelay,    200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
@@ -81,7 +81,8 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             # we need to use A7DDRPHY instead of K7DDRPHY, because the 420T has no ODELAYE2
             self.submodules.ddrphy = s7ddrphy.A7DDRPHY(
-                pads         = PHYPadsReducer(platform.request("ddram", 0), [0, 1, 2]),
+                pads         = PHYPadsReducer(platform.request("ddram", 0), [0, 1, 2, 3]),
+                #pads         = platform.request("ddram", 0),
                 memtype      = "DDR3",
                 nphases      = 4,
                 sys_clk_freq = sys_clk_freq,
@@ -89,7 +90,7 @@ class BaseSoC(SoCCore):
             )
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = K4B1G0446F(sys_clk_freq, "1:4", "1066"),
+                module        = K4B1G0446F(sys_clk_freq, "1:4", "800"),
                 l2_cache_size = kwargs.get("l2_size", 8192),
             )
 
