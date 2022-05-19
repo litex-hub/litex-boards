@@ -12,7 +12,6 @@ from litex.build.openocd import OpenOCD
 
 _io = [
     # Clk / Rst
-    ("clk100", 0, Pins("AD24"), IOStandard("LVCMOS18")),
     ("clk200", 0,
         Subsignal("p", Pins("AB11"), IOStandard("LVDS")),
         Subsignal("n", Pins("AC11"), IOStandard("LVDS"))
@@ -115,4 +114,3 @@ class Platform(XilinxPlatform):
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)
-        self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
