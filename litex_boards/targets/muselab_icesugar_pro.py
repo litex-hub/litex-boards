@@ -39,6 +39,7 @@ class _CRG(Module):
         else:
             self.clock_domains.cd_sys_ps = ClockDomain()
 
+        self.clock_domains.cd_eth = ClockDomain()
         # # #
 
         # Clk / Rst
@@ -66,6 +67,7 @@ class _CRG(Module):
             pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180) # Idealy 90° but needs to be increased.
         else:
            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=180) # Idealy 90° but needs to be increased.
+        pll.create_clkout(self.cd_eth, 50e6)
 
         # Video PLL
         if with_video_pll:
@@ -86,7 +88,8 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, with_spi_flash=False,
                  use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
-                 with_video_framebuffer=False, **kwargs):
+                 with_video_framebuffer=False, with_ethernet=False, with_etherbone=False,
+                 eth_ip="192.168.1.50", eth_dynamic_ip=False, **kwargs):
         platform = muselab_icesugar_pro.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -125,6 +128,17 @@ class BaseSoC(SoCCore):
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
 
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            from liteeth.phy.rmii import LiteEthPHYRMII
+            self.submodules.ethphy = LiteEthPHYRMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads = self.platform.request("eth"))
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -143,6 +157,12 @@ def main():
     viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    ethopts = target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
+    target_group.add_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
+    target_group.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -155,6 +175,10 @@ def main():
         with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+        with_ethernet          = args.with_ethernet,
+        with_etherbone         = args.with_etherbone,
+        eth_ip                 = args.eth_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
