@@ -186,10 +186,10 @@ class Platform(AlteraPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self, revision="revd"):
+    def __init__(self, revision="revd", toolchain="quartus"):
         assert revision in _device_map.keys()
         self.revision = revision
-        AlteraPlatform.__init__(self, _device_map[revision], _io, connectors=_connectors_hsmc_gpio_daughterboard)
+        AlteraPlatform.__init__(self, _device_map[revision], _io, connectors=_connectors_hsmc_gpio_daughterboard, toolchain=toolchain)
 
     def create_programmer(self):
         return USBBlaster(cable_name="CV SoCKit")

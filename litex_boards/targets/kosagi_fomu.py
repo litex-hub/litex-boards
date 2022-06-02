@@ -10,12 +10,11 @@
 
 import os
 import sys
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import fomu_pvt
+from litex_boards.platforms import kosagi_fomu_pvt
 
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
@@ -34,7 +33,7 @@ class _CRG(Module):
         assert sys_clk_freq == 12e6
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_por    = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por    = ClockDomain()
         self.clock_domains.cd_usb_12 = ClockDomain()
         self.clock_domains.cd_usb_48 = ClockDomain()
 
@@ -68,36 +67,35 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, bios_flash_offset, spi_flash_module="AT25SF161", sys_clk_freq=int(12e6),
                  with_led_chaser=True, **kwargs):
-        kwargs["uart_name"] = "usb_acm" # Enforce UART to USB-ACM
-        platform = fomu_pvt.Platform()
-
-        # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
-        kwargs["integrated_sram_size"] = 0
-        kwargs["integrated_rom_size"]  = 0
-
-        # Set CPU variant / reset address
-        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
-
-        # Serial -----------------------------------------------------------------------------------
-        # FIXME: do proper install of ValentyUSB.
-        os.system("git clone https://github.com/litex-hub/valentyusb -b hw_cdc_eptri")
-        sys.path.append("valentyusb")
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Fomu",
-            ident_version  = True,
-            **kwargs)
+        platform = kosagi_fomu_pvt.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
-        # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
+        # SoCCore ----------------------------------------------------------------------------------
+        # Defaults to USB ACM through ValentyUSB.
+        kwargs["uart_name"] = "usb_acm"
+        # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
+        kwargs["integrated_sram_size"] = 0
+        kwargs["integrated_rom_size"]  = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Fomu", **kwargs)
+
+        # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
         self.submodules.spram = Up5kSPRAM(size=128*kB)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=128*kB))
+        self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128*kB))
+        self.bus.add_region("sram", SoCRegion(
+                origin = self.bus.regions["psram"].origin + 0*kB,
+                size   = 64*kB,
+                linker = True)
+        )
+        if not self.integrated_main_ram_size:
+            self.bus.add_region("main_ram", SoCRegion(
+                origin = self.bus.regions["psram"].origin + 64*kB,
+                size   = 64*kB,
+                linker = True)
+            )
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import AT25SF161, GD25Q16C, MX25R1635F, W25Q128JV
@@ -114,10 +112,11 @@ class BaseSoC(SoCCore):
 
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
-            origin = self.mem_map["spiflash"] + bios_flash_offset,
+            origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
             size   = 32*kB,
             linker = True)
         )
+        self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -156,11 +155,13 @@ def flash(build_dir, build_name, bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Fomu")
-    parser.add_argument("--build",             action="store_true", help="Build bitstream")
-    parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency (default: 12MHz)")
-    parser.add_argument("--bios-flash-offset", default=0x20000,     help="BIOS offset in SPI Flash (default: 0x20000)")
-    parser.add_argument("--flash",             action="store_true", help="Flash Bitstream")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Fomu")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",             action="store_true", help="Build design.")
+    target_group.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
+    target_group.add_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")
+    target_group.add_argument("--flash",             action="store_true", help="Flash Bitstream.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -168,15 +169,16 @@ def main():
     dfu_flash_offset = 0x40000
 
     soc = BaseSoC(
-        bios_flash_offset = dfu_flash_offset + args.bios_flash_offset,
+        bios_flash_offset = dfu_flash_offset + int(args.bios_flash_offset, 0),
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.flash:
-        flash(builder.output_dir, soc.build_name, args.bios_flash_offset)
+        flash(builder.output_dir, soc.build_name, int(args.bios_flash_offset, 0))
 
 if __name__ == "__main__":
     main()

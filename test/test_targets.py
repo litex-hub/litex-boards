@@ -14,6 +14,32 @@ from migen import *
 from litex.soc.integration.builder import *
 
 class TestTargets(unittest.TestCase):
+    excluded_platforms = [
+        "qmtech_daughterboard",              # Reason: Not a real platform.
+        "quicklogic_quickfeather",           # Reason: No default clock.
+        "efinix_titanium_ti60_f225_dev_kit", # Reason: Require Efinity toolchain.
+        "efinix_trion_t120_bga576_dev_kit",  # Reason: Require Efinity toolchain.
+        "efinix_trion_t20_bga256_dev_kit",   # Reason: Require Efinity toolchain.
+        "efinix_trion_t20_mipi_dev_kit",     # Reason: Require Efinity toolchain.
+        "efinix_xyloni_dev_kit",             # Reason: Require Efinity toolchain.
+        "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
+        "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
+        "efinix_t8f81_dev_kit",              # Reason: Require Efinity toolchain.
+        "adi_plutosdr",                      # Reason: No default clock.
+    ]
+    excluded_targets   = [
+        "simple",                            # Reason: Generic target.
+        "quicklogic_quickfeather",           # Reason: No default clock.
+        "efinix_titanium_ti60_f225_dev_kit", # Reason: Require Efinity toolchain.
+        "efinix_trion_t120_bga576_dev_kit",  # Reason: Require Efinity toolchain.
+        "efinix_trion_t20_bga256_dev_kit",   # Reason: Require Efinity toolchain.
+        "efinix_trion_t20_mipi_dev_kit",     # Reason: Require Efinity toolchain.
+        "efinix_xyloni_dev_kit",             # Reason: Require Efinity toolchain.
+        "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
+        "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
+        "efinix_t8f81_dev_kit",              # Reason: Require Efinity toolchain.
+    ]
+
     # Build simple design for all platforms.
     def test_platforms(self):
         # Collect platforms.
@@ -21,17 +47,17 @@ class TestTargets(unittest.TestCase):
         for file in os.listdir("./litex_boards/platforms/"):
             if file.endswith(".py"):
                 file = file.replace(".py", "")
-                if file not in ["__init__", "qmtech_daughterboard"]:
+                if file not in ["__init__"] + self.excluded_platforms:
                     platforms.append(file)
 
         # Test platforms with simple design.
         for name in platforms:
             with self.subTest(platform=name):
+                os.system("rm -rf build")
                 cmd = """\
 python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
-    --no-compile-software   \
-    --no-compile-gateware   \
-    --uart-name="stub"      \
+    --no-compile       \
+    --uart-name="stub" \
 """.format(name)
                 subprocess.check_call(cmd, shell=True)
 
@@ -42,15 +68,17 @@ python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
         for file in os.listdir("./litex_boards/targets/"):
             if file.endswith(".py"):
                 file = file.replace(".py", "")
-                if file not in ["__init__", "simple"]:
+                if file not in ["__init__"] + self.excluded_targets:
                     targets.append(file)
 
         # Test targets.
         for name in targets:
             with self.subTest(target=name):
+                os.system("rm -rf build")
                 cmd = """\
 python3 -m litex_boards.targets.{} \
-    --no-compile-software   \
-    --no-compile-gateware   \
+    --cpu-type=vexriscv     \
+    --cpu-variant=minimal   \
+    --no-compile            \
 """.format(name)
                 subprocess.check_call(cmd, shell=True)

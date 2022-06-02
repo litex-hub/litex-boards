@@ -207,10 +207,10 @@ feather_i2c = [
 ]
 
 feather_spi = [
-    ("spi",0,
+    ("spi", 0,
         Subsignal("miso", Pins("GPIO:14"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("GPIO:16"), IOStandard("LVCMOS33")),
-        Subsignal("sck",  Pins("GPIO:15"), IOStandard("LVCMOS33"))
+        Subsignal("clk",  Pins("GPIO:15"), IOStandard("LVCMOS33"))
     )
 ]
 
@@ -222,6 +222,7 @@ class Platform(LatticePlatform):
 
     def __init__(self, revision="0.2", device="25F", toolchain="trellis", **kwargs):
         assert revision in ["0.1", "0.2"]
+        assert device in ["25F", "45F", "85F"]
         self.revision = revision
         io         = {"0.1": _io_r0_1,            "0.2": _io_r0_2        }[revision]
         connectors = {"0.1": _connectors_r0_1,    "0.2": _connectors_r0_2}[revision]

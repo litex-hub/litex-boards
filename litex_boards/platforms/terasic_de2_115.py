@@ -16,8 +16,8 @@ _io = [
 
     # Serial
     ("serial", 0,
-        Subsignal("tx", Pins("AB22"), IOStandard("3.3-V LVTTL")), # JP5 GPIO[0]
-        Subsignal("rx", Pins("AC15"), IOStandard("3.3-V LVTTL"))  # JP5 GPIO[1]
+        Subsignal("tx", Pins("G9"), IOStandard("3.3-V LVTTL")), # Use built-in Tx RS32 port
+        Subsignal("rx", Pins("G12"), IOStandard("3.3-V LVTTL"))  #  Use built-in Rx RS32 port
     ),
 
     # SDR SDRAM
@@ -46,8 +46,8 @@ class Platform(AlteraPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self):
-        AlteraPlatform.__init__(self, "EP4CE115F29C7", _io)
+    def __init__(self, toolchain="quartus"):
+        AlteraPlatform.__init__(self, "EP4CE115F29C7", _io, toolchain=toolchain)
 
     def create_programmer(self):
         return USBBlaster()

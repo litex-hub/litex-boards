@@ -94,3 +94,9 @@ ENV/
 
 # VS Code project setting
 .vscode
+
+# support library for EOS-S3 (downloaded when needed)
+litex_boards/targets/libeos/
+
+# ip files used during build
+litex_boards/targets/ip/

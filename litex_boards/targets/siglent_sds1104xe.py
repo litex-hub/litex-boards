@@ -18,12 +18,9 @@
 # litex_term crossover
 # --------------------------------------------------------------------------------------------------
 
-import os
-import argparse
-
 from migen import *
 
-from litex_boards.platforms import sds1104xe
+from litex_boards.platforms import siglent_sds1104xe
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -31,6 +28,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 
+from litedram.common import PHYPadsReducer
 from litedram.modules import MT41K64M16
 from litedram.phy import s7ddrphy
 
@@ -42,8 +40,8 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_ethernet=False):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_dvi       = ClockDomain()
 
@@ -68,30 +66,27 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_etherbone=True, eth_ip="192.168.1.50", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
-        platform = sds1104xe.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "crossover" # Defaults to Crossover UART.
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Siglent SDS1104X-E",
-            ident_version  = True,
-            **kwargs)
+        platform = siglent_sds1104xe.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_etherbone)
 
+        # SoCCore ----------------------------------------------------------------------------------
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "crossover" # Defaults to Crossover UART.
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Siglent SDS1104X-E", **kwargs)
+
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
+            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(
+                pads           = PHYPadsReducer(platform.request("ddram"), [0, 1, 2, 3]),
                 memtype        = "DDR3",
                 nphases        = 4,
                 sys_clk_freq   = sys_clk_freq)
             self.add_sdram("sdram",
-                phy              = self.ddrphy,
-                module           = MT41K64M16(sys_clk_freq, "1:4"),
-                l2_cache_size    = kwargs.get("l2_size", 8192),
-                l2_cache_reverse = False,
+                phy           = self.ddrphy,
+                module        = MT41K64M16(sys_clk_freq, "1:4"),
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # Etherbone --------------------------------------------------------------------------------
@@ -134,7 +129,7 @@ class BaseSoC(SoCCore):
 
             # Etherbone
             self.submodules.etherbone = LiteEthEtherbone(self.udp, 1234, mode="master")
-            self.add_wb_master(self.etherbone.wishbone.bus)
+            self.bus.add_master(master=self.etherbone.wishbone.bus)
 
             # Timing constraints
             eth_rx_clk = self.ethphy.crg.cd_eth_rx.clk
@@ -165,15 +160,17 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on SDS1104X-E")
-    parser.add_argument("--build",          action="store_true",              help="Build bitstream")
-    parser.add_argument("--load",           action="store_true",              help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",   default=100e6,                    help="System clock frequency (default: 100MHz)")
-    parser.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
-    parser.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
-    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on SDS1104X-E")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",          action="store_true",              help="Build design.")
+    target_group.add_argument("--load",           action="store_true",              help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",   default=100e6,                    help="System clock frequency.")
+    target_group.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
+    target_group.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    viopts = target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -189,11 +186,12 @@ def main():
     )
 
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**vivado_build_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"), device=1)
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"), device=1)
 
 if __name__ == "__main__":
     main()

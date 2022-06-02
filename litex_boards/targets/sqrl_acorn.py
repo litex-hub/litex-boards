@@ -24,12 +24,10 @@
 # ./litepcie_util uart_test
 
 import os
-import argparse
-import sys
 
 from migen import *
 
-from litex_boards.platforms import acorn
+from litex_boards.platforms import sqrl_acorn
 
 from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
@@ -37,6 +35,8 @@ from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.xadc import XADC
+from litex.soc.cores.dna  import DNA
 
 from litedram.modules import MT41K512M16
 from litedram.phy import s7ddrphy
@@ -50,8 +50,8 @@ class CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
 
         # Clk/Rst
@@ -74,16 +74,20 @@ class CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, variant="cle-215+", sys_clk_freq=int(100e6), with_led_chaser=True,
                  with_pcie=False, with_sata=False, **kwargs):
-        platform = acorn.Platform(variant=variant)
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Acorn CLE-101/215(+)",
-            ident_version  = True,
-            **kwargs)
+        platform = sqrl_acorn.Platform(variant=variant)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Acorn CLE-101/215(+)", **kwargs)
+
+        # XADC -------------------------------------------------------------------------------------
+        self.submodules.xadc = XADC()
+
+        # DNA --------------------------------------------------------------------------------------
+        self.submodules.dna = DNA()
+        self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -103,13 +107,13 @@ class BaseSoC(SoCCore):
             self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
-            self.add_pcie(phy=self.pcie_phy, ndmas=1)
-            # FIXME: Improve (Make it generic and apply it to all targets).
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks main_crg_clkout0] -group [get_clocks userclk2] -asynchronous",)
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks main_crg_clkout0] -group [get_clocks clk_125mhz] -asynchronous")
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks main_crg_clkout0] -group [get_clocks clk_250mhz] -asynchronous")
-            platform.toolchain.pre_placement_commands.append("set_clock_groups -group [get_clocks clk_125mhz] -group [get_clocks clk_250mhz] -asynchronous")
-
+            self.add_pcie(phy=self.pcie_phy, ndmas=1, address_width=64)
+            # FIXME: Apply it to all targets (integrate it in LitePCIe?).
+            platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
+            platform.toolchain.pre_placement_commands.add("set_clock_groups -group [get_clocks {sys_clk}] -group [get_clocks userclk2] -asynchronous", sys_clk=self.crg.cd_sys.clk)
+            platform.toolchain.pre_placement_commands.add("set_clock_groups -group [get_clocks {sys_clk}] -group [get_clocks clk_125mhz] -asynchronous", sys_clk=self.crg.cd_sys.clk)
+            platform.toolchain.pre_placement_commands.add("set_clock_groups -group [get_clocks {sys_clk}] -group [get_clocks clk_250mhz] -asynchronous", sys_clk=self.crg.cd_sys.clk)
+            platform.toolchain.pre_placement_commands.add("set_clock_groups -group [get_clocks clk_125mhz] -group [get_clocks clk_250mhz] -asynchronous")
 
             # ICAP (For FPGA reload over PCIe).
             from litex.soc.cores.icap import ICAP
@@ -117,7 +121,7 @@ class BaseSoC(SoCCore):
             self.icap.add_reload()
             self.icap.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
-            # Flash (For SPIFlash update over PCIe). FIXME: Should probably be updated to use SpiFlashSingle/SpiFlashDualQuad (so MMAPed and do the update with bit-banging)
+            # Flash (For SPIFlash update over PCIe).
             from litex.soc.cores.gpio import GPIOOut
             from litex.soc.cores.spi_flash import S7SPIFlash
             self.submodules.flash_cs_n = GPIOOut(platform.request("flash_cs_n"))
@@ -150,7 +154,7 @@ class BaseSoC(SoCCore):
             self.submodules.sata_phy = LiteSATAPHY(platform.device,
                 refclk     = sata_refclk,
                 pads       = platform.request("pcie2sata"),
-                gen        = "gen2",
+                gen        = "gen1",
                 clk_freq   = sys_clk_freq,
                 data_width = 16)
 
@@ -166,17 +170,19 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Acorn CLE-101/215(+)")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream")
-    parser.add_argument("--flash",           action="store_true", help="Flash bitstream")
-    parser.add_argument("--variant",         default="cle-215+",  help="Board variant: cle-215+ (default), cle-215 or cle-101")
-    parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency (default: 100MHz)")
-    pcieopts = parser.add_mutually_exclusive_group()
-    pcieopts.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support")
-    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2)")
-    pcieopts.add_argument("--with-sata",     action="store_true", help="Enable SATA support (over PCIe2SATA)")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Acorn CLE-101/215(+)")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true", help="Build design.")
+    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",           action="store_true", help="Flash bitstream.")
+    target_group.add_argument("--variant",         default="cle-215+",  help="Board variant (cle-215+, cle-215 or cle-101).")
+    target_group.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
+    pcieopts = target_group.add_mutually_exclusive_group()
+    pcieopts.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support.")
+    target_group.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
+    target_group.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2).")
+    pcieopts.add_argument("--with-sata",     action="store_true", help="Enable SATA support (over PCIe2SATA).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -192,18 +198,19 @@ def main():
         soc.add_spi_sdcard()
 
     builder  = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
+        prog.flash(0, builder.get_bitstream_filename(mode="flash"))
 
 if __name__ == "__main__":
     main()

@@ -3,25 +3,23 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2020 Basel Sayeh <Basel.Sayeh@hotmail.com>
+# Copyright (c) 2021 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
-
-import os
-import argparse
+#
+# Note: The CPU actually runs at over 100MHz, but the SDRAM only works up to 75MHz
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import qmtech_ep4ce15
+from litex_boards.platforms import qmtech_5cefa2
 
-from litex.soc.cores.clock import CycloneIVPLL
+from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import IS42S16160
+from litedram.modules import W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from litex.soc.cores.video import VideoVGAPHY
@@ -32,17 +30,19 @@ from liteeth.phy.mii import LiteEthPHYMII
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_ethernet, with_vga, sdram_rate="1:1"):
         self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.clock_domains.cd_sys          = ClockDomain()
+
         if sdram_rate == "1:2":
             self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys_ps   = ClockDomain()
 
         if with_ethernet:
             self.clock_domains.cd_eth   = ClockDomain()
+
         if with_vga:
-            self.clock_domains.cd_vga   = ClockDomain(reset_less=True)
+            self.clock_domains.cd_vga   = ClockDomain()
 
         # # #
 
@@ -50,7 +50,7 @@ class _CRG(Module):
         clk50 = platform.request("clk50")
 
         # PLL
-        self.submodules.pll = pll = CycloneIVPLL(speedgrade="-6")
+        self.submodules.pll = pll = CycloneVPLL(speedgrade="-C8")
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -59,7 +59,8 @@ class _CRG(Module):
             # theoretically 90 degrees, but increase to relax timing
             pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180)
         else:
-            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+            # for 105 MHz: 10; 95 MHz: 15; 85MHz: 30 work
+            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=10)
 
         if with_ethernet:
             pll.create_clkout(self.cd_eth,   25e6)
@@ -73,23 +74,23 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_daughterboard=False,
+    def __init__(self, sys_clk_freq=int(105e6), with_daughterboard=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
-                 ident_version=True, sdram_rate="1:1", **kwargs):
-        platform = qmtech_ep4ce15.Platform(with_daughterboard=with_daughterboard)
+                 sdram_rate="1:1", **kwargs):
+        platform = qmtech_5cefa2.Platform(with_daughterboard=with_daughterboard)
+
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq,
+            with_ethernet = with_ethernet or with_etherbone,
+            with_vga      = with_video_terminal or with_video_framebuffer,
+            sdram_rate    = sdram_rate
+        )
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on QMTECH EP4CE15" + (" + Daughterboard" if with_daughterboard else ""),
-            ident_version  = ident_version,
+            ident = "LiteX SoC on QMTECH 5CEFA2" + (" + Daughterboard" if with_daughterboard else ""),
             **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform,
-                                   sys_clk_freq, with_ethernet or with_etherbone,
-                                   with_video_terminal or with_video_framebuffer,
-                                   sdram_rate=sdram_rate)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -97,7 +98,7 @@ class BaseSoC(SoCCore):
             self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = IS42S16160(sys_clk_freq, sdram_rate),
+                module        = W9825G6KH6(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -128,25 +129,26 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTECH EP4CE15")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency (default: 50MHz)")
-    parser.add_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default) or 1:2 Half Rate")
-    parser.add_argument("--with-daughterboard",  action="store_true",              help="Whether the core board is plugged into the QMTech daughterboard")
-    ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTECH 5CEFA2")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq", default=105e6,       help="System clock frequency.")
+    target_group.add_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    target_group.add_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")
+    ethopts = target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",     action="store_true",              help="Enable Etherbone support")
-    parser.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
-    parser.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting")
-    sdopts = parser.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support")
-    sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support")
-    parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA)")
-    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA)")
-
+    target_group.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    target_group.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
+    sdopts = target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support.")
+    target_group.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
+    viopts = target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -158,9 +160,9 @@ def main():
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
-        ident_version          = args.no_ident_version,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+        with_spi_flash         = args.with_spi_flash,
         sdram_rate             = args.sdram_rate,
         **soc_core_argdict(args)
     )
@@ -171,11 +173,12 @@ def main():
         soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".sof"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

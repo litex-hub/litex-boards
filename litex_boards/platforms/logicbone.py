@@ -197,7 +197,7 @@ class Platform(LatticePlatform):
         self.revision = revision
         io         = {"rev0": _io_rev0          }[revision]
         connectors = {"rev0": _connectors_rev0  }[revision]
-        LatticePlatform.__init__(self, f"LFE5UM5G-{device}-8BG381C", io, connectors, toolchain="trellis", **kwargs)
+        LatticePlatform.__init__(self, f"LFE5UM5G-{device}-8BG381C", io, connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
         return DFUProg(vid="1d50", pid="6130")

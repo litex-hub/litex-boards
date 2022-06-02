@@ -98,7 +98,7 @@ _io = [
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("L13")),
         Subsignal("clk",  Pins("L16")),
-        Subsignal("dq",   Pins("K17", "K18", "L14", "M14")),
+        Subsignal("dq",   Pins("K17 K18 L14 M14")),
         IOStandard("LVCMOS33")
     ),
 
@@ -295,7 +295,7 @@ def sdcard_pmod_io(pmod):
             Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP True")),
             Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULLUP True")),
             Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP True")),
-            Misc("SLEW=FAST"),
+            Misc("SLEW=FAST"), #NOTE: this is not supported by yosys+nextprn toolchain
             IOStandard("LVCMOS33"),
         ),
         ("sdcard", 0,
@@ -303,7 +303,7 @@ def sdcard_pmod_io(pmod):
             Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP True")),
             Subsignal("clk",  Pins(f"{pmod}:3")),
             Subsignal("cd",   Pins(f"{pmod}:6")),
-            Misc("SLEW=FAST"),
+            Misc("SLEW=FAST"), #NOTE: this and all Misc() is not supported by yosys+nextprn toolchain
             IOStandard("LVCMOS33"),
         ),
 ]
@@ -357,5 +357,4 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        from litex.build.xilinx import symbiflow
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)

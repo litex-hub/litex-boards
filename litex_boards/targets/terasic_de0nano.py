@@ -6,15 +6,16 @@
 # Copyright (c) 2015-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
+# Build/Use:
+# ./terasic_de0nano.py --uart-name=jtag_uart --build --load
+# litex_term --jtag-config ../prog/openocd_max10_blaster.cfg jtag
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import de0nano
+from litex_boards.platforms import terasic_de0nano
 
 from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.integration.soc_core import *
@@ -32,9 +33,9 @@ class _CRG(Module):
         self.clock_domains.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
             self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -60,16 +61,13 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), sdram_rate="1:1", with_led_chaser=True, **kwargs):
-        platform = de0nano.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on DE0-Nano",
-            ident_version  = True,
-            **kwargs)
+        platform = terasic_de0nano.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on DE0-Nano", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -90,11 +88,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on DE0-Nano")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency (default: 50MHz)")
-    parser.add_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on DE0-Nano")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq", default=50e6,        help="System clock frequency.")
+    target_group.add_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -105,11 +105,12 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".sof"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

@@ -89,14 +89,30 @@ _io = [
     # GPDI
     ("gpdi", 0,
         Subsignal("clk_p",   Pins("E2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
-        # Subsignal("clk_n",   Pins("D3"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
+        Subsignal("clk_n",   Pins("D3"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
         Subsignal("data0_p", Pins("G1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
-        # Subsignal("data0_n", Pins("F1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
+        Subsignal("data0_n", Pins("F1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
         Subsignal("data1_p", Pins("J1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
-        # Subsignal("data1_n", Pins("H2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
+        Subsignal("data1_n", Pins("H2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
         Subsignal("data2_p", Pins("L1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
-        # Subsignal("data2_n", Pins("K2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
+        Subsignal("data2_n", Pins("K2"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),
     ),
+
+    # RMII Ethernet PHY (WaveShare Board)
+    # Assumed to be modified to be PMOD-compatible (TX1 tied to MDIO)
+    # Position is P4 header "top half" (toward the GPDI connector)
+    ("eth_clocks", 0,
+        Subsignal("ref_clk", Pins("D5")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("eth", 0,
+        Subsignal("rx_data", Pins("D4 C3")),
+        Subsignal("crs_dv",  Pins("C4")),
+        Subsignal("tx_en",   Pins("E4")),
+        Subsignal("tx_data", Pins("E3 R7")),
+        IOStandard("LVCMOS33"),
+    ),
+
 ]
 
 # from colorlight_i5.py adapted to icesugar pro

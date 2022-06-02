@@ -26,6 +26,14 @@ _io = [
     ("debug", 2, Pins("AN34"), IOStandard("LVCMOS15")),
     ("debug", 3, Pins("AP34"), IOStandard("LVCMOS15")),
 
+
+    # Serial
+    ("serial", 0,
+        Subsignal("tx", Pins("AP9")),
+        Subsignal("rx", Pins("AN9")),
+        IOStandard("LVCMOS15")
+    ),
+
     # SPIFlash (MX25L25645GSXDI).
 
     # TODO (Probably similar to KCU105).
@@ -160,8 +168,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xcku040-ffva1156-2-e", _io, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xcku040-ffva1156-2-e", _io, toolchain=toolchain)
 
     def create_programmer(self):
         return VivadoProgrammer()

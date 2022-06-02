@@ -6,10 +6,6 @@
 # Copyright (c) 2021 Michael T. Mayers <michael@tweakoz.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import sys
-import argparse
-
 from migen import *
 
 from litex.build.io import CRG
@@ -32,26 +28,19 @@ mB = 1024*kB
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
-        self.cpu_reset = Signal()
-
-        self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys = ClockDomain()
 
         # # #
 
-        plls_clk12 = platform.request("clk12")
-        rst_n  = platform.request("cpu_reset")
-        self.comb += self.cpu_reset.eq(rst_n)
+        # Clk/Rst.
+        clk12 = platform.request("clk12")
+        rst   = platform.request("cpu_reset")
 
+        # PLL.
         self.submodules.pll = pll = S7MMCM(speedgrade=-1)
-        self.comb += pll.reset.eq(self.cpu_reset | self.rst)
-
-        pll.register_clkin(plls_clk12, 12e6)
-        pll.create_clkout(self.cd_sys,       sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
-
+        self.comb += pll.reset.eq(rst | self.rst)
+        pll.register_clkin(clk12, 12e6)
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
 # AsyncSRAM ------------------------------------------------------------------------------------------
@@ -113,27 +102,22 @@ def addAsyncSram(soc, platform, name, origin, size):
 
 class BaseSoC(SoCCore):
     def __init__(self,  variant="a7-35",
-                 toolchain="vivado",
-                 sys_clk_freq=int(100e6),
-                 with_led_chaser=True,
-                 ident_version=True, 
-                 with_jtagbone=True, 
-                 with_mapped_flash=False, 
-                 **kwargs):
+        toolchain       = "vivado",
+        sys_clk_freq    = int(100e6),
+        with_led_chaser = True,
+        with_spi_flash  = False,
+        **kwargs):
 
-        platform = digilent_cmod_a7.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Digilent CmodA7",
-            ident_version  = True,
-            **kwargs)
+        platform = digilent_cmod_a7.Platform(variant=variant, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
-        addAsyncSram(self,platform,"main_ram",0x40000000,512*1024)        
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Digilent CmodA7", **kwargs)
+
+        # Async RAM --------------------------------------------------------------------------------
+        addAsyncSram(self,platform,"main_ram", 0x40000000, 512*1024)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -141,15 +125,26 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import MX25U3235F
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=MX25U3235F(Codes.READ_1_1_4), with_master=True)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Arty A7")
-    parser.add_argument("--toolchain",           default="vivado",                 help="Toolchain use to build (default: vivado)")
-    parser.add_argument("--build",               action="store_true",              help="Build bitstream")
-    parser.add_argument("--load",                action="store_true",              help="Load bitstream")
-    parser.add_argument("--variant",             default="a7-35",                  help="Board variant: a7-35 (default) or a7-100")
-    parser.add_argument("--sys-clk-freq",        default=48e6,                    help="System clock frequency (default: 48MHz)")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on CMOD A7")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado or symbiflow).")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",        action="store_true", help="Flash bitstream.")
+    target_group.add_argument("--variant",      default="a7-35",     help="Board variant (a7-35 or a7-100).")
+    target_group.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
+    target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+
 
     builder_args(parser)
     soc_core_args(parser)
@@ -160,6 +155,7 @@ def main():
         variant           = args.variant,
         toolchain         = args.toolchain,
         sys_clk_freq      = int(float(args.sys_clk_freq)),
+        with_spi_flash    = args.with_spi_flash,
         **soc_core_argdict(args)
     )
 
@@ -167,7 +163,16 @@ def main():
 
     builder = Builder(soc, **builder_argd)
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
-    builder.build(**builder_kwargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kwargs)
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
+
+    if args.flash:
+        prog = soc.platform.create_programmer()
+        prog.flash(0, builder.get_bitstream_filename(mode="flash"))
 
 if __name__ == "__main__":
     main()

@@ -291,8 +291,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc6slx16-2-ftg256", _io, _connectors)
+    def __init__(self, toolchain="ise"):
+        XilinxPlatform.__init__(self, "xc6slx16-2-ftg256", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc6slx16.bit")

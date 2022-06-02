@@ -16,9 +16,6 @@
 # documentation can be found, refer to :
 # https://github.com/icebreaker-fpga/icebreaker-litex-examples
 
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -39,7 +36,7 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por = ClockDomain()
 
         # # #
 
@@ -65,29 +62,32 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, bios_flash_offset, sys_clk_freq=int(24e6), revision="v1", **kwargs):
         platform = icebreaker_bitsy.Platform(revision=revision)
-
-        # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
-        kwargs["integrated_sram_size"] = 0
-        kwargs["integrated_rom_size"]  = 0
-
-        # Set CPU variant / reset address
-        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on iCEBreaker-bitsy",
-            ident_version  = True,
-            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
-        # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
+        # SoCCore ----------------------------------------------------------------------------------
+        # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
+        kwargs["integrated_sram_size"] = 0
+        kwargs["integrated_rom_size"]  = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on iCEBreaker-bitsy", **kwargs)
+
+        # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
         self.submodules.spram = Up5kSPRAM(size=128*kB)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=128*kB))
+        self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128*kB))
+        self.bus.add_region("sram", SoCRegion(
+                origin = self.bus.regions["psram"].origin + 0*kB,
+                size   = 64*kB,
+                linker = True)
+        )
+        if not self.integrated_main_ram_size:
+            self.bus.add_region("main_ram", SoCRegion(
+                origin = self.bus.regions["psram"].origin + 64*kB,
+                size   = 64*kB,
+                linker = True)
+            )
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q128JV
@@ -96,40 +96,44 @@ class BaseSoC(SoCCore):
 
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
-            origin = self.mem_map["spiflash"] + bios_flash_offset,
+            origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
             size   = 32*kB,
             linker = True)
         )
+        self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
-    parser.add_argument("--build",               action="store_true", help="Build bitstream")
-    parser.add_argument("--flash",               action="store_true", help="Flash bitstream and bios")
-    parser.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency (default: 24MHz)")
-    parser.add_argument("--bios-flash-offset",   default=0xa0000,     help="BIOS offset in SPI Flash (default: 0xa0000)")
-    parser.add_argument("--revision",            default="v1",        help="Board revision 'v0' or 'v1'")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on iCEBreaker")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",               action="store_true", help="Build design.")
+    target_group.add_argument("--flash",               action="store_true", help="Flash bitstream and BIOS.")
+    target_group.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")
+    target_group.add_argument("--bios-flash-offset",   default="0xa0000",   help="BIOS offset in SPI Flash.")
+    target_group.add_argument("--revision",            default="v1",        help="Board revision (v0 or v1).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        bios_flash_offset   = args.bios_flash_offset,
+        bios_flash_offset   = int(args.bios_flash_offset, 0),
         sys_clk_freq        = int(float(args.sys_clk_freq)),
 		revision            = args.revision,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.flash:
         from litex.build.dfu import DFUProg
         prog_gw = DFUProg(vid="1d50", pid="0x6146", alt=0)
         prog_sw = DFUProg(vid="1d50", pid="0x6146", alt=1)
 
-        prog_gw.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bin"), reset=False)
-        prog_sw.load_bitstream(os.path.join(builder.software_dir, 'bios/bios.bin'))
+        prog_gw.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".bin"), reset=False) # FIXME
+        prog_sw.load_bitstream(builder.get_bios_filename())
 
 if __name__ == "__main__":
     main()

@@ -113,9 +113,19 @@ _io = [
     ),
 
     # SPIFlash
-    ("spiflash", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash", 0,
         Subsignal("cs_n", Pins("U19")),
-        Subsignal("dq",   Pins("P24", "R25", "R20", "R21")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2
+        Subsignal("mosi", Pins("P24")),
+        Subsignal("miso", Pins("R25")),
+        Subsignal("wp",   Pins("R20")),
+        Subsignal("hold", Pins("R21")),
+        IOStandard("LVCMOS25"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("U19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2
+        Subsignal("dq",   Pins("P24 R25 R20 R21")),
         IOStandard("LVCMOS25")
     ),
 
@@ -534,8 +544,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk156"
     default_clk_period = 1e9/156.5e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7k325t-ffg900-2", _io, _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7k325t-ffg900-2", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("""
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 2.5 [current_design]

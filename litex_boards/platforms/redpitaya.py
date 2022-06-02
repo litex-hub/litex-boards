@@ -22,7 +22,7 @@ _io = [
 
     ("dac", 0,
         Subsignal("data",
-            Pins("M19 M20 L19 L20 K19 J19 K20 H20 G19 G20 F19 F20 D20 D19"),
+            Pins("M19 M20 L19 L20 K19 J19 J20 H20 G19 G20 F19 F20 D20 D19"),
             Drive(4), Misc("SLEW SLOW")),
         Subsignal("wrt", Pins("M17"), Drive(8), Misc("SLEW FAST")),
         Subsignal("sel", Pins("N16"), Drive(8), Misc("SLEW FAST")),
@@ -139,7 +139,7 @@ _connectors = [
 
 class Platform(XilinxPlatform):
 
-    def __init__(self, board="redpitaya14"):
+    def __init__(self, board="redpitaya14", toolchain="vivado"):
         if board == "redpitaya14":
             device = "xc7z010clg400-1"
             extension = _io_14
@@ -153,7 +153,7 @@ class Platform(XilinxPlatform):
 
         self.default_clk_period = 1e9/self.default_clk_freq
 
-        XilinxPlatform.__init__(self, device, _io,  _connectors, toolchain="vivado")
+        XilinxPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
         self.add_extension(extension)
         self.add_extension(_ps7_io)
         self.add_extension(_uart_io)

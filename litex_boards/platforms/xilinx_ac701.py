@@ -92,6 +92,23 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("P18")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2
+        Subsignal("mosi", Pins("R14")),
+        Subsignal("miso", Pins("R15")),
+        Subsignal("wp",   Pins("P14")),
+        Subsignal("hold", Pins("N14")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("P18")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2
+        Subsignal("dq",   Pins("R14 R15 P14 N14")),
+        IOStandard("LVCMOS33")
+    ),
+
     # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("M20"), IOStandard("LVCMOS25")),
@@ -234,8 +251,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk156"
     default_clk_period = 1e9/156.5e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a200t-fbg676-2", _io, _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7a200t-fbg676-2", _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 33]")

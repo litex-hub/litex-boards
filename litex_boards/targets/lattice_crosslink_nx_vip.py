@@ -9,17 +9,12 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import crosslink_nx_vip
+from litex_boards.platforms import lattice_crosslink_nx_vip
 
-from litex_boards.platforms import crosslink_nx_vip
-
-from litehyperbus.core.hyperbus import HyperRAM
+from litex.soc.cores.hyperbus import HyperRAM
 
 from litex.soc.cores.ram import NXLRAM
 from litex.build.io import CRG
@@ -27,6 +22,7 @@ from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -70,32 +66,29 @@ class BaseSoC(SoCCore):
     }
     def __init__(self, sys_clk_freq=int(75e6), hyperram="none", toolchain="radiant",
                  with_led_chaser=True, **kwargs):
-        platform = crosslink_nx_vip.Platform(toolchain=toolchain)
+        platform = lattice_crosslink_nx_vip.Platform(toolchain=toolchain)
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
-
-        # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
-        kwargs["integrated_sram_size"] = 0
-
-        # SoCCore -----------------------------------------_----------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Crosslink-NX VIP Input Board",
-            ident_version  = True,
-            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # SoCCore -----------------------------------------_----------------------------------------
+        # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
+        kwargs["integrated_sram_size"] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Crosslink-NX VIP Input Board", **kwargs)
+
+        # SRAM/HyperRAM ----------------------------------------------------------------------------
         if hyperram == "none":
             # 128KB LRAM (used as SRAM) ------------------------------------------------------------
             size = 128*kB
             self.submodules.spram = NXLRAM(32, size)
-            self.register_mem("sram", self.mem_map["sram"], self.spram.bus, size)
+            self.bus.add_slave("sram", slave=self.spram.bus, region=SoCRegion(size=size))
         else:
             # Use HyperRAM generic PHY as SRAM -----------------------------------------------------
             size = 8*1024*kB
             hr_pads = platform.request("hyperram", int(hyperram))
-            self.submodules.hyperram = HyperRAM(hr_pads)
-            self.register_mem("sram", self.mem_map["sram"], self.hyperram.bus, size)
+            self.submodules.hyperram = HyperRAM(hr_pads, sys_clk_freq=sys_clk_freq)
+            self.bus.add_slave("sram", slave=self.hyperram.bus, region=SoCRegion(size=size))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -106,13 +99,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Crosslink-NX VIP Board")
-    parser.add_argument("--build",         action="store_true", help="Build bitstream")
-    parser.add_argument("--load",          action="store_true", help="Load bitstream")
-    parser.add_argument("--toolchain",     default="radiant",   help="FPGA toolchain: radiant (default) or prjoxide")
-    parser.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency (default: 75MHz)")
-    parser.add_argument("--with-hyperram", default="none",      help="Enable use of HyperRAM chip: none (default), 0 or 1")
-    parser.add_argument("--prog-target",   default="direct",    help="Programming Target: direct (default) or flash")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Crosslink-NX VIP Board")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",         action="store_true", help="Build design.")
+    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
+    target_group.add_argument("--toolchain",     default="radiant",   help="FPGA toolchain (radiant or prjoxide).")
+    target_group.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency.")
+    target_group.add_argument("--with-hyperram", default="none",      help="Enable use of HyperRAM chip (none, 0 or 1).")
+    target_group.add_argument("--prog-target",   default="direct",    help="Programming Target (direct or flash).")
     builder_args(parser)
     soc_core_args(parser)
     oxide_args(parser)
@@ -126,11 +121,12 @@ def main():
     )
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = oxide_argdict(args) if args.toolchain == "oxide" else {}
-    builder.build(**builder_kargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer(args.prog_target)
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

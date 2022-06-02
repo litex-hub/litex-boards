@@ -8,9 +8,6 @@
 
 # https://www.aliexpress.com/item/1000006630084.html
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import qmtech_xc7a35t
@@ -34,14 +31,14 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_ethernet, with_vga):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
         if with_ethernet:
             self.clock_domains.cd_eth   = ClockDomain()
         if with_vga:
-            self.clock_domains.cd_vga   = ClockDomain(reset_less=True)
+            self.clock_domains.cd_vga   = ClockDomain()
 
         # # #
 
@@ -72,19 +69,21 @@ class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_daughterboard=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
-                 ident_version=True, with_jtagbone=True, with_spi_flash=False, **kwargs):
+                 with_jtagbone=True, with_spi_flash=False, **kwargs):
         platform = qmtech_xc7a35t.Platform(toolchain=toolchain, with_daughterboard=with_daughterboard)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "jtag_uart"
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on QMTech XC7A35T" + (" + Daughterboard" if with_daughterboard else ""),
-            ident_version  = ident_version,
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet or with_etherbone, with_video_terminal or with_video_framebuffer)
+        self.submodules.crg = _CRG(platform, sys_clk_freq,
+            with_ethernet = (with_ethernet or with_etherbone),
+            with_vga      = (with_video_terminal or with_video_framebuffer)
+        )
+
+        # SoCCore ----------------------------------------------------------------------------------
+        if (kwargs["uart_name"] == "serial") and (not with_daughterboard):
+            kwargs["uart_name"] = "gpio_serial"
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            ident = "LiteX SoC on QMTech XC7A35T" + (" + Daughterboard" if with_daughterboard else ""),
+            **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -140,26 +139,27 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTech XC7A35T")
-    parser.add_argument("--toolchain",           default="vivado",                 help="Toolchain use to build (default: vivado)")
-    parser.add_argument("--build",               action="store_true",              help="Build bitstream")
-    parser.add_argument("--load",                action="store_true",              help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency (default: 100MHz)")
-    parser.add_argument("--with-daughterboard",  action="store_true",              help="Whether the core board is plugged into the QMTech daughterboard")
-    ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support")
-    ethopts.add_argument("--with-etherbone",     action="store_true",              help="Enable Etherbone support")
-    parser.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
-    parser.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting")
-    sdopts = parser.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support")
-    sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support")
-    parser.add_argument("--no-ident-version",    action="store_false",             help="Disable build time output")
-    parser.add_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support")
-    parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed)")
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA)")
-    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA)")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTech XC7A35T")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado or symbiflow).")
+    target_group.add_argument("--build",               action="store_true",              help="Build design.")
+    target_group.add_argument("--load",                action="store_true",              help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
+    target_group.add_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")
+    ethopts = target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",     action="store_true",              help="Enable Etherbone support.")
+    target_group.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    target_group.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
+    sdopts = target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support.")
+    target_group.add_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support.")
+    target_group.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
+    viopts = target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -173,7 +173,6 @@ def main():
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
-        ident_version          = args.no_ident_version,
         with_jtagbone          = args.with_jtagbone,
         with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
@@ -188,11 +187,12 @@ def main():
 
     builder = Builder(soc, **builder_argdict(args))
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
-    builder.build(**builder_kwargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kwargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

@@ -9,16 +9,12 @@
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-import sys
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import hadbadge
+from litex_boards.platforms import hackaday_hadbadge
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
@@ -36,7 +32,7 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -58,16 +54,13 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="trellis", sys_clk_freq=int(48e6), sdram_module_cls="AS4C32M8", **kwargs):
-        platform = hadbadge.Platform(toolchain=toolchain)
-
-        # SoCCore ---------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Hackaday Badge",
-            ident_version  = True,
-            **kwargs)
+        platform = hackaday_hadbadge.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ---------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Hackaday Badge", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -81,10 +74,12 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Hackaday Badge")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
-    parser.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency (default: 48MHz)")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Hackaday Badge")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
+    target_group.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain (trellis or diamond).")
+    target_group.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -96,7 +91,8 @@ def main():
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
-    builder.build(**builder_kargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kargs)
 
 if __name__ == "__main__":
     main()

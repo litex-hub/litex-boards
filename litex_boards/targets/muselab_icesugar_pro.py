@@ -6,10 +6,6 @@
 # Copyright (c) 2021 Lucas Teske <lucas@teske.com.br>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-import sys
-
 from migen import *
 
 from litex.build.io import DDROutput
@@ -21,7 +17,7 @@ from litex.build.lattice.trellis import trellis_args, trellis_argdict
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.video import VideoECP5HDMIPHY
+from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.led import LedChaser
 
 from litex.soc.interconnect.csr import *
@@ -39,10 +35,11 @@ class _CRG(Module):
         self.clock_domains.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
             self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys_ps = ClockDomain()
 
+        self.clock_domains.cd_eth = ClockDomain()
         # # #
 
         # Clk / Rst
@@ -53,8 +50,9 @@ class _CRG(Module):
             clk = Signal()
             div = 5
             self.specials += Instance("OSCG",
-                                p_DIV = div,
-                                o_OSC = clk)
+                p_DIV = div,
+                o_OSC = clk
+            )
             clk_freq = 310e6/div
 
         rst_n = platform.request("cpu_reset_n")
@@ -69,6 +67,7 @@ class _CRG(Module):
             pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180) # Idealy 90° but needs to be increased.
         else:
            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=180) # Idealy 90° but needs to be increased.
+        pll.create_clkout(self.cd_eth, 50e6)
 
         # Video PLL
         if with_video_pll:
@@ -77,8 +76,8 @@ class _CRG(Module):
             video_pll.register_clkin(clk, clk_freq)
             self.clock_domains.cd_hdmi   = ClockDomain()
             self.clock_domains.cd_hdmi5x = ClockDomain()
-            video_pll.create_clkout(self.cd_hdmi,    40e6, margin=0)
-            video_pll.create_clkout(self.cd_hdmi5x, 200e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
 
         # SDRAM clock
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
@@ -87,21 +86,18 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0xd0000000}}
-    def __init__(self, sys_clk_freq=60e6, with_led_chaser=True, 
+    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, with_spi_flash=False,
                  use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
-                 with_video_framebuffer=False, **kwargs):
+                 with_video_framebuffer=False, with_ethernet=False, with_etherbone=False,
+                 eth_ip="192.168.1.50", eth_dynamic_ip=False, **kwargs):
         platform = muselab_icesugar_pro.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, int(sys_clk_freq),
-            ident          = "LiteX SoC on Muselab iCESugar Pro",
-            ident_version  = True,
-            **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = with_video_terminal or with_video_framebuffer
         self.submodules.crg = _CRG(platform, sys_clk_freq, use_internal_osc=use_internal_osc, with_video_pll=with_video_pll, sdram_rate=sdram_rate)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, int(sys_clk_freq), ident="LiteX SoC on Muselab iCESugar Pro", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -109,9 +105,10 @@ class BaseSoC(SoCCore):
             self.submodules.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
-        from litespi.modules import W25Q256
-        from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        self.add_spi_flash(mode="1x", module=W25Q256(Codes.READ_1_1_1))
+        if with_spi_flash:
+            from litespi.modules import W25Q256
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="1x", module=W25Q256(Codes.READ_1_1_1))
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -125,27 +122,47 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoECP5HDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
+            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
             if with_video_terminal:
-                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             if with_video_framebuffer:
-                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            from liteeth.phy.rmii import LiteEthPHYRMII
+            self.submodules.ethphy = LiteEthPHYRMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads = self.platform.request("eth"))
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight i5")
-    parser.add_argument("--build",            action="store_true",      help="Build bitstream")
-    parser.add_argument("--load",             action="store_true",      help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",     default=60e6,             help="System clock frequency (default: 60MHz)")
-    sdopts = parser.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",  action="store_true",  help="Enable SPI-mode SDCard support")
-    sdopts.add_argument("--with-sdcard",      action="store_true",  help="Enable SDCard support")
-    parser.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator")
-    parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
-    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Colorlight i5")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",            action="store_true",      help="Build design.")
+    target_group.add_argument("--load",             action="store_true",      help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",     default=50e6,             help="System clock frequency.")
+    sdopts = target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",  action="store_true",  help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",      action="store_true",  help="Enable SDCard support.")
+    target_group.add_argument("--with-spi-flash",   action="store_true",  help="Enable SPI Flash (MMAPed).")
+    target_group.add_argument("--use-internal-osc", action="store_true",  help="Use internal oscillator.")
+    target_group.add_argument("--sdram-rate",       default="1:1",        help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    viopts = target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    ethopts = target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
+    target_group.add_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
+    target_group.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -155,9 +172,13 @@ def main():
         sys_clk_freq           = int(float(args.sys_clk_freq)),
         use_internal_osc       = args.use_internal_osc,
         sdram_rate             = args.sdram_rate,
-        l2_size                = args.l2_size,
+        with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+        with_ethernet          = args.with_ethernet,
+        with_etherbone         = args.with_etherbone,
+        eth_ip                 = args.eth_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
@@ -166,12 +187,12 @@ def main():
         soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
-
-    builder.build(**trellis_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**trellis_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

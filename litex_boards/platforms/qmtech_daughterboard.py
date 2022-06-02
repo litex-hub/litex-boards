@@ -14,8 +14,8 @@ class QMTechDaughterboard:
         """
         self.io = [
             ("serial", 0,
-                Subsignal("rx", Pins("J2:15")),
-                Subsignal("tx", Pins("J2:16")),
+                Subsignal("rx", Pins("J2:16")),
+                Subsignal("tx", Pins("J2:15")),
                 io_standard
             ),
 
@@ -77,7 +77,6 @@ class QMTechDaughterboard:
                 Subsignal("cmd",  Pins("J3:12")),
                 Subsignal("clk",  Pins("J3:11")),
                 Subsignal("cd",   Pins("J3:8")),
-                Misc("SLEW=FAST"),
                 io_standard,
             ),
         ]

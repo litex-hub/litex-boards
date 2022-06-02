@@ -1,0 +1,119 @@
+LiteX ecosystem would not exist without the collaborative work of contributors! Here is below the
+list of all the LiteX-Boards contributors.
+
+In the source code, each file list the main authors/contributors:
+- author(s) that created the initial content.
+- contributor(s) that added essential features/improvements.
+
+If you think you should be in this list and don't find yourself, write to florent@enjoy-digital.fr
+and we'll fix it!
+
+Contributors:
+Copyright (c) 2021-2022 Antmicro <Antmicro.com>
+Copyright (c) 2021      alainlou <az2lou@uwaterloo.ca>
+Copyright (c) 2021      Alain Lou <az2lou@uwaterloo.ca>
+Copyright (c) 2022      Alastair M. Robinson <robinsonb5@gmail.com>
+Copyright (c) 2021-2022 Alex Petrov <sysmanalex@github.com>
+Copyright (c) 2021      Andrew Dennison <andrew@motec.com.au>
+Copyright (c) 2022      Andrew Gillham <gillham@roadsign.com>
+Copyright (c) 2019-2021 Antti Lukats <Antti.Lukats@googlemail.com>
+Copyright (c) 2019-2020 Arnaud Durand <arnaud.durand@unifr.ch>
+Copyright (c) 2022      Arusekk <arek_koz@o2.pl>
+Copyright (c) 2020      Basel Sayeh <basel.sayeh@hotmail.com>
+Copyright (c) 2022      Bastian Löher <b.loeher@gsi.de>
+Copyright (c) 2021      Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Copyright (c) 2022      Ben Stobbs <ben@stobbs.com>
+Copyright (c) 2021      Blake Smith <blakesmith0@gmail.com>
+Copyright (c) 2020      Bryan Jacobs <b@q3q.us>
+Copyright (c) 2022      Charles-Henri Mousset <ch.mousset@gmail.com>
+Copyright (c) 2020      connorwk <connork@connorsdomain.com>
+Copyright (c) 2022      Dave Berkeley <via@rotwang.co.uk>
+Copyright (c) 2020      Dave Marples <dave@marples.net>
+Copyright (c) 2020      davidcorrigan714 <davidcorrigan714@gmail.com>
+Copyright (c) 2020-2021 David Sawatzke <d-git@sawatzke.dev>
+Copyright (c) 2019-2020 David Shah <dave@ds0.me>
+Copyright (c) 2019      Derek Kozel <derek@bitstovolts.com>
+Copyright (c) 2021      Derek Mulcahy <derekmulcahy@gmail.com>
+Copyright (c) 2020      DerFetzer <kontakt@der-fetzer.de>
+Copyright (c) 2021      Dhiru Kholia <dhiru.kholia@gmail.com>
+Copyright (c) 2020      Drew Fustini <drew@pdp7.com>
+Copyright (c) 2019      DurandA <arnaud.durand@unifr.ch>
+Copyright (c) 2021      Fabien <fabien@acathla.tk>
+Copyright (c) 2020      Fei Gao <feig@princeton.edu>
+Copyright (c) 2020      Feliks <feliks.montez@gmail.com>
+Copyright (c) 2019-2022 Florent Kermarrec <florent@enjoy-digital.fr>
+Copyright (c) 2022-2021 Franck Jullien <franck.jullien@collshade.fr>
+Copyright (c) 2019-2022 Gabriel Somlo <gsomlo@gmail.com>
+Copyright (c) 2021      Gary Wong <gtw@gnu.org>
+Copyright (c) 2021      gatecat <gatecat@ds0.me>
+Copyright (c) 2020-2021 Geert Uytterhoeven <geert@linux-m68k.org>
+Copyright (c) 2019      Giammarco Zacheo <g.zacheo@gmail.com>
+Copyright (c) 2021-2022 Google <Google.com>
+Copyright (c) 2022      Goran Mahovlic <goran.mahovlic@gmail.com>
+Copyright (c) 2019-2021 Greg Davill <greg.davill@gmail.com>
+Copyright (c) 2021      Guillaume REMBERT <zguig52@gmail.com>
+Copyright (c) 2020-2022 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
+Copyright (c) 2020-2022 Hans Baier <hansfbaier@gmail.com>
+Copyright (c) 2021      helium729 <helium729@126.com>
+Copyright (c) 2021-2022 hubmartin <hub.martin@gmail.com>
+Copyright (c) 2022      Icenowy Zheng <icenowy@aosc.io>
+Copyright (c) 2021-2022 Ilia Sergachev <ilia@sergachev.ch>
+Copyright (c) 2020      Ilya Epifanov <elijah.epifanov@gmail.com>
+Copyright (c) 2021      Jakub Cabal <jakubcabal@gmail.com>
+Copyright (c) 2022      Jevin Sweval <jevinsweval@gmail.com>
+Copyright (c) 2021      Joel Stanley <joel@jms.id.au>
+Copyright (c) 2022      John Simons <jammsimons@gmail.com>
+Copyright (c) 2022      Jorge Castro-Godínez <103168956+jorge-rs@users.noreply.github.com>
+Copyright (c) 2022      Joseph Faye <31924862+jwfaye@users.noreply.github.com>
+Copyright (c) 2021      Kamyar Mohajerani <kammoh@gmail.com>
+Copyright (c) 2021      Kaz Kojima <kkojima@rr.iij4u.or.jp>
+Copyright (c) 2020      Kevin Mehall <km@kevinmehall.net>
+Copyright (c) 2020      Konrad Beckmann <konrad.beckmann@gmail.com>
+Copyright (c) 2020      la6m <72780091+la6m@users.noreply.github.com>
+Copyright (c) 2020      Leonardo Romor <leonardo.romor@gmail.com>
+Copyright (c) 2021      Lucas Teske <lucas@teske.net.br>
+Copyright (c) 2020      Marcin Sloniewski <marcin.sloniewski@gmail.com>
+Copyright (c) 2021      Marek Materzok <tilk@tilk.eu>
+Copyright (c) 2020      Mark <mstandke@cern.ch>
+Copyright (c) 2021      Martin Troiber <34752929+developandplay@users.noreply.github.com>
+Copyright (c) 2022      Matthew Brooks <Logicwax@gmail.com>
+Copyright (c) 2022      Matt Johnston <matt@codeconstruct.com.au>
+Copyright (c) 2020-2021 Michael Betz <michibetz@gmail.com>
+Copyright (c) 2021      Michael Mayers <michael@tweakoz.com>
+Copyright (c) 2021      Miodrag Milanovic <mmicko@gmail.com>
+Copyright (c) 2019      msloniewski <marcin.sloniewski@gmail.com>
+Copyright (c) 2021      MV <martijnv@gmx.de>
+Copyright (c) 2020-2021 Nathaniel R. Lewis <linux.robotdude@gmail.com>
+Copyright (c) 2021      ombhilare999 <ombhilare999@gmail.com>
+Copyright (c) 2020      Owen Kirby <oskirby@gmail.com>
+Copyright (c) 2020      Paul Sajna <sajattack@gmail.com>
+Copyright (c) 2020      Pepijn de Vos <pepijndevos@gmail.com>
+Copyright (c) 2020      Piense <piense@gmail.com>
+Copyright (c) 2020      Piotr Esden-Tempski <piotr@esden.net>
+Copyright (c) 2022      Primesh <primeshp@gmail.com>
+Copyright (c) 2022      Rakesh Peter <rakesh.peter@gmail.com>
+Copyright (c) 2020-2022 Raptor Engineering Development Team <support@raptorengineering.com>
+Copyright (c) 2022      Robert Wilbrandt <robert@stamm-wilbrandt.de>
+Copyright (c) 2020      rob-ng15 <58272847+rob-ng15@users.noreply.github.com>
+Copyright (c) 2019      Rohit Singh <rohit@rohitksingh.in>
+Copyright (c) 2021      Romain Dolbeau <romain@dolbeau.org>
+Copyright (c) 2020      Sahaj Sarup <devobliquezer0@gmail.com>
+Copyright (c) 2019-2020 Sean Cross <sean@xobs.io>
+Copyright (c) 2021-2022 Sergiu Mosanu <sm7ed@virginia.edu>
+Copyright (c) 2020-2021 Shinken Sanada <sanadashinken@gmail.com>
+Copyright (c) 2020      Skip Hansen <skip@gfrn.org>
+Copyright (c) 2021      Stafford Horne <shorne@gmail.com>
+Copyright (c) 2020      Staf Verhaegen <staf@stafverhaegen.be>
+Copyright (c) 2019      Steven Osborn <steven@lolsborn.com>
+Copyright (c) 2021-2022 Sylvain Munaut <tnt@246tNt.com>
+Copyright (c) 2019-2020 Tim 'mithro' Ansell <me@mith.ro>
+Copyright (c) 2019-2020 Tom Keddie <git@bronwenandtom.com>
+Copyright (c) 2020      Tommy Thorn <tommy-github2@thorn.ws>
+Copyright (c) 2020-2021 Vadim Kaushan <admin@disasm.info>
+Copyright (c) 2021      Vadzim Dambrouski <pftbest@gmail.com>
+Copyright (c) 2020      Vamsi K Vytla <vamsi.vytla@gmail.com>
+Copyright (c) 2021      Vegard Storheil Eriksen <zyp@jvnv.net>
+Copyright (c) 2022      Victor Suarez Rovere <suarezvictor@gmail.com>
+Copyright (c) 2020      YanekJ <yanekx@gmail.com>
+Copyright (c) 2022      Yonggang Liu <ggang.liu@gmail.com>
+Copyright (c) 2021      Yoshimasa Niwa <niw@niw.at>

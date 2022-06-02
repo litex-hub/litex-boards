@@ -7,23 +7,19 @@
 # Copyright (c) 2018 David Shah <dave@ds0.me>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-import sys
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import ulx3s
+from litex_boards.platforms import radiona_ulx3s
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.video import VideoECP5HDMIPHY
+from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.spi import SPIMaster
 from litex.soc.cores.gpio import GPIOOut
@@ -39,9 +35,9 @@ class _CRG(Module):
         self.clock_domains.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
             self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -90,44 +86,38 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, device="LFE5U-45F", revision="2.0", toolchain="trellis",
         sys_clk_freq=int(50e6), sdram_module_cls="MT48LC16M16", sdram_rate="1:1",
         with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
         with_spi_flash=False, **kwargs):
-        platform = ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on ULX3S",
-            ident_version  = True,
-            **kwargs)
+        platform = radiona_ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, sdram_rate=sdram_rate)
 
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX3S", **kwargs)
+
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
-                phy              = self.sdrphy,
-                module           = getattr(litedram_modules, sdram_module_cls)(sys_clk_freq, sdram_rate),
-                size             = 0x40000000,
-                l2_cache_size    = kwargs.get("l2_size", 8192),
-                l2_cache_reverse = False
+                phy           = self.sdrphy,
+                module        = getattr(litedram_modules, sdram_module_cls)(sys_clk_freq, sdram_rate),
+                size          = 0x40000000,
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoECP5HDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
+            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
-                self.comb += platform.request("ext0p").eq(self.video_framebuffer.underflow) # FIXME: Remove, used to debug SDRAM underflows.
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -152,23 +142,25 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on ULX3S")
-    parser.add_argument("--build",           action="store_true",   help="Build bitstream")
-    parser.add_argument("--load",            action="store_true",   help="Load bitstream")
-    parser.add_argument("--toolchain",       default="trellis",     help="FPGA toolchain: trellis (default) or diamond")
-    parser.add_argument("--device",          default="LFE5U-45F",   help="FPGA device: LFE5U-12F, LFE5U-25F, LFE5U-45F (default)  or LFE5U-85F")
-    parser.add_argument("--revision",        default="2.0",         help="Board revision: 2.0 (default) or 1.7")
-    parser.add_argument("--sys-clk-freq",    default=50e6,          help="System clock frequency  (default: 50MHz)")
-    parser.add_argument("--sdram-module",    default="MT48LC16M16", help="SDRAM module: MT48LC16M16 (default), AS4C32M16 or AS4C16M16")
-    parser.add_argument("--with-spi-flash",  action="store_true",   help="Enable SPI Flash (MMAPed)")
-    sdopts = parser.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard", action="store_true",   help="Enable SPI-mode SDCard support")
-    sdopts.add_argument("--with-sdcard",     action="store_true",   help="Enable SDCard support")
-    parser.add_argument("--with-oled",       action="store_true",   help="Enable SDD1331 OLED support")
-    parser.add_argument("--sdram-rate",      default="1:1",         help="SDRAM Rate: 1:1 Full Rate (default), 1:2 Half Rate")
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI)")
-    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI)")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on ULX3S")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true",   help="Build design.")
+    target_group.add_argument("--load",            action="store_true",   help="Load bitstream.")
+    target_group.add_argument("--toolchain",       default="trellis",     help="FPGA toolchain (trellis or diamond).")
+    target_group.add_argument("--device",          default="LFE5U-45F",   help="FPGA device (LFE5U-12F, LFE5U-25F, LFE5U-45F or LFE5U-85F).")
+    target_group.add_argument("--revision",        default="2.0",         help="Board revision (2.0 or 1.7).")
+    target_group.add_argument("--sys-clk-freq",    default=50e6,          help="System clock frequency.")
+    target_group.add_argument("--sdram-module",    default="MT48LC16M16", help="SDRAM module (MT48LC16M16, AS4C32M16 or AS4C16M16).")
+    target_group.add_argument("--with-spi-flash",  action="store_true",   help="Enable SPI Flash (MMAPed).")
+    sdopts = target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard", action="store_true",   help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true",   help="Enable SDCard support.")
+    target_group.add_argument("--with-oled",       action="store_true",   help="Enable SDD1331 OLED support.")
+    target_group.add_argument("--sdram-rate",      default="1:1",         help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    viopts = target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -194,11 +186,12 @@ def main():
 
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
-    builder.build(**builder_kargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".svf"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
 
 if __name__ == "__main__":
     main()

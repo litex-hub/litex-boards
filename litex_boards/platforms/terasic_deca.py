@@ -191,7 +191,7 @@ _io = [
         Subsignal("tx_data", Pins("U2 W1 N9 W2")),
         Subsignal("col",     Pins("R4")),
         Subsignal("crs",     Pins("P5")),
-        Subsignal("pcf_en",  Pins("V9"), IOStandard("3.3 V")),
+        Subsignal("pcf_en",  Pins("V9"), IOStandard("3.3-V LVTTL")),
         IOStandard("2.5 V"),
     ),
 
@@ -292,8 +292,8 @@ class Platform(AlteraPlatform):
     default_clk_period = 1e9/50e6
     create_rbf         = False
 
-    def __init__(self):
-        AlteraPlatform.__init__(self, "10M50DAF484C6GES", _io, _connectors)
+    def __init__(self, toolchain="quartus"):
+        AlteraPlatform.__init__(self, "10M50DAF484C6GES", _io, _connectors, toolchain=toolchain)
         # Disable config pin so bank8 can use 1.2V.
         self.add_platform_command("set_global_assignment -name AUTO_RESTART_CONFIGURATION ON")
         self.add_platform_command("set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF")
@@ -306,3 +306,6 @@ class Platform(AlteraPlatform):
     def do_finalize(self, fragment):
         AlteraPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+        # Generate PLL clocsk in STA
+        self.toolchain.additional_sdc_commands.append("derive_pll_clocks -create_base_clocks -use_net_name")
+        self.toolchain.additional_sdc_commands.append("derive_clock_uncertainty")

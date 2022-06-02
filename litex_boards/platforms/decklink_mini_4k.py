@@ -129,8 +129,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a100t-fgg676-3", _io, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7a100t-fgg676-3", _io, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = \
@@ -144,6 +144,5 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        from litex.build.xilinx import symbiflow
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("clk24",  loose=True), 1e9/24e6)

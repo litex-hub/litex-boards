@@ -6,7 +6,7 @@
 
                                               LiteX boards files
 
-                                     Copyright 2012-2020 / LiteX-Hub community
+                                     Copyright 2012-2022 / LiteX-Hub community
 
 [![](https://github.com/litex-hub/litex-boards/workflows/ci/badge.svg)](https://github.com/litex-hub/litex-boards/actions) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)
 
@@ -34,11 +34,18 @@ First make sure to install LiteX correctly by following the [installation guide]
 
 Each target provides a default configuration with a CPU, ROM, SRAM, UART, DRAM (if available), Ethernet (if available), etc... that can be simply built and loaded to the FPGA with:
 
-    $ ./target.py --build --load
+    $ python3 -m litex_boards.targets.<board> --build --load
 
 You can then open a terminal on the main UART of the board and interact with the LiteX BIOS:
 
 <p align="center"><img src="https://raw.githubusercontent.com/enjoy-digital/litex/master/doc/bios_screenshot.png"></p>
+
+**Build/Compilation behavior:**
+- python3 -m litex_boards.targets.board : Test LiteX/Migen syntax but does not generate anything.
+- Add `--build` to generate the SoC/Software headers and run the Software/Gateware compilation.
+- Add `--no-compile` to disable the Softwate/Gateware compilation.
+- Add `--no-compile-software` to disable the Software compilation.
+- Add `--no-compile-gateware` to disable the Gateware compilation.
 
 But this is just the starting point to create your own hardware! You can then:
 
@@ -52,111 +59,172 @@ But this is just the starting point to create your own hardware! You can then:
 - Integrate external cores/CPU to create your own design.
 - etc...
 
-Please use `./target.py --help` to see the pre-built various possibilities.
+Please use `python3 -m litex_boards.targets.<board> --help` to see the pre-built various possibilities.
 
 Hoping you will find this useful and enjoy it, please contribute back if you make improvements that could be useful to others or find issues!
 
 **A question or want to get in touch? Our IRC channel is [#litex at irc.libera.chat](https://web.libera.chat/#litex)**
 
-> **Note:** All boards with >= 32MB of memory and enough logic can be considered as Linux Capable.
+
+[> Supported boards
+-------------------
+
+LiteX-Boards currently supports > 120 boards from very various FPGA Vendors (Xilinx, Intel, Lattice, Efinix, Gowin, etc...)!
+Some of these boards are fully open-hardware boards (Fomu, NeTV2, OrangeCrab, Butterstick, etc...) with FPGAs often supported by the open-source toolchains, some of them are repurposed off-the-shelf hardware (Colorlight 5A/I5/I9, SQRL Acorn CLE 215+, FK33, Siglent SDS1104X-E, Decklink Mini 4k, etc...) and we also of course support popular/regular FPGA dev boards :)
 
 
-[> Open-hardware boards
------------------------
+Most of the peripherals present are generally supported: DRAM, UART, Ethernet, SPI-Flash, SDCard, PCIe, SATA, etc... making LiteX-Boards' targets hopefully a good base infrastructure to create your own custom SoCs!
 
-Fully open-hardware boards, the ECP5 and iCE40 ones are even usable with the open-source FPGA toolchains!
+> **Note:** All boards with >= 32MB of memory and enough logic can be considered as Linux Capable, have a look at [LiteX-on-LiteX-Vexriscv](https://github.com/litex-hub/linux-on-litex-vexriscv) project to try Linux on your FPGA board!
 
-| Name         | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       RAM           |    PCIe   |    Ethernet    |    Flash    | SDCard |
-|--------------|---------------------|---------------|----------|------|---------------------|-----------|----------------|-------------|--------|
-| ECPIX-5      | Lattice ECP5        | LFE5UM5G-85F  |  75MHz   | FTDI |  16-bit 512MB DDR3  |      No   |   1Gbps RGMII  |  16MB QSPI  |   Yes  |
-| Fomu         | Lattice iCE40       | iCE40-UP5K    |  12MHz   | USB  |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
-| HADBadge     | Lattice ECP5        | LFE5U-45F     |  48MHz   | IOs  |   8-bit  32MB SDR   |      No   |         No     |  16MB QSPI  |   No   |
-| iCEBreaker   | Lattice iCE40       | iCE40-UP5K    |  24MHz   | FTDI |     128KB SPRAM     |      No   |         No     |  16MB QSPI  |   No   |
-| iCESugar     | Lattice iCE40       | iCE40-UP5K    |  24MHz   | STM32|     128KB SPRAM     |      No   |         No     |   8MB QSPI  |   No   |
-| LogicBone    | Lattice ECP5        | LFE5U-45F     |  75MHz   | FTDI |   16-bit 1GB DDR3   |      No   |   1Gbps RGMII  |  16MB QSPI  |   Yes  |
-| MarbleMini   | Xilinx Artix7       | XC7A100T      |  100MHz  | FTDI |   16-bit 1GB DDR3   |      No   |   1Gbps RGMII  |  16MB QSPI  |   No   |
-| MiniSpartan6 | Xilinx Spartan6     | XC6SLX25      |  80MHz   | FTDI |  16-bit  32MB SDR   |      No   |         No     |   8MB QSPI  |   Yes  |
-| NeTV2        | Xilinx Artix7       | XC7A35T       | 100MHz   | IOs  |  32-bit 512MB DDR3  |  Gen2 X4  | 100Mbps RMII   |  16MB QSPI  |   Yes  |
-| OrangeCrab   | Lattice ECP5        | LFE5U-25F     |  48MHz   | USB  |  16-bit 128MB SDR   |      No   |         No     |   4MB QSPI  |   Yes  |
-| Pipistrello  | Xilinx Spartan6     | XC6SLX45      |  83MHz   | FTDI |  16-bit  64MB LPDDR |      No   |         No     |  16MB QSPI  |   Yes* |
-| ULX3S        | Lattice ECP5        | LFE5U-45F     |  50MHz   | FTDI |  16-bit  32MB SDR   |      No   |         No     |   4MB QSPI  |   Yes  |
-| TrellisBoard | Lattice ECP5        | LFE5UM5G-85F  |  75MHz   | FTDI |  32-bit   1GB DDR3  |  Gen2 X1* |   1Gbps RGMII  |  16MB QSPI  |   Yes  |
-| TinyFPGA     | Lattice iCE40       | iCE40-LP8K    |  16MHz   | IOs  |         No          |      No   |         No     |  16MB QSPI  |   No   |
 
-\* Present on the board but not yet supported or validated with LiteX.
+<figure>
+<p align="center">
+<img src="https://user-images.githubusercontent.com/1450143/156173620-355c6f1d-87dc-4dda-be45-910bf379ae9a.jpg">
+</p>
+<figcaption>
+<p align="center">
+Some of the suported boards, see yours? Give LiteX-Boards a try!
+</p>
+</figcaption>
+</figure>
 
-[> Accelerator boards
----------------------
-
-PCIe accelerators boards that you could use to accelerate your applications, LiteX provides you the essential cores for it: LitePCIe and LiteDRAM along with the LiteX infrastructure to create a design and easily control it/debug it.
-
-| Name           | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM            |    PCIe       |    Flash    |
-|----------------|---------------------|---------------|----------|------|-----------------------|---------------|-------------|
-| AcornCLE215+   | Xilinx Artix7       | XC7A200T      | 125MHz   | PCIe | 16-bit 1GB DDR3       |  Gen2 X4      |  16MB QSPI  |
-| ForestKitten33 | Xilinx Ultrascale+  | XCVU33P       | 125MHz   | PCIe | 2 x 1024-bit 4GB HBM2*|  Gen3 X16     |     ?       |
-| BCU1525        | Xilinx Ultrascale+  | XCVU9P        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM  |  Gen3 X16     |     ?       |
-| AlveoU250      | Xilinx Ultrascale+  | XCU250        | 125MHz   | PCIe | 4 x 64-bit DDR4 DIMM  |  Gen2 X16     |     ?       |
-| AlveoU280      | Xilinx Ultrascale+  | XCU280-ES1    | 150MHz   | PCIe* | 2 x 64-bit DDR4 DIMM <BR> 2 x 1024-bit 4GB HBM2* |  Gen2 X16     |     ?       |
-
-\* Present on the board but not yet supported or validated with LiteX.
-
-[> Repurposed hardware
-----------------------
-
-Repurposed FPGA hardware that has been "documented" by enthusiasts :), allows you to discover FPGAs for very cheap (starting at 15$)!
-
-| Name         | FPGA Family         | FPGA device   | Sys-Clk  | TTY  |       DRAM         |       Ethernet     |    Flash    |
-|--------------|---------------------|---------------|----------|------|--------------------|--------------------|-------------|
-| SDS1104X-E   | Xilinx Zynq         | XC7Z020       |  100MHz  | Eth  | 32-bit 256MB DDR3  | 100Mbps MII        |      ?      |
-| Colorlight5A | Lattice ECP5        | LFE5U-25F     |   60MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
-| Linsn RV901  | Xilinx Spartan6     | XC6SLX16      |   75MHz  | IOs  | 32-bit 8MB SDR     | 2x 1Gbps RGMII     |   4MB QSPI  |
-| PanoLogic G2 | Xilinx Spartan6     | XC6SLX100-150 |   50MHz  | IOs  | 32-bit 128MB DDR2  | 1Gbps GMII         |  16MB QSPI  |
-| Camlink-4K   | Lattice ECP5        | LFE5U-25F     |   81MHz  | IOs  | 16-bit 128MB DDR3  |        No          |   ?MB QSPI  |
-
-The Colorlight5A is a very nice board to start with, cheap, powerful, easy to use with the open-source toolchain, you can find a specific LiteX project [here](https://github.com/enjoy-digital/colorlite)
-
-\* Present on the board but not yet supported or validated with LiteX.
-
-[> Development boards
----------------------
-
-| Name           | FPGA Family         | FPGA device   | Sys-Clk | TTY  |       RAM          |    PCIe   |    Ethernet    |    Flash    | SDCard |
-|----------------|---------------------|---------------|---------|------|--------------------|-----------|----------------|-------------|--------|
-| AC701          | Xilinx Artix7       | XC7A200T      | 100MHz  | FTDI | 64-bit ?MB DDR3    |  Gen2 X4  | 1Gbps RGMII    |  16MB QSPI  |   Yes* |
-| Aller          | Xilinx Artix7       | XC7A200T      | 100MHz  | PCIe | 16-bit 256MB DDR3  |  Gen2 X4  |       No       | 128MB QSPI  |   No   |
-| Arty(A7)       | Xilinx Artix7       | XC7A35T       | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    | 100Mbps MII    |  16MB QSPI  |   No   |
-| ArtyS7         | Xilinx Spartan7     | XC7S50        | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    |       No       |  16MB QSPI  |   No   |
-| Avalanche      | Microsemi PolarFire | MPF300TS      | 100MHz  | IOs  | 16-bit 256MB DDR3  |     No    |   1Gbps RGMII* |   8MB QSPI* |   No   |
-| Basys3         | Xilinx Artix7       | XC7A35T       | 100MHz  | FTDI |        No          |     No    |       No       |   4MB QSPI  |   No   |
-| C10LPRefKit    | Intel Cyclone10     | 10CL055       |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |  100Mbps MII   |  16MB QSPI  |   No   |
-| CYC1000        | Intel Cyclone10     | 10CL025       |  50MHz  | FTDI | 16-bit  64MB SDR   |     No    |       No       |  16MB QSPI* |   No   |
-| De0Nano        | Intel Cyclone4      | EP4CE22F      |  50MHz  | FTDI | 16-bit  32MB SDR   |     No    |       No       |      No     |   No   |
-| De10Lite       | Intel MAX10         | 10M50DA       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       No       |      No     |   No   |
-| DECA           | Intel MAX10         | 10M50DA       |  50MHz  | JTAG | 16-bit 512MB DDR3* |     No    |       Yes      |      No     |   Yes  |
-| De10Nano       | Intel Cyclone5      | 5CSEBA6       |  50MHz  | IOs  | 16-bit  32MB SDR   |     No    |       No       |      No     |   Yes  |
-| Arrow SoCKit   | Intel Cyclone5      | 5CSXFC6D6F31C8|  50MHz  | JTAG | 32-bit   1GB DDR3* |     No    |       No       |      No     |   No   |
-| De1SoC         | Intel Cyclone5      | 5CSEMA5       |  50MHz  | IOs  | 16-bit  64MB SDR   |     No    |       ?        |      ?      |   ?    |
-| De2-115        | Intel Cyclone4      | EP4CE115      |  50MHz  | IOs  | 16-bit 128MB SDR   |     No    | 1Gbps GMII*    |  8MB QSPI   |   Yes* |
-| ECP5-EVN       | Lattice ECP5        | LFE5UM5G-85F  |  50MHz  | FTDI |        No          |     No    |       ?        |      ?      |   ?    |
-| Genesys2       | Xilinx Kintex7      | XC7K325T      | 125MHz  | FTDI | 32-bit   1GB DDR3  |     No    | 1Gbps RGMII    |  32MB QSPI* |   Yes  |
-| KC705          | Xilinx Kintex7      | XC7K325T      | 125MHz  | FTDI | 64-bit   1GB DDR3  | Gen2 X8** |   1Gbps GMII   |  32MB QSPI* |   Yes  |
-| KCU105         | Xilinx KintexU      | XCKU40        | 125MHz  | FTDI | 64-bit   1GB DDR4  | Gen3 X8** | 1Gbps-BASE-X   |  64MB QSPI* |   Yes  |
-| KX2            | Xilinx Kintex7      | XC7K160T      | 125MHz  | FTDI | 64-bit   1GB DDR3  |     No    |       No       |  64MB QSPI* |   No   |
-| LiteFury       | Xilinx Artix7       | XC7A100T      | 100MHz  | PCIe | 16-bit 512MB DDR3  |  Gen2 X4  |       No       |  32MB QSPI* |   No   |
-| MachXO3        | Lattice MachXO3     | LCMXO3L-6900C | 125MHz  |  ?   |         ?          |     No    |       No       |      ?      |   No   |
-| Mercury XU5    | Xilinx ZynqU+       | XCZU2EG       | 125MHz  | FTDI | 16-bit 512MB DDR4  |     No    |       No       |  64MB QSPI* |   No   |
-| Mimas A7       | Xilinx Artix7       | XC7A50T       | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    | 1Gbps RGMII    |  16MB QSPI  |   No   |
-| Nereid         | Xilinx Kintex7      | XC7K160T      | 100MHz  | PCIe | 64-bit   4GB DDR3  |  Gen2 X4  |       No       |  16MB QSPI  |   No   |
-| Nexys4DDR      | Xilinx Artix7       | XC7A100T      | 100MHz  | FTDI | 16-bit 128MB DDR2  |     No    | 100Mbps RMII   |  16MB QSPI* |   Yes  |
-| Nexys Video    | Xilinx Artix7       | XC7A200T      | 100MHz  | FTDI | 16-bit 512MB DDR3  |     No    |   1Gbps RMII   |  32MB QSPI* |   Yes  |
-| QMTech XC7A35T | Xilinx Artix7       | XC7A35T       | 100MHz  | FTDI | 16-bit 256MB DDR3  |     No    |   1Gbps GMII** |  16MB QSPI  |   Yes**|
-| SP605          | Xilinx Spartan6     | XC6SLX45T     | 100MHz  | FTDI | 16-bit 128MB DDR3* |  Gen1 X1* |   1Gbps GMII   |   8MB QSPI* |   Yes* |
-| Tagus          | Xilinx Artix7       | XC7A200T      | 100MHz  | PCIe | 16-bit 256MB DDR3  |  Gen2 X1  |  1Gbps-BASE-X* |  16MB QSPI* |   No   |
-| VC707          | Xilinx Virex7       | XC7VX485T     | 125MHz  | FTDI | 64-bit   1GB DDR3  |  Gen3 X8* |   1Gbps GMII   |  16MB QSPI* |   Yes* |
-| VCU118         | Xilinx VirtexU+     | XCVU9P        | 125MHz  | FTDI | 2 x 64-bit 4GB DDR4|  Gen3 X16*|  1Gbps SGMII   |  16MB QSPI* |   Yes* |
-| Versa ECP5     | Lattice ECP5        | LFE5UM5G-45F  |  75MHz  | FTDI | 16-bit 128MB DDR3  |  Gen1 X1* | 1Gbps RGMII    |  16MB QSPI* |   No   |
-| ZCU104         | Xilinx ZynqU+       | XCZU7EV       | 125MHz  | FTDI | 64-bit   1GB DDR4  |     No    | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
-| Zybo Z7        | Xilinx ZynqU+       | XC7Z010       | 125MHz  | FTDI | 64-bit   1GB DDR4  |     No    | 1Gbps RGMII*   |  64MB QSPI* |   Yes* |
-
-\* Present on the board but not yet supported or validated with LiteX.
-\*\* available on the daughterboard
+[> Boards list
+---------------
+    ├── 1bitsquared_icebreaker_bitsy
+    ├── 1bitsquared_icebreaker
+    ├── adi_adrv2crr_fmc
+    ├── adi_plutosdr
+    ├── alchitry_au
+    ├── alchitry_mojo
+    ├── aliexpress_stlv7325
+    ├── aliexpress_u420t
+    ├── alinx_ax7010
+    ├── alinx_axu2cga
+    ├── antmicro_datacenter_ddr4_test_board
+    ├── antmicro_lpddr4_test_board
+    ├── arduino_mkrvidor4000
+    ├── avalanche
+    ├── berkeleylab_marblemini
+    ├── berkeleylab_marble
+    ├── camlink_4k
+    ├── colorlight_5a_75b
+    ├── colorlight_5a_75e
+    ├── colorlight_i5
+    ├── decklink_intensity_pro_4k
+    ├── decklink_mini_4k
+    ├── decklink_quad_hdmi_recorder
+    ├── digilent_arty
+    ├── digilent_arty_s7
+    ├── digilent_arty_z7
+    ├── digilent_atlys
+    ├── digilent_basys3
+    ├── digilent_cmod_a7
+    ├── digilent_genesys2
+    ├── digilent_nexys4ddr
+    ├── digilent_nexys4
+    ├── digilent_nexys_video
+    ├── digilent_pynq_z1
+    ├── digilent_zedboard
+    ├── digilent_zybo_z7
+    ├── ebaz4205
+    ├── efinix_t8f81_dev_kit
+    ├── efinix_titanium_ti60_f225_dev_kit
+    ├── efinix_trion_t120_bga576_dev_kit
+    ├── efinix_trion_t20_bga256_dev_kit
+    ├── efinix_trion_t20_mipi_dev_kit
+    ├── efinix_xyloni_dev_kit
+    ├── ego1
+    ├── enclustra_mercury_kx2
+    ├── enclustra_mercury_xu5
+    ├── fairwaves_xtrx
+    ├── fpc_iii
+    ├── gsd_butterstick
+    ├── gsd_orangecrab
+    ├── hackaday_hadbadge
+    ├── jungle_electronics_fireant
+    ├── kosagi_fomu_evt
+    ├── kosagi_fomu_hacker
+    ├── kosagi_fomu_pvt
+    ├── kosagi_netv2
+    ├── krtkl_snickerdoodle
+    ├── lambdaconcept_ecpix5
+    ├── lambdaconcept_pcie_screamer_m2
+    ├── lambdaconcept_pcie_screamer
+    ├── lattice_crosslink_nx_evn
+    ├── lattice_crosslink_nx_vip
+    ├── lattice_ecp5_evn
+    ├── lattice_ecp5_vip
+    ├── lattice_ice40up5k_evn
+    ├── lattice_machxo3
+    ├── lattice_versa_ecp5
+    ├── linsn_rv901t
+    ├── limesdr_mini_v2
+    ├── litex_acorn_baseboard
+    ├── logicbone
+    ├── marblemini
+    ├── marble
+    ├── micronova_mercury2
+    ├── mist
+    ├── mnt_rkx7
+    ├── muselab_icesugar_pro
+    ├── muselab_icesugar
+    ├── myminieye_runber
+    ├── numato_aller
+    ├── numato_mimas_a7
+    ├── numato_nereid
+    ├── numato_tagus
+    ├── pano_logic_g2
+    ├── qmtech_10cl006
+    ├── qmtech_5cefa2
+    ├── qmtech_daughterboard
+    ├── qmtech_ep4cex5
+    ├── qmtech_ep4cgx150
+    ├── qmtech_wukong
+    ├── qmtech_xc7a35t
+    ├── quicklogic_quickfeather
+    ├── qwertyembedded_beaglewire
+    ├── radiona_ulx3s
+    ├── rcs_arctic_tern_bmc_card
+    ├── redpitaya
+    ├── rz_easyfpga
+    ├── saanlima_pipistrello
+    ├── scarabhardware_minispartan6
+    ├── seeedstudio_spartan_edge_accelerator
+    ├── siglent_sds1104xe
+    ├── sipeed_tang_nano_4k
+    ├── sipeed_tang_nano_9k
+    ├── sipeed_tang_nano
+    ├── sipeed_tang_primer
+    ├── sqrl_acorn
+    ├── sqrl_fk33
+    ├── sqrl_xcu1525
+    ├── terasic_de0nano
+    ├── terasic_de10lite
+    ├── terasic_de10nano
+    ├── terasic_de1soc
+    ├── terasic_de2_115
+    ├── terasic_deca
+    ├── terasic_sockit
+    ├── tinyfpga_bx
+    ├── trellisboard
+    ├── trenz_c10lprefkit
+    ├── trenz_cyc1000
+    ├── trenz_max1000
+    ├── trenz_te0725
+    ├── trenz_tec0117
+    ├── tul_pynq_z2
+    ├── xilinx_ac701
+    ├── xilinx_alveo_u250
+    ├── xilinx_alveo_u280
+    ├── xilinx_kc705
+    ├── xilinx_kcu105
+    ├── xilinx_kv260
+    ├── xilinx_sp605
+    ├── xilinx_vc707
+    ├── xilinx_vcu118
+    ├── xilinx_zcu102
+    ├── xilinx_zcu104
+    ├── xilinx_zcu106
+    ├── xilinx_zcu216
+    └── ztex213

@@ -12,7 +12,7 @@
 # RHSResearchLLC that are documented at: https://github.com/RHSResearchLLC/NiteFury-and-LiteFury.
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -109,14 +109,14 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
-    def __init__(self, variant="cle-215+"):
+    def __init__(self, variant="cle-215+", toolchain="vivado"):
         device = {
             "cle-101":  "xc7a100t-fgg484-2",
             "cle-215":  "xc7a200t-fbg484-2",
             "cle-215+": "xc7a200t-fbg484-3"
         }[variant]
 
-        XilinxPlatform.__init__(self, device, _io, toolchain="vivado")
+        XilinxPlatform.__init__(self, device, _io, toolchain=toolchain)
         self.add_extension(_serial_io)
         self.add_extension(_sdcard_io)
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
@@ -124,14 +124,33 @@ class Platform(XilinxPlatform):
         self.toolchain.bitstream_commands = [
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
             "set_property BITSTREAM.CONFIG.CONFIGRATE 16 [current_design]",
-            "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]"
+            "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]",
+            "set_property CFGBVS VCCO [current_design]",
+            "set_property CONFIG_VOLTAGE 3.3 [current_design]",
         ]
-        self.toolchain.additional_commands = \
-            ["write_cfgmem -force -format bin -interface spix4 -size 16 "
-             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
-    def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a200t.bit")
+        self.toolchain.additional_commands = [
+            # Non-Multiboot SPI-Flash bitstream generation.
+            "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin",
+
+            # Multiboot SPI-Flash Operational bitstream generation.
+            "set_property BITSTREAM.CONFIG.TIMER_CFG 0x0001fbd0 [current_design]",
+            "set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]",
+            "write_bitstream -force {build_name}_operational.bit ",
+            "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_operational.bit\" -file {build_name}_operational.bin",
+
+            # Multiboot SPI-Flash Fallback bitstream generation.
+            "set_property BITSTREAM.CONFIG.NEXT_CONFIG_ADDR 0x00400000 [current_design]",
+            "write_bitstream -force {build_name}_fallback.bit ",
+            "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_fallback.bit\" -file {build_name}_fallback.bin"
+        ]
+
+    def create_programmer(self, name='openocd'):
+        if name == 'openocd':
+            return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a200t.bit")
+        elif name == 'vivado':
+            # TODO: some board versions may have s25fl128s
+            return VivadoProgrammer(flash_part='s25fl256sxxxxxx0-spi-x1_x2_x4')
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)

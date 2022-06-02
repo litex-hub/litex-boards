@@ -191,12 +191,12 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self, variant="a7-35"):
+    def __init__(self, variant="a7-35", toolchain="vivado"):
         device = {
             "a7-35":  "xc7a35t-fgg484-2",
             "a7-100": "xc7a100t-fgg484-2"
         }[variant]
-        XilinxPlatform.__init__(self, device, _io, toolchain="vivado")
+        XilinxPlatform.__init__(self, device, _io, toolchain=toolchain)
 
     def create_programmer(self):
         bscan_spi = "bscan_spi_xc7a100t.bit" if "xc7a100t" in self.device else "bscan_spi_xc7a35t.bit"

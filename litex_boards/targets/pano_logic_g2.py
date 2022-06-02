@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -50,14 +49,12 @@ class BaseSoC(SoCCore):
         if with_etherbone:
             sys_clk_freq = int(125e6)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Pano Logic G2",
-            ident_version  = True,
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_ethernet or with_etherbone)
+        with_ethernet = (with_ethernet or with_etherbone)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_ethernet)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Pano Logic G2", **kwargs)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -80,15 +77,17 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Pano Logic G2")
-    parser.add_argument("--build",           action="store_true",              help="Build bitstream")
-    parser.add_argument("--load",            action="store_true",              help="Load bitstream")
-    parser.add_argument("--revision",        default="c",                      help="Board revision c (default) or b")
-    parser.add_argument("--sys-clk-freq",    default=50e6,                     help="System clock frequency (default: 50MHz)")
-    ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support")
-    ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Pano Logic G2")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true",              help="Build design.")
+    target_group.add_argument("--load",            action="store_true",              help="Load bitstream.")
+    target_group.add_argument("--revision",        default="c",                      help="Board revision (b or c).")
+    target_group.add_argument("--sys-clk-freq",    default=50e6,                     help="System clock frequency.")
+    ethopts = target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
+    target_group.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -102,11 +101,12 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

@@ -91,6 +91,7 @@ _io = [
         Subsignal("data", Pins("V19 T21 T20 U18"), Misc("PULLUP True")),
         Subsignal("cmd",  Pins("W20"),             Misc("PULLUP True")),
         Subsignal("clk",  Pins("W19")),
+        Subsignal("cd",   Pins("T18")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33"),
     ),

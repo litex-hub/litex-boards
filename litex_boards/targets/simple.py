@@ -7,8 +7,6 @@
 # Copyright (c) 2013-2014 Sebastien Bourdeauducq <sb@m-labs.hk>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
 import importlib
 
 from migen import *
@@ -26,14 +24,11 @@ class BaseSoC(SoCCore):
     def __init__(self, platform, with_ethernet=False, with_led_chaser=True, **kwargs):
         sys_clk_freq = int(1e9/platform.default_clk_period)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX Simple SoC",
-            ident_version  = True,
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform.request(platform.default_clk_name))
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX Simple SoC", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         try:
@@ -47,11 +42,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="Generic LiteX SoC")
-    parser.add_argument("platform",                             help="Module name of the platform to build for")
-    parser.add_argument("--build",         action="store_true", help="Build bitstream")
-    parser.add_argument("--load",          action="store_true", help="Load bitstream")
-    parser.add_argument("--toolchain",     default=None,        help="FPGA toolchain (None default)")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="Generic LiteX SoC")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("platform",                             help="Module name of the platform to build for.")
+    target_group.add_argument("--build",         action="store_true", help="Build design.")
+    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
+    target_group.add_argument("--toolchain",     default=None,        help="FPGA toolchain.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -63,11 +60,12 @@ def main():
     platform = platform_module.Platform(**platform_kwargs)
     soc = BaseSoC(platform,**soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + platform.bitstream_ext))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

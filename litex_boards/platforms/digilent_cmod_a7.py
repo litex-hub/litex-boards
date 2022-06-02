@@ -51,6 +51,24 @@ _io = [
         Subsignal("cen", Pins("N19"), IOStandard("LVCMOS33")),
         Misc("SLEW=FAST"),
     ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("K19")),
+        Subsignal("clk",  Pins("E19")),
+        Subsignal("mosi", Pins("D18")),
+        Subsignal("miso", Pins("D19")),
+        Subsignal("wp",   Pins("G18")),
+        Subsignal("hold", Pins("F18")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("K19")),
+        Subsignal("clk",  Pins("E19")),
+        Subsignal("dq",   Pins("D18 D19 G18 F18")),
+        IOStandard("LVCMOS33")
+    ),
+
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -63,8 +81,15 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a35t-cpg236-1", _io, _connectors, toolchain="vivado")
+    def __init__(self, variant="a7-35", toolchain="vivado"):
+        device = {
+            "a7-35": "xc7a35tcpg236-1"
+        }[variant]
+        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
+
+    def create_programmer(self):
+        bscan_spi = "bscan_spi_xc7a15t.bit" if "xc7a15t" in self.device else "bscan_spi_xc7a35t.bit"
+        return OpenOCD("openocd_xc7_ft2232.cfg", bscan_spi)
 
     def do_finalize(self,fragment):
         XilinxPlatform.do_finalize(self, fragment)

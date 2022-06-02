@@ -6,13 +6,10 @@
 # Copyright (c) 2019 Arnaud Durand <arnaud.durand@unifr.ch>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import ecp5_evn
+from litex_boards.platforms import lattice_ecp5_evn
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -28,7 +25,7 @@ class _CRG(Module):
 
         # # #
 
-        # clk / rst
+        # Clk / Rst.
         clk = clk12 = platform.request("clk12")
         rst_n = platform.request("rst_n")
         if x5_clk_freq is not None:
@@ -36,7 +33,7 @@ class _CRG(Module):
             self.comb += platform.request("ext_clk50_en").eq(1)
             platform.add_period_constraint(clk50, 1e9/x5_clk_freq)
 
-        # pll
+        # PLL.
         self.submodules.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk, x5_clk_freq or 12e6)
@@ -47,17 +44,13 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), x5_clk_freq=None, toolchain="trellis",
                  with_led_chaser=True, **kwargs):
-        platform = ecp5_evn.Platform(toolchain=toolchain)
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on ECP5 Evaluation Board",
-            ident_version  = True,
-            **kwargs)
+        platform = lattice_ecp5_evn.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        crg = _CRG(platform, sys_clk_freq, x5_clk_freq)
-        self.submodules.crg = crg
+        self.submodules.crg = _CRG(platform, sys_clk_freq, x5_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ECP5 Evaluation Board", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -68,12 +61,14 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on ECP5 Evaluation Board")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream")
-    parser.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
-    parser.add_argument("--sys-clk-freq", default=60e6,        help="System clock frequency (default: 60MHz)")
-    parser.add_argument("--x5-clk-freq",  type=int,            help="Use X5 oscillator as system clock at the specified frequency")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on ECP5 Evaluation Board")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain (trellis or diamond).")
+    target_group.add_argument("--sys-clk-freq", default=60e6,        help="System clock frequency.")
+    target_group.add_argument("--x5-clk-freq",  type=int,            help="Use X5 oscillator as system clock at the specified frequency.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -83,11 +78,12 @@ def main():
         x5_clk_freq  = args.x5_clk_freq,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".svf"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
 
 if __name__ == "__main__":
     main()
