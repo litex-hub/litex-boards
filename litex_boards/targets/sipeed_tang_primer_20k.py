@@ -9,7 +9,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.soc.cores.clock.gowin_gw1n import GW1NPLL
+from litex.soc.cores.clock.gowin_gw2a import GW2APLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
@@ -36,7 +36,7 @@ class _CRG(Module):
         clk27 = platform.request("clk27")
 
         # PLL
-        self.submodules.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
+        self.submodules.pll = pll = GW2APLL(devicename=platform.devicename, device=platform.device)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
