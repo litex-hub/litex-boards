@@ -27,13 +27,13 @@ _io = [
 
     # SPIFlash
     ("spiflash", 0,
-        Subsignal("cs_n", Pins("M9"), IOStandard("LVCMOS33")),
+        Subsignal("cs_n", Pins("M9"),  IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("L10"), IOStandard("LVCMOS33")),
         Subsignal("miso", Pins("P10"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("R10"), IOStandard("LVCMOS33")),
     ),
 
-    ## sdcard connector
+    # SDCard
     ("spisdcard", 0,
         Subsignal("clk",  Pins("N10")),
         Subsignal("mosi", Pins("R14")),
@@ -48,15 +48,11 @@ _io = [
         Subsignal("cd",   Pins("D15")),
         IOStandard("LVCMOS33"),
     ),
-
-    # TODO: SPI LCD
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = [
-        # TODO
-]
+_connectors = []
 
 # Platform -----------------------------------------------------------------------------------------
 

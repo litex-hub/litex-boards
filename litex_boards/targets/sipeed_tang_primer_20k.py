@@ -14,9 +14,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.video import *
 
-from litex_boards.platforms import tang_primer_20k
+from litex_boards.platforms import sipeed_tang_primer_20k
 
 from litex.soc.cores.hyperbus import HyperRAM
 
@@ -26,7 +25,7 @@ mB = 1024*kB
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
+    def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain()
@@ -53,16 +52,13 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(48e6), **kwargs):
-        platform = tang_primer_20k.Platform()
+        platform = sipeed_tang_primer_20k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Tang Primer 20K",
-            **kwargs
-        )
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -70,10 +66,10 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Primer 20K")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",       action="store_true", help="Build bitstream.")
-    target_group.add_argument("--load",        action="store_true", help="Load bitstream.")
-    target_group.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
-    target_group.add_argument("--sys-clk-freq",default=48e6,       help="System clock frequency.")
+    target_group.add_argument("--build",        action="store_true", help="Build bitstream.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",        action="store_true", help="Flash Bitstream.")
+    target_group.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
