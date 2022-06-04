@@ -1,7 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2017-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2022 Andrew Elbert Wilson <andrew.e.wilson@ieee.org>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *

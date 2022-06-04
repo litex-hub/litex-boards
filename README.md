@@ -105,6 +105,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── antmicro_lpddr4_test_board
     ├── arduino_mkrvidor4000
     ├── avalanche
+    ├── avnet_aesku40
     ├── berkeleylab_marblemini
     ├── berkeleylab_marble
     ├── camlink_4k

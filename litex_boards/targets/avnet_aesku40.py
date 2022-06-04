@@ -3,7 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2018-2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2022 Andrew Elbert Wilson <andrew.e.wilson@ieee.org>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
@@ -12,7 +12,7 @@ import argparse
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import aesku40
+from litex_boards.platforms import avnet_aesku40
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -66,7 +66,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_etherbone=False,
                  eth_ip="192.168.1.50", with_led_chaser=True, with_pcie=False, with_sata=False,
                  **kwargs):
-        platform = aesku40.Platform()
+        platform = avnet_aesku40.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
