@@ -17,15 +17,9 @@ from litex_boards.platforms import avnet_aesku40
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.led import LedChaser
 
 from litedram.modules import EDY4016A
 from litedram.phy import usddrphy
-
-from liteeth.phy.ku_1000basex import KU_1000BASEX
-
-from litepcie.phy.uspciephy import USPCIEPHY
-from litepcie.software import generate_litepcie_software
 
 from liteeth.phy.usrgmii import LiteEthPHYRGMII
 
@@ -68,14 +62,11 @@ class BaseSoC(SoCCore):
                  **kwargs):
         platform = avnet_aesku40.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on AESKU40",
-            ident_version  = True,
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on AESKU40", **kwargs)
 
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet:
@@ -85,7 +76,7 @@ class BaseSoC(SoCCore):
                 tx_delay=1e-9, #Supported Delay with 200 MHz ref clk
                 rx_delay=1e-9)
 
-            #Change ref clk for idelay3s
+            # Change ref clk for IDELAYE3: FIXME: Allow it direclty in LiteEth?
             for special in self.ethphy.rx._fragment.specials:
                 if special.name_override == "IDELAYE3":
                     for item in special.items:
@@ -112,20 +103,19 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on AESKU40")
-    parser.add_argument("--build",           action="store_true",              help="Build bitstream")
-    parser.add_argument("--load",            action="store_true",              help="Load bitstream")
-    parser.add_argument("--sys-clk-freq",    default=125e6,                    help="System clock frequency (default: 125MHz)")
+    parser.add_argument("--build",         action="store_true", help="Build bitstream")
+    parser.add_argument("--load",          action="store_true", help="Load bitstream")
+    parser.add_argument("--sys-clk-freq",  default=125e6,       help="System clock frequency (default: 125MHz)")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
 	)
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)
-
 
     if args.load:
         prog = soc.platform.create_programmer()
