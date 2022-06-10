@@ -72,10 +72,10 @@ class _CRG(Module):
             platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
             self.specials += [
-                Instance("BUFGCE_DIV", name="main_bufgce_div",
+                Instance("BUFGCE_DIV",
                     p_BUFGCE_DIVIDE=4,
                     i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys.clk),
-                Instance("BUFGCE", name="main_bufgce",
+                Instance("BUFGCE",
                     i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
                 # AsyncResetSynchronizer(self.cd_idelay, ~pll.locked),
             ]
