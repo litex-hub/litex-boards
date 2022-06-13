@@ -20,6 +20,8 @@ from litex.soc.integration.soc import SoCRegion
 
 from litex.soc.cores.hyperbus import HyperRAM
 
+from liteeth.phy.trionrgmii import LiteEthPHYRGMII
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -45,7 +47,14 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(200e6), with_spi_flash=False, with_hyperram=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(200e6),
+        with_spi_flash = False,
+        with_hyperram  = False,
+        with_ethernet  = False,
+        with_etherbone = False,
+        eth_phy        = 0,
+        eth_ip         = "192.168.1.50",
+        **kwargs):
         platform = efinix_titanium_ti60_f225_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -65,6 +74,26 @@ class BaseSoC(SoCCore):
             self.submodules.hyperram = HyperRAM(platform.request("hyperram"), latency=7, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=32*1024*1024))
 
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            platform.add_extension(efinix_titanium_ti60_f225_dev_kit.rgmii_ethernet_qse_ios("P1"))
+            self.submodules.ethphy = LiteEthPHYRGMII(
+                platform           = platform,
+                clock_pads         = platform.request("eth_clocks", eth_phy),
+                pads               = platform.request("eth", eth_phy),
+                with_hw_init_reset = False)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, software_debug=False)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy)
+
+            # FIXME: Avoid this.
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth_clocks").tx)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth_clocks").rx)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth").tx_data)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth").rx_data)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth").mdio)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -78,8 +107,13 @@ def main():
     target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
     target_group.add_argument("--with-hyperram",  action="store_true", help="Enable HyperRAM.")
     sdopts = target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
+    ethopts = target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",        action="store_true",              help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",       action="store_true",              help="Enable Etherbone support.")
+    target_group.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    target_group.add_argument("--eth-phy",         default=0, type=int,              help="Ethernet PHY: 0 (default) or 1.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -88,6 +122,10 @@ def main():
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_spi_flash = args.with_spi_flash,
         with_hyperram  = args.with_hyperram,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        eth_phy        = args.eth_phy,
          **soc_core_argdict(args))
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
