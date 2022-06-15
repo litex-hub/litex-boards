@@ -11,35 +11,34 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import taobao_a_e115fb
 
-from litex.soc.cores.clock import CycloneIVPLL
-from litex.soc.cores.led import LedChaser
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.clock import CycloneIVPLL
+from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.clock_domains.cd_sys = ClockDomain()
 
         # # #
 
         # Clk / Rst
         clk25 = platform.request("clk25")
-        rst_n  = platform.request("cpu_reset_n")
+        rst_n = platform.request("cpu_reset_n")
 
         # PLL
         self.submodules.pll = pll = CycloneIVPLL(speedgrade="-7")
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk25, 25e6)
-        pll.create_clkout(self.cd_sys,    sys_clk_freq)
+        pll.create_clkout(self.cd_sys, sys_clk_freq)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True,
-                 **kwargs):
+    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, **kwargs):
         platform = taobao_a_e115fb.Platform()
 
         # CRG --------------------------------------------------------------------------------------

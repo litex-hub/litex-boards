@@ -13,14 +13,14 @@ from litex.build.altera.programmer import USBBlaster
 _io = [
     # Clk
     ("clk25", 0, Pins("AB11"), IOStandard("3.3-V LVTTL")),
-    ("clk27", 0, Pins("A11"), IOStandard("3.3-V LVTTL")),
+    ("clk27", 0, Pins("A11"),  IOStandard("3.3-V LVTTL")),
 
     # Rst
     ("cpu_reset_n", 0, Pins("N21"), IOStandard("1.8-V")), # N21
 
     # Serial
     ("serial", 0,
-        Subsignal("tx", Pins("V3"), IOStandard("3.3-V LVTTL")), # GPIOs close to voltage selector
+        Subsignal("tx", Pins("V3"),  IOStandard("3.3-V LVTTL")), # GPIOs close to voltage selector
         Subsignal("rx", Pins("AA1"), IOStandard("3.3-V LVTTL"))
     ),
 
@@ -32,7 +32,7 @@ _io = [
 
     # Buttons
     ("user_btn_n", 0, Pins("T1"),  IOStandard("3.3-V LVTTL")),  # K3
-    ("user_btn_n", 1, Pins("N22"),  IOStandard("3.3-V LVTTL")), # K4
+    ("user_btn_n", 1, Pins("N22"), IOStandard("3.3-V LVTTL")), # K4
 ]
 
 # Platform -----------------------------------------------------------------------------------------
