@@ -9,7 +9,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import a_e115fb
+from litex_boards.platforms import taobao_a_e115fb
 
 from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.cores.led import LedChaser
@@ -40,7 +40,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True,
                  **kwargs):
-        platform = a_e115fb.Platform()
+        platform = taobao_a_e115fb.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
