@@ -22,6 +22,6 @@ _io = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(QuickLogicPlatform):
-    def __init__(self, toolchain="symbiflow"):
+    def __init__(self, toolchain="f4pga"):
         QuickLogicPlatform.__init__(self, "ql-eos-s3", _io, toolchain=toolchain)
 
