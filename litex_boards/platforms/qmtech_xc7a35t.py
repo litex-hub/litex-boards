@@ -167,7 +167,7 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 15]")
         self.add_platform_command("set_property CFGBVS VCCO [current_design]")
         self.add_platform_command("set_property CONFIG_VOLTAGE 3.3 [current_design]")
-        self.toolchain.symbiflow_device = device
+        self.toolchain.f4pga_device = device
 
     def create_programmer(self):
         bscan_spi = "bscan_spi_xc7a35t.bit"
