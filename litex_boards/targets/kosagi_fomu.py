@@ -16,6 +16,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import kosagi_fomu_pvt
 
+from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
@@ -164,6 +165,7 @@ def main():
     target_group.add_argument("--flash",             action="store_true", help="Flash Bitstream.")
     builder_args(parser)
     soc_core_args(parser)
+    icestorm_args(parser)
     args = parser.parse_args()
 
     dfu_flash_offset = 0x40000
@@ -175,7 +177,7 @@ def main():
     )
     builder = Builder(soc, **builder_argdict(args))
     if args.build:
-        builder.build()
+        builder.build(**icestorm_argdict(args))
 
     if args.flash:
         flash(builder.output_dir, soc.build_name, int(args.bios_flash_offset, 0))

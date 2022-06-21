@@ -180,7 +180,7 @@ def main():
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     if args.build:
-        builder.build()
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer()

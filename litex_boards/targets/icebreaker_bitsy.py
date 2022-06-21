@@ -21,6 +21,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import icebreaker_bitsy
 
+from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
@@ -115,6 +116,7 @@ def main():
     target_group.add_argument("--revision",            default="v1",        help="Board revision (v0 or v1).")
     builder_args(parser)
     soc_core_args(parser)
+    icestorm_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -125,7 +127,7 @@ def main():
     )
     builder = Builder(soc, **builder_argdict(args))
     if args.build:
-        builder.build()
+        builder.build(**icestorm_argdict(args))
 
     if args.flash:
         from litex.build.dfu import DFUProg
