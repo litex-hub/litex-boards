@@ -15,6 +15,7 @@ from litex_boards.platforms import qwertyembedded_beaglewire
 
 from litex.build.io import DDROutput
 
+from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
@@ -114,6 +115,7 @@ def main():
     target_group.add_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
+    icestorm_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -123,7 +125,7 @@ def main():
     )
     builder = Builder(soc,  **builder_argdict(args))
     if args.build:
-        builder.build()
+        builder.build(**icestorm_argdict(args))
 
 if __name__ == "__main__":
     main()

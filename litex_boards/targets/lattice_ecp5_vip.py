@@ -12,6 +12,8 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import lattice_ecp5_vip
 
+from litex.build.lattice.trellis import trellis_args, trellis_argdict
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -193,6 +195,7 @@ def main():
     target_group.add_argument("--sys-clk-freq", default=60e6,        help="System clock frequency (default: 60MHz)")
     builder_args(parser)
     soc_core_args(parser)
+    trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -200,8 +203,9 @@ def main():
         sys_clk_freq = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
+    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     if args.build:
-        builder.build()
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
