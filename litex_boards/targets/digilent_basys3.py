@@ -86,10 +86,6 @@ def main():
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
-    if args.with_spi_sdcard:
-        soc.add_spi_sdcard()
-    if args.with_sdcard:
-        soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     if args.build:
         builder.build()
