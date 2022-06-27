@@ -20,7 +20,7 @@ from litex.soc.integration.soc import SoCRegion
 
 from litex.soc.cores.hyperbus import HyperRAM
 
-from liteeth.phy.trionrgmii import LiteEthPHYRGMII
+from liteeth.phy.titaniumrgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
