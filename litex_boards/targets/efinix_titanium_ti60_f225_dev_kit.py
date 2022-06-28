@@ -83,7 +83,7 @@ class BaseSoC(SoCCore):
                 pads               = platform.request("eth", eth_phy),
                 with_hw_init_reset = False)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, software_debug=False)
+                self.add_ethernet(phy=self.ethphy, software_debug=True)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
 

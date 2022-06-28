@@ -162,7 +162,7 @@ def rgmii_ethernet_qse_ios(con):
             IOStandard("1.8_V_LVCMOS"),
         ),
         ("eth", 0,
-            Subsignal("rx_ctl",  Pins(f"{con}27")),
+            Subsignal("rx_ctl",  Pins(f"{con}:27")),
             Subsignal("rx_data", Pins(f"{con}:21 {con}:19 {con}:15 {con}:13")),
             Subsignal("tx_ctl",  Pins(f"{con}:20")),
             Subsignal("tx_data", Pins(f"{con}:16 {con}:14 {con}:10 {con}:8")),
