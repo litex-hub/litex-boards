@@ -34,7 +34,9 @@ mB = 1024*kB
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq=48e6, with_usb_pll=False):
+        assert not with_usb_pll or sys_clk_freq == 48e6
+
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain()
@@ -53,12 +55,44 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # PLL
-        self.submodules.pll = pll = iCE40PLL(primitive="SB_PLL40_PAD")
-        self.comb += pll.reset.eq(~rst_n) # FIXME: Add proper iCE40PLL reset support and add back | self.rst.
-        pll.register_clkin(clk12, 12e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=False)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked)
-        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
+        if with_usb_pll:
+            self.clock_domains.cd_usb_12 = ClockDomain()
+            self.clock_domains.cd_usb_48 = ClockDomain()
+            locked = Signal()
+            self.specials.pll = pll = Instance("SB_PLL40_2F_PAD",
+                i_PACKAGEPIN    = clk12,
+                i_RESETB        = rst_n,
+                i_BYPASS        = C(0),
+
+                # o_PLLOUTGLOBALA   = self.cd_sys.clk,
+                o_PLLOUTGLOBALA   = self.cd_usb_48.clk,
+                o_PLLOUTGLOBALB   = self.cd_usb_12.clk,
+                o_LOCK            = locked,
+
+                # Create a 48 MHz PLL clock...
+                p_FEEDBACK_PATH = "SIMPLE",
+                p_PLLOUT_SELECT_PORTA = "GENCLK",
+                p_PLLOUT_SELECT_PORTB = "SHIFTREG_0deg",
+                p_DIVR          = 0,
+                p_DIVF          = 63,
+                p_DIVQ          = 4,
+                p_FILTER_RANGE  = 1,
+            )
+            self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~locked)
+            platform.add_period_constraint(self.cd_sys.clk, 48e6)
+            platform.add_period_constraint(self.cd_usb_48.clk, 48e6)
+            platform.add_period_constraint(self.cd_usb_12.clk, 12e6)
+            self.comb += [
+                self.cd_sys.clk.eq(self.cd_usb_48.clk),
+            ]
+        else:
+            self.submodules.pll = pll = iCE40PLL(primitive="SB_PLL40_PAD")
+            self.comb += pll.reset.eq(~rst_n) # FIXME: Add proper iCE40PLL reset support and add back | self.rst.
+            pll.register_clkin(clk12, 12e6)
+            pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=False)
+            self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked)
+            platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
+
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -67,7 +101,10 @@ class BaseSoC(SoCCore):
         platform = icebreaker_bitsy.Platform(revision=revision)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        with_usb_acm = kwargs["uart_name"] == "usb_acm"
+        if with_usb_acm:
+            sys_clk_freq = 48e6
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_acm)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
