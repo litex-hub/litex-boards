@@ -56,6 +56,7 @@ class TestTargets(unittest.TestCase):
                 os.system("rm -rf build")
                 cmd = """\
 python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
+    --build            \
     --no-compile       \
     --uart-name="stub" \
 """.format(name)
@@ -79,6 +80,7 @@ python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
 python3 -m litex_boards.targets.{} \
     --cpu-type=vexriscv     \
     --cpu-variant=minimal   \
+    --build                 \
     --no-compile            \
 """.format(name)
                 subprocess.check_call(cmd, shell=True)
