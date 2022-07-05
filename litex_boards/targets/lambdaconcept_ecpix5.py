@@ -262,7 +262,7 @@ def main():
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(None, builder.get_bitstream_filename(mode="flash"))
+        prog.flash(None, builder.get_bitstream_filename(mode="flash", ext=".svf")) # FIXME
 
 if __name__ == "__main__":
     main()
