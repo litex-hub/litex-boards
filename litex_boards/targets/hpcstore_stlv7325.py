@@ -73,7 +73,9 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6),
+    def __init__(self,
+        toolchain="vivado",
+        sys_clk_freq=int(100e6),
         with_ethernet   = False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
         with_led_chaser = True,
         with_pcie       = False,
@@ -82,7 +84,7 @@ class BaseSoC(SoCCore):
         with_video_framebuffer = False,
         with_video_terminal    = False,
         **kwargs):
-        platform = hpcstore_stlv7325.Platform()
+        platform = hpcstore_stlv7325.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -168,6 +170,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on HPC Store STLV7325")
+    parser.add_argument("--toolchain", default="vivado", help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
+
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--build",         action="store_true", help="Build design.")
     target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
@@ -192,6 +196,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        toolchain      = args.toolchain,
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,

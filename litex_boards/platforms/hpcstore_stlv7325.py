@@ -293,8 +293,8 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7k325t-ffg676-2", _io, _connectors, toolchain="vivado")
+    def __init__(self, toolchain="vivado"):
+        XilinxPlatform.__init__(self, "xc7k325t-ffg676-2", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("""
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 2.5 [current_design]
