@@ -77,10 +77,11 @@ class BaseSoC(SoCCore):
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             platform.add_extension(efinix_titanium_ti60_f225_dev_kit.rgmii_ethernet_qse_ios("P1"))
+            pads = platform.request("eth", eth_phy)
             self.submodules.ethphy = LiteEthPHYRGMII(
                 platform           = platform,
                 clock_pads         = platform.request("eth_clocks", eth_phy),
-                pads               = platform.request("eth", eth_phy),
+                pads               = pads,
                 with_hw_init_reset = False)
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, software_debug=True)
@@ -91,8 +92,26 @@ class BaseSoC(SoCCore):
             platform.toolchain.excluded_ios.append(platform.lookup_request("eth_clocks").tx)
             platform.toolchain.excluded_ios.append(platform.lookup_request("eth_clocks").rx)
             platform.toolchain.excluded_ios.append(platform.lookup_request("eth").tx_data)
+            platform.toolchain.excluded_ios.append(platform.lookup_request("eth").tx_ctl)
             platform.toolchain.excluded_ios.append(platform.lookup_request("eth").rx_data)
             platform.toolchain.excluded_ios.append(platform.lookup_request("eth").mdio)
+
+            # Extension board on P2 + External Logic Analyzer.
+            _pmod_ios = [
+                ("debug", 0, Pins(
+                    "L11", # GPIOR_P_15
+                    "K11", # GPIOR_N_15
+                    "N10", # GPIOR_P_12
+                    "M10", # GPIOR_N_12
+                    ),
+                    IOStandard("1.8_V_LVCMOS")
+                ),
+            ]
+            platform.add_extension(_pmod_ios)
+            debug = platform.request("debug")
+            self.comb += debug[0].eq(self.ethphy.tx.sink.valid)
+            self.comb += debug[1].eq(self.ethphy.tx.sink.data[0])
+            self.comb += debug[2].eq(self.ethphy.tx.sink.data[1])
 
 # Build --------------------------------------------------------------------------------------------
 
