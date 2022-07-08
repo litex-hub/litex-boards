@@ -6,9 +6,6 @@
 # Copyright (c) 2021 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import argparse
-import subprocess
-
 from migen import *
 
 from litex_boards.platforms import digilent_arty_z7
@@ -58,17 +55,18 @@ class BaseSoC(SoCCore):
                  with_led_chaser=True, **kwargs):
         platform = digilent_arty_z7.Platform(variant=variant, toolchain=toolchain)
 
+        # CRG --------------------------------------------------------------------------------------
+        use_ps7_clk = (kwargs.get("cpu_type", None) == "zynq7000")
+        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
+
+        # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
-            kwargs['integrated_sram_size'] = 0
-            kwargs['with_uart'] = False
+            kwargs["integrated_sram_size"] = 0
+            kwargs["with_uart"]            = False
             self.mem_map = {
                 'csr': 0x4000_0000,  # Zynq GP0 default
             }
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Arty Z7",
-            **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Arty Z7", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
@@ -84,15 +82,8 @@ class BaseSoC(SoCCore):
             self.submodules += axi.AXI2Wishbone(
                 axi          = self.cpu.add_axi_gp_master(),
                 wishbone     = wb_gp0,
-                base_address = self.mem_map['csr'])
-            self.add_wb_master(wb_gp0)
-
-            use_ps7_clk = True
-        else:
-            use_ps7_clk = False
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
+                base_address = self.mem_map["csr"])
+            self.bus.add_master(master=wb_gp0)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -103,16 +94,19 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Arty Z7")
-    parser.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream.")
-    parser.add_argument("--variant",      default="z7-20",     help="Board variant (z7-20 or z7-10).")
-    parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Arty Z7")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--variant",      default="z7-20",     help="Board variant (z7-20 or z7-10).")
+    target_group.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
     parser.set_defaults(cpu_type="zynq7000")
+    parser.set_defaults(no_uart=True)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -123,11 +117,12 @@ def main():
     )
     builder = Builder(soc, **builder_argdict(args))
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
-    builder.build(**builder_kwargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kwargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"), device=1)
 
 if __name__ == "__main__":
     main()

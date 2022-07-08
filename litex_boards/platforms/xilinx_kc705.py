@@ -113,9 +113,19 @@ _io = [
     ),
 
     # SPIFlash
-    ("spiflash", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash", 0,
         Subsignal("cs_n", Pins("U19")),
-        Subsignal("dq",   Pins("P24", "R25", "R20", "R21")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2
+        Subsignal("mosi", Pins("P24")),
+        Subsignal("miso", Pins("R25")),
+        Subsignal("wp",   Pins("R20")),
+        Subsignal("hold", Pins("R21")),
+        IOStandard("LVCMOS25"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("U19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2
+        Subsignal("dq",   Pins("P24 R25 R20 R21")),
         IOStandard("LVCMOS25")
     ),
 

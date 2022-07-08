@@ -17,14 +17,12 @@
 # with more features, examples to run C/Rust code on the RISC-V CPU and documentation can be found
 # at: https://github.com/icebreaker-fpga/icebreaker-litex-examples
 
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import icebreaker
 
+from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
@@ -42,7 +40,7 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por = ClockDomain()
 
         # # #
 
@@ -73,17 +71,14 @@ class BaseSoC(SoCCore):
         platform = icebreaker.Platform()
         platform.add_extension(icebreaker.break_off_pmod)
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
         kwargs["integrated_sram_size"] = 0
         kwargs["integrated_rom_size"]  = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on iCEBreaker",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on iCEBreaker", **kwargs)
 
         # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
         self.submodules.spram = Up5kSPRAM(size=128*kB)
@@ -136,15 +131,18 @@ def flash(build_dir, build_name, bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on iCEBreaker")
-    parser.add_argument("--build",               action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",                action="store_true", help="Load bitstream.")
-    parser.add_argument("--flash",               action="store_true", help="Flash Bitstream and BIOS.")
-    parser.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")
-    parser.add_argument("--bios-flash-offset",   default="0x40000",   help="BIOS offset in SPI Flash.")
-    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (with DVI PMOD).")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on iCEBreaker")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",               action="store_true", help="Build design.")
+    target_group.add_argument("--load",                action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",               action="store_true", help="Flash Bitstream and BIOS.")
+    target_group.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")
+    target_group.add_argument("--bios-flash-offset",   default="0x40000",   help="BIOS offset in SPI Flash.")
+    target_group.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (with DVI PMOD).")
     builder_args(parser)
     soc_core_args(parser)
+    icestorm_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -154,11 +152,12 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build(**icestorm_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".bin")) # FIXME
 
     if args.flash:
         flash(builder.output_dir, soc.build_name, args.bios_flash_offset)

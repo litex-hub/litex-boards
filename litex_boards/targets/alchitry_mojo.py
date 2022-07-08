@@ -39,10 +39,6 @@
 # litex> # Turn screen Red
 # litex> mem_write 0x40c00000 0xffff0000 307200
 
-import os
-import argparse
-import sys
-
 from migen import *
 
 from litex.build.io import DDROutput
@@ -68,10 +64,10 @@ class CRG(Module):
         self.clock_domains.cd_hdmi   = ClockDomain()
         self.clock_domains.cd_hdmi5x = ClockDomain()
         if sdram_rate == "1:2":
-            self.clock_domains.cd_sys2x    = ClockDomain(reset_less=True)
-            self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys2x    = ClockDomain()
+            self.clock_domains.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys_ps = ClockDomain()
 
         # Clk/Rst
         clk50 = platform.request("clk50")
@@ -99,13 +95,11 @@ class BaseSoC(SoCCore):
                  with_video_framebuffer=False, with_video_colorbars=False, **kwargs):
         platform = alchitry_mojo.Platform()
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Alchitry Mojo",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq, sdram_rate)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alchitry Mojo", **kwargs)
 
         # HDMI Shield ------------------------------------------------------------------------------
         if with_hdmi_shield:
@@ -147,18 +141,19 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Alchitry Mojo")
-    parser.add_argument("--build",                  action="store_true", help="Build bitstream.")
-    parser.add_argument("--sys-clk-freq",           default=62.5e6,      help="System clock frequency.")
-    parser.add_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
-    shields1 = parser.add_mutually_exclusive_group()
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Alchitry Mojo")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",                  action="store_true", help="Build design.")
+    target_group.add_argument("--sys-clk-freq",           default=62.5e6,      help="System clock frequency.")
+    target_group.add_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
+    shields1 = target_group.add_mutually_exclusive_group()
     shields1.add_argument("--with-hdmi-shield",     action="store_true", help="Enable HDMI Shield.")
     shields1.add_argument("--with-sdram-shield",    action="store_true", help="Enable SDRAM Shield.")
-    viopts = parser.add_mutually_exclusive_group()
+    viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (HDMI).")
-
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -177,7 +172,8 @@ def main():
     )
 
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
 if __name__ == "__main__":
     main()

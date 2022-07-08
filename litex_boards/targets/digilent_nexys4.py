@@ -6,9 +6,6 @@
 # Copyright (c) 2021 Michael T. Mayers <michael@tweakoz.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import sys
-import argparse
 import math
 
 from migen import *
@@ -35,11 +32,11 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys2x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys2x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys2x     = ClockDomain()
+        self.clock_domains.cd_sys2x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
-        self.clock_domains.cd_vga       = ClockDomain(reset_less=True)
+        self.clock_domains.cd_vga       = ClockDomain()
         # # #
 
         self.submodules.pll = pll = S7MMCM(speedgrade=-1)
@@ -170,16 +167,14 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(75e6), with_led_chaser=True, with_ethernet=False, with_etherbone=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = digilent_nexys4.Platform()
 
-        # SoCCore ----------------------------------_-----------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Nexys4",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
 
+        # SoCCore ----------------------------------_-----------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Nexys4", **kwargs)
+
         # Cellular RAM -------------------------------------------------------------------------------
-        addCellularRAM(self,platform,"main_ram",0x40000000)        
+        addCellularRAM(self,platform,"main_ram", 0x40000000)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -208,17 +203,19 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Nexys4")
-    parser.add_argument("--build",                  action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",                   action="store_true", help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",           default=75e6,        help="System clock frequency.")
-    ethopts = parser.add_mutually_exclusive_group()
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Nexys4")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",                  action="store_true", help="Build design.")
+    target_group.add_argument("--load",                   action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",           default=75e6,        help="System clock frequency.")
+    ethopts = target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",        action="store_true", help="Enable Etherbone support.")
-    sdopts = parser.add_mutually_exclusive_group()
+    sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support.")
-    viopts = parser.add_mutually_exclusive_group()
+    viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
     builder_args(parser)
@@ -238,11 +235,12 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

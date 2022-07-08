@@ -6,10 +6,6 @@
 # Copyright (c) 2021 Kazumoto Kojima <kkojima@rr.iij4u.or.jp>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-import sys
-
 from migen import *
 
 from litex.build.io import DDROutput
@@ -39,9 +35,9 @@ class _CRG(Module):
         self.clock_domains.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
             self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -53,8 +49,9 @@ class _CRG(Module):
             clk = Signal()
             div = 5
             self.specials += Instance("OSCG",
-                                p_DIV = div,
-                                o_OSC = clk)
+                p_DIV = div,
+                o_OSC = clk
+            )
             clk_freq = 310e6/div
 
         rst_n = platform.request("cpu_reset_n")
@@ -102,19 +99,21 @@ class BaseSoC(SoCCore):
                  use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
                  with_video_framebuffer=False, **kwargs):
         board = board.lower()
-        assert board in ["i5"]
-        if board == "i5":
-            platform = colorlight_i5.Platform(revision=revision)
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, int(sys_clk_freq),
-            ident = "LiteX SoC on Colorlight " + board.upper(),
-            **kwargs)
+        assert board in ["i5", "i9"]
+        platform = colorlight_i5.Platform(board=board, revision=revision)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
+        with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_internal_osc=use_internal_osc, with_usb_pll=with_usb_pll, with_video_pll=with_video_pll, sdram_rate=sdram_rate)
+        self.submodules.crg = _CRG(platform, sys_clk_freq,
+            use_internal_osc = use_internal_osc,
+            with_usb_pll     = with_usb_pll,
+            with_video_pll   = with_video_pll,
+            sdram_rate       = sdram_rate
+        )
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, int(sys_clk_freq), ident = "LiteX SoC on Colorlight " + board.upper(), **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -122,9 +121,13 @@ class BaseSoC(SoCCore):
             self.submodules.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
-        from litespi.modules import GD25Q16
+        if board == "i5":
+            from litespi.modules import GD25Q16 as SpiFlashModule
+        if board == "i9":
+            from litespi.modules import W25Q64 as SpiFlashModule
+
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        self.add_spi_flash(mode="1x", module=GD25Q16(Codes.READ_1_1_1))
+        self.add_spi_flash(mode="1x", module=SpiFlashModule(Codes.READ_1_1_1))
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -172,24 +175,26 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight I5")
-    parser.add_argument("--build",            action="store_true",      help="Build bitstream.")
-    parser.add_argument("--load",             action="store_true",      help="Load bitstream.")
-    parser.add_argument("--board",            default="i5",             help="Board type (i5).")
-    parser.add_argument("--revision",         default="7.0", type=str,  help="Board revision (7.0).")
-    parser.add_argument("--sys-clk-freq",     default=60e6,             help="System clock frequency.")
-    ethopts = parser.add_mutually_exclusive_group()
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Colorlight I5")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",            action="store_true",      help="Build design.")
+    target_group.add_argument("--load",             action="store_true",      help="Load bitstream.")
+    target_group.add_argument("--board",            default="i5",             help="Board type (i5).")
+    target_group.add_argument("--revision",         default="7.0", type=str,  help="Board revision (7.0).")
+    target_group.add_argument("--sys-clk-freq",     default=60e6,             help="System clock frequency.")
+    ethopts = target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",  action="store_true",      help="Enable Etherbone support.")
-    parser.add_argument("--remote-ip",        default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_argument("--local-ip",         default="192.168.1.50",   help="Local IP address.")
-    sdopts = parser.add_mutually_exclusive_group()
+    target_group.add_argument("--remote-ip",        default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    target_group.add_argument("--local-ip",         default="192.168.1.50",   help="Local IP address.")
+    sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",  action="store_true",	    help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",      action="store_true",	    help="Enable SDCard support.")
-    parser.add_argument("--eth-phy",          default=0, type=int,      help="Ethernet PHY (0 or 1).")
-    parser.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator.")
-    parser.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    viopts = parser.add_mutually_exclusive_group()
+    target_group.add_argument("--eth-phy",          default=0, type=int,      help="Ethernet PHY (0 or 1).")
+    target_group.add_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator.")
+    target_group.add_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     builder_args(parser)
@@ -206,7 +211,6 @@ def main():
         eth_phy                = args.eth_phy,
         use_internal_osc       = args.use_internal_osc,
         sdram_rate             = args.sdram_rate,
-        l2_size	               = args.l2_size,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **soc_core_argdict(args)
@@ -218,12 +222,12 @@ def main():
         soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
-
-    builder.build(**trellis_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**trellis_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

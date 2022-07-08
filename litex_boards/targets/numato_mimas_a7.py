@@ -7,12 +7,9 @@
 # Copyright (c) 2020 Feliks Montez <feliks.montez@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 
-from litex_boards.platforms import mimas_a7
+from litex_boards.platforms import numato_mimas_a7
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -31,8 +28,8 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
 
         # # #
@@ -53,15 +50,13 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, with_ethernet=False,
                  **kwargs):
-        platform = mimas_a7.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Mimas A7",
-            **kwargs)
+        platform = numato_mimas_a7.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Mimas A7", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -91,11 +86,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Mimas A7")
-    parser.add_argument("--build",         action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",          action="store_true", help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency.")
-    parser.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Mimas A7")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",         action="store_true", help="Build design.")
+    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency.")
+    target_group.add_argument("--with-ethernet", action="store_true", help="Enable Ethernet support.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -107,11 +104,12 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**vivado_build_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

@@ -2,8 +2,7 @@
 # License: BSD
 
 from litex.build.generic_platform import Pins, IOStandard, Subsignal
-from litex.build.xilinx import XilinxPlatform
-from litex.build.openfpgaloader import OpenFPGALoader
+from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -38,14 +37,6 @@ _io = [
     ("user_btn", 1, Pins("D20"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("L20"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("L19"), IOStandard("LVCMOS33")),
-
-    # Serial (ust to make CI pass)
-    # Unfortunately the only USB UART is hard-wired to the ARM CPU
-    ("serial", 0,
-        Subsignal("tx", Pins("Y18")),
-        Subsignal("rx", Pins("Y19")),
-        IOStandard("LVCMOS33"),
-    ),
 
 	# SPI
     ("spi", 0,
@@ -237,8 +228,8 @@ class Platform(XilinxPlatform):
         XilinxPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
-        return OpenFPGALoader(self.board)
+        return VivadoProgrammer()
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e6/125e6)
+        self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)

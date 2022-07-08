@@ -6,9 +6,6 @@
 # Copyright (c) 2020 Shinken Sanada <sanadashinken@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import qmtech_wukong
@@ -34,8 +31,8 @@ class _CRG(Module):
     def __init__(self, platform, speed_grade, sys_clk_freq, with_video_pll=False, pix_clk=25.175e6):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
         self.clock_domains.cd_clk100    = ClockDomain()
         self.clock_domains.cd_hdmi      = ClockDomain()
@@ -80,15 +77,15 @@ class BaseSoC(SoCCore):
                  with_video_framebuffer=False, video_timing="640x480@60Hz", **kwargs):
         platform = qmtech_wukong.Platform(board_version=board_version,speed_grade=speed_grade)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on QMTECH Wukong Board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)
-        self.submodules.crg = _CRG(platform, speed_grade, sys_clk_freq, with_video_pll=with_video_pll,
-                                   pix_clk = video_timings[video_timing]["pix_clk"])
+        self.submodules.crg = _CRG(platform, speed_grade, sys_clk_freq,
+            with_video_pll = with_video_pll,
+            pix_clk        = video_timings[video_timing]["pix_clk"]
+        )
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on QMTECH Wukong Board", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -129,20 +126,22 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTECH Wukong Board")
-    parser.add_argument("--build",           action="store_true",              help="Build bitstream.")
-    parser.add_argument("--load",            action="store_true",              help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",    default=100e6,                    help="System clock frequency.")
-    parser.add_argument("--board-version",   default=1,                        help="Board version (1 or 2).")
-    parser.add_argument("--speed-grade",     default=-1,                       help="FPGA speed grade (-1 or -2).")
-    ethopts = parser.add_mutually_exclusive_group()
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTECH Wukong Board")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true",              help="Build design.")
+    target_group.add_argument("--load",            action="store_true",              help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",    default=100e6,                    help="System clock frequency.")
+    target_group.add_argument("--board-version",   default=1,                        help="Board version (1 or 2).")
+    target_group.add_argument("--speed-grade",     default=-1,                       help="FPGA speed grade (-1 or -2).")
+    ethopts = target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    sdopts = parser.add_mutually_exclusive_group()
+    target_group.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true",              help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true",              help="Enable SDCard support.")
-    viopts = parser.add_mutually_exclusive_group()
+    viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     builder_args(parser)
@@ -174,12 +173,12 @@ def main():
         soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
-
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**vivado_build_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

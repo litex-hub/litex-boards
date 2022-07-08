@@ -10,13 +10,13 @@
 
 import os
 import sys
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import fomu_pvt
+from litex_boards.platforms import kosagi_fomu_pvt
 
+from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
@@ -34,7 +34,7 @@ class _CRG(Module):
         assert sys_clk_freq == 12e6
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_por    = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por    = ClockDomain()
         self.clock_domains.cd_usb_12 = ClockDomain()
         self.clock_domains.cd_usb_48 = ClockDomain()
 
@@ -70,25 +70,18 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, spi_flash_module="AT25SF161", sys_clk_freq=int(12e6),
                  with_led_chaser=True, **kwargs):
-        kwargs["uart_name"] = "usb_acm" # Enforce UART to USB-ACM
-        platform = fomu_pvt.Platform()
-
-        # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
-        kwargs["integrated_sram_size"] = 0
-        kwargs["integrated_rom_size"]  = 0
-
-        # Serial -----------------------------------------------------------------------------------
-        # FIXME: do proper install of ValentyUSB.
-        os.system("git clone https://github.com/litex-hub/valentyusb -b hw_cdc_eptri")
-        sys.path.append("valentyusb")
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Fomu",
-            **kwargs)
+        platform = kosagi_fomu_pvt.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Defaults to USB ACM through ValentyUSB.
+        kwargs["uart_name"] = "usb_acm"
+        # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
+        kwargs["integrated_sram_size"] = 0
+        kwargs["integrated_rom_size"]  = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Fomu", **kwargs)
 
         # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
         self.submodules.spram = Up5kSPRAM(size=128*kB)
@@ -163,13 +156,16 @@ def flash(build_dir, build_name, bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Fomu")
-    parser.add_argument("--build",             action="store_true", help="Build bitstream.")
-    parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
-    parser.add_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")
-    parser.add_argument("--flash",             action="store_true", help="Flash Bitstream.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Fomu")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",             action="store_true", help="Build design.")
+    target_group.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
+    target_group.add_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")
+    target_group.add_argument("--flash",             action="store_true", help="Flash Bitstream.")
     builder_args(parser)
     soc_core_args(parser)
+    icestorm_args(parser)
     args = parser.parse_args()
 
     dfu_flash_offset = 0x40000
@@ -180,7 +176,8 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build(**icestorm_argdict(args))
 
     if args.flash:
         flash(builder.output_dir, soc.build_name, int(args.bios_flash_offset, 0))

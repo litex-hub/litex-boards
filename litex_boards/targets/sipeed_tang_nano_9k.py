@@ -7,10 +7,9 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
-
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
+
+from litex_boards.platforms import sipeed_tang_nano_9k
 
 from litex.soc.cores.clock.gowin_gw1n import GW1NPLL
 from litex.soc.integration.soc_core import *
@@ -19,9 +18,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
 
-from litex_boards.platforms import tang_nano_9k
-
-from litehyperbus.core.hyperbus import HyperRAM
+from litex.soc.cores.hyperbus import HyperRAM
 
 kB = 1024
 mB = 1024*kB
@@ -45,23 +42,35 @@ class _CRG(Module):
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+        # Video PLL
+        if with_video_pll:
+            self.submodules.video_pll = video_pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
+            self.comb += video_pll.reset.eq(~rst_n)
+            video_pll.register_clkin(clk27, 27e6)
+            self.clock_domains.cd_hdmi   = ClockDomain()
+            self.clock_domains.cd_hdmi5x = ClockDomain()
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6)
+            self.specials += Instance("CLKDIV",
+                p_DIV_MODE= "5",
+                i_RESETN = rst_n,
+                i_HCLKIN = self.cd_hdmi5x.clk,
+                o_CLKOUT = self.cd_hdmi.clk
+            )
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(27e6), bios_flash_offset=0x0,
-                 with_led_chaser=True, **kwargs):
-        platform = tang_nano_9k.Platform()
-
-        # Disable Integrated ROM
-        kwargs["integrated_rom_size"] = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Tang Nano 9K",
-            **kwargs)
+                 with_led_chaser=True,  with_video_terminal=False, **kwargs):
+        platform = sipeed_tang_nano_9k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Disable Integrated ROM
+        kwargs["integrated_rom_size"] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano 9K", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q32
@@ -96,8 +105,20 @@ class BaseSoC(SoCCore):
             hyperram_pads = HyperRAMPads(0)
             self.comb += ck[0].eq(hyperram_pads.clk)
             self.comb += ck_n[0].eq(~hyperram_pads.clk)
+            # FIXME: Issue with upstream HyperRAM core, so use old one. Need to investigate.
+            if not os.path.exists("hyperbus.py"):
+                os.system("wget https://github.com/litex-hub/litex-boards/files/8831568/hyperbus.py.txt")
+                os.system("mv hyperbus.py.txt hyperbus.py")
+            from hyperbus import HyperRAM
             self.submodules.hyperram = HyperRAM(hyperram_pads)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4*mB))
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Free up BRAMs.
+
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -108,20 +129,25 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Tang Nano 9K")
-    parser.add_argument("--build",       action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",        action="store_true", help="Load bitstream.")
-    parser.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
-    parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
-    parser.add_argument("--bios-flash-offset", default="0x0", help="BIOS offset in SPI Flash.")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Nano 9K")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",                action="store_true",      help="Build design.")
+    target_group.add_argument("--load",                 action="store_true",      help="Load bitstream.")
+    target_group.add_argument("--flash",                action="store_true",      help="Flash Bitstream.")
+    target_group.add_argument("--sys-clk-freq",         default=27e6,             help="System clock frequency.")
+    target_group.add_argument("--bios-flash-offset",    default="0x0",            help="BIOS offset in SPI Flash.")
+    target_group.add_argument("--with-spi-sdcard",      action="store_true",      help="Enable SPI-mode SDCard support.")
+    target_group.add_argument("--with-video-terminal",  action="store_true",      help="Enable Video Terminal (HDMI).")
+    target_group.add_argument("--prog-kit",             default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq=int(float(args.sys_clk_freq)),
-        bios_flash_offset=int(args.bios_flash_offset, 0),
+        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        bios_flash_offset   = int(args.bios_flash_offset, 0),
+        with_video_terminal = args.with_video_terminal,
         **soc_core_argdict(args)
     )
 
@@ -129,16 +155,20 @@ def main():
         soc.add_spi_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
-        prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
-        prog.flash(int(args.bios_flash_offset, 0), "build/sipeed_tang_nano_9k/software/bios/bios.bin", external=True)
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
+        # Axternal SPI programming not supported by gowin 'programmer_cli' now!
+        # if needed, use openFPGALoader or Gowin programmer GUI
+        if args.prog_kit == "openfpgaloader":
+            prog.flash(int(args.bios_flash_offset, 0), builder.get_bios_filename(), external=True)
 
 if __name__ == "__main__":
     main()

@@ -10,15 +10,12 @@
 # Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from fractions import Fraction
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import atlys
+from litex_boards.platforms import digilent_atlys
 
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -113,6 +110,7 @@ class _CRG(Module):
         self.specials += Instance("BUFG", i_I=pll_sys, o_O=self.cd_sys.clk)
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd | (por > 0))
+        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
         # SDRAM clocks -----------------------------------------------------------------------------
         self.clk4x_wr_strb = Signal()
@@ -151,16 +149,13 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, with_ethernet=True, with_etherbone=False, eth_phy=0, **kwargs):
         sys_clk_freq = int(75e6)
-        platform     = atlys.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Atlys",
-            **kwargs)
+        platform     = digilent_atlys.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Atlys", **kwargs)
 
         # DDR2 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -209,23 +204,29 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Atlys")
-    parser.add_argument("--build",          action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",           action="store_true", help="Load bitstream.")
-    parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Atlys")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",          action="store_true", help="Build design.")
+    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
+    target_group.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    target_group.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
 
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_core_argdict(args))
-    builder = Builder(soc, **builder_argdict(args), )
-    builder.build(run=args.build)
+    soc = BaseSoC(
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        **soc_core_argdict(args))
+    builder = Builder(soc, **builder_argdict(args))
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

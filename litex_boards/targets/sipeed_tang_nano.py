@@ -29,19 +29,14 @@
 # litex_server --uart --uart-port=/dev/ttyUSBX --uart-baudrate=1000000
 # 5) Test UARTBone ex: litex_cli --regs
 
-
-import os
-import argparse
-
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
+
+from litex_boards.platforms import sipeed_tang_nano
 
 from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-
-from litex_boards.platforms import tang_nano
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -66,14 +61,14 @@ class _CRG(Module):
 
 class BaseSoC(SoCMini):
     def __init__(self, sys_clk_freq=int(48e6), with_led_chaser=True, **kwargs):
-        platform = tang_nano.Platform()
-
-        # SoCMini ----------------------------------------------------------------------------------
-        SoCMini.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Tang Nano")
+        platform = sipeed_tang_nano.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCMini ----------------------------------------------------------------------------------
+        kwargs["uart_name"] = "crossover"
+        SoCMini.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano", **kwargs)
 
         # UARTBone ---------------------------------------------------------------------------------
         self.add_uartbone(baudrate=int(1e6)) # CH552 firmware does not support traditional baudrates.
@@ -87,11 +82,13 @@ class BaseSoC(SoCMini):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Tang Nano")
-    parser.add_argument("--build",       action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",        action="store_true", help="Load bitstream.")
-    parser.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
-    parser.add_argument("--sys-clk-freq",default=48e6,        help="System clock frequency.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Nano")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",       action="store_true", help="Build design.")
+    target_group.add_argument("--load",        action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
+    target_group.add_argument("--sys-clk-freq",default=48e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -102,15 +99,16 @@ def main():
     )
 
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
 
 if __name__ == "__main__":
     main()

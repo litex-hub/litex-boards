@@ -11,12 +11,9 @@
 # Note: For now, with --toolchain=yosys+nextpnr, DDR3 should be disabled and sys_clk_freq lowered, ex:
 # python3 -m litex_boards.targets.digilent_arty.py --sys-clk-freq=50e6 --integrated-main-ram-size=8192 --toolchain=yosys+nextpnr --build
 
-import os
-import argparse
-
 from migen import *
 
-from litex_boards.platforms import arty
+from litex_boards.platforms import digilent_arty
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
@@ -39,8 +36,8 @@ class _CRG(Module):
         self.clock_domains.cd_sys       = ClockDomain()
         self.clock_domains.cd_eth       = ClockDomain()
         if with_dram:
-            self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-            self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys4x     = ClockDomain()
+            self.clock_domains.cd_sys4x_dqs = ClockDomain()
             self.clock_domains.cd_idelay    = ClockDomain()
 
 
@@ -74,15 +71,14 @@ class BaseSoC(SoCCore):
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
                  eth_dynamic_ip=False, with_led_chaser=True, with_jtagbone=True,
                  with_spi_flash=False, with_pmod_gpio=False, **kwargs):
-        platform = arty.Platform(variant=variant, toolchain=toolchain)
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Arty A7",
-            **kwargs)
+        platform = digilent_arty.Platform(variant=variant, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_dram=not self.integrated_main_ram_size)
+        with_dram = (kwargs.get("integrated_main_ram_size", 0) == 0)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_dram)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Arty A7", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -124,31 +120,33 @@ class BaseSoC(SoCCore):
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
-            platform.add_extension(arty.raw_pmod_io("pmoda"))
+            platform.add_extension(digilent_arty.raw_pmod_io("pmoda"))
             self.submodules.gpio = GPIOTristate(platform.request("pmoda"))
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Arty A7")
-    parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    parser.add_argument("--build",               action="store_true",              help="Build bitstream.")
-    parser.add_argument("--load",                action="store_true",              help="Load bitstream.")
-    parser.add_argument("--flash",               action="store_true",              help="Flash bitstream.")
-    parser.add_argument("--variant",             default="a7-35",                  help="Board variant (a7-35 or a7-100).")
-    parser.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
-    ethopts = parser.add_mutually_exclusive_group()
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Arty A7")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
+    target_group.add_argument("--build",               action="store_true",              help="Build design.")
+    target_group.add_argument("--load",                action="store_true",              help="Load bitstream.")
+    target_group.add_argument("--flash",               action="store_true",              help="Flash bitstream.")
+    target_group.add_argument("--variant",             default="a7-35",                  help="Board variant (a7-35 or a7-100).")
+    target_group.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
+    ethopts = target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",     action="store_true",              help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    parser.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
-    sdopts = parser.add_mutually_exclusive_group()
+    target_group.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    target_group.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
+    sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support.")
-    parser.add_argument("--sdcard-adapter",      type=str,                         help="SDCard PMOD adapter (digilent or numato).")
-    parser.add_argument("--with-jtagbone",       action="store_true",              help="Enable JTAGbone support.")
-    parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
-    parser.add_argument("--with-pmod-gpio",      action="store_true",              help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    target_group.add_argument("--sdcard-adapter",      type=str,                         help="SDCard PMOD adapter (digilent or numato).")
+    target_group.add_argument("--with-jtagbone",       action="store_true",              help="Enable JTAGbone support.")
+    target_group.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
+    target_group.add_argument("--with-pmod-gpio",      action="store_true",              help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -170,9 +168,9 @@ def main():
         **soc_core_argdict(args)
     )
     if args.sdcard_adapter == "numato":
-        soc.platform.add_extension(arty._numato_sdcard_pmod_io)
+        soc.platform.add_extension(digilent_arty._numato_sdcard_pmod_io)
     else:
-        soc.platform.add_extension(arty._sdcard_pmod_io)
+        soc.platform.add_extension(digilent_arty._sdcard_pmod_io)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
@@ -180,15 +178,16 @@ def main():
 
     builder = Builder(soc, **builder_argdict(args))
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
-    builder.build(**builder_kwargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kwargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
+        prog.flash(0, builder.get_bitstream_filename(mode="flash"))
 
 if __name__ == "__main__":
     main()

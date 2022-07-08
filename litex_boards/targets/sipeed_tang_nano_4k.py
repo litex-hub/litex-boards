@@ -6,11 +6,9 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
+
+from litex_boards.platforms import sipeed_tang_nano_4k
 
 from litex.soc.cores.clock.gowin_gw1n import GW1NPLL
 from litex.soc.integration.soc_core import *
@@ -19,9 +17,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
 
-from litex_boards.platforms import tang_nano_4k
-
-from litehyperbus.core.hyperbus import HyperRAM
+from litex.soc.cores.hyperbus import HyperRAM
 
 kB = 1024
 mB = 1024*kB
@@ -65,8 +61,12 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(27e6), with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
-        platform = tang_nano_4k.Platform()
+        platform = sipeed_tang_nano_4k.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+
+        # SoCCore ----------------------------------------------------------------------------------
         if "cpu_type" in kwargs and kwargs["cpu_type"] == "gowin_emcu":
             kwargs["with_uart"]            = False # CPU has own UART
             kwargs["integrated_sram_size"] = 0     # SRAM is directly attached to CPU
@@ -74,18 +74,12 @@ class BaseSoC(SoCCore):
         else:
             # Disable Integrated ROM
             kwargs["integrated_rom_size"] = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Tang Nano 4K",
-            **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano 4K", **kwargs)
 
         if self.cpu_type == 'vexriscv':
             assert self.cpu_variant == 'minimal', 'use --cpu-variant=minimal to fit into number of BSRAMs'
 
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
-
+        # Gowin EMCU Integration -------------------------------------------------------------------
         if self.cpu_type == "gowin_emcu":
             self.cpu.connect_uart(platform.request("serial"))
             self.bus.add_region("sram", SoCRegion(
@@ -98,11 +92,11 @@ class BaseSoC(SoCCore):
                 linker=True)
             )
         else:
-            # SPI Flash --------------------------------------------------------------------------------
+            # SPI Flash ----------------------------------------------------------------------------
             from litespi.modules import W25Q32
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
-            # Add ROM linker region --------------------------------------------------------------------
+            # Add ROM linker region ----------------------------------------------------------------
             self.bus.add_region("rom", SoCRegion(
                 origin = self.bus.regions["spiflash"].origin,
                 size   = 32*kB,
@@ -123,7 +117,7 @@ class BaseSoC(SoCCore):
             hyperram_pads = HyperRAMPads()
             self.comb += platform.request("O_hpram_ck").eq(hyperram_pads.clk)
             self.comb += platform.request("O_hpram_ck_n").eq(~hyperram_pads.clk)
-            self.submodules.hyperram = HyperRAM(hyperram_pads)
+            self.submodules.hyperram = HyperRAM(hyperram_pads, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8*mB))
 
         # Video ------------------------------------------------------------------------------------
@@ -141,11 +135,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Tang Nano 4K")
-    parser.add_argument("--build",       action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",        action="store_true", help="Load bitstream.")
-    parser.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
-    parser.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Nano 4K")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",       action="store_true", help="Build design.")
+    target_group.add_argument("--load",        action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
+    target_group.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -156,16 +152,17 @@ def main():
     )
 
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
-        prog.flash(0, os.path.join(builder.software_dir, "bios", "bios.bin"), external=True)
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
+        prog.flash(0, builder.get_bios_filename(), external=True)
 
 
 if __name__ == "__main__":

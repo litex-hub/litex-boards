@@ -6,12 +6,9 @@
 # Copyright (c) 2022 Rakesh Peter <rakesh@stanproc.in>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 
-from litex_boards.platforms import pynq_z1
+from litex_boards.platforms import digilent_pynq_z1
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.interconnect import axi
@@ -62,17 +59,18 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_led_chaser=True,
                 with_video_terminal=False, with_video_framebuffer=False, **kwargs):
-        platform = pynq_z1.Platform()
+        platform = digilent_pynq_z1.Platform()
+
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain, with_video_pll=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on PYNQ Z1",
-            **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on PYNQ Z1", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
             # Get and set the pre-generated .xci FIXME: change location? add it to the repository?
-            os.system("wget https://github.com/litex-hub/litex-boards/files/4967144/zybo_z7_ps7.txt")
+            os.system("wget https://github.com/litex-hub/litex-boards/files/8339591/zybo_z7_ps7.txt)")
             os.makedirs("xci", exist_ok=True)
             os.system("mv zybo_z7_ps7.txt xci/zybo_z7_ps7.xci")
             self.cpu.set_ps7_xci("xci/zybo_z7_ps7.xci")
@@ -83,10 +81,7 @@ class BaseSoC(SoCCore):
                 axi          = self.cpu.add_axi_gp_master(),
                 wishbone     = wb_gp0,
                 base_address = 0x43c00000)
-            self.add_wb_master(wb_gp0)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, toolchain, with_video_pll=with_video_terminal)
+            self.bus.add_master(master=wb_gp0)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
@@ -102,11 +97,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on PYNQ Z1")
-    parser.add_argument("--build",               action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",                action="store_true", help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",        default=125e6,       help="System clock frequency.")
-    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on PYNQ Z1")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",               action="store_true", help="Build design.")
+    target_group.add_argument("--load",                action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",        default=125e6,       help="System clock frequency.")
+    target_group.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
 
     builder_args(parser)
     soc_core_args(parser)
@@ -119,11 +116,12 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**vivado_build_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"), device=1)
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"), device=1)
 
 if __name__ == "__main__":
     main()

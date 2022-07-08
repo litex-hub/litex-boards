@@ -8,18 +8,13 @@
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import sys
-import argparse
-
-target="lattice_ice40up5k_evn"
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex_boards.platforms import lattice_ice40up5k_evn
 from litex.build.lattice.programmer import IceStormProgrammer
 
+from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
@@ -38,7 +33,7 @@ class _CRG(Module):
         assert sys_clk_freq == 12e6
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_por    = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por    = ClockDomain()
 
         # # #
 
@@ -64,17 +59,14 @@ class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), with_led_chaser=True, **kwargs):
         platform = lattice_ice40up5k_evn.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
         kwargs["integrated_sram_size"] = 0
         kwargs["integrated_rom_size"]  = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Lattice iCE40UP5k EVN breakout board",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Lattice iCE40UP5k EVN breakout board", **kwargs)
 
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
         self.submodules.spram = Up5kSPRAM(size=128*kB)
@@ -107,7 +99,7 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(bios_flash_offset):
+def flash(bios_flash_offset, target="lattice_ice40up5k_evn"):
     from litex.build.dfu import DFUProg
     prog = IceStormProgrammer()
     bitstream  = open("build/"+target+"/gateware/"+target+".bin",  "rb")
@@ -136,13 +128,16 @@ def flash(bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Lattice iCE40UP5k EVN breakout board")
-    parser.add_argument("--build",             action="store_true", help="Build bitstream.")
-    parser.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
-    parser.add_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")
-    parser.add_argument("--flash",             action="store_true", help="Flash Bitstream.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Lattice iCE40UP5k EVN breakout board")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",             action="store_true", help="Build design.")
+    target_group.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
+    target_group.add_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")
+    target_group.add_argument("--flash",             action="store_true", help="Flash Bitstream.")
     builder_args(parser)
     soc_core_args(parser)
+    icestorm_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -151,7 +146,8 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build(**icestorm_argdict(args))
 
     if args.flash:
         flash(args.bios_flash_offset)

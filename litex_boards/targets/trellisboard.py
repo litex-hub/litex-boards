@@ -6,9 +6,6 @@
 # Copyright (c) 2019 David Shah <dave@ds0.me>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -34,7 +31,7 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
-        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por = ClockDomain()
         self.clock_domains.cd_sys = ClockDomain()
 
         # # #
@@ -61,10 +58,10 @@ class _CRGSDRAM(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_init    = ClockDomain()
-        self.clock_domains.cd_por     = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por     = ClockDomain()
         self.clock_domains.cd_sys     = ClockDomain()
         self.clock_domains.cd_sys2x   = ClockDomain()
-        self.clock_domains.cd_sys2x_i = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys2x_i = ClockDomain()
 
         # # #
 
@@ -105,8 +102,7 @@ class _CRGSDRAM(Module):
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.reset,
                 o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys,    ~pll.locked | self.reset),
-            AsyncResetSynchronizer(self.cd_sys2x,  ~pll.locked | self.reset),
+            AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
         ]
 
         self.comb += platform.request("dram_vtt_en").eq(1)
@@ -123,14 +119,12 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = trellisboard.Platform(toolchain=toolchain)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Trellis Board",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
-        crg_cls = _CRGSDRAM if not self.integrated_main_ram_size else _CRG
+        crg_cls = _CRGSDRAM if kwargs.get("integrated_main_ram_size", 0) == 0 else _CRG
         self.submodules.crg = crg_cls(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Trellis Board", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -182,19 +176,21 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Trellis Board")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
-    parser.add_argument("--toolchain",       default="trellis",   help="FPGA toolchain (trellis or diamond).")
-    parser.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
-    parser.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support.")
-    viopts = parser.add_mutually_exclusive_group()
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Trellis Board")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true", help="Build design.")
+    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--toolchain",       default="trellis",   help="FPGA toolchain (trellis or diamond).")
+    target_group.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
+    target_group.add_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support.")
+    viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
-    sdopts = parser.add_mutually_exclusive_group()
+    sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    parser.add_argument("--with-pmod-gpio",  action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    target_group.add_argument("--with-pmod-gpio",  action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     builder_args(parser)
     soc_core_args(parser)
     trellis_args(parser)
@@ -214,11 +210,12 @@ def main():
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
     builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
-    builder.build(**builder_kargs, run=args.build)
+    if args.build:
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".svf"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
 
 if __name__ == "__main__":
     main()

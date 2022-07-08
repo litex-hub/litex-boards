@@ -7,8 +7,6 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -58,14 +56,11 @@ class BaseSoC(SoCCore):
         platform.add_extension(efinix_trion_t120_bga576_dev_kit.usb_pmod_io("pmod_e"))
         kwargs["uart_name"] = "usb_uart"
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Efinix Trion T120 BGA576 Dev Kit",
-            **kwargs
-        )
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -340,17 +335,19 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit")
-    parser.add_argument("--build",          action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",           action="store_true", help="Load bitstream.")
-    parser.add_argument("--flash",          action="store_true", help="Flash bitstream.")
-    parser.add_argument("--sys-clk-freq",   default=75e6,        help="System clock frequency.")
-    parser.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
-    ethopts = parser.add_mutually_exclusive_group()
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",          action="store_true", help="Build design.")
+    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",          action="store_true", help="Flash bitstream.")
+    target_group.add_argument("--sys-clk-freq",   default=75e6,        help="System clock frequency.")
+    target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    ethopts = target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    parser.add_argument("--eth-phy",         default=0, type=int,              help="Ethernet PHY: 0 (default) or 1.")
+    target_group.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    target_group.add_argument("--eth-phy",         default=0, type=int,              help="Ethernet PHY: 0 (default) or 1.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -364,16 +361,17 @@ def main():
         eth_phy        = args.eth_phy,
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, f"{soc.build_name}.bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         from litex.build.openfpgaloader import OpenFPGALoader
         prog = OpenFPGALoader("trion_t120_bga576")
-        prog.flash(0, os.path.join(builder.gateware_dir, f"{soc.build_name}.hex"))
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".hex")) # FIXME
 
 if __name__ == "__main__":
     main()

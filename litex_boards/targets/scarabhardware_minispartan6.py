@@ -8,16 +8,12 @@
 # Copyright (c) 2014 Yann Sionneau <ys@m-labs.hk>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-from fractions import Fraction
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import minispartan6
+from litex_boards.platforms import scarabhardware_minispartan6
 
 from litex.soc.cores.clock import S6PLL
 from litex.soc.integration.soc_core import *
@@ -36,9 +32,9 @@ class _CRG(Module):
         self.clock_domains.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
             self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+            self.clock_domains.cd_sys_ps = ClockDomain()
         self.clock_domains.cd_hdmi    = ClockDomain()
         self.clock_domains.cd_hdmi5x = ClockDomain()
 
@@ -70,15 +66,13 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(80e6), sdram_rate="1:1", with_led_chaser=True,
                  with_video_terminal=False, with_video_framebuffer=False, **kwargs):
-        platform = minispartan6.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on MiniSpartan6",
-            **kwargs)
+        platform = scarabhardware_minispartan6.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on MiniSpartan6", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -107,12 +101,14 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on MiniSpartan6")
-    parser.add_argument("--build",                  action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",                   action="store_true", help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",           default=80e6,        help="System clock frequency.")
-    parser.add_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    viopts = parser.add_mutually_exclusive_group()
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on MiniSpartan6")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",                  action="store_true", help="Build design.")
+    target_group.add_argument("--load",                   action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",           default=80e6,        help="System clock frequency.")
+    target_group.add_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     builder_args(parser)
@@ -127,11 +123,12 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

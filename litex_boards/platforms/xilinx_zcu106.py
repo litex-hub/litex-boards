@@ -43,6 +43,35 @@ _io = [
         IOStandard("LVCMOS12")
     ),
 
+    # PCIe
+    ("pcie_x1", 0,
+        Subsignal("rst_n", Pins("L8"), IOStandard("LVCMOS33")),
+        Subsignal("clk_p", Pins("AB8")),
+        Subsignal("clk_n", Pins("AB7")),
+        Subsignal("rx_p",  Pins("AE2")),
+        Subsignal("rx_n",  Pins("AE1")),
+        Subsignal("tx_p",  Pins("AD4")),
+        Subsignal("tx_n",  Pins("AD3")),
+    ),
+    ("pcie_x2", 0,
+        Subsignal("rst_n", Pins("L8"), IOStandard("LVCMOS33")),
+        Subsignal("clk_p", Pins("AB8")),
+        Subsignal("clk_n", Pins("AB7")),
+        Subsignal("rx_p",  Pins("AE2 AF4")),
+        Subsignal("rx_n",  Pins("AE1 AF3")),
+        Subsignal("tx_p",  Pins("AD4 AE6")),
+        Subsignal("tx_n",  Pins("AD3 AE5")),
+    ),
+    ("pcie_x4", 0,
+        Subsignal("rst_n", Pins("L8"), IOStandard("LVCMOS33")),
+        Subsignal("clk_p", Pins("AB8")),
+        Subsignal("clk_n", Pins("AB7")),
+        Subsignal("rx_p",  Pins("AE2 AF4 AG2 AJ2")),
+        Subsignal("rx_n",  Pins("AE1 AF3 AG1 AJ1")),
+        Subsignal("tx_p",  Pins("AD4 AE6 AG6 AH4")),
+        Subsignal("tx_n",  Pins("AD3 AE5 AG5 AH3")),
+    ),
+
     # DDR4 SDRAM
     ("ddram", 0,
         Subsignal("a",       Pins(

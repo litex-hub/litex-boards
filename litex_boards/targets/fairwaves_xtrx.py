@@ -24,8 +24,6 @@
 # ./litepcie_util uart_test
 
 import os
-import argparse
-import sys
 
 from migen import *
 
@@ -66,15 +64,13 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, with_led_chaser=True, **kwargs):
         platform = fairwaves_xtrx.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = CRG(platform, sys_clk_freq, with_pcie)
+
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "crossover"
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Fairwaves XTRX",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(platform, sys_clk_freq, with_pcie)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Fairwaves XTRX", **kwargs)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -105,13 +101,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Fairwaves XTRX")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
-    parser.add_argument("--flash",           action="store_true", help="Flash bitstream.")
-    parser.add_argument("--sys-clk-freq",    default=125e6,       help="System clock frequency.")
-    parser.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
-    parser.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Fairwaves XTRX")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true", help="Build design.")
+    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",           action="store_true", help="Flash bitstream.")
+    target_group.add_argument("--sys-clk-freq",    default=125e6,       help="System clock frequency.")
+    target_group.add_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
+    target_group.add_argument("--driver",          action="store_true", help="Generate PCIe driver.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -122,18 +120,19 @@ def main():
         **soc_core_argdict(args)
     )
     builder  = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
+        prog.flash(0, builder.get_bitstream_filename(mode="flash"))
 
 if __name__ == "__main__":
     main()

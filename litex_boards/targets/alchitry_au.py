@@ -6,10 +6,6 @@
 # Copyright (c) 2021 Nathaniel Lewis <github@nrlewis.dev>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-import sys
-
 from migen import *
 
 from litex_boards.platforms import alchitry_au
@@ -31,8 +27,8 @@ class CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
 
         # Clk/Rst
@@ -56,13 +52,11 @@ class BaseSoC(SoCCore):
     def __init__(self, variant="au", sys_clk_freq=int(83333333), with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = alchitry_au.Platform(variant=variant)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Alchitry Au(+)",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alchitry Au(+)", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -92,13 +86,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Alchitry Au(+)")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
-    parser.add_argument("--flash",           action="store_true", help="Flash bitstream.")
-    parser.add_argument("--variant",         default="au",        help="Board variant (au or au+).")
-    parser.add_argument("--sys-clk-freq",    default=83333333,    help="System clock frequency.")
-    parser.add_argument("--with-spi-flash",  action="store_true", help="Enable SPI Flash (MMAPed).")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Alchitry Au(+)")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true", help="Build design.")
+    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",           action="store_true", help="Flash bitstream.")
+    target_group.add_argument("--variant",         default="au",        help="Board variant (au or au+).")
+    target_group.add_argument("--sys-clk-freq",    default=83333333,    help="System clock frequency.")
+    target_group.add_argument("--with-spi-flash",  action="store_true", help="Enable SPI Flash (MMAPed).")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -112,15 +108,16 @@ def main():
     )
 
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**vivado_build_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, soc.build_name + ".bin"))
+        prog.flash(0, builder.get_bitstream_filename(mode="flash"))
 
 if __name__ == "__main__":
     main()

@@ -5,9 +5,6 @@
 # Copyright (c) 2020 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 from litex_boards.platforms import terasic_sockit
 
@@ -30,13 +27,13 @@ class _CRG(Module):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
         if with_video_terminal:
-            self.clock_domains.cd_vga = ClockDomain(reset_less=True)
+            self.clock_domains.cd_vga = ClockDomain()
         if with_sdram:
             if sdram_rate == "1:2":
                 self.clock_domains.cd_sys2x    = ClockDomain()
-                self.clock_domains.cd_sys2x_ps = ClockDomain(reset_less=True)
+                self.clock_domains.cd_sys2x_ps = ClockDomain()
             else:
-                self.clock_domains.cd_sys_ps = ClockDomain(reset_less=True)
+                self.clock_domains.cd_sys_ps = ClockDomain()
 
         # Clk / Rst
         clk50 = platform.request("clk50")
@@ -69,15 +66,17 @@ class BaseSoC(SoCCore):
                  with_led_chaser=True, with_video_terminal=False, **kwargs):
         platform = terasic_sockit.Platform(revision)
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq,
+            with_sdram          = mister_sdram != None,
+            sdram_rate          = sdram_rate,
+            with_video_terminal = with_video_terminal
+        )
+
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
             kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG-UART.
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on the Terasic SoCKit",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_sdram=mister_sdram != None, sdram_rate=sdram_rate, with_video_terminal=with_video_terminal)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on the Terasic SoCKit", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if mister_sdram is not None:
@@ -107,15 +106,17 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on the Terasic SoCKit")
-    parser.add_argument("--single-rate-sdram",   action="store_true", help="Clock SDRAM with 1x the sytem clock (instead of 2x).")
-    parser.add_argument("--mister-sdram-xs-v22", action="store_true", help="Use optional MiSTer SDRAM module XS v2.2 on J2 on GPIO daughter card.")
-    parser.add_argument("--mister-sdram-xs-v24", action="store_true", help="Use optional MiSTer SDRAM module XS v2.4 on J2 on GPIO daughter card.")
-    parser.add_argument("--build",               action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",                action="store_true", help="Load bitstream.")
-    parser.add_argument("--revision",            default="revd",      help="Board revision (revb, revc or revd).")
-    parser.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
-    parser.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on the Terasic SoCKit")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--single-rate-sdram",   action="store_true", help="Clock SDRAM with 1x the sytem clock (instead of 2x).")
+    target_group.add_argument("--mister-sdram-xs-v22", action="store_true", help="Use optional MiSTer SDRAM module XS v2.2 on J2 on GPIO daughter card.")
+    target_group.add_argument("--mister-sdram-xs-v24", action="store_true", help="Use optional MiSTer SDRAM module XS v2.4 on J2 on GPIO daughter card.")
+    target_group.add_argument("--build",               action="store_true", help="Build design.")
+    target_group.add_argument("--load",                action="store_true", help="Load bitstream.")
+    target_group.add_argument("--revision",            default="revd",      help="Board revision (revb, revc or revd).")
+    target_group.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
+    target_group.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -129,11 +130,12 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".sof"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

@@ -13,9 +13,6 @@
 # Or the SBusFPGA adapter board:
 # https://github.com/rdolbeau/SBusFPGA
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import ztex213
@@ -34,10 +31,10 @@ from litedram.phy import s7ddrphy
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x     = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
-        self.clock_domains.cd_por       = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por       = ClockDomain()
 
         # # #
         clk48 = platform.request("clk48")
@@ -66,13 +63,11 @@ class BaseSoC(SoCCore):
                  with_led_chaser=True, **kwargs):
         platform = ztex213.Platform(variant=variant, expansion=expansion)
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Ztex 2.13",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Ztex 2.13", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -95,13 +90,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Ztex 2.13")
-    parser.add_argument("--build",           action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",            action="store_true", help="Load bitstream.")
-    parser.add_argument("--expansion",       default="debug",     help="Expansion board (debug or sbus).")
-    parser.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
-    parser.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
-    parser.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Ztex 2.13")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",           action="store_true", help="Build design.")
+    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--expansion",       default="debug",     help="Expansion board (debug or sbus).")
+    target_group.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
+    target_group.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    target_group.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -114,11 +111,12 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard() # SBus only
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**vivado_build_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

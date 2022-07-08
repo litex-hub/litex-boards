@@ -6,10 +6,6 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-import sys
-
 from migen import *
 
 from litex_boards.platforms import litex_acorn_baseboard
@@ -29,7 +25,7 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_video_pll=False):
         self.rst = Signal()
-        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por = ClockDomain()
         self.clock_domains.cd_sys = ClockDomain()
 
         # # #
@@ -73,13 +69,11 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = litex_acorn_baseboard.Platform(toolchain="trellis")
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on LiteX M2 Baseboard",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on LiteX M2 Baseboard", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -125,22 +119,24 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on LiteX Acorn Baseboard")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream.")
-    parser.add_argument("--flash",        action="store_true", help="Flash bitstream to SPI Flash.")
-    parser.add_argument("--sys-clk-freq", default=75e6,        help="System clock frequency.")
-    ethopts = parser.add_mutually_exclusive_group()
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on LiteX Acorn Baseboard")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",        action="store_true", help="Flash bitstream to SPI Flash.")
+    target_group.add_argument("--sys-clk-freq", default=75e6,        help="System clock frequency.")
+    ethopts = target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    sdopts = parser.add_mutually_exclusive_group()
+    sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    viopts = parser.add_mutually_exclusive_group()
+    viopts = target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
-    parser.add_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
-    parser.add_argument("--with-lcd",       action="store_true",      help="Enable OLED LCD support.")
-    parser.add_argument("--with-ws2812",    action="store_true",      help="Enable WS2812 on PMOD1:0.")
+    target_group.add_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
+    target_group.add_argument("--with-lcd",       action="store_true",      help="Enable OLED LCD support.")
+    target_group.add_argument("--with-ws2812",    action="store_true",      help="Enable WS2812 on PMOD1:0.")
 
     builder_args(parser)
     soc_core_args(parser)
@@ -162,15 +158,16 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**trellis_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**trellis_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(None, os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.flash(None, prog.load_bitstream(builder.get_bitstream_filename(mode="flash")))
 
 if __name__ == "__main__":
     main()

@@ -29,9 +29,10 @@ _io = [
         Subsignal("rx", Pins("F25")),
         IOStandard("LVCMOS33")
     ),
-    ("serial", 1,
-        Subsignal("tx", Pins("D26")),
-        Subsignal("rx", Pins("E25")),
+
+    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+        Subsignal("cs_n", Pins("C23")),
+        Subsignal("dq",   Pins("B24", "A25", "B22", "A22")),
         IOStandard("LVCMOS33")
     ),
 
@@ -46,7 +47,7 @@ _io = [
         Subsignal("ras_n",   Pins("AA12"), IOStandard("SSTL12_DCI")), # A16
         Subsignal("cas_n",   Pins("AF13"), IOStandard("SSTL12_DCI")), # A15
         Subsignal("we_n",    Pins("AA13"), IOStandard("SSTL12_DCI")), # A14
-        Subsignal("cs_n",    Pins("W13 AA14 AC14 AF15"), IOStandard("SSTL12_DCI")),
+        Subsignal("cs_n",    Pins("W13"), IOStandard("SSTL12_DCI")),
         Subsignal("act_n",   Pins("Y8"), IOStandard("SSTL12_DCI")),
         Subsignal("alert_n", Pins("AE10"), IOStandard("SSTL12_DCI")),
         Subsignal("par",     Pins("AE13"), IOStandard("SSTL12_DCI")),
@@ -61,19 +62,19 @@ _io = [
                 "AF17 AE17 AF20 AD19 AE15 AE16 AF19 AD18",
                 "Y18  Y17  W14  V14  AA20 AA15 V18  W16",
                 "AA18 AB19 V16  W15  AB17 AA17 V19  V17"),
-            IOStandard("SSTL12")),
+            IOStandard("SSTL12_T_DCI")),
         Subsignal("dqs_p",   Pins(
-                "W10 W6  AB1 AA5 AD20 AE18 W18 Y15 AF5",
-                "B17 D19 L19 J15 T24  P19  R16 M25 AC8"),
+                "W10  B17 W6   D19 AB1 L19 AA5 J15",
+                "AD20 T24 AE18 P19 W18 R16 Y15 M25"),
             IOStandard("DIFF_HSUL_12")),
         Subsignal("dqs_n",   Pins(
-                "W9  W5  AC1 AB5 AE20 AF18 W19 Y16 AF4",
-                "A17 D20 L20 J16 T25  P20  R17 L25 AD8"),
+                "W9   A17 W5   D20 AC1 L20 AB5 J16",
+                "AE20 T25 AF18 P20 W19 R17 Y16 L25"),
             IOStandard("DIFF_HSUL_12")),
-        Subsignal("clk_p",   Pins("AE12 AB12"), IOStandard("DIFF_SSTL12_DCI")),
-        Subsignal("clk_n",   Pins("AF12 AC12"), IOStandard("DIFF_SSTL12_DCI")),
-        Subsignal("cke",     Pins("AA8 AA7"), IOStandard("SSTL12_DCI")), # also AM15 for larger SODIMMs
-        Subsignal("odt",     Pins("Y13 AB14"), IOStandard("SSTL12_DCI")), # also AM16 for larger SODIMMs
+        Subsignal("clk_p",   Pins("AE12"), IOStandard("DIFF_SSTL12_DCI")),
+        Subsignal("clk_n",   Pins("AF12"), IOStandard("DIFF_SSTL12_DCI")),
+        Subsignal("cke",     Pins("AA8"), IOStandard("SSTL12_DCI")), # also AM15 for larger SODIMMs
+        Subsignal("odt",     Pins("Y13"), IOStandard("SSTL12_DCI")), # also AM16 for larger SODIMMs
         Subsignal("reset_n", Pins("AB6"), IOStandard("SSTL12")),
         Misc("SLEW=FAST"),
     ),
@@ -98,8 +99,7 @@ _io = [
 
     # HyperRAM
     ("hyperram", 0,
-        Subsignal("clk_n", Pins("AE26")),
-        Subsignal("clk_p", Pins("AD26")),
+        Subsignal("clk", Pins("AD26")), # clk_n AE26
         Subsignal("rst_n", Pins("AC24")),
         Subsignal("cs_n",  Pins("AC26")),
         Subsignal("dq",    Pins("AE23 AD25 AF24 AE22 AF23 AF25 AE25 AD24")),
@@ -115,6 +115,25 @@ _io = [
         Subsignal("cd",   Pins("F9")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33"),
+    ),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("E25")),
+        Subsignal("sda", Pins("D26")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # HDMI Out
+    ("hdmi_out", 0,
+        Subsignal("clk_p",   Pins("B15"),   IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("A15"),   IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("B14"),   IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("A14"),   IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("A13"),  IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("A12"),  IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("B10"),  IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("A10"),  IOStandard("TMDS_33")),
     ),
 ]
 
@@ -134,9 +153,11 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.6 [get_iobanks 32]")
         self.add_platform_command("set_property INTERNAL_VREF 0.6 [get_iobanks 33]")
         self.add_platform_command("set_property INTERNAL_VREF 0.6 [get_iobanks 34]")
+        self.add_platform_command("set_property DCI_CASCADE {{32 34}} [get_iobanks 33]")
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft4232.cfg", "bscan_spi_xc7k100t.bit")
+        bscan_spi = "bscan_spi_xc7k160t.bit" if "xc7k160t" in self.device else "bscan_spi_xc7k160t.bit"
+        return OpenOCD("openocd_xc7_ft4232.cfg", bscan_spi)
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)

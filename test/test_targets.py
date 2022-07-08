@@ -24,6 +24,8 @@ class TestTargets(unittest.TestCase):
         "efinix_xyloni_dev_kit",             # Reason: Require Efinity toolchain.
         "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
         "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
+        "efinix_t8f81_dev_kit",              # Reason: Require Efinity toolchain.
+        "adi_plutosdr",                      # Reason: No default clock.
     ]
     excluded_targets   = [
         "simple",                            # Reason: Generic target.
@@ -35,6 +37,7 @@ class TestTargets(unittest.TestCase):
         "efinix_xyloni_dev_kit",             # Reason: Require Efinity toolchain.
         "sipeed_tang_primer",                # Reason: Require Anlogic toolchain.
         "jungle_electronics_fireant",        # Reason: Require Efinity toolchain.
+        "efinix_t8f81_dev_kit",              # Reason: Require Efinity toolchain.
     ]
 
     # Build simple design for all platforms.
@@ -53,9 +56,9 @@ class TestTargets(unittest.TestCase):
                 os.system("rm -rf build")
                 cmd = """\
 python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
-    --no-compile-software   \
-    --no-compile-gateware   \
-    --uart-name="stub"      \
+    --build            \
+    --no-compile       \
+    --uart-name="stub" \
 """.format(name)
                 subprocess.check_call(cmd, shell=True)
 
@@ -77,7 +80,7 @@ python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
 python3 -m litex_boards.targets.{} \
     --cpu-type=vexriscv     \
     --cpu-variant=minimal   \
-    --no-compile-software   \
-    --no-compile-gateware   \
+    --build                 \
+    --no-compile            \
 """.format(name)
                 subprocess.check_call(cmd, shell=True)

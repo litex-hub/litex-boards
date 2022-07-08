@@ -7,9 +7,6 @@
 # Copyright (c) 2021 Dhiru Kholia <dhiru.kholia@gmail.com>,
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import ebaz4205
@@ -48,17 +45,15 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
         platform = ebaz4205.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "EBAZ4205 'Development' Board",
-            **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on EBAZ4205", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
             raise NotImplementedError
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -69,10 +64,12 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on EBAZ4205")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq", default=100e6,       help="System clock frequency.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on EBAZ4205")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq", default=100e6,       help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -83,11 +80,12 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**vivado_build_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"), device=1)
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"), device=1)
 
 if __name__ == "__main__":
     main()

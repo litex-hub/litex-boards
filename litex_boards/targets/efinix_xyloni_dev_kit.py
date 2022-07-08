@@ -8,8 +8,6 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -47,20 +45,16 @@ class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, sys_clk_freq, with_led_chaser=True, **kwargs):
         platform = efinix_xyloni_dev_kit.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM.
         kwargs["integrated_rom_size"]  = 0
-
         # Set CPU variant / reset address
         if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
             kwargs["cpu_variant"] = "minimal"
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Efinix Xyloni Dev Kit",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Xyloni Dev Kit", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q128JV
@@ -85,12 +79,14 @@ class BaseSoC(SoCCore):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Efinix Xyloni Dev Kit")
-    parser.add_argument("--build", action="store_true",           help="Build bitstream.")
-    parser.add_argument("--load",  action="store_true",           help="Load bitstream.")
-    parser.add_argument("--flash", action="store_true",           help="Flash Bitstream.")
-    parser.add_argument("--sys-clk-freq",      default=33.333e6,  help="System clock frequency.")
-    parser.add_argument("--bios-flash-offset", default="0x40000", help="BIOS offset in SPI Flash.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Efinix Xyloni Dev Kit")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build", action="store_true",           help="Build design.")
+    target_group.add_argument("--load",  action="store_true",           help="Load bitstream.")
+    target_group.add_argument("--flash", action="store_true",           help="Flash Bitstream.")
+    target_group.add_argument("--sys-clk-freq",      default=33.333e6,  help="System clock frequency.")
+    target_group.add_argument("--bios-flash-offset", default="0x40000", help="BIOS offset in SPI Flash.")
 
     builder_args(parser)
     soc_core_args(parser)
@@ -101,16 +97,17 @@ def main():
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, f"{soc.build_name}.hex"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, f"{soc.build_name}.hex"))
-        prog.flash(args.bios_flash_offset, os.path.join(builder.software_dir, "bios/bios.bin"))
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".hex")) # FIXME
+        prog.flash(args.bios_flash_offset, builder.get_bios_filename())
 
 if __name__ == "__main__":
     main()

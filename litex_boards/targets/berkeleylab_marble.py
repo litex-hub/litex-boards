@@ -24,9 +24,6 @@ then test and benchmark the etherbone link:
   litex/liteeth/bench/test_etherbone.py --udp --ident --access --sram --speed
 '''
 
-import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import berkeleylab_marble
@@ -48,8 +45,8 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, resets=[]):
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x  = ClockDomain()
+        self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay = ClockDomain()
 
         # # #
@@ -70,22 +67,15 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(
-        self,
-        sys_clk_freq=int(125e6),
-        with_ethernet=False,
-        with_etherbone=False,
-        with_rts_reset=False,
-        with_led_chaser=True,
-        spd_dump=None,
+    def __init__(self, sys_clk_freq=int(125e6),
+        with_ethernet   = False,
+        with_etherbone  = False,
+        with_rts_reset  = False,
+        with_led_chaser = True,
+        spd_dump        = None,
         **kwargs
     ):
         platform = berkeleylab_marble.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Berkeley-Lab Marble",
-            **kwargs)
 
         # CRG, resettable over USB serial RTS signal -----------------------------------------------
         resets = []
@@ -93,6 +83,9 @@ class BaseSoC(SoCCore):
             ser_pads = platform.lookup_request('serial')
             resets.append(ser_pads.rts)
         self.submodules.crg = _CRG(platform, sys_clk_freq, resets)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Berkeley-Lab Marble", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -111,28 +104,27 @@ class BaseSoC(SoCCore):
                 ram_module = MT8JTF12864(sys_clk_freq, "1:4")  # KC705 chip, 1 GB
                 print('DDR3: No spd data specified, falling back to MT8JTF12864')
 
-            self.add_sdram(
-                "sdram",
-                phy = self.ddrphy,
+            self.add_sdram("sdram",
+                phy    = self.ddrphy,
                 module = ram_module,
                 # size=0x40000000,  # Limit its size to 1 GB
                 l2_cache_size = kwargs.get("l2_size", 8192),
-                with_bist = kwargs.get("with_bist", False)
+                with_bist     = kwargs.get("with_bist", False)
             )
 
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
-                pads = self.platform.request("eth"),
-                tx_delay=0
+                pads       = self.platform.request("eth"),
+                tx_delay   = 0
             )
 
         if with_ethernet:
             self.add_ethernet(
-                phy=self.ethphy,
-                dynamic_ip=True,
-                software_debug=False
+                phy            = self.ethphy,
+                dynamic_ip     = True,
+                software_debug = False
             )
 
         if with_etherbone:
@@ -151,15 +143,17 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on BerkeleyLab Marble")
-    parser.add_argument("--build",          action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",           action="store_true", help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",   default=125e6,       help="System clock frequency.")
-    parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    parser.add_argument("--with-rts-reset", action="store_true", help="Connect UART RTS line to sys_clk reset.")
-    parser.add_argument("--with-bist",      action="store_true", help="Add DDR3 BIST Generator/Checker.")
-    parser.add_argument("--spd-dump",       type=str,            help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on BerkeleyLab Marble")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",          action="store_true", help="Build design.")
+    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",   default=125e6,       help="System clock frequency.")
+    target_group.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    target_group.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    target_group.add_argument("--with-rts-reset", action="store_true", help="Connect UART RTS line to sys_clk reset.")
+    target_group.add_argument("--with-bist",      action="store_true", help="Add DDR3 BIST Generator/Checker.")
+    target_group.add_argument("--spd-dump",       type=str,            help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -173,11 +167,12 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

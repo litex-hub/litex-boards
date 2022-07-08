@@ -6,9 +6,6 @@
 # Copyright (c) 2021 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import argparse
-
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -16,7 +13,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litex_boards.platforms import runber
+from litex_boards.platforms import myminieye_runber
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -36,20 +33,16 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(12e6), with_led_chaser=True, **kwargs):
-        platform = runber.Platform()
-
-
-        # Disable CPU for now.
-        kwargs["cpu_type"] = None
-        kwargs["integrated_sram_size"] = 0
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Runber",
-            **kwargs)
+        platform = myminieye_runber.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        # Disable CPU for now.
+        kwargs["cpu_type"]             = None
+        kwargs["integrated_sram_size"] = 0
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Runber", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -60,11 +53,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Runber")
-    parser.add_argument("--build",       action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",        action="store_true", help="Load bitstream.")
-    parser.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
-    parser.add_argument("--sys-clk-freq",default=12e6,        help="System clock frequency.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Runber")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",       action="store_true", help="Build design.")
+    target_group.add_argument("--load",        action="store_true", help="Load bitstream.")
+    target_group.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
+    target_group.add_argument("--sys-clk-freq",default=12e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -75,15 +70,16 @@ def main():
     )
 
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.gateware_dir, "impl", "pnr", "project.fs"))
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
 
 if __name__ == "__main__":
     main()

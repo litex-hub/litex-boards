@@ -1,7 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2020-2022 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -135,6 +135,20 @@ _io = [
         Subsignal("nxt",  Pins("F23")),
         Subsignal("stp",  Pins("H23")),
         Subsignal("data", Pins("M26 L25 L26 K25 K26 J23 P25 H25")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # HDMI / IT6613
+    ("hdmi", 0,
+        Subsignal("r", Pins("AD26 AE25 AF25 AE26 E10 D11 D10 C10  D9  E8 H5 J4")),
+        Subsignal("g", Pins("AA23 AA22 AA24 AA25  E1  F2  F1 D17 D16 E16 J6 H6")),
+        Subsignal("b", Pins("AD25 AC26 AB24 AB25  B3  C3  D3  B1  C8  D2 D1 E3")),
+        Subsignal("de",    Pins("A3")),
+        Subsignal("clk",   Pins("C1")),
+        Subsignal("vsync", Pins("A4")),
+        Subsignal("hsync", Pins("B4")),
+        Subsignal("sda", Pins("E17")),
+        Subsignal("scl", Pins("C17")),
         IOStandard("LVCMOS33")
     ),
 ]

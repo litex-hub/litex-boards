@@ -7,16 +7,15 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import sys
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import beaglewire
+from litex_boards.platforms import qwertyembedded_beaglewire
 
 from litex.build.io import DDROutput
 
+from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
@@ -36,7 +35,7 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_por = ClockDomain()
 
         # # #
 
@@ -66,19 +65,17 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, sys_clk_freq=int(50e6), **kwargs):
-        platform = beaglewire.Platform()
+        platform = qwertyembedded_beaglewire.Platform()
 
         # Disable Integrated ROM since too large for iCE40.
         kwargs["integrated_rom_size"]  = 0
         kwargs["integrated_sram_size"] = 2*kB
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Beaglewire",
-            **kwargs)
-
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Beaglewire", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -110,12 +107,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Beaglewire")
-    parser.add_argument("--build",             action="store_true", help="Build bitstream.")
-    parser.add_argument("--bios-flash-offset", default="0x60000",   help="BIOS offset in SPI Flash.")
-    parser.add_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Beaglewire")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",             action="store_true", help="Build design.")
+    target_group.add_argument("--bios-flash-offset", default="0x60000",   help="BIOS offset in SPI Flash.")
+    target_group.add_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
+    icestorm_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -124,7 +124,8 @@ def main():
          **soc_core_argdict(args)
     )
     builder = Builder(soc,  **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build(**icestorm_argdict(args))
 
 if __name__ == "__main__":
     main()

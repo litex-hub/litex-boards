@@ -188,6 +188,7 @@ class Platform(LatticePlatform):
 
     def __init__(self, revision="1.0", device="85F", toolchain="trellis", **kwargs):
         assert revision in ["1.0"]
+        assert device in ["25F", "45F", "85F"]
         self.revision = revision
         io         = {"1.0": _io_r1_0}[revision]
         connectors = {"1.0": _connectors_r1_0}[revision]

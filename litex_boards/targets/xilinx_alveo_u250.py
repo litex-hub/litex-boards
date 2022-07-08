@@ -8,12 +8,12 @@
 # Copyright (c) 2020 David Shah <dave@ds0.me>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import argparse, os
+import os
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex_boards.platforms import alveo_u250
+from litex_boards.platforms import xilinx_alveo_u250
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -32,8 +32,8 @@ class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
         self.rst = Signal()
         self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain(reset_less=True)
-        self.clock_domains.cd_pll4x  = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x  = ClockDomain()
+        self.clock_domains.cd_pll4x  = ClockDomain()
         self.clock_domains.cd_idelay = ClockDomain()
 
         # # #
@@ -46,10 +46,10 @@ class _CRG(Module):
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.specials += [
-            Instance("BUFGCE_DIV", name="main_bufgce_div",
+            Instance("BUFGCE_DIV",
                 p_BUFGCE_DIVIDE=4,
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys.clk),
-            Instance("BUFGCE", name="main_bufgce",
+            Instance("BUFGCE",
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
         ]
 
@@ -59,15 +59,13 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, with_pcie=False, **kwargs):
-        platform = alveo_u250.Platform()
-
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on Alveo U250",
-            **kwargs)
+        platform = xilinx_alveo_u250.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alveo U250", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -102,12 +100,14 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Alveo U250")
-    parser.add_argument("--build",        action="store_true", help="Build bitstream.")
-    parser.add_argument("--load",         action="store_true", help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
-    parser.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
-    parser.add_argument("--driver",       action="store_true", help="Generate PCIe driver.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on Alveo U250")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--build",        action="store_true", help="Build design.")
+    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
+    target_group.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
+    target_group.add_argument("--driver",       action="store_true", help="Generate PCIe driver.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -118,14 +118,15 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

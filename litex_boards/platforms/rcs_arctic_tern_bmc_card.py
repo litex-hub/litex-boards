@@ -232,7 +232,7 @@ class Platform(LatticePlatform):
 
     def __init__(self, device="LFE5UM5G", speed_grade="6", toolchain="trellis", **kwargs):
         assert device in ["LFE5UM5G", "LFE5UM"]
-        if device is "LFE5UM5G":
+        if device == "LFE5UM5G":
             speed_grade = "8"
         LatticePlatform.__init__(self, device + "-85F-" + speed_grade + "CABGA381", _io, toolchain=toolchain, **kwargs)
 
