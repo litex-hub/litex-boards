@@ -112,9 +112,9 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth", 0),
                 clk_freq   = self.clk_freq)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -209,10 +209,13 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         **soc_core_argdict(args)
     )
+
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
+
     if args.with_sdcard:
         soc.add_sdcard()
+
     builder = Builder(soc, **builder_argdict(args))
     if args.build:
         builder.build()
