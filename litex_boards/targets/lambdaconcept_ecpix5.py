@@ -75,14 +75,14 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, device="85F", sys_clk_freq=int(75e6),
+    def __init__(self, device="85F", sys_clk_freq=int(75e6), toolchain="trellis",
         with_ethernet          = False,
         with_etherbone         = False,
         with_video_terminal    = False,
         with_video_framebuffer = False,
         with_led_chaser        = True,
         **kwargs):
-        platform = lambdaconcept_ecpix5.Platform(device=device, toolchain="trellis")
+        platform = lambdaconcept_ecpix5.Platform(device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -225,6 +225,7 @@ def main():
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--build",           action="store_true", help="Build design.")
     target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
+    target_group.add_argument("--toolchain",       default="trellis",   help="FPGA toolchain (diamond or trellis).")
     target_group.add_argument("--flash",           action="store_true", help="Flash bitstream to SPI Flash.")
     target_group.add_argument("--device",          default="85F",       help="ECP5 device (45F or 85F).")
     target_group.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
@@ -244,6 +245,7 @@ def main():
     soc = BaseSoC(
         device                 = args.device,
         sys_clk_freq           = int(float(args.sys_clk_freq)),
+        toolchain              = args.toolchain,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
         with_video_terminal    = args.with_video_terminal,
@@ -253,8 +255,9 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **builder_argdict(args))
+    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     if args.build:
-        builder.build(**trellis_argdict(args))
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer()

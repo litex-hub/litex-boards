@@ -94,13 +94,13 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board="i5", revision="7.0", sys_clk_freq=60e6, with_ethernet=False,
+    def __init__(self, board="i5", revision="7.0", toolchain="trellis", sys_clk_freq=60e6, with_ethernet=False,
                  with_etherbone=False, local_ip="", remote_ip="", eth_phy=0, with_led_chaser=True, 
                  use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
                  with_video_framebuffer=False, **kwargs):
         board = board.lower()
         assert board in ["i5", "i9"]
-        platform = colorlight_i5.Platform(board=board, revision=revision)
+        platform = colorlight_i5.Platform(board=board, revision=revision, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
@@ -180,6 +180,7 @@ def main():
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--build",            action="store_true",      help="Build design.")
     target_group.add_argument("--load",             action="store_true",      help="Load bitstream.")
+    target_group.add_argument("--toolchain",        default="trellis",        help="FPGA toolchain (diamond or trellis).")
     target_group.add_argument("--board",            default="i5",             help="Board type (i5).")
     target_group.add_argument("--revision",         default="7.0", type=str,  help="Board revision (7.0).")
     target_group.add_argument("--sys-clk-freq",     default=60e6,             help="System clock frequency.")
@@ -203,6 +204,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(board=args.board, revision=args.revision,
+        toolchain              = args.toolchain,
         sys_clk_freq           = int(float(args.sys_clk_freq)),
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
@@ -222,8 +224,9 @@ def main():
         soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
+    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     if args.build:
-        builder.build(**trellis_argdict(args))
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer()

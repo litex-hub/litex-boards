@@ -86,11 +86,11 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, with_spi_flash=False,
+    def __init__(self, sys_clk_freq=50e6, toolchain="trellis", with_led_chaser=True, with_spi_flash=False,
                  use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
                  with_video_framebuffer=False, with_ethernet=False, with_etherbone=False,
                  eth_ip="192.168.1.50", eth_dynamic_ip=False, **kwargs):
-        platform = muselab_icesugar_pro.Platform()
+        platform = muselab_icesugar_pro.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = with_video_terminal or with_video_framebuffer
@@ -147,6 +147,7 @@ def main():
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--build",            action="store_true",      help="Build design.")
     target_group.add_argument("--load",             action="store_true",      help="Load bitstream.")
+    target_group.add_argument("--toolchain",        default="trellis",        help="FPGA toolchain (diamond or trellis).")
     target_group.add_argument("--sys-clk-freq",     default=50e6,             help="System clock frequency.")
     sdopts = target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",  action="store_true",  help="Enable SPI-mode SDCard support.")
@@ -170,6 +171,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq           = int(float(args.sys_clk_freq)),
+        toolchain              = args.toolchain,
         use_internal_osc       = args.use_internal_osc,
         sdram_rate             = args.sdram_rate,
         with_spi_flash         = args.with_spi_flash,
@@ -187,8 +189,9 @@ def main():
         soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
+    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
     if args.build:
-        builder.build(**trellis_argdict(args))
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer()

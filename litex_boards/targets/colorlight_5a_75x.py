@@ -115,15 +115,15 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board, revision, sys_clk_freq=60e6, with_ethernet=False,
+    def __init__(self, board, revision, sys_clk_freq=60e6, toolchain="trellis", with_ethernet=False,
                  with_etherbone=False, eth_ip="192.168.1.50", eth_phy=0, with_led_chaser=True,
                  use_internal_osc=False, sdram_rate="1:1", **kwargs):
         board = board.lower()
         assert board in ["5a-75b", "5a-75e"]
         if board == "5a-75b":
-            platform = colorlight_5a_75b.Platform(revision=revision)
+            platform = colorlight_5a_75b.Platform(revision=revision, toolchain=toolchain)
         elif board == "5a-75e":
-            platform = colorlight_5a_75e.Platform(revision=revision)
+            platform = colorlight_5a_75e.Platform(revision=revision, toolchain=toolchain)
 
         if board == "5a-75e" and revision == "6.0" and (with_etherbone or with_ethernet):
             assert use_internal_osc, "You cannot use the 25MHz clock as system clock since it is provided by the Ethernet PHY and will stop during PHY reset."
@@ -183,6 +183,7 @@ def main():
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--build",             action="store_true",              help="Build design.")
     target_group.add_argument("--load",              action="store_true",              help="Load bitstream.")
+    target_group.add_argument("--toolchain",         default="trellis",                help="FPGA toolchain (diamond or trellis).")
     target_group.add_argument("--board",             default="5a-75b",                 help="Board type (5a-75b or 5a-75e).")
     target_group.add_argument("--revision",          default="7.0", type=str,          help="Board revision (6.0, 6.1, 7.0 or 8.0).")
     target_group.add_argument("--sys-clk-freq",      default=60e6,                     help="System clock frequency")
@@ -200,6 +201,7 @@ def main():
 
     soc = BaseSoC(board=args.board, revision=args.revision,
         sys_clk_freq     = int(float(args.sys_clk_freq)),
+        toolchain        = args.toolchain,
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
         eth_ip           = args.eth_ip,
@@ -209,8 +211,10 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
+    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+
     if args.build:
-        builder.build(**trellis_argdict(args))
+        builder.build(**builder_kargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
