@@ -198,6 +198,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq           = int(float(args.sys_clk_freq)),
+        toolchain              = args.toolchain,
         with_ethernet          = args.with_ethernet,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
