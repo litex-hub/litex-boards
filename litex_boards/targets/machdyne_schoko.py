@@ -13,7 +13,7 @@ import sys
 import json
 
 from migen import *
-from litex_boards.platforms import ld_schoko
+from litex_boards.platforms import machdyne_schoko
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
 from litex.build.io import DDROutput
@@ -105,7 +105,7 @@ class BaseSoC(SoCCore):
     }}
     def __init__(self, revision="v1", device="45F", sdram_rate="1:2",
                  sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, **kwargs):
-        platform = ld_schoko.Platform(revision=revision, device=device ,toolchain=toolchain)
+        platform = machdyne_schoko.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
@@ -176,7 +176,7 @@ def main():
     target_group.add_argument("--load",            action="store_true",  help="Load bitstream to SRAM.")
     target_group.add_argument("--flash",           action="store_true",  help="Flash bitstream to MMOD.")
     target_group.add_argument("--toolchain",       default="trellis",    help="FPGA toolchain (trellis or diamond).")
-    target_group.add_argument("--sys-clk-freq",    default=50e6,         help="System clock frequency.")
+    target_group.add_argument("--sys-clk-freq",    default=40e6,         help="System clock frequency.")
     target_group.add_argument("--revision",        default="v1",         help="Board Revision (v1, v2).")
     target_group.add_argument("--device",          default="45F",        help="ECP5 device (25F, 45F or 85F).")
     target_group.add_argument("--cable",           default="usb-blaster", help="Specify an openFPGALoader cable.")
