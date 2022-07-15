@@ -51,8 +51,6 @@ _io = [
         Subsignal("act_n",   Pins("Y8"), IOStandard("SSTL12_DCI")),
         Subsignal("alert_n", Pins("AE10"), IOStandard("SSTL12_DCI")),
         Subsignal("par",     Pins("AE13"), IOStandard("SSTL12_DCI")),
-        Subsignal("dm",      Pins("AF3 AE5 AD6 AC6 AF2 AE3 AE6 AD5"),
-            IOStandard("SSTL12_DCI")),
         Subsignal("dq",      Pins(
                 "W11  Y11  V7   Y7   V11  V9   V8   W8",
                 "U2   V6   Y2   Y3   U5   U4   W3   Y1",

@@ -143,6 +143,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
+        toolchain      = args.toolchain,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         **soc_core_argdict(args))
