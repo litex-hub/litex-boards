@@ -122,7 +122,8 @@ def main():
          **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build()
 
 if __name__ == "__main__":
     main()
