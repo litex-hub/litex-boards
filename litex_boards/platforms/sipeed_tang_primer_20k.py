@@ -111,12 +111,29 @@ _connectors = [
 
 _dock_io = [
     # Leds
-    ("user_led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS33")),
-    ("user_led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS33")),
-    ("user_led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS33")),
-    ("user_led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS33")),
-    ("user_led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS33")),
-    ("user_led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS33")),
+    ("user_led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS18")),
+    ("user_led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS18")),
+    ("user_led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS18")),
+    ("user_led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS18")),
+    ("user_led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS18")),
+    ("user_led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS18")),
+
+    # HDMI.
+    ("hdmi", 0,
+        Subsignal("clk_p",   Pins("CARD1:132")),
+        Subsignal("clk_n",   Pins("CARD1:130")),
+        Subsignal("data0_p", Pins("CARD1:50")), # Inverted.
+        Subsignal("data0_n", Pins("CARD1:52")),
+        Subsignal("data1_p", Pins("CARD1:62")), # Inverted.
+        Subsignal("data1_n", Pins("CARD1:64")),
+        Subsignal("data2_p", Pins("CARD1:68")), # Inverted.
+        Subsignal("data2_n", Pins("CARD1:70")),
+        Subsignal("hdp", Pins("CARD1:154"), IOStandard("LVCMOS18")),
+        Subsignal("cec", Pins("CARD1:152"), IOStandard("LVCMOS18")),
+        Subsignal("sda", Pins("CARD1:95"),  IOStandard("LVCMOS18")),
+        Subsignal("scl", Pins("CARD1:97"),  IOStandard("LVCMOS18")),
+        Misc("PULL_MODE=NONE"),
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------

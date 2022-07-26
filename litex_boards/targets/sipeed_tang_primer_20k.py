@@ -14,6 +14,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.video import *
 
 from litex_boards.platforms import sipeed_tang_primer_20k
 
@@ -25,7 +26,7 @@ mB = 1024*kB
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
         self.rst = Signal()
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain()
@@ -48,14 +49,27 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
         self.comb += pll.reset.eq(~por_done)
 
+        # Video PLL
+        if with_video_pll:
+            self.submodules.video_pll = video_pll = GW2APLL(devicename=platform.devicename, device=platform.device)
+            video_pll.register_clkin(clk27, 27e6)
+            self.clock_domains.cd_hdmi   = ClockDomain()
+            self.clock_domains.cd_hdmi5x = ClockDomain()
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6)
+            self.specials += Instance("CLKDIV",
+                p_DIV_MODE= "5",
+                i_HCLKIN = self.cd_hdmi5x.clk,
+                o_CLKOUT = self.cd_hdmi.clk
+            )
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(48e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=int(48e6), with_spi_flash=False, with_led_chaser=True, with_video_terminal=False, **kwargs):
         platform = sipeed_tang_primer_20k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
@@ -65,6 +79,12 @@ class BaseSoC(SoCCore):
             from litespi.modules import W25Q32JV as SpiFlashModule
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=SpiFlashModule(Codes.READ_1_1_1))
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["r", "g", "b"])
+            self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Un-tested.
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -87,13 +107,15 @@ def main():
     sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
     target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    target_group.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
-        with_spi_flash = args.with_spi_flash,
+        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        with_spi_flash      = args.with_spi_flash,
+        with_video_terminal = args.with_video_terminal,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
