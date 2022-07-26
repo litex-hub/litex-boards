@@ -51,10 +51,12 @@ _io = [
     ),
 ]
 
-# 204 Pins SODIMM Connector ------------------------------------------------------------------------
+# Dock 204 Pins SODIMM Connector -------------------------------------------------------------------
 
 _connectors = [
-    ["CARD1A",
+    ["CARD1",
+        # A.
+        # -------------------------------------------------
         "---", # 0
         #     GND GND  5V  5V  5V  5V GND GND  NC   ( 1-10).
         " T13 --- --- --- --- --- --- --- --- ---",
@@ -72,9 +74,8 @@ _connectors = [
         " --- H16 R12 H14 P13 --- R13 G16 T14 H15",
         # GND GND                                   (71-72).
         " --- ---",
-    ],
-    ["CARD1B",
-        "---", # 0
+        # B.
+        # -------------------------------------------------
         #                                      NC   (73-82).
         " M15 L13 M14 K11 F13 K12 G12 K13 T15 ---",
         #                  NC  NC                   (83-92).
@@ -106,6 +107,18 @@ _connectors = [
     ],
 ]
 
+# Dock IOs -----------------------------------------------------------------------------------------
+
+_dock_io = [
+    # Leds
+    ("user_led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS33")),
+    ("user_led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS33")),
+    ("user_led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS33")),
+    ("user_led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS33")),
+    ("user_led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS33")),
+    ("user_led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS33")),
+]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(GowinPlatform):
@@ -114,8 +127,11 @@ class Platform(GowinPlatform):
 
     def __init__(self, toolchain="gowin"):
         GowinPlatform.__init__(self, "GW2A-LV18PG256C8/I7", _io, _connectors, toolchain=toolchain, devicename="GW2A-18C")
-        self.toolchain.options["use_mspi_as_gpio"] = 1
-        self.toolchain.options["use_sspi_as_gpio"] = 1
+        self.add_extension(_dock_io)
+        self.toolchain.options["use_mspi_as_gpio"]  = 1
+        self.toolchain.options["use_sspi_as_gpio"]  = 1
+        self.toolchain.options["use_ready_as_gpio"] = 1
+        self.toolchain.options["use_done_as_gpio"]  = 1
 
     def create_programmer(self, kit="openfpgaloader"):
         return OpenFPGALoader(cable="ft2232")

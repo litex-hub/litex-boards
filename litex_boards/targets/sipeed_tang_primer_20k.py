@@ -51,7 +51,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(48e6), with_spi_flash=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(48e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = sipeed_tang_primer_20k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -65,6 +65,13 @@ class BaseSoC(SoCCore):
             from litespi.modules import W25Q32JV as SpiFlashModule
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=SpiFlashModule(Codes.READ_1_1_1))
+
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq
+            )
 
 # Build --------------------------------------------------------------------------------------------
 
