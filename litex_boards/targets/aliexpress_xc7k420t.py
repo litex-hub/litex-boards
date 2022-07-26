@@ -46,7 +46,7 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------_-----------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on AliExpress u420t", **kwargs)
 
-	   # SPI Flash --------------------------------------------------------------------------------
+	    # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import N25Q256
             from litespi.opcodes import SpiNorFlashOpCodes as Codes

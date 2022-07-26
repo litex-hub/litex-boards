@@ -51,7 +51,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(48e6), **kwargs):
+    def __init__(self, sys_clk_freq=int(48e6), with_spi_flash=False, **kwargs):
         platform = sipeed_tang_primer_20k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -60,25 +60,33 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import W25Q32JV as SpiFlashModule
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="1x", module=SpiFlashModule(Codes.READ_1_1_1))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Primer 20K")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true", help="Build bitstream.")
-    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
-    target_group.add_argument("--flash",        action="store_true", help="Flash Bitstream.")
-    target_group.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
+    target_group.add_argument("--build",        action="store_true",   help="Build bitstream.")
+    target_group.add_argument("--load",         action="store_true",   help="Load bitstream.")
+    target_group.add_argument("--flash",        action="store_true",   help="Flash Bitstream.")
+    target_group.add_argument("--sys-clk-freq", default=48e6,          help="System clock frequency.")
     sdopts = target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",  action="store_true",      help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",      action="store_true",      help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
+    target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq=int(float(args.sys_clk_freq)),
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        with_spi_flash = args.with_spi_flash,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
