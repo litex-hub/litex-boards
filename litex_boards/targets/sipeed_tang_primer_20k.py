@@ -16,6 +16,8 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
 
+from liteeth.phy.rmii import LiteEthPHYRMII
+
 from litex_boards.platforms import sipeed_tang_primer_20k
 
 from litex.soc.cores.hyperbus import HyperRAM
@@ -65,7 +67,13 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(48e6), with_spi_flash=False, with_led_chaser=True, with_video_terminal=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(48e6), with_spi_flash=False, with_led_chaser=True,
+        with_video_terminal = False,
+        with_ethernet       = False,
+        with_etherbone      = False,
+        eth_ip              = "192.168.1.50",
+        eth_dynamic_ip      = False,
+        **kwargs):
         platform = sipeed_tang_primer_20k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -82,9 +90,10 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
+            # FIXME: Un-tested.
             self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["r", "g", "b"])
             self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
-            #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Un-tested.
+            #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -92,6 +101,20 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq
             )
+
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            # FIXME: Un-tested.
+            from liteeth.phy.rmii import LiteEthPHYRMII
+            self.submodules.ethphy = LiteEthPHYRMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"),
+                refclk_cd  = None
+            )
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, with_timing_constraints=False)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -108,6 +131,11 @@ def main():
     sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
     target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
     target_group.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
+    ethopts = target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
+    target_group.add_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
+    target_group.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -116,6 +144,10 @@ def main():
         sys_clk_freq        = int(float(args.sys_clk_freq)),
         with_spi_flash      = args.with_spi_flash,
         with_video_terminal = args.with_video_terminal,
+        with_ethernet       = args.with_ethernet,
+        with_etherbone      = args.with_etherbone,
+        eth_ip              = args.eth_ip,
+        eth_dynamic_ip      = args.eth_dynamic_ip,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:

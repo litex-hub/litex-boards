@@ -118,7 +118,7 @@ _dock_io = [
     ("user_led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS18")),
     ("user_led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS18")),
 
-    # HDMI.
+    # HDMI
     ("hdmi", 0,
         Subsignal("clk_p",   Pins("CARD1:132")),
         Subsignal("clk_n",   Pins("CARD1:130")),
@@ -134,6 +134,24 @@ _dock_io = [
         Subsignal("scl", Pins("CARD1:97"),  IOStandard("LVCMOS18")),
         Misc("PULL_MODE=NONE"),
     ),
+
+    # RMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("ref_clk", Pins("CARD1:148")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("CARD1:176")),
+        Subsignal("rx_data", Pins("CARD1:56 CARD1:146")),
+        Subsignal("crs_dv",  Pins("CARD1:41")),
+        Subsignal("tx_en",   Pins("CARD1:83")),
+        Subsignal("tx_data", Pins("CARD1:140 CARD1:142")),
+        Subsignal("mdc",     Pins("CARD1:95")),
+        Subsignal("mdio",    Pins("CARD1:97")),
+        Subsignal("rx_er",   Pins("CARD1:200")),
+        #Subsignal("int_n",   Pins("CARD1:")),
+        IOStandard("LVCMOS18")
+     ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
