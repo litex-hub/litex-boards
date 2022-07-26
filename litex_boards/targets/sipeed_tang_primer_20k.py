@@ -70,6 +70,9 @@ def main():
     target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
     target_group.add_argument("--flash",        action="store_true", help="Flash Bitstream.")
     target_group.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
+    sdopts = target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",  action="store_true",      help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",      action="store_true",      help="Enable SDCard support.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -78,6 +81,10 @@ def main():
         sys_clk_freq=int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
     if args.build:
