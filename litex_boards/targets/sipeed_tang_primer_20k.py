@@ -4,6 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2022 Icenowy Zheng <icenowy@aosc.io>
+# Copyright (c) 2022 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
@@ -13,7 +14,8 @@ from litex.soc.cores.clock.gowin_gw2a import GW2APLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
-from litex.soc.cores.led import LedChaser
+from litex.soc.cores.led import LedChaser, WS2812
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import *
 
 from liteeth.phy.rmii import LiteEthPHYRMII
@@ -67,7 +69,11 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(48e6), with_spi_flash=False, with_led_chaser=True,
+    def __init__(self, sys_clk_freq=int(48e6),
+        with_spi_flash      = False,
+        with_led_chaser     = True,
+        with_rgb_led        = False,
+        with_buttons        = True,
         with_video_terminal = False,
         with_ethernet       = False,
         with_etherbone      = False,
@@ -88,20 +94,6 @@ class BaseSoC(SoCCore):
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=SpiFlashModule(Codes.READ_1_1_1))
 
-        # Video ------------------------------------------------------------------------------------
-        if with_video_terminal:
-            # FIXME: Un-tested.
-            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["r", "g", "b"])
-            self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
-            #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
-
-        # Leds -------------------------------------------------------------------------------------
-        if with_led_chaser:
-            self.submodules.leds = LedChaser(
-                pads         = platform.request_all("user_led"),
-                sys_clk_freq = sys_clk_freq
-            )
-
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             # FIXME: Un-tested.
@@ -115,6 +107,37 @@ class BaseSoC(SoCCore):
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, with_timing_constraints=False)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False)
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            # FIXME: Un-tested.
+            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["r", "g", "b"])
+            self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.submodules.leds = LedChaser(
+                pads         = platform.request_all("led"),
+                sys_clk_freq = sys_clk_freq
+            )
+
+        # RGB Led ----------------------------------------------------------------------------------
+        if with_rgb_led:
+            self.submodules.rgb_led = WS2812(
+                pad          = platform.request("rgb_led"),
+                nleds        = 1,
+                sys_clk_freq = sys_clk_freq
+            )
+            self.bus.add_slave(name="rgb_led", slave=self.rgb_led.bus, region=SoCRegion(
+                origin = 0x2000_0000,
+                size   = 4,
+            ))
+
+        # Buttons ----------------------------------------------------------------------------------
+        if with_buttons:
+            self.submodules.buttons = GPIOIn(pads=~platform.request_all("btn_n"))
+
 
 # Build --------------------------------------------------------------------------------------------
 

@@ -111,14 +111,24 @@ _connectors = [
 
 _dock_io = [
     # Leds
-    ("user_led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS18")),
-    ("user_led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS18")),
-    ("user_led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS18")),
-    ("user_led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS18")),
-    ("user_led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS18")),
-    ("user_led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS18")),
+    ("led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS18")),
+    ("led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS18")),
+    ("led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS18")),
+    ("led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS18")),
+    ("led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS18")),
+    ("led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS18")),
 
-    # HDMI
+    # RGB Led.
+    ("rgb_led", 0, Pins("CARD1:45"), IOStandard("LVCMOS18")),
+
+    # Buttons.
+    ("btn_n", 0,  Pins( "CARD1:15"), IOStandard("LVCMOS18")),
+    ("btn_n", 1,  Pins("CARD1:165"), IOStandard("LVCMOS15")),
+    ("btn_n", 2,  Pins("CARD1:163"), IOStandard("LVCMOS15")),
+    ("btn_n", 3,  Pins("CARD1:159"), IOStandard("LVCMOS15")),
+    ("btn_n", 4,  Pins("CARD1:157"), IOStandard("LVCMOS15")),
+
+    # HDMI.
     ("hdmi", 0,
         Subsignal("clk_p",   Pins("CARD1:132")),
         Subsignal("clk_n",   Pins("CARD1:130")),
@@ -167,6 +177,7 @@ class Platform(GowinPlatform):
         self.toolchain.options["use_sspi_as_gpio"]  = 1
         self.toolchain.options["use_ready_as_gpio"] = 1
         self.toolchain.options["use_done_as_gpio"]  = 1
+        self.toolchain.options["rw_check_on_ram"]   = 1
 
     def create_programmer(self, kit="openfpgaloader"):
         return OpenFPGALoader(cable="ft2232")
