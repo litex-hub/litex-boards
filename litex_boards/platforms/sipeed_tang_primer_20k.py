@@ -145,6 +145,26 @@ _dock_io = [
         Misc("PULL_MODE=NONE"),
     ),
 
+    # LCD.
+    ("lcd", 0,
+        # Control.
+        Subsignal("rst",   Pins("CARD1:123")),
+        Subsignal("bl",    Pins("CARD1:186")),
+        Subsignal("sda",   Pins("CARD1: 95")),
+        Subsignal("scl",   Pins("CARD1: 97")),
+        Subsignal("int",   Pins("CARD1:125")),
+
+        # Video.
+        Subsignal("clk",   Pins("CARD1:183")),
+        Subsignal("de",    Pins("CARD1:101")),
+        Subsignal("hsync", Pins("CARD1:107")),
+        Subsignal("vsync", Pins("CARD1:103")),
+        Subsignal("r",     Pins("CARD1:193 CARD1:191 CARD1:181 CARD1:177 CARD1:175")),
+        Subsignal("g",     Pins("CARD1:180 CARD1:131 CARD1:129 CARD1:194 CARD1:192 CARD1:182")),
+        Subsignal("b",     Pins("CARD1:121 CARD1:119 CARD1:115 CARD1:113 CARD1:109")),
+        IOStandard("LVCMOS18")
+    ),
+
     # RMII Ethernet
     ("eth_clocks", 0,
         Subsignal("ref_clk", Pins("CARD1:148")),
