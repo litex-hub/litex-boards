@@ -16,17 +16,10 @@ from litex.build.openfpgaloader import OpenFPGALoader
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk / Rst
+    # Clk / Rst.
     ("clk27",  0, Pins("H11"), IOStandard("LVCMOS33")),
 
-    # Serial
-    ("serial", 0,
-        Subsignal("rx", Pins("T13")),
-        Subsignal("tx", Pins("M11")),
-        IOStandard("LVCMOS33")
-    ),
-
-    # SPIFlash
+    # SPIFlash.
     ("spiflash", 0,
         Subsignal("cs_n", Pins("M9"),  IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("L10"), IOStandard("LVCMOS33")),
@@ -34,7 +27,7 @@ _io = [
         Subsignal("mosi", Pins("R10"), IOStandard("LVCMOS33")),
     ),
 
-    # SDCard
+    # SDCard.
     ("spisdcard", 0,
         Subsignal("clk",  Pins("N10")),
         Subsignal("mosi", Pins("R14")),
@@ -127,6 +120,13 @@ _dock_io = [
     ("btn_n", 2,  Pins("CARD1:163"), IOStandard("LVCMOS15")),
     ("btn_n", 3,  Pins("CARD1:159"), IOStandard("LVCMOS15")),
     ("btn_n", 4,  Pins("CARD1:157"), IOStandard("LVCMOS15")),
+
+    # Serial.
+    ("serial", 0,
+        Subsignal("rx", Pins( "CARD1:1")),
+        Subsignal("tx", Pins("CARD1:11")),
+        IOStandard("LVCMOS33")
+    ),
 
     # HDMI.
     ("hdmi", 0,
