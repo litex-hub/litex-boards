@@ -8,8 +8,9 @@
 # Copyright (c) 2022 Victor Suarez Rovere <suarezvictor@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# Note: For now, with --toolchain=yosys+nextpnr, DDR3 should be disabled and sys_clk_freq lowered, ex:
-# python3 -m litex_boards.targets.digilent_arty.py --sys-clk-freq=50e6 --integrated-main-ram-size=8192 --toolchain=yosys+nextpnr --build
+# Note: For now with --toolchain=yosys+nextpnr:
+# - DDR3 should be disabled: ex --integrated-main-ram-size=8192
+# - Clk Freq should be lowered: ex --sys-clk-freq=50e6
 
 from migen import *
 
@@ -22,6 +23,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOTristate
+from litex.soc.cores.xadc import XADC
+from litex.soc.cores.dna  import DNA
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
@@ -68,9 +71,15 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6),
-                 with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
-                 eth_dynamic_ip=False, with_led_chaser=True, with_jtagbone=True,
-                 with_spi_flash=False, with_pmod_gpio=False, **kwargs):
+        with_ethernet   = False,
+        with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        eth_dynamic_ip  = False,
+        with_led_chaser = True,
+        with_jtagbone   = True,
+        with_spi_flash  = False,
+        with_pmod_gpio  = False,
+        **kwargs):
         platform = digilent_arty.Platform(variant=variant, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
@@ -79,6 +88,13 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Arty A7", **kwargs)
+
+        # XADC -------------------------------------------------------------------------------------
+        self.submodules.xadc = XADC()
+
+        # DNA --------------------------------------------------------------------------------------
+        self.submodules.dna = DNA()
+        self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -116,7 +132,8 @@ class BaseSoC(SoCCore):
         if with_led_chaser:
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
-                sys_clk_freq = sys_clk_freq)
+                sys_clk_freq = sys_clk_freq,
+            )
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
