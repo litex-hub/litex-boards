@@ -22,7 +22,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.gpio import GPIOTristate
+from litex.soc.cores.gpio import GPIOIn, GPIOTristate
 from litex.soc.cores.xadc import XADC
 from litex.soc.cores.dna  import DNA
 
@@ -78,6 +78,7 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_jtagbone   = True,
         with_spi_flash  = False,
+        with_buttons    = True,
         with_pmod_gpio  = False,
         **kwargs):
         platform = digilent_arty.Platform(variant=variant, toolchain=toolchain)
@@ -134,6 +135,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq,
             )
+
+        # Buttons ----------------------------------------------------------------------------------
+        if with_buttons:
+            self.submodules.buttons = GPIOIn(pads=platform.request_all("user_btn"))
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
