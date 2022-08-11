@@ -142,7 +142,7 @@ _io = [
     ("hdmi", 0,
         Subsignal("r", Pins("AD26 AE25 AF25 AE26 E10 D11 D10 C10  D9  E8 H5 J4")),
         Subsignal("g", Pins("AA23 AA22 AA24 AA25  E1  F2  F1 D17 D16 E16 J6 H6")),
-        Subsignal("b", Pins("AD25 AC26 AB24 AB25  B3  C3  D3  B1  C8  D2 D1 E3")),
+        Subsignal("b", Pins("AD25 AC26 AB24 AB25  B3  C3  D3  B1  C2  D2 D1 E3")),
         Subsignal("de",    Pins("A3")),
         Subsignal("clk",   Pins("C1")),
         Subsignal("vsync", Pins("A4")),
