@@ -88,8 +88,8 @@ class Platform(GowinPlatform):
 
     def __init__(self, toolchain="gowin"):
         # Educational GoWin IDE v. 1.9.8.03
-    	GowinPlatform.__init__(self, "GW1NSR-LV4CQN48PC6/I5", _io, _connectors, toolchain=toolchain, devicename="GW1NSR-4C")
-    	# Licensed GoWin IDE v. 1.9.7.06 Beta
+        GowinPlatform.__init__(self, "GW1NSR-LV4CQN48PC6/I5", _io, _connectors, toolchain=toolchain, devicename="GW1NSR-4C")
+        # Licensed GoWin IDE v. 1.9.7.06 Beta
         # GowinPlatform.__init__(self, "GW1NSR-LV4CQN48PC7/I6", _io, _connectors, toolchain=toolchain, devicename="GW1NSR-4C")
         self.toolchain.options["use_mode_as_gpio"] = 1
         self.toolchain.options["use_mspi_as_gpio"] = 1
