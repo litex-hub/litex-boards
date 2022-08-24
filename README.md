@@ -91,16 +91,15 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
 
 [> Boards list
 ---------------
-    ├── 1bitsquared_icebreaker_bitsy
-    ├── 1bitsquared_icebreaker
     ├── adi_adrv2crr_fmc
     ├── adi_plutosdr
     ├── alchitry_au
     ├── alchitry_mojo
     ├── aliexpress_stlv7325
-    ├── aliexpress_u420t
+    ├── aliexpress_xc7k420t
     ├── alinx_ax7010
     ├── alinx_axu2cga
+    ├── antmicro_artix_dc_scm
     ├── antmicro_datacenter_ddr4_test_board
     ├── antmicro_lpddr4_test_board
     ├── arduino_mkrvidor4000
@@ -143,6 +142,9 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── gsd_butterstick
     ├── gsd_orangecrab
     ├── hackaday_hadbadge
+    ├── hpcstore_xc7k420t
+    ├── icebreaker_bitsy
+    ├── icebreaker
     ├── jungle_electronics_fireant
     ├── kosagi_fomu_evt
     ├── kosagi_fomu_hacker
@@ -159,10 +161,12 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── lattice_ice40up5k_evn
     ├── lattice_machxo3
     ├── lattice_versa_ecp5
-    ├── linsn_rv901t
     ├── limesdr_mini_v2
+    ├── linsn_rv901t
     ├── litex_acorn_baseboard
     ├── logicbone
+    ├── machdyne_krote
+    ├── machdyne_schoko
     ├── marblemini
     ├── marble
     ├── micronova_mercury2
@@ -178,7 +182,6 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── pano_logic_g2
     ├── qmtech_10cl006
     ├── qmtech_5cefa2
-    ├── qmtech_daughterboard
     ├── qmtech_ep4cex5
     ├── qmtech_ep4cgx150
     ├── qmtech_wukong
@@ -196,10 +199,12 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── sipeed_tang_nano_4k
     ├── sipeed_tang_nano_9k
     ├── sipeed_tang_nano
+    ├── sipeed_tang_primer_20k
     ├── sipeed_tang_primer
     ├── sqrl_acorn
     ├── sqrl_fk33
     ├── sqrl_xcu1525
+    ├── taobao_a_e115fb
     ├── terasic_de0nano
     ├── terasic_de10lite
     ├── terasic_de10nano
