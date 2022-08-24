@@ -139,15 +139,17 @@ class BaseSoC(SoCCore):
         # Buttons ----------------------------------------------------------------------------------
         if with_buttons:
             self.submodules.buttons = GPIOIn(
-                pads=platform.request_all("user_btn"),
-                with_irq=self.irq.enabled)
+                pads     = platform.request_all("user_btn"),
+                with_irq = self.irq.enabled
+            )
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
             platform.add_extension(digilent_arty.raw_pmod_io("pmoda"))
             self.submodules.gpio = GPIOTristate(
-                platform.request("pmoda"),
-                with_irq=self.irq.enabled)
+                pads     = platform.request("pmoda"),
+                with_irq = self.irq.enabled
+            )
 
 # Build --------------------------------------------------------------------------------------------
 
