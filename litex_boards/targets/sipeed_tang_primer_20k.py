@@ -79,8 +79,15 @@ class BaseSoC(SoCCore):
         with_etherbone      = False,
         eth_ip              = "192.168.1.50",
         eth_dynamic_ip      = False,
+        dock                = "dock",
         **kwargs):
-        platform = sipeed_tang_primer_20k.Platform()
+
+        assert dock in ["dock", "lite"]
+
+        platform = sipeed_tang_primer_20k.Platform(dock, toolchain="gowin")
+
+        if dock == "lite":
+            with_led_chaser = False # no leds on core board nor on dock lite
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
@@ -145,6 +152,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Primer 20K")
     target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("--dock",         default="dock",        help="Dock version (dock (default) or lite.")
     target_group.add_argument("--build",        action="store_true",   help="Build bitstream.")
     target_group.add_argument("--load",         action="store_true",   help="Load bitstream.")
     target_group.add_argument("--flash",        action="store_true",   help="Flash Bitstream.")
@@ -171,6 +179,7 @@ def main():
         with_etherbone      = args.with_etherbone,
         eth_ip              = args.eth_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
+        dock                = args.dock,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
