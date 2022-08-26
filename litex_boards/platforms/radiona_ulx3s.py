@@ -15,6 +15,15 @@ _io_common = [
     ("clk25", 0, Pins("G2"), IOStandard("LVCMOS33")),
     ("rst",   0, Pins("R1"), IOStandard("LVCMOS33")),
 
+    # Buttons
+    ("user_button", 0, Pins("D6"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")), # PWR
+    ("user_button", 1, Pins("R1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # F1
+    ("user_button", 2, Pins("T1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # F2
+    ("user_button", 3, Pins("R18"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # UP
+    ("user_button", 4, Pins("V1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # DOWN
+    ("user_button", 5, Pins("U1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # LEFT
+    ("user_button", 6, Pins("H16"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # RIGHT
+
     # Leds
     ("user_led", 0, Pins("B2"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("C2"), IOStandard("LVCMOS33")),
