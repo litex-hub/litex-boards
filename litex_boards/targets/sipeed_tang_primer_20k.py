@@ -62,6 +62,8 @@ class _CRG(Module):
             video_pll.create_clkout(self.cd_hdmi5x, 125e6)
             self.specials += Instance("CLKDIV",
                 p_DIV_MODE= "5",
+                i_RESETN = 1, # disable reset signal
+                i_CALIB  = 0, # no calibration
                 i_HCLKIN = self.cd_hdmi5x.clk,
                 o_CLKOUT = self.cd_hdmi.clk
             )
