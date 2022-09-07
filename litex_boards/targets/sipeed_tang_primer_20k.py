@@ -120,7 +120,9 @@ class BaseSoC(SoCCore):
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
             # FIXME: Un-tested.
-            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi", pn_swap=["r", "g", "b"])
+            hdmi_pads = platform.request("hdmi")
+            self.comb += hdmi_pads.hdp.eq(1)
+            self.submodules.videophy = VideoHDMIPHY(hdmi_pads, clock_domain="hdmi", pn_swap=["r", "g", "b"])
             self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
