@@ -251,11 +251,12 @@ class Platform(GowinPlatform):
     default_clk_period = 1e9/27e6
 
     def __init__(self, dock="dock", toolchain="gowin"):
-        if dock == "lite":
-            _connectors.extend(_dock_lite_connectors)
 
         GowinPlatform.__init__(self, "GW2A-LV18PG256C8/I7", _io, _connectors, toolchain=toolchain, devicename="GW2A-18C")
         self.add_extension(_dock_io if dock == "dock" else _dock_lite_io)
+        if dock == "lite":
+            self.add_connector(_dock_lite_connectors)
+
         self.toolchain.options["use_mspi_as_gpio"]  = 1
         self.toolchain.options["use_sspi_as_gpio"]  = 1
         self.toolchain.options["use_ready_as_gpio"] = 1

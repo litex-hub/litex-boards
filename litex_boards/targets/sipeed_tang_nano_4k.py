@@ -122,7 +122,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
-            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.submodules.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
             self.add_video_colorbars(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Free up BRAMs.
 
@@ -142,12 +142,14 @@ def main():
     target_group.add_argument("--load",        action="store_true", help="Load bitstream.")
     target_group.add_argument("--flash",       action="store_true", help="Flash Bitstream.")
     target_group.add_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
+    target_group.add_argument("--with-video-terminal",action="store_true", help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq=int(float(args.sys_clk_freq)),
+        with_video_terminal=args.with_video_terminal,
         **soc_core_argdict(args)
     )
 
