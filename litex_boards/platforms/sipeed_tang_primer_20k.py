@@ -49,6 +49,34 @@ _io = [
         Subsignal("cd",   Pins("D15")),
         IOStandard("LVCMOS33"),
     ),
+
+    # DDR3 SDRAM IMD128M16R39CG8GNF-125
+    # DQ group L cannot work now
+    ("ddram", 0,
+        Subsignal("a", Pins("F7 A4 D6 F8 C4 E6 B1 D8 A5 F9 K3 B7 A3 C8"),
+            IOStandard("SSTL15")),
+        Subsignal("ba", Pins("H4 D3 H5"), IOStandard("SSTL15")),
+        Subsignal("ras_n", Pins("R4"), IOStandard("SSTL15")),
+        Subsignal("cas_n", Pins("R6"), IOStandard("SSTL15")),
+        Subsignal("we_n",  Pins("L2"), IOStandard("SSTL15")),
+        Subsignal("cs_n",  Pins("P5"), IOStandard("SSTL15")),
+        Subsignal("dm", Pins("K5"), IOStandard("SSTL15")),
+        #Subsignal("dm", Pins("G1 K5"), IOStandard("SSTL15")),
+        Subsignal("dq", Pins(
+            #"G5 F5 F4 F3 E2 C1 E1 B3",
+            "M3 K4 N2 L1 P4 H3 R1 M2"),
+            IOStandard("SSTL15"),
+            Misc("VREF=INTERNAL")),
+        #Subsignal("dqs_p", Pins("G2 J5"), IOStandard("SSTL15D")),
+        Subsignal("dqs_p", Pins("J5"), IOStandard("SSTL15D")),
+        #Subsignal("dqs_n", Pins("G3 K6"), IOStandard("SSTL15D")),
+        Subsignal("dqs_n", Pins("K6"), IOStandard("SSTL15D")),
+        Subsignal("clk_p", Pins("J1"), IOStandard("SSTL15D")),
+        Subsignal("clk_n", Pins("J3"), IOStandard("SSTL15D")),
+        Subsignal("cke",   Pins("J2"), IOStandard("SSTL15")),
+        Subsignal("odt",   Pins("R3"), IOStandard("SSTL15")),
+        Subsignal("reset_n", Pins("B9"), IOStandard("SSTL15")),
+    ),
 ]
 
 # Dock 204 Pins SODIMM Connector -------------------------------------------------------------------

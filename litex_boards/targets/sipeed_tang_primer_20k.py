@@ -22,20 +22,25 @@ from liteeth.phy.rmii import LiteEthPHYRMII
 
 from litex_boards.platforms import sipeed_tang_primer_20k
 
-from litex.soc.cores.hyperbus import HyperRAM
-
-kB = 1024
-mB = 1024*kB
+from liteeth.phy.rmii import LiteEthPHYRMII
+from litedram.modules import MT41J128M16
+from litedram.phy import GW2DDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq, with_video_pll=False):
         self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain()
+        self.clock_domains.cd_sys     = ClockDomain()
+        self.clock_domains.cd_por     = ClockDomain()
+        self.clock_domains.cd_init    = ClockDomain()
+        self.clock_domains.cd_sys2x   = ClockDomain()
+        self.clock_domains.cd_sys2x_i = ClockDomain()
 
         # # #
+
+        self.stop  = Signal()
+        self.reset = Signal()
 
         # Clk
         clk27 = platform.request("clk27")
@@ -43,7 +48,20 @@ class _CRG(Module):
         # PLL
         self.submodules.pll = pll = GW2APLL(devicename=platform.devicename, device=platform.device)
         pll.register_clkin(clk27, 27e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+        self.specials += [
+            Instance("DHCEN",
+                i_CLKIN  = self.cd_sys2x_i.clk,
+                i_CE     = self.stop,
+                o_CLKOUT = self.cd_sys2x.clk),
+            Instance("CLKDIV",
+                p_DIV_MODE = "2",
+                i_CALIB    = 0,
+                i_HCLKIN   = self.cd_sys2x.clk,
+                i_RESETN   = ~self.reset,
+                o_CLKOUT   = self.cd_sys.clk),
+            AsyncResetSynchronizer(self.cd_sys, pll.reset | self.reset),
+        ]
 
         # Power on reset (the onboard POR is not aware of reprogramming)
         por_count = Signal(16, reset=2**16-1)
@@ -52,6 +70,10 @@ class _CRG(Module):
         self.comb += por_done.eq(por_count == 0)
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
         self.comb += pll.reset.eq(~por_done)
+
+        # Init clock domain
+        self.comb += self.cd_init.clk.eq(clk27)
+        self.comb += self.cd_init.rst.eq(pll.reset)
 
         # Video PLL
         if with_video_pll:
@@ -96,6 +118,20 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
+
+        # DDR3 SDRAM -------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            self.submodules.ddrphy = GW2DDRPHY(
+                platform.request("ddram"),
+                sys_clk_freq=sys_clk_freq)
+            self.ddrphy.settings.rtt_nom = "disabled"
+            self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
+            self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
+            self.add_sdram("sdram",
+                phy           = self.ddrphy,
+                module        = MT41J128M16(sys_clk_freq, "1:2"),
+                l2_cache_size = kwargs.get("l2_size", 0)
+            )
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
