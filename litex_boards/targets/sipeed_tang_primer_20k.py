@@ -120,6 +120,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
+        # FIXME: WIP.
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = GW2DDRPHY(
                 pads         = PHYPadsReducer(platform.request("ddram"), [0, 1]),
@@ -131,7 +132,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = MT41J128M16(sys_clk_freq, "1:2"),
-                l2_cache_size = kwargs.get("l2_size", 0)
+                l2_cache_size = 0
             )
 
         # SPI Flash --------------------------------------------------------------------------------
