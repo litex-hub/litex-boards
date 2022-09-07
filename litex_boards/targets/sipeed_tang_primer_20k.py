@@ -59,13 +59,13 @@ class _CRG(Module):
             video_pll.register_clkin(clk27, 27e6)
             self.clock_domains.cd_hdmi   = ClockDomain()
             self.clock_domains.cd_hdmi5x = ClockDomain()
-            video_pll.create_clkout(self.cd_hdmi5x, 125e6)
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=1e-3)
             self.specials += Instance("CLKDIV",
-                p_DIV_MODE= "5",
-                i_RESETN = 1, # disable reset signal
-                i_CALIB  = 0, # no calibration
-                i_HCLKIN = self.cd_hdmi5x.clk,
-                o_CLKOUT = self.cd_hdmi.clk
+                p_DIV_MODE = "5",
+                i_RESETN   = 1, # Disable reset signal.
+                i_CALIB    = 0, # No calibration.
+                i_HCLKIN   = self.cd_hdmi5x.clk,
+                o_CLKOUT   = self.cd_hdmi.clk
             )
 
 # BaseSoC ------------------------------------------------------------------------------------------
@@ -81,15 +81,15 @@ class BaseSoC(SoCCore):
         with_etherbone      = False,
         eth_ip              = "192.168.1.50",
         eth_dynamic_ip      = False,
-        dock                = "dock",
+        dock                = "standard",
         **kwargs):
 
-        assert dock in ["dock", "lite"]
+        assert dock in ["standard", "lite"]
 
         platform = sipeed_tang_primer_20k.Platform(dock, toolchain="gowin")
 
         if dock == "lite":
-            with_led_chaser = False # no leds on core board nor on dock lite
+            with_led_chaser = False # No leds on core board nor on dock lite.
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
@@ -154,7 +154,7 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Primer 20K")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--dock",         default="dock",        help="Dock version (dock (default) or lite.")
+    target_group.add_argument("--dock",         default="standard",    help="Dock version (standard (default) or lite.")
     target_group.add_argument("--build",        action="store_true",   help="Build bitstream.")
     target_group.add_argument("--load",         action="store_true",   help="Load bitstream.")
     target_group.add_argument("--flash",        action="store_true",   help="Flash Bitstream.")

@@ -250,10 +250,10 @@ class Platform(GowinPlatform):
     default_clk_name   = "clk27"
     default_clk_period = 1e9/27e6
 
-    def __init__(self, dock="dock", toolchain="gowin"):
+    def __init__(self, dock="standard", toolchain="gowin"):
 
         GowinPlatform.__init__(self, "GW2A-LV18PG256C8/I7", _io, _connectors, toolchain=toolchain, devicename="GW2A-18C")
-        self.add_extension(_dock_io if dock == "dock" else _dock_lite_io)
+        self.add_extension(_dock_io if dock == "standard" else _dock_lite_io)
         if dock == "lite":
             self.add_connector(_dock_lite_connectors)
 
