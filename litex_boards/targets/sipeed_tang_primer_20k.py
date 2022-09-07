@@ -134,6 +134,23 @@ class BaseSoC(SoCCore):
                 module        = MT41J128M16(sys_clk_freq, "1:2"),
                 l2_cache_size = 0
             )
+            # ./sipeed_tang_primer_20k.py --cpu-variant=lite --uart-name=crossover+uartbone --csr-csv=csr.csv --build --load
+            # litex_server --uart --uart-port=/dev/ttyUSB2
+            # litex_term crossover
+            # litescope_cli
+            if kwargs["uart_name"] == "crossover+uartbone":
+                from litescope import LiteScopeAnalyzer
+                analyzer_signals = [
+                    self.ddrphy.dfi.p0,
+                    self.ddrphy.dfi.p0.wrdata_en,
+                    self.ddrphy.dfi.p1.rddata_en,
+                ]
+                self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals,
+                depth        = 128,
+                clock_domain = "sys",
+                samplerate   = sys_clk_freq,
+                csr_csv      = "analyzer.csv"
+                )
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
