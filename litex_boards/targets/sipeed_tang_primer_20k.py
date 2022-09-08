@@ -45,8 +45,16 @@ class _CRG(Module):
         # Clk
         clk27 = platform.request("clk27")
 
+        # Power on reset (the onboard POR is not aware of reprogramming)
+        por_count = Signal(16, reset=2**16-1)
+        por_done  = Signal()
+        self.comb += self.cd_por.clk.eq(clk27)
+        self.comb += por_done.eq(por_count == 0)
+        self.sync.por += If(~por_done, por_count.eq(por_count - 1))
+
         # PLL
         self.submodules.pll = pll = GW2APLL(devicename=platform.devicename, device=platform.device)
+        self.comb += pll.reset.eq(~por_done)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         self.specials += [
@@ -60,16 +68,8 @@ class _CRG(Module):
                 i_HCLKIN   = self.cd_sys2x.clk,
                 i_RESETN   = ~self.reset,
                 o_CLKOUT   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys, pll.reset | self.reset),
+            AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
         ]
-
-        # Power on reset (the onboard POR is not aware of reprogramming)
-        por_count = Signal(16, reset=2**16-1)
-        por_done  = Signal()
-        self.comb += self.cd_por.clk.eq(clk27)
-        self.comb += por_done.eq(por_count == 0)
-        self.sync.por += If(~por_done, por_count.eq(por_count - 1))
-        self.comb += pll.reset.eq(~por_done)
 
         # Init clock domain
         self.comb += self.cd_init.clk.eq(clk27)
