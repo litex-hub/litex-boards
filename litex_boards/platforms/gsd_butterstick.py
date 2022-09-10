@@ -201,7 +201,7 @@ class Platform(LatticePlatform):
         elif load == "dfu":
             return DFUProg(vid="1209", pid="5af1", alt=0)
         else:
-            print("Could not program board. "+load+" is not a valid argument. Please use 'jtag' or 'dfu'.")
+            print("Could not program board. " + load + " is not a valid argument. Please use 'jtag' or 'dfu'.")
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)
