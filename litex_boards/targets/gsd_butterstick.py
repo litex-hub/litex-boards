@@ -8,7 +8,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Build/Use:
-# ./gsd_butterstick.py --uart-name=crossover --with-etherbone --csr-csv=csr.csv --build --load
+# ./gsd_butterstick.py --uart-name=crossover --with-etherbone --csr-csv=csr.csv --build --load (jtag / dfu)
 # litex_server --udp
 # litex_term crossover
 
