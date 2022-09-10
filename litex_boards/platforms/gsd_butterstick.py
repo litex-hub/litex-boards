@@ -195,13 +195,13 @@ class Platform(LatticePlatform):
         connectors = {"1.0": _connectors_r1_0}[revision]
         LatticePlatform.__init__(self, f"LFE5UM5G-{device}-8BG381C", io, connectors, toolchain=toolchain, **kwargs)
 
-    def create_programmer(self, load):
-        if load == "jtag":
+    def create_programmer(self, programmer):
+        if programmer == "jtag":
             return OpenOCDJTAGProgrammer("openocd_butterstick.cfg")
-        elif load == "dfu":
+        elif programmer == "dfu":
             return DFUProg(vid="1209", pid="5af1", alt=0)
         else:
-            print("Could not program board. " + load + " is not a valid argument. Please use 'jtag' or 'dfu'.")
+            print("Could not program board. " + programmer + " is not a valid argument. Please use 'jtag' or 'dfu'.")
 
     def do_finalize(self, fragment):
         LatticePlatform.do_finalize(self, fragment)
