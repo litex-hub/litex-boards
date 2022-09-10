@@ -155,7 +155,7 @@ def main():
     parser = LiteXSoCArgumentParser(description="LiteX SoC on ButterStick")
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("--build",           action="store_true",    help="Build design.")
-    target_group.add_argument("--load",            action="store_true",    help="Load bitstream.")
+    target_group.add_argument("--load",            default="jtag",         help="Load bitstream (jtag or dfu).")
     target_group.add_argument("--toolchain",       default="trellis",      help="FPGA toolchain (trellis or diamond).")
     target_group.add_argument("--sys-clk-freq",    default=75e6,           help="System clock frequency.")
     target_group.add_argument("--revision",        default="1.0",          help="Board Revision (1.0).")
@@ -201,7 +201,7 @@ def main():
         builder.build(**builder_kargs)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(args.load)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
