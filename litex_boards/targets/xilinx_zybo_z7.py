@@ -19,6 +19,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.integration.soc import SoCRegion
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -61,6 +62,9 @@ class BaseSoC(SoCCore):
             os.makedirs("xci", exist_ok=True)
             os.system("mv zybo_z7_ps7.txt xci/zybo_z7_ps7.xci")
             self.cpu.set_ps7_xci("xci/zybo_z7_ps7.xci")
+            self.mem_map = {
+                'csr': 0x43c0_0000,  # Zynq GP0 default
+            }
 
             # Connect AXI GP0 to the SoC with base address of 0x43c00000 (default one)
             wb_gp0  = wishbone.Interface()
@@ -69,6 +73,7 @@ class BaseSoC(SoCCore):
                 wishbone     = wb_gp0,
                 base_address = 0x43c00000)
             self.bus.add_master(master=wb_gp0)
+            self.bus.add_region("flash",  SoCRegion(origin=0xFC00_0000, size=0x4_0000, mode="rwx"))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
