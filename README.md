@@ -175,6 +175,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── muselab_icesugar_pro
     ├── muselab_icesugar
     ├── myminieye_runber
+    ├── newae_cw305
     ├── numato_aller
     ├── numato_mimas_a7
     ├── numato_nereid
