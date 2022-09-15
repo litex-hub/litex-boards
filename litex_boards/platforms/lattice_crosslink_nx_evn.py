@@ -8,6 +8,7 @@
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
 from litex.build.lattice.programmer import LatticeProgrammer
+from litex.build.lattice.programmer import EcpprogProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -258,8 +259,13 @@ class Platform(LatticePlatform):
         assert device in ["LIFCL-40-9BG400C", "LIFCL-40-8BG400CES"]
         LatticePlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
 
-    def create_programmer(self, mode = "direct"):
+    def create_programmer(self, mode = "direct", prog="radiant"):
         assert mode in ["direct","flash"]
+        assert prog in ["radiant","ecpprog"]
+
+        if prog == "ecpprog":
+            return EcpprogProgrammer()
+
 
         xcf_template_direct = """<?xml version='1.0' encoding='utf-8' ?>
 <!DOCTYPE		ispXCF	SYSTEM	"IspXCF.dtd" >

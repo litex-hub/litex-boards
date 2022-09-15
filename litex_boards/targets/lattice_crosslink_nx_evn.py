@@ -97,9 +97,11 @@ def main():
     target_group.add_argument("--build",         action="store_true",        help="Build design.")
     target_group.add_argument("--load",          action="store_true",        help="Load bitstream.")
     target_group.add_argument("--toolchain",     default="radiant",          help="FPGA toolchain (radiant or prjoxide).")
-    target_group.add_argument("--device",        default="LIFCL-40-9BG400C", help="FPGA device (LIFCL-40-9BG400C or LIFCL-40-8BG400CES).")
+    target_group.add_argument("--device",        default="LIFCL-40-9BG400C", help="FPGA device (LIFCL-40-9BG400C, LIFCL-40-8BG400CES, or LIFCL-40-8BG400CES2).")
     target_group.add_argument("--sys-clk-freq",  default=75e6,               help="System clock frequency.")
     target_group.add_argument("--serial",        default="serial",           help="UART Pins (serial (requires R15 and R17 to be soldered) or serial_pmod[0-2]).")
+    target_group.add_argument("--programmer",    default="radiant",          help="Programmer (radiant or ecpprog).")
+    target_group.add_argument("--address",       default=0x0,                help="Flash address to program bitstream at.")
     target_group.add_argument("--prog-target",   default="direct",           help="Programming Target (direct or flash).")
     builder_args(parser)
     soc_core_args(parser)
@@ -118,8 +120,11 @@ def main():
         builder.build(**builder_kargs)
 
     if args.load:
-        prog = soc.platform.create_programmer(args.prog_target)
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
+        prog = soc.platform.create_programmer(args.prog_target, args.programmer)
+        if args.programmer == "ecpprog" and args.prog_target == "flash":
+            prog.flash(address=args.address, bitstream=builder.get_bitstream_filename(mode="sram"))
+        else:
+            prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()
