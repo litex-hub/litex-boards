@@ -63,13 +63,13 @@ _io = [
 
     # HDMI.
     ("hdmi", 0,
-        Subsignal("clk_p",   Pins("69"), IOStandard("LVCMOS33")),
+        Subsignal("clk_p",   Pins("69")),
         Subsignal("clk_n",   Pins("68")),
-        Subsignal("data0_p", Pins("71"), IOStandard("LVCMOS33")),
+        Subsignal("data0_p", Pins("71")),
         Subsignal("data0_n", Pins("70")),
-        Subsignal("data1_p", Pins("73"), IOStandard("LVCMOS33")),
+        Subsignal("data1_p", Pins("73")),
         Subsignal("data1_n", Pins("72")),
-        Subsignal("data2_p", Pins("75"), IOStandard("LVCMOS33")),
+        Subsignal("data2_p", Pins("75")),
         Subsignal("data2_n", Pins("74")),
         Misc("PULL_MODE=NONE"),
     ),
