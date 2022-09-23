@@ -78,7 +78,7 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_jtagbone   = True,
         with_spi_flash  = False,
-        with_buttons    = True,
+        with_buttons    = False,
         with_pmod_gpio  = False,
         **kwargs):
         platform = digilent_arty.Platform(variant=variant, toolchain=toolchain)
