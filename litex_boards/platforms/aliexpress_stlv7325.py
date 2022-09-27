@@ -127,8 +127,8 @@ _io = [
     ("spisdcard", 0,
         Subsignal("clk",  Pins("N21")),
         Subsignal("cs_n", Pins("P19")),
-        Subsignal("mosi", Pins("U21"), Misc("PULLUP")),
-        Subsignal("miso", Pins("N16"), Misc("PULLUP")),
+        Subsignal("mosi", Pins("U21"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("N16"), Misc("PULLUP True")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS25")
     ),
