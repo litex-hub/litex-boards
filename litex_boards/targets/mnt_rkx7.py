@@ -141,8 +141,19 @@ class BaseSoC(SoCCore):
         self.comb += backlight.pwm.eq(Signal(reset=1))
 
         # eDP --------------------------------------------------------------------------------------
+        video_timings = ("1920x1080@rkx7", {
+            "pix_clk"       : 162e6,
+            "h_active"      : 1920,
+            "h_blanking"    : 159, # off by one in vtg
+            "h_sync_offset" : 40,
+            "h_sync_width"  : 40,
+            "v_active"      : 1080,
+            "v_blanking"    : 32,
+            "v_sync_offset" : 4,
+            "v_sync_width"  : 4,
+        })
         self.submodules.videophy = VideoDVIPHY(platform.request("edp"), clock_domain="dvi")
-        self.add_video_framebuffer(phy=self.videophy, timings="1920x1080@rkx7", clock_domain="dvi")
+        self.add_video_framebuffer(phy=self.videophy, timings=video_timings, clock_domain="dvi")
 
         # HDMI -------------------------------------------------------------------------------------
         # Untested: 2x VideoDVIPHYs and framebuffers in parallel
