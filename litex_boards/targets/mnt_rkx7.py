@@ -74,7 +74,7 @@ class BaseSoC(SoCCore):
     }}
 
     def __init__(self, sys_clk_freq=int(100e6), with_ethernet=True, with_etherbone=False,
-        with_spi_flash=True, **kwargs):
+        with_spi_flash=True, with_usb_host=False, **kwargs):
         platform = mnt_rkx7.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -160,10 +160,11 @@ class BaseSoC(SoCCore):
         #self.submodules.videophy = VideoDVIPHY(platform.request("hdmi"), clock_domain="dvi")
 
         # USB Host ---------------------------------------------------------------------------------
-        self.submodules.usb_ohci = USBOHCI(platform, platform.request("usb"))
-        self.bus.add_slave("usb_ohci_ctrl", self.usb_ohci.wb_ctrl, region=SoCRegion(origin=self.mem_map["usb_ohci"], size=0x100000, cached=False))
-        self.dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
-        self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
+        if with_usb_host:
+            self.submodules.usb_ohci = USBOHCI(platform, platform.request("usb"))
+            self.bus.add_slave("usb_ohci_ctrl", self.usb_ohci.wb_ctrl, region=SoCRegion(origin=self.mem_map["usb_ohci"], size=0x100000, cached=False))
+            self.dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
+            self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
 
         # LiteScope UART
         self.add_uartbone(name="litescope_serial")
@@ -194,16 +195,17 @@ def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX SoC on MNT-RKX7")
     target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",          action="store_true", help="Build design.")
-    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency.")
-    target_group.add_argument("--with-spi-flash", default=True, action="store_true", help="Enable SPI Flash (MMAPed).")
+    target_group.add_argument("--build",           action="store_true",                help="Build design.")
+    target_group.add_argument("--load",            action="store_true",                help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq",    default=100e6,                      help="System clock frequency.")
+    target_group.add_argument("--with-spi-flash",  action="store_true", default=True,  help="Enable SPI Flash (MMAPed).")
+    target_group.add_argument("--with-usb-host",   action="store_true", default=False, help="Enable USB host support.")
     sdopts = target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",     action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",         default=True, action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard",     action="store_true",               help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",         action="store_true", default=True, help="Enable SDCard support.")
     ethopts = target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  default=True, action="store_true", help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", default=True, help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true",               help="Enable Etherbone support.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
@@ -213,6 +215,7 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         with_spi_flash = args.with_spi_flash,
+        with_usb_host  = args.with_usb_host,
         **soc_core_argdict(args)
     )
     if args.with_spi_sdcard:
