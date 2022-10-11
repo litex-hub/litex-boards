@@ -62,9 +62,10 @@ _io = [
 
     # I2C
     ("i2c", 0,
-        Subsignal("scl", Pins("K21")),
-        Subsignal("sda", Pins("L21")),
-        IOStandard("LVCMOS25")),
+        Subsignal("scl", Pins("K21"), Misc("PULLUP=True")),
+        Subsignal("sda", Pins("L21"), Misc("PULLUP=True")),
+        IOStandard("LVCMOS25")
+    ),
 
     # Serial
     ("serial", 0,
