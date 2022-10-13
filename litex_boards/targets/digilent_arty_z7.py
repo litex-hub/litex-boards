@@ -84,6 +84,7 @@ class BaseSoC(SoCCore):
                 wishbone     = wb_gp0,
                 base_address = self.mem_map["csr"])
             self.bus.add_master(master=wb_gp0)
+            self.bus.add_region("flash",  SoCRegion(origin=0xFC00_0000, size=0x4_0000, mode="rwx"))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
