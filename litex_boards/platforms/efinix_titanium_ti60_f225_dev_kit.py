@@ -13,8 +13,8 @@ from litex.build.efinix import EfinixProgrammer
 
 _io = [
     # Clk
-    ("clk25", 0, Pins("B2"), IOStandard("1.8_V_LVCMOS")),
-    ("clk33", 0, Pins("P2"), IOStandard("1.8_V_LVCMOS")),
+    ("clk25",    0, Pins("B2"),  IOStandard("1.8_V_LVCMOS")),
+    ("clk33",    0, Pins("P2"),  IOStandard("1.8_V_LVCMOS")),
     ("clk74_25", 0, Pins("A11"), IOStandard("1.8_V_LVCMOS")),
 
     # SD-Card
@@ -54,10 +54,10 @@ _io = [
     ),
 
     # Buttons
-    ("user_btn", 0, Pins("K13"), IOStandard("1.8_V_LVCMOS")),
-    ("user_btn", 1, Pins("J13"), IOStandard("1.8_V_LVCMOS")),
-    ("user_btn", 2, Pins("C5"),  IOStandard("1.8_V_LVCMOS")),
-    ("user_btn", 3, Pins("R13"), IOStandard("1.8_V_LVCMOS")),
+    ("user_btn", 0, Pins("K13"), IOStandard("1.2_V_LVCMOS")),
+    ("user_btn", 1, Pins("J13"), IOStandard("1.2_V_LVCMOS")),
+    ("user_btn", 2, Pins("C5"),  IOStandard("1.2_V_LVCMOS")),
+    ("user_btn", 3, Pins("R13"), IOStandard("1.2_V_LVCMOS")),
 
     # Switches
     ("user_sw", 0, Pins("F3"), IOStandard("1.8_V_LVCMOS")),
@@ -120,10 +120,10 @@ iobank_info = [
             ("3B", "1.2 V LVCMOS"),
             ("4A", "1.2 V LVCMOS"),
             ("4B", "1.2 V LVCMOS"),
-            ("BL", "1.8 V LVCMOS"),
+            ("BL", "3.3 V LVCMOS"),
             ("BR", "1.8 V LVCMOS"),
             ("TL", "1.8 V LVCMOS"),
-            ("TR", "1.8 V LVCMOS"),
+            ("TR", "3.3 V LVCMOS"),
 ]
 
 # QSE Connectors -----------------------------------------------------------------------------------
