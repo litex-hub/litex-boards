@@ -54,10 +54,10 @@ _io = [
     ),
 
     # Buttons
-    ("user_btn", 0, Pins("K13"), IOStandard("1.2_V_LVCMOS")),
-    ("user_btn", 1, Pins("J13"), IOStandard("1.2_V_LVCMOS")),
-    ("user_btn", 2, Pins("C5"),  IOStandard("1.2_V_LVCMOS")),
-    ("user_btn", 3, Pins("R13"), IOStandard("1.2_V_LVCMOS")),
+    ("user_btn", 0, Pins("K13"), IOStandard("1.8_V_LVCMOS")),
+    ("user_btn", 1, Pins("J13"), IOStandard("1.8_V_LVCMOS")),
+    ("user_btn", 2, Pins("C5"),  IOStandard("1.8_V_LVCMOS")),
+    ("user_btn", 3, Pins("R13"), IOStandard("1.8_V_LVCMOS")),
 
     # Switches
     ("user_sw", 0, Pins("F3"), IOStandard("1.8_V_LVCMOS")),
@@ -87,19 +87,19 @@ _io = [
 
     # MIPI
     ("mipi_tx", 0,
-        Subsignal("clk",   Pins("D13"), IOStandard("1.2_V_LVCMOS")),
-        Subsignal("data0", Pins("C15"), IOStandard("1.2_V_LVCMOS")),
-        Subsignal("data1", Pins("D14"), IOStandard("1.2_V_LVCMOS")),
-        Subsignal("data2", Pins("E14"), IOStandard("1.2_V_LVCMOS")),
-        Subsignal("data3", Pins("E12"), IOStandard("1.2_V_LVCMOS")),
+        Subsignal("clk",   Pins("D13"), IOStandard("1.8_V_LVCMOS")),
+        Subsignal("data0", Pins("C15"), IOStandard("1.8_V_LVCMOS")),
+        Subsignal("data1", Pins("D14"), IOStandard("1.8_V_LVCMOS")),
+        Subsignal("data2", Pins("E14"), IOStandard("1.8_V_LVCMOS")),
+        Subsignal("data3", Pins("E12"), IOStandard("1.8_V_LVCMOS")),
         Misc("SLEWRATE=FAST")
     ),
 
     # MIPI
     ("mipi_rx", 0,
-        Subsignal("clk",   Pins("M15"), IOStandard("1.2_V_LVCMOS")),
-        Subsignal("data0", Pins("K11"), IOStandard("1.2_V_LVCMOS")),
-        Subsignal("data1", Pins("L13"), IOStandard("1.2_V_LVCMOS")),
+        Subsignal("clk",   Pins("M15"), IOStandard("1.8_V_LVCMOS")),
+        Subsignal("data0", Pins("K11"), IOStandard("1.8_V_LVCMOS")),
+        Subsignal("data1", Pins("L13"), IOStandard("1.8_V_LVCMOS")),
         Misc("SLEWRATE=FAST")
     ),
 
@@ -116,10 +116,10 @@ iobank_info = [
             ("1B", "1.8 V LVCMOS"),
             ("2A", "1.8 V LVCMOS"),
             ("2B", "1.8 V LVCMOS"),
-            ("3A", "1.2 V LVCMOS"),
-            ("3B", "1.2 V LVCMOS"),
-            ("4A", "1.2 V LVCMOS"),
-            ("4B", "1.2 V LVCMOS"),
+            ("3A", "1.8 V LVCMOS"),
+            ("3B", "1.8 V LVCMOS"),
+            ("4A", "1.8 V LVCMOS"),
+            ("4B", "1.8 V LVCMOS"),
             ("BL", "3.3 V LVCMOS"),
             ("BR", "1.8 V LVCMOS"),
             ("TL", "1.8 V LVCMOS"),
