@@ -18,6 +18,7 @@ from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -57,6 +58,12 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "usb_uart"
+        if kwargs.get("cpu_type", None) == "zynq7000":
+            kwargs["integrated_sram_size"] = 0
+            kwargs["with_uart"]            = False
+            self.mem_map = {
+                'csr': 0x43c0_0000,  # Zynq GP0 default
+            }
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zebboard", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
@@ -74,6 +81,7 @@ class BaseSoC(SoCCore):
                 wishbone     = wb_gp0,
                 base_address = 0x43c00000)
             self.bus.add_master(master=wb_gp0)
+            self.bus.add_region("flash",  SoCRegion(origin=0xFC00_0000, size=0x4_0000, mode="rwx"))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
