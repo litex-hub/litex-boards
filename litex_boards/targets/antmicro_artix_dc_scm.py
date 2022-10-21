@@ -101,14 +101,12 @@ class BaseSoC(SoCCore):
             self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"),
                 data_width = 128,
                 bar0_size  = 0x20000)
-            self.add_csr("pcie_phy")
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 

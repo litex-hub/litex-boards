@@ -123,7 +123,6 @@ class BaseSoC(SoCCore):
 
         gpio_signals = platform.request("gpio")
         self.submodules.leds = GPIOOut(gpio_signals)
-        self.add_csr("leds")
 
         # Additional I2C Ports ---------------------------------------------------------------------
         self.submodules.i2c0 = I2CMaster(platform.request("i2c", 0))

@@ -199,7 +199,6 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
         self.submodules.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
-        self.add_csr("leds")
 
 # Build --------------------------------------------------------------------------------------------
 
