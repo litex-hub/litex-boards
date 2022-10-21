@@ -220,7 +220,7 @@ class Platform(XilinxPlatform):
     default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7a100t-CSG324-1", _io, _connectors, toolchain=toolchain)
+        XilinxPlatform.__init__(self, "xc7a100tcsg324-1", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
 
     def create_programmer(self):
