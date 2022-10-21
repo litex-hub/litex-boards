@@ -121,6 +121,9 @@ class BaseSoC(SoCCore):
 
 #include "xparameters_ps.h"
 
+
+#define XPAR_PS7_DDR_0_S_AXI_BASEADDR 0x00100000
+#define XPAR_PS7_DDR_0_S_AXI_HIGHADDR 0x7FFFFFFF
 #endif
 ''')
 # Build --------------------------------------------------------------------------------------------
