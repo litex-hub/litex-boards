@@ -103,8 +103,8 @@ def main():
         soc.add_sdcard()
 
     builder = Builder(soc, **builder_argdict(args))
-
-    builder.build(**vivado_build_argdict(args), run=args.build)
+    if args.build:
+        builder.build(**vivado_build_argdict(args))
 
     if args.load:
         prog = soc.platform.create_programmer()
