@@ -80,6 +80,7 @@ def main():
     target_group.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
     target_group.add_argument("--toolchain",     default="icestorm",   help="FPGA toolchain (radiant or prjoxide).")
     target_group.add_argument("--bios-flash-offset", default=0x50000, help="BIOS offset in SPI flash")
+    target_group.add_argument("--cpu-variant", default="lite", help="CPU variant")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
