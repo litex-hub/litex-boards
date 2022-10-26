@@ -80,12 +80,15 @@ def main():
     target_group.add_argument("--build",             action="store_true", help="Build bitstream.")
     target_group.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
     target_group.add_argument("--toolchain",     default="icestorm",   help="FPGA toolchain (radiant or prjoxide).")
-    target_group.add_argument("--bios-flash-offset", default=0x50000, help="BIOS offset in SPI flash")
+    target_group.add_argument("--bios-flash-offset", default="0x50000", help="BIOS offset in SPI flash")
+    target_group.add_argument("--flash",             action="store_true", help="Flash Bitstream.")
     builder_args(parser)
     soc_core_args(parser)
+    icestorm_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
+        bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
