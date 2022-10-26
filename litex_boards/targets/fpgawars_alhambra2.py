@@ -13,6 +13,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex_boards.platforms import fpgawars_alhambra2
 
 from litex.build.lattice.programmer import IceStormProgrammer
+from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
@@ -89,7 +90,11 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    builder.build(run=args.build)
+    if args.build:
+        builder.build(**icestorm_argdict(args))
+
+    if args.flash:
+        flash(args.bios_flash_offset)
 
 if __name__ == "__main__":
     main()
