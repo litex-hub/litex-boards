@@ -8,6 +8,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import xilinx_zcu216
 
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
@@ -24,10 +26,10 @@ from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, use_ps7_clk=False):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -35,7 +37,7 @@ class _CRG(Module):
             self.comb += ClockSignal("sys").eq(ClockSignal("ps"))
             self.comb += ResetSignal("sys").eq(ResetSignal("ps") | self.rst)
         else:
-            self.submodules.pll = pll = S7PLL(speedgrade=-1)
+            self.pll = pll = S7PLL(speedgrade=-1)
             self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(platform.request(platform.default_clk_name), platform.default_clk_freq)
             pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -52,7 +54,7 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         use_ps7_clk = (kwargs.get("cpu_type", None) == "zynqmp")
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
+        self.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
@@ -127,7 +129,7 @@ class BaseSoC(SoCCore):
 
         # LEDs -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

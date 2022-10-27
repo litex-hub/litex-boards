@@ -17,6 +17,8 @@ import os
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import xilinx_alveo_u280
 
 from litex.soc.cores.clock import *
@@ -41,30 +43,30 @@ from litescope import LiteScopeAnalyzer
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, ddram_channel, with_hbm):
         if with_hbm:
-            self.clock_domains.cd_sys     = ClockDomain()
-            self.clock_domains.cd_hbm_ref = ClockDomain()
-            self.clock_domains.cd_apb     = ClockDomain()
+            self.cd_sys     = ClockDomain()
+            self.cd_hbm_ref = ClockDomain()
+            self.cd_apb     = ClockDomain()
         else: # ddr4
             self.rst = Signal()
-            self.clock_domains.cd_sys    = ClockDomain()
-            self.clock_domains.cd_sys4x  = ClockDomain()
-            self.clock_domains.cd_pll4x  = ClockDomain()
-            self.clock_domains.cd_idelay = ClockDomain()
+            self.cd_sys    = ClockDomain()
+            self.cd_sys4x  = ClockDomain()
+            self.cd_pll4x  = ClockDomain()
+            self.cd_idelay = ClockDomain()
 
         # # #
 
         if with_hbm:
-            self.submodules.pll = pll = USMMCM(speedgrade=-2)
+            self.pll = pll = USMMCM(speedgrade=-2)
             pll.register_clkin(platform.request("sysclk", ddram_channel), 100e6)
             pll.create_clkout(self.cd_sys,     sys_clk_freq)
             pll.create_clkout(self.cd_hbm_ref, 100e6)
             pll.create_clkout(self.cd_apb,     100e6)
             platform.add_false_path_constraints(self.cd_sys.clk, self.cd_apb.clk)
         else: # ddr4
-            self.submodules.pll = pll = USMMCM(speedgrade=-2)
+            self.pll = pll = USMMCM(speedgrade=-2)
             self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(platform.request("sysclk", ddram_channel), 100e6)
             pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
@@ -80,7 +82,7 @@ class _CRG(Module):
                 # AsyncResetSynchronizer(self.cd_idelay, ~pll.locked),
             ]
 
-            self.submodules.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
+            self.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -91,7 +93,7 @@ class BaseSoC(SoCCore):
             assert 225e6 <= sys_clk_freq <= 450e6
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, ddram_channel, with_hbm)
+        self.crg = _CRG(platform, sys_clk_freq, ddram_channel, with_hbm)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alveo U280 (ES1)", **kwargs)
@@ -102,7 +104,7 @@ class BaseSoC(SoCCore):
             #self.add_jtagbone(chain=2) # Chain 1 already used by HBM2 debug probes.
 
             # Add HBM Core.
-            self.submodules.hbm = hbm = ClockDomainsRenamer({"axi": "sys"})(USPHBM2(platform))
+            self.hbm = hbm = ClockDomainsRenamer({"axi": "sys"})(USPHBM2(platform))
 
             # Get HBM .xci.
             os.system("wget https://github.com/litex-hub/litex-boards/files/6893157/hbm_0.xci.txt")
@@ -121,7 +123,7 @@ class BaseSoC(SoCCore):
         else:
             # DDR4 SDRAM -------------------------------------------------------------------------------
             if not self.integrated_main_ram_size:
-                self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram", ddram_channel),
+                self.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram", ddram_channel),
                     memtype          = "DDR4",
                     cmd_latency      = 1, # seems to work better with cmd_latency=1
                     sys_clk_freq     = sys_clk_freq,
@@ -139,14 +141,14 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.submodules.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("gpio_led"),
                 sys_clk_freq = sys_clk_freq)
 

@@ -13,6 +13,8 @@
 from migen import *
 from litex_boards.platforms import terasic_deca
 
+from litex.gen import LiteXModule
+
 from litex.soc.cores.clock import Max10PLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -23,12 +25,12 @@ from liteeth.phy.mii import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_hdmi   = ClockDomain()
-        self.clock_domains.cd_usb    = ClockDomain()
+        self.rst     = Signal()
+        self.cd_sys  = ClockDomain()
+        self.cd_hdmi = ClockDomain()
+        self.cd_usb  = ClockDomain()
 
         # # #
 
@@ -36,7 +38,7 @@ class _CRG(Module):
         clk50 = platform.request("clk50")
 
         # PLL
-        self.submodules.pll = pll = Max10PLL(speedgrade="-6")
+        self.pll = pll = Max10PLL(speedgrade="-6")
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys,  sys_clk_freq)
@@ -46,7 +48,7 @@ class _CRG(Module):
         if with_usb_pll:
             ulpi  = platform.request("ulpi")
             self.comb += ulpi.cs.eq(1) # Enable ULPI chip to enable the ULPI clock.
-            self.submodules.usb_pll = pll = Max10PLL(speedgrade="-6")
+            self.usb_pll = pll = Max10PLL(speedgrade="-6")
             self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(ulpi.clk, 60e6)
             pll.create_clkout(self.cd_usb, 60e6, phase=-120) # -120° from DECA's example (also validated with LUNA).
@@ -61,7 +63,7 @@ class BaseSoC(SoCCore):
         self.platform = platform = terasic_deca.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=False)
+        self.crg = self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=False)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Defaults to JTAG-UART since no hardware UART.
@@ -92,7 +94,7 @@ class BaseSoC(SoCCore):
                 'set_false_path -from [get_clocks {sys_clk}] -to [get_clocks {eth_tx_clk}]',
                 'set_false_path -from [get_clocks {eth_rx_clk}] -to [get_clocks {eth_tx_clk}]',
             ]
-            self.submodules.ethphy = LiteEthPHYMII(
+            self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
             if with_ethernet:
@@ -102,12 +104,12 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
-            self.submodules.videophy = VideoDVIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.videophy = VideoDVIPHY(platform.request("hdmi"), clock_domain="hdmi")
             self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

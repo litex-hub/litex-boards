@@ -10,6 +10,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import lattice_crosslink_nx_evn
 
 from litex.soc.cores.ram import NXLRAM
@@ -30,13 +32,13 @@ mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_por = ClockDomain()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.cd_por = ClockDomain()
+        self.cd_sys = ClockDomain()
 
         # Built in OSC
-        self.submodules.hf_clk = NXOSCA()
+        self.hf_clk = NXOSCA()
         hf_clk_freq = 25e6
         self.hf_clk.create_hf_clk(self.cd_por, hf_clk_freq)
 
@@ -50,7 +52,7 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_por, ~self.rst_n)
 
         # PLL
-        self.submodules.sys_pll = sys_pll = NXPLL(platform=platform, create_output_port_clocks=True)
+        self.sys_pll = sys_pll = NXPLL(platform=platform, create_output_port_clocks=True)
         sys_pll.register_clkin(self.cd_por.clk, hf_clk_freq)
         sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked | ~por_done )
@@ -68,7 +70,7 @@ class BaseSoC(SoCCore):
         platform = lattice_crosslink_nx_evn.Platform(device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore -----------------------------------------_----------------------------------------
         # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
@@ -79,12 +81,12 @@ class BaseSoC(SoCCore):
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
         size = 128*kB
-        self.submodules.spram = NXLRAM(32, size)
+        self.spram = NXLRAM(32, size)
         self.register_mem("sram", self.mem_map["sram"], self.spram.bus, size)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = Cat(*[platform.request("user_led", i) for i in range(14)]),
                 sys_clk_freq = sys_clk_freq)
 

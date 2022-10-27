@@ -8,6 +8,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import qmtech_wukong
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
@@ -27,23 +29,23 @@ from liteeth.phy import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, speed_grade, sys_clk_freq, with_video_pll=False, pix_clk=25.175e6):
-        self.rst = Signal()
-        self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain()
-        self.clock_domains.cd_sys4x_dqs = ClockDomain()
-        self.clock_domains.cd_idelay    = ClockDomain()
-        self.clock_domains.cd_clk100    = ClockDomain()
-        self.clock_domains.cd_hdmi      = ClockDomain()
-        self.clock_domains.cd_hdmi5x    = ClockDomain()
+        self.rst          = Signal()
+        self.cd_sys       = ClockDomain()
+        self.cd_sys4x     = ClockDomain()
+        self.cd_sys4x_dqs = ClockDomain()
+        self.cd_idelay    = ClockDomain()
+        self.cd_clk100    = ClockDomain()
+        self.cd_hdmi      = ClockDomain()
+        self.cd_hdmi5x    = ClockDomain()
 
         # # #
 
         plls_reset = platform.request("cpu_reset")
         plls_clk50 = platform.request("clk50")
 
-        self.submodules.pll = pll = S7MMCM(speedgrade=speed_grade)
+        self.pll = pll = S7MMCM(speedgrade=speed_grade)
         self.comb += pll.reset.eq(~plls_reset | self.rst)
         pll.register_clkin(plls_clk50, 50e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
@@ -52,17 +54,17 @@ class _CRG(Module):
         #pll.create_clkout(self.cd_idelay,    200e6)
 
         # idelay PLL
-        self.submodules.pll_idelay = pll_idelay = S7PLL(speedgrade=speed_grade)
+        self.pll_idelay = pll_idelay = S7PLL(speedgrade=speed_grade)
         self.comb += pll_idelay.reset.eq(~plls_reset | self.rst)
         pll_idelay.register_clkin(plls_clk50, 50e6)
         pll_idelay.create_clkout(self.cd_idelay, 200e6)
         pll_idelay.create_clkout(self.cd_clk100, 100e6)
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+        self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
         # Video PLL.
         if with_video_pll:
-            self.submodules.video_pll = video_pll = S7MMCM(speedgrade=speed_grade)
+            self.video_pll = video_pll = S7MMCM(speedgrade=speed_grade)
             self.comb += video_pll.reset.eq(~plls_reset | self.rst)
             video_pll.register_clkin(plls_clk50, 50e6)
             video_pll.create_clkout(self.cd_hdmi,   pix_clk)
@@ -79,7 +81,7 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)
-        self.submodules.crg = _CRG(platform, speed_grade, sys_clk_freq,
+        self.crg = _CRG(platform, speed_grade, sys_clk_freq,
             with_video_pll = with_video_pll,
             pix_clk        = video_timings[video_timing]["pix_clk"]
         )
@@ -89,7 +91,7 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
+            self.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
                 memtype        = "DDR3",
                 nphases        = 4,
                 sys_clk_freq   = sys_clk_freq)
@@ -101,7 +103,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHY(
+            self.ethphy = LiteEthPHY(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 clk_freq   = sys_clk_freq)
@@ -112,13 +114,13 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
             # Video ----------------------------------- -------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            self.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings=video_timing, clock_domain="hdmi")
             if with_video_framebuffer:

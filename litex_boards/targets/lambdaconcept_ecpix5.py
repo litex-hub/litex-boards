@@ -9,6 +9,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import lambdaconcept_ecpix5
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
@@ -27,14 +29,14 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_init    = ClockDomain()
-        self.clock_domains.cd_por     = ClockDomain()
-        self.clock_domains.cd_sys     = ClockDomain()
-        self.clock_domains.cd_sys2x   = ClockDomain()
-        self.clock_domains.cd_sys2x_i = ClockDomain()
+        self.rst        = Signal()
+        self.cd_init    = ClockDomain()
+        self.cd_por     = ClockDomain()
+        self.cd_sys     = ClockDomain()
+        self.cd_sys2x   = ClockDomain()
+        self.cd_sys2x_i = ClockDomain()
 
         # # #
 
@@ -53,7 +55,7 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # PLL
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | ~rst_n | self.rst)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
@@ -85,14 +87,14 @@ class BaseSoC(SoCCore):
         platform = lambdaconcept_ecpix5.Platform(device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ECPIX-5", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = ECP5DDRPHY(
+            self.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
@@ -105,7 +107,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYRGMII(
+            self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 rx_delay   = 0e-9)
@@ -118,8 +120,8 @@ class BaseSoC(SoCCore):
         if with_video_terminal or with_video_framebuffer:
             # PHY + IT6613 I2C initialization.
             hdmi_pads = platform.request("hdmi")
-            self.submodules.videophy = VideoDVIPHY(hdmi_pads, clock_domain="init")
-            self.submodules.videoi2c = I2CMaster(hdmi_pads)
+            self.videophy = VideoDVIPHY(hdmi_pads, clock_domain="init")
+            self.videoi2c = I2CMaster(hdmi_pads)
 
             # I2C initialization adapted from https://github.com/ultraembedded/ecpix-5
             # Copyright (c) 2020 https://github.com/ultraembedded
@@ -213,7 +215,7 @@ class BaseSoC(SoCCore):
                 rgb_led_pads = platform.request("rgb_led", i)
                 self.comb += [getattr(rgb_led_pads, n).eq(1) for n in "gb"] # Disable Green/Blue Leds.
                 leds_pads += [getattr(rgb_led_pads, n) for n in "r"]
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = Cat(leds_pads),
                 sys_clk_freq = sys_clk_freq)
 

@@ -11,6 +11,8 @@ import os
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import pano_logic_g2
 
 from litex.soc.cores.clock import *
@@ -22,10 +24,10 @@ from liteeth.phy import LiteEthPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, clk_freq, with_ethernet=False):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -34,7 +36,7 @@ class _CRG(Module):
             # See https://github.com/tomverbeure/panologic-g2#fpga-external-clocking-architecture
             self.comb += platform.request("eth_rst_n").eq(1)
 
-        self.submodules.pll = pll = S6PLL(speedgrade=-2)
+        self.pll = pll = S6PLL(speedgrade=-2)
         self.comb += pll.reset.eq(~platform.request("user_btn_n") | self.rst)
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_sys, clk_freq)
@@ -51,14 +53,14 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_ethernet = (with_ethernet or with_etherbone)
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_ethernet)
+        self.crg = _CRG(platform, sys_clk_freq, with_ethernet=with_ethernet)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Pano Logic G2", **kwargs)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHY(
+            self.ethphy = LiteEthPHY(
                 clock_pads         = self.platform.request("eth_clocks"),
                 pads               = self.platform.request("eth"),
                 clk_freq           = sys_clk_freq,
@@ -70,7 +72,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

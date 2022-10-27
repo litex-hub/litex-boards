@@ -9,6 +9,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import qmtech_ep4cex5
@@ -26,20 +28,20 @@ from liteeth.phy.mii import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_ethernet, with_vga, sdram_rate="1:1"):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
         if sdram_rate == "1:2":
-            self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain()
+            self.cd_sys2x    = ClockDomain()
+            self.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain()
+            self.cd_sys_ps = ClockDomain()
 
         if with_ethernet:
-            self.clock_domains.cd_eth   = ClockDomain()
+            self.cd_eth   = ClockDomain()
         if with_vga:
-            self.clock_domains.cd_vga   = ClockDomain()
+            self.cd_vga   = ClockDomain()
 
         # # #
 
@@ -47,7 +49,7 @@ class _CRG(Module):
         clk50 = platform.request("clk50")
 
         # PLL
-        self.submodules.pll = pll = CycloneIVPLL(speedgrade="-6")
+        self.pll = pll = CycloneIVPLL(speedgrade="-6")
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -78,7 +80,7 @@ class BaseSoC(SoCCore):
 
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq,
+        self.crg = _CRG(platform, sys_clk_freq,
             with_ethernet = with_ethernet or with_etherbone,
             with_vga      = with_video_terminal or with_video_framebuffer,
             sdram_rate    = sdram_rate
@@ -93,7 +95,7 @@ class BaseSoC(SoCCore):
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
+            self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = W9825G6KH6(sys_clk_freq, sdram_rate),
@@ -102,7 +104,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYMII(
+            self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
             if with_ethernet:
@@ -112,7 +114,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
+            self.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="vga")
             if with_video_framebuffer:
@@ -120,7 +122,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

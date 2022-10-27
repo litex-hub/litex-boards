@@ -9,6 +9,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import lattice_ecp5_evn
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
@@ -20,10 +22,10 @@ from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, x5_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -36,7 +38,7 @@ class _CRG(Module):
             platform.add_period_constraint(clk50, 1e9/x5_clk_freq)
 
         # PLL.
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk, x5_clk_freq or 12e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -49,14 +51,14 @@ class BaseSoC(SoCCore):
         platform = lattice_ecp5_evn.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, x5_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, x5_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ECP5 Evaluation Board", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

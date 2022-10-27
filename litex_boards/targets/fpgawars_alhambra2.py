@@ -10,6 +10,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import fpgawars_alhambra2
 
 from litex.build.lattice.programmer import IceStormProgrammer
@@ -22,12 +24,12 @@ from litex.soc.cores.led import LedChaser
 kB = 1024
 mB = 1024*kB
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         assert sys_clk_freq == 12e6
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        self.cd_por = ClockDomain()
 
         sys = platform.request("clk12")
         platform.add_period_constraint(sys, 1e9/12e6)
@@ -64,11 +66,11 @@ class BaseSoC(SoCCore):
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)
         
         # CRG
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # Leds
         if with_led_chaser:
-            self.submodules.leds = LedChaser(pads=platform.request_all("user_leds"), sys_clk_freq=sys_clk_freq)
+            self.leds = LedChaser(pads=platform.request_all("user_leds"), sys_clk_freq=sys_clk_freq)
 
 
 def main():

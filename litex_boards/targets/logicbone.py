@@ -12,6 +12,8 @@ import sys
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import logicbone
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
@@ -27,14 +29,14 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # _CRG ---------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
-        self.rst = Signal()
-        self.clock_domains.cd_init     = ClockDomain()
-        self.clock_domains.cd_por      = ClockDomain()
-        self.clock_domains.cd_sys      = ClockDomain()
-        self.clock_domains.cd_sys2x    = ClockDomain()
-        self.clock_domains.cd_sys2x_i  = ClockDomain()
+        self.rst        = Signal()
+        self.cd_init    = ClockDomain()
+        self.cd_por     = ClockDomain()
+        self.cd_sys     = ClockDomain()
+        self.cd_sys2x   = ClockDomain()
+        self.cd_sys2x_i = ClockDomain()
 
         # # #
 
@@ -53,7 +55,7 @@ class _CRG(Module):
 
         # PLL
         sys2x_clk_ecsout = Signal()
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | self.rst)
         pll.register_clkin(clk25, 25e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
@@ -78,8 +80,8 @@ class _CRG(Module):
 
         # USB PLL
         if with_usb_pll:
-            self.clock_domains.cd_usb_12 = ClockDomain()
-            self.clock_domains.cd_usb_48 = ClockDomain()
+            self.cd_usb_12 = ClockDomain()
+            self.cd_usb_48 = ClockDomain()
             usb_pll = ECP5PLL()
             self.submodules += usb_pll
             self.comb += usb_pll.reset.eq(~por_done | self.rst)
@@ -99,7 +101,7 @@ class BaseSoC(SoCCore):
         platform = logicbone.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll=True)
+        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=True)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Defaults to USB ACM through ValentyUSB.
@@ -114,7 +116,7 @@ class BaseSoC(SoCCore):
             }
             sdram_module = available_sdram_modules.get(sdram_device)
 
-            self.submodules.ddrphy = ECP5DDRPHY(
+            self.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
@@ -127,7 +129,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet:
-            self.submodules.ethphy = LiteEthPHYRGMII(
+            self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
             self.add_ethernet(phy=self.ethphy)
@@ -135,7 +137,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

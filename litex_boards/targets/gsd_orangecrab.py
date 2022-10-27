@@ -13,6 +13,8 @@ from migen import *
 from migen.genlib.misc import WaitTimer
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import gsd_orangecrab
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
@@ -27,11 +29,11 @@ from litedram.phy import ECP5DDRPHY
 
 # CRG ---------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
-        self.rst = Signal()
-        self.clock_domains.cd_por = ClockDomain()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_por = ClockDomain()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -48,15 +50,15 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # PLL
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | ~rst_n | self.rst)
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
         # USB PLL
         if with_usb_pll:
-            self.clock_domains.cd_usb_12 = ClockDomain()
-            self.clock_domains.cd_usb_48 = ClockDomain()
+            self.cd_usb_12 = ClockDomain()
+            self.cd_usb_48 = ClockDomain()
             usb_pll = ECP5PLL()
             self.submodules += usb_pll
             self.comb += usb_pll.reset.eq(~por_done)
@@ -72,14 +74,14 @@ class _CRG(Module):
         self.comb += platform.request("rst_n").eq(~reset_timer.done)
 
 
-class _CRGSDRAM(Module):
+class _CRGSDRAM(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
         self.rst = Signal()
-        self.clock_domains.cd_init     = ClockDomain()
-        self.clock_domains.cd_por      = ClockDomain()
-        self.clock_domains.cd_sys      = ClockDomain()
-        self.clock_domains.cd_sys2x    = ClockDomain()
-        self.clock_domains.cd_sys2x_i  = ClockDomain()
+        self.cd_init     = ClockDomain()
+        self.cd_por      = ClockDomain()
+        self.cd_sys      = ClockDomain()
+        self.cd_sys2x    = ClockDomain()
+        self.cd_sys2x_i  = ClockDomain()
 
         # # #
 
@@ -100,7 +102,7 @@ class _CRGSDRAM(Module):
 
         # PLL
         sys2x_clk_ecsout = Signal()
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | ~rst_n | self.rst)
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
@@ -125,8 +127,8 @@ class _CRGSDRAM(Module):
 
         # USB PLL
         if with_usb_pll:
-            self.clock_domains.cd_usb_12 = ClockDomain()
-            self.clock_domains.cd_usb_48 = ClockDomain()
+            self.cd_usb_12 = ClockDomain()
+            self.cd_usb_48 = ClockDomain()
             usb_pll = ECP5PLL()
             self.submodules += usb_pll
             self.comb += usb_pll.reset.eq(~por_done)
@@ -150,7 +152,7 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         crg_cls      = _CRGSDRAM if kwargs.get("integrated_main_ram_size", 0) == 0 else _CRG
-        self.submodules.crg = crg_cls(platform, sys_clk_freq, with_usb_pll=True)
+        self.crg = crg_cls(platform, sys_clk_freq, with_usb_pll=True)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Defaults to USB ACM through ValentyUSB.
@@ -168,7 +170,7 @@ class BaseSoC(SoCCore):
             sdram_module = available_sdram_modules.get(sdram_device)
 
             ddram_pads = platform.request("ddram")
-            self.submodules.ddrphy = ECP5DDRPHY(
+            self.ddrphy = ECP5DDRPHY(
                 pads         = ddram_pads,
                 sys_clk_freq = sys_clk_freq,
                 dm_remapping = {0:1, 1:0},
@@ -188,7 +190,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

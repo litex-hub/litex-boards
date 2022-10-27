@@ -27,6 +27,8 @@ import os
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import fairwaves_xtrx
 
 from litex.soc.interconnect.csr import *
@@ -41,9 +43,9 @@ from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class CRG(Module):
+class CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_pcie=False):
-        self.clock_domains.cd_sys = ClockDomain()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -54,7 +56,7 @@ class CRG(Module):
                 self.cd_sys.rst.eq(ResetSignal("pcie")),
             ]
         else:
-            self.submodules.pll = pll = S7PLL(speedgrade=-2)
+            self.pll = pll = S7PLL(speedgrade=-2)
             pll.register_clkin(platform.request("clk60"), 60e6)
             pll.create_clkout(self.cd_sys, sys_clk_freq)
 
@@ -65,7 +67,7 @@ class BaseSoC(SoCCore):
         platform = fairwaves_xtrx.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(platform, sys_clk_freq, with_pcie)
+        self.crg = CRG(platform, sys_clk_freq, with_pcie)
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
@@ -74,27 +76,27 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x2"),
+            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x2"),
                 data_width = 64,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
             # ICAP (For FPGA reload over PCIe).
             from litex.soc.cores.icap import ICAP
-            self.submodules.icap = ICAP()
+            self.icap = ICAP()
             self.icap.add_reload()
             self.icap.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
             # Flash (For SPIFlash update over PCIe).
             from litex.soc.cores.gpio import GPIOOut
             from litex.soc.cores.spi_flash import S7SPIFlash
-            self.submodules.flash_cs_n = GPIOOut(platform.request("flash_cs_n"))
-            self.submodules.flash      = S7SPIFlash(platform.request("flash"), sys_clk_freq, 25e6)
+            self.flash_cs_n = GPIOOut(platform.request("flash_cs_n"))
+            self.flash      = S7SPIFlash(platform.request("flash"), sys_clk_freq, 25e6)
 
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

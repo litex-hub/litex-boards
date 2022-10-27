@@ -8,6 +8,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import digilent_arty_z7
 from litex.build import tools
 from litex.build.xilinx import common as xil_common
@@ -25,10 +27,10 @@ from litex.soc.cores.led import LedChaser
 # CRG ----------------------------------------------------------------------------------------------
 
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, use_ps7_clk=False):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -40,7 +42,7 @@ class _CRG(Module):
             clk125 = platform.request("clk125")
 
             # PLL.
-            self.submodules.pll = pll = S7PLL(speedgrade=-1)
+            self.pll = pll = S7PLL(speedgrade=-1)
             self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(clk125, 125e6)
             pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -57,7 +59,7 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         use_ps7_clk = (kwargs.get("cpu_type", None) == "zynq7000")
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
+        self.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
@@ -88,7 +90,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

@@ -8,6 +8,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import trenz_cyc1000
 
 from litex.soc.cores.clock import Cyclone10LPPLL
@@ -20,11 +22,11 @@ from litedram.phy import GENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys_ps = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -32,7 +34,7 @@ class _CRG(Module):
         clk12 = platform.request("clk12")
 
         # PLL
-        self.submodules.pll = pll = Cyclone10LPPLL(speedgrade="-C8")
+        self.pll = pll = Cyclone10LPPLL(speedgrade="-C8")
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -48,14 +50,14 @@ class BaseSoC(SoCCore):
         platform = trenz_cyc1000.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on CYC1000", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+            self.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = M12L64322A(sys_clk_freq, "1:1"), # Winbond W9864G6JT
@@ -64,7 +66,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

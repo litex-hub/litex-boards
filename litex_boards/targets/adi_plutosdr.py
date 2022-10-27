@@ -13,6 +13,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import adi_plutosdr
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
@@ -23,10 +25,10 @@ from litex.soc.cores.clock import *
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -47,7 +49,7 @@ class _CRG(Module):
         )
 
         # PLL
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(cfgm_clk, cfgm_clk_freq)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -60,7 +62,7 @@ class BaseSoC(SoCCore):
         platform = adi_plutosdr.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         kwargs["uart_name"] = "crossover"

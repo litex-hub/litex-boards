@@ -9,6 +9,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import xilinx_zcu106
 
 from litex.soc.cores.clock import *
@@ -24,20 +26,20 @@ from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain()
-        self.clock_domains.cd_pll4x  = ClockDomain()
-        self.clock_domains.cd_idelay = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys4x  = ClockDomain()
+        self.cd_pll4x  = ClockDomain()
+        self.cd_idelay = ClockDomain()
 
         # # #
 
         clk125 = platform.request("clk125")
         rst    = platform.request("rst")
 
-        self.submodules.pll = pll = USMMCM(speedgrade=-2)
+        self.pll = pll = USMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst | rst)
         pll.register_clkin(clk125, 125e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
@@ -52,7 +54,7 @@ class _CRG(Module):
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
         ]
 
-        self.submodules.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
+        self.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -64,11 +66,11 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZCU106", **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram"),
+            self.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram"),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6)
@@ -81,7 +83,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.submodules.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
                 speed      = "gen3",
                 data_width = 128,
                 bar0_size  = 0x20000)
@@ -89,7 +91,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

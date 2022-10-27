@@ -12,6 +12,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import hackaday_hadbadge
@@ -28,11 +30,11 @@ from litedram.modules import AS4C32M8
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys_ps = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -40,7 +42,7 @@ class _CRG(Module):
         clk8  = platform.request("clk8")
 
         # PLL
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         pll.pfd_freq_range = (8e6, 400e6) # Lower Min from 10MHz to 8MHz.
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk8, 8e6)
@@ -57,14 +59,14 @@ class BaseSoC(SoCCore):
         platform = hackaday_hadbadge.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ---------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Hackaday Badge", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+            self.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = AS4C32M8(sys_clk_freq, "1:1"),

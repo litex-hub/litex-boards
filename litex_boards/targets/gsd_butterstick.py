@@ -15,6 +15,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import gsd_butterstick
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
@@ -32,14 +34,14 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # CRG ---------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_init    = ClockDomain()
-        self.clock_domains.cd_por     = ClockDomain()
-        self.clock_domains.cd_sys     = ClockDomain()
-        self.clock_domains.cd_sys2x   = ClockDomain()
-        self.clock_domains.cd_sys2x_i = ClockDomain()
+        self.rst        = Signal()
+        self.cd_init    = ClockDomain()
+        self.cd_por     = ClockDomain()
+        self.cd_sys     = ClockDomain()
+        self.cd_sys2x   = ClockDomain()
+        self.cd_sys2x_i = ClockDomain()
 
         # # #
 
@@ -58,7 +60,7 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # PLL
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | ~rst_n | self.rst)
         pll.register_clkin(clk30, 30e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
@@ -90,7 +92,7 @@ class BaseSoC(SoCCore):
         platform = gsd_butterstick.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
@@ -107,7 +109,7 @@ class BaseSoC(SoCCore):
             }
             sdram_module = available_sdram_modules.get(sdram_device)
 
-            self.submodules.ddrphy = ECP5DDRPHY(
+            self.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
@@ -120,7 +122,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYRGMII(
+            self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 rx_delay   = 0e-9, # KSZ9031RNX phy adds a 1.2ns RX delay
@@ -139,14 +141,14 @@ class BaseSoC(SoCCore):
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.comb += platform.request("user_led_color").eq(0b010) # Blue.
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_syzygy_gpio:
             platform.add_extension(gsd_butterstick.raw_syzygy_io("SYZYGY0"))
-            self.submodules.gpio = GPIOTristate(platform.request("SYZYGY0"))
+            self.gpio = GPIOTristate(platform.request("SYZYGY0"))
 
 # Build --------------------------------------------------------------------------------------------
 

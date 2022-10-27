@@ -11,6 +11,8 @@ import os
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import xilinx_kcu105
 
 from litex.soc.cores.clock import *
@@ -28,18 +30,18 @@ from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain()
-        self.clock_domains.cd_pll4x  = ClockDomain()
-        self.clock_domains.cd_idelay = ClockDomain()
-        self.clock_domains.cd_eth    = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys4x  = ClockDomain()
+        self.cd_pll4x  = ClockDomain()
+        self.cd_idelay = ClockDomain()
+        self.cd_eth    = ClockDomain()
 
         # # #
 
-        self.submodules.pll = pll = USMMCM(speedgrade=-2)
+        self.pll = pll = USMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(platform.request("cpu_reset") | self.rst)
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
@@ -55,7 +57,7 @@ class _CRG(Module):
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
         ]
 
-        self.submodules.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
+        self.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -66,14 +68,14 @@ class BaseSoC(SoCCore):
         platform = xilinx_kcu105.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on KCU105", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USDDRPHY(platform.request("ddram"),
+            self.ddrphy = usddrphy.USDDRPHY(platform.request("ddram"),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
@@ -86,7 +88,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = KU_1000BASEX(self.crg.cd_eth.clk,
+            self.ethphy = KU_1000BASEX(self.crg.cd_eth.clk,
                 data_pads    = self.platform.request("sfp", 0),
                 sys_clk_freq = self.clk_freq)
             self.comb += self.platform.request("sfp_tx_disable_n", 0).eq(1)
@@ -98,7 +100,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.submodules.pcie_phy = USPCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = USPCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
@@ -121,13 +123,13 @@ class BaseSoC(SoCCore):
             platform.add_extension(_sata_io)
 
             # RefClk, Generate 150MHz from PLL.
-            self.clock_domains.cd_sata_refclk = ClockDomain()
+            self.cd_sata_refclk = ClockDomain()
             self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
             sata_refclk = ClockSignal("sata_refclk")
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-1753]")
 
             # PHY
-            self.submodules.sata_phy = LiteSATAPHY(platform.device,
+            self.sata_phy = LiteSATAPHY(platform.device,
                 refclk     = sata_refclk,
                 pads       = platform.request("sfp2sata"),
                 gen        = "gen2",
@@ -139,7 +141,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

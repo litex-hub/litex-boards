@@ -11,6 +11,8 @@ import os
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import quicklogic_quickfeather
 
 from litex.soc.integration.soc import SoCRegion
@@ -21,10 +23,10 @@ from litex.soc.cores.gpio import *
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, with_eos_s3=False):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -49,7 +51,7 @@ class BaseSoC(SoCCore):
         platform = quicklogic_quickfeather.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, with_eos_s3=kwargs["cpu_type"] == "eos_s3")
+        self.crg = _CRG(platform, with_eos_s3=kwargs["cpu_type"] == "eos_s3")
 
         # SoCCore ----------------------------------------------------------------------------------
         kwargs["with_uart"] = False
@@ -74,13 +76,13 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
         # GPIOIn (Interrupt test) ------------------------------------------------------------------
         if with_gpio_in:
-            self.submodules.gpio = GPIOIn(platform.request_all("user_btn_n"), with_irq=True)
+            self.gpio = GPIOIn(platform.request_all("user_btn_n"), with_irq=True)
             if kwargs["cpu_type"] == "eos_s3":
                 self.irq.add("gpio", use_loc_if_exists=True)
 

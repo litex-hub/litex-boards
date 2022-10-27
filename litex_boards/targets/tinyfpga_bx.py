@@ -8,6 +8,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex.build.io import CRG
 
 from litex_boards.platforms import tinyfpga_bx
@@ -28,7 +30,7 @@ class BaseSoC(SoCCore):
         platform = tinyfpga_bx.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(platform.request("clk16"))
+        self.crg = CRG(platform.request("clk16"))
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM since too large for iCE40.
@@ -50,7 +52,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
