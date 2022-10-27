@@ -12,6 +12,7 @@ from litex_boards.platforms import digilent_arty_z7
 from litex.build import tools
 from litex.build.xilinx import common as xil_common
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
+from litex.build.tools import write_to_file
 
 from litex.soc.interconnect import axi
 from litex.soc.interconnect import wishbone
@@ -84,6 +85,17 @@ class BaseSoC(SoCCore):
                 wishbone     = wb_gp0,
                 base_address = self.mem_map["csr"])
             self.bus.add_master(master=wb_gp0)
+
+            self.bus.add_region("sram", SoCRegion(
+                origin = self.cpu.mem_map["sram"],
+                size   = 512 * 1024 * 1024 - self.cpu.mem_map["sram"])
+            )
+            self.bus.add_region("rom", SoCRegion(
+                origin = self.cpu.mem_map["rom"],
+                size   = 256 * 1024 * 1024 // 8,
+                linker = True)
+            )
+            self.constants["CONFIG_CLOCK_FREQUENCY"] = 666666687
             self.bus.add_region("flash",  SoCRegion(origin=0xFC00_0000, size=0x4_0000, mode="rwx"))
 
         # Leds -------------------------------------------------------------------------------------
@@ -92,7 +104,54 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+    def finalize(self, *args, **kwargs):
+        super(BaseSoC, self).finalize(*args, **kwargs)
+        if self.cpu_type != "zynq7000":
+            return
+
+        libxil_path = os.path.join(self.builder.software_dir, 'libxil')
+        os.makedirs(os.path.realpath(libxil_path), exist_ok=True)
+        lib = os.path.join(libxil_path, 'embeddedsw')
+        if not os.path.exists(lib):
+            os.system("git clone --depth 1 https://github.com/Xilinx/embeddedsw {}".format(lib))
+
+        os.makedirs(os.path.realpath(self.builder.include_dir), exist_ok=True)
+        for header in [
+            'XilinxProcessorIPLib/drivers/uartps/src/xuartps_hw.h',
+            'lib/bsp/standalone/src/common/xil_types.h',
+            'lib/bsp/standalone/src/common/xil_assert.h',
+            'lib/bsp/standalone/src/common/xil_io.h',
+            'lib/bsp/standalone/src/common/xil_printf.h',
+            'lib/bsp/standalone/src/common/xstatus.h',
+            'lib/bsp/standalone/src/common/xdebug.h',
+            'lib/bsp/standalone/src/arm/cortexa9/xpseudo_asm.h',
+            'lib/bsp/standalone/src/arm/cortexa9/xreg_cortexa9.h',
+            'lib/bsp/standalone/src/arm/cortexa9/xil_cache.h',
+            'lib/bsp/standalone/src/arm/cortexa9/xparameters_ps.h',
+            'lib/bsp/standalone/src/arm/cortexa9/xil_errata.h',
+            'lib/bsp/standalone/src/arm/cortexa9/xtime_l.h',
+            'lib/bsp/standalone/src/arm/common/xil_exception.h',
+            'lib/bsp/standalone/src/arm/common/gcc/xpseudo_asm_gcc.h',
+        ]:
+            shutil.copy(os.path.join(lib, header), self.builder.include_dir)
+        write_to_file(os.path.join(self.builder.include_dir, 'bspconfig.h'),
+                      '#define FPU_HARD_FLOAT_ABI_ENABLED 1')
+        write_to_file(os.path.join(self.builder.include_dir, 'xparameters.h'), '''
+#ifndef __XPARAMETERS_H
+#define __XPARAMETERS_H
+
+#include "xparameters_ps.h"
+
+#define STDOUT_BASEADDRESS 0xE0000000
+#define XPAR_PS7_DDR_0_S_AXI_BASEADDR 0x00100000
+#define XPAR_PS7_DDR_0_S_AXI_HIGHADDR 0x1FFFFFFF
+
+#endif
+''')
+
+
 # Build --------------------------------------------------------------------------------------------
+
 
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
@@ -117,6 +176,10 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
+    if args.cpu_type == "zynq7000":
+        soc.builder = builder
+        builder.add_software_package('libxil')
+        builder.add_software_library('libxil')
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
     if args.build:
         builder.build(**builder_kwargs)
