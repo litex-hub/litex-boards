@@ -11,6 +11,8 @@ import os
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import sqrl_xcu1525
 
 from litex.soc.cores.clock import *
@@ -26,17 +28,17 @@ from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, ddram_channel):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain()
-        self.clock_domains.cd_pll4x  = ClockDomain()
-        self.clock_domains.cd_idelay = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys4x  = ClockDomain()
+        self.cd_pll4x  = ClockDomain()
+        self.cd_idelay = ClockDomain()
 
         # # #
 
-        self.submodules.pll = pll = USPMMCM(speedgrade=-2)
+        self.pll = pll = USPMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("clk300", ddram_channel), 300e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
@@ -51,7 +53,7 @@ class _CRG(Module):
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
         ]
 
-        self.submodules.idelayctrl = USPIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
+        self.idelayctrl = USPIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -61,14 +63,14 @@ class BaseSoC(SoCCore):
         platform = sqrl_xcu1525.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, ddram_channel)
+        self.crg = _CRG(platform, sys_clk_freq, ddram_channel)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on XCU1525", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USPDDRPHY(
+            self.ddrphy = usddrphy.USPDDRPHY(
                 pads             = platform.request("ddram", ddram_channel),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
@@ -84,7 +86,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.submodules.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
@@ -107,12 +109,12 @@ class BaseSoC(SoCCore):
             platform.add_extension(_sata_io)
 
             # RefClk, Generate 150MHz from PLL.
-            self.clock_domains.cd_sata_refclk = ClockDomain()
+            self.cd_sata_refclk = ClockDomain()
             self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
             sata_refclk = ClockSignal("sata_refclk")
 
             # PHY
-            self.submodules.sata_phy = LiteSATAPHY(platform.device,
+            self.sata_phy = LiteSATAPHY(platform.device,
                 refclk     = sata_refclk,
                 pads       = platform.request("qsfp2sata"),
                 gen        = "gen2",
@@ -124,7 +126,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

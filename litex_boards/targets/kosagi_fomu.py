@@ -14,6 +14,8 @@ import sys
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import kosagi_fomu_pvt
 
 from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
@@ -29,14 +31,14 @@ mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         assert sys_clk_freq == 12e6
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_por    = ClockDomain()
-        self.clock_domains.cd_usb_12 = ClockDomain()
-        self.clock_domains.cd_usb_48 = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_por    = ClockDomain()
+        self.cd_usb_12 = ClockDomain()
+        self.cd_usb_48 = ClockDomain()
 
         # # #
 
@@ -52,7 +54,7 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # USB PLL
-        self.submodules.pll = pll = iCE40PLL()
+        self.pll = pll = iCE40PLL()
         #self.comb += pll.reset.eq(self.rst) # FIXME: Add proper iCE40PLL reset support and add back | self.rst.
         pll.clko_freq_range = ( 12e6,  275e9) # FIXME: improve iCE40PLL to avoid lowering clko_freq_min.
         pll.register_clkin(clk48, 48e6)
@@ -73,7 +75,7 @@ class BaseSoC(SoCCore):
         platform = kosagi_fomu_pvt.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Defaults to USB ACM through ValentyUSB.
@@ -84,7 +86,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Fomu", **kwargs)
 
         # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
-        self.submodules.spram = Up5kSPRAM(size=128*kB)
+        self.spram = Up5kSPRAM(size=128*kB)
         self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128*kB))
         self.bus.add_region("sram", SoCRegion(
                 origin = self.bus.regions["psram"].origin + 0*kB,
@@ -121,7 +123,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
 

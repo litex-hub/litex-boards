@@ -12,6 +12,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import lattice_crosslink_nx_vip
 
 from litex.soc.cores.hyperbus import HyperRAM
@@ -34,15 +36,15 @@ mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        self.cd_por = ClockDomain()
 
         # TODO: replace with PLL
         # Clocking
-        self.submodules.sys_clk = sys_osc = NXOSCA()
+        self.sys_clk = sys_osc = NXOSCA()
         sys_osc.create_hf_clk(self.cd_sys, sys_clk_freq)
         platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
         rst_n = platform.request("gsrn")
@@ -70,7 +72,7 @@ class BaseSoC(SoCCore):
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore -----------------------------------------_----------------------------------------
         # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
@@ -81,18 +83,18 @@ class BaseSoC(SoCCore):
         if hyperram == "none":
             # 128KB LRAM (used as SRAM) ------------------------------------------------------------
             size = 128*kB
-            self.submodules.spram = NXLRAM(32, size)
+            self.spram = NXLRAM(32, size)
             self.bus.add_slave("sram", slave=self.spram.bus, region=SoCRegion(size=size))
         else:
             # Use HyperRAM generic PHY as SRAM -----------------------------------------------------
             size = 8*1024*kB
             hr_pads = platform.request("hyperram", int(hyperram))
-            self.submodules.hyperram = HyperRAM(hr_pads, sys_clk_freq=sys_clk_freq)
+            self.hyperram = HyperRAM(hr_pads, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("sram", slave=self.hyperram.bus, region=SoCRegion(size=size))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = Cat(*[platform.request("user_led", i) for i in range(4)]),
                 sys_clk_freq = sys_clk_freq)
 

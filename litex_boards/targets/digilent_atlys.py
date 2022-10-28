@@ -15,6 +15,8 @@ from fractions import Fraction
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import digilent_atlys
 
 from litex.soc.integration.soc_core import *
@@ -26,12 +28,12 @@ from litedram.phy import s6ddrphy
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys           = ClockDomain()
-        self.clock_domains.cd_sdram_half    = ClockDomain()
-        self.clock_domains.cd_sdram_full_wr = ClockDomain()
-        self.clock_domains.cd_sdram_full_rd = ClockDomain()
+        self.cd_sys           = ClockDomain()
+        self.cd_sdram_half    = ClockDomain()
+        self.cd_sdram_full_wr = ClockDomain()
+        self.cd_sdram_full_rd = ClockDomain()
 
         self.reset = Signal()
 
@@ -101,7 +103,7 @@ class _CRG(Module):
 
         # Power on reset
         reset = ~platform.request("cpu_reset") | self.reset
-        self.clock_domains.cd_por = ClockDomain()
+        self.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))
         self.specials += AsyncResetSynchronizer(self.cd_por, reset)
@@ -152,14 +154,14 @@ class BaseSoC(SoCCore):
         platform     = digilent_atlys.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Atlys", **kwargs)
 
         # DDR2 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(platform.request("ddram"),
+            self.ddrphy = s6ddrphy.S6HalfRateDDRPHY(platform.request("ddram"),
                 memtype           = "DDR2",
                 rd_bitslip        = 0,
                 wr_bitslip        = 4,
@@ -177,7 +179,7 @@ class BaseSoC(SoCCore):
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             from liteeth.phy import LiteEthPHYGMIIMII
-            self.submodules.ethphy = LiteEthPHYGMIIMII(
+            self.ethphy = LiteEthPHYGMIIMII(
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 clk_freq   = int(self.sys_clk_freq))
@@ -196,7 +198,7 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
             )
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
+        self.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
 

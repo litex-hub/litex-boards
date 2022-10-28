@@ -8,6 +8,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import colorlight_i5
@@ -29,15 +31,15 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, use_internal_osc=False, with_usb_pll=False, with_video_pll=False, sdram_rate="1:1"):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
         if sdram_rate == "1:2":
-            self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain()
+            self.cd_sys2x    = ClockDomain()
+            self.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain()
+            self.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -57,7 +59,7 @@ class _CRG(Module):
         rst_n = platform.request("cpu_reset_n")
 
         # PLL
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk, clk_freq)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -69,21 +71,21 @@ class _CRG(Module):
 
         # USB PLL
         if with_usb_pll:
-            self.submodules.usb_pll = usb_pll = ECP5PLL()
+            self.usb_pll = usb_pll = ECP5PLL()
             self.comb += usb_pll.reset.eq(~rst_n | self.rst)
             usb_pll.register_clkin(clk, clk_freq)
-            self.clock_domains.cd_usb_12 = ClockDomain()
-            self.clock_domains.cd_usb_48 = ClockDomain()
+            self.cd_usb_12 = ClockDomain()
+            self.cd_usb_48 = ClockDomain()
             usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
             usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
 
         # Video PLL
         if with_video_pll:
-            self.submodules.video_pll = video_pll = ECP5PLL()
+            self.video_pll = video_pll = ECP5PLL()
             self.comb += video_pll.reset.eq(~rst_n | self.rst)
             video_pll.register_clkin(clk, clk_freq)
-            self.clock_domains.cd_hdmi   = ClockDomain()
-            self.clock_domains.cd_hdmi5x = ClockDomain()
+            self.cd_hdmi   = ClockDomain()
+            self.cd_hdmi5x = ClockDomain()
             video_pll.create_clkout(self.cd_hdmi,    40e6, margin=0)
             video_pll.create_clkout(self.cd_hdmi5x, 200e6, margin=0)
 
@@ -105,7 +107,7 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
-        self.submodules.crg = _CRG(platform, sys_clk_freq,
+        self.crg = _CRG(platform, sys_clk_freq,
             use_internal_osc = use_internal_osc,
             with_usb_pll     = with_usb_pll,
             with_video_pll   = with_video_pll,
@@ -118,7 +120,7 @@ class BaseSoC(SoCCore):
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             ledn = platform.request_all("user_led_n")
-            self.submodules.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
+            self.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
         if board == "i5":
@@ -132,7 +134,7 @@ class BaseSoC(SoCCore):
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"))
+            self.sdrphy = sdrphy_cls(platform.request("sdram"))
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = M12L64322A(sys_clk_freq, sdram_rate),
@@ -141,7 +143,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYRGMII(
+            self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 tx_delay = 0)
@@ -166,7 +168,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
+            self.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
             if with_video_framebuffer:

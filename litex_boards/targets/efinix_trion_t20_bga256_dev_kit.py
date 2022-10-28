@@ -11,6 +11,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import efinix_trion_t20_bga256_dev_kit
 
 from litex.build.generic_platform import *
@@ -22,9 +24,9 @@ from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -32,7 +34,7 @@ class _CRG(Module):
         rst_n = platform.request("user_btn", 0)
 
         # PLL
-        self.submodules.pll = pll = TRIONPLL(platform)
+        self.pll = pll = TRIONPLL(platform)
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
@@ -44,7 +46,7 @@ class BaseSoC(SoCCore):
         platform = efinix_trion_t20_bga256_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Trion T20 BGA256 Dev Kit", **kwargs)
@@ -57,7 +59,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

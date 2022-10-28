@@ -9,6 +9,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import efinix_titanium_ti60_f225_dev_kit
 
 from litex.build.generic_platform import *
@@ -24,9 +26,9 @@ from liteeth.phy.titaniumrgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -34,7 +36,7 @@ class _CRG(Module):
         rst_n = platform.request("user_btn", 0)
 
         # PLL
-        self.submodules.pll = pll = TITANIUMPLL(platform)
+        self.pll = pll = TITANIUMPLL(platform)
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk25, 25e6)
         # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
@@ -58,7 +60,7 @@ class BaseSoC(SoCCore):
         platform = efinix_titanium_ti60_f225_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Titanium Ti60 F225 Dev Kit", **kwargs)
@@ -71,14 +73,14 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.submodules.hyperram = HyperRAM(platform.request("hyperram"), latency=7, sys_clk_freq=sys_clk_freq)
+            self.hyperram = HyperRAM(platform.request("hyperram"), latency=7, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=32*1024*1024))
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             platform.add_extension(efinix_titanium_ti60_f225_dev_kit.rgmii_ethernet_qse_ios("P1"))
             pads = platform.request("eth", eth_phy)
-            self.submodules.ethphy = LiteEthPHYRGMII(
+            self.ethphy = LiteEthPHYRGMII(
                 platform           = platform,
                 clock_pads         = platform.request("eth_clocks", eth_phy),
                 pads               = pads,

@@ -10,6 +10,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import radiona_ulx3s
@@ -29,15 +31,15 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_usb_pll=False, with_video_pll=False, sdram_rate="1:1"):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
         if sdram_rate == "1:2":
-            self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain()
+            self.cd_sys2x    = ClockDomain()
+            self.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain()
+            self.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -46,7 +48,7 @@ class _CRG(Module):
         rst   = platform.request("rst")
 
         # PLL
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(rst | self.rst)
         pll.register_clkin(clk25, 25e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -58,21 +60,21 @@ class _CRG(Module):
 
         # USB PLL
         if with_usb_pll:
-            self.submodules.usb_pll = usb_pll = ECP5PLL()
+            self.usb_pll = usb_pll = ECP5PLL()
             self.comb += usb_pll.reset.eq(rst | self.rst)
             usb_pll.register_clkin(clk25, 25e6)
-            self.clock_domains.cd_usb_12 = ClockDomain()
-            self.clock_domains.cd_usb_48 = ClockDomain()
+            self.cd_usb_12 = ClockDomain()
+            self.cd_usb_48 = ClockDomain()
             usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
             usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
 
         # Video PLL
         if with_video_pll:
-            self.submodules.video_pll = video_pll = ECP5PLL()
+            self.video_pll = video_pll = ECP5PLL()
             self.comb += video_pll.reset.eq(rst | self.rst)
             video_pll.register_clkin(clk25, 25e6)
-            self.clock_domains.cd_hdmi   = ClockDomain()
-            self.clock_domains.cd_hdmi5x = ClockDomain()
+            self.cd_hdmi   = ClockDomain()
+            self.cd_hdmi5x = ClockDomain()
             video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
             video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
 
@@ -95,7 +97,7 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, sdram_rate=sdram_rate)
+        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX3S", **kwargs)
@@ -103,7 +105,7 @@ class BaseSoC(SoCCore):
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
+            self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = getattr(litedram_modules, sdram_module_cls)(sys_clk_freq, sdram_rate),
@@ -113,7 +115,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
+            self.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             if with_video_framebuffer:
@@ -127,17 +129,17 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
     def add_oled(self):
         pads = self.platform.request("oled_spi")
         pads.miso = Signal()
-        self.submodules.oled_spi = SPIMaster(pads, 8, self.sys_clk_freq, 8e6)
+        self.oled_spi = SPIMaster(pads, 8, self.sys_clk_freq, 8e6)
         self.oled_spi.add_clk_divider()
 
-        self.submodules.oled_ctl = GPIOOut(self.platform.request("oled_ctl"))
+        self.oled_ctl = GPIOOut(self.platform.request("oled_ctl"))
 
 # Build --------------------------------------------------------------------------------------------
 

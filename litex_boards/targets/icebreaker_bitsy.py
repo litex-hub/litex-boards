@@ -19,6 +19,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import icebreaker_bitsy
 
 from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
@@ -33,13 +35,13 @@ mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq=48e6, with_usb_pll=False):
         assert not with_usb_pll or sys_clk_freq == 48e6
 
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        self.cd_por = ClockDomain()
 
         # # #
 
@@ -56,8 +58,8 @@ class _CRG(Module):
 
         # PLL
         if with_usb_pll:
-            self.clock_domains.cd_usb_12 = ClockDomain()
-            self.clock_domains.cd_usb_48 = ClockDomain()
+            self.cd_usb_12 = ClockDomain()
+            self.cd_usb_48 = ClockDomain()
             locked = Signal()
             self.specials.pll = pll = Instance("SB_PLL40_2F_PAD",
                 i_PACKAGEPIN    = clk12,
@@ -86,7 +88,7 @@ class _CRG(Module):
                 self.cd_sys.clk.eq(self.cd_usb_48.clk),
             ]
         else:
-            self.submodules.pll = pll = iCE40PLL(primitive="SB_PLL40_PAD")
+            self.pll = pll = iCE40PLL(primitive="SB_PLL40_PAD")
             self.comb += pll.reset.eq(~rst_n) # FIXME: Add proper iCE40PLL reset support and add back | self.rst.
             pll.register_clkin(clk12, 12e6)
             pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=False)
@@ -104,7 +106,7 @@ class BaseSoC(SoCCore):
         with_usb_acm = kwargs["uart_name"] == "usb_acm"
         if with_usb_acm:
             sys_clk_freq = 48e6
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_acm)
+        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_acm)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
@@ -113,7 +115,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on iCEBreaker-bitsy", **kwargs)
 
         # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
-        self.submodules.spram = Up5kSPRAM(size=128*kB)
+        self.spram = Up5kSPRAM(size=128*kB)
         self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128*kB))
         self.bus.add_region("sram", SoCRegion(
                 origin = self.bus.regions["psram"].origin + 0*kB,

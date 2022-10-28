@@ -11,6 +11,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import scarabhardware_minispartan6
@@ -26,17 +28,17 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, sdram_rate="1:1"):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
         if sdram_rate == "1:2":
-            self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain()
+            self.cd_sys2x    = ClockDomain()
+            self.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain()
-        self.clock_domains.cd_hdmi    = ClockDomain()
-        self.clock_domains.cd_hdmi5x = ClockDomain()
+            self.cd_sys_ps = ClockDomain()
+        self.cd_hdmi    = ClockDomain()
+        self.cd_hdmi5x = ClockDomain()
 
         # # #
 
@@ -44,7 +46,7 @@ class _CRG(Module):
         clk32 = platform.request("clk32")
 
         # PLL
-        self.submodules.pll = pll = S6PLL(speedgrade=-1)
+        self.pll = pll = S6PLL(speedgrade=-1)
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk32, 32e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -69,7 +71,7 @@ class BaseSoC(SoCCore):
         platform = scarabhardware_minispartan6.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
+        self.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on MiniSpartan6", **kwargs)
@@ -77,7 +79,7 @@ class BaseSoC(SoCCore):
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
+            self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = AS4C16M16(sys_clk_freq, sdram_rate),
@@ -86,7 +88,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoS6HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            self.videophy = VideoS6HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             if with_video_framebuffer:
@@ -94,7 +96,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

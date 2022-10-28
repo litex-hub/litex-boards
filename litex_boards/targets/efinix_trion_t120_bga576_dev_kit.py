@@ -23,9 +23,9 @@ from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -34,7 +34,7 @@ class _CRG(Module):
 
 
         # PLL
-        self.submodules.pll = pll = TRIONPLL(platform)
+        self.pll = pll = TRIONPLL(platform)
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk40, 40e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True, name="axi_clk")
@@ -57,7 +57,7 @@ class BaseSoC(SoCCore):
         kwargs["uart_name"] = "usb_uart"
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit", **kwargs)
@@ -71,7 +71,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
@@ -83,11 +83,11 @@ class BaseSoC(SoCCore):
             Subsignal("scl",   Pins("V11")),
             IOStandard("3.3_V_LVTTL_/_LVCMOS"),
         )])
-        self.submodules.i2c = I2CMaster(pads=platform.request("i2c"))
+        self.i2c = I2CMaster(pads=platform.request("i2c"))
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYRGMII(
+            self.ethphy = LiteEthPHYRGMII(
                 platform           = platform,
                 clock_pads         = platform.request("eth_clocks", eth_phy),
                 pads               = platform.request("eth", eth_phy),

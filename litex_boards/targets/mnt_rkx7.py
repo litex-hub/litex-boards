@@ -9,6 +9,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import mnt_rkx7
 
 from litex.soc.cores.clock import *
@@ -31,18 +33,18 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain()
-        self.clock_domains.cd_idelay = ClockDomain()
-        self.clock_domains.cd_dvi    = ClockDomain(reset_less=True)
-        self.clock_domains.cd_usb    = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys4x  = ClockDomain()
+        self.cd_idelay = ClockDomain()
+        self.cd_dvi    = ClockDomain(reset_less=True)
+        self.cd_usb    = ClockDomain()
 
         clkin = platform.request("clk100")
 
-        self.submodules.pll = pll = S7MMCM(speedgrade=-2)
+        self.pll = pll = S7MMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst)
         # Main clock input (100MHz)
         pll.register_clkin(clkin, 100e6)
@@ -55,14 +57,14 @@ class _CRG(Module):
         # USB clock
         pll.create_clkout(self.cd_usb, 48e6)
 
-        self.submodules.pll2 = pll2 = S7MMCM(speedgrade=-2)
+        self.pll2 = pll2 = S7MMCM(speedgrade=-2)
         self.comb += pll2.reset.eq(self.rst)
         pll2.register_clkin(clkin, 100e6)
         # DVI/HDMI pixel clock
         pll2.create_clkout(self.cd_dvi, 80e6) # display wants 162e6, but we can underclock
         platform.add_false_path_constraints(self.cd_sys.clk, pll2.clkin)
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+        self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -78,14 +80,14 @@ class BaseSoC(SoCCore):
         platform = mnt_rkx7.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on MNT-RKX7", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
+            self.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
                 memtype      = "DDR3",
                 nphases      = 4,
                 sys_clk_freq = sys_clk_freq)
@@ -104,7 +106,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYRGMII(
+            self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
             platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets {{main_ethphy_eth_rx_clk_ibuf}}]")
@@ -122,12 +124,12 @@ class BaseSoC(SoCCore):
         self.comb += reset_signals.eq(Signal(6, reset=0b111111))
 
         gpio_signals = platform.request("gpio")
-        self.submodules.leds = GPIOOut(gpio_signals)
+        self.leds = GPIOOut(gpio_signals)
 
         # Additional I2C Ports ---------------------------------------------------------------------
-        self.submodules.i2c0 = I2CMaster(platform.request("i2c", 0))
-        self.submodules.i2c1 = I2CMaster(platform.request("i2c", 1))
-        self.submodules.i2c2 = I2CMaster(platform.request("i2c", 2))
+        self.i2c0 = I2CMaster(platform.request("i2c", 0))
+        self.i2c1 = I2CMaster(platform.request("i2c", 1))
+        self.i2c2 = I2CMaster(platform.request("i2c", 2))
 
         # JTAG -------------------------------------------------------------------------------------
         #self.add_jtagbone()
@@ -151,16 +153,16 @@ class BaseSoC(SoCCore):
             "v_sync_offset" : 4,
             "v_sync_width"  : 4,
         })
-        self.submodules.videophy = VideoDVIPHY(platform.request("edp"), clock_domain="dvi")
+        self.videophy = VideoDVIPHY(platform.request("edp"), clock_domain="dvi")
         self.add_video_framebuffer(phy=self.videophy, timings=video_timings, clock_domain="dvi")
 
         # HDMI -------------------------------------------------------------------------------------
         # Untested: 2x VideoDVIPHYs and framebuffers in parallel
-        #self.submodules.videophy = VideoDVIPHY(platform.request("hdmi"), clock_domain="dvi")
+        #self.videophy = VideoDVIPHY(platform.request("hdmi"), clock_domain="dvi")
 
         # USB Host ---------------------------------------------------------------------------------
         if with_usb_host:
-            self.submodules.usb_ohci = USBOHCI(platform, platform.request("usb"))
+            self.usb_ohci = USBOHCI(platform, platform.request("usb"))
             self.bus.add_slave("usb_ohci_ctrl", self.usb_ohci.wb_ctrl, region=SoCRegion(origin=self.mem_map["usb_ohci"], size=0x100000, cached=False))
             self.dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
             self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
@@ -183,7 +185,7 @@ class BaseSoC(SoCCore):
         #     usb_host_dbg_intr,
         #     ]
         # from litescope import LiteScopeAnalyzer
-        # self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals,
+        # self.analyzer = LiteScopeAnalyzer(analyzer_signals,
         #                                              depth        = 256,
         #                                              clock_domain = "ulpi",
         #                                              csr_csv      = "analyzer.csv")

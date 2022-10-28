@@ -12,6 +12,8 @@ import os
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import decklink_intensity_pro_4k
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
@@ -25,13 +27,13 @@ from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
+        self.cd_sys = ClockDomain()
 
         # # #
 
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(ResetSignal("pcie"))
         pll.register_clkin(ClockSignal("pcie"), 125e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -44,7 +46,7 @@ class BaseSoC(SoCCore):
         platform = decklink_intensity_pro_4k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         kwargs["uart_name"] = "crossover"
@@ -52,7 +54,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)

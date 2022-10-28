@@ -12,6 +12,8 @@ import argparse
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import isx_im1283
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
@@ -26,25 +28,25 @@ from litedram.phy import s7ddrphy
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_video_pll=False, pix_clk=25.175e6):
-        self.rst = Signal()
-        self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
-        self.clock_domains.cd_idelay    = ClockDomain()
-        self.clock_domains.cd_hdmi      = ClockDomain()
-        self.clock_domains.cd_hdmi5x    = ClockDomain()
+        self.rst          = Signal()
+        self.cd_sys       = ClockDomain()
+        self.cd_sys4x     = ClockDomain(reset_less=True)
+        self.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.cd_idelay    = ClockDomain()
+        self.cd_hdmi      = ClockDomain()
+        self.cd_hdmi5x    = ClockDomain()
 
         # # #
-        self.submodules.pll = pll = S7PLL(speedgrade=-2)
+        self.pll = pll = S7PLL(speedgrade=-2)
         pll.register_clkin(platform.request("clk200"), 200e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+        self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -58,11 +60,11 @@ class BaseSoC(SoCCore):
             **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
+            self.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
                 memtype        = "DDR3",
                 nphases        = 4,
                 sys_clk_freq   = sys_clk_freq)
@@ -74,7 +76,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

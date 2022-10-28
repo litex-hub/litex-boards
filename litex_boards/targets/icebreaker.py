@@ -20,6 +20,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import icebreaker
 
 from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
@@ -36,11 +38,11 @@ mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        self.cd_por = ClockDomain()
 
         # # #
 
@@ -56,7 +58,7 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # PLL
-        self.submodules.pll = pll = iCE40PLL(primitive="SB_PLL40_PAD")
+        self.pll = pll = iCE40PLL(primitive="SB_PLL40_PAD")
         self.comb += pll.reset.eq(~rst_n) # FIXME: Add proper iCE40PLL reset support and add back | self.rst.
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=False)
@@ -72,7 +74,7 @@ class BaseSoC(SoCCore):
         platform.add_extension(icebreaker.break_off_pmod)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
@@ -81,7 +83,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on iCEBreaker", **kwargs)
 
         # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
-        self.submodules.spram = Up5kSPRAM(size=128*kB)
+        self.spram = Up5kSPRAM(size=128*kB)
         self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128*kB))
         self.bus.add_region("sram", SoCRegion(
                 origin = self.bus.regions["psram"].origin + 0*kB,
@@ -111,12 +113,12 @@ class BaseSoC(SoCCore):
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
             platform.add_extension(icebreaker.dvi_pmod)
-            self.submodules.videophy = VideoDVIPHY(platform.request("dvi"), clock_domain="sys")
+            self.videophy = VideoDVIPHY(platform.request("dvi"), clock_domain="sys")
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="sys")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

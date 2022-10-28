@@ -8,6 +8,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import ego1
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
@@ -20,13 +22,13 @@ from litex.soc.cores.video import VideoVGAPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_vga       = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        self.cd_vga = ClockDomain()
 
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
@@ -39,19 +41,19 @@ class BaseSoC(SoCCore):
         platform = ego1.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on EGO1 Board", **kwargs)
 
         # VGA terminal -----------------------------------------------------------------------------
         if with_video_terminal:
-            self.submodules.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
+            self.videophy = VideoVGAPHY(platform.request("vga"), clock_domain="vga")
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="vga")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

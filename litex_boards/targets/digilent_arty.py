@@ -14,6 +14,8 @@
 
 from migen import *
 
+from litex.gen import *
+
 from litex_boards.platforms import digilent_arty
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
@@ -33,16 +35,15 @@ from liteeth.phy.mii import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_dram=True, with_rst=True):
-        self.rst = Signal()
-        self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_eth       = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        self.cd_eth = ClockDomain()
         if with_dram:
-            self.clock_domains.cd_sys4x     = ClockDomain()
-            self.clock_domains.cd_sys4x_dqs = ClockDomain()
-            self.clock_domains.cd_idelay    = ClockDomain()
-
+            self.cd_sys4x     = ClockDomain()
+            self.cd_sys4x_dqs = ClockDomain()
+            self.cd_idelay    = ClockDomain()
 
         # # #
 
@@ -51,7 +52,7 @@ class _CRG(Module):
         rst    = ~platform.request("cpu_reset") if with_rst else 0
 
         # PLL.
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(rst | self.rst)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -65,7 +66,7 @@ class _CRG(Module):
 
         # IdelayCtrl.
         if with_dram:
-            self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+            self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -85,21 +86,21 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_dram = (kwargs.get("integrated_main_ram_size", 0) == 0)
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_dram)
+        self.crg  = _CRG(platform, sys_clk_freq, with_dram)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Arty A7", **kwargs)
 
         # XADC -------------------------------------------------------------------------------------
-        self.submodules.xadc = XADC()
+        self.xadc = XADC()
 
         # DNA --------------------------------------------------------------------------------------
-        self.submodules.dna = DNA()
+        self.dna = DNA()
         self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
+            self.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
                 memtype        = "DDR3",
                 nphases        = 4,
                 sys_clk_freq   = sys_clk_freq)
@@ -111,7 +112,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYMII(
+            self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
             if with_ethernet:
@@ -131,14 +132,14 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq,
             )
 
         # Buttons ----------------------------------------------------------------------------------
         if with_buttons:
-            self.submodules.buttons = GPIOIn(
+            self.buttons = GPIOIn(
                 pads     = platform.request_all("user_btn"),
                 with_irq = self.irq.enabled
             )
@@ -146,7 +147,7 @@ class BaseSoC(SoCCore):
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
             platform.add_extension(digilent_arty.raw_pmod_io("pmoda"))
-            self.submodules.gpio = GPIOTristate(
+            self.gpio = GPIOTristate(
                 pads     = platform.request("pmoda"),
                 with_irq = self.irq.enabled
             )

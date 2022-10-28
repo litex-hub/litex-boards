@@ -43,6 +43,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import colorlight_5a_75b, colorlight_5a_75e
@@ -61,15 +63,15 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, use_internal_osc=False, with_usb_pll=False, with_rst=True, sdram_rate="1:1"):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
         if sdram_rate == "1:2":
-            self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain()
+            self.cd_sys2x    = ClockDomain()
+            self.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain()
+            self.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -88,7 +90,7 @@ class _CRG(Module):
         rst_n = 1 if not with_rst else platform.request("user_btn_n", 0)
 
         # PLL
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk, clk_freq)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -100,11 +102,11 @@ class _CRG(Module):
 
         # USB PLL
         if with_usb_pll:
-            self.submodules.usb_pll = usb_pll = ECP5PLL()
+            self.usb_pll = usb_pll = ECP5PLL()
             self.comb += usb_pll.reset.eq(~rst_n | self.rst)
             usb_pll.register_clkin(clk, clk_freq)
-            self.clock_domains.cd_usb_12 = ClockDomain()
-            self.clock_domains.cd_usb_48 = ClockDomain()
+            self.cd_usb_12 = ClockDomain()
+            self.cd_usb_48 = ClockDomain()
             usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
             usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
 
@@ -131,7 +133,7 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         with_rst     = kwargs["uart_name"] not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
         with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
-        self.submodules.crg = _CRG(platform, sys_clk_freq,
+        self.crg = _CRG(platform, sys_clk_freq,
             use_internal_osc = use_internal_osc,
             with_usb_pll     = with_usb_pll,
             with_rst         = with_rst,
@@ -144,7 +146,7 @@ class BaseSoC(SoCCore):
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
+            self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             if board == "5a-75e" and revision == "6.0":
                 sdram_cls  = M12L64322A
             else:
@@ -159,7 +161,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYRGMII(
+            self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 tx_delay   = 0e-9)
@@ -171,7 +173,7 @@ class BaseSoC(SoCCore):
         # Leds -------------------------------------------------------------------------------------
         # Disable leds when serial is used.
         if platform.lookup_request("serial", loose=True) is None and with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
 

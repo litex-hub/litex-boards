@@ -10,6 +10,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import trenz_tec0117
 
 from litex.build.io import DDROutput
@@ -28,11 +30,11 @@ mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys   = ClockDomain()
-        self.clock_domains.cd_sys2x = ClockDomain()
+        self.rst      = Signal()
+        self.cd_sys   = ClockDomain()
+        self.cd_sys2x = ClockDomain()
 
         # # #
 
@@ -41,7 +43,7 @@ class _CRG(Module):
         rst_n  = platform.request("rst_n")
 
         # PLL
-        self.submodules.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
+        self.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys2x, 2*sys_clk_freq, with_reset=False)
@@ -61,7 +63,7 @@ class BaseSoC(SoCCore):
         platform = trenz_tec0117.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM.
@@ -101,7 +103,7 @@ class BaseSoC(SoCCore):
             self.specials += DDROutput(0, 1, sdram_pads.clk, sdram_clk)
 
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-            self.submodules.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
+            self.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = MT48LC4M16(sys_clk_freq, sdram_rate), # FIXME.
@@ -110,7 +112,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

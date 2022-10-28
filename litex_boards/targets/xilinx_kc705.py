@@ -12,6 +12,8 @@ import os
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import xilinx_kc705
 
 from litex.soc.cores.clock import *
@@ -29,16 +31,16 @@ from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain()
-        self.clock_domains.cd_idelay = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys4x  = ClockDomain()
+        self.cd_idelay = ClockDomain()
 
         # # #
 
-        self.submodules.pll = pll = S7MMCM(speedgrade=-2)
+        self.pll = pll = S7MMCM(speedgrade=-2)
         self.comb += pll.reset.eq(platform.request("cpu_reset") | self.rst)
         pll.register_clkin(platform.request("clk200"), 200e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -46,7 +48,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_idelay, 200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+        self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -56,14 +58,14 @@ class BaseSoC(SoCCore):
         platform = xilinx_kc705.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on KC705", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
+            self.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
                 memtype      = "DDR3",
                 nphases      = 4,
                 sys_clk_freq = sys_clk_freq)
@@ -75,7 +77,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet:
-            self.submodules.ethphy = LiteEthPHY(
+            self.ethphy = LiteEthPHY(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 clk_freq   = self.clk_freq)
@@ -89,7 +91,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
@@ -112,13 +114,13 @@ class BaseSoC(SoCCore):
             platform.add_extension(_sata_io)
 
             # RefClk, Generate 150MHz from PLL.
-            self.clock_domains.cd_sata_refclk = ClockDomain()
+            self.cd_sata_refclk = ClockDomain()
             self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
             sata_refclk = ClockSignal("sata_refclk")
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-52]")
 
             # PHY
-            self.submodules.sata_phy = LiteSATAPHY(platform.device,
+            self.sata_phy = LiteSATAPHY(platform.device,
                 refclk     = sata_refclk,
                 pads       = platform.request("sfp2sata"),
                 gen        = "gen2",
@@ -130,7 +132,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

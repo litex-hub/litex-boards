@@ -11,6 +11,8 @@ import json
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import antmicro_datacenter_ddr4_test_board
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
@@ -36,23 +38,23 @@ from litespi.opcodes import SpiNorFlashOpCodes as Codes
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, iodelay_clk_freq, with_video_pll=False):
-        self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys2x     = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain()
-        self.clock_domains.cd_sys4x_dqs = ClockDomain()
-        self.clock_domains.cd_idelay    = ClockDomain()
+        self.cd_sys       = ClockDomain()
+        self.cd_sys2x     = ClockDomain()
+        self.cd_sys4x     = ClockDomain()
+        self.cd_sys4x_dqs = ClockDomain()
+        self.cd_idelay    = ClockDomain()
 
-        self.clock_domains.cd_hdmi      = ClockDomain()
-        self.clock_domains.cd_hdmi5x    = ClockDomain()
+        self.cd_hdmi      = ClockDomain()
+        self.cd_hdmi5x    = ClockDomain()
 
         # # #
 
         # Clk.
         clk100 = platform.request("clk100")
 
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-1)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys2x,     2 * sys_clk_freq)
@@ -60,11 +62,11 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys4x_dqs, 4 * sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    iodelay_clk_freq)
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+        self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
         # Video PLL.
         if with_video_pll:
-            self.submodules.video_pll = video_pll = S7MMCM(speedgrade=-1)
+            self.video_pll = video_pll = S7MMCM(speedgrade=-1)
             video_pll.register_clkin(clk100, 100e6)
             video_pll.create_clkout(self.cd_hdmi,   40e6)
             video_pll.create_clkout(self.cd_hdmi5x, 5*40e6)
@@ -81,14 +83,14 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)
-        self.submodules.crg = _CRG(platform, sys_clk_freq, iodelay_clk_freq=iodelay_clk_freq, with_video_pll=with_video_pll)
+        self.crg = _CRG(platform, sys_clk_freq, iodelay_clk_freq=iodelay_clk_freq, with_video_pll=with_video_pll)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on data center test board", **kwargs)
 
         # DDR4 SDRAM RDIMM -------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = A7DDRPHY(platform.request("ddr4"),
+            self.ddrphy = A7DDRPHY(platform.request("ddr4"),
                 memtype         = "DDR4",
                 iodelay_clk_freq = iodelay_clk_freq,
                 sys_clk_freq     = sys_clk_freq,
@@ -104,7 +106,7 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.submodules.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
+            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8*1024*1024))
 
         # SD Card ----------------------------------------------------------------------------------
@@ -116,7 +118,7 @@ class BaseSoC(SoCCore):
             # Traces between PHY and FPGA introduce ignorable delays of ~0.165ns +/- 0.015ns.
             # PHY chip does not introduce delays on TX (FPGA->PHY), however it includes 1.2ns
             # delay for RX CLK so we only need 0.8ns to match the desired 2ns.
-            self.submodules.ethphy = LiteEthS7PHYRGMII(
+            self.ethphy = LiteEthS7PHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 rx_delay   = 0.8e-9,
@@ -133,13 +135,13 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            self.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
             if with_video_framebuffer:
@@ -151,7 +153,7 @@ class BaseSoC(SoCCore):
 
         # System I2C (behing multiplexer) ----------------------------------------------------------
         i2c_pads = platform.request('i2c')
-        self.submodules.i2c = I2CMaster(i2c_pads)
+        self.i2c = I2CMaster(i2c_pads)
 
     def generate_sdram_phy_py_header(self, output_file):
         os.makedirs(os.path.dirname(output_file), exist_ok=True)

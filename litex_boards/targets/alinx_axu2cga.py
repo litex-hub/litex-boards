@@ -20,6 +20,8 @@ import os
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import alinx_axu2cga
 
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
@@ -37,10 +39,10 @@ from litex.soc.cores.led import LedChaser
 # CRG ----------------------------------------------------------------------------------------------
 
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, use_psu_clk=False):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -54,7 +56,7 @@ class _CRG(Module):
             clk25 = platform.request("clk25")
 
             # PLL
-            self.submodules.pll = pll = USMMCM(speedgrade=-1)
+            self.pll = pll = USMMCM(speedgrade=-1)
             self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(clk25, 25e6)
             pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -70,7 +72,7 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         use_psu_clk = (kwargs.get("cpu_type", None) == "zynqmp")
-        self.submodules.crg = _CRG(platform, sys_clk_freq, use_psu_clk)
+        self.crg = _CRG(platform, sys_clk_freq, use_psu_clk)
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
@@ -106,7 +108,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 

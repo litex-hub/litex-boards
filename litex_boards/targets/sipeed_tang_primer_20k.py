@@ -10,6 +10,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex.soc.cores.clock.gowin_gw2a import GW2APLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
@@ -28,14 +30,14 @@ from litedram.phy import GW2DDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_video_pll=False):
-        self.rst = Signal()
-        self.clock_domains.cd_sys     = ClockDomain()
-        self.clock_domains.cd_por     = ClockDomain()
-        self.clock_domains.cd_init    = ClockDomain()
-        self.clock_domains.cd_sys2x   = ClockDomain()
-        self.clock_domains.cd_sys2x_i = ClockDomain()
+        self.rst        = Signal()
+        self.cd_sys     = ClockDomain()
+        self.cd_por     = ClockDomain()
+        self.cd_init    = ClockDomain()
+        self.cd_sys2x   = ClockDomain()
+        self.cd_sys2x_i = ClockDomain()
 
         # # #
 
@@ -53,7 +55,7 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # PLL
-        self.submodules.pll = pll = GW2APLL(devicename=platform.devicename, device=platform.device)
+        self.pll = pll = GW2APLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~por_done)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
@@ -77,10 +79,10 @@ class _CRG(Module):
 
         # Video PLL
         if with_video_pll:
-            self.submodules.video_pll = video_pll = GW2APLL(devicename=platform.devicename, device=platform.device)
+            self.video_pll = video_pll = GW2APLL(devicename=platform.devicename, device=platform.device)
             video_pll.register_clkin(clk27, 27e6)
-            self.clock_domains.cd_hdmi   = ClockDomain()
-            self.clock_domains.cd_hdmi5x = ClockDomain()
+            self.cd_hdmi   = ClockDomain()
+            self.cd_hdmi5x = ClockDomain()
             video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=1e-3)
             self.specials += Instance("CLKDIV",
                 p_DIV_MODE = "5",
@@ -114,7 +116,7 @@ class BaseSoC(SoCCore):
             with_led_chaser = False # No leds on core board nor on dock lite.
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
@@ -122,7 +124,7 @@ class BaseSoC(SoCCore):
         # DDR3 SDRAM -------------------------------------------------------------------------------
         # FIXME: WIP.
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = GW2DDRPHY(
+            self.ddrphy = GW2DDRPHY(
                 pads         = PHYPadsReducer(platform.request("ddram"), [0, 1]),
                 sys_clk_freq = sys_clk_freq
             )
@@ -145,7 +147,7 @@ class BaseSoC(SoCCore):
                     self.ddrphy.dfi.p0.wrdata_en,
                     self.ddrphy.dfi.p1.rddata_en,
                 ]
-                self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals,
+                self.analyzer = LiteScopeAnalyzer(analyzer_signals,
                 depth        = 128,
                 clock_domain = "sys",
                 samplerate   = sys_clk_freq,
@@ -162,7 +164,7 @@ class BaseSoC(SoCCore):
         if with_ethernet or with_etherbone:
             # FIXME: Un-tested.
             from liteeth.phy.rmii import LiteEthPHYRMII
-            self.submodules.ethphy = LiteEthPHYRMII(
+            self.ethphy = LiteEthPHYRMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 refclk_cd  = None
@@ -177,20 +179,20 @@ class BaseSoC(SoCCore):
             # FIXME: Un-tested.
             hdmi_pads = platform.request("hdmi")
             self.comb += hdmi_pads.hdp.eq(1)
-            self.submodules.videophy = VideoHDMIPHY(hdmi_pads, clock_domain="hdmi", pn_swap=["r", "g", "b"])
+            self.videophy = VideoHDMIPHY(hdmi_pads, clock_domain="hdmi", pn_swap=["r", "g", "b"])
             self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("led"),
                 sys_clk_freq = sys_clk_freq
             )
 
         # RGB Led ----------------------------------------------------------------------------------
         if with_rgb_led:
-            self.submodules.rgb_led = WS2812(
+            self.rgb_led = WS2812(
                 pad          = platform.request("rgb_led"),
                 nleds        = 1,
                 sys_clk_freq = sys_clk_freq
@@ -202,7 +204,7 @@ class BaseSoC(SoCCore):
 
         # Buttons ----------------------------------------------------------------------------------
         if with_buttons:
-            self.submodules.buttons = GPIOIn(pads=~platform.request_all("btn_n"))
+            self.buttons = GPIOIn(pads=~platform.request_all("btn_n"))
 
 
 # Build --------------------------------------------------------------------------------------------

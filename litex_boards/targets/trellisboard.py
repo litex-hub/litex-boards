@@ -9,6 +9,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import trellisboard
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
@@ -28,11 +30,11 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_por = ClockDomain()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_por = ClockDomain()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -48,20 +50,20 @@ class _CRG(Module):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # PLL
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | rst | self.rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
 
-class _CRGSDRAM(Module):
+class _CRGSDRAM(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_init    = ClockDomain()
-        self.clock_domains.cd_por     = ClockDomain()
-        self.clock_domains.cd_sys     = ClockDomain()
-        self.clock_domains.cd_sys2x   = ClockDomain()
-        self.clock_domains.cd_sys2x_i = ClockDomain()
+        self.rst        = Signal()
+        self.cd_init    = ClockDomain()
+        self.cd_por     = ClockDomain()
+        self.cd_sys     = ClockDomain()
+        self.cd_sys2x   = ClockDomain()
+        self.cd_sys2x_i = ClockDomain()
 
         # # #
 
@@ -81,7 +83,7 @@ class _CRGSDRAM(Module):
 
         # PLL
         sys2x_clk_ecsout = Signal()
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | rst | self.rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
@@ -121,14 +123,14 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         crg_cls = _CRGSDRAM if kwargs.get("integrated_main_ram_size", 0) == 0 else _CRG
-        self.submodules.crg = crg_cls(platform, sys_clk_freq)
+        self.crg = crg_cls(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Trellis Board", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = ECP5DDRPHY(
+            self.ddrphy = ECP5DDRPHY(
                 platform.request("ddram"),
                 sys_clk_freq=sys_clk_freq)
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
@@ -141,7 +143,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet:
-            self.submodules.ethphy = LiteEthPHYRGMII(
+            self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
             self.add_ethernet(phy=self.ethphy)
@@ -150,8 +152,8 @@ class BaseSoC(SoCCore):
         if with_video_terminal or with_video_framebuffer:
             # PHY + TP410 I2C initialization.
             hdmi_pads = platform.request("hdmi")
-            self.submodules.videophy = VideoDVIPHY(hdmi_pads, clock_domain="init")
-            self.submodules.videoi2c = I2CMaster(hdmi_pads)
+            self.videophy = VideoDVIPHY(hdmi_pads, clock_domain="init")
+            self.videoi2c = I2CMaster(hdmi_pads)
             self.videoi2c.add_init(addr=0x38, init=[
                 (0x08, 0x35) # CTL_1_MODE: Normal operation, 24-bit, HSYNC/VSYNC.
             ])
@@ -164,14 +166,14 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
             platform.add_extension(trellisboard.raw_pmod_io("pmoda"))
-            self.submodules.gpio = GPIOTristate(platform.request("pmoda"))
+            self.gpio = GPIOTristate(platform.request("pmoda"))
 
 # Build --------------------------------------------------------------------------------------------
 

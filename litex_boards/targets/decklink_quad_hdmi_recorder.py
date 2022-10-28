@@ -17,6 +17,8 @@ import os
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import decklink_quad_hdmi_recorder
 
 from litex.soc.cores.clock import *
@@ -32,16 +34,16 @@ from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_sys4x  = ClockDomain()
-        self.clock_domains.cd_pll4x  = ClockDomain()
-        self.clock_domains.cd_idelay = ClockDomain()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys4x  = ClockDomain()
+        self.cd_pll4x  = ClockDomain()
+        self.cd_idelay = ClockDomain()
 
         # # #
 
-        self.submodules.pll = pll = USMMCM(speedgrade=-2)
+        self.pll = pll = USMMCM(speedgrade=-2)
         pll.register_clkin(platform.request("clk200"), 200e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
         pll.create_clkout(self.cd_idelay, 200e6)
@@ -53,7 +55,7 @@ class _CRG(Module):
             Instance("BUFGCE",
                 i_CE=1, i_I=self.cd_pll4x.clk, o_O=self.cd_sys4x.clk),
         ]
-        self.submodules.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
+        self.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -62,7 +64,7 @@ class BaseSoC(SoCCore):
         platform = decklink_quad_hdmi_recorder.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         kwargs["uart_name"] = "crossover"
@@ -73,7 +75,7 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = usddrphy.USDDRPHY(
+            self.ddrphy = usddrphy.USDDRPHY(
                 pads             = PHYPadsReducer(platform.request("ddram"), [0, 1, 2, 3]),
                 memtype          = "DDR3",
                 sys_clk_freq     = sys_clk_freq,
@@ -92,7 +94,7 @@ class BaseSoC(SoCCore):
                 4 : 128,
                 8 : 256,
             }[pcie_lanes]
-            self.submodules.pcie_phy = USPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
+            self.pcie_phy = USPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 speed      = "gen3",
                 data_width = data_width,
                 bar0_size  = 0x20000)

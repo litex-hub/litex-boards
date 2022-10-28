@@ -11,6 +11,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import lattice_ice40up5k_evn
 from litex.build.lattice.programmer import IceStormProgrammer
 
@@ -28,12 +30,12 @@ mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         assert sys_clk_freq == 12e6
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
-        self.clock_domains.cd_por    = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        self.cd_por = ClockDomain()
 
         # # #
 
@@ -60,7 +62,7 @@ class BaseSoC(SoCCore):
         platform = lattice_ice40up5k_evn.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
@@ -69,7 +71,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Lattice iCE40UP5k EVN breakout board", **kwargs)
 
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
-        self.submodules.spram = Up5kSPRAM(size=128*kB)
+        self.spram = Up5kSPRAM(size=128*kB)
         self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=128*kB))
 
         # SPI Flash --------------------------------------------------------------------------------
@@ -88,7 +90,7 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
 

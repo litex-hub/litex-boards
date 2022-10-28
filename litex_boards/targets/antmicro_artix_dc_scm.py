@@ -9,7 +9,10 @@
 
 import os
 import math
+
 from migen import *
+
+from litex.gen import LiteXModule
 
 from litex_boards.platforms import antmicro_artix_dc_scm
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
@@ -28,16 +31,16 @@ from litepcie.phy.s7pciephy import S7PCIEPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
-        self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_sys4x     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
-        self.clock_domains.cd_idelay    = ClockDomain()
+        self.rst          = Signal()
+        self.cd_sys       = ClockDomain()
+        self.cd_sys4x     = ClockDomain(reset_less=True)
+        self.cd_sys4x_dqs = ClockDomain(reset_less=True)
+        self.cd_idelay    = ClockDomain()
 
-        self.clock_domains.cd_ulpi0     = ClockDomain()
-        self.clock_domains.cd_ulpi1     = ClockDomain()
+        self.cd_ulpi0     = ClockDomain()
+        self.cd_ulpi1     = ClockDomain()
 
         # ulpi0 clock domain (60MHz from ulpi0)
         self.comb += self.cd_ulpi0.clk.eq(platform.request("ulpi_clock", 0))
@@ -46,7 +49,7 @@ class _CRG(Module):
 
         # # #
 
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-1)
         # self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
@@ -55,7 +58,7 @@ class _CRG(Module):
         pll.create_clkout(self.cd_sys4x_dqs, 4 * sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+        self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -65,14 +68,14 @@ class BaseSoC(SoCCore):
         platform = antmicro_artix_dc_scm.Platform(device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident = "LiteX SoC on Artix DC-SCM", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
+            self.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
                 memtype      = "DDR3",
                 nphases      = 4,
                 sys_clk_freq = sys_clk_freq)
@@ -84,7 +87,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthS7PHYRGMII(
+            self.ethphy = LiteEthS7PHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 hw_reset_cycles = math.ceil(float(eth_reset_time) * self.sys_clk_freq)
@@ -98,13 +101,13 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"),
+            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
-        self.submodules.leds = LedChaser(
+        self.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
 

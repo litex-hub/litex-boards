@@ -8,6 +8,8 @@
 
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex.build.generic_platform import *
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
@@ -33,25 +35,25 @@ _serial_io = [
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_video_pll):
-        self.rst = Signal()
-        self.clock_domains.cd_sys       = ClockDomain()
-        self.clock_domains.cd_hdmi      = ClockDomain()
-        self.clock_domains.cd_hdmi5x    = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_hdmi   = ClockDomain()
+        self.cd_hdmi5x = ClockDomain()
 
         # # #
 
         clk100 = platform.request("clk100")
         rst_n  = platform.request("rst_n")
 
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk100, sys_clk_freq)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
       
         if with_video_pll:
-            self.submodules.video_pll = video_pll = S7PLL(speedgrade=-1)
+            self.video_pll = video_pll = S7PLL(speedgrade=-1)
             video_pll.reset.eq(~rst_n | self.rst)
             video_pll.register_clkin(clk100, 100e6)
             video_pll.create_clkout(self.cd_hdmi,   25e6)
@@ -71,7 +73,7 @@ class BaseSoC(SoCCore):
         platform.add_extension(_serial_io)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident = "LiteX SoC on Seeedstudio Spartan Edge Accelerator", **kwargs)
@@ -82,14 +84,14 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq
             )
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
-            self.submodules.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
             self.add_video_colorbars(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") #Fixme Not enough BRAM
         
@@ -98,7 +100,7 @@ class BaseSoC(SoCCore):
         # - mem_list (to get ws2812_base).
         # - mem_write <ws2812_base> 0x00100000
         if with_neopixel:
-            self.submodules.ws2812 = WS2812(platform.request("rgb"), nleds=2, sys_clk_freq=sys_clk_freq)
+            self.ws2812 = WS2812(platform.request("rgb"), nleds=2, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave(name="ws2812", slave=self.ws2812.bus, region=SoCRegion(size=2*4))
 
 # Build --------------------------------------------------------------------------------------------

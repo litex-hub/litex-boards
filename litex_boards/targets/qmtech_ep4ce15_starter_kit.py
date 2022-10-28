@@ -9,6 +9,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import qmtech_ep4ce15_starter_kit
@@ -24,15 +26,15 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, sdram_rate="1:1"):
-        self.rst = Signal()
-        self.clock_domains.cd_sys    = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
         if sdram_rate == "1:2":
-            self.clock_domains.cd_sys2x    = ClockDomain()
-            self.clock_domains.cd_sys2x_ps = ClockDomain()
+            self.cd_sys2x    = ClockDomain()
+            self.cd_sys2x_ps = ClockDomain()
         else:
-            self.clock_domains.cd_sys_ps = ClockDomain()
+            self.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -40,7 +42,7 @@ class _CRG(Module):
         clk50 = platform.request("clk50")
 
         # PLL
-        self.submodules.pll = pll = CycloneIVPLL(speedgrade="-6")
+        self.pll = pll = CycloneIVPLL(speedgrade="-6")
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -63,7 +65,7 @@ class BaseSoC(SoCCore):
         platform = qmtech_ep4ce15_starter_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate = sdram_rate)
+        self.crg = _CRG(platform, sys_clk_freq, sdram_rate = sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
         if with_jtagbone:
@@ -83,7 +85,7 @@ class BaseSoC(SoCCore):
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-            self.submodules.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
+            self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = W9825G6KH6(sys_clk_freq, sdram_rate),
@@ -94,7 +96,7 @@ class BaseSoC(SoCCore):
         if with_led_chaser:
             seven_seg_display = platform.request("seven_seg_ctl")
             self.comb += seven_seg_display.dig.eq(0b111)
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = seven_seg_display.segments,
                 sys_clk_freq = sys_clk_freq)
 

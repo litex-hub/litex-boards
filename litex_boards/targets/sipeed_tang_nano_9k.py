@@ -9,6 +9,8 @@
 import os
 from migen import *
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import sipeed_tang_nano_9k
 
 from litex.soc.cores.clock.gowin_gw1n import GW1NPLL
@@ -25,10 +27,10 @@ mB = 1024*kB
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_video_pll=False):
-        self.rst = Signal()
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -37,18 +39,18 @@ class _CRG(Module):
         rst_n = platform.request("user_btn", 0)
 
         # PLL
-        self.submodules.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
+        self.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
         # Video PLL
         if with_video_pll:
-            self.submodules.video_pll = video_pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
+            self.video_pll = video_pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
             self.comb += video_pll.reset.eq(~rst_n)
             video_pll.register_clkin(clk27, 27e6)
-            self.clock_domains.cd_hdmi   = ClockDomain()
-            self.clock_domains.cd_hdmi5x = ClockDomain()
+            self.cd_hdmi   = ClockDomain()
+            self.cd_hdmi5x = ClockDomain()
             video_pll.create_clkout(self.cd_hdmi5x, 125e6)
             self.specials += Instance("CLKDIV",
                 p_DIV_MODE= "5",
@@ -65,7 +67,7 @@ class BaseSoC(SoCCore):
         platform = sipeed_tang_nano_9k.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM
@@ -110,19 +112,19 @@ class BaseSoC(SoCCore):
                 os.system("wget https://github.com/litex-hub/litex-boards/files/8831568/hyperbus.py.txt")
                 os.system("mv hyperbus.py.txt hyperbus.py")
             from hyperbus import HyperRAM
-            self.submodules.hyperram = HyperRAM(hyperram_pads)
+            self.hyperram = HyperRAM(hyperram_pads)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4*mB))
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
-            self.submodules.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
             self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Free up BRAMs.
 
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
