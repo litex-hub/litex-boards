@@ -54,20 +54,23 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
+        if kwargs.get("cpu_type", None) == "zynq7000":
+            kwargs["with_uart"] = False
+            self.mem_map = {
+                'csr': 0x43c0_0000,  # Zynq GP0 default
+            }
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zybo Z7", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
+            self.cpu.use_rom = True
             # Get and set the pre-generated .xci FIXME: change location? add it to the repository?
             # os.system("wget https://github.com/litex-hub/litex-boards/files/8339591/zybo_z7_ps7.txt")
             os.makedirs("xci", exist_ok=True)
-            # TODO: make new xci and change mv to cp
-            os.system("cp zybo_z7_ps7_1_1/zybo_z7_ps7_1.xci xci/zybo_z7_ps7.xci")
+            # TODO: make download link
+            os.system("cp /homes/mkuhn/litex/litex-boards/zybo_z7_ps7_1.xci xci/zybo_z7_ps7.xci")
             # os.system("mv zybo_z7_ps7.txt xci/zybo_z7_ps7.xci")
             self.cpu.set_ps7_xci("xci/zybo_z7_ps7.xci")
-            self.mem_map = {
-                'csr': 0x43c0_0000,  # Zynq GP0 default
-            }
 
             # Connect AXI GP0 to the SoC with base address of 0x43c00000 (default one)
             wb_gp0  = wishbone.Interface()
@@ -89,7 +92,6 @@ class BaseSoC(SoCCore):
         super(BaseSoC, self).finalize(*args, **kwargs)
         if self.cpu_type != "zynq7000":
             return
-
         libxil_path = os.path.join(self.builder.software_dir, 'libxil')
         os.makedirs(os.path.realpath(libxil_path), exist_ok=True)
         lib = os.path.join(libxil_path, 'embeddedsw')
@@ -123,9 +125,9 @@ class BaseSoC(SoCCore):
 
 #include "xparameters_ps.h"
 
-
+#define STDOUT_BASEADDRESS            XPS_UART1_BASEADDR
 #define XPAR_PS7_DDR_0_S_AXI_BASEADDR 0x00100000
-#define XPAR_PS7_DDR_0_S_AXI_HIGHADDR 0x7FFFFFFF
+#define XPAR_PS7_DDR_0_S_AXI_HIGHADDR 0x3FFFFFFF
 #endif
 ''')
 # Build --------------------------------------------------------------------------------------------
@@ -142,6 +144,7 @@ def main():
     soc_core_args(parser)
     vivado_build_args(parser)
     args = parser.parse_args()
+    parser.set_defaults(no_uart=True)
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
