@@ -10,6 +10,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.gen import LiteXModule
+
 from litex_boards.platforms import efinix_trion_t120_bga576_dev_kit
 
 from litex.soc.cores.clock import *

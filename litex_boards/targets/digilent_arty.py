@@ -14,7 +14,7 @@
 
 from migen import *
 
-from litex.gen import *
+from litex.gen import LiteXModule
 
 from litex_boards.platforms import digilent_arty
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
