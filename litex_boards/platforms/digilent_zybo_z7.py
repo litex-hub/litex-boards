@@ -33,8 +33,8 @@ _io = [
 
     # Serial
     ("serial", 0,
-        Subsignal("tx", Pins("T17")),
-        Subsignal("rx", Pins("Y17")),
+        Subsignal("tx", Pins("V8")),
+        Subsignal("rx", Pins("W8")),
         IOStandard("LVCMOS33")
     ),
 ]
@@ -80,7 +80,7 @@ _usb_uart_pmod_io = [
 
 _connectors = [
     ("pmoda", "N15 L14 K16 K14 N16 L15 J16 J14"), # XADC
-    ("pmodb", "T20 U20 V20 W20 Y18 Y19 W18 W19"),
+    ("pmodb", "V8 W8 U7 V7 Y7 Y6 V6 W6"),
     ("pmodc", "V15 W15 T11 T10 W14 Y14 T12 U12"),
     ("pmodd", "T14 T15 P14 R14 U14 U15 V17 V18"),
     ("pmode", "V12 W16 J15 H15 V13 U17 T17 Y17"),
@@ -92,8 +92,12 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk125"
     default_clk_period = 1e9/125e6
 
-    def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7z010-clg400-1", _io,  _connectors, toolchain=toolchain)
+    def __init__(self, variant="z7-20", toolchain="vivado"):
+        device = {
+            "z7-10": "xc7z010-clg400-1",
+            "z7-20": "xc7z020-clg400-1"
+        }[variant]
+        XilinxPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
         self.add_extension(_usb_uart_pmod_io)
 
