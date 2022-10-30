@@ -15,7 +15,7 @@ from migen import *
 
 from litex.gen import LiteXModule
 
-from litex_boards.platforms import aliexpress_stlv7325
+from litex_boards.platforms import sitlinv_stlv7325
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -66,7 +66,7 @@ class BaseSoC(SoCCore):
         with_pcie       = False,
         with_sata       = False,
         **kwargs):
-        platform = aliexpress_stlv7325.Platform()
+        platform = sitlinv_stlv7325.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
