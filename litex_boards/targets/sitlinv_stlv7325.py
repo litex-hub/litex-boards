@@ -97,7 +97,7 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth", 0),
                 clk_freq   = self.clk_freq)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
 
@@ -158,6 +158,8 @@ def main():
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     args = parser.parse_args()
+
+    assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
