@@ -164,8 +164,6 @@ _io = [
         Subsignal("tx_en",   Pins("F12")),
         Subsignal("tx_er",   Pins("E13")),
         Subsignal("tx_data", Pins("G12 E11 G11 C14 D14 C13 C11 D13")),
-        Subsignal("col",     Pins("W19")),
-        Subsignal("crs",     Pins("R30")),
         IOStandard("LVCMOS15")
     ),
     ("eth", 1,
@@ -179,8 +177,6 @@ _io = [
         Subsignal("tx_en",   Pins("F8")),
         Subsignal("tx_er",   Pins("D9")),
         Subsignal("tx_data", Pins("H11 J11 H9 J10 H12 F10 G10 F9")),
-        Subsignal("col",     Pins("W19")),
-        Subsignal("crs",     Pins("R30")),
         IOStandard("LVCMOS15")
     ),
 
