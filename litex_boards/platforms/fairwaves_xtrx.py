@@ -7,7 +7,7 @@
 # https://www.crowdsupply.com/fairwaves/xtrx
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -131,12 +131,12 @@ _io = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk60"
     default_clk_period = 1e9/60e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7a50tcpg236-2", _io, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xc7a50tcpg236-2", _io, toolchain=toolchain)
 
         self.toolchain.bitstream_commands = [
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
@@ -163,5 +163,5 @@ class Platform(XilinxPlatform):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a50t.bit")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk60", loose=True), 1e9/60e6)

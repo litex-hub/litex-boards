@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # Board support for this chinese Kintex 420T board by "HPC FPGA Board Store"
@@ -311,7 +311,7 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
@@ -320,7 +320,7 @@ class Platform(XilinxPlatform):
         io_standard = IOStandard("LVCMOS33") if io_voltage == "3.3V" else IOStandard("LVCMOS25")
         _io = _get_io(io_standard)
 
-        XilinxPlatform.__init__(self, "xc7k420t-ffg901-2", _io, _connectors, toolchain="vivado")
+        Xilinx7SeriesPlatform.__init__(self, "xc7k420t-ffg901-2", _io, _connectors, toolchain="vivado")
         self.add_platform_command("""
         set_property CONFIG_VOLTAGE 3.3 [current_design]
         set_property CFGBVS VCCO [current_design]""")
@@ -346,6 +346,6 @@ class Platform(XilinxPlatform):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a420t.bit")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100",           loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("diffclk100",       loose=True), 1e9/100e6)

@@ -205,25 +205,20 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Atlys")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",          action="store_true", help="Build design.")
-    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
-    target_group.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    target_group.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=digilent_atlys.Platform, description="LiteX SoC on Atlys")
+    parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
 
-    builder_args(parser)
-    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
-        **soc_core_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
+        **parser.soc_core_argdict)
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

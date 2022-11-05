@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 import os
@@ -115,12 +115,12 @@ _io = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk27"
     default_clk_period = 1e9/27e6
 
     def __init__(self, toolchain="trellis", **kwargs):
-        LatticePlatform.__init__(self, "LFE5UM-85F-8BG756", _io, toolchain=toolchain, **kwargs)
+        LatticeECP5Platform.__init__(self, "LFE5UM-85F-8BG756", _io, toolchain=toolchain, **kwargs)
 
     def request(self, *args, **kwargs):
         import time
@@ -134,12 +134,12 @@ class Platform(LatticePlatform):
             print("An oscillator must be populated on X5.")
             time.sleep(2)
 
-        return LatticePlatform.request(self, *args, **kwargs)
+        return LatticeECP5Platform.request(self, *args, **kwargs)
 
     def create_programmer(self):
         return OpenOCDJTAGProgrammer("openocd_evn_ecp5.cfg")
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk27",  loose=True), 1e9/27e6)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)

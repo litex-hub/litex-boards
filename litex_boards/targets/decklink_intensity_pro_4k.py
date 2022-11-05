@@ -15,7 +15,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import decklink_intensity_pro_4k
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -62,28 +61,21 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC Blackmagic Decklink Intensity Pro 4K")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true", help="Build design.")
-    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
-    target_group.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
-    target_group.add_argument("--driver",       action="store_true", help="Generate PCIe driver.")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=decklink_intensity_pro_4k.Platform, description="LiteX SoC Blackmagic Decklink Intensity Pro 4K")
+    parser.add_target_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
+    parser.add_target_argument("--driver",       action="store_true", help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         with_pcie    = args.with_pcie | True, # FIXME: Always enable PCIe for now.
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kwargs = vivado_build_argdict(args)
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kwargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

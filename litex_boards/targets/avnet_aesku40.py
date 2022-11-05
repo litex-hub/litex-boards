@@ -105,20 +105,16 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on AESKU40")
-    parser.add_argument("--build",         action="store_true", help="Build bitstream")
-    parser.add_argument("--load",          action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",  default=125e6,       help="System clock frequency (default: 125MHz)")
-    builder_args(parser)
-    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
 	)
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

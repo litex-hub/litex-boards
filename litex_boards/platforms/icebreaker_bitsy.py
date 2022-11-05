@@ -11,7 +11,7 @@
 
 from litex.build.dfu import DFUProg
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeiCE40Platform
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ _connectors_v1 = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeiCE40Platform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
@@ -130,11 +130,11 @@ class Platform(LatticePlatform):
             "v0": (_io_v0, _connectors_v0),
             "v1": (_io_v1, _connectors_v1),
         }[revision]
-        LatticePlatform.__init__(self, "ice40-up5k-sg48", io, connectors, toolchain=toolchain)
+        LatticeiCE40Platform.__init__(self, "ice40-up5k-sg48", io, connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return DFUProg(vid="1d50", pid="6146")
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeiCE40Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk12", loose=True), 1e9/12e6)

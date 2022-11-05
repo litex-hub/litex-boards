@@ -10,7 +10,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import antmicro_lpddr4_test_board
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -113,26 +112,20 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on LPDDR4 Test Board")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",            action="store_true",    help="Build design.")
-    target_group.add_argument("--load",             action="store_true",    help="Load bitstream.")
-    target_group.add_argument("--flash",            action="store_true",    help="Flash bitstream.")
-    target_group.add_argument("--sys-clk-freq",     default=50e6,           help="System clock frequency.")
-    target_group.add_argument("--iodelay-clk-freq", default=200e6,          help="IODELAYCTRL frequency.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=antmicro_lpddr4_test_board.Platform, description="LiteX SoC on LPDDR4 Test Board")
+    parser.add_target_argument("--flash",            action="store_true",    help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",     default=50e6,           help="System clock frequency.")
+    parser.add_target_argument("--iodelay-clk-freq", default=200e6,          help="IODELAYCTRL frequency.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",   action="store_true",    help="Add Ethernet.")
     ethopts.add_argument("--with-etherbone",  action="store_true",    help="Add EtherBone.")
-    target_group.add_argument("--eth-ip",           default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    target_group.add_argument("--eth-dynamic-ip",   action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
-    target_group.add_argument("--with-hyperram",    action="store_true",    help="Add HyperRAM.")
-    target_group.add_argument("--with-sdcard",      action="store_true",    help="Add SDCard.")
-    target_group.add_argument("--with-jtagbone",    action="store_true",    help="Add JTAGBone.")
-    target_group.add_argument("--with-uartbone",    action="store_true",    help="Add UartBone on 2nd serial.")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    parser.add_target_argument("--eth-ip",           default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",   action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--with-hyperram",    action="store_true",    help="Add HyperRAM.")
+    parser.add_target_argument("--with-sdcard",      action="store_true",    help="Add SDCard.")
+    parser.add_target_argument("--with-jtagbone",    action="store_true",    help="Add JTAGBone.")
+    parser.add_target_argument("--with-uartbone",    action="store_true",    help="Add UartBone on 2nd serial.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -148,10 +141,10 @@ def main():
         with_sdcard       = args.with_sdcard,
         with_jtagbone     = args.with_jtagbone,
         with_uartbone     = args.with_uartbone,
-        **soc_core_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
+        **parser.soc_core_argdict)
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

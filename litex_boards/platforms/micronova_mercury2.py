@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -50,13 +50,13 @@ _connectors = []
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7a35tftg256-1", _io, _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xc7a35tftg256-1", _io, _connectors, toolchain=toolchain)
 
     def do_finalize(self,fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), self.default_clk_period)

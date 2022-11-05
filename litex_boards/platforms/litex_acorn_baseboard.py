@@ -8,7 +8,7 @@
 # https://github.com/enjoy-digital/litex-acorn-baseboard
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -124,16 +124,16 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/506
 
     def __init__(self, toolchain="trellis", **kwargs):
-        LatticePlatform.__init__(self, "LFE5UM5G-45F-8BG381I", _io, _connectors, toolchain=toolchain, **kwargs)
+        LatticeECP5Platform.__init__(self, "LFE5UM5G-45F-8BG381I", _io, _connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
         return OpenFPGALoader("ecpix5")
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)

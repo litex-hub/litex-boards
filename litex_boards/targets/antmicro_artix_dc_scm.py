@@ -15,7 +15,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import antmicro_artix_dc_scm
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -114,27 +113,20 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Artix DC-SCM")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--toolchain",              default="vivado",    help="FPGA toolchain (vivado or symbiflow).")
-    target_group.add_argument("--build",                  action="store_true", help="Build design.")
-    target_group.add_argument("--load",                   action="store_true", help="Load bitstream.")
-    target_group.add_argument("--flash",                  action="store_true", help="Flash bitstream")
-    target_group.add_argument("--sys-clk-freq",           default=100e6,       help="System clock frequency.")
-    target_group.add_argument("--device",                 default="xc7a100tfgg484-1", choices=["xc7a100tfgg484-1", "xc7a15tfgg484-1"])
-    target_group.add_argument("--with-pcie",              action="store_true",  help="Add PCIe")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=antmicro_artix_dc_scm.Platform, description="LiteX SoC on Artix DC-SCM")
+    parser.add_target_argument("--flash",                  action="store_true", help="Flash bitstream")
+    parser.add_target_argument("--sys-clk-freq",           default=100e6,       help="System clock frequency.")
+    parser.add_target_argument("--device",                 default="xc7a100tfgg484-1", choices=["xc7a100tfgg484-1", "xc7a15tfgg484-1"])
+    parser.add_target_argument("--with-pcie",              action="store_true",  help="Add PCIe")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet")
     ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone")
-    target_group.add_argument("--eth-ip",                 default="192.168.1.50", help="Ethernet/Etherbone IP address")
-    target_group.add_argument("--eth-dynamic-ip",         action="store_true",    help="Enable dynamic Ethernet IP addresses setting")
-    target_group.add_argument("--eth-reset-time",         default="10e-3",        help="Duration of Ethernet PHY reset")
-    target_group.add_argument("--with-sdram",             action="store_true",  help="Add SDRAM")
-    target_group.add_argument("--with-emmc",              action="store_true",  help="Add eMMC")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    parser.add_target_argument("--eth-ip",                 default="192.168.1.50", help="Ethernet/Etherbone IP address")
+    parser.add_target_argument("--eth-dynamic-ip",         action="store_true",    help="Enable dynamic Ethernet IP addresses setting")
+    parser.add_target_argument("--eth-reset-time",         default="10e-3",        help="Duration of Ethernet PHY reset")
+    parser.add_target_argument("--with-sdram",             action="store_true",  help="Add SDRAM")
+    parser.add_target_argument("--with-emmc",              action="store_true",  help="Add eMMC")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -150,16 +142,15 @@ def main():
         eth_dynamic_ip         = args.eth_dynamic_ip,
         with_sdram             = args.with_sdram,
         eth_reset_time         = args.eth_reset_time,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
     if args.with_emmc:
         soc.add_sdcard(software_debug=False)
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kwargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

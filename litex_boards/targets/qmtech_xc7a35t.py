@@ -13,7 +13,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import qmtech_xc7a35t
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -141,30 +140,23 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTech XC7A35T")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado or symbiflow).")
-    target_group.add_argument("--build",               action="store_true",              help="Build design.")
-    target_group.add_argument("--load",                action="store_true",              help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
-    target_group.add_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=qmtech_xc7a35t.Platform, description="LiteX SoC on QMTech XC7A35T")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
+    parser.add_target_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",     action="store_true",              help="Enable Etherbone support.")
-    target_group.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    target_group.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
-    sdopts = target_group.add_mutually_exclusive_group()
+    parser.add_target_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support.")
-    target_group.add_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support.")
-    target_group.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
-    viopts = target_group.add_mutually_exclusive_group()
+    parser.add_target_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support.")
+    parser.add_target_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -179,7 +171,7 @@ def main():
         with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
     if args.with_spi_sdcard:
@@ -187,10 +179,9 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kwargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

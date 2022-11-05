@@ -11,7 +11,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import digilent_zedboard
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 from litex.build.tools import write_to_file
 
 from litex.soc.interconnect import axi
@@ -146,30 +145,24 @@ class BaseSoC(SoCCore):
 
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Zedboard")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true", help="Build design.")
-    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq", default=100e6,       help="System clock frequency.")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=digilent_zedboard.Platform, description="LiteX SoC on Zedboard")
+    parser.add_target_argument("--sys-clk-freq", default=100e6,       help="System clock frequency.")
     parser.set_defaults(cpu_type="zynq7000")
     parser.set_defaults(no_uart=True)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq=int(float(args.sys_clk_freq)),
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.cpu_type == "zynq7000":
         soc.builder = builder
         builder.add_software_package('libxil')
         builder.add_software_library('libxil')
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

@@ -10,7 +10,7 @@
 import copy
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import EcpDapProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ _sdcard_pmod_io = sdcard_pmod_io("pmode") # SDCARD PMOD on P3.
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
@@ -202,13 +202,13 @@ class Platform(LatticePlatform):
             io         = {"7.2": _io_v7_2}[revision]
             connectors = {"7.2": _connectors_v7_2}[revision]
 
-        LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
+        LatticeECP5Platform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return EcpDapProgrammer()
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk25",            loose=True), 1e9/25e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 1, loose=True), 1e9/125e6)

@@ -133,18 +133,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on XCU1525")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",         action="store_true", help="Build design.")
-    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",  default=125e6,       help="System clock frequency.")
-    target_group.add_argument("--ddram-channel", default="0",         help="DDRAM channel (0, 1, 2 or 3).")
-    target_group.add_argument("--with-pcie",     action="store_true", help="Enable PCIe support.")
-    target_group.add_argument("--driver",        action="store_true", help="Generate PCIe driver.")
-    target_group.add_argument("--with-sata",     action="store_true", help="Enable SATA support (over SFP2SATA).")
-    builder_args(parser)
-    soc_core_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=sqrl_xcu1525.Platform, description="LiteX SoC on XCU1525")
+    parser.add_target_argument("--sys-clk-freq",  default=125e6,       help="System clock frequency.")
+    parser.add_target_argument("--ddram-channel", default="0",         help="DDRAM channel (0, 1, 2 or 3).")
+    parser.add_target_argument("--with-pcie",     action="store_true", help="Enable PCIe support.")
+    parser.add_target_argument("--driver",        action="store_true", help="Generate PCIe driver.")
+    parser.add_target_argument("--with-sata",     action="store_true", help="Enable SATA support (over SFP2SATA).")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -152,11 +147,11 @@ def main():
         ddram_channel = int(args.ddram_channel, 0),
         with_pcie     = args.with_pcie,
         with_sata     = args.with_sata,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
 	)
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

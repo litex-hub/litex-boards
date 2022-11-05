@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 import os
@@ -149,19 +149,19 @@ _connectors = []
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
     def __init__(self, toolchain="trellis", **kwargs):
-        LatticePlatform.__init__(self, "LFE5U-85F-8BG381", _io, _connectors, toolchain=toolchain, **kwargs)
+        LatticeECP5Platform.__init__(self, "LFE5U-85F-8BG381", _io, _connectors, toolchain=toolchain, **kwargs)
 
     def request(self, *args, **kwargs):
-        return LatticePlatform.request(self, *args, **kwargs)
+        return LatticeECP5Platform.request(self, *args, **kwargs)
 
     def create_programmer(self):
         return OpenOCDJTAGProgrammer("openocd_fpc_iii.cfg")
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk25",  loose=True), 1e9/25e6)

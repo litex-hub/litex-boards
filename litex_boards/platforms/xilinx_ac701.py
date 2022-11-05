@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -247,12 +247,12 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk156"
     default_clk_period = 1e9/156.5e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7a200t-fbg676-2", _io, _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xc7a200t-fbg676-2", _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 33]")
@@ -263,7 +263,7 @@ class Platform(XilinxPlatform):
         return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a200t.bit")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200",        loose=True), 1e9/200e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:tx", loose=True), 1e9/125e6)

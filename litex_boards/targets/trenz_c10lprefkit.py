@@ -101,27 +101,22 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on C10 LP RefKit")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",          action="store_true", help="Build design.")
-    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",   default=50e6,        help="System clock frequency.")
-    target_group.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    target_group.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    builder_args(parser)
-    soc_core_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=trenz_c10lprefkit.Platform, description="LiteX SoC on C10 LP RefKit")
+    parser.add_target_argument("--sys-clk-freq",   default=50e6,        help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

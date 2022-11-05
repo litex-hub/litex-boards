@@ -8,7 +8,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -221,12 +221,12 @@ _genio_gpio = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk8"
     default_clk_period = 1e9/8e6
 
     def __init__(self, toolchain="trellis", **kwargs):
-        LatticePlatform.__init__(self, "LFE5U-45F-8CABGA381", io=_io, connectors=_connectors,
+        LatticeECP5Platform.__init__(self, "LFE5U-45F-8CABGA381", io=_io, connectors=_connectors,
             toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
@@ -234,5 +234,5 @@ class Platform(LatticePlatform):
                              .format(self.programmer))
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk8", loose=True), 1e9/8e6)

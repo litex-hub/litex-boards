@@ -18,7 +18,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import ztex213
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -92,29 +91,23 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Ztex 2.13")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true", help="Build design.")
-    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
-    target_group.add_argument("--expansion",       default="debug",     help="Expansion board (debug or sbus).")
-    target_group.add_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
-    target_group.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
-    target_group.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=ztex213.Platform, description="LiteX SoC on Ztex 2.13")
+    parser.add_target_argument("--expansion",       default="debug",     help="Expansion board (debug or sbus).")
+    parser.add_target_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), expansion=args.expansion, **soc_core_argdict(args))
+    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), expansion=args.expansion, **parser.soc_core_argdict)
     assert not (args.with_spi_sdcard and args.with_sdcard)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard() # SBus only
     if args.with_sdcard:
         soc.add_sdcard() # SBus only
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

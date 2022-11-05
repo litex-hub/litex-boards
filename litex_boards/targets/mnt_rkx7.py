@@ -193,22 +193,17 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on MNT-RKX7")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true",                help="Build design.")
-    target_group.add_argument("--load",            action="store_true",                help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",    default=100e6,                      help="System clock frequency.")
-    target_group.add_argument("--with-spi-flash",  action="store_true", default=True,  help="Enable SPI Flash (MMAPed).")
-    target_group.add_argument("--with-usb-host",   action="store_true", default=False, help="Enable USB host support.")
-    sdopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=mnt_rkx7.Platform, description="LiteX SoC on MNT-RKX7")
+    parser.add_target_argument("--sys-clk-freq",    default=100e6,                      help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash",  action="store_true", default=True,  help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-usb-host",   action="store_true", default=False, help="Enable USB host support.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",               help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true", default=True, help="Enable SDCard support.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", default=True, help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true",               help="Enable Etherbone support.")
-    builder_args(parser)
-    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -217,7 +212,7 @@ def main():
         with_etherbone = args.with_etherbone,
         with_spi_flash = args.with_spi_flash,
         with_usb_host  = args.with_usb_host,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
@@ -226,9 +221,9 @@ def main():
 
     args.csr_csv="csr.csv"
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

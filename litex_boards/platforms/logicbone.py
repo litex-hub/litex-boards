@@ -10,7 +10,7 @@
 #
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.dfu import DFUProg
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -188,7 +188,7 @@ _connectors_rev0 = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
@@ -197,12 +197,12 @@ class Platform(LatticePlatform):
         self.revision = revision
         io         = {"rev0": _io_rev0          }[revision]
         connectors = {"rev0": _connectors_rev0  }[revision]
-        LatticePlatform.__init__(self, f"LFE5UM5G-{device}-8BG381C", io, connectors, toolchain=toolchain, **kwargs)
+        LatticeECP5Platform.__init__(self, f"LFE5UM5G-{device}-8BG381C", io, connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
         return DFUProg(vid="1d50", pid="6130")
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", loose=True), 1e9/125e6)

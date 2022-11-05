@@ -7,7 +7,7 @@
 # Work-In-Progress...
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -60,15 +60,15 @@ _io = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "debug"   # FIXME.
     default_clk_period = 1e9/100e6 # FIXME.
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7k70t-fbg676-1", _io, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xc7k70t-fbg676-1", _io, toolchain=toolchain)
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a70t.bit")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)

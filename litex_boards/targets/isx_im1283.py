@@ -15,7 +15,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import isx_im1283
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -84,29 +83,24 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on iM1283")
-    parser.add_argument("--build",           action="store_true",              help="Build bitstream")
-    parser.add_argument("--load",            action="store_true",              help="Load bitstream")
     parser.add_argument("--sys-clk-freq",    default=80e6,                     help="System clock frequency")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true",              help="Enable SPI-mode SDCard support")
     sdopts.add_argument("--with-sdcard",     action="store_true",              help="Enable SDCard support")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

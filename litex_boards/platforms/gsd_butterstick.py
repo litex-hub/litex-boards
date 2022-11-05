@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
  
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 from litex.build.dfu import DFUProg
 
@@ -183,7 +183,7 @@ def raw_syzygy_io(syzygy, iostandard="LVCMOS33"):
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk30"
     default_clk_period = 1e9/30e6
 
@@ -193,7 +193,7 @@ class Platform(LatticePlatform):
         self.revision = revision
         io         = {"1.0": _io_r1_0}[revision]
         connectors = {"1.0": _connectors_r1_0}[revision]
-        LatticePlatform.__init__(self, f"LFE5UM5G-{device}-8BG381C", io, connectors, toolchain=toolchain, **kwargs)
+        LatticeECP5Platform.__init__(self, f"LFE5UM5G-{device}-8BG381C", io, connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self, programmer):
         if programmer == "jtag":
@@ -204,5 +204,5 @@ class Platform(LatticePlatform):
             print("Could not program board. " + programmer + " is not a valid argument. Please use 'jtag' or 'dfu'.")
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk30", loose=True), 1e9/30e6)

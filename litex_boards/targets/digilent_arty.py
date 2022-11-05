@@ -17,7 +17,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import digilent_arty
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -155,30 +154,23 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Arty A7")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    target_group.add_argument("--build",               action="store_true",              help="Build design.")
-    target_group.add_argument("--load",                action="store_true",              help="Load bitstream.")
-    target_group.add_argument("--flash",               action="store_true",              help="Flash bitstream.")
-    target_group.add_argument("--variant",             default="a7-35",                  help="Board variant (a7-35 or a7-100).")
-    target_group.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=digilent_arty.Platform, description="LiteX SoC on Arty A7")
+    parser.add_target_argument("--flash",               action="store_true",              help="Flash bitstream.")
+    parser.add_target_argument("--variant",             default="a7-35",                  help="Board variant (a7-35 or a7-100).")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",     action="store_true",              help="Enable Etherbone support.")
-    target_group.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    target_group.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
-    sdopts = target_group.add_mutually_exclusive_group()
+    parser.add_target_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support.")
-    target_group.add_argument("--sdcard-adapter",      type=str,                         help="SDCard PMOD adapter (digilent or numato).")
-    target_group.add_argument("--with-jtagbone",       action="store_true",              help="Enable JTAGbone support.")
-    target_group.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
-    target_group.add_argument("--with-pmod-gpio",      action="store_true",              help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    parser.add_target_argument("--sdcard-adapter",      type=str,                         help="SDCard PMOD adapter (digilent or numato).")
+    parser.add_target_argument("--with-jtagbone",       action="store_true",              help="Enable JTAGbone support.")
+    parser.add_target_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-pmod-gpio",      action="store_true",              help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -194,7 +186,7 @@ def main():
         with_jtagbone  = args.with_jtagbone,
         with_spi_flash = args.with_spi_flash,
         with_pmod_gpio = args.with_pmod_gpio,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
     if args.sdcard_adapter == "numato":
         soc.platform.add_extension(digilent_arty._numato_sdcard_pmod_io)
@@ -205,10 +197,9 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kwargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

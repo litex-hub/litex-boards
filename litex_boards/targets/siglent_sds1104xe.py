@@ -23,7 +23,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import siglent_sds1104xe
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -162,20 +161,14 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on SDS1104X-E")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",          action="store_true",              help="Build design.")
-    target_group.add_argument("--load",           action="store_true",              help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",   default=100e6,                    help="System clock frequency.")
-    target_group.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    target_group.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    viopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=siglent_sds1104xe.Platform, description="LiteX SoC on SDS1104X-E")
+    parser.add_target_argument("--sys-clk-freq",   default=100e6,                    help="System clock frequency.")
+    parser.add_target_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -184,12 +177,12 @@ def main():
         eth_ip         = args.eth_ip,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

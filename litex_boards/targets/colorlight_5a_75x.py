@@ -49,8 +49,6 @@ from litex.build.io import DDROutput
 
 from litex_boards.platforms import colorlight_5a_75b, colorlight_5a_75e
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -180,25 +178,18 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Colorlight 5A-75X")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",             action="store_true",              help="Build design.")
-    target_group.add_argument("--load",              action="store_true",              help="Load bitstream.")
-    target_group.add_argument("--toolchain",         default="trellis",                help="FPGA toolchain (diamond or trellis).")
-    target_group.add_argument("--board",             default="5a-75b",                 help="Board type (5a-75b or 5a-75e).")
-    target_group.add_argument("--revision",          default="7.0", type=str,          help="Board revision (6.0, 6.1, 7.0 or 8.0).")
-    target_group.add_argument("--sys-clk-freq",      default=60e6,                     help="System clock frequency")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=colorlight_5a_75b.Platform, description="LiteX SoC on Colorlight 5A-75X")
+    parser.add_target_argument("--board",             default="5a-75b",                 help="Board type (5a-75b or 5a-75e).")
+    parser.add_target_argument("--revision",          default="7.0", type=str,          help="Board revision (6.0, 6.1, 7.0 or 8.0).")
+    parser.add_target_argument("--sys-clk-freq",      default=60e6,                     help="System clock frequency")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",    action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",   action="store_true",              help="Enable Etherbone support.")
-    target_group.add_argument("--eth-ip",            default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    target_group.add_argument("--eth-phy",           default=0, type=int,              help="Ethernet PHY (0 or 1).")
-    target_group.add_argument("--use-internal-osc",  action="store_true",              help="Use internal oscillator.")
-    target_group.add_argument("--sdram-rate",        default="1:1",                    help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
+    parser.add_target_argument("--eth-ip",            default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-phy",           default=0, type=int,              help="Ethernet PHY (0 or 1).")
+    parser.add_target_argument("--use-internal-osc",  action="store_true",              help="Use internal oscillator.")
+    parser.add_target_argument("--sdram-rate",        default="1:1",                    help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     args = parser.parse_args()
 
     soc = BaseSoC(board=args.board, revision=args.revision,
@@ -210,13 +201,12 @@ def main():
         eth_phy          = args.eth_phy,
         use_internal_osc = args.use_internal_osc,
         sdram_rate       = args.sdram_rate,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder = Builder(soc, **parser.builder_argdict)
 
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

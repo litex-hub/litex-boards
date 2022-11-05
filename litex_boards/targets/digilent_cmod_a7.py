@@ -11,7 +11,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex.build.io import CRG
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex_boards.platforms import digilent_cmod_a7
 
@@ -136,21 +135,14 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on CMOD A7")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--toolchain",    default="vivado",    help="FPGA toolchain (vivado or symbiflow).")
-    target_group.add_argument("--build",        action="store_true", help="Build design.")
-    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
-    target_group.add_argument("--flash",        action="store_true", help="Flash bitstream.")
-    target_group.add_argument("--variant",      default="a7-35",     help="Board variant (a7-35 or a7-100).")
-    target_group.add_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
-    target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=digilent_cmod_a7.Platform, description="LiteX SoC on CMOD A7")
+    parser.add_target_argument("--flash",        action="store_true", help="Flash bitstream.")
+    parser.add_target_argument("--variant",      default="a7-35",     help="Board variant (a7-35 or a7-100).")
+    parser.add_target_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
 
 
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -158,15 +150,14 @@ def main():
         toolchain         = args.toolchain,
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         with_spi_flash    = args.with_spi_flash,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
-    builder_argd = builder_argdict(args)
+    builder_argd = parser.builder_argdict
 
     builder = Builder(soc, **builder_argd)
-    builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
     if args.build:
-        builder.build(**builder_kwargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

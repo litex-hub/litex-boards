@@ -145,19 +145,14 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on BerkeleyLab Marble")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",          action="store_true", help="Build design.")
-    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",   default=125e6,       help="System clock frequency.")
-    target_group.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    target_group.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    target_group.add_argument("--with-rts-reset", action="store_true", help="Connect UART RTS line to sys_clk reset.")
-    target_group.add_argument("--with-bist",      action="store_true", help="Add DDR3 BIST Generator/Checker.")
-    target_group.add_argument("--spd-dump",       type=str,            help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
-    builder_args(parser)
-    soc_core_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=berkeleylab_marble.Platform, description="LiteX SoC on BerkeleyLab Marble")
+    parser.add_target_argument("--sys-clk-freq",   default=125e6,       help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--with-rts-reset", action="store_true", help="Connect UART RTS line to sys_clk reset.")
+    parser.add_target_argument("--with-bist",      action="store_true", help="Add DDR3 BIST Generator/Checker.")
+    parser.add_target_argument("--spd-dump",       type=str,            help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -166,11 +161,11 @@ def main():
         with_etherbone = args.with_etherbone,
         with_bist = args.with_bist,
         spd_dump = args.spd_dump,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

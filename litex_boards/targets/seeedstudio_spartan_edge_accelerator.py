@@ -11,7 +11,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex.build.generic_platform import *
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex_boards.platforms import seeedstudio_spartan_edge_accelerator
 
@@ -106,31 +105,25 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Spartan Edge Accelerator")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",               action="store_true",  help="Build design.")
-    target_group.add_argument("--sys-clk-freq",        default=100e6,        help="System clock frequency.")
-    target_group.add_argument("--with-jtagbone",       action="store_true",  help="Enable Jtagbone support.")
-    target_group.add_argument("--with-video-terminal", action="store_true",  help="Enable Video Colorbars (HDMI).")
-    target_group.add_argument("--with-neopixel",       action="store_true",  help="Enable onboard 2 Neopixels Leds.")
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=seeedstudio_spartan_edge_accelerator.Platform, description="LiteX SoC on Spartan Edge Accelerator")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6,        help="System clock frequency.")
+    parser.add_target_argument("--with-jtagbone",       action="store_true",  help="Enable Jtagbone support.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",  help="Enable Video Colorbars (HDMI).")
+    parser.add_target_argument("--with-neopixel",       action="store_true",  help="Enable onboard 2 Neopixels Leds.")
 
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
     args = parser.parse_args()
     soc = BaseSoC(
         sys_clk_freq        = int(float(args.sys_clk_freq)),
         with_jtagbone       = args.with_jtagbone,
         with_video_terminal = args.with_video_terminal,
         with_neopixel       = args.with_neopixel,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kwargs = vivado_build_argdict(args)
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kwargs)
+        builder.build(**parser.toolchain_argdict)
 
 if __name__ == "__main__":
     main()

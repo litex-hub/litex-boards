@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -627,12 +627,12 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk156"
     default_clk_period = 1e9/156.25e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7vx485tffg1761-2", _io, _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xc7vx485tffg1761-2", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("""set_property CFGBVS VCCO [current_design]""")
         self.add_platform_command("""set_property CONFIG_VOLTAGE 2.5 [current_design]""")
 
@@ -640,7 +640,7 @@ class Platform(XilinxPlatform):
         return OpenOCD("openocd_xc7_ft2232.cfg", "xc7vx485t.bit")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200",      loose=True), 1e9/200e6)
         self.add_period_constraint(self.lookup_request("clk156",      loose=True), 1e9/156e6)
         self.add_period_constraint(self.lookup_request("sgmii_clock", loose=True), 1e9/125e6)

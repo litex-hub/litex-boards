@@ -16,8 +16,6 @@ from litex.gen import LiteXModule
 
 from litex_boards.platforms import logicbone
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -144,20 +142,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Logicbone")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",          action="store_true",   help="Build design.")
-    target_group.add_argument("--load",           action="store_true",   help="Load bitstream.")
-    target_group.add_argument("--toolchain",      default="trellis",     help="FPGA toolchain (trellis or diamond).")
-    target_group.add_argument("--sys-clk-freq",   default=75e6,          help="System clock frequency.")
-    target_group.add_argument("--device",         default="45F",         help="FPGA device (45F or 85F).")
-    target_group.add_argument("--sdram-device",   default="MT41K512M16", help="SDRAM device (MT41K512M16).")
-    target_group.add_argument("--with-ethernet",  action="store_true",   help="Enable Ethernet support.")
-    target_group.add_argument("--with-sdcard",    action="store_true",   help="Enable SDCard support.")
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=logicbone.Platform, description="LiteX SoC on Logicbone")
+    parser.add_target_argument("--sys-clk-freq",   default=75e6,          help="System clock frequency.")
+    parser.add_target_argument("--device",         default="45F",         help="FPGA device (45F or 85F).")
+    parser.add_target_argument("--sdram-device",   default="MT41K512M16", help="SDRAM device (MT41K512M16).")
+    parser.add_target_argument("--with-ethernet",  action="store_true",   help="Enable Ethernet support.")
+    parser.add_target_argument("--with-sdcard",    action="store_true",   help="Enable SDCard support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -166,14 +157,13 @@ def main():
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         sdram_device  = args.sdram_device,
         with_ethernet = args.with_ethernet,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
     if args.with_sdcard:
         soc.add_sdcard()
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

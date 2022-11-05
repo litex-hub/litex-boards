@@ -23,7 +23,6 @@ from litex.gen import LiteXModule
 
 from litex_boards.platforms import icebreaker_bitsy
 
-from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
@@ -145,28 +144,23 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on iCEBreaker")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",               action="store_true", help="Build design.")
-    target_group.add_argument("--flash",               action="store_true", help="Flash bitstream and BIOS.")
-    target_group.add_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")
-    target_group.add_argument("--bios-flash-offset",   default="0xa0000",   help="BIOS offset in SPI Flash.")
-    target_group.add_argument("--revision",            default="v1",        help="Board revision (v0 or v1).")
-    builder_args(parser)
-    soc_core_args(parser)
-    icestorm_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=icebreaker_bitsy.Platform, description="LiteX SoC on iCEBreaker")
+    parser.add_target_argument("--flash",               action="store_true", help="Flash bitstream and BIOS.")
+    parser.add_target_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")
+    parser.add_target_argument("--bios-flash-offset",   default="0xa0000",   help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--revision",            default="v1",        help="Board revision (v0 or v1).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         bios_flash_offset   = int(args.bios_flash_offset, 0),
         sys_clk_freq        = int(float(args.sys_clk_freq)),
 		revision            = args.revision,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**icestorm_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.flash:
         from litex.build.dfu import DFUProg

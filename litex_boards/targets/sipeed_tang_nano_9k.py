@@ -131,34 +131,29 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Nano 9K")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",                action="store_true",      help="Build design.")
-    target_group.add_argument("--load",                 action="store_true",      help="Load bitstream.")
-    target_group.add_argument("--flash",                action="store_true",      help="Flash Bitstream.")
-    target_group.add_argument("--sys-clk-freq",         default=27e6,             help="System clock frequency.")
-    target_group.add_argument("--bios-flash-offset",    default="0x0",            help="BIOS offset in SPI Flash.")
-    target_group.add_argument("--with-spi-sdcard",      action="store_true",      help="Enable SPI-mode SDCard support.")
-    target_group.add_argument("--with-video-terminal",  action="store_true",      help="Enable Video Terminal (HDMI).")
-    target_group.add_argument("--prog-kit",             default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
-    builder_args(parser)
-    soc_core_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=sipeed_tang_nano_9k.Platform, description="LiteX SoC on Tang Nano 9K")
+    parser.add_target_argument("--flash",                action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--sys-clk-freq",         default=27e6,             help="System clock frequency.")
+    parser.add_target_argument("--bios-flash-offset",    default="0x0",            help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--with-spi-sdcard",      action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-video-terminal",  action="store_true",      help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--prog-kit",             default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq        = int(float(args.sys_clk_freq)),
         bios_flash_offset   = int(args.bios_flash_offset, 0),
         with_video_terminal = args.with_video_terminal,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer(kit=args.prog_kit)

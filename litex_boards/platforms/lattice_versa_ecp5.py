@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -231,13 +231,13 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
     def __init__(self, device="LFE5UM5G", toolchain="trellis", **kwargs):
         assert device in ["LFE5UM5G", "LFE5UM"]
-        LatticePlatform.__init__(self, device + "-45F-8BG381C", _io, _connectors, toolchain=toolchain, **kwargs)
+        LatticeECP5Platform.__init__(self, device + "-45F-8BG381C", _io, _connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
         return OpenOCDJTAGProgrammer("openocd_versa_ecp5.cfg")

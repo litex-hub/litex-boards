@@ -13,8 +13,6 @@ from litex.gen import LiteXModule
 
 from litex_boards.platforms import lambdaconcept_ecpix5
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -222,26 +220,19 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on ECPIX-5")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true", help="Build design.")
-    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
-    target_group.add_argument("--toolchain",       default="trellis",   help="FPGA toolchain (diamond or trellis).")
-    target_group.add_argument("--flash",           action="store_true", help="Flash bitstream to SPI Flash.")
-    target_group.add_argument("--device",          default="85F",       help="ECP5 device (45F or 85F).")
-    target_group.add_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
-    target_group.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=lambdaconcept_ecpix5.Platform, description="LiteX SoC on ECPIX-5")
+    parser.add_target_argument("--flash",           action="store_true", help="Flash bitstream to SPI Flash.")
+    parser.add_target_argument("--device",          default="85F",       help="ECP5 device (45F or 85F).")
+    parser.add_target_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
+    parser.add_target_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    viopts = target_group.add_mutually_exclusive_group()
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
 
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -252,14 +243,13 @@ def main():
         with_etherbone         = args.with_etherbone,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
     if args.with_sdcard:
         soc.add_sdcard()
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

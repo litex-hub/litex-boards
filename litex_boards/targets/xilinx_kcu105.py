@@ -148,21 +148,16 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on KCU105")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true",    help="Build design.")
-    target_group.add_argument("--load",            action="store_true",    help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",    default=125e6,          help="System clock frequency.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=xilinx_kcu105.Platform, description="LiteX SoC on KCU105")
+    parser.add_target_argument("--sys-clk-freq",    default=125e6,          help="System clock frequency.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",          help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true",          help="Enable Etherbone support.")
-    target_group.add_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    target_group.add_argument("--with-pcie",       action="store_true",    help="Enable PCIe support.")
-    target_group.add_argument("--driver",          action="store_true",    help="Generate PCIe driver.")
-    target_group.add_argument("--with-sata",       action="store_true",    help="Enable SATA support (over SFP2SATA).")
-    builder_args(parser)
-    soc_core_args(parser)
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--with-pcie",       action="store_true",    help="Enable PCIe support.")
+    parser.add_target_argument("--driver",          action="store_true",    help="Generate PCIe driver.")
+    parser.add_target_argument("--with-sata",       action="store_true",    help="Enable SATA support (over SFP2SATA).")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -172,11 +167,11 @@ def main():
         eth_ip         = args.eth_ip,
         with_pcie      = args.with_pcie,
         with_sata      = args.with_sata,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
 	)
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

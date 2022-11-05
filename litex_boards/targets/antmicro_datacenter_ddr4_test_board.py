@@ -14,7 +14,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import antmicro_datacenter_ddr4_test_board
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -179,30 +178,24 @@ class LiteDRAMSettingsEncoder(json.JSONEncoder):
         return super().default(o)
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on DDR4 Datacenter Test Board")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",                  action="store_true",    help="Build design")
-    target_group.add_argument("--load",                   action="store_true",    help="Load bitstream")
-    target_group.add_argument("--flash",                  action="store_true",    help="Flash bitstream")
-    target_group.add_argument("--sys-clk-freq",           default=100e6,           help="System clock frequency")
-    target_group.add_argument("--iodelay-clk-freq",       default=200e6,          help="IODELAYCTRL frequency")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=antmicro_datacenter_ddr4_test_board.Platform, description="LiteX SoC on DDR4 Datacenter Test Board")
+    parser.add_target_argument("--flash",                  action="store_true",    help="Flash bitstream")
+    parser.add_target_argument("--sys-clk-freq",           default=100e6,           help="System clock frequency")
+    parser.add_target_argument("--iodelay-clk-freq",       default=200e6,          help="IODELAYCTRL frequency")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet")
     ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone")
-    target_group.add_argument("--eth-ip",                 default="192.168.1.50", help="Ethernet/Etherbone IP address")
-    target_group.add_argument("--eth-dynamic-ip",         action="store_true",    help="Enable dynamic Ethernet IP addresses setting")
-    target_group.add_argument("--eth-reset-time",         default="10e-3",        help="Duration of Ethernet PHY reset")
-    target_group.add_argument("--with-hyperram",          action="store_true",    help="Add HyperRAM")
-    target_group.add_argument("--with-sdcard",            action="store_true",    help="Add SDCard")
-    target_group.add_argument("--with-jtagbone",          action="store_true",    help="Add JTAGBone")
-    target_group.add_argument("--with-uartbone",          action="store_true",    help="Add UartBone on 2nd serial")
-    target_group.add_argument("--with-video-terminal",    action="store_true",    help="Enable Video Terminal (HDMI)")
-    target_group.add_argument("--with-video-framebuffer", action="store_true",    help="Enable Video Framebuffer (HDMI)")
-    target_group.add_argument("--with-spi-flash",         action="store_true",    help="Enable SPI Flash (MMAPed).")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    parser.add_target_argument("--eth-ip",                 default="192.168.1.50", help="Ethernet/Etherbone IP address")
+    parser.add_target_argument("--eth-dynamic-ip",         action="store_true",    help="Enable dynamic Ethernet IP addresses setting")
+    parser.add_target_argument("--eth-reset-time",         default="10e-3",        help="Duration of Ethernet PHY reset")
+    parser.add_target_argument("--with-hyperram",          action="store_true",    help="Add HyperRAM")
+    parser.add_target_argument("--with-sdcard",            action="store_true",    help="Add SDCard")
+    parser.add_target_argument("--with-jtagbone",          action="store_true",    help="Add JTAGBone")
+    parser.add_target_argument("--with-uartbone",          action="store_true",    help="Add UartBone on 2nd serial")
+    parser.add_target_argument("--with-video-terminal",    action="store_true",    help="Enable Video Terminal (HDMI)")
+    parser.add_target_argument("--with-video-framebuffer", action="store_true",    help="Enable Video Framebuffer (HDMI)")
+    parser.add_target_argument("--with-spi-flash",         action="store_true",    help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -221,10 +214,10 @@ def main():
         with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        **soc_core_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
+        **parser.soc_core_argdict)
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
         builder.soc.generate_sdram_phy_py_header(os.path.join(builder.output_dir, "sdram_init.py"))
         # LiteDRAM settings (controller, phy, geom, timing)
         with open(os.path.join(builder.output_dir, 'litedram_settings.json'), 'w') as f:

@@ -9,7 +9,7 @@
 # available at: https://github.com/q3k/chubby75
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import XilinxSpartan6Platform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -287,18 +287,18 @@ hub75e = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(XilinxSpartan6Platform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
     def __init__(self, toolchain="ise"):
-        XilinxPlatform.__init__(self, "xc6slx16-2-ftg256", _io, _connectors, toolchain=toolchain)
+        XilinxSpartan6Platform.__init__(self, "xc6slx16-2-ftg256", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc6slx16.bit")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        XilinxSpartan6Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk25",            loose=True), 1e9/25e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 1, loose=True), 1e9/125e6)

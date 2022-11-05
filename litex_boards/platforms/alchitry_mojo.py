@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import XilinxSpartan6Platform
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -110,14 +110,14 @@ _sdram_shield = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(XilinxSpartan6Platform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
     def __init__(self, toolchain="ise"):
-        XilinxPlatform.__init__(self, "xc6slx9-2-tqg144", _io, toolchain=toolchain)
+        XilinxSpartan6Platform.__init__(self, "xc6slx9-2-tqg144", _io, toolchain=toolchain)
         self.toolchain.additional_commands = ["write_bitstream -force -bin_file {build_name}"]
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        XilinxSpartan6Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)

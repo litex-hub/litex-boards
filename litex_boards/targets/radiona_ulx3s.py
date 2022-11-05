@@ -16,8 +16,6 @@ from litex.build.io import DDROutput
 
 from litex_boards.platforms import radiona_ulx3s
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -144,28 +142,21 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on ULX3S")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true",   help="Build design.")
-    target_group.add_argument("--load",            action="store_true",   help="Load bitstream.")
-    target_group.add_argument("--toolchain",       default="trellis",     help="FPGA toolchain (trellis or diamond).")
-    target_group.add_argument("--device",          default="LFE5U-45F",   help="FPGA device (LFE5U-12F, LFE5U-25F, LFE5U-45F or LFE5U-85F).")
-    target_group.add_argument("--revision",        default="2.0",         help="Board revision (2.0 or 1.7).")
-    target_group.add_argument("--sys-clk-freq",    default=50e6,          help="System clock frequency.")
-    target_group.add_argument("--sdram-module",    default="MT48LC16M16", help="SDRAM module (MT48LC16M16, AS4C32M16 or AS4C16M16).")
-    target_group.add_argument("--with-spi-flash",  action="store_true",   help="Enable SPI Flash (MMAPed).")
-    sdopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=radiona_ulx3s.Platform, description="LiteX SoC on ULX3S")
+    parser.add_target_argument("--device",          default="LFE5U-45F",   help="FPGA device (LFE5U-12F, LFE5U-25F, LFE5U-45F or LFE5U-85F).")
+    parser.add_target_argument("--revision",        default="2.0",         help="Board revision (2.0 or 1.7).")
+    parser.add_target_argument("--sys-clk-freq",    default=50e6,          help="System clock frequency.")
+    parser.add_target_argument("--sdram-module",    default="MT48LC16M16", help="SDRAM module (MT48LC16M16, AS4C32M16 or AS4C16M16).")
+    parser.add_target_argument("--with-spi-flash",  action="store_true",   help="Enable SPI Flash (MMAPed).")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true",   help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true",   help="Enable SDCard support.")
-    target_group.add_argument("--with-oled",       action="store_true",   help="Enable SDD1331 OLED support.")
-    target_group.add_argument("--sdram-rate",      default="1:1",         help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    viopts = target_group.add_mutually_exclusive_group()
+    parser.add_target_argument("--with-oled",       action="store_true",   help="Enable SDD1331 OLED support.")
+    parser.add_target_argument("--sdram-rate",      default="1:1",         help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -178,7 +169,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_spi_flash         = args.with_spi_flash,
-        **soc_core_argdict(args))
+        **parser.soc_core_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
@@ -186,10 +177,9 @@ def main():
     if args.with_oled:
         soc.add_oled()
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

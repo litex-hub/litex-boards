@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeiCE40Platform
 from litex.build.lattice.programmer import TinyProgProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -68,17 +68,17 @@ serial = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeiCE40Platform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="icestorm"):
-        LatticePlatform.__init__(self, "ice40-hx8k-tq144:4k", _io, _connectors, toolchain=toolchain)
+        LatticeiCE40Platform.__init__(self, "ice40-hx8k-tq144:4k", _io, _connectors, toolchain=toolchain)
         self.add_extension(serial)
 
     def create_programmer(self):
         return TinyProgProgrammer()
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeiCE40Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
