@@ -109,19 +109,14 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on the Terasic SoCKit")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--single-rate-sdram",   action="store_true", help="Clock SDRAM with 1x the sytem clock (instead of 2x).")
-    target_group.add_argument("--mister-sdram-xs-v22", action="store_true", help="Use optional MiSTer SDRAM module XS v2.2 on J2 on GPIO daughter card.")
-    target_group.add_argument("--mister-sdram-xs-v24", action="store_true", help="Use optional MiSTer SDRAM module XS v2.4 on J2 on GPIO daughter card.")
-    target_group.add_argument("--build",               action="store_true", help="Build design.")
-    target_group.add_argument("--load",                action="store_true", help="Load bitstream.")
-    target_group.add_argument("--revision",            default="revd",      help="Board revision (revb, revc or revd).")
-    target_group.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
-    target_group.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
-    builder_args(parser)
-    soc_core_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=terasic_sockit.Platform, description="LiteX SoC on the Terasic SoCKit")
+    parser.add_target_argument("--single-rate-sdram",   action="store_true", help="Clock SDRAM with 1x the sytem clock (instead of 2x).")
+    parser.add_target_argument("--mister-sdram-xs-v22", action="store_true", help="Use optional MiSTer SDRAM module XS v2.2 on J2 on GPIO daughter card.")
+    parser.add_target_argument("--mister-sdram-xs-v24", action="store_true", help="Use optional MiSTer SDRAM module XS v2.4 on J2 on GPIO daughter card.")
+    parser.add_target_argument("--revision",            default="revd",      help="Board revision (revb, revc or revd).")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
+    parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -130,11 +125,11 @@ def main():
         sdram_rate          = "1:1" if args.single_rate_sdram else "1:2",
         mister_sdram        = "xs_v22" if args.mister_sdram_xs_v22 else "xs_v24" if args.mister_sdram_xs_v24 else None,
         with_video_terminal = args.with_video_terminal,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

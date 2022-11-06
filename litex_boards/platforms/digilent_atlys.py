@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import XilinxSpartan6Platform
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -215,19 +215,19 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(XilinxSpartan6Platform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="ise"):
-        XilinxPlatform.__init__(self,  "xc6slx45-csg324-3", _io, _connectors, toolchain=toolchain)
+        XilinxSpartan6Platform.__init__(self,  "xc6slx45-csg324-3", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("""CONFIG VCCAUX="3.3";""")
 
     def create_programmer(self):
         return iMPACT()
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        XilinxSpartan6Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100",           loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("hdmi_in:clk_p", 0, loose=True), 1e9/74.25e6)
         self.add_period_constraint(self.lookup_request("hdmi_in:clk_p", 1, loose=True), 1e9/74.25e6)

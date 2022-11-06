@@ -8,7 +8,7 @@
 # https://github.com/wuxx/icesugar-pro
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import EcpDapProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
@@ -132,11 +132,11 @@ class Platform(LatticePlatform):
         device     = "LFE5U-25F-6BG256C"
         io         = _io
         connectors = _connectors
-        LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
+        LatticeECP5Platform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return EcpDapProgrammer()
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)

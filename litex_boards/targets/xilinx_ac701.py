@@ -138,19 +138,14 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on AC701")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",          action="store_true", help="Build design.")
-    target_group.add_argument("--load",           action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency.")
-    target_group.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    target_group.add_argument("--eth-phy",        default="rgmii",     help="Select Ethernet PHY (rgmii or 1000basex).")
-    target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
-    target_group.add_argument("--with-pcie",      action="store_true", help="Enable PCIe support.")
-    target_group.add_argument("--driver",         action="store_true", help="Generate PCIe driver.")
-    builder_args(parser)
-    soc_core_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=xilinx_ac701.Platform, description="LiteX SoC on AC701")
+    parser.add_target_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    parser.add_target_argument("--eth-phy",        default="rgmii",     help="Select Ethernet PHY (rgmii or 1000basex).")
+    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-pcie",      action="store_true", help="Enable PCIe support.")
+    parser.add_target_argument("--driver",         action="store_true", help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -159,11 +154,11 @@ def main():
         eth_phy        = args.eth_phy,
         with_spi_flash = args.with_spi_flash,
         with_pcie      = args.with_pcie,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

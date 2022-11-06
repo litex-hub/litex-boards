@@ -89,18 +89,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Linsn RV901T")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",         action="store_true", help="Build design.")
-    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=linsn_rv901t.Platform, description="LiteX SoC on Linsn RV901T")
+    parser.add_target_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    target_group.add_argument("--eth-phy",         default=0, type=int, help="Ethernet PHY (0 or 1).")
-    builder_args(parser)
-    soc_core_args(parser)
+    parser.add_target_argument("--eth-phy",         default=0, type=int, help="Ethernet PHY (0 or 1).")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -108,11 +103,11 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_phy        = int(args.eth_phy),
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

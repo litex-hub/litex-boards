@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
 
     def __init__(self, board="redpitaya14", toolchain="vivado"):
         if board == "redpitaya14":
@@ -153,7 +153,7 @@ class Platform(XilinxPlatform):
 
         self.default_clk_period = 1e9/self.default_clk_freq
 
-        XilinxPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
         self.add_extension(extension)
         self.add_extension(_ps7_io)
         self.add_extension(_uart_io)
@@ -162,6 +162,6 @@ class Platform(XilinxPlatform):
         return VivadoProgrammer()
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request(self.default_clk_name, loose=True),
                                    self.default_clk_period)

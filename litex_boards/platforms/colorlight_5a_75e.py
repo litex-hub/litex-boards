@@ -9,7 +9,7 @@
 # https://github.com/q3k/chubby75/pull/67
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -218,7 +218,7 @@ _connectors_v6_0 = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name = "clk25"
     default_clk_period = 1e9/25e6
 
@@ -228,13 +228,13 @@ class Platform(LatticePlatform):
         device = {"6.0": "LFE5U-25F-6BG256C", "7.1": "LFE5U-25F-6BG256C"}[revision]
         io = {"6.0": _io_v6_0, "7.1": _io_v7_1}[revision]
         connectors = {"6.0": _connectors_v6_0, "7.1": _connectors_v7_1}[revision]
-        LatticePlatform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
+        LatticeECP5Platform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return OpenOCDJTAGProgrammer("openocd_colorlight_5a_75b.cfg")
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk25",            loose=True), 1e9/25e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 1, loose=True), 1e9/125e6)

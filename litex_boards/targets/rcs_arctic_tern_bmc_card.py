@@ -13,8 +13,6 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import LiteXModule
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-
 from litex_boards.platforms import rcs_arctic_tern_bmc_card
 
 from litex.soc.cores.clock import *
@@ -156,20 +154,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Arctic Tern (BMC card carrier)")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true", help="Build design")
-    target_group.add_argument("--load",         action="store_true", help="Load bitstream")
-    target_group.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain: trellis (default) or diamond")
-    target_group.add_argument("--sys-clk-freq", default=60e6,        help="System clock frequency (default: 60MHz)")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=rcs_arctic_tern_bmc_card.Platform, description="LiteX SoC on Arctic Tern (BMC card carrier)")
+    parser.add_target_argument("--sys-clk-freq", default=60e6,        help="System clock frequency (default: 60MHz)")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    target_group.add_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -178,11 +169,10 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
-        **soc_core_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+        **parser.soc_core_argdict)
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

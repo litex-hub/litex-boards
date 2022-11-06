@@ -10,7 +10,7 @@
 # - Design files: https://github.com/im-tomu/fomu-hardware/tree/evt/hardware/pcb
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeiCE40Platform
 from litex.build.lattice.programmer import IceStormProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -82,16 +82,16 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeiCE40Platform):
     default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
     def __init__(self, toolchain="icestorm"):
-        LatticePlatform.__init__(self, "ice40-up5k-sg48", _io, _connectors, toolchain=toolchain)
+        LatticeiCE40Platform.__init__(self, "ice40-up5k-sg48", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return IceStormProgrammer()
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeiCE40Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk48", loose=True), 1e9/48e6)

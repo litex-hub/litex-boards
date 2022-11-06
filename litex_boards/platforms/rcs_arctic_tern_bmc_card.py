@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 import os
@@ -226,7 +226,7 @@ _io = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk125"
     default_clk_period = 1e9/125e6
 
@@ -234,16 +234,16 @@ class Platform(LatticePlatform):
         assert device in ["LFE5UM5G", "LFE5UM"]
         if device == "LFE5UM5G":
             speed_grade = "8"
-        LatticePlatform.__init__(self, device + "-85F-" + speed_grade + "CABGA381", _io, toolchain=toolchain, **kwargs)
+        LatticeECP5Platform.__init__(self, device + "-85F-" + speed_grade + "CABGA381", _io, toolchain=toolchain, **kwargs)
 
     def request(self, *args, **kwargs):
-        return LatticePlatform.request(self, *args, **kwargs)
+        return LatticeECP5Platform.request(self, *args, **kwargs)
 
     def create_programmer(self):
         return OpenOCDJTAGProgrammer("openocd_evn_ecp5.cfg")
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 1, loose=True), 1e9/125e6)

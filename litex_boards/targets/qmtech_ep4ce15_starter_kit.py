@@ -103,18 +103,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTECH EP4CE15")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",         action="store_true", help="Build design.")
-    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",  default=50e6,        help="System clock frequency.")
-    target_group.add_argument("--sdram-rate",    default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    target_group.add_argument("--with-jtaguart", action="store_true", help="Enable JTAGUart support.")
-    target_group.add_argument("--with-jtagbone", action="store_true", help="Enable JTAGbone support.")
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=qmtech_ep4ce15_starter_kit.Platform, description="LiteX SoC on QMTECH EP4CE15")
+    parser.add_target_argument("--sys-clk-freq",  default=50e6,        help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",    default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-jtaguart", action="store_true", help="Enable JTAGUart support.")
+    parser.add_target_argument("--with-jtagbone", action="store_true", help="Enable JTAGbone support.")
 
-    builder_args(parser)
-    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -122,12 +117,12 @@ def main():
         sdram_rate             = args.sdram_rate,
         with_jtagbone          = args.with_jtagbone,
         with_jtaguart          = args.with_jtaguart,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

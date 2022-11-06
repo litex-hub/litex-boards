@@ -210,26 +210,21 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Tang Primer 20K")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--dock",         default="standard",    help="Dock version (standard (default) or lite.")
-    target_group.add_argument("--build",        action="store_true",   help="Build bitstream.")
-    target_group.add_argument("--load",         action="store_true",   help="Load bitstream.")
-    target_group.add_argument("--flash",        action="store_true",   help="Flash Bitstream.")
-    target_group.add_argument("--sys-clk-freq", default=48e6,          help="System clock frequency.")
-    sdopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=sipeed_tang_primer_20k.Platform, description="LiteX SoC on Tang Primer 20K")
+    parser.add_target_argument("--dock",         default="standard",    help="Dock version (standard (default) or lite.")
+    parser.add_target_argument("--flash",        action="store_true",   help="Flash Bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=48e6,          help="System clock frequency.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
-    target_group.add_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
-    target_group.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
-    ethopts = target_group.add_mutually_exclusive_group()
+    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
     ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
-    target_group.add_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
-    target_group.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
-    builder_args(parser)
-    soc_core_args(parser)
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -241,16 +236,16 @@ def main():
         eth_ip              = args.eth_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
         dock                = args.dock,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

@@ -96,26 +96,21 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Aller")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true", help="Build design.")
-    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq", default=100e6,       help="System clock frequency.")
-    target_group.add_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
-    target_group.add_argument("--driver",       action="store_true", help="Generate LitePCIe driver.")
-    builder_args(parser)
-    soc_core_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=numato_aller.Platform, description="LiteX SoC on Aller")
+    parser.add_target_argument("--sys-clk-freq", default=100e6,       help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
+    parser.add_target_argument("--driver",       action="store_true", help="Generate LitePCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         with_pcie    = args.with_pcie,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

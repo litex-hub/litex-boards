@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -190,12 +190,12 @@ _connectors = []
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7k325t-ffg676-2", _io, _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xc7k325t-ffg676-2", _io, _connectors, toolchain=toolchain)
         # Enable bitstream compression, quad SPI and 50MHz rate for quick boot from SPI flash
         # see https://github.com/timvideos/litex-buildenv/issues/79
         self.toolchain.bitstream_commands = [
@@ -208,7 +208,7 @@ class Platform(XilinxPlatform):
         return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a325t.bit")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 33]")
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")

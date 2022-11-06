@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     # The clock speed depends on the PS7 PLL configuration for the FCLK_CLK0 signal.
     default_clk_name   = "clk100"
     default_clk_freq   = 100e6
@@ -75,7 +75,7 @@ class Platform(XilinxPlatform):
             "z7-10": "xc7z010-clg400-1",
             "z7-20": "xc7z020-clg400-3"
         }[variant]
-        XilinxPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
         self.default_clk_period = 1e9 / self.default_clk_freq
         self.toolchain.bitstream_commands = [
             "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]"
@@ -85,5 +85,5 @@ class Platform(XilinxPlatform):
         return VivadoProgrammer(flash_part="n25q128a")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request(self.default_clk_name, loose=True), self.default_clk_period)

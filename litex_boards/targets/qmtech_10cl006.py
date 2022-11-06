@@ -103,20 +103,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on QMTECH 10CL006")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",               action="store_true", help="Build design.")
-    target_group.add_argument("--load",                action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
-    target_group.add_argument("--sdram-rate",          default="1:2",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    target_group.add_argument("--with-daughterboard",  action="store_true", help="Board plugged into the QMTech daughterboard.")
-    sdopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=qmtech_10cl006.Platform, description="LiteX SoC on QMTECH 10CL006")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",          default="1:2",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-daughterboard",  action="store_true", help="Board plugged into the QMTech daughterboard.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true", help="Enable SDCard support.")
-    target_group.add_argument("--with-spi-flash",      action="store_true", help="Enable SPI Flash (MMAPed).")
-    builder_args(parser)
-    soc_core_args(parser)
+    parser.add_target_argument("--with-spi-flash",      action="store_true", help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -124,7 +119,7 @@ def main():
         with_daughterboard     = args.with_daughterboard,
         with_spi_flash         = args.with_spi_flash,
         sdram_rate             = args.sdram_rate,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
     if args.with_spi_sdcard:
@@ -132,9 +127,9 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

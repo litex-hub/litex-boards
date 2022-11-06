@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import XilinxSpartan6Platform
 from litex.build.xilinx.programmer import XC3SProg
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -150,18 +150,18 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(XilinxSpartan6Platform):
     default_clk_name   = "clk32"
     default_clk_period = 1e9/32e6
 
     def __init__(self, device="xc6slx25", toolchain="ise"):
         assert device in ["xc6slx9", "xc6slx25"]
-        XilinxPlatform.__init__(self, device+"-3-ftg256", _io, _connectors, toolchain=toolchain)
+        XilinxSpartan6Platform.__init__(self, device+"-3-ftg256", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return XC3SProg(cable="ftdi")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        XilinxSpartan6Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk32", loose=True), 1e9/32e6)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)

@@ -89,15 +89,12 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on QuickLogic QuickFeather")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build", action="store_true", help="Build design.")
-    soc_core_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=quicklogic_quickfeather.Platform, description="LiteX SoC on QuickLogic QuickFeather")
     parser.set_defaults(cpu_type="eos_s3")
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_core_argdict(args))
+    soc = BaseSoC(**parser.soc_core_argdict)
     builder = Builder(soc)
     if args.cpu_type == "eos_s3":
         libeos_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "libeos")
@@ -107,7 +104,7 @@ def main():
         builder.add_software_package("libeos", src_dir=libeos_path)
         builder.add_software_library("libeos")
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
 
 if __name__ == "__main__":

@@ -11,7 +11,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import alchitry_au
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.interconnect.csr import *
 from litex.soc.integration.soc_core import *
@@ -88,30 +87,24 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Alchitry Au(+)")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true", help="Build design.")
-    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
-    target_group.add_argument("--flash",           action="store_true", help="Flash bitstream.")
-    target_group.add_argument("--variant",         default="au",        help="Board variant (au or au+).")
-    target_group.add_argument("--sys-clk-freq",    default=83333333,    help="System clock frequency.")
-    target_group.add_argument("--with-spi-flash",  action="store_true", help="Enable SPI Flash (MMAPed).")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=alchitry_au.Platform, description="LiteX SoC on Alchitry Au(+)")
+    parser.add_target_argument("--flash",           action="store_true", help="Flash bitstream.")
+    parser.add_target_argument("--variant",         default="au",        help="Board variant (au or au+).")
+    parser.add_target_argument("--sys-clk-freq",    default=83333333,    help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash",  action="store_true", help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         variant        = args.variant,
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_spi_flash = args.with_spi_flash,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

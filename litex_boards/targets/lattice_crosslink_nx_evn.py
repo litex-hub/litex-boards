@@ -24,8 +24,6 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litex.build.lattice.oxide import oxide_args, oxide_argdict
-
 kB = 1024
 mB = 1024*kB
 
@@ -93,33 +91,25 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Crosslink-NX Eval Board")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",         action="store_true",        help="Build design.")
-    target_group.add_argument("--load",          action="store_true",        help="Load bitstream.")
-    target_group.add_argument("--toolchain",     default="radiant",          help="FPGA toolchain (radiant or prjoxide).")
-    target_group.add_argument("--device",        default="LIFCL-40-9BG400C", help="FPGA device (LIFCL-40-9BG400C, LIFCL-40-8BG400CES, or LIFCL-40-8BG400CES2).")
-    target_group.add_argument("--sys-clk-freq",  default=75e6,               help="System clock frequency.")
-    target_group.add_argument("--serial",        default="serial",           help="UART Pins (serial (requires R15 and R17 to be soldered) or serial_pmod[0-2]).")
-    target_group.add_argument("--programmer",    default="radiant",          help="Programmer (radiant or ecpprog).")
-    target_group.add_argument("--address",       default=0x0,                help="Flash address to program bitstream at.")
-    target_group.add_argument("--prog-target",   default="direct",           help="Programming Target (direct or flash).")
-    builder_args(parser)
-    soc_core_args(parser)
-    oxide_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=lattice_crosslink_nx_evn.Platform, description="LiteX SoC on Crosslink-NX Eval Board")
+    parser.add_target_argument("--device",        default="LIFCL-40-9BG400C", help="FPGA device (LIFCL-40-9BG400C, LIFCL-40-8BG400CES, or LIFCL-40-8BG400CES2).")
+    parser.add_target_argument("--sys-clk-freq",  default=75e6,               help="System clock frequency.")
+    parser.add_target_argument("--serial",        default="serial",           help="UART Pins (serial (requires R15 and R17 to be soldered) or serial_pmod[0-2]).")
+    parser.add_target_argument("--programmer",    default="radiant",          help="Programmer (radiant or ecpprog).")
+    parser.add_target_argument("--address",       default=0x0,                help="Flash address to program bitstream at.")
+    parser.add_target_argument("--prog-target",   default="direct",           help="Programming Target (direct or flash).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         device       = args.device,
         toolchain    = args.toolchain,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = oxide_argdict(args) if args.toolchain == "oxide" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer(args.prog_target, args.programmer)

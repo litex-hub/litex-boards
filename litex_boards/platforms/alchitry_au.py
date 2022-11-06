@@ -10,7 +10,7 @@
 # by SparkFun - https://www.sparkfun.com/products/16527.
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ _io = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk100"
     default_clk_period = 1e9/100e6
 
@@ -105,7 +105,7 @@ class Platform(XilinxPlatform):
             "au+": "xc7a100t-ftg256-2",
         }[variant]
 
-        XilinxPlatform.__init__(self, device, _io, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, device, _io, toolchain=toolchain)
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 15]")
 
         self.toolchain.bitstream_commands = [
@@ -125,5 +125,5 @@ class Platform(XilinxPlatform):
         return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a35t.bit")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)

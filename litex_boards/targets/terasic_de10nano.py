@@ -97,17 +97,12 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on DE10-Nano")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",                      action="store_true", help="Build design.")
-    target_group.add_argument("--load",                       action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",               default=50e6,        help="System clock frequency.")
-    target_group.add_argument("--with-mister-sdram",          action="store_true", help="Enable SDRAM with MiSTer expansion board.")
-    target_group.add_argument("--with-mister-video-terminal", action="store_true", help="Enable Video Terminal with Mister expansion board.")
-    target_group.add_argument("--sdram-rate",                 default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    builder_args(parser)
-    soc_core_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=terasic_de10nano.Platform, description="LiteX SoC on DE10-Nano")
+    parser.add_target_argument("--sys-clk-freq",               default=50e6,        help="System clock frequency.")
+    parser.add_target_argument("--with-mister-sdram",          action="store_true", help="Enable SDRAM with MiSTer expansion board.")
+    parser.add_target_argument("--with-mister-video-terminal", action="store_true", help="Enable Video Terminal with Mister expansion board.")
+    parser.add_target_argument("--sdram-rate",                 default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -115,11 +110,11 @@ def main():
         with_mister_sdram          = args.with_mister_sdram,
         with_mister_video_terminal = args.with_mister_video_terminal,
         sdram_rate                 = args.sdram_rate,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

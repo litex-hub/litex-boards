@@ -13,8 +13,6 @@ from litex.gen import LiteXModule
 
 from litex_boards.platforms import fpc_iii
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -125,22 +123,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on FPC-III")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true", help="Build design.")
-    target_group.add_argument("--load",            action="store_true", help="Load bitstream.")
-    target_group.add_argument("--toolchain",       default="trellis",   help="Gateware toolchain to use (trellis or diamond).")
-    target_group.add_argument("--sys-clk-freq",    default=80e6,        help="System clock frequency.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=fpc_iii.Platform, description="LiteX SoC on FPC-III")
+    parser.add_target_argument("--sys-clk-freq",    default=80e6,        help="System clock frequency.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    sdopts = target_group.add_mutually_exclusive_group()
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -148,15 +139,14 @@ def main():
         toolchain      = args.toolchain,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
-        **soc_core_argdict(args))
+        **parser.soc_core_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

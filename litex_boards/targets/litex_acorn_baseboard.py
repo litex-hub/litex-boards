@@ -12,8 +12,6 @@ from litex.gen import LiteXModule
 
 from litex_boards.platforms import litex_acorn_baseboard
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -121,29 +119,22 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on LiteX Acorn Baseboard")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true", help="Build design.")
-    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
-    target_group.add_argument("--toolchain",    default="trellis",   help="FPGA toolchain (diamond or trellis).")
-    target_group.add_argument("--flash",        action="store_true", help="Flash bitstream to SPI Flash.")
-    target_group.add_argument("--sys-clk-freq", default=75e6,        help="System clock frequency.")
-    ethopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=litex_acorn_baseboard.Platform, description="LiteX SoC on LiteX Acorn Baseboard")
+    parser.add_target_argument("--flash",        action="store_true", help="Flash bitstream to SPI Flash.")
+    parser.add_target_argument("--sys-clk-freq", default=75e6,        help="System clock frequency.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    sdopts = target_group.add_mutually_exclusive_group()
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    viopts = target_group.add_mutually_exclusive_group()
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
-    target_group.add_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
-    target_group.add_argument("--with-lcd",       action="store_true",      help="Enable OLED LCD support.")
-    target_group.add_argument("--with-ws2812",    action="store_true",      help="Enable WS2812 on PMOD1:0.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-lcd",       action="store_true",      help="Enable OLED LCD support.")
+    parser.add_target_argument("--with-ws2812",    action="store_true",      help="Enable WS2812 on PMOD1:0.")
 
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -155,16 +146,15 @@ def main():
         with_video_terminal = args.with_video_terminal,
         with_lcd            = args.with_lcd,
         with_ws2812         = args.with_ws2812,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

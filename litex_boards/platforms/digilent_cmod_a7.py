@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ _connectors = []
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
@@ -85,12 +85,12 @@ class Platform(XilinxPlatform):
         device = {
             "a7-35": "xc7a35tcpg236-1"
         }[variant]
-        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         bscan_spi = "bscan_spi_xc7a15t.bit" if "xc7a15t" in self.device else "bscan_spi_xc7a35t.bit"
         return OpenOCD("openocd_xc7_ft2232.cfg", bscan_spi)
 
     def do_finalize(self,fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk12", loose=True), self.default_clk_period)

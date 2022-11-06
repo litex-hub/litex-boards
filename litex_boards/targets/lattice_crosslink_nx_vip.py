@@ -28,8 +28,6 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litex.build.lattice.oxide import oxide_args, oxide_argdict
-
 kB = 1024
 mB = 1024*kB
 
@@ -101,30 +99,22 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Crosslink-NX VIP Board")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",         action="store_true", help="Build design.")
-    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
-    target_group.add_argument("--toolchain",     default="radiant",   help="FPGA toolchain (radiant or prjoxide).")
-    target_group.add_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency.")
-    target_group.add_argument("--with-hyperram", default="none",      help="Enable use of HyperRAM chip (none, 0 or 1).")
-    target_group.add_argument("--prog-target",   default="direct",    help="Programming Target (direct or flash).")
-    builder_args(parser)
-    soc_core_args(parser)
-    oxide_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=lattice_crosslink_nx_vip.Platform, description="LiteX SoC on Crosslink-NX VIP Board")
+    parser.add_target_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency.")
+    parser.add_target_argument("--with-hyperram", default="none",      help="Enable use of HyperRAM chip (none, 0 or 1).")
+    parser.add_target_argument("--prog-target",   default="direct",    help="Programming Target (direct or flash).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = int(float(args.sys_clk_freq)),
         hyperram     = args.with_hyperram,
         toolchain    = args.toolchain,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = oxide_argdict(args) if args.toolchain == "oxide" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer(args.prog_target)

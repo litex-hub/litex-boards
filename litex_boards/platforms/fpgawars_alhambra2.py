@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeiCE40Platform
 from litex.build.lattice.programmer import IceStormProgrammer
 
 _io = [
@@ -76,20 +76,20 @@ _connectors = [
 
 # Platform -------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeiCE40Platform):
 
     default_clk_name = "clk12"
     default_clk_period = 1e9/12e6
 
     def __init__(self, toolchain="icestorm", **kwargs):
 
-        LatticePlatform.__init__(self, "ice40-hx8k-tq144:4k", _io, _connectors, toolchain=toolchain, **kwargs)
+        LatticeiCE40Platform.__init__(self, "ice40-hx8k-tq144:4k", _io, _connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self, mode="direct"):
 
         return IceStormProgrammer()
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeiCE40Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk12", loose=True), 1e9/12e6)
 

@@ -14,7 +14,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
@@ -148,7 +148,7 @@ class Platform(XilinxPlatform):
             #"ztex2.13c":  "xc7a75tcsg324-2", #untested
             #"ztex2.13d":  "xc7a100tcsg324-2", #untested
         }[variant]
-        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         if (expansion == "debug"):
             self.add_extension(_debug_io)
         else:
@@ -166,5 +166,5 @@ class Platform(XilinxPlatform):
         return OpenOCD("openocd_xc7_ft2232.cfg", bscan_spi) #FIXME
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk48", loose=True), 1e9/48e6)

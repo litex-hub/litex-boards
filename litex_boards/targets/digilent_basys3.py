@@ -62,35 +62,30 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------  
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Basys3")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",               action="store_true", help="Build design.")
-    target_group.add_argument("--load",                action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",        default=75e6,        help="System clock frequency.")
-    sdopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=digilent_basys3.Platform, description="LiteX SoC on Basys3")
+    parser.add_target_argument("--sys-clk-freq",        default=75e6,        help="System clock frequency.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true", help="Enable SDCard support.")
-    target_group.add_argument("--sdcard-adapter",      type=str,            help="SDCard PMOD adapter (digilent or numato).")
-    viopts = target_group.add_mutually_exclusive_group()
+    parser.add_target_argument("--sdcard-adapter",      type=str,            help="SDCard PMOD adapter (digilent or numato).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
-    builder_args(parser)
-    soc_core_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq           = int(float(args.sys_clk_freq)),
         with_video_terminal    = args.with_video_terminal,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
     soc.platform.add_extension(digilent_basys3._sdcard_pmod_io)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

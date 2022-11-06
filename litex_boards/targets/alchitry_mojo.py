@@ -143,21 +143,17 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Alchitry Mojo")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",                  action="store_true", help="Build design.")
-    target_group.add_argument("--sys-clk-freq",           default=62.5e6,      help="System clock frequency.")
-    target_group.add_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
-    shields1 = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=alchitry_mojo.Platform, description="LiteX SoC on Alchitry Mojo")
+    parser.add_target_argument("--sys-clk-freq",           default=62.5e6,      help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
+    shields1 = parser.target_group.add_mutually_exclusive_group()
     shields1.add_argument("--with-hdmi-shield",     action="store_true", help="Enable HDMI Shield.")
     shields1.add_argument("--with-sdram-shield",    action="store_true", help="Enable SDRAM Shield.")
-    viopts = target_group.add_mutually_exclusive_group()
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (HDMI).")
-    builder_args(parser)
-    soc_core_args(parser)
     args = parser.parse_args()
 
     # Note: baudrate is fixed because regardless of USB->TTL baud, the AVR <-> FPGA baudrate is
@@ -170,12 +166,12 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_video_colorbars   = args.with_video_colorbars,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build()
+        builder.build(**parser.toolchain_argdict)
 
 if __name__ == "__main__":
     main()

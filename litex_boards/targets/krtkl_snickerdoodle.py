@@ -14,7 +14,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import krtkl_snickerdoodle
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.interconnect import axi
 from litex.soc.interconnect import wishbone
@@ -106,19 +105,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Snickerdoodle")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true", help="Build design.")
-    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
-    target_group.add_argument("--variant",      default="z7-10",     help="Board variant (z7-10 or z7-20).")
-    target_group.add_argument("--ext-clk-freq", default=10e6,  type=float, help="External Clock Frequency.")
-    target_group.add_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    target_group.add_argument("--xci-file",     help="XCI file for PS7 configuration.")
-    target_group.add_argument("--target",       help="Vivado programmer target.")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=krtkl_snickerdoodle.Platform, description="LiteX SoC on Snickerdoodle")
+    parser.add_target_argument("--variant",      default="z7-10",     help="Board variant (z7-10 or z7-20).")
+    parser.add_target_argument("--ext-clk-freq", default=10e6,  type=float, help="External Clock Frequency.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--xci-file",     help="XCI file for PS7 configuration.")
+    parser.add_target_argument("--target",       help="Vivado programmer target.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -126,11 +119,11 @@ def main():
         sys_clk_freq = args.sys_clk_freq,
         ext_clk_freq = args.ext_clk_freq,
         xci_file     = args.xci_file,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

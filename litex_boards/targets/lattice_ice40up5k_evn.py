@@ -16,7 +16,6 @@ from litex.gen import LiteXModule
 from litex_boards.platforms import lattice_ice40up5k_evn
 from litex.build.lattice.programmer import IceStormProgrammer
 
-from litex.build.lattice.icestorm import icestorm_args, icestorm_argdict
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
@@ -130,26 +129,21 @@ def flash(bios_flash_offset, target="lattice_ice40up5k_evn"):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Lattice iCE40UP5k EVN breakout board")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",             action="store_true", help="Build design.")
-    target_group.add_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
-    target_group.add_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")
-    target_group.add_argument("--flash",             action="store_true", help="Flash Bitstream.")
-    builder_args(parser)
-    soc_core_args(parser)
-    icestorm_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=lattice_ice40up5k_evn.Platform, description="LiteX SoC on Lattice iCE40UP5k EVN breakout board")
+    parser.add_target_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
+    parser.add_target_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--flash",             action="store_true", help="Flash Bitstream.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = int(float(args.sys_clk_freq)),
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**icestorm_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.flash:
         flash(args.bios_flash_offset)

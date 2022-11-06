@@ -13,7 +13,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import redpitaya
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.interconnect import axi
 from litex.soc.interconnect import wishbone
@@ -95,26 +94,20 @@ class BaseSoC(SoCCore):
 
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Zedboard")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true",   help="Build design.")
-    target_group.add_argument("--load",         action="store_true",   help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq", default=100e6,         help="System clock frequency.")
-    target_group.add_argument("--board",        default="redpitaya14", help="Board type (redpitaya14 or redpitaya16).")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=redpitaya.Platform, description="LiteX SoC on Zedboard")
+    parser.add_target_argument("--sys-clk-freq", default=100e6,         help="System clock frequency.")
+    parser.add_target_argument("--board",        default="redpitaya14", help="Board type (redpitaya14 or redpitaya16).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         board = args.board,
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

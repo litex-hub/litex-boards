@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeNexusPlatform
 from litex.build.lattice.programmer import LatticeProgrammer
 from litex.build.lattice.programmer import EcpprogProgrammer
 
@@ -246,7 +246,7 @@ serial_pmods = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeNexusPlatform):
     default_clk_name   = "clk12"
     default_clk_period = 1e9/12e6
 
@@ -257,7 +257,7 @@ class Platform(LatticePlatform):
         if device == "LIFCL":
             device == "LIFCL-40-9BG400C"
         assert device in ["LIFCL-40-9BG400C", "LIFCL-40-8BG400CES"]
-        LatticePlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
+        LatticeNexusPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self, mode = "direct", prog="radiant"):
         assert mode in ["direct","flash"]

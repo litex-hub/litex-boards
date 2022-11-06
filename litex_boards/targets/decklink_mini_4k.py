@@ -17,7 +17,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import decklink_mini_4k
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -149,22 +148,16 @@ class BaseSoC(SoCMini):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC Blackmagic Decklink Mini 4K")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",                  action="store_true", help="Build design.")
-    target_group.add_argument("--load",                   action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",           default=148.5e6,     help="System clock frequency.")
-    pcieopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=decklink_mini_4k.Platform, description="LiteX SoC Blackmagic Decklink Mini 4K")
+    parser.add_target_argument("--sys-clk-freq",           default=148.5e6,     help="System clock frequency.")
+    pcieopts = parser.target_group.add_mutually_exclusive_group()
     pcieopts.add_argument("--with-pcie",            action="store_true", help="Enable PCIe support.")
-    target_group.add_argument("--driver",                 action="store_true", help="Generate PCIe driver.")
-    viopts = target_group.add_mutually_exclusive_group()
+    parser.add_target_argument("--driver",                 action="store_true", help="Generate PCIe driver.")
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     pcieopts.add_argument("--with-sata",            action="store_true", help="Enable SATA support (over PCIe2SATA).")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -173,12 +166,11 @@ def main():
         with_sata              = args.with_sata,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kwargs = vivado_build_argdict(args)
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kwargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.driver:
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))

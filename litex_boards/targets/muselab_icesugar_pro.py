@@ -14,8 +14,6 @@ from litex.build.io import DDROutput
 
 from litex_boards.platforms import muselab_icesugar_pro
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -144,31 +142,24 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Colorlight i5")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",            action="store_true",      help="Build design.")
-    target_group.add_argument("--load",             action="store_true",      help="Load bitstream.")
-    target_group.add_argument("--toolchain",        default="trellis",        help="FPGA toolchain (diamond or trellis).")
-    target_group.add_argument("--sys-clk-freq",     default=50e6,             help="System clock frequency.")
-    sdopts = target_group.add_mutually_exclusive_group()
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=muselab_icesugar_pro.Platform, description="LiteX SoC on Colorlight i5")
+    parser.add_target_argument("--sys-clk-freq",     default=50e6,             help="System clock frequency.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",  action="store_true",  help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",      action="store_true",  help="Enable SDCard support.")
-    target_group.add_argument("--with-spi-flash",   action="store_true",  help="Enable SPI Flash (MMAPed).")
-    target_group.add_argument("--use-internal-osc", action="store_true",  help="Use internal oscillator.")
-    target_group.add_argument("--sdram-rate",       default="1:1",        help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    viopts = target_group.add_mutually_exclusive_group()
+    parser.add_target_argument("--with-spi-flash",   action="store_true",  help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--use-internal-osc", action="store_true",  help="Use internal oscillator.")
+    parser.add_target_argument("--sdram-rate",       default="1:1",        help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
-    ethopts = target_group.add_mutually_exclusive_group()
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
     ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
-    target_group.add_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
-    target_group.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
 
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -183,17 +174,16 @@ def main():
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

@@ -11,7 +11,6 @@ from migen import *
 from litex.gen import LiteXModule
 
 from litex_boards.platforms import digilent_pynq_z1
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.interconnect import axi
 from litex.soc.interconnect import wishbone
@@ -99,27 +98,21 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on PYNQ Z1")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",               action="store_true", help="Build design.")
-    target_group.add_argument("--load",                action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",        default=125e6,       help="System clock frequency.")
-    target_group.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
+    from litex.build.argument_parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=digilent_pynq_z1.Platform, description="LiteX SoC on PYNQ Z1")
+    parser.add_target_argument("--sys-clk-freq",        default=125e6,       help="System clock frequency.")
+    parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
 
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq        = int(float(args.sys_clk_freq)),
         with_video_terminal = args.with_video_terminal,
-        **soc_core_argdict(args)
+        **parser.soc_core_argdict
     )
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
-        builder.build(**vivado_build_argdict(args))
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

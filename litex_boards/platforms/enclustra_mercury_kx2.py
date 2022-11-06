@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -83,12 +83,12 @@ _io = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xc7k160tffg676-2", _io, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xc7k160tffg676-2", _io, toolchain=toolchain)
         self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")
         self.add_platform_command("set_property CFGBVS GND [current_design]")
         # DDR3 is connected to banks 32, 33 and 34
@@ -112,5 +112,5 @@ class Platform(XilinxPlatform):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7k160t.bit")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)
