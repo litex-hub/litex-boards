@@ -19,7 +19,6 @@
 
 import os
 import sys
-import argparse
 
 from migen import *
 
@@ -109,7 +108,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Kr\xf6te")
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=machdyne_krote.Platform, description="LiteX SoC on Kr\xf6te")
     parser.add_argument("--bios-flash-offset", default="0x021000",  help="BIOS offset in SPI Flash (default: 0x21000)")
     parser.add_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency (default: 50MHz)")
     parser.add_argument("--with-led-chaser", action="store_true", help="Enable LED Chaser.")
