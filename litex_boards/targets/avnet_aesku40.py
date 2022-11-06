@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
