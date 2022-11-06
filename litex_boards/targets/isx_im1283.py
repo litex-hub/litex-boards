@@ -82,7 +82,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on iM1283")
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=isx_im1283.Platform, description="LiteX SoC on iM1283")
     parser.add_argument("--sys-clk-freq",    default=80e6,                     help="System clock frequency")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true",              help="Enable SPI-mode SDCard support")

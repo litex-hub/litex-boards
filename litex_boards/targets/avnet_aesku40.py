@@ -104,8 +104,9 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on AESKU40")
-    parser.add_argument("--sys-clk-freq",  default=125e6,       help="System clock frequency (default: 125MHz)")
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=avnet_aesku40.Platform, description="LiteX SoC on AESKU40")
+    parser.add_argument("--sys-clk-freq", default=125e6, help="System clock frequency (default: 125MHz)")
     args = parser.parse_args()
 
     soc = BaseSoC(

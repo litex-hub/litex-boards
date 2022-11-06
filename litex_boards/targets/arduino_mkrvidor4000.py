@@ -72,8 +72,9 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on MKR Vidor 4000")
-    parser.add_argument("--sys-clk-freq",  default=48e6,        help="System clock frequency.")
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=arduino_mkrvidor4000.Platform, description="LiteX SoC on MKR Vidor 4000")
+    parser.add_argument("--sys-clk-freq",  default=48e6, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(
