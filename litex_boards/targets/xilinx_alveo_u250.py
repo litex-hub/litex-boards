@@ -102,7 +102,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_alveo_u250.Platform, description="LiteX SoC on Alveo U250")
     parser.add_target_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
     parser.add_target_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
