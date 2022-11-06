@@ -167,6 +167,7 @@ class Platform(Xilinx7SeriesPlatform):
 
     def __init__(self, toolchain="vivado"):
         Xilinx7SeriesPlatform.__init__(self, "xczu2cg-sfvc784-1-e", _io, _connectors, toolchain=toolchain)
+        self.psu_config = psu_config
 
     def create_programmer(self, cable):
         return OpenFPGALoader("axu2cga", cable)
