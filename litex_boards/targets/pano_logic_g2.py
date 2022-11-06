@@ -79,7 +79,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=pano_logic_g2.Platform, description="LiteX SoC on Pano Logic G2")
     parser.add_target_argument("--revision",        default="c",                      help="Board revision (b or c).")
     parser.add_target_argument("--sys-clk-freq",    default=50e6,                     help="System clock frequency.")

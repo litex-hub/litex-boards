@@ -175,7 +175,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=colorlight_i5.Platform, description="LiteX SoC on Colorlight I5")
     parser.add_target_argument("--board",            default="i5",             help="Board type (i5).")
     parser.add_target_argument("--revision",         default="7.0", type=str,  help="Board revision (7.0).")

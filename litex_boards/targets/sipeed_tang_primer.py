@@ -59,7 +59,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_primer.Platform, description="LiteX SoC on Tang Primer")
     parser.add_target_argument("--flash",       action="store_true", help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq",default=24e6,        help="System clock frequency.")

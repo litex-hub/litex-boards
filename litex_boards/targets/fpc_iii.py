@@ -123,7 +123,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=fpc_iii.Platform, description="LiteX SoC on FPC-III")
     parser.add_target_argument("--sys-clk-freq",    default=80e6,        help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()

@@ -140,7 +140,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_xc7a35t.Platform, description="LiteX SoC on QMTech XC7A35T")
     parser.add_target_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
     parser.add_target_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")

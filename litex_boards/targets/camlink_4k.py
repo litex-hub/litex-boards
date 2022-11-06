@@ -101,7 +101,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=camlink_4k.Platform, description="LiteX SoC on Cam Link 4K")
     parser.add_target_argument("--sys-clk-freq", default=81e6,        help="System clock frequency.")
     args = parser.parse_args()

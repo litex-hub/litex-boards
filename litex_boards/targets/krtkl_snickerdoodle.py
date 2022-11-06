@@ -105,7 +105,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=krtkl_snickerdoodle.Platform, description="LiteX SoC on Snickerdoodle")
     parser.add_target_argument("--variant",      default="z7-10",     help="Board variant (z7-10 or z7-20).")
     parser.add_target_argument("--ext-clk-freq", default=10e6,  type=float, help="External Clock Frequency.")

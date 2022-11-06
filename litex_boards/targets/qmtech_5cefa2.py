@@ -131,7 +131,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_5cefa2.Platform, description="LiteX SoC on QMTECH 5CEFA2")
     parser.add_target_argument("--sys-clk-freq", default=105e6,       help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")

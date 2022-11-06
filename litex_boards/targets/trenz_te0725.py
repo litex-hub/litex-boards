@@ -59,7 +59,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=trenz_te0725.Platform, description="LiteX SoC on Trenz TE0725")
     parser.add_target_argument("--flash",           action="store_true", help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")

@@ -132,7 +132,7 @@ def flash(build_dir, build_name, bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=icebreaker.Platform, description="LiteX SoC on iCEBreaker")
     parser.add_target_argument("--flash",               action="store_true", help="Flash Bitstream and BIOS.")
     parser.add_target_argument("--sys-clk-freq",        default=24e6,        help="System clock frequency.")

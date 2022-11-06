@@ -87,7 +87,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alchitry_au.Platform, description="LiteX SoC on Alchitry Au(+)")
     parser.add_target_argument("--flash",           action="store_true", help="Flash bitstream.")
     parser.add_target_argument("--variant",         default="au",        help="Board variant (au or au+).")

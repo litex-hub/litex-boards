@@ -155,7 +155,7 @@ class BaseSoC(SoCCore):
 
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_arty_z7.Platform, description="LiteX SoC on Arty Z7")
     parser.add_target_argument("--variant",      default="z7-20",     help="Board variant (z7-20 or z7-10).")
     parser.add_target_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")

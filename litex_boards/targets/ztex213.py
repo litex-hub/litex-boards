@@ -91,7 +91,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=ztex213.Platform, description="LiteX SoC on Ztex 2.13")
     parser.add_target_argument("--expansion",       default="debug",     help="Expansion board (debug or sbus).")
     parser.add_target_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")

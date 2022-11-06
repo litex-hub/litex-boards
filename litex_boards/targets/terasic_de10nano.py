@@ -97,7 +97,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=terasic_de10nano.Platform, description="LiteX SoC on DE10-Nano")
     parser.add_target_argument("--sys-clk-freq",               default=50e6,        help="System clock frequency.")
     parser.add_target_argument("--with-mister-sdram",          action="store_true", help="Enable SDRAM with MiSTer expansion board.")

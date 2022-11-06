@@ -138,7 +138,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=hpcstore_xc7k420t.Platform, description="LiteX SoC on AliExpress HPC Store XC7K420T")
     parser.add_target_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
     parser.add_target_argument("--io-voltage",      default="3.3V",       help="IO voltage chosen by Jumper J3. Can be: '3.3V' or '2.5V'")

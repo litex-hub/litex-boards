@@ -57,7 +57,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sitlinv_a_e115fb.Platform, description="LiteX SoC on A-E115FB")
     parser.add_target_argument("--sys-clk-freq", default=50e6,        help="System clock frequency.")
     args = parser.parse_args()

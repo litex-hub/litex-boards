@@ -62,7 +62,7 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------  
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=aliexpress_xc7k420t.Platform, description="LiteX SoC on AliExpress u420t")
     parser.add_target_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI-mode flash support.")

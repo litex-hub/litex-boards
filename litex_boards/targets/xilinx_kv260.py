@@ -206,7 +206,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_kv260.Platform, description="LiteX SoC on KV260")
     parser.add_target_argument("--sys-clk-freq", default=100e6,       help="System clock frequency.")
     parser.set_defaults(cpu_type="zynqmp")

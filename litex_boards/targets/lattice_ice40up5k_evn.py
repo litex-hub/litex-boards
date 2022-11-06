@@ -129,7 +129,7 @@ def flash(bios_flash_offset, target="lattice_ice40up5k_evn"):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lattice_ice40up5k_evn.Platform, description="LiteX SoC on Lattice iCE40UP5k EVN breakout board")
     parser.add_target_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")

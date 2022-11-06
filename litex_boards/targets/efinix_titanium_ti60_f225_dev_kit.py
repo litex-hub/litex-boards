@@ -118,7 +118,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_titanium_ti60_f225_dev_kit.Platform, description="LiteX SoC on Efinix Titanium Ti60 F225 Dev Kit")
     parser.add_target_argument("--flash",          action="store_true", help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=200e6,       help="System clock frequency.")

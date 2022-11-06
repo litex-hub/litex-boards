@@ -89,7 +89,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=quicklogic_quickfeather.Platform, description="LiteX SoC on QuickLogic QuickFeather")
     parser.set_defaults(cpu_type="eos_s3")
     args = parser.parse_args()

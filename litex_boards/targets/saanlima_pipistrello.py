@@ -189,7 +189,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=saanlima_pipistrello.Platform, description="LiteX SoC on Pipistrello")
     args = parser.parse_args()
 

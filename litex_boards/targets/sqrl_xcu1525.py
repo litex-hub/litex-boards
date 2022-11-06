@@ -133,7 +133,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sqrl_xcu1525.Platform, description="LiteX SoC on XCU1525")
     parser.add_target_argument("--sys-clk-freq",  default=125e6,       help="System clock frequency.")
     parser.add_target_argument("--ddram-channel", default="0",         help="DDRAM channel (0, 1, 2 or 3).")

@@ -186,7 +186,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lattice_ecp5_vip.Platform, description="LiteX SoC on ECP5 Evaluation Board")
     parser.add_target_argument("--sys-clk-freq", default=60e6,        help="System clock frequency (default: 60MHz)")
     args = parser.parse_args()

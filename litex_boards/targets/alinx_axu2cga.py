@@ -172,7 +172,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alinx_axu2cga.Platform, description="LiteX SoC on Alinx AXU2CGA")
     parser.add_target_argument("--cable",        default="ft232",     help="JTAG interface.")
     parser.add_target_argument("--sys-clk-freq", default=25e6,        help="System clock frequency.")

@@ -76,7 +76,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=adi_plutosdr.Platform, description="LiteX SoC on Pluto SDR")
     parser.add_target_argument("--sys-clk-freq", default=100e6,       help="System clock frequency.")
 

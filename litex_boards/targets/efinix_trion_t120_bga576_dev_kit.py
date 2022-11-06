@@ -337,7 +337,7 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_trion_t120_bga576_dev_kit.Platform, description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit")
     parser.add_target_argument("--flash",          action="store_true", help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=75e6,        help="System clock frequency.")

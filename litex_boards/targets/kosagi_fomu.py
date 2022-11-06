@@ -157,7 +157,7 @@ def flash(build_dir, build_name, bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=kosagi_fomu_pvt.Platform, description="LiteX SoC on Fomu")
     parser.add_target_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")

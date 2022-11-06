@@ -101,7 +101,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=trenz_c10lprefkit.Platform, description="LiteX SoC on C10 LP RefKit")
     parser.add_target_argument("--sys-clk-freq",   default=50e6,        help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")

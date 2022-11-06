@@ -172,7 +172,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sqrl_acorn.Platform, description="LiteX SoC on Acorn CLE-101/215(+)")
     parser.add_target_argument("--flash",           action="store_true", help="Flash bitstream.")
     parser.add_target_argument("--variant",         default="cle-215+",  help="Board variant (cle-215+, cle-215 or cle-101).")

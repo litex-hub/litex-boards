@@ -87,7 +87,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=numato_mimas_a7.Platform, description="LiteX SoC on Mimas A7")
     parser.add_target_argument("--sys-clk-freq",  default=100e6,       help="System clock frequency.")
     parser.add_target_argument("--with-ethernet", action="store_true", help="Enable Ethernet support.")

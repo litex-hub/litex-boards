@@ -44,7 +44,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(description="Generic LiteX SoC")
     parser.add_target_argument("platform", help="Module name of the platform to build for.")
     args = parser.parse_args()

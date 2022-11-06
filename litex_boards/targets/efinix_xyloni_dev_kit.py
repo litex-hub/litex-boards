@@ -81,7 +81,7 @@ class BaseSoC(SoCCore):
 
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_xyloni_dev_kit.Platform, description="LiteX SoC on Efinix Xyloni Dev Kit")
     parser.add_target_argument("--flash", action="store_true",           help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq",      default=33.333e6,  help="System clock frequency.")

@@ -119,7 +119,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lattice_versa_ecp5.Platform, description="LiteX SoC on Versa ECP5")
     parser.add_target_argument("--sys-clk-freq",    default=75e6,                     help="System clock frequency.")
     parser.add_target_argument("--device",          default="LFE5UM5G",               help="FPGA device (LFE5UM5G or LFE5UM).")

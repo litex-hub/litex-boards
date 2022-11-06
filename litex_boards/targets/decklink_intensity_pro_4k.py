@@ -61,7 +61,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=decklink_intensity_pro_4k.Platform, description="LiteX SoC Blackmagic Decklink Intensity Pro 4K")
     parser.add_target_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
     parser.add_target_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")

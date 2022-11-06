@@ -220,7 +220,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lambdaconcept_ecpix5.Platform, description="LiteX SoC on ECPIX-5")
     parser.add_target_argument("--flash",           action="store_true", help="Flash bitstream to SPI Flash.")
     parser.add_target_argument("--device",          default="85F",       help="ECP5 device (45F or 85F).")

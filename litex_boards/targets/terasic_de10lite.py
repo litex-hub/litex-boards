@@ -86,7 +86,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=terasic_de10lite.Platform, description="LiteX SoC on DE10-Lite")
     parser.add_target_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")

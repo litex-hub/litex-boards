@@ -195,7 +195,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=gsd_orangecrab.Platform, description="LiteX SoC on OrangeCrab")
     parser.add_target_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
     parser.add_target_argument("--revision",        default="0.2",        help="Board Revision (0.1 or 0.2).")

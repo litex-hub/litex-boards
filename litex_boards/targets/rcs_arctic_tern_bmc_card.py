@@ -154,7 +154,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=rcs_arctic_tern_bmc_card.Platform, description="LiteX SoC on Arctic Tern (BMC card carrier)")
     parser.add_target_argument("--sys-clk-freq", default=60e6,        help="System clock frequency (default: 60MHz)")
     ethopts = parser.target_group.add_mutually_exclusive_group()

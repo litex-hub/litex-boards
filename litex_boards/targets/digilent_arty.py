@@ -154,7 +154,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_arty.Platform, description="LiteX SoC on Arty A7")
     parser.add_target_argument("--flash",               action="store_true",              help="Flash bitstream.")
     parser.add_target_argument("--variant",             default="a7-35",                  help="Board variant (a7-35 or a7-100).")

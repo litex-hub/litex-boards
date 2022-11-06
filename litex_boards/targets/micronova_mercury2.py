@@ -131,7 +131,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=micronova_mercury2.Platform, description="LiteX SoC on MicroNova Mercury2")
     parser.add_target_argument("--variant",      default="a7-35",     help="Board variant (a7-35 or a7-100).")
     parser.add_target_argument("--sys-clk-freq", default=50e6,        help="System clock frequency.")

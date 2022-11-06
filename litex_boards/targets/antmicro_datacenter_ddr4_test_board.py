@@ -178,7 +178,7 @@ class LiteDRAMSettingsEncoder(json.JSONEncoder):
         return super().default(o)
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=antmicro_datacenter_ddr4_test_board.Platform, description="LiteX SoC on DDR4 Datacenter Test Board")
     parser.add_target_argument("--flash",                  action="store_true",    help="Flash bitstream")
     parser.add_target_argument("--sys-clk-freq",           default=100e6,           help="System clock frequency")

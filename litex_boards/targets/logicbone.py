@@ -142,7 +142,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=logicbone.Platform, description="LiteX SoC on Logicbone")
     parser.add_target_argument("--sys-clk-freq",   default=75e6,          help="System clock frequency.")
     parser.add_target_argument("--device",         default="45F",         help="FPGA device (45F or 85F).")

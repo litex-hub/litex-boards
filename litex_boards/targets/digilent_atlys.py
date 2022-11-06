@@ -205,7 +205,7 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_atlys.Platform, description="LiteX SoC on Atlys")
     parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")

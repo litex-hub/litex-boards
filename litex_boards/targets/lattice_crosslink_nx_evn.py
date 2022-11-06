@@ -91,7 +91,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lattice_crosslink_nx_evn.Platform, description="LiteX SoC on Crosslink-NX Eval Board")
     parser.add_target_argument("--device",        default="LIFCL-40-9BG400C", help="FPGA device (LIFCL-40-9BG400C, LIFCL-40-8BG400CES, or LIFCL-40-8BG400CES2).")
     parser.add_target_argument("--sys-clk-freq",  default=75e6,               help="System clock frequency.")

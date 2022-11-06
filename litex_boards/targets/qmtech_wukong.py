@@ -127,7 +127,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_wukong.Platform, description="LiteX SoC on QMTECH Wukong Board")
     parser.add_target_argument("--sys-clk-freq",    default=100e6,                    help="System clock frequency.")
     parser.add_target_argument("--board-version",   default=1,                        help="Board version (1 or 2).")

@@ -121,7 +121,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=adi_adrv2crr_fmc.Platform, description="LiteX SoC on ADI ADRV2CRR-FMC")
     parser.add_target_argument("--sys-clk-freq",    default=150e6,       help="System clock frequency (default: 150 MHz)")
     parser.add_target_argument("--with-pcie",       action="store_true", help="Enable PCIe support")

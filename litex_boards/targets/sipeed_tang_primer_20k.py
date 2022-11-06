@@ -210,7 +210,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_primer_20k.Platform, description="LiteX SoC on Tang Primer 20K")
     parser.add_target_argument("--dock",         default="standard",    help="Dock version (standard (default) or lite.")
     parser.add_target_argument("--flash",        action="store_true",   help="Flash Bitstream.")

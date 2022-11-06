@@ -193,7 +193,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=mnt_rkx7.Platform, description="LiteX SoC on MNT-RKX7")
     parser.add_target_argument("--sys-clk-freq",    default=100e6,                      help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash",  action="store_true", default=True,  help="Enable SPI Flash (MMAPed).")

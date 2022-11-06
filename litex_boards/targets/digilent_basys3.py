@@ -62,7 +62,7 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------  
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_basys3.Platform, description="LiteX SoC on Basys3")
     parser.add_target_argument("--sys-clk-freq",        default=75e6,        help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()

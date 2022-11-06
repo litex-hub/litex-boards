@@ -74,7 +74,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=hackaday_hadbadge.Platform, description="LiteX SoC on Hackaday Badge")
     parser.add_target_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
     args = parser.parse_args()

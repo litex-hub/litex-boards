@@ -161,7 +161,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=siglent_sds1104xe.Platform, description="LiteX SoC on SDS1104X-E")
     parser.add_target_argument("--sys-clk-freq",   default=100e6,                    help="System clock frequency.")
     parser.add_target_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")

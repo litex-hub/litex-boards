@@ -94,7 +94,7 @@ class BaseSoC(SoCCore):
 
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=redpitaya.Platform, description="LiteX SoC on Zedboard")
     parser.add_target_argument("--sys-clk-freq", default=100e6,         help="System clock frequency.")
     parser.add_target_argument("--board",        default="redpitaya14", help="Board type (redpitaya14 or redpitaya16).")

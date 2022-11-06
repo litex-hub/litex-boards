@@ -148,7 +148,7 @@ class BaseSoC(SoCMini):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=decklink_mini_4k.Platform, description="LiteX SoC Blackmagic Decklink Mini 4K")
     parser.add_target_argument("--sys-clk-freq",           default=148.5e6,     help="System clock frequency.")
     pcieopts = parser.target_group.add_mutually_exclusive_group()

@@ -108,7 +108,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qwertyembedded_beaglewire.Platform, description="LiteX SoC on Beaglewire")
     parser.add_target_argument("--bios-flash-offset", default="0x60000",   help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency.")

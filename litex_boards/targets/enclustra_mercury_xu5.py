@@ -83,7 +83,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.argument_parser import LiteXArgumentParser
+    from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=enclustra_mercury_xu5.Platform, description="LiteX SoC on Mercury XU5")
     parser.add_target_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
     args = parser.parse_args()
