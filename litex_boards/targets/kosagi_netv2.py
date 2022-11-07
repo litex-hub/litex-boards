@@ -124,7 +124,7 @@ def main():
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         with_ethernet = args.with_ethernet,
         with_pcie     = args.with_pcie,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

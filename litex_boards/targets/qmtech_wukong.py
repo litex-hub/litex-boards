@@ -157,7 +157,7 @@ def main():
         eth_ip         = args.eth_ip,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.with_spi_sdcard:
         soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)

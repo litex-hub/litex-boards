@@ -145,7 +145,7 @@ def main():
         sys_clk_freq        = int(float(args.sys_clk_freq)),
         bios_flash_offset   = int(args.bios_flash_offset, 0),
         with_video_terminal = args.with_video_terminal,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
 
     if args.with_spi_sdcard:

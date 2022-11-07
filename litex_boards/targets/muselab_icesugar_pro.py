@@ -174,7 +174,7 @@ def main():
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

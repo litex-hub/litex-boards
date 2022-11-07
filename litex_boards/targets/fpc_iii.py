@@ -139,7 +139,7 @@ def main():
         toolchain      = args.toolchain,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
-        **parser.soc_core_argdict)
+        **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

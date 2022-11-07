@@ -54,7 +54,7 @@ def main():
     if args.toolchain is not None:
         platform_kwargs["toolchain"] = args.toolchain
     platform = platform_module.Platform(**platform_kwargs)
-    soc = BaseSoC(platform,**parser.soc_core_argdict)
+    soc = BaseSoC(platform,**parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

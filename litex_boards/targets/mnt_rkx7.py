@@ -212,7 +212,7 @@ def main():
         with_etherbone = args.with_etherbone,
         with_spi_flash = args.with_spi_flash,
         with_usb_host  = args.with_usb_host,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

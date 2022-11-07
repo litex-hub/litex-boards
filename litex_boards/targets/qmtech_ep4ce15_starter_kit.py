@@ -117,7 +117,7 @@ def main():
         sdram_rate             = args.sdram_rate,
         with_jtagbone          = args.with_jtagbone,
         with_jtaguart          = args.with_jtaguart,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
 
     builder = Builder(soc, **parser.builder_argdict)

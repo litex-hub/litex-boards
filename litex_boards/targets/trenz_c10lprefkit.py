@@ -112,7 +112,7 @@ def main():
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

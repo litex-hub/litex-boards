@@ -210,7 +210,7 @@ def main():
         device       = args.device,
         sdram_device = args.sdram_device,
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        **parser.soc_core_argdict)
+        **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     builder = Builder(soc, **parser.builder_argdict)

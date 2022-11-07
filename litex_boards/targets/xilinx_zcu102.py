@@ -46,7 +46,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq", default=125e6,       help="System clock generator.")
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), **parser.soc_core_argdict)
+    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

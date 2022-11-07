@@ -148,7 +148,7 @@ def main():
         sys_clk_freq = int(float(args.sys_clk_freq)),
         with_pcie    = args.with_pcie,
         with_hbm     = args.with_hbm,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

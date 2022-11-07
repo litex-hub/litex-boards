@@ -154,7 +154,7 @@ def main():
         eth_phy        = args.eth_phy,
         with_spi_flash = args.with_spi_flash,
         with_pcie      = args.with_pcie,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

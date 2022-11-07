@@ -186,7 +186,7 @@ def main():
         with_jtagbone  = args.with_jtagbone,
         with_spi_flash = args.with_spi_flash,
         with_pmod_gpio = args.with_pmod_gpio,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.sdcard_adapter == "numato":
         soc.platform.add_extension(digilent_arty._numato_sdcard_pmod_io)

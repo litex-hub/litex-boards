@@ -99,7 +99,7 @@ def main():
     parser.add_target_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), expansion=args.expansion, **parser.soc_core_argdict)
+    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), expansion=args.expansion, **parser.soc_argdict)
     assert not (args.with_spi_sdcard and args.with_sdcard)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard() # SBus only

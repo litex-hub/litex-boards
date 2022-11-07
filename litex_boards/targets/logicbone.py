@@ -157,7 +157,7 @@ def main():
         sys_clk_freq  = int(float(args.sys_clk_freq)),
         sdram_device  = args.sdram_device,
         with_ethernet = args.with_ethernet,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.with_sdcard:
         soc.add_sdcard()

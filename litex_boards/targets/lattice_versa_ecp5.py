@@ -138,7 +138,7 @@ def main():
         eth_ip         = args.eth_ip,
         eth_phy        = args.eth_phy,
         toolchain      = args.toolchain,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

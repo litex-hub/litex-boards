@@ -163,7 +163,7 @@ def main():
     soc = BaseSoC(
         bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = int(float(args.sys_clk_freq)),
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     soc.platform.add_extension(trenz_tec0117._sdcard_pmod_io)
     if args.with_spi_sdcard:

@@ -147,7 +147,7 @@ def main():
         ddram_channel = int(args.ddram_channel, 0),
         with_pcie     = args.with_pcie,
         with_sata     = args.with_sata,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
 	)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

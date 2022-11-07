@@ -141,7 +141,7 @@ def main():
         with_sdcard       = args.with_sdcard,
         with_jtagbone     = args.with_jtagbone,
         with_uartbone     = args.with_uartbone,
-        **parser.soc_core_argdict)
+        **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

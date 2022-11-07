@@ -142,7 +142,7 @@ def main():
         eth_dynamic_ip         = args.eth_dynamic_ip,
         with_sdram             = args.with_sdram,
         eth_reset_time         = args.eth_reset_time,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
 
     if args.with_emmc:

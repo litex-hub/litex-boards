@@ -193,7 +193,7 @@ def main():
     parser = LiteXArgumentParser(platform=saanlima_pipistrello.Platform, description="LiteX SoC on Pipistrello")
     args = parser.parse_args()
 
-    soc = BaseSoC(**parser.soc_core_argdict)
+    soc = BaseSoC(**parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

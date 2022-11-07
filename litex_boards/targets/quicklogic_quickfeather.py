@@ -94,7 +94,7 @@ def main():
     parser.set_defaults(cpu_type="eos_s3")
     args = parser.parse_args()
 
-    soc = BaseSoC(**parser.soc_core_argdict)
+    soc = BaseSoC(**parser.soc_argdict)
     builder = Builder(soc)
     if args.cpu_type == "eos_s3":
         libeos_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "libeos")

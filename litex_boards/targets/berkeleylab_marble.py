@@ -161,7 +161,7 @@ def main():
         with_etherbone = args.with_etherbone,
         with_bist = args.with_bist,
         spd_dump = args.spd_dump,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

@@ -119,7 +119,7 @@ def main():
         sys_clk_freq = args.sys_clk_freq,
         ext_clk_freq = args.ext_clk_freq,
         xci_file     = args.xci_file,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

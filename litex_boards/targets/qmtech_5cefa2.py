@@ -161,7 +161,7 @@ def main():
         with_video_framebuffer = args.with_video_framebuffer,
         with_spi_flash         = args.with_spi_flash,
         sdram_rate             = args.sdram_rate,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
 
     if args.with_spi_sdcard:

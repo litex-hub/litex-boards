@@ -119,7 +119,7 @@ def main():
         with_daughterboard     = args.with_daughterboard,
         with_spi_flash         = args.with_spi_flash,
         sdram_rate             = args.sdram_rate,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
 
     if args.with_spi_sdcard:

@@ -76,7 +76,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq           = int(float(args.sys_clk_freq)),
         with_video_terminal    = args.with_video_terminal,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     soc.platform.add_extension(digilent_basys3._sdcard_pmod_io)
     if args.with_spi_sdcard:

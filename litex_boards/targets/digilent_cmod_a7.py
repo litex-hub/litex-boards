@@ -150,7 +150,7 @@ def main():
         toolchain         = args.toolchain,
         sys_clk_freq      = int(float(args.sys_clk_freq)),
         with_spi_flash    = args.with_spi_flash,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
 
     builder_argd = parser.builder_argdict

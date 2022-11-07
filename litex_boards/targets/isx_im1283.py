@@ -91,7 +91,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq   = int(float(args.sys_clk_freq)),
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

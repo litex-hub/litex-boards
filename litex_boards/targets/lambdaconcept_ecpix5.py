@@ -243,7 +243,7 @@ def main():
         with_etherbone         = args.with_etherbone,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.with_sdcard:
         soc.add_sdcard()

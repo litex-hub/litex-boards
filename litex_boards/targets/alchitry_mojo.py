@@ -166,7 +166,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_video_colorbars   = args.with_video_colorbars,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
 
     builder = Builder(soc, **parser.builder_argdict)

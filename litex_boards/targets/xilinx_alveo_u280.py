@@ -176,7 +176,7 @@ def main():
         with_led_chaser = args.with_led_chaser,
         with_hbm        = args.with_hbm,
         with_analyzer   = args.with_analyzer,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
 	)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

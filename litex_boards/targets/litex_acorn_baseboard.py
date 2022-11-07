@@ -146,7 +146,7 @@ def main():
         with_video_terminal = args.with_video_terminal,
         with_lcd            = args.with_lcd,
         with_ws2812         = args.with_ws2812,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

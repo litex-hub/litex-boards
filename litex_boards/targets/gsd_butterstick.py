@@ -184,7 +184,7 @@ def main():
         eth_dynamic_ip   = args.eth_dynamic_ip,
         with_spi_flash   = args.with_spi_flash,
         with_syzygy_gpio = args.with_syzygy_gpio,
-        **parser.soc_core_argdict)
+        **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

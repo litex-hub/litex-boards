@@ -138,7 +138,7 @@ def main():
         with_uartbone            = args.with_uartbone,
         with_jtagbone            = args.with_jtagbone,
         with_video_terminal      = args.with_video_terminal,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

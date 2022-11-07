@@ -164,7 +164,7 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         with_pcie      = args.with_pcie,
         with_sata      = args.with_sata,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

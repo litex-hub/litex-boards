@@ -125,7 +125,7 @@ def main():
         sdram_rate          = "1:1" if args.single_rate_sdram else "1:2",
         mister_sdram        = "xs_v22" if args.mister_sdram_xs_v22 else "xs_v24" if args.mister_sdram_xs_v24 else None,
         with_video_terminal = args.with_video_terminal,
-        **parser.soc_core_argdict
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
