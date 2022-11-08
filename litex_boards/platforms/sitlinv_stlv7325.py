@@ -144,14 +144,14 @@ _io = [
 
     # GMII Ethernet
     ("eth_clocks", 0,
-        Subsignal("tx",  Pins("E12"), IOStandard("LVCMOS15")),
-        Subsignal("gtx", Pins("F13"), IOStandard("LVCMOS15")),
-        Subsignal("rx",  Pins("C12"), IOStandard("LVCMOS15"))
+        Subsignal("tx",  Pins("E12"), IOStandard("LVCMOS25")),
+        Subsignal("gtx", Pins("F13"), IOStandard("LVCMOS25")),
+        Subsignal("rx",  Pins("C12"), IOStandard("LVCMOS25"))
     ),
     ("eth_clocks", 1,
-        Subsignal("tx",  Pins("C9"),  IOStandard("LVCMOS15")),
-        Subsignal("gtx", Pins("D8"),  IOStandard("LVCMOS15")),
-        Subsignal("rx",  Pins("E10"), IOStandard("LVCMOS15"))
+        Subsignal("tx",  Pins("C9"),  IOStandard("LVCMOS25")),
+        Subsignal("gtx", Pins("D8"),  IOStandard("LVCMOS25")),
+        Subsignal("rx",  Pins("E10"), IOStandard("LVCMOS25"))
     ),
     ("eth", 0,
         Subsignal("rst_n",   Pins("D11")),
@@ -164,7 +164,7 @@ _io = [
         Subsignal("tx_en",   Pins("F12")),
         Subsignal("tx_er",   Pins("E13")),
         Subsignal("tx_data", Pins("G12 E11 G11 C14 D14 C13 C11 D13")),
-        IOStandard("LVCMOS15")
+        IOStandard("LVCMOS25")
     ),
     ("eth", 1,
         Subsignal("rst_n",   Pins("J8")),
@@ -177,7 +177,7 @@ _io = [
         Subsignal("tx_en",   Pins("F8")),
         Subsignal("tx_er",   Pins("D9")),
         Subsignal("tx_data", Pins("H11 J11 H9 J10 H12 F10 G10 F9")),
-        IOStandard("LVCMOS15")
+        IOStandard("LVCMOS25")
     ),
 
     # HDMI out
