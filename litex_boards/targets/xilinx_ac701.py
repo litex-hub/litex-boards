@@ -57,7 +57,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, eth_phy="rgmii",
+    def __init__(self, sys_clk_freq=100e6, with_ethernet=False, eth_phy="rgmii",
                  with_spi_flash=False, with_led_chaser=True, with_pcie=False, **kwargs):
         platform = xilinx_ac701.Platform()
 

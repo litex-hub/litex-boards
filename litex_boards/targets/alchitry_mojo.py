@@ -92,7 +92,7 @@ class CRG(LiteXModule):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(62.5e6), sdram_rate="1:1", with_hdmi_shield=False,
+    def __init__(self, sys_clk_freq=62.5e6, sdram_rate="1:1", with_hdmi_shield=False,
                  with_sdram_shield=False, with_led_chaser=True, with_video_terminal=False,
                  with_video_framebuffer=False, with_video_colorbars=False, **kwargs):
         platform = alchitry_mojo.Platform()

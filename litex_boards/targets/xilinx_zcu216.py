@@ -48,7 +48,7 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     mem_map = {"csr": 0xA000_0000}  # default GP0 address on ZynqMP
 
-    def __init__(self, sys_clk_freq, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
         platform = xilinx_zcu216.Platform()
 
         # CRG --------------------------------------------------------------------------------------

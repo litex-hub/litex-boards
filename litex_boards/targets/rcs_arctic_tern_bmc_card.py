@@ -93,7 +93,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), toolchain="trellis",
+    def __init__(self, sys_clk_freq=50e6, toolchain="trellis",
         with_video_colorbars   = False,
         with_video_terminal    = True,
         with_video_framebuffer = False,

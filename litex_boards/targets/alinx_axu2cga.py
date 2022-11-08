@@ -66,7 +66,7 @@ class _CRG(LiteXModule):
 
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(25e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=25e6, with_led_chaser=True, **kwargs):
         platform = alinx_axu2cga.Platform()
 
         # CRG --------------------------------------------------------------------------------------

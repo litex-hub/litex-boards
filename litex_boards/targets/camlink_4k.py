@@ -69,9 +69,9 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="trellis", with_led_chaser=True, **kwargs):
-        platform     = camlink_4k.Platform(toolchain=toolchain)
-        sys_clk_freq = int(81e6)
+    def __init__(self, sys_clk_freq=81e6, toolchain="trellis", with_led_chaser=True, **kwargs):
+        platform = camlink_4k.Platform(toolchain=toolchain)
+
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)

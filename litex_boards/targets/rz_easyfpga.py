@@ -57,7 +57,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, sdram_rate="1:1", **kwargs):
+    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, sdram_rate="1:1", **kwargs):
         platform = rz_easyfpga.Platform()
 
         # CRG --------------------------------------------------------------------------------------

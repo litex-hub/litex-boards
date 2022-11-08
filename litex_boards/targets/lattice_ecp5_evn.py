@@ -44,7 +44,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), x5_clk_freq=None, toolchain="trellis",
+    def __init__(self, sys_clk_freq=50e6, x5_clk_freq=None, toolchain="trellis",
                  with_led_chaser=True, **kwargs):
         platform = lattice_ecp5_evn.Platform(toolchain=toolchain)
 

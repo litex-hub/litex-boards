@@ -58,7 +58,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, with_pcie=False, with_hbm=False, **kwargs):
+    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, with_pcie=False, with_hbm=False, **kwargs):
         platform = sqrl_fk33.Platform()
         if with_hbm:
             assert 225e6 <= sys_clk_freq <= 450e6

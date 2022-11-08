@@ -75,7 +75,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_ethernet=False,
+    def __init__(self, toolchain="vivado", sys_clk_freq=100e6, with_ethernet=False,
                  with_led_chaser=True, with_sata=False, sata_gen="gen2", with_sata_pll_refclk=False, vadj="1.2V", with_video_terminal=False,
                  with_video_framebuffer=False, **kwargs):
         platform = digilent_nexys_video.Platform(toolchain=toolchain)

@@ -109,7 +109,7 @@ class BaseSoC(SoCCore):
     def __init__(self, 
         variant         = "a7-35",
         toolchain       = "vivado",
-        sys_clk_freq    = int(100e6),
+        sys_clk_freq    = 100e6,
         with_led_chaser = True,
         **kwargs):
         platform = micronova_mercury2.Platform()

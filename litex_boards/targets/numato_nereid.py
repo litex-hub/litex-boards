@@ -53,7 +53,7 @@ class CRG(LiteXModule):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=100e6, with_pcie=False, **kwargs):
         platform = numato_nereid.Platform()
 
         # CRG --------------------------------------------------------------------------------------

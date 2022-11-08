@@ -58,7 +58,7 @@ serial = [
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-    def __init__(self, bios_flash_offset, sys_clk_freq, with_led_chaser=True, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=33.333e6, with_led_chaser=True, **kwargs):
         platform = jungle_electronics_fireant.Platform()
         platform.add_extension(serial)
 

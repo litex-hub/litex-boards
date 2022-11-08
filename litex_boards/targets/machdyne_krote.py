@@ -72,7 +72,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{"spiflash": 0x20000000}}
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
         platform = machdyne_krote.Platform()
 
         # Disable Integrated ROM since too large for iCE40.

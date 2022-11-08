@@ -60,7 +60,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="ztex2.13a", sys_clk_freq=int(100e6), expansion="debug",
+    def __init__(self, variant="ztex2.13a", sys_clk_freq=100e6, expansion="debug",
                  with_led_chaser=True, **kwargs):
         platform = ztex213.Platform(variant=variant, expansion=expansion)
 

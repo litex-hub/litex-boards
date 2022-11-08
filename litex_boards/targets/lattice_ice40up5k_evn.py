@@ -57,7 +57,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(12e6), with_led_chaser=True, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=12e6, with_led_chaser=True, **kwargs):
         platform = lattice_ice40up5k_evn.Platform()
 
         # CRG --------------------------------------------------------------------------------------

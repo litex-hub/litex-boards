@@ -35,7 +35,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
         platform = trenz_te0725.Platform()
 
         # CRG --------------------------------------------------------------------------------------

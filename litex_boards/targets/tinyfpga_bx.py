@@ -25,7 +25,7 @@ mB = 1024*kB
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(16e6), with_led_chaser=True, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=16e6, with_led_chaser=True, **kwargs):
         platform = tinyfpga_bx.Platform()
 
         # CRG --------------------------------------------------------------------------------------

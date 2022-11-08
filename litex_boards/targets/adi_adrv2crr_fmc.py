@@ -61,7 +61,7 @@ class CRG(LiteXModule):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_led_chaser=True,
+    def __init__(self, sys_clk_freq=150e6, ddram_channel=0, with_led_chaser=True,
                  with_pcie=False, **kwargs):
         platform = adi_adrv2crr_fmc.Platform()
 

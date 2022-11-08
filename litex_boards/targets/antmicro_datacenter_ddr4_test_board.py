@@ -74,7 +74,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, *, sys_clk_freq=int(100e6), iodelay_clk_freq=200e6,
+    def __init__(self, *, sys_clk_freq=100e6, iodelay_clk_freq=200e6,
             with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_reset_time="10e-3", eth_dynamic_ip=False,
             with_hyperram=False, with_sdcard=False, with_jtagbone=True, with_uartbone=False, with_spi_flash=False,
             with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False, **kwargs):

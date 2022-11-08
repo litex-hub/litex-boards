@@ -41,7 +41,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=125e6, with_pcie=False, **kwargs):
         platform = decklink_intensity_pro_4k.Platform()
 
         # CRG --------------------------------------------------------------------------------------

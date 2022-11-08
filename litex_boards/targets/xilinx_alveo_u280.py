@@ -87,7 +87,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(150e6), ddram_channel=0, with_pcie=False, with_led_chaser=False, with_hbm=False, **kwargs):
+    def __init__(self, sys_clk_freq=150e6, ddram_channel=0, with_pcie=False, with_led_chaser=False, with_hbm=False, **kwargs):
         platform = xilinx_alveo_u280.Platform()
         if with_hbm:
             assert 225e6 <= sys_clk_freq <= 450e6

@@ -61,7 +61,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="a7-35", sys_clk_freq=int(100e6), with_pcie=False,
+    def __init__(self, variant="a7-35", sys_clk_freq=100e6, with_pcie=False,
                  with_ethernet=False, with_led_chaser=True, **kwargs):
         platform = kosagi_netv2.Platform(variant=variant)
 

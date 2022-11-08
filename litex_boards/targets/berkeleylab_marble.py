@@ -69,7 +69,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6),
+    def __init__(self, sys_clk_freq=125e6,
         with_ethernet   = False,
         with_etherbone  = False,
         with_rts_reset  = False,

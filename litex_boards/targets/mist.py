@@ -53,7 +53,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, with_video_terminal=False, **kwargs):
+    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, with_video_terminal=False, **kwargs):
         platform = mist.Platform()
 
         # CRG --------------------------------------------------------------------------------------

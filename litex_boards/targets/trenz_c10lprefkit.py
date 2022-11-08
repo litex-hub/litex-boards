@@ -58,7 +58,7 @@ class BaseSoC(SoCCore):
     }
     mem_map.update(SoCCore.mem_map)
 
-    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True,
+    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True,
         with_ethernet=False, with_etherbone=False,
         **kwargs):
         platform = trenz_c10lprefkit.Platform()

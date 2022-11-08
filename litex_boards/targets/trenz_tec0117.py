@@ -58,7 +58,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset=0x0000, sys_clk_freq=int(25e6), sdram_rate="1:1",
+    def __init__(self, bios_flash_offset=0x0000, sys_clk_freq=25e6, sdram_rate="1:1",
                  with_led_chaser=True, **kwargs):
         platform = trenz_tec0117.Platform()
 

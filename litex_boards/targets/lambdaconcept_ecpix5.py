@@ -75,7 +75,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, device="85F", sys_clk_freq=int(75e6), toolchain="trellis",
+    def __init__(self, device="85F", sys_clk_freq=75e6, toolchain="trellis",
         with_ethernet          = False,
         with_etherbone         = False,
         with_video_terminal    = False,

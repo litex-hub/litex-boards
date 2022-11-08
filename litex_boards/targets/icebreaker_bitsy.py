@@ -98,7 +98,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(24e6), revision="v1", **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=24e6, revision="v1", **kwargs):
         platform = icebreaker_bitsy.Platform(revision=revision)
 
         # CRG --------------------------------------------------------------------------------------

@@ -76,7 +76,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(80e6), toolchain="trellis", with_ethernet=False,
+    def __init__(self, sys_clk_freq=80e6, toolchain="trellis", with_ethernet=False,
                  with_etherbone=False, with_led_chaser=True, **kwargs):
         platform = fpc_iii.Platform(toolchain=toolchain)
 

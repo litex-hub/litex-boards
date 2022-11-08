@@ -49,7 +49,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_led_chaser=True, with_ethernet=False,
+    def __init__(self, sys_clk_freq=100e6, with_led_chaser=True, with_ethernet=False,
                  **kwargs):
         platform = numato_mimas_a7.Platform()
 

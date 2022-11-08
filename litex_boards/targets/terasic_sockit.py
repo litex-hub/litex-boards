@@ -65,7 +65,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), revision="revd", sdram_rate="1:2", mister_sdram=None,
+    def __init__(self, sys_clk_freq=50e6, revision="revd", sdram_rate="1:2", mister_sdram=None,
                  with_led_chaser=True, with_video_terminal=False, **kwargs):
         platform = terasic_sockit.Platform(revision)
 

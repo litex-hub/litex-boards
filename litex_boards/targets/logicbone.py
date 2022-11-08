@@ -91,7 +91,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, revision="rev0", device="45F", sdram_device="MT41K512M16",
-        sys_clk_freq    = int(75e6),
+        sys_clk_freq    = 75e6,
         with_ethernet   = False,
         with_led_chaser = True,
         toolchain       = "trellis",

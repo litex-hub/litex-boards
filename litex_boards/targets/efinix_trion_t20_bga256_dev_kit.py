@@ -42,7 +42,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_spi_flash=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=100e6, with_spi_flash=False, with_led_chaser=True, **kwargs):
         platform = efinix_trion_t20_bga256_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------

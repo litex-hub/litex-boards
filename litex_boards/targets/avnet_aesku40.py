@@ -58,7 +58,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_ethernet=False, with_etherbone=False,
+    def __init__(self, sys_clk_freq=125e6, with_ethernet=False, with_etherbone=False,
                  eth_ip="192.168.1.50", with_led_chaser=True, with_pcie=False, with_sata=False,
                  **kwargs):
         platform = avnet_aesku40.Platform()

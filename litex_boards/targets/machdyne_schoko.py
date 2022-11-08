@@ -106,7 +106,7 @@ class BaseSoC(SoCCore):
         "usb_ohci":     0xc0000000,
     }}
     def __init__(self, revision="v1", device="45F", sdram_rate="1:2",
-                 sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, **kwargs):
+                 sys_clk_freq=40e6, toolchain="trellis", with_led_chaser=True, with_usb_host=False, **kwargs):
         platform = machdyne_schoko.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------

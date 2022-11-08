@@ -56,7 +56,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(50e6), with_led_chaser=True, with_uartbone=False, with_jtagbone=False, with_video_terminal=False,
+    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, with_uartbone=False, with_jtagbone=False, with_video_terminal=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50",
                  eth_dynamic_ip=False,
                  **kwargs):

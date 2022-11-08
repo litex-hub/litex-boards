@@ -64,7 +64,7 @@ class BaseSoC(SoCCore):
         "sram": 0x40000000,
         "csr":  0xf0000000,
     }
-    def __init__(self, sys_clk_freq=int(75e6), hyperram="none", toolchain="radiant",
+    def __init__(self, sys_clk_freq=75e6, hyperram="none", toolchain="radiant",
                  with_led_chaser=True, **kwargs):
         platform = lattice_crosslink_nx_vip.Platform(toolchain=toolchain)
         platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")

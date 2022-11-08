@@ -65,7 +65,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, sys_clk_freq=int(50e6), **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=50e6, **kwargs):
         platform = qwertyembedded_beaglewire.Platform()
 
         # Disable Integrated ROM since too large for iCE40.

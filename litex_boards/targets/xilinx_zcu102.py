@@ -23,7 +23,7 @@ from litex.soc.cores.led import LedChaser
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq, with_ethernet=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=125e6, with_ethernet=False, with_led_chaser=True, **kwargs):
         platform = xilinx_zcu102.Platform()
 
         # CRG --------------------------------------------------------------------------------------

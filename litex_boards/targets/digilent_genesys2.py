@@ -46,7 +46,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False,
+    def __init__(self, sys_clk_freq=100e6, with_ethernet=False, with_etherbone=False,
                  with_led_chaser=True, **kwargs):
         platform = digilent_genesys2.Platform()
 

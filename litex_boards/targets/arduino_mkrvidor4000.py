@@ -48,7 +48,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(48e6), **kwargs):
+    def __init__(self, sys_clk_freq=48e6, **kwargs):
         platform = arduino_mkrvidor4000.Platform()
 
         # CRG --------------------------------------------------------------------------------------

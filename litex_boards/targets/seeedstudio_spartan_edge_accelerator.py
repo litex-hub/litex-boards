@@ -62,7 +62,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     
-    def __init__(self, sys_clk_freq=int(100e6),
+    def __init__(self, sys_clk_freq=100e6,
         with_led_chaser     = True,
         with_jtagbone       = False,
         with_video_terminal = True,

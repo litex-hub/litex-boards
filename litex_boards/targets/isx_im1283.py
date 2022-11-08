@@ -49,7 +49,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(80e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=80e6, with_led_chaser=True, **kwargs):
         platform = isx_im1283.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------

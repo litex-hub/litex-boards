@@ -53,7 +53,7 @@ class _CRG(LiteXModule):
 
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="z7-20", toolchain="vivado", sys_clk_freq=int(125e6),
+    def __init__(self, variant="z7-20", toolchain="vivado", sys_clk_freq=125e6,
                  with_led_chaser=True, **kwargs):
         platform = digilent_arty_z7.Platform(variant=variant, toolchain=toolchain)
 

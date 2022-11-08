@@ -55,7 +55,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(125e6), with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, **kwargs):
         platform = xilinx_zcu104.Platform()
 
         # CRG --------------------------------------------------------------------------------------

@@ -46,7 +46,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
 
-    def __init__(self, sys_clk_freq=int(12e6), with_led_chaser=True, bios_flash_offset=0x50000, **kwargs):
+    def __init__(self, sys_clk_freq=12e6, with_led_chaser=True, bios_flash_offset=0x50000, **kwargs):
 
         platform = fpgawars_alhambra2.Platform()
         kwargs["integrated_rom_size"] = 0

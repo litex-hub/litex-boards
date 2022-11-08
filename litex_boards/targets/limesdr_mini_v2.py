@@ -68,7 +68,7 @@ class BoardInfo(LiteXModule, AutoCSR):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(80e6), toolchain="trellis",
+    def __init__(self, sys_clk_freq=80e6, toolchain="trellis",
         with_usb_fifo   = True, with_usb_fifo_loopback=False,
         with_led_chaser = True,
         **kwargs):

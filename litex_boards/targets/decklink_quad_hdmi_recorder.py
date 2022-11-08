@@ -60,7 +60,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(200e6), with_pcie=False, pcie_lanes=4, **kwargs):
+    def __init__(self, sys_clk_freq=200e6, with_pcie=False, pcie_lanes=4, **kwargs):
         platform = decklink_quad_hdmi_recorder.Platform()
 
         # CRG --------------------------------------------------------------------------------------

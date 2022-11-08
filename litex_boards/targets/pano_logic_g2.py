@@ -45,7 +45,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, revision, sys_clk_freq=int(50e6), with_ethernet=False, with_etherbone=False,
+    def __init__(self, revision, sys_clk_freq=50e6, with_ethernet=False, with_etherbone=False,
                  eth_ip="192.168.1.50", with_led_chaser=True, **kwargs):
         platform = pano_logic_g2.Platform(revision=revision)
         if with_etherbone:

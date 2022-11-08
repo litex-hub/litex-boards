@@ -53,7 +53,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="trellis", sys_clk_freq=int(48e6), sdram_module_cls="AS4C32M8", **kwargs):
+    def __init__(self, toolchain="trellis", sys_clk_freq=48e6, sdram_module_cls="AS4C32M8", **kwargs):
         platform = hackaday_hadbadge.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------

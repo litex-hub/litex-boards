@@ -70,7 +70,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=int(100e6),
+    def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=100e6,
         with_ethernet   = False,
         with_etherbone  = False,
         eth_ip          = "192.168.1.50",
@@ -156,8 +156,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_arty.Platform, description="LiteX SoC on Arty A7.")
-    parser.add_target_argument("--flash",      , action="store_true",       help="Flash bitstream.")
-    parser.add_target_argument("--variant",    , default="a7-35",           help="Board variant (a7-35 or a7-100).")
+    parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--variant",      default="a7-35",           help="Board variant (a7-35 or a7-100).")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",        action="store_true",    help="Enable Ethernet support.")

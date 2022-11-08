@@ -95,7 +95,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(48e6),
+    def __init__(self, sys_clk_freq=48e6,
         with_spi_flash      = False,
         with_led_chaser     = True,
         with_rgb_led        = False,

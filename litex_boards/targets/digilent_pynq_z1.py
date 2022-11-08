@@ -58,7 +58,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_led_chaser=True,
+    def __init__(self, toolchain="vivado", sys_clk_freq=100e6, with_led_chaser=True,
                 with_video_terminal=False, with_video_framebuffer=False, **kwargs):
         platform = digilent_pynq_z1.Platform()
 
