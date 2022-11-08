@@ -75,8 +75,7 @@ class BaseSoC(SoCCore):
         with_rts_reset  = False,
         with_led_chaser = True,
         spd_dump        = None,
-        **kwargs
-    ):
+        **kwargs):
         platform = berkeleylab_marble.Platform()
 
         # CRG, resettable over USB serial RTS signal -----------------------------------------------

@@ -166,7 +166,13 @@ def addCellularRAM(soc, platform, name, origin):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=75e6, with_led_chaser=True, with_ethernet=False, with_etherbone=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
+    def __init__(self, sys_clk_freq=75e6,
+        with_led_chaser        = True,
+        with_ethernet          = False,
+        with_etherbone         = False,
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        **kwargs):
         platform = digilent_nexys4.Platform()
 
         # CRG --------------------------------------------------------------------------------------

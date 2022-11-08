@@ -66,8 +66,11 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=80e6, sdram_rate="1:1", with_led_chaser=True,
-                 with_video_terminal=False, with_video_framebuffer=False, **kwargs):
+    def __init__(self, sys_clk_freq=80e6, sdram_rate="1:1",
+        with_led_chaser        = True,
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        **kwargs):
         platform = scarabhardware_minispartan6.Platform()
 
         # CRG --------------------------------------------------------------------------------------

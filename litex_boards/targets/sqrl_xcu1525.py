@@ -58,8 +58,11 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=125e6, ddram_channel=0, with_led_chaser=True,
-                 with_pcie=False, with_sata=False, **kwargs):
+    def __init__(self, sys_clk_freq=125e6, ddram_channel=0,
+        with_led_chaser = True,
+        with_pcie       = False,
+        with_sata       = False,
+        **kwargs):
         platform = sqrl_xcu1525.Platform()
 
         # CRG --------------------------------------------------------------------------------------

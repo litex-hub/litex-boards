@@ -73,9 +73,14 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6, board_version=1, speed_grade=-2,
-                 with_ethernet=False, with_etherbone=False,
-                 eth_ip="192.168.1.50", with_led_chaser=True, with_video_terminal=False,
-                 with_video_framebuffer=False, video_timing="640x480@60Hz", **kwargs):
+        with_ethernet          = False,
+        with_etherbone         = False,
+        eth_ip                 = "192.168.1.50",
+        with_led_chaser        = True,
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        video_timing           = "640x480@60Hz",
+        **kwargs):
         platform = qmtech_wukong.Platform(board_version=board_version,speed_grade=speed_grade)
 
         # CRG --------------------------------------------------------------------------------------

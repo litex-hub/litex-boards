@@ -86,10 +86,18 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, toolchain="trellis", with_led_chaser=True, with_spi_flash=False,
-                 use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
-                 with_video_framebuffer=False, with_ethernet=False, with_etherbone=False,
-                 eth_ip="192.168.1.50", eth_dynamic_ip=False, **kwargs):
+    def __init__(self, sys_clk_freq=50e6, toolchain="trellis",
+        with_led_chaser        = True,
+        with_spi_flash         = False,
+        use_internal_osc       = False,
+        sdram_rate             = "1:1",
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        with_ethernet          = False,
+        with_etherbone         = False,
+        eth_ip                 = "192.168.1.50",
+        eth_dynamic_ip         = False,
+        **kwargs):
         platform = muselab_icesugar_pro.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------

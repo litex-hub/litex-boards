@@ -50,7 +50,10 @@ class CRG(LiteXModule):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="au", sys_clk_freq=83.333e6, with_spi_flash=False, with_led_chaser=True, **kwargs):
+    def __init__(self, variant="au", sys_clk_freq=83.333e6,
+        with_spi_flash  = False,
+        with_led_chaser = True,
+        **kwargs):
         platform = alchitry_au.Platform(variant=variant)
 
         # CRG --------------------------------------------------------------------------------------

@@ -75,8 +75,12 @@ class BaseSoC(SoCCore):
         "usb_ohci"         : 0xc0000000,
     }}
 
-    def __init__(self, sys_clk_freq=100e6, with_ethernet=True, with_etherbone=False,
-        with_spi_flash=True, with_usb_host=False, **kwargs):
+    def __init__(self, sys_clk_freq=100e6,
+        with_ethernet  = True,
+        with_etherbone = False,
+        with_spi_flash = True,
+        with_usb_host  = False,
+        **kwargs):
         platform = mnt_rkx7.Platform()
 
         # CRG --------------------------------------------------------------------------------------

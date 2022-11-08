@@ -60,8 +60,12 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, with_jtaguart=False, with_jtagbone=False,
-                 with_led_chaser=True, sdram_rate="1:1", **kwargs):
+    def __init__(self, sys_clk_freq=50e6,
+        with_jtaguart   = False,
+        with_jtagbone   = False,
+        with_led_chaser = True,
+        sdram_rate      = "1:1",
+        **kwargs):
         platform = qmtech_ep4ce15_starter_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------

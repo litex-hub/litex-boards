@@ -64,7 +64,9 @@ class BaseSoC(SoCCore):
         "sram" : 0x40000000,
         "csr"  : 0xf0000000,
     }
-    def __init__(self, sys_clk_freq=75e6, device="LIFCL-40-9BG400C", toolchain="radiant", with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=75e6, device="LIFCL-40-9BG400C", toolchain="radiant",
+        with_led_chaser = True,
+        **kwargs):
         platform = lattice_crosslink_nx_evn.Platform(device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------

@@ -62,8 +62,14 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, *, device, with_pcie, with_etherbone, with_ethernet, with_sdram, eth_dynamic_ip,
-            eth_reset_time, toolchain="vivado", sys_clk_freq=100e6, eth_ip="192.168.1.120", **kwargs):
+    def __init__(self, *, device, toolchain="vivado", sys_clk_freq=100e6,
+        with_pcie      = False,
+        with_etherbone = False,
+        with_ethernet  = False,
+        eth_dynamic_ip = False,
+        eth_reset_time = "10e-3",
+        eth_ip         = "192.168.1.120",
+        **kwargs):
         platform = antmicro_artix_dc_scm.Platform(device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
@@ -140,7 +146,6 @@ def main():
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
-        with_sdram             = args.with_sdram,
         eth_reset_time         = args.eth_reset_time,
         **parser.soc_argdict
     )

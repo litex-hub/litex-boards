@@ -72,7 +72,12 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCMini):
-    def __init__(self, sys_clk_freq=100e6, with_pcie=False, with_sata=False, with_video_terminal=False, with_video_framebuffer=False, **kwargs):
+    def __init__(self, sys_clk_freq=100e6,
+        with_pcie              = False,
+        with_sata              = False,
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        **kwargs):
         if with_video_terminal or with_video_framebuffer:
             sys_clk_freq = int(148.5e6) # FIXME: For now requires sys_clk >= video_clk.
         platform = decklink_mini_4k.Platform()

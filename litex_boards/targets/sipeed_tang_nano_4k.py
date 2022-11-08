@@ -62,7 +62,11 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=27e6, with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
+    def __init__(self, sys_clk_freq=27e6,
+        with_hyperram       = False,
+        with_led_chaser     = True,
+        with_video_terminal = True,
+        **kwargs):
         platform = sipeed_tang_nano_4k.Platform()
 
         # CRG --------------------------------------------------------------------------------------

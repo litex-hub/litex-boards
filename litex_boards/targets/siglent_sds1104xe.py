@@ -66,7 +66,12 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=100e6, with_etherbone=True, eth_ip="192.168.1.50", with_video_terminal=False, with_video_framebuffer=False, **kwargs):
+    def __init__(self, sys_clk_freq=100e6,
+        with_etherbone         = True,
+        eth_ip                 = "192.168.1.50",
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        **kwargs):
         platform = siglent_sds1104xe.Platform()
 
         # CRG --------------------------------------------------------------------------------------

@@ -144,8 +144,10 @@ class _CRGSDRAM(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, revision="0.2", device="25F", sdram_device="MT41K64M16",
-                 sys_clk_freq=48e6, toolchain="trellis", with_led_chaser=True, **kwargs):
+    def __init__(self, revision="0.2", device="25F", sys_clk_freq=48e6, toolchain="trellis",
+        sdram_device    = "MT41K64M16",
+        with_led_chaser = True,
+        **kwargs):
         platform = gsd_orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------

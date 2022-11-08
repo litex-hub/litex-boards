@@ -149,7 +149,11 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=75e6, with_ethernet=True, with_etherbone=False, eth_phy=0, **kwargs):
+    def __init__(self, sys_clk_freq=75e6,
+        with_ethernet  = True,
+        with_etherbone = False,
+        eth_phy        = 0,
+        **kwargs):
         platform = digilent_atlys.Platform()
 
         # CRG --------------------------------------------------------------------------------------

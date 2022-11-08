@@ -39,7 +39,10 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=100e6, with_led_chaser=True, with_spi_flash=False, **kwargs):
+    def __init__(self, sys_clk_freq=100e6,
+        with_led_chaser = True,
+        with_spi_flash  = False,
+        **kwargs):
         platform = aliexpress_xc7k420t.Platform()
 
         # CRG --------------------------------------------------------------------------------------

@@ -94,10 +94,18 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board="i5", revision="7.0", toolchain="trellis", sys_clk_freq=60e6, with_ethernet=False,
-                 with_etherbone=False, local_ip="", remote_ip="", eth_phy=0, with_led_chaser=True, 
-                 use_internal_osc=False, sdram_rate="1:1", with_video_terminal=False,
-                 with_video_framebuffer=False, **kwargs):
+    def __init__(self, board="i5", revision="7.0", toolchain="trellis", sys_clk_freq=60e6,
+        with_ethernet          = False,
+        with_etherbone         = False,
+        local_ip               = "",
+        remote_ip              = "",
+        eth_phy                = 0,
+        with_led_chaser        = True,
+        use_internal_osc       = False,
+        sdram_rate             = "1:1",
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        **kwargs):
         board = board.lower()
         assert board in ["i5", "i9"]
         platform = colorlight_i5.Platform(board=board, revision=revision, toolchain=toolchain)

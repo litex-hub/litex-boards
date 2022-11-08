@@ -56,8 +56,10 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, sys_clk_freq=24e6, with_led_chaser=True,
-                 with_video_terminal=False, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=24e6,
+        with_led_chaser     = True,
+        with_video_terminal = False,
+        **kwargs):
         platform = muselab_icesugar.Platform()
 
         # CRG --------------------------------------------------------------------------------------

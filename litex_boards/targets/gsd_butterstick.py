@@ -80,8 +80,11 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, revision="1.0", device="85F", sdram_device="MT41K64M16", sys_clk_freq=60e6,
-        toolchain="trellis", with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", 
+    def __init__(self, revision="1.0", device="85F", sys_clk_freq=60e6, toolchain="trellis",
+        sdram_device     = "MT41K64M16",
+        with_ethernet    = False,
+        with_etherbone   = False,
+        eth_ip           = "192.168.1.50",
         eth_dynamic_ip   = False,
         with_spi_flash   = False,
         with_led_chaser  = True,

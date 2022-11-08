@@ -86,10 +86,14 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, device="LFE5U-45F", revision="2.0", toolchain="trellis",
-        sys_clk_freq=50e6, sdram_module_cls="MT48LC16M16", sdram_rate="1:1",
-        with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
-        with_spi_flash=False, **kwargs):
+    def __init__(self, device="LFE5U-45F", revision="2.0", toolchain="trellis", sys_clk_freq=50e6,
+        sdram_module_cls       = "MT48LC16M16",
+        sdram_rate             = "1:1",
+        with_led_chaser        = True,
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        with_spi_flash         = False,
+        **kwargs):
         platform = radiona_ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------

@@ -63,11 +63,11 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
 
-    def __init__(self, variant="z7-10", sys_clk_freq=100e6, with_led_chaser=True,
-        ext_clk_freq = None,
-        xci_file     = None,
+    def __init__(self, variant="z7-10", sys_clk_freq=100e6,
+        with_led_chaser = True,
+        ext_clk_freq    = None,
+        xci_file        = None,
         **kwargs):
-
         platform = krtkl_snickerdoodle.Platform(variant=variant)
 
         # CRG --------------------------------------------------------------------------------------

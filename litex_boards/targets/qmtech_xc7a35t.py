@@ -68,9 +68,16 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=100e6, with_daughterboard=False,
-                 with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
-                 with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False,
-                 with_jtagbone=True, with_spi_flash=False, **kwargs):
+        with_ethernet          = False,
+        with_etherbone         = False,
+        eth_ip                 = "192.168.1.50",
+        eth_dynamic_ip         = False,
+        with_led_chaser        = True,
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        with_jtagbone          = True,
+        with_spi_flash         = False,
+        **kwargs):
         platform = qmtech_xc7a35t.Platform(toolchain=toolchain, with_daughterboard=with_daughterboard)
 
         # CRG --------------------------------------------------------------------------------------

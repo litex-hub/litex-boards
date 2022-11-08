@@ -66,7 +66,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
-        io_voltage="3.3V",
+        io_voltage      = "3.3V",
         with_led_chaser = True,
         with_pcie       = False,
         with_sata       = False,

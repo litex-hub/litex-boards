@@ -69,8 +69,10 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, spi_flash_module="AT25SF161", sys_clk_freq=12e6,
-                 with_led_chaser=True, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=12e6,
+        spi_flash_module = "AT25SF161",
+        with_led_chaser  = True,
+        **kwargs):
         platform = kosagi_fomu_pvt.Platform()
 
         # CRG --------------------------------------------------------------------------------------

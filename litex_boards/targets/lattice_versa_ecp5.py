@@ -74,9 +74,13 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=75e6, device="LFE5UM5G", with_ethernet=False,
-                 with_etherbone=False, with_led_chaser=True, eth_ip="192.168.1.50", eth_phy=0,
-                 toolchain="trellis", **kwargs):
+    def __init__(self, sys_clk_freq=75e6, device="LFE5UM5G", toolchain="trellis",
+        with_ethernet   = False,
+        with_etherbone  = False,
+        with_led_chaser = True,
+        eth_ip          = "192.168.1.50",
+        eth_phy         = 0,
+        **kwargs):
         platform = lattice_versa_ecp5.Platform(toolchain=toolchain, device=device)
 
         # CRG --------------------------------------------------------------------------------------
