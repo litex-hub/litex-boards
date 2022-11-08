@@ -177,20 +177,20 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=trellisboard.Platform, description="LiteX SoC on Trellis Board")
-    parser.add_target_argument("--sys-clk-freq",    default=75e6,        help="System clock frequency.")
-    parser.add_target_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support.")
+    parser = LiteXArgumentParser(platform=trellisboard.Platform, description="LiteX SoC on Trellis Board.")
+    parser.add_target_argument("--sys-clk-freq",    default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-pmod-gpio",  action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    sdopts.add_argument("--with-spi-sdcard",       action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",           action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         toolchain              = args.toolchain,
         with_ethernet          = args.with_ethernet,
         with_video_terminal    = args.with_video_terminal,

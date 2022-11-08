@@ -139,17 +139,17 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=xilinx_ac701.Platform, description="LiteX SoC on AC701")
-    parser.add_target_argument("--sys-clk-freq",   default=100e6,       help="System clock frequency.")
-    parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    parser.add_target_argument("--eth-phy",        default="rgmii",     help="Select Ethernet PHY (rgmii or 1000basex).")
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
-    parser.add_target_argument("--with-pcie",      action="store_true", help="Enable PCIe support.")
-    parser.add_target_argument("--driver",         action="store_true", help="Generate PCIe driver.")
+    parser = LiteXArgumentParser(platform=xilinx_ac701.Platform, description="LiteX SoC on AC701.")
+    parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",        help="Enable Ethernet support.")
+    parser.add_target_argument("--eth-phy",        default="rgmii",            help="Select Ethernet PHY (rgmii or 1000basex).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",        help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-pcie",      action="store_true",        help="Enable PCIe support.")
+    parser.add_target_argument("--driver",         action="store_true",        help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
         eth_phy        = args.eth_phy,
         with_spi_flash = args.with_spi_flash,

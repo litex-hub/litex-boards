@@ -176,21 +176,21 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=colorlight_i5.Platform, description="LiteX SoC on Colorlight I5")
+    parser = LiteXArgumentParser(platform=colorlight_i5.Platform, description="LiteX SoC on Colorlight I5.")
     parser.add_target_argument("--board",            default="i5",             help="Board type (i5).")
-    parser.add_target_argument("--revision",         default="7.0", type=str,  help="Board revision (7.0).")
-    parser.add_target_argument("--sys-clk-freq",     default=60e6,             help="System clock frequency.")
+    parser.add_target_argument("--revision",         default="7.0",            help="Board revision (7.0).")
+    parser.add_target_argument("--sys-clk-freq",     default=60e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",  action="store_true",      help="Enable Etherbone support.")
-    parser.add_target_argument("--remote-ip",        default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--local-ip",         default="192.168.1.50",   help="Local IP address.")
+    parser.add_target_argument("--remote-ip", default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--local-ip",  default="192.168.1.50",   help="Local IP address.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",  action="store_true",	    help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",      action="store_true",	    help="Enable SDCard support.")
-    parser.add_target_argument("--eth-phy",          default=0, type=int,      help="Ethernet PHY (0 or 1).")
-    parser.add_target_argument("--use-internal-osc", action="store_true",      help="Use internal oscillator.")
-    parser.add_target_argument("--sdram-rate",       default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    sdopts.add_argument("--with-spi-sdcard",  action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",      action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--eth-phy",          default=0, type=int, help="Ethernet PHY (0 or 1).")
+    parser.add_target_argument("--use-internal-osc", action="store_true", help="Use internal oscillator.")
+    parser.add_target_argument("--sdram-rate",       default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
@@ -198,7 +198,7 @@ def main():
 
     soc = BaseSoC(board=args.board, revision=args.revision,
         toolchain              = args.toolchain,
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
         local_ip               = args.local_ip,

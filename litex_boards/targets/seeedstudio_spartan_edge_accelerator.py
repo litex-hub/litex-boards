@@ -106,15 +106,15 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=seeedstudio_spartan_edge_accelerator.Platform, description="LiteX SoC on Spartan Edge Accelerator")
-    parser.add_target_argument("--sys-clk-freq",        default=100e6,        help="System clock frequency.")
-    parser.add_target_argument("--with-jtagbone",       action="store_true",  help="Enable Jtagbone support.")
-    parser.add_target_argument("--with-video-terminal", action="store_true",  help="Enable Video Colorbars (HDMI).")
-    parser.add_target_argument("--with-neopixel",       action="store_true",  help="Enable onboard 2 Neopixels Leds.")
+    parser = LiteXArgumentParser(platform=seeedstudio_spartan_edge_accelerator.Platform, description="LiteX SoC on Spartan Edge Accelerator.")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-jtagbone",       action="store_true",       help="Enable Jtagbone support.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",       help="Enable Video Colorbars (HDMI).")
+    parser.add_target_argument("--with-neopixel",       action="store_true",       help="Enable onboard 2 Neopixels Leds.")
 
     args = parser.parse_args()
     soc = BaseSoC(
-        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        sys_clk_freq        = args.sys_clk_freq,
         with_jtagbone       = args.with_jtagbone,
         with_video_terminal = args.with_video_terminal,
         with_neopixel       = args.with_neopixel,

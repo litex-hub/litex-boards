@@ -114,19 +114,19 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=antmicro_artix_dc_scm.Platform, description="LiteX SoC on Artix DC-SCM")
-    parser.add_target_argument("--flash",                  action="store_true", help="Flash bitstream")
-    parser.add_target_argument("--sys-clk-freq",           default=100e6,       help="System clock frequency.")
-    parser.add_target_argument("--device",                 default="xc7a100tfgg484-1", choices=["xc7a100tfgg484-1", "xc7a15tfgg484-1"])
-    parser.add_target_argument("--with-pcie",              action="store_true",  help="Add PCIe")
+    parser = LiteXArgumentParser(platform=antmicro_artix_dc_scm.Platform, description="LiteX SoC on Artix DC-SCM.")
+    parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--device",       default="xc7a100tfgg484-1", choices=["xc7a100tfgg484-1", "xc7a15tfgg484-1"])
+    parser.add_target_argument("--with-pcie",    action="store_true",      help="Add PCIe.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet")
-    ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone")
-    parser.add_target_argument("--eth-ip",                 default="192.168.1.50", help="Ethernet/Etherbone IP address")
-    parser.add_target_argument("--eth-dynamic-ip",         action="store_true",    help="Enable dynamic Ethernet IP addresses setting")
-    parser.add_target_argument("--eth-reset-time",         default="10e-3",        help="Duration of Ethernet PHY reset")
-    parser.add_target_argument("--with-sdram",             action="store_true",  help="Add SDRAM")
-    parser.add_target_argument("--with-emmc",              action="store_true",  help="Add eMMC")
+    ethopts.add_argument("--with-ethernet",        action="store_true",    help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone",       action="store_true",    help="Add EtherBone.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-reset-time", default="10e-3",        help="Duration of Ethernet PHY reset.")
+    parser.add_target_argument("--with-sdram",     action="store_true",    help="Add SDRAM.")
+    parser.add_target_argument("--with-emmc",      action="store_true",    help="Add eMMC.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -134,7 +134,7 @@ def main():
     soc = BaseSoC(
         toolchain              = args.toolchain,
         device                 = args.device,
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         with_pcie              = args.with_pcie,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,

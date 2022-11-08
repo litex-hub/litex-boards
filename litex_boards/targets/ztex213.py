@@ -92,14 +92,14 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=ztex213.Platform, description="LiteX SoC on Ztex 2.13")
-    parser.add_target_argument("--expansion",       default="debug",     help="Expansion board (debug or sbus).")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
-    parser.add_target_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
-    parser.add_target_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser = LiteXArgumentParser(platform=ztex213.Platform, description="LiteX SoC on Ztex 2.13.")
+    parser.add_target_argument("--expansion",       default="debug",           help="Expansion board (debug or sbus).")
+    parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",       help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-sdcard",     action="store_true",       help="Enable SDCard support.")
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), expansion=args.expansion, **parser.soc_argdict)
+    soc = BaseSoC(sys_clk_freq=args.sys_clk_freq, expansion=args.expansion, **parser.soc_argdict)
     assert not (args.with_spi_sdcard and args.with_sdcard)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard() # SBus only

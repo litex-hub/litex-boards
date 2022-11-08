@@ -104,21 +104,21 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=qmtech_10cl006.Platform, description="LiteX SoC on QMTECH 10CL006")
-    parser.add_target_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",          default="1:2",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    parser.add_target_argument("--with-daughterboard",  action="store_true", help="Board plugged into the QMTech daughterboard.")
+    parser = LiteXArgumentParser(platform=qmtech_10cl006.Platform, description="LiteX SoC on QMTECH 10CL006.")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6,  type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",          default="1:2",             help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-daughterboard",  action="store_true",       help="Board plugged into the QMTech daughterboard.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",     action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",         action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-spi-flash",      action="store_true", help="Enable SPI Flash (MMAPed).")
+    sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-flash",  action="store_true", help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
-        with_daughterboard     = args.with_daughterboard,
-        with_spi_flash         = args.with_spi_flash,
-        sdram_rate             = args.sdram_rate,
+        sys_clk_freq       = args.sys_clk_freq,
+        with_daughterboard = args.with_daughterboard,
+        with_spi_flash     = args.with_spi_flash,
+        sdram_rate         = args.sdram_rate,
         **parser.soc_argdict
     )
 

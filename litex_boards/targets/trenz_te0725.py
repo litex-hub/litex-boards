@@ -60,14 +60,14 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=trenz_te0725.Platform, description="LiteX SoC on Trenz TE0725")
-    parser.add_target_argument("--flash",           action="store_true", help="Flash bitstream.")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=trenz_te0725.Platform, description="LiteX SoC on Trenz TE0725.")
+    parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq = args.sys_clk_freq,
         **parser.soc_argdict
     )
 

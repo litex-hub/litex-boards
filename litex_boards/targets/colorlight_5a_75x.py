@@ -179,21 +179,21 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=colorlight_5a_75b.Platform, description="LiteX SoC on Colorlight 5A-75X")
-    parser.add_target_argument("--board",             default="5a-75b",                 help="Board type (5a-75b or 5a-75e).")
-    parser.add_target_argument("--revision",          default="7.0", type=str,          help="Board revision (6.0, 6.1, 7.0 or 8.0).")
-    parser.add_target_argument("--sys-clk-freq",      default=60e6,                     help="System clock frequency")
+    parser = LiteXArgumentParser(platform=colorlight_5a_75b.Platform, description="LiteX SoC on Colorlight 5A-75X.")
+    parser.add_target_argument("--board",             default="5a-75b",         help="Board type (5a-75b or 5a-75e).")
+    parser.add_target_argument("--revision",          default="7.0",            help="Board revision (6.0, 6.1, 7.0 or 8.0).")
+    parser.add_target_argument("--sys-clk-freq",      default=60e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",    action="store_true",              help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",   action="store_true",              help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",            default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-phy",           default=0, type=int,              help="Ethernet PHY (0 or 1).")
-    parser.add_target_argument("--use-internal-osc",  action="store_true",              help="Use internal oscillator.")
-    parser.add_target_argument("--sdram-rate",        default="1:1",                    help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    ethopts.add_argument("--with-ethernet",           action="store_true",    help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",          action="store_true",    help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",            default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-phy",           default=0, type=int,    help="Ethernet PHY (0 or 1).")
+    parser.add_target_argument("--use-internal-osc",  action="store_true",    help="Use internal oscillator.")
+    parser.add_target_argument("--sdram-rate",        default="1:1",          help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     args = parser.parse_args()
 
     soc = BaseSoC(board=args.board, revision=args.revision,
-        sys_clk_freq     = int(float(args.sys_clk_freq)),
+        sys_clk_freq     = args.sys_clk_freq,
         toolchain        = args.toolchain,
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,

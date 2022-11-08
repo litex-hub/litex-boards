@@ -158,17 +158,17 @@ def flash(build_dir, build_name, bios_flash_offset):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=kosagi_fomu_pvt.Platform, description="LiteX SoC on Fomu")
-    parser.add_target_argument("--sys-clk-freq",      default=12e6,        help="System clock frequency.")
-    parser.add_target_argument("--bios-flash-offset", default="0x20000",   help="BIOS offset in SPI Flash.")
-    parser.add_target_argument("--flash",             action="store_true", help="Flash Bitstream.")
+    parser = LiteXArgumentParser(platform=kosagi_fomu_pvt.Platform, description="LiteX SoC on Fomu.")
+    parser.add_target_argument("--sys-clk-freq",      default=12e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--bios-flash-offset", default="0x20000",        help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream.")
     args = parser.parse_args()
 
     dfu_flash_offset = 0x40000
 
     soc = BaseSoC(
         bios_flash_offset = dfu_flash_offset + int(args.bios_flash_offset, 0),
-        sys_clk_freq      = int(float(args.sys_clk_freq)),
+        sys_clk_freq      = args.sys_clk_freq,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

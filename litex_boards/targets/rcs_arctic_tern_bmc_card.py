@@ -155,17 +155,17 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=rcs_arctic_tern_bmc_card.Platform, description="LiteX SoC on Arctic Tern (BMC card carrier)")
-    parser.add_target_argument("--sys-clk-freq", default=60e6,        help="System clock frequency (default: 60MHz)")
+    parser = LiteXArgumentParser(platform=rcs_arctic_tern_bmc_card.Platform, description="LiteX SoC on Arctic Tern (BMC card carrier).")
+    parser.add_target_argument("--sys-clk-freq", default=60e6, type=float, help="System clock frequency (default: 60MHz).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true",    help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",   default="192.168.1.50", help="Ethernet/Etherbone IP address.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        toolchain    = args.toolchain,
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        toolchain      = args.toolchain,
+        sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,

@@ -144,16 +144,16 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=radiona_ulx3s.Platform, description="LiteX SoC on ULX3S")
-    parser.add_target_argument("--device",          default="LFE5U-45F",   help="FPGA device (LFE5U-12F, LFE5U-25F, LFE5U-45F or LFE5U-85F).")
-    parser.add_target_argument("--revision",        default="2.0",         help="Board revision (2.0 or 1.7).")
-    parser.add_target_argument("--sys-clk-freq",    default=50e6,          help="System clock frequency.")
-    parser.add_target_argument("--sdram-module",    default="MT48LC16M16", help="SDRAM module (MT48LC16M16, AS4C32M16 or AS4C16M16).")
-    parser.add_target_argument("--with-spi-flash",  action="store_true",   help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--device",          default="LFE5U-45F",      help="FPGA device (LFE5U-12F, LFE5U-25F, LFE5U-45F or LFE5U-85F).")
+    parser.add_target_argument("--revision",        default="2.0",            help="Board revision (2.0 or 1.7).")
+    parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-module",    default="MT48LC16M16",    help="SDRAM module (MT48LC16M16, AS4C32M16 or AS4C16M16).")
+    parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable SPI Flash (MMAPed).")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard", action="store_true",   help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",     action="store_true",   help="Enable SDCard support.")
-    parser.add_target_argument("--with-oled",       action="store_true",   help="Enable SDD1331 OLED support.")
-    parser.add_target_argument("--sdram-rate",      default="1:1",         help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    sdopts.add_argument("--with-spi-sdcard",   action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",       action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-oled",  action="store_true", help="Enable SDD1331 OLED support.")
+    parser.add_target_argument("--sdram-rate", default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
@@ -163,7 +163,7 @@ def main():
         device                 = args.device,
         revision               = args.revision,
         toolchain              = args.toolchain,
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         sdram_module_cls       = args.sdram_module,
         sdram_rate             = args.sdram_rate,
         with_video_terminal    = args.with_video_terminal,

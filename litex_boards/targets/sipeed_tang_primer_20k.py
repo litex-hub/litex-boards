@@ -211,24 +211,24 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=sipeed_tang_primer_20k.Platform, description="LiteX SoC on Tang Primer 20K")
-    parser.add_target_argument("--dock",         default="standard",    help="Dock version (standard (default) or lite.")
-    parser.add_target_argument("--flash",        action="store_true",   help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq", default=48e6,          help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=sipeed_tang_primer_20k.Platform, description="LiteX SoC on Tang Primer 20K.")
+    parser.add_target_argument("--dock",         default="standard",       help="Dock version (standard (default) or lite.")
+    parser.add_target_argument("--flash",        action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    sdopts.add_argument("--with-spi-sdcard",            action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",                action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-flash",      action="store_true", help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
+    ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone.")
     parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        sys_clk_freq        = args.sys_clk_freq,
         with_spi_flash      = args.with_spi_flash,
         with_video_terminal = args.with_video_terminal,
         with_ethernet       = args.with_ethernet,

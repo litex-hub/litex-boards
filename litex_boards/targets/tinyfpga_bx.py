@@ -59,14 +59,14 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=tinyfpga_bx.Platform, description="LiteX SoC on TinyFPGA BX")
-    parser.add_target_argument("--bios-flash-offset", default="0x50000",   help="BIOS offset in SPI Flash.")
-    parser.add_target_argument("--sys-clk-freq",      default=16e6,        help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=tinyfpga_bx.Platform, description="LiteX SoC on TinyFPGA BX.")
+    parser.add_target_argument("--bios-flash-offset", default="0x50000",         help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--sys-clk-freq",      default=16e6, type=float,  help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(
          bios_flash_offset = int(args.bios_flash_offset, 0),
-         sys_clk_freq      = int(float(args.sys_clk_freq)),
+         sys_clk_freq      = args.sys_clk_freq,
          **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

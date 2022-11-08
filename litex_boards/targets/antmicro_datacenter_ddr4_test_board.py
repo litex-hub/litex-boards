@@ -179,30 +179,30 @@ class LiteDRAMSettingsEncoder(json.JSONEncoder):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=antmicro_datacenter_ddr4_test_board.Platform, description="LiteX SoC on DDR4 Datacenter Test Board")
-    parser.add_target_argument("--flash",                  action="store_true",    help="Flash bitstream")
-    parser.add_target_argument("--sys-clk-freq",           default=100e6,           help="System clock frequency")
-    parser.add_target_argument("--iodelay-clk-freq",       default=200e6,          help="IODELAYCTRL frequency")
+    parser = LiteXArgumentParser(platform=antmicro_datacenter_ddr4_test_board.Platform, description="LiteX SoC on DDR4 Datacenter Test Board.")
+    parser.add_target_argument("--flash",            action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",     default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--iodelay-clk-freq", default=200e6, type=float, help="IODELAYCTRL frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet")
-    ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone")
-    parser.add_target_argument("--eth-ip",                 default="192.168.1.50", help="Ethernet/Etherbone IP address")
-    parser.add_target_argument("--eth-dynamic-ip",         action="store_true",    help="Enable dynamic Ethernet IP addresses setting")
-    parser.add_target_argument("--eth-reset-time",         default="10e-3",        help="Duration of Ethernet PHY reset")
-    parser.add_target_argument("--with-hyperram",          action="store_true",    help="Add HyperRAM")
-    parser.add_target_argument("--with-sdcard",            action="store_true",    help="Add SDCard")
-    parser.add_target_argument("--with-jtagbone",          action="store_true",    help="Add JTAGBone")
-    parser.add_target_argument("--with-uartbone",          action="store_true",    help="Add UartBone on 2nd serial")
-    parser.add_target_argument("--with-video-terminal",    action="store_true",    help="Enable Video Terminal (HDMI)")
-    parser.add_target_argument("--with-video-framebuffer", action="store_true",    help="Enable Video Framebuffer (HDMI)")
+    ethopts.add_argument("--with-ethernet",                action="store_true",    help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone",               action="store_true",    help="Add EtherBone.")
+    parser.add_target_argument("--eth-ip",                 default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",         action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-reset-time",         default="10e-3",        help="Duration of Ethernet PHY reset.")
+    parser.add_target_argument("--with-hyperram",          action="store_true",    help="Add HyperRAM.")
+    parser.add_target_argument("--with-sdcard",            action="store_true",    help="Add SDCard.")
+    parser.add_target_argument("--with-jtagbone",          action="store_true",    help="Add JTAGBone.")
+    parser.add_target_argument("--with-uartbone",          action="store_true",    help="Add UartBone on 2nd serial.")
+    parser.add_target_argument("--with-video-terminal",    action="store_true",    help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-video-framebuffer", action="store_true",    help="Enable Video Framebuffer (HDMI).")
     parser.add_target_argument("--with-spi-flash",         action="store_true",    help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
-        iodelay_clk_freq       = int(float(args.iodelay_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
+        iodelay_clk_freq       = args.iodelay_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,

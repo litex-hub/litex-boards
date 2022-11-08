@@ -102,12 +102,12 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=camlink_4k.Platform, description="LiteX SoC on Cam Link 4K")
-    parser.add_target_argument("--sys-clk-freq", default=81e6,        help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=camlink_4k.Platform, description="LiteX SoC on Cam Link 4K.")
+    parser.add_target_argument("--sys-clk-freq", default=81e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        sys_clk_freq = args.sys_clk_freq,
         toolchain    = args.toolchain,
         **parser.soc_argdict
     )

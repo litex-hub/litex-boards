@@ -136,20 +136,20 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=digilent_cmod_a7.Platform, description="LiteX SoC on CMOD A7")
-    parser.add_target_argument("--flash",        action="store_true", help="Flash bitstream.")
-    parser.add_target_argument("--variant",      default="a7-35",     help="Board variant (a7-35 or a7-100).")
-    parser.add_target_argument("--sys-clk-freq", default=48e6,        help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    parser = LiteXArgumentParser(platform=digilent_cmod_a7.Platform, description="LiteX SoC on CMOD A7.")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--variant",        default="a7-35",          help="Board variant (a7-35 or a7-100).")
+    parser.add_target_argument("--sys-clk-freq",   default=48e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
 
 
     args = parser.parse_args()
 
     soc = BaseSoC(
-        variant           = args.variant,
-        toolchain         = args.toolchain,
-        sys_clk_freq      = int(float(args.sys_clk_freq)),
-        with_spi_flash    = args.with_spi_flash,
+        variant        = args.variant,
+        toolchain      = args.toolchain,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict
     )
 

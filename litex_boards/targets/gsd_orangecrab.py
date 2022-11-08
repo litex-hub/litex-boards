@@ -196,12 +196,12 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=gsd_orangecrab.Platform, description="LiteX SoC on OrangeCrab")
-    parser.add_target_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
-    parser.add_target_argument("--revision",        default="0.2",        help="Board Revision (0.1 or 0.2).")
-    parser.add_target_argument("--device",          default="25F",        help="ECP5 device (25F, 45F or 85F).")
-    parser.add_target_argument("--sdram-device",    default="MT41K64M16", help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
-    parser.add_target_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
+    parser = LiteXArgumentParser(platform=gsd_orangecrab.Platform, description="LiteX SoC on OrangeCrab.")
+    parser.add_target_argument("--sys-clk-freq",    default=48e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",        default="0.2",            help="Board Revision (0.1 or 0.2).")
+    parser.add_target_argument("--device",          default="25F",            help="ECP5 device (25F, 45F or 85F).")
+    parser.add_target_argument("--sdram-device",    default="MT41K64M16",     help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -209,7 +209,7 @@ def main():
         revision     = args.revision,
         device       = args.device,
         sdram_device = args.sdram_device,
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        sys_clk_freq = args.sys_clk_freq,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

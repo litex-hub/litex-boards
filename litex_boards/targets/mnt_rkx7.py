@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         # FIXME: ends up as 0x7f000000 in linux
         "video_framebuffer": 0x3f000000,
-        "usb_ohci":     0xc0000000,
+        "usb_ohci"         : 0xc0000000,
     }}
 
     def __init__(self, sys_clk_freq=int(100e6), with_ethernet=True, with_etherbone=False,
@@ -194,8 +194,8 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=mnt_rkx7.Platform, description="LiteX SoC on MNT-RKX7")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6,                      help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=mnt_rkx7.Platform, description="LiteX SoC on MNT-RKX7.")
+    parser.add_target_argument("--sys-clk-freq",    default=100e6,  type=float,         help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash",  action="store_true", default=True,  help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-usb-host",   action="store_true", default=False, help="Enable USB host support.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
@@ -207,7 +207,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         with_spi_flash = args.with_spi_flash,

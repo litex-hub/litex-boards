@@ -39,6 +39,9 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 kB = 1024
 mB = 1024*kB
 
+
+# _CRG ---------------------------------------------------------------------------------------------
+
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         self.rst    = Signal()
@@ -109,15 +112,15 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=machdyne_krote.Platform, description="LiteX SoC on Kr\xf6te")
-    parser.add_argument("--bios-flash-offset", default="0x021000",  help="BIOS offset in SPI Flash (default: 0x21000)")
-    parser.add_argument("--sys-clk-freq",      default=50e6,        help="System clock frequency (default: 50MHz)")
-    parser.add_argument("--with-led-chaser", action="store_true", help="Enable LED Chaser.")
+    parser = LiteXArgumentParser(platform=machdyne_krote.Platform, description="LiteX SoC on Kr\xf6te.")
+    parser.add_argument("--bios-flash-offset", default="0x021000",       help="BIOS offset in SPI Flash (default: 0x21000)")
+    parser.add_argument("--sys-clk-freq",      default=50e6, type=float, help="System clock frequency (default: 50MHz)")
+    parser.add_argument("--with-led-chaser", action="store_true",        help="Enable LED Chaser.")
     args = parser.parse_args()
 
     soc = BaseSoC(
          bios_flash_offset = int(args.bios_flash_offset, 0),
-         sys_clk_freq      = int(float(args.sys_clk_freq)),
+         sys_clk_freq      = args.sys_clk_freq,
          **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

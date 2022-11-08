@@ -64,13 +64,14 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=lattice_ecp5_evn.Platform, description="LiteX SoC on ECP5 Evaluation Board")
-    parser.add_target_argument("--sys-clk-freq", default=60e6,        help="System clock frequency.")
-    parser.add_target_argument("--x5-clk-freq",  type=int,            help="Use X5 oscillator as system clock at the specified frequency.")
+    parser = LiteXArgumentParser(platform=lattice_ecp5_evn.Platform, description="LiteX SoC on ECP5 Evaluation Board.")
+    parser.add_target_argument("--sys-clk-freq", default=60e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--x5-clk-freq",  type=int,                 help="Use X5 oscillator as system clock at the specified frequency.")
     args = parser.parse_args()
 
-    soc = BaseSoC(toolchain=args.toolchain,
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+    soc = BaseSoC(
+        toolchain    = args.toolchain,
+        sys_clk_freq = args.sys_clk_freq,
         x5_clk_freq  = args.x5_clk_freq,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)

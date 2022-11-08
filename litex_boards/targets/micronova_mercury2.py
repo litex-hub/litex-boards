@@ -26,6 +26,8 @@ from litex.soc.integration.soc import colorer
 kB = 1024
 mB = 1024*kB
 
+# _CRG ---------------------------------------------------------------------------------------------
+
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         self.rst          = Signal()
@@ -35,12 +37,11 @@ class _CRG(LiteXModule):
 
         # # #
 
-        #plls_reset = platform.request("cpu_reset")
-        plls_clk50 = platform.request("clk50")
+        pll_clk50 = platform.request("clk50")
 
         self.pll = pll = S7MMCM(speedgrade=-1)
         self.comb += pll.reset.eq(self.rst)
-        pll.register_clkin(plls_clk50, 50e6)
+        pll.register_clkin(pll_clk50, 50e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
@@ -132,16 +133,16 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=micronova_mercury2.Platform, description="LiteX SoC on MicroNova Mercury2")
-    parser.add_target_argument("--variant",      default="a7-35",     help="Board variant (a7-35 or a7-100).")
-    parser.add_target_argument("--sys-clk-freq", default=50e6,        help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=micronova_mercury2.Platform, description="LiteX SoC on MicroNova Mercury2.")
+    parser.add_target_argument("--variant",      default="a7-35",          help="Board variant (a7-35 or a7-100).")
+    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
-        variant           = args.variant,
-        toolchain         = args.toolchain,
-        sys_clk_freq      = int(float(args.sys_clk_freq)),
+        variant      = args.variant,
+        toolchain    = args.toolchain,
+        sys_clk_freq = args.sys_clk_freq,
         **parser.soc_argdict
     )
 

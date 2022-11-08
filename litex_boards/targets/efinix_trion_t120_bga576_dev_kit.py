@@ -338,19 +338,19 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=efinix_trion_t120_bga576_dev_kit.Platform, description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit")
-    parser.add_target_argument("--flash",          action="store_true", help="Flash bitstream.")
-    parser.add_target_argument("--sys-clk-freq",   default=75e6,        help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    parser = LiteXArgumentParser(platform=efinix_trion_t120_bga576_dev_kit.Platform, description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit.")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-phy",         default=0, type=int,              help="Ethernet PHY: 0 (default) or 1.")
+    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true",    help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",   default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-phy",  default=0, type=int,    help="Ethernet PHY: 0 (default) or 1.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq   = args.sys_clk_freq,
         with_spi_flash = args.with_spi_flash,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,

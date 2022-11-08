@@ -161,16 +161,16 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=digilent_nexys_video.Platform, description="LiteX SoC on Nexys Video")
-    parser.add_target_argument("--sys-clk-freq",           default=100e6,       help="System clock frequency.")
-    parser.add_target_argument("--with-ethernet",          action="store_true", help="Enable Ethernet support.")
+    parser = LiteXArgumentParser(platform=digilent_nexys_video.Platform, description="LiteX SoC on Nexys Video.")
+    parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet", action="store_true",       help="Enable Ethernet support.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-sata",              action="store_true", help="Enable SATA support (over FMCRAID).")
-    parser.add_target_argument("--sata-gen",               default="2",         help="SATA Gen.", choices=["1", "2"])
-    parser.add_target_argument("--with-sata-pll-refclk",   action="store_true", help="Generate SATA RefClk from PLL.")
-    parser.add_target_argument("--vadj",                   default="1.2V",      help="FMC VADJ value.", choices=["1.2V", "1.8V", "2.5V", "3.3V"])
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-sata",            action="store_true", help="Enable SATA support (over FMCRAID).")
+    parser.add_target_argument("--sata-gen",             default="2",         help="SATA Gen.", choices=["1", "2"])
+    parser.add_target_argument("--with-sata-pll-refclk", action="store_true", help="Generate SATA RefClk from PLL.")
+    parser.add_target_argument("--vadj",                 default="1.2V",      help="FMC VADJ value.", choices=["1.2V", "1.8V", "2.5V", "3.3V"])
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
@@ -178,7 +178,7 @@ def main():
 
     soc = BaseSoC(
         toolchain              = args.toolchain,
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_sata              = args.with_sata,
         sata_gen               = "gen" + args.sata_gen,

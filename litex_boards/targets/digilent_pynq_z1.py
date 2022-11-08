@@ -99,14 +99,14 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=digilent_pynq_z1.Platform, description="LiteX SoC on PYNQ Z1")
-    parser.add_target_argument("--sys-clk-freq",        default=125e6,       help="System clock frequency.")
-    parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
+    parser = LiteXArgumentParser(platform=digilent_pynq_z1.Platform, description="LiteX SoC on PYNQ Z1.")
+    parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",       help="Enable Video Terminal (HDMI).")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        sys_clk_freq        = args.sys_clk_freq,
         with_video_terminal = args.with_video_terminal,
         **parser.soc_argdict
     )

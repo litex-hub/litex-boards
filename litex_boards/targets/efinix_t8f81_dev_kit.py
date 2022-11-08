@@ -83,16 +83,16 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=efinix_t8f81_dev_kit.Platform, description="LiteX SoC on Efinix T8F81C Dev Kit")
-    parser.add_target_argument("--flash", action="store_true",           help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",      default=33.333e6,  help="System clock frequency.")
-    parser.add_target_argument("--bios-flash-offset", default="0x40000", help="BIOS offset in SPI Flash.")
+    parser = LiteXArgumentParser(platform=efinix_t8f81_dev_kit.Platform, description="LiteX SoC on Efinix T8F81C Dev Kit.")
+    parser.add_target_argument("--flash",             action="store_true",          help="Flash Bitstream.")
+    parser.add_target_argument("--sys-clk-freq",      default=33.333e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--bios-flash-offset", default="0x40000",            help="BIOS offset in SPI Flash.")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
         bios_flash_offset = int(args.bios_flash_offset, 0),
-        sys_clk_freq      = int(float(args.sys_clk_freq)),
+        sys_clk_freq      = args.sys_clk_freq,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

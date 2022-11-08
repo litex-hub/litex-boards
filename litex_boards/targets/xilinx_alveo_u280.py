@@ -156,21 +156,21 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=xilinx_alveo_u280.Platform, description="LiteX SoC on Alveo U280")
-    parser.add_target_argument("--sys-clk-freq",    default=150e6,       help="System clock frequency.") # HBM2 with 250MHz, DDR4 with 150MHz (1:4)
-    parser.add_target_argument("--ddram-channel",   default="0",         help="DDRAM channel (0, 1, 2 or 3).") # also selects clk 0 or 1
-    parser.add_target_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
-    parser.add_target_argument("--driver",          action="store_true", help="Generate PCIe driver.")
-    parser.add_target_argument("--with-hbm",        action="store_true", help="Use HBM2.")
-    parser.add_target_argument("--with-analyzer",   action="store_true", help="Enable Analyzer.")
-    parser.add_target_argument("--with-led-chaser", action="store_true", help="Enable LED Chaser.")
+    parser = LiteXArgumentParser(platform=xilinx_alveo_u280.Platform, description="LiteX SoC on Alveo U280.")
+    parser.add_target_argument("--sys-clk-freq",    default=150e6, type=float, help="System clock frequency.") # HBM2 with 250MHz, DDR4 with 150MHz (1:4)
+    parser.add_target_argument("--ddram-channel",   default="0",               help="DDRAM channel (0, 1, 2 or 3).") # also selects clk 0 or 1
+    parser.add_target_argument("--with-pcie",       action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--driver",          action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--with-hbm",        action="store_true",       help="Use HBM2.")
+    parser.add_target_argument("--with-analyzer",   action="store_true",       help="Enable Analyzer.")
+    parser.add_target_argument("--with-led-chaser", action="store_true",       help="Enable LED Chaser.")
     args = parser.parse_args()
 
     if args.with_hbm:
         args.sys_clk_freq = 250e6
 
     soc = BaseSoC(
-        sys_clk_freq    = int(float(args.sys_clk_freq)),
+        sys_clk_freq    = args.sys_clk_freq,
         ddram_channel   = int(args.ddram_channel, 0),
         with_pcie       = args.with_pcie,
         with_led_chaser = args.with_led_chaser,

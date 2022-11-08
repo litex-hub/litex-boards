@@ -138,15 +138,15 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=sipeed_tang_nano_4k.Platform, description="LiteX SoC on Tang Nano 4K")
-    parser.add_target_argument("--flash",       action="store_true", help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",default=27e6,        help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=sipeed_tang_nano_4k.Platform, description="LiteX SoC on Tang Nano 4K.")
+    parser.add_target_argument("--flash",       action="store_true",        help="Flash Bitstream.")
+    parser.add_target_argument("--sys-clk-freq",default=27e6, type=float,   help="System clock frequency.")
     parser.add_target_argument("--with-video-terminal",action="store_true", help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq=int(float(args.sys_clk_freq)),
-        with_video_terminal=args.with_video_terminal,
+        sys_clk_freq        = args.sys_clk_freq,
+        with_video_terminal = args.with_video_terminal,
         **parser.soc_argdict
     )
 

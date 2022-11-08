@@ -16,6 +16,7 @@ from litex_boards.platforms import trenz_c10lprefkit
 
 from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -70,8 +71,7 @@ class BaseSoC(SoCCore):
 
         # HyperRam ---------------------------------------------------------------------------------
         self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
-        self.add_wb_slave(self.mem_map["hyperram"], self.hyperram.bus)
-        self.add_memory_region("hyperram", self.mem_map["hyperram"], 8*1024*1024)
+        self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8*1024*1024))
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -102,14 +102,14 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=trenz_c10lprefkit.Platform, description="LiteX SoC on C10 LP RefKit")
-    parser.add_target_argument("--sys-clk-freq",   default=50e6,        help="System clock frequency.")
-    parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser = LiteXArgumentParser(platform=trenz_c10lprefkit.Platform, description="LiteX SoC on C10 LP RefKit.")
+    parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",      help="Enable Etherbone support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         **parser.soc_argdict

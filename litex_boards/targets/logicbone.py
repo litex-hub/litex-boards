@@ -143,18 +143,18 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=logicbone.Platform, description="LiteX SoC on Logicbone")
-    parser.add_target_argument("--sys-clk-freq",   default=75e6,          help="System clock frequency.")
-    parser.add_target_argument("--device",         default="45F",         help="FPGA device (45F or 85F).")
-    parser.add_target_argument("--sdram-device",   default="MT41K512M16", help="SDRAM device (MT41K512M16).")
-    parser.add_target_argument("--with-ethernet",  action="store_true",   help="Enable Ethernet support.")
-    parser.add_target_argument("--with-sdcard",    action="store_true",   help="Enable SDCard support.")
+    parser = LiteXArgumentParser(platform=logicbone.Platform, description="LiteX SoC on Logicbone.")
+    parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--device",         default="45F",            help="FPGA device (45F or 85F).")
+    parser.add_target_argument("--sdram-device",   default="MT41K512M16",    help="SDRAM device (MT41K512M16).")
+    parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")
+    parser.add_target_argument("--with-sdcard",    action="store_true",      help="Enable SDCard support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         toolchain     = args.toolchain,
         device        = args.device,
-        sys_clk_freq  = int(float(args.sys_clk_freq)),
+        sys_clk_freq  = args.sys_clk_freq,
         sdram_device  = args.sdram_device,
         with_ethernet = args.with_ethernet,
         **parser.soc_argdict

@@ -128,17 +128,17 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=qmtech_wukong.Platform, description="LiteX SoC on QMTECH Wukong Board")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6,                    help="System clock frequency.")
-    parser.add_target_argument("--board-version",   default=1,                        help="Board version (1 or 2).")
-    parser.add_target_argument("--speed-grade",     default=-1,                       help="FPGA speed grade (-1 or -2).")
+    parser = LiteXArgumentParser(platform=qmtech_wukong.Platform, description="LiteX SoC on QMTECH Wukong Board.")
+    parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--board-version", default=1,                 help="Board version (1 or 2).")
+    parser.add_target_argument("--speed-grade",   default=-1,                help="FPGA speed grade (-1 or -2).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",              help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone", action="store_true",              help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true",    help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",   default="192.168.1.50", help="Ethernet/Etherbone IP address.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard", action="store_true",              help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",     action="store_true",              help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
@@ -149,7 +149,7 @@ def main():
         raise ValueError("Speed grade {} unsupported".format(speed_grade))
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq   = args.sys_clk_freq,
         board_version  = int(args.board_version),
         speed_grade    = speed_grade,
         with_ethernet  = args.with_ethernet,

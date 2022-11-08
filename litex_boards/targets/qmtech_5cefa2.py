@@ -132,9 +132,9 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=qmtech_5cefa2.Platform, description="LiteX SoC on QMTECH 5CEFA2")
-    parser.add_target_argument("--sys-clk-freq", default=105e6,       help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",   default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser = LiteXArgumentParser(platform=qmtech_5cefa2.Platform, description="LiteX SoC on QMTECH 5CEFA2.")
+    parser.add_target_argument("--sys-clk-freq", default=105e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",   default="1:1",             help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     parser.add_target_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support.")
@@ -151,7 +151,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         with_daughterboard     = args.with_daughterboard,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,

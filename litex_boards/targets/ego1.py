@@ -60,15 +60,15 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=ego1.Platform, description="LiteX SoC on EGO1")
-    parser.add_target_argument("--flash",               action="store_true", help="Flash bitstream.")
-    parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal.")
-    parser.add_target_argument("--sys-clk-freq",        default=100e6,       help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=ego1.Platform, description="LiteX SoC on EGO1.")
+    parser.add_target_argument("--flash",               action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",       help="Enable Video Terminal.")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq        = int(float(args.sys_clk_freq)),
+        sys_clk_freq        = args.sys_clk_freq,
         with_video_terminal = args.with_video_terminal,
         **parser.soc_argdict
     )

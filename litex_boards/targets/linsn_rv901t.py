@@ -90,16 +90,16 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=linsn_rv901t.Platform, description="LiteX SoC on Linsn RV901T")
-    parser.add_target_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=linsn_rv901t.Platform, description="LiteX SoC on Linsn RV901T.")
+    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-phy",         default=0, type=int, help="Ethernet PHY (0 or 1).")
+    parser.add_target_argument("--eth-phy", default=0, type=int,  help="Ethernet PHY (0 or 1).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_phy        = int(args.eth_phy),

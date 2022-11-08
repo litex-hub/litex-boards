@@ -152,18 +152,18 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=gsd_butterstick.Platform, description="LiteX SoC on ButterStick")
-    parser.add_target_argument("--programmer",      default="jtag",         help="Programming interface (jtag or dfu).")
-    parser.add_target_argument("--sys-clk-freq",    default=75e6,           help="System clock frequency.")
-    parser.add_target_argument("--revision",        default="1.0",          help="Board Revision (1.0).")
-    parser.add_target_argument("--device",          default="85F",          help="ECP5 device (25F, 45F, 85F).")
-    parser.add_target_argument("--sdram-device",    default="MT41K64M16",   help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
+    parser = LiteXArgumentParser(platform=gsd_butterstick.Platform, description="LiteX SoC on ButterStick.")
+    parser.add_target_argument("--programmer",   default="jtag",           help="Programming interface (jtag or dfu).")
+    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",     default="1.0",            help="Board Revision (1.0).")
+    parser.add_target_argument("--device",       default="85F",            help="ECP5 device (25F, 45F, 85F).")
+    parser.add_target_argument("--sdram-device", default="MT41K64M16",     help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
     ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--with-spi-flash",  action="store_true",    help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",    help="Enable SPI Flash (MMAPed).")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
@@ -177,7 +177,7 @@ def main():
         revision         = args.revision,
         device           = args.device,
         sdram_device     = args.sdram_device,
-        sys_clk_freq     = int(float(args.sys_clk_freq)),
+        sys_clk_freq     = args.sys_clk_freq,
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
         eth_ip           = args.eth_ip,

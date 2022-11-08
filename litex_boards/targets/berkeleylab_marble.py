@@ -146,21 +146,21 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=berkeleylab_marble.Platform, description="LiteX SoC on BerkeleyLab Marble")
-    parser.add_target_argument("--sys-clk-freq",   default=125e6,       help="System clock frequency.")
-    parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    parser.add_target_argument("--with-rts-reset", action="store_true", help="Connect UART RTS line to sys_clk reset.")
-    parser.add_target_argument("--with-bist",      action="store_true", help="Add DDR3 BIST Generator/Checker.")
-    parser.add_target_argument("--spd-dump",       type=str,            help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
+    parser = LiteXArgumentParser(platform=berkeleylab_marble.Platform, description="LiteX SoC on BerkeleyLab Marble.")
+    parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
+    parser.add_target_argument("--with-rts-reset", action="store_true",       help="Connect UART RTS line to sys_clk reset.")
+    parser.add_target_argument("--with-bist",      action="store_true",       help="Add DDR3 BIST Generator/Checker.")
+    parser.add_target_argument("--spd-dump",                                  help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq  = int(float(args.sys_clk_freq)),
-        with_ethernet = args.with_ethernet,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
-        with_bist = args.with_bist,
-        spd_dump = args.spd_dump,
+        with_bist      = args.with_bist,
+        spd_dump       = args.spd_dump,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

@@ -106,8 +106,8 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=krtkl_snickerdoodle.Platform, description="LiteX SoC on Snickerdoodle")
-    parser.add_target_argument("--variant",      default="z7-10",     help="Board variant (z7-10 or z7-20).")
+    parser = LiteXArgumentParser(platform=krtkl_snickerdoodle.Platform, description="LiteX SoC on Snickerdoodle.")
+    parser.add_target_argument("--variant",      default="z7-10",           help="Board variant (z7-10 or z7-20).")
     parser.add_target_argument("--ext-clk-freq", default=10e6,  type=float, help="External Clock Frequency.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--xci-file",     help="XCI file for PS7 configuration.")

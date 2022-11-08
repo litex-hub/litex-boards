@@ -63,19 +63,19 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------  
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=digilent_basys3.Platform, description="LiteX SoC on Basys3")
-    parser.add_target_argument("--sys-clk-freq",        default=75e6,        help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=digilent_basys3.Platform, description="LiteX SoC on Basys3.")
+    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",     action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",         action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--sdcard-adapter",      type=str,            help="SDCard PMOD adapter (digilent or numato).")
+    sdopts.add_argument("--with-spi-sdcard",       action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",           action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--sdcard-adapter",                      help="SDCard PMOD adapter (digilent or numato).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
-        with_video_terminal    = args.with_video_terminal,
+        sys_clk_freq        = args.sys_clk_freq,
+        with_video_terminal = args.with_video_terminal,
         **parser.soc_argdict
     )
     soc.platform.add_extension(digilent_basys3._sdcard_pmod_io)

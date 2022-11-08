@@ -27,7 +27,7 @@ class BaseSoC(SoCCore):
         platform = xilinx_zcu102.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = CRG(sys_clk_freq)
+        self.crg = CRG(platform.request("clk125"))
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZCU102", **kwargs)
@@ -42,11 +42,11 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=xilinx_zcu102.Platform, description="LiteX SoC on ZCU102")
-    parser.add_target_argument("--sys-clk-freq", default=125e6,       help="System clock generator.")
+    parser = LiteXArgumentParser(platform=xilinx_zcu102.Platform, description="LiteX SoC on ZCU102.")
+    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock generator.")
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=int(float(args.sys_clk_freq)), **parser.soc_argdict)
+    soc = BaseSoC(sys_clk_freq=args.sys_clk_freq, **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

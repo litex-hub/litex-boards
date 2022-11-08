@@ -143,11 +143,11 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=muselab_icesugar_pro.Platform, description="LiteX SoC on Colorlight i5")
-    parser.add_target_argument("--sys-clk-freq",     default=50e6,             help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=muselab_icesugar_pro.Platform, description="LiteX SoC on Colorlight i5.")
+    parser.add_target_argument("--sys-clk-freq", default=50e6, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",  action="store_true",  help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",      action="store_true",  help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard",         action="store_true",  help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",             action="store_true",  help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-flash",   action="store_true",  help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--use-internal-osc", action="store_true",  help="Use internal oscillator.")
     parser.add_target_argument("--sdram-rate",       default="1:1",        help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
@@ -155,15 +155,15 @@ def main():
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
+    ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone.")
     parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         toolchain              = args.toolchain,
         use_internal_osc       = args.use_internal_osc,
         sdram_rate             = args.sdram_rate,

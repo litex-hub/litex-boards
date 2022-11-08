@@ -98,15 +98,15 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=terasic_de10nano.Platform, description="LiteX SoC on DE10-Nano")
-    parser.add_target_argument("--sys-clk-freq",               default=50e6,        help="System clock frequency.")
-    parser.add_target_argument("--with-mister-sdram",          action="store_true", help="Enable SDRAM with MiSTer expansion board.")
-    parser.add_target_argument("--with-mister-video-terminal", action="store_true", help="Enable Video Terminal with Mister expansion board.")
-    parser.add_target_argument("--sdram-rate",                 default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser = LiteXArgumentParser(platform=terasic_de10nano.Platform, description="LiteX SoC on DE10-Nano.")
+    parser.add_target_argument("--sys-clk-freq",               default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-mister-sdram",          action="store_true",      help="Enable SDRAM with MiSTer expansion board.")
+    parser.add_target_argument("--with-mister-video-terminal", action="store_true",      help="Enable Video Terminal with Mister expansion board.")
+    parser.add_target_argument("--sdram-rate",                 default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq               = int(float(args.sys_clk_freq)),
+        sys_clk_freq               = args.sys_clk_freq,
         with_mister_sdram          = args.with_mister_sdram,
         with_mister_video_terminal = args.with_mister_video_terminal,
         sdram_rate                 = args.sdram_rate,

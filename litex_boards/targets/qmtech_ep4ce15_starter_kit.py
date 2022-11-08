@@ -105,15 +105,14 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_ep4ce15_starter_kit.Platform, description="LiteX SoC on QMTECH EP4CE15")
-    parser.add_target_argument("--sys-clk-freq",  default=50e6,        help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",    default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    parser.add_target_argument("--with-jtaguart", action="store_true", help="Enable JTAGUart support.")
-    parser.add_target_argument("--with-jtagbone", action="store_true", help="Enable JTAGbone support.")
-
+    parser.add_target_argument("--sys-clk-freq",  default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",    default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-jtaguart", action="store_true",      help="Enable JTAGUart support.")
+    parser.add_target_argument("--with-jtagbone", action="store_true",      help="Enable JTAGbone support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         sdram_rate             = args.sdram_rate,
         with_jtagbone          = args.with_jtagbone,
         with_jtaguart          = args.with_jtaguart,

@@ -140,15 +140,15 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=hpcstore_xc7k420t.Platform, description="LiteX SoC on AliExpress HPC Store XC7K420T")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
-    parser.add_target_argument("--io-voltage",      default="3.3V",       help="IO voltage chosen by Jumper J3. Can be: '3.3V' or '2.5V'")
-    parser.add_target_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
-    parser.add_target_argument("--driver",          action="store_true", help="Generate PCIe driver.")
-    parser.add_target_argument("--with-sata",       action="store_true", help="Enable SATA support.")
+    parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--io-voltage",      default="3.3V",            help="IO voltage chosen by Jumper J3. Can be: '3.3V' or '2.5V'.")
+    parser.add_target_argument("--with-pcie",       action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--driver",          action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--with-sata",       action="store_true",       help="Enable SATA support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq   = args.sys_clk_freq,
         io_voltage     = args.io_voltage,
         with_pcie      = args.with_pcie,
         with_sata      = args.with_sata,

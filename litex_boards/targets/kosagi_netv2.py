@@ -107,21 +107,20 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=kosagi_netv2.Platform, description="LiteX SoC on NeTV2")
-    parser.add_target_argument("--variant",         default="a7-35",     help="Board variant (a7-35 or a7-100).")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6,       help="System clock frequency.")
-    parser.add_target_argument("--with-ethernet",   action="store_true", help="Enable Ethernet support.")
-    parser.add_target_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
-    parser.add_target_argument("--driver",          action="store_true", help="Generate PCIe driver.")
+    parser = LiteXArgumentParser(platform=kosagi_netv2.Platform, description="LiteX SoC on NeTV2.")
+    parser.add_target_argument("--variant",       default="a7-35",           help="Board variant (a7-35 or a7-100).")
+    parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet", action="store_true",       help="Enable Ethernet support.")
+    parser.add_target_argument("--with-pcie",     action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--driver",        action="store_true",       help="Generate PCIe driver.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-
     args = parser.parse_args()
 
     soc = BaseSoC(
         variant       = args.variant,
-        sys_clk_freq  = int(float(args.sys_clk_freq)),
+        sys_clk_freq  = args.sys_clk_freq,
         with_ethernet = args.with_ethernet,
         with_pcie     = args.with_pcie,
         **parser.soc_argdict

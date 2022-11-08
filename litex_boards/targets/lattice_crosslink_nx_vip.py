@@ -100,14 +100,14 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=lattice_crosslink_nx_vip.Platform, description="LiteX SoC on Crosslink-NX VIP Board")
-    parser.add_target_argument("--sys-clk-freq",  default=75e6,        help="System clock frequency.")
-    parser.add_target_argument("--with-hyperram", default="none",      help="Enable use of HyperRAM chip (none, 0 or 1).")
-    parser.add_target_argument("--prog-target",   default="direct",    help="Programming Target (direct or flash).")
+    parser = LiteXArgumentParser(platform=lattice_crosslink_nx_vip.Platform, description="LiteX SoC on Crosslink-NX VIP Board.")
+    parser.add_target_argument("--sys-clk-freq",  default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-hyperram", default="none",           help="Enable use of HyperRAM chip (none, 0 or 1).")
+    parser.add_target_argument("--prog-target",   default="direct",         help="Programming Target (direct or flash).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        sys_clk_freq = args.sys_clk_freq,
         hyperram     = args.with_hyperram,
         toolchain    = args.toolchain,
         **parser.soc_argdict

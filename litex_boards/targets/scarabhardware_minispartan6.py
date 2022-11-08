@@ -104,17 +104,17 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=scarabhardware_minispartan6.Platform, description="LiteX SoC on MiniSpartan6")
-    parser.add_target_argument("--sys-clk-freq",           default=80e6,        help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser = LiteXArgumentParser(platform=scarabhardware_minispartan6.Platform, description="LiteX SoC on MiniSpartan6.")
+    parser.add_target_argument("--sys-clk-freq",           default=80e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",             default="1:1",             help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
-        sdram_rate   = args.sdram_rate,
+        sys_clk_freq           = args.sys_clk_freq,
+        sdram_rate             = args.sdram_rate,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict

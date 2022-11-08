@@ -117,27 +117,27 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=terasic_deca.Platform, description="LiteX SoC on DECA")
-    parser.add_target_argument("--sys-clk-freq",        default=50e6,        help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=terasic_deca.Platform, description="LiteX SoC on DECA.")
+    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",      action="store_true", help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",     action="store_true", help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip",      action="store_true", help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--with-uartbone",       action="store_true", help="Enable UARTbone support.")
-    parser.add_target_argument("--with-jtagbone",       action="store_true", help="Enable JTAGbone support.")
-    parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
+    ethopts.add_argument("--with-ethernet",             action="store_true",    help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",            action="store_true",    help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",              default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",      action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--with-uartbone",       action="store_true",    help="Enable UARTbone support.")
+    parser.add_target_argument("--with-jtagbone",       action="store_true",    help="Enable JTAGbone support.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",    help="Enable Video Terminal (VGA).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq             = int(float(args.sys_clk_freq)),
-        with_ethernet            = args.with_ethernet,
-        with_etherbone           = args.with_etherbone,
-        eth_ip                   = args.eth_ip,
-        eth_dynamic_ip           = args.eth_dynamic_ip,
-        with_uartbone            = args.with_uartbone,
-        with_jtagbone            = args.with_jtagbone,
-        with_video_terminal      = args.with_video_terminal,
+        sys_clk_freq        = args.sys_clk_freq,
+        with_ethernet       = args.with_ethernet,
+        with_etherbone      = args.with_etherbone,
+        eth_ip              = args.eth_ip,
+        eth_dynamic_ip      = args.eth_dynamic_ip,
+        with_uartbone       = args.with_uartbone,
+        with_jtagbone       = args.with_jtagbone,
+        with_video_terminal = args.with_video_terminal,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

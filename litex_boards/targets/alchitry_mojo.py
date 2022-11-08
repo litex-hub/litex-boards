@@ -144,12 +144,12 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=alchitry_mojo.Platform, description="LiteX SoC on Alchitry Mojo")
-    parser.add_target_argument("--sys-clk-freq",           default=62.5e6,      help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",             default="1:1",       help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
+    parser = LiteXArgumentParser(platform=alchitry_mojo.Platform, description="LiteX SoC on Alchitry Mojo.")
+    parser.add_target_argument("--sys-clk-freq", default=62.5e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",   default="1:1",              help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
     shields1 = parser.target_group.add_mutually_exclusive_group()
-    shields1.add_argument("--with-hdmi-shield",     action="store_true", help="Enable HDMI Shield.")
-    shields1.add_argument("--with-sdram-shield",    action="store_true", help="Enable SDRAM Shield.")
+    shields1.add_argument("--with-hdmi-shield",  action="store_true", help="Enable HDMI Shield.")
+    shields1.add_argument("--with-sdram-shield", action="store_true", help="Enable SDRAM Shield.")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
@@ -159,7 +159,7 @@ def main():
     # Note: baudrate is fixed because regardless of USB->TTL baud, the AVR <-> FPGA baudrate is
     #       set to a fixed rate of 500 kilobaud.
     soc = BaseSoC(
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         sdram_rate             = args.sdram_rate,
         with_hdmi_shield       = args.with_hdmi_shield,
         with_sdram_shield      = args.with_sdram_shield,
