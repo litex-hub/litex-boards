@@ -46,7 +46,13 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(description="Generic LiteX SoC")
-    parser.add_target_argument("platform", help="Module name of the platform to build for.")
+    target_group = parser.add_argument_group(title="Target options")
+    target_group.add_argument("platform",                             help="Module name of the platform to build for.")
+    target_group.add_argument("--build",         action="store_true", help="Build design.")
+    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
+    target_group.add_argument("--toolchain",     default=None,        help="FPGA toolchain.")
+    builder_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
     platform_module = importlib.import_module(args.platform)
@@ -54,10 +60,10 @@ def main():
     if args.toolchain is not None:
         platform_kwargs["toolchain"] = args.toolchain
     platform = platform_module.Platform(**platform_kwargs)
-    soc = BaseSoC(platform,**parser.soc_argdict)
-    builder = Builder(soc, **parser.builder_argdict)
+    soc = BaseSoC(platform,**soc_core_argdict(args))
+    builder = Builder(soc, **builder_argdict(args))
     if args.build:
-        builder.build(**parser.toolchain_argdict)
+        builder.build()
 
     if args.load:
         prog = soc.platform.create_programmer()
