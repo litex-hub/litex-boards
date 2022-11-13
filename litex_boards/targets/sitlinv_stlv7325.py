@@ -63,7 +63,8 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
         with_ethernet   = False,
         with_etherbone  = False,
-        eth_ip          = "192.168.1.50",
+        local_ip        = "192.168.1.50",
+        remote_ip       = "",
         eth_dynamic_ip  = False,
         with_led_chaser = True,
         with_pcie       = False,
@@ -100,6 +101,20 @@ class BaseSoC(SoCCore):
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
+
+        if local_ip:
+            local_ip = local_ip.split(".")
+            self.add_constant("LOCALIP1", int(local_ip[0]))
+            self.add_constant("LOCALIP2", int(local_ip[1]))
+            self.add_constant("LOCALIP3", int(local_ip[2]))
+            self.add_constant("LOCALIP4", int(local_ip[3]))
+
+        if remote_ip:
+            remote_ip = remote_ip.split(".")
+            self.add_constant("REMOTEIP1", int(remote_ip[0]))
+            self.add_constant("REMOTEIP2", int(remote_ip[1]))
+            self.add_constant("REMOTEIP3", int(remote_ip[2]))
+            self.add_constant("REMOTEIP4", int(remote_ip[3]))
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -149,7 +164,8 @@ def main():
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",    help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",        action="store_true",    help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100",help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--local-ip",        default="192.168.1.50", help="Local IP address.")
     parser.add_target_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--with-pcie",       action="store_true",    help="Enable PCIe support.")
     parser.add_target_argument("--driver",          action="store_true",    help="Generate PCIe driver.")
@@ -165,7 +181,8 @@ def main():
         sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
-        eth_ip         = args.eth_ip,
+        local_ip       = args.local_ip,
+        remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         with_pcie      = args.with_pcie,
         with_sata      = args.with_sata,
