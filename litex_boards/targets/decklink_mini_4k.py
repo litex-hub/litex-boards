@@ -46,7 +46,7 @@ class _CRG(LiteXModule):
         # Clk.
         clk100 = platform.request("clk100")
         platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk100_IBUF]")
-        platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets main_s7pll0_clkin]")
+        platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets s7pll0_clkin]")
 
         # Main PLL.
         self.pll = pll = S7PLL(speedgrade=-1)
