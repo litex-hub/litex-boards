@@ -111,7 +111,7 @@ _io = [
         Subsignal("data1_p", Pins("AC8")),
         Subsignal("data1_n", Pins("AD8")),
         Subsignal("data2_p", Pins("AE9")),
-        Subsignal("data2_n", Pins("AD10")),
+        Subsignal("data2_n", Pins("AF9")),
         # FIXME: Find a way to avoid RX pads.
         Subsignal("rx0_p", Pins("AE11")),
         Subsignal("rx0_n", Pins("AF11")),
