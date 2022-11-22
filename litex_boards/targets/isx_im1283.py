@@ -39,17 +39,19 @@ class _CRG(LiteXModule):
         # # #
         self.pll = pll = S7PLL(speedgrade=-2)
         pll.register_clkin(platform.request("clk200"), 200e6)
+        self.comb += pll.reset.eq(self.rst)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
+        platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=80e6, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=80e6, with_led_chaser=True, with_jtagbone=True, **kwargs):
         platform = isx_im1283.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -59,6 +61,10 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
+
+        # Jtagbone ---------------------------------------------------------------------------------
+        if with_jtagbone:
+            self.add_jtagbone()
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -84,6 +90,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=isx_im1283.Platform, description="LiteX SoC on iM1283.")
     parser.add_argument("--sys-clk-freq", default=80e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-jtagbone", action="store_true", help="Enable Jtagbone support.")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
@@ -91,6 +98,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
+        with_jtagbone = args.with_jtagbone,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:
