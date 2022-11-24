@@ -170,15 +170,10 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(description="LiteX SoC on Zybo Z7")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",        action="store_true", help="Build design.")
-    target_group.add_argument("--load",         action="store_true", help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq", default=125e6,       help="System clock frequency.")
-    target_group.add_argument("--variant",      default="z7-10",     help="Board variant (z7-10 or z7-20).")
-    target_group.add_argument("--with-ps7",     action="store_true", help="Add the PS7 as slave for soft CPUs.")
-    builder_args(parser)
-    soc_core_args(parser)
+    parser = LiteXArgumentParser(platform=digilent_zybo_z7.Platform, description="LiteX SoC on Zybo Z7")
+    parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--variant",         default="z7-10",            help="Board variant (z7-10 or z7-20).")
+    parser.add_target_argument("--with-ps7",        action="store_true",        help="Add the PS7 as slave for soft CPUs.")
     args = parser.parse_args()
 
     soc = BaseSoC(
