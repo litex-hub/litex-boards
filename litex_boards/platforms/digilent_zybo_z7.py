@@ -80,22 +80,45 @@ _usb_uart_pmod_io = [
 
 _connectors = [
     ("pmoda", "N15 L14 K16 K14 N16 L15 J16 J14"), # XADC
-    ("pmodb", "T20 U20 V20 W20 Y18 Y19 W18 W19"),
+    ("pmodb", "V8  W8  U7  V7  Y7  Y6  V6  W6"),
     ("pmodc", "V15 W15 T11 T10 W14 Y14 T12 U12"),
     ("pmodd", "T14 T15 P14 R14 U14 U15 V17 V18"),
     ("pmode", "V12 W16 J15 H15 V13 U17 T17 Y17"),
 ]
 
+ps7_config = {
+    "z7-20" : {
+        "PCW_UIPARAM_DDR_PARTNO"        : "MT41K256M16 RE-125",
+        "PCW_FPGA_FCLK0_ENABLE"         : "1",
+        "PCW_UART1_BAUD_RATE"           : "115200",
+        "PCW_EN_UART1"                  : "1",
+        "PCW_UART1_PERIPHERAL_ENABLE"   : "1",
+        "PCW_UART1_UART1_IO"            : "MIO 48 .. 49",
+        "PCW_PRESET_BANK1_VOLTAGE"      : "LVCMOS 1.8V",
+        "PCW_USE_M_AXI_GP0"             : "1",
+        "PCW_USE_S_AXI_GP0"             : "1",
+        "PCW_USB0_PERIPHERAL_ENABLE"    : "1",
+        "PCW_USB0_USB0_IO"              : "MIO 28 .. 39",
+        "PCW_USB0_RESET_ENABLE"         : "1",
+        "PCW_USB0_RESET_IO"             : "MIO 46",
+        "PCW_EN_USB0"                   : "1"
+    }
+}
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk125"
     default_clk_period = 1e9/125e6
 
-    def __init__(self, toolchain="vivado"):
-        Xilinx7SeriesPlatform.__init__(self, "xc7z010-clg400-1", _io,  _connectors, toolchain=toolchain)
+    def __init__(self, variant="z7-20", toolchain="vivado"):
+        device = {
+            "z7-10": "xc7z010-clg400-1",
+            "z7-20": "xc7z020-clg400-1"
+        }[variant]
+        Xilinx7SeriesPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
         self.add_extension(_usb_uart_pmod_io)
+        self.ps7_config = ps7_config[variant]
 
     def create_programmer(self):
         return VivadoProgrammer()
