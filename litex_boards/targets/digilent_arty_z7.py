@@ -75,10 +75,11 @@ class BaseSoC(SoCCore):
         if kwargs.get("cpu_type", None) == "zynq7000":
             assert toolchain == "vivado", ' not tested / specific vivado cmds'
 
-            preset_name = "arty_z7_20.tcl" if variant == "z7-20" else "arty_z7_10.tcl"
-
-            os.system("wget http://kmf2.trabucayre.com/" + preset_name)
-            self.cpu.set_ps7(preset=preset_name)
+            self.cpu.set_ps7(name="Zynq",
+                config={
+                    **platform.ps7_config,
+                    "PCW_FPGA0_PERIPHERAL_FREQMHZ" : sys_clk_freq / 1e6,
+                })
 
             # Connect AXI GP0 to the SoC
             wb_gp0 = wishbone.Interface()

@@ -209,6 +209,47 @@ _connectors = [
     })
 ]
 
+# PS7 config ---------------------------------------------------------------------------------------
+
+ps7_config = {
+    "PCW_PRESET_BANK1_VOLTAGE"           : "LVCMOS 1.8V",
+    "PCW_CRYSTAL_PERIPHERAL_FREQMHZ"     : "50",
+    "PCW_APU_PERIPHERAL_FREQMHZ"         : "650",
+    "PCW_SDIO_PERIPHERAL_FREQMHZ"        : "50",
+    "PCW_FPGA0_PERIPHERAL_FREQMHZ"       : "100",
+    "PCW_UIPARAM_DDR_FREQ_MHZ"           : "525",
+    "PCW_UIPARAM_DDR_BUS_WIDTH"          : "16 Bit",
+    "PCW_UIPARAM_DDR_PARTNO"             : "MT41J256M16 RE-125",
+    "PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0" : "0.040",
+    "PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1" : "0.058",
+    "PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2" : "-0.009",
+    "PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3" : "-0.033",
+    "PCW_UIPARAM_DDR_BOARD_DELAY0"       : "0.223",
+    "PCW_UIPARAM_DDR_BOARD_DELAY1"       : "0.212",
+    "PCW_UIPARAM_DDR_BOARD_DELAY2"       : "0.085",
+    "PCW_UIPARAM_DDR_BOARD_DELAY3"       : "0.092",
+    "PCW_QSPI_PERIPHERAL_ENABLE"         : "1",
+    "PCW_QSPI_GRP_SINGLE_SS_ENABLE"      : "1",
+    "PCW_QSPI_GRP_FBCLK_ENABLE"          : "1",
+    "PCW_ENET0_PERIPHERAL_ENABLE"        : "1",
+    "PCW_ENET0_ENET0_IO"                 : "MIO 16 .. 27",
+    "PCW_ENET0_GRP_MDIO_ENABLE"          : "1",
+    "PCW_ENET0_GRP_MDIO_IO"              : "MIO 52 .. 53",
+    "PCW_ENET0_RESET_ENABLE"             : "1",
+    "PCW_ENET0_RESET_IO"                 : "MIO 9",
+    "PCW_SD0_PERIPHERAL_ENABLE"          : "1",
+    "PCW_SD0_GRP_CD_ENABLE"              : "1",
+    "PCW_SD0_GRP_CD_IO"                  : "MIO 47",
+    "PCW_UART0_PERIPHERAL_ENABLE"        : "1",
+    "PCW_UART0_UART0_IO"                 : "MIO 14 .. 15",
+    "PCW_USB0_PERIPHERAL_ENABLE"         : "1",
+    "PCW_USB0_RESET_ENABLE"              : "1",
+    "PCW_USB0_RESET_IO"                  : "MIO 46",
+    "PCW_GPIO_MIO_GPIO_ENABLE"           : "1",
+    "PCW_GPIO_MIO_GPIO_IO"               : "MIO",
+    "PCW_GPIO_EMIO_GPIO_ENABLE"          : "0",
+}
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
@@ -226,6 +267,7 @@ class Platform(Xilinx7SeriesPlatform):
         }[variant]
 
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
+        self.ps7_config = ps7_config
 
     def create_programmer(self):
         return VivadoProgrammer()
