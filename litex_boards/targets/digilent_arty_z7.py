@@ -6,6 +6,26 @@
 # Copyright (c) 2021 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Load bit/bios ------------------------------------------------------------------------------------
+#
+# 1/ tcl script:
+# connect
+# targets -set -filter {name =~ "ARM*#0"}
+# rst
+# stop
+# 
+# source build/digilent_arty_z7/gateware/digilent_arty_z7.srcs/sources_1/ip/Zynq/ps7_init.tcl
+# ps7_init
+# ps7_post_config
+# 
+# dow build/digilent_arty_z7/software/bios/bios.elf
+# fpga build/digilent_arty_z7/gateware/digilent_arty_z7.bit
+# con
+#
+# 2/ loading
+# xsct -nodisp ps7_boot.tcl
+# where ps7_boot.tcl is your script name
+
 from migen import *
 
 from litex.gen import LiteXModule
