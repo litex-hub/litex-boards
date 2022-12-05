@@ -28,6 +28,8 @@ from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
+from litex.soc.cores.led import LedChaser
+
 
 kB = 1024
 mB = 1024*kB
@@ -98,7 +100,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, sys_clk_freq=24e6, revision="v1", **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=24e6, revision="v1", with_led_chaser=True, **kwargs):
         platform = icebreaker_bitsy.Platform(revision=revision)
 
         # CRG --------------------------------------------------------------------------------------
@@ -127,6 +129,13 @@ class BaseSoC(SoCCore):
                 size   = 64*kB,
                 linker = True)
             )
+
+        # LED Chaser --------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads         = platform.request_all("user_led_n"),
+                sys_clk_freq = sys_clk_freq,
+                polarity     = 1)
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q128JV
