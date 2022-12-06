@@ -65,7 +65,7 @@ _io = [
     ),
 
     # VGA
-     ("vga", 0,
+    ("vga", 0,
         Subsignal("hsync_n", Pins("P19")),
         Subsignal("vsync_n", Pins("R18")),
         Subsignal("r", Pins("G19 H19 J19 N19")),
@@ -73,13 +73,24 @@ _io = [
         Subsignal("b", Pins("N18 L18 K18 J18")),
         IOStandard("LVCMOS33")
     ),
-    
+
     # USB PS/2
     ("usbhost", 0,
        Subsignal("ps2_clk", Pins("B6")),
        Subsignal("ps2_data", Pins("A6")),
-       IOStandard("LVCMOS33"))
+       IOStandard("LVCMOS33")
+    ),
 
+
+    ("gpio", 0,
+       Subsignal("a", Pins("J1   L2  J2  G2  H1  K2  H2  G3")),
+       Subsignal("b", Pins("A14 A16 B15 B16 A15 A17 C15 C16")),
+       Subsignal("c0", Pins("K17")),
+       Subsignal("c1", Pins("M18")),
+       Subsignal("c6", Pins("L17")),
+       Subsignal("c7", Pins("M19")),
+       Subsignal("xadc", Pins("J3  L3  M2  N2  K3  M3  M1  N1")),
+       IOStandard("LVCMOS33"))
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
