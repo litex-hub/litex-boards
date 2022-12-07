@@ -44,7 +44,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6, with_ps7=False, with_led_chaser=True, **kwargs):
-        platform = digilent_zybo_z7.Platform()
+        platform = digilent_zybo.Platform()
         self.builder    = None
         # CRG --------------------------------------------------------------------------------------
         use_ps7_clk     = (kwargs.get("cpu_type", None) == "zynq7000")
@@ -59,7 +59,7 @@ class BaseSoC(SoCCore):
             self.mem_map = {
                 'csr': 0x4000_0000,  # Zynq GP0 default
             }
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zybo Z7", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zybo", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
@@ -163,7 +163,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=digilent_zybo_z7.Platform, description="LiteX SoC on Zybo")
+    parser = LiteXArgumentParser(platform=digilent_zybo.Platform, description="LiteX SoC on Zybo")
     parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float,  help="System clock frequency.")
     parser.add_target_argument("--with-ps7",        action="store_true",        help="Add the PS7 as slave for soft CPUs.")
     args = parser.parse_args()
