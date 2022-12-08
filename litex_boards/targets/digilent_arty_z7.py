@@ -6,6 +6,26 @@
 # Copyright (c) 2021 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Load bit/bios ------------------------------------------------------------------------------------
+#
+# 1/ tcl script:
+# connect
+# targets -set -filter {name =~ "ARM*#0"}
+# rst
+# stop
+# 
+# source build/digilent_arty_z7/gateware/digilent_arty_z7.srcs/sources_1/ip/Zynq/ps7_init.tcl
+# ps7_init
+# ps7_post_config
+# 
+# dow build/digilent_arty_z7/software/bios/bios.elf
+# fpga build/digilent_arty_z7/gateware/digilent_arty_z7.bit
+# con
+#
+# 2/ loading
+# xsct -nodisp ps7_boot.tcl
+# where ps7_boot.tcl is your script name
+
 from migen import *
 
 from litex.gen import LiteXModule
@@ -75,10 +95,11 @@ class BaseSoC(SoCCore):
         if kwargs.get("cpu_type", None) == "zynq7000":
             assert toolchain == "vivado", ' not tested / specific vivado cmds'
 
-            preset_name = "arty_z7_20.tcl" if variant == "z7-20" else "arty_z7_10.tcl"
-
-            os.system("wget http://kmf2.trabucayre.com/" + preset_name)
-            self.cpu.set_ps7(preset=preset_name)
+            self.cpu.set_ps7(name="Zynq",
+                config={
+                    **platform.ps7_config,
+                    "PCW_FPGA0_PERIPHERAL_FREQMHZ" : sys_clk_freq / 1e6,
+                })
 
             # Connect AXI GP0 to the SoC
             wb_gp0 = wishbone.Interface()
