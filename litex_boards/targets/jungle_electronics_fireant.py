@@ -57,7 +57,6 @@ serial = [
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
     def __init__(self, bios_flash_offset, sys_clk_freq=33.333e6, with_led_chaser=True, **kwargs):
         platform = jungle_electronics_fireant.Platform()
         platform.add_extension(serial)
@@ -71,21 +70,21 @@ class BaseSoC(SoCCore):
         # Set CPU variant / reset address
         if kwargs.get("cpu_type", "vexriscv") == "vexriscv":
             kwargs["cpu_variant"] = "minimal"
-        kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Jungle Electronics FireAnt", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q80BV
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
         # Board is using W25Q80DV, which is replacemenet for W25Q80BV
-        self.add_spi_flash(mode="1x", module=W25Q80BV(Codes.READ_1_1_1), with_master=False)
+        self.add_spi_flash(name="spiflash", mode="1x", module=W25Q80BV(Codes.READ_1_1_1), with_master=False)
 
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
-            origin = self.mem_map["spiflash"] + bios_flash_offset,
+            origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
             size   = 32*kB,
             linker = True)
         )
+        self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
