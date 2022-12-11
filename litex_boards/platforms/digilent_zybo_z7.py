@@ -34,7 +34,7 @@ _io_original = [
 
 ]
 
-_io_common = [
+_io = [
     # Leds
     ("user_led", 0, Pins("M14"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("M15"), IOStandard("LVCMOS33")),
@@ -114,7 +114,7 @@ _connectors_z7 = [
     ("pmodb", "V8  W8  U7  V7  Y7  Y6  V6  W6")
 ]
 
-_connectors_common = [
+_connectors = [
     ("pmoda", "N15 L14 K16 K14 N16 L15 J16 J14"), # XADC
     ("pmodc", "V15 W15 T11 T10 W14 Y14 T12 U12"),
     ("pmodd", "T14 T15 P14 R14 U14 U15 V17 V18"),
@@ -162,12 +162,12 @@ class Platform(Xilinx7SeriesPlatform):
         }[variant]
         ps7_config = ps7_config_variants["common"]
         if variant == "original":
-            _connectors = _connectors_common + _connectors_original
-            _io = _io_common + _io_original
+            _connectors = _connectors + _connectors_original
+            _io = _io + _io_original
             ps7_config.update["original"]
         else:
-            _connectors = _connectors_common + _connectors_z7
-            _io = _io_common + _io_z7
+            _connectors = _connectors + _connectors_z7
+            _io = _io + _io_z7
             ps7_config.update["z7"]
         Xilinx7SeriesPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
