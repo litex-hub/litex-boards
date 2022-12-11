@@ -164,11 +164,11 @@ class Platform(Xilinx7SeriesPlatform):
         if variant == "original":
             _connectors = _connectors + _connectors_original
             _io = _io + _io_original
-            ps7_config.update["original"]
+            ps7_config.update(ps7_config_variants["original"])
         else:
             _connectors = _connectors + _connectors_z7
             _io = _io + _io_z7
-            ps7_config.update["z7"]
+            ps7_config.update(ps7_config_variants["z7"])
         Xilinx7SeriesPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
         self.add_extension(_usb_uart_pmod_io)
