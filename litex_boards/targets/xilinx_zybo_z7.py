@@ -3,7 +3,8 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>, Oliver Szabo <16oliver16@gmail.com>
+# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2022 Oliver Szabo <16oliver16@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
@@ -64,7 +65,7 @@ class BaseSoC(SoCCore):
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
             self.cpu.use_rom = True
-            if variant == "z7-10" or variant == "original":
+            if variant in ["z7-20", "original"]:
                 # Get and set the pre-generated .xci FIXME: change location? add it to the repository? Make config
                 os.makedirs("xci", exist_ok=True)
                 os.system("wget https://github.com/litex-hub/litex-boards/files/8339591/zybo_z7_ps7.txt")
@@ -99,7 +100,7 @@ class BaseSoC(SoCCore):
 
         # PS7 as Slave Integration ---------------------------------------------------------------------
         elif with_ps7:
-            if variant == "z7-20" or variant == "original":
+            if variant in ["z7-20", "original"]:
                 cpu_cls = cpu.CPUS["zynq7000"]
                 zynq    = cpu_cls(self.platform, "standard") # zynq7000 has no variants
                 zynq.set_ps7(name="ps", config = platform.ps7_config)
