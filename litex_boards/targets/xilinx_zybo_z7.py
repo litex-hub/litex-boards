@@ -3,7 +3,8 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>,
+# Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2022 Oliver Szabo <16oliver16@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
@@ -59,12 +60,12 @@ class BaseSoC(SoCCore):
             self.mem_map = {
                 'csr': 0x4000_0000,  # Zynq GP0 default
             }
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zybo Z7", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zybo Z7/original Zybo", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
             self.cpu.use_rom = True
-            if variant == "z7-10":
+            if variant in ["z7-20", "original"]:
                 # Get and set the pre-generated .xci FIXME: change location? add it to the repository? Make config
                 os.makedirs("xci", exist_ok=True)
                 os.system("wget https://github.com/litex-hub/litex-boards/files/8339591/zybo_z7_ps7.txt")
@@ -99,7 +100,7 @@ class BaseSoC(SoCCore):
 
         # PS7 as Slave Integration ---------------------------------------------------------------------
         elif with_ps7:
-            if variant == "z7-20":
+            if variant in ["z7-20", "original"]:
                 cpu_cls = cpu.CPUS["zynq7000"]
                 zynq    = cpu_cls(self.platform, "standard") # zynq7000 has no variants
                 zynq.set_ps7(name="ps", config = platform.ps7_config)
@@ -170,9 +171,9 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=digilent_zybo_z7.Platform, description="LiteX SoC on Zybo Z7")
+    parser = LiteXArgumentParser(platform=digilent_zybo_z7.Platform, description="LiteX SoC on Zybo Z7/original Zybo")
     parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float,  help="System clock frequency.")
-    parser.add_target_argument("--variant",         default="z7-10",            help="Board variant (z7-10 or z7-20).")
+    parser.add_target_argument("--variant",         default="z7-10",            help="Board variant (z7-10, z7-20 or original).")
     parser.add_target_argument("--with-ps7",        action="store_true",        help="Add the PS7 as slave for soft CPUs.")
     args = parser.parse_args()
 
