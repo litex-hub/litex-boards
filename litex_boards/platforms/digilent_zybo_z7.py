@@ -10,30 +10,6 @@ from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
-_io_z7 = [
-    # Clk / Rst
-    ("clk125", 0, Pins("K17"), IOStandard("LVCMOS33")),
-
-    # Buttons
-    ("user_btn", 0, Pins("K18"), IOStandard("LVCMOS33")),
-    ("user_btn", 1, Pins("P16"), IOStandard("LVCMOS33")),
-    ("user_btn", 2, Pins("K19"), IOStandard("LVCMOS33")),
-    ("user_btn", 3, Pins("Y16"), IOStandard("LVCMOS33")),
-  
-]
-
-_io_original = [
-    # Clk / Rst
-    ("clk125", 0, Pins("L16"), IOStandard("LVCMOS33")),
-
-    # Buttons
-    ("user_btn", 0, Pins("R18"), IOStandard("LVCMOS33")),
-    ("user_btn", 1, Pins("P16"), IOStandard("LVCMOS33")),
-    ("user_btn", 2, Pins("V16"), IOStandard("LVCMOS33")),
-    ("user_btn", 3, Pins("Y16"), IOStandard("LVCMOS33")),
-
-]
-
 _io = [
     # Leds
     ("user_led", 0, Pins("M14"), IOStandard("LVCMOS33")),
@@ -69,6 +45,28 @@ _io = [
         Subsignal("rx", Pins("Y17")),
         IOStandard("LVCMOS33")
     ),
+]
+
+_io_z7 = [
+    # Clk / Rst
+    ("clk125", 0, Pins("K17"), IOStandard("LVCMOS33")),
+
+    # Buttons
+    ("user_btn", 0, Pins("K18"), IOStandard("LVCMOS33")),
+    ("user_btn", 1, Pins("P16"), IOStandard("LVCMOS33")),
+    ("user_btn", 2, Pins("K19"), IOStandard("LVCMOS33")),
+    ("user_btn", 3, Pins("Y16"), IOStandard("LVCMOS33")),
+]
+
+_io_original = [
+    # Clk / Rst
+    ("clk125", 0, Pins("L16"), IOStandard("LVCMOS33")),
+
+    # Buttons
+    ("user_btn", 0, Pins("R18"), IOStandard("LVCMOS33")),
+    ("user_btn", 1, Pins("P16"), IOStandard("LVCMOS33")),
+    ("user_btn", 2, Pins("V16"), IOStandard("LVCMOS33")),
+    ("user_btn", 3, Pins("Y16"), IOStandard("LVCMOS33")),
 ]
 
 _ps7_io = [
@@ -110,15 +108,15 @@ _usb_uart_pmod_io = [
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors_z7 = [
-    ("pmodb", "V8  W8  U7  V7  Y7  Y6  V6  W6")
-]
-
 _connectors = [
     ("pmoda", "N15 L14 K16 K14 N16 L15 J16 J14"), # XADC
     ("pmodc", "V15 W15 T11 T10 W14 Y14 T12 U12"),
     ("pmodd", "T14 T15 P14 R14 U14 U15 V17 V18"),
     ("pmode", "V12 W16 J15 H15 V13 U17 T17 Y17"),
+]
+
+_connectors_z7 = [
+    ("pmodb", "V8  W8  U7  V7  Y7  Y6  V6  W6")
 ]
 
 _connectors_original = [
@@ -148,6 +146,7 @@ ps7_config_variants = {
         "PCW_UIPARAM_DDR_PARTNO"        : "MT41K128M16 RE-125"
     }
 }
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
@@ -161,17 +160,13 @@ class Platform(Xilinx7SeriesPlatform):
             "original": "xc7z010-clg400-1"
         }[variant]
         ps7_config = ps7_config_variants["common"]
-        if variant == "original":
-            _connectors = _connectors + _connectors_original
-            _io = _io + _io_original
-            ps7_config.update(ps7_config_variants["original"])
-        else:
-            _connectors = _connectors + _connectors_z7
-            _io = _io + _io_z7
-            ps7_config.update(ps7_config_variants["z7"])
-        Xilinx7SeriesPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
+        ps7_config.update(ps7_config_variants["original" if variant == "original" else "z7"])
+
+        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
         self.add_extension(_usb_uart_pmod_io)
+        self.add_extension(_io_original if variant == "original" else _io_z7)
+        self.add_connector(_connectors_original if variant == "original" else _connectors_z7)
         self.ps7_config = ps7_config
 
     def create_programmer(self):
