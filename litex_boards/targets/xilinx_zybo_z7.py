@@ -45,7 +45,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6, variant="z7-10", with_ps7=False, with_led_chaser=True, **kwargs):
-        platform = digilent_zybo_z7.Platform()
+        platform = digilent_zybo_z7.Platform(variant=variant)
         self.builder    = None
         # CRG --------------------------------------------------------------------------------------
         use_ps7_clk     = (kwargs.get("cpu_type", None) == "zynq7000")
