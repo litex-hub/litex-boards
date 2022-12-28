@@ -174,6 +174,24 @@ _io = [
         IOStandard("1.5 V")
     ),
 
+    # SPI SDCard.
+    ("spisdcard", 0,
+        Subsignal("clk",    Pins("T20")),
+        Subsignal("cs_n",   Pins("R20")),
+        Subsignal("mosi",   Pins("T21")),
+        Subsignal("miso",   Pins("R18")),
+        IOStandard("1.5 V")
+    ),
+    ("spisdcard_aux", 0,
+        Subsignal("sel",      Pins("P13"), IOStandard("3.3-V LVTTL")),
+        Subsignal("cmd_dir",  Pins("U22")),
+        Subsignal("d0_dir",   Pins("T22")),
+        Subsignal("d123_dir", Pins("U21")),
+        Subsignal("dat1",     Pins("T18")),
+        Subsignal("dat2",     Pins("T19")),
+        IOStandard("1.5 V")
+    ),
+
     # MII Ethernet.
     ("eth_clocks", 0,
         Subsignal("tx", Pins("T5")),
