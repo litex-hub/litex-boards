@@ -105,7 +105,7 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         "usb_ohci":     0xc0000000,
     }}
-    def __init__(self, revision="v0", device="12F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, with_ethernet=False, **kwargs):
+    def __init__(self, revision="v0", device="12F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, **kwargs):
 
         platform = machdyne_konfekt.Platform(revision=revision, device=device ,toolchain=toolchain)
 
@@ -200,7 +200,6 @@ def main():
         sys_clk_freq = int(float(args.sys_clk_freq)),
         sdram_device = args.sdram_device,
         with_usb_host = args.with_usb_host,
-        with_ethernet = args.with_ethernet,
         **soc_core_argdict(args))
 
     if args.with_sdcard:
