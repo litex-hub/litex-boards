@@ -31,7 +31,6 @@ from litedram.modules import W9825G6KH6
 from litedram.modules import IS42S16320
 
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
-from litedram.phy import QuarterRateGENSDRPHY
 
 from litex.soc.integration.soc import SoCRegion
 
@@ -120,6 +119,7 @@ class BaseSoC(SoCCore):
             if sdram_rate == "1:2":
                 sdrphy_cls = HalfRateGENSDRPHY
             elif sdram_rate == "1:4":
+                from litedram.phy import QuarterRateGENSDRPHY
                 sdrphy_cls = QuarterRateGENSDRPHY
             else:
                 sdrphy_cls = GENSDRPHY

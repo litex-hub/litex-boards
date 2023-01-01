@@ -33,9 +33,6 @@ from litex.soc.integration.builder import *
 from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
 from litedram.phy import ECP5DDRPHY
 
-from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
-from litedram.phy import QuarterRateGENSDRPHY
-
 from litex.soc.integration.soc import SoCRegion
 
 # CRG ---------------------------------------------------------------------------------------------
