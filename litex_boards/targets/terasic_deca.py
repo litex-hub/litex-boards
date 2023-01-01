@@ -61,6 +61,7 @@ class BaseSoC(SoCCore):
         with_uartbone       = False,
         with_jtagbone       = False,
         with_video_terminal = False,
+        with_spi_sdcard     = False,
         with_ethernet       = False,
         with_etherbone      = False,
         eth_ip              = "192.168.1.50",
@@ -90,7 +91,7 @@ class BaseSoC(SoCCore):
         # JTAGbone ---------------------------------------------------------------------------------
         if with_jtagbone:
             self.add_jtagbone()
-        
+
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.platform.toolchain.additional_sdc_commands += [
@@ -113,6 +114,24 @@ class BaseSoC(SoCCore):
             self.videophy = VideoDVIPHY(platform.request("hdmi"), clock_domain="hdmi")
             self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
 
+        # SPI SD card ------------------------------------------------------------------------------
+        if with_spi_sdcard:
+            self.add_spi_sdcard()
+
+            sd_aux = self.platform.request("spisdcard_aux")
+
+            # Set the SD card supply to 3.3V
+            self.comb += sd_aux.sel.eq(0)
+
+            # Set the direction of the level shifter (0 = SD to FPGA; 1 = FPGA to SD)
+            self.comb += sd_aux.cmd_dir.eq(1)
+            self.comb += sd_aux.d0_dir.eq(0)
+            self.comb += sd_aux.d123_dir.eq(1)
+
+            # Keep the unused data lines high
+            self.comb += sd_aux.dat1.eq(1)
+            self.comb += sd_aux.dat2.eq(1)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -133,6 +152,7 @@ def main():
     parser.add_target_argument("--with-uartbone",       action="store_true",    help="Enable UARTbone support.")
     parser.add_target_argument("--with-jtagbone",       action="store_true",    help="Enable JTAGbone support.")
     parser.add_target_argument("--with-video-terminal", action="store_true",    help="Enable Video Terminal (VGA).")
+    parser.add_target_argument("--with-spi-sdcard",     action="store_true",    help="Enable SPI SD card controller.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -144,6 +164,7 @@ def main():
         with_uartbone       = args.with_uartbone,
         with_jtagbone       = args.with_jtagbone,
         with_video_terminal = args.with_video_terminal,
+        with_spi_sdcard     = args.with_spi_sdcard,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
