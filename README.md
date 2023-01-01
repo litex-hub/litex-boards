@@ -167,6 +167,8 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── logicbone
     ├── machdyne_krote
     ├── machdyne_schoko
+    ├── machdyne_konfekt
+    ├── machdyne_noir
     ├── marblemini
     ├── marble
     ├── micronova_mercury2
