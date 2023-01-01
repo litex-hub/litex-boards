@@ -111,7 +111,7 @@ _connectors = [
         #      NC      NC  NC  NC      NC      NC  (113-122).
         " A14 --- B13 --- --- --- C12 --- B12 ---",
         #      NC      NC GND GND                  (123-132).
-        " A12 --- C11 --- --- --- B11 E15 A11 F15",
+        " A12 --- C11 --- --- --- B11 E16 A11 F15",
         # GND GND          NC GND GND      NC      (133-142).
         " --- --- C10 C13 --- --- --- D16 --- E14",
         #     GND GND                 GND GND      (143-152).
@@ -135,18 +135,18 @@ _connectors = [
 
 _dock_io = [
     # Leds
-    ("led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS18")),
-    ("led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS18")),
-    ("led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS18")),
-    ("led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS18")),
-    ("led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS18")),
-    ("led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS18")),
+    ("led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS33")),
+    ("led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS33")),
+    ("led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS33")),
+    ("led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS33")),
+    ("led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS33")),
+    ("led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS33")),
 
     # RGB Led.
     ("rgb_led", 0, Pins("CARD1:45"), IOStandard("LVCMOS18")),
 
     # Buttons.
-    ("btn_n", 0,  Pins( "CARD1:15"), IOStandard("LVCMOS18")),
+    ("btn_n", 0,  Pins( "CARD1:15"), IOStandard("LVCMOS33")),
     ("btn_n", 1,  Pins("CARD1:165"), IOStandard("LVCMOS15")),
     ("btn_n", 2,  Pins("CARD1:163"), IOStandard("LVCMOS15")),
     ("btn_n", 3,  Pins("CARD1:159"), IOStandard("LVCMOS15")),
@@ -192,19 +192,19 @@ _dock_io = [
     # RMII Ethernet
     ("eth_clocks", 0,
         Subsignal("ref_clk", Pins("CARD1:148")),
-        IOStandard("LVCMOS18"),
+        IOStandard("LVCMOS33"),
     ),
     ("eth", 0,
         Subsignal("rst_n",   Pins("CARD1:176")),
-        Subsignal("rx_data", Pins("CARD1:56 CARD1:146")),
-        Subsignal("crs_dv",  Pins("CARD1:41")),
-        Subsignal("tx_en",   Pins("CARD1:83")),
+        Subsignal("rx_data", Pins("CARD1:132 CARD1:146")),
+        Subsignal("crs_dv",  Pins("CARD1:198")),
+        Subsignal("tx_en",   Pins("CARD1:130")),
         Subsignal("tx_data", Pins("CARD1:140 CARD1:142")),
         Subsignal("mdc",     Pins("CARD1:95")),
         Subsignal("mdio",    Pins("CARD1:97")),
         Subsignal("rx_er",   Pins("CARD1:200")),
         #Subsignal("int_n",   Pins("CARD1:")),
-        IOStandard("LVCMOS18")
+        IOStandard("LVCMOS33")
      ),
 ]
 
