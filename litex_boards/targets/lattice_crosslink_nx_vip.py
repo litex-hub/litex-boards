@@ -84,13 +84,15 @@ class BaseSoC(SoCCore):
             # 128KB LRAM (used as SRAM) ------------------------------------------------------------
             size = 128*kB
             self.spram = NXLRAM(32, size)
-            self.bus.add_slave("sram", slave=self.spram.bus, region=SoCRegion(size=size))
+            self.bus.add_slave("sram", slave=self.spram.bus, region=SoCRegion(origin=self.mem_map["sram"],
+                size=size))
         else:
             # Use HyperRAM generic PHY as SRAM -----------------------------------------------------
             size = 8*1024*kB
             hr_pads = platform.request("hyperram", int(hyperram))
             self.hyperram = HyperRAM(hr_pads, sys_clk_freq=sys_clk_freq)
-            self.bus.add_slave("sram", slave=self.hyperram.bus, region=SoCRegion(size=size))
+            self.bus.add_slave("sram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["sram"],
+                size=size))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
