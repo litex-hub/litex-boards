@@ -91,11 +91,13 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Arty A7", **kwargs)
 
         # XADC -------------------------------------------------------------------------------------
-        self.xadc = XADC()
+        if toolchain == "vivado":
+            self.xadc = XADC()
 
         # DNA --------------------------------------------------------------------------------------
-        self.dna = DNA()
-        self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
+        if toolchain == "vivado":
+            self.dna = DNA()
+            self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
