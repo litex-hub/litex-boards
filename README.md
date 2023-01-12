@@ -182,6 +182,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── numato_mimas_a7
     ├── numato_nereid
     ├── numato_tagus
+    ├── ocp_tap_timecard
     ├── pano_logic_g2
     ├── qmtech_10cl006
     ├── qmtech_5cefa2
