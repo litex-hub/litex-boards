@@ -53,6 +53,12 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
+
+    # Add interrupt to LiteDRAM for LoggingSystem
+    interrupt_map = {
+            'sdram': None
+            }
+
     def __init__(self, sys_clk_freq=75e6,
         with_ethernet          = False,
         with_etherbone         = False,

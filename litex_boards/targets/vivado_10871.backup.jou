@@ -1,0 +1,13 @@
+#-----------------------------------------------------------
+# Vivado v2021.2 (64-bit)
+# SW Build 3367213 on Tue Oct 19 02:47:39 MDT 2021
+# IP Build 3369179 on Thu Oct 21 08:25:16 MDT 2021
+# Start of session at: Thu Jan 12 13:25:51 2023
+# Process ID: 10871
+# Current directory: /home/percs/litex_all/litex-boards/litex_boards/targets
+# Command line: vivado -mode batch -source /home/percs/litex_all/program.tcl
+# Log file: /home/percs/litex_all/litex-boards/litex_boards/targets/vivado.log
+# Journal file: /home/percs/litex_all/litex-boards/litex_boards/targets/vivado.jou
+# Running On: HOTH-LiteDRAM, OS: Linux, CPU Frequency: 3691.102 MHz, CPU Physical cores: 4, Host memory: 24803 MB
+#-----------------------------------------------------------
+source /home/percs/litex_all/program.tcl
