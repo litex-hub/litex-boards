@@ -41,6 +41,9 @@ from litex.soc.cores.led import LedChaser
 from litex.soc.cores.xadc import XADC
 from litex.soc.cores.dna  import DNA
 
+from litedram.modules import MT41K256M16
+from litedram.phy import s7ddrphy
+
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.software import generate_litepcie_software
 
@@ -48,8 +51,11 @@ from litepcie.software import generate_litepcie_software
 
 class CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst    = Signal()
-        self.cd_sys = ClockDomain()
+        self.rst          = Signal()
+        self.cd_sys       = ClockDomain()
+        self.cd_sys4x     = ClockDomain()
+        self.cd_sys4x_dqs = ClockDomain()
+        self.cd_idelay    = ClockDomain()
 
         # Clk/Rst
         clk200 = platform.request("clk200")
@@ -58,8 +64,13 @@ class CRG(LiteXModule):
         self.pll = pll = S7PLL()
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk200, 200e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        pll.create_clkout(self.cd_sys,       sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
+        pll.create_clkout(self.cd_idelay,    200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
+
+        self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC -----------------------------------------------------------------------------------------
 

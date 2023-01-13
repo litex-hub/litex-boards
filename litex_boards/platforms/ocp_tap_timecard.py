@@ -48,6 +48,39 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # DDR3 SDRAM
+    ("ddram", 0,
+        Subsignal("a", Pins(
+            "AA4 AB2 AA5 AB5 AB1 U3 W1 T1",
+            "V2   U2  Y1  W2  Y2 U1 V3"),
+            IOStandard("SSTL15")),
+        Subsignal("ba",    Pins("AA3 Y3 Y4"), IOStandard("SSTL15")),
+        Subsignal("ras_n", Pins("V4"),  IOStandard("SSTL15")),
+        Subsignal("cas_n", Pins("W4"),  IOStandard("SSTL15")),
+        Subsignal("we_n",  Pins("AA1"), IOStandard("SSTL15")),
+        Subsignal("cs_n",  Pins("AB3"), IOStandard("SSTL15")),
+        Subsignal("dm", Pins("D2 G2 M2 M5"), IOStandard("SSTL15")),
+        Subsignal("dq", Pins(
+            "C2 G1 A1 F3 B2 F1 B1 E2",
+            "H3 G3 H2 H5 J1 J5 K1 H4",
+            "L4 M3 L3 J6 K3 K6 J4 L5",
+            "P1 N4 R1 N2 M6 N5 P6 P2"),
+            IOStandard("SSTL15"),
+            Misc("IN_TERM=UNTUNED_SPLIT_40")),
+        Subsignal("dqs_p", Pins("E1 K2 M1 P5"),
+            IOStandard("DIFF_SSTL15"),
+            Misc("IN_TERM=UNTUNED_SPLIT_40")),
+        Subsignal("dqs_n", Pins("D1 J2 L1 P4"),
+            IOStandard("DIFF_SSTL15"),
+            Misc("IN_TERM=UNTUNED_SPLIT_40")),
+        Subsignal("clk_p",   Pins("R3"), IOStandard("DIFF_SSTL15")),
+        Subsignal("clk_n",   Pins("R2"), IOStandard("DIFF_SSTL15")),
+        Subsignal("cke",     Pins("T5"), IOStandard("SSTL15")),
+        Subsignal("odt",     Pins("U5"), IOStandard("SSTL15")),
+        Subsignal("reset_n", Pins("W6"), IOStandard("SSTL15")),
+        Misc("SLEW=FAST"),
+    ),
+
     # PCIe.
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("J20"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
@@ -126,6 +159,8 @@ class Platform(Xilinx7SeriesPlatform):
 
     def __init__(self,toolchain="vivado"):
         Xilinx7SeriesPlatform.__init__(self, "xc7a100t-fgg484-2", _io, toolchain=toolchain)
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
 
         self.toolchain.bitstream_commands = [
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
