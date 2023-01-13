@@ -117,6 +117,11 @@ class BaseSoC(SoCCore):
 
         # SMAs -------------------------------------------------------------------------------------
         if with_smas:
+            # TODO:
+            # - Use IO primitives to increase IO freqs (up to 800Mz would be fine) and PCIe Gen2 X1
+            #   should be able to saturate it (~3.4Gbps of useful bandwidth).
+            # - Allow IO freq configuration (through PLL/MMCM and/or dividers).
+
             class SMAIOs(LiteXModule):
                 def __init__(self, pcie_data_width=64, io_data_width=4):
                     # Endpoints.
