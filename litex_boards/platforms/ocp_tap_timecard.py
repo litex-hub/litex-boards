@@ -58,6 +58,64 @@ _io = [
         Subsignal("tx_p",  Pins("D5")),
         Subsignal("tx_n",  Pins("C5")),
     ),
+
+    # Leds.
+    ("led", 0, Pins("E21"), IOStandard("LVCMOS33")),
+    ("led", 1, Pins("D21"), IOStandard("LVCMOS33")),
+    ("led", 2, Pins("E22"), IOStandard("LVCMOS33")),
+    ("led", 3, Pins("D22"), IOStandard("LVCMOS33")),
+
+    # I2C.
+    ("i2c", 0,
+        Subsignal("scl", Pins("N17"), Misc("PULLUP=True")),
+        Subsignal("sda", Pins("T16"), Misc("PULLUP=True")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # PMOD.
+    ("pmod", 0, Pins("M22 N22 H18 H17 H22 J22 K21 K22"), IOStandard("LVCMOS33")),
+
+    # GPS.
+    ("gps", 0,
+        Subsignal("rst_n", Pins("Y16")),
+        Subsignal("tx",    Pins("P20")),
+        Subsignal("rx",    Pins("N15")),
+        Subsignal("tp",    Pins("W14 Y14")),
+        IOStandard("LVCMOS33")
+    ),
+    ("gps", 1,
+        Subsignal("rst_n", Pins("G15")),
+        Subsignal("tx",    Pins("M17")),
+        Subsignal("rx",    Pins("J16")),
+        Subsignal("tp",    Pins("G17 G18")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # SMAs.
+    ("sma", 0,
+        Subsignal("in",     Pins("Y11"), IOStandard("LVCMOS33"), Misc("PULLDOWN=TRUE")),
+        Subsignal("in_en",  Pins("H15"), IOStandard("LVCMOS33")),
+        Subsignal("out",    Pins("W11"), IOStandard("LVCMOS33"), Misc("DRIVE=16")),
+        Subsignal("out_en", Pins("J15"), IOStandard("LVCMOS33")),
+    ),
+    ("sma", 1,
+        Subsignal("in",     Pins("Y12"), IOStandard("LVCMOS33"), Misc("PULLDOWN=TRUE")),
+        Subsignal("in_en",  Pins("J14"), IOStandard("LVCMOS33")),
+        Subsignal("out",    Pins("W12"), IOStandard("LVCMOS33"), Misc("DRIVE=16")),
+        Subsignal("out_en", Pins("H14"), IOStandard("LVCMOS33")),
+    ),
+    ("sma", 2,
+        Subsignal("in",     Pins("AA21"), IOStandard("LVCMOS33"), Misc("PULLDOWN=TRUE")),
+        Subsignal("in_en",  Pins("K14"),  IOStandard("LVCMOS33")),
+        Subsignal("out",    Pins("V10"),  IOStandard("LVCMOS33"), Misc("DRIVE=16")),
+        Subsignal("out_en", Pins("K13"),  IOStandard("LVCMOS33")),
+    ),
+    ("sma", 2,
+        Subsignal("in",     Pins("AA20"), IOStandard("LVCMOS33"), Misc("PULLDOWN=TRUE")),
+        Subsignal("in_en",  Pins("L13"),  IOStandard("LVCMOS33")),
+        Subsignal("out",    Pins("W10"),  IOStandard("LVCMOS33"), Misc("DRIVE=16")),
+        Subsignal("out_en", Pins("M13"),  IOStandard("LVCMOS33")),
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
