@@ -75,6 +75,7 @@ class BaseSoC(SoCCore):
         self.crg = CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
+        kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on OCP-TAP TimeCard", **kwargs)
 
         # XADC -------------------------------------------------------------------------------------
