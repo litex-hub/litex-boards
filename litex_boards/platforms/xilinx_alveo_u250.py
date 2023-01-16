@@ -192,7 +192,7 @@ _io = [
         Subsignal("we_n", Pins("A35"), IOStandard("SSTL12_DCI")),
         Misc("SLEW=FAST")
     ),
-    ("ddram", 4,
+    ("ddram", 3,
         Subsignal("a", Pins(
             "K15 B15 F14 A15 C14 A14 B14 E13",
             "F13 A13 D14 C13 B13 K16"),
