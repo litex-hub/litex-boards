@@ -1,7 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2021 Greg Davill <greg.davill@gmail.com>
+# Copyright (c) 2023 Greg Davill <greg.davill@gmail.com>
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
  
@@ -124,7 +124,7 @@ _io_r1_0 = [
 
 _connectors_r1_0 = [
     ("SYZYGY0", {
-        # single ended
+        # Single ended
         "S0": "G2", "S1": "J3",
         "S2": "F1", "S3": "K3",
         "S4": "J4", "S5": "K2",
@@ -141,10 +141,22 @@ _connectors_r1_0 = [
         "S26":"P3", "S27":"P4",
         "S28":"H2", "S29":"P1",
         "S30":"G1", "S31":"P2",
+        # Differential
+        "D0P": "G2", "D1P": "J3",
+        "D0N": "F1", "D1N": "K3",
+        "D2P": "J4", "D3P": "K2",
+        "D2N": "J5", "D3N": "J1",
+        "D4P": "N2", "D5P": "L3",
+        "D4N": "M1", "D5N": "L2",
+        "D6P": "N3", "D7P": "N4",
+        "D6N": "M3", "D7N": "P5",
+        # Clks
+        "P2C_CLKP": "H2", "C2P_CLKP": "P1",
+        "P2C_CLKN": "G1", "C2P_CLKN": "P2",
         }
     ),
     ("SYZYGY1", {
-        # single ended
+        # Single ended
         "S0": "E4", "S1": "A4", 
         "S2": "D5", "S3": "A5",
         "S4": "C4", "S5": "B2", 
@@ -161,17 +173,43 @@ _connectors_r1_0 = [
         "S26":"H3", "S27":"H4", 
         "S28":"G3", "S29":"F2", 
         "S30":"F3", "S31":"E2",
+        # Differential
+        "D0P": "E4", "D1P": "A4", 
+        "D0N": "D5", "D1N": "A5",
+        "D2P": "C4", "D3P": "B2", 
+        "D2N": "B4", "D3N": "C2", 
+        "D4P": "A2", "D5P": "C1", 
+        "D4N": "B1", "D5N": "D1", 
+        "D6P": "F4", "D7P": "D2", 
+        "D6N": "E3", "D7N": "E1", 
+        # Clocks
+        "P2C_CLKP": "F2", "C2P_CLKP": "G3",
+        "P2C_CLKN": "E2", "C2P_CLKN": "F3",
         }
     ),
     ("SYZYGY2", {
-        # single ended
+        # Single ended
         "S0": "C11", "S1": "B11", 
         "S2": "D6",  "S3": "D7", 
         "S4": "E6",  "S5": "E7", 
         "S6": "D8",  "S7": "E8", 
         "S8": "E10", "S9": "D10", 
-        "S10":"A9",  "S11":"A10",
-        "S12":"B10", "S13":"A11"
+        # Clocks
+        "P2C_CLKP": "A10", "C2P_CLKP": "A9",
+        "P2C_CLKN": "A11", "C2P_CLKN": "B10",
+
+        # Gigabit Transceivers
+        "RX0P": "Y5",  "RX1P": "Y7",
+        "RX0N": "Y6",  "RX1N": "Y8", 
+        "RX2P": "Y14", "RX3P": "Y16",
+        "RX2N": "Y15", "RX3N": "Y17", 
+        "TX0P": "W4",  "TX1P": "W8",
+        "TX0N": "W5",  "TX1N": "W9",
+        "TX2P": "W13", "TX3P": "W17",
+        "TX2N": "W14", "TX3N": "W18",
+        # Gigabit Transceivers reference clock
+        "REFCLK0P": "Y11",
+        "REFCLK0N": "Y12", 
         }
     ),
 ]
