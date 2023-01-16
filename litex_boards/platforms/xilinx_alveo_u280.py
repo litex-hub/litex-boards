@@ -46,16 +46,16 @@ _io = [
             "BF46 BG43 BK45 BF42 BL45 BF43 BG42 BL43",
             "BK43 BM42 BG45 BD41 BL42 BE44"), # we_n=BE43 cas_n=BL46 ras_n=BH44
             IOStandard("SSTL12_DCI")),
-        Subsignal("we_n", Pins("BE43"), IOStandard("SSTL12_DCI")), # A14
+        Subsignal("we_n",  Pins("BE43"), IOStandard("SSTL12_DCI")), # A14
         Subsignal("cas_n", Pins("BL46"), IOStandard("SSTL12_DCI")), # A15
         Subsignal("ras_n", Pins("BH44"), IOStandard("SSTL12_DCI")), # A16
         Subsignal("act_n", Pins("BH41"), IOStandard("SSTL12_DCI")),
-        Subsignal("ba", Pins("BH45 BM47"), IOStandard("SSTL12_DCI")),
-        Subsignal("bg", Pins("BF41 BE41"), IOStandard("SSTL12_DCI")),
-        Subsignal("cke", Pins("BH42"), IOStandard("SSTL12_DCI")),
+        Subsignal("ba",    Pins("BH45 BM47"), IOStandard("SSTL12_DCI")),
+        Subsignal("bg",    Pins("BF41 BE41"), IOStandard("SSTL12_DCI")),
+        Subsignal("cke",   Pins("BH42"), IOStandard("SSTL12_DCI")),
         Subsignal("clk_n", Pins("BJ46"), IOStandard("DIFF_SSTL12_DCI")),
         Subsignal("clk_p", Pins("BH46"), IOStandard("DIFF_SSTL12_DCI")),
-        Subsignal("cs_n", Pins("BK46"), IOStandard("SSTL12_DCI")),
+        Subsignal("cs_n",  Pins("BK46"), IOStandard("SSTL12_DCI")),
         Subsignal("dq", Pins(
             "BN32 BP32 BL30 BM30 BP29 BP28 BP31 BN31",
             "BJ31 BH31 BF32 BF33 BH29 BH30 BF31 BG32",
@@ -82,25 +82,25 @@ _io = [
             IOStandard("DIFF_POD12"), # DIFF_POD12_DCI
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
-        Subsignal("odt", Pins("BG44"), IOStandard("SSTL12_DCI")),
+        Subsignal("odt",     Pins("BG44"), IOStandard("SSTL12_DCI")),
         Subsignal("reset_n", Pins("BG33"), IOStandard("LVCMOS12")),
         Misc("SLEW=FAST")
     ),
-        ("ddram", 1,
+    ("ddram", 1,
         Subsignal("a", Pins(
             "BF7 BK1 BF6 BF5 BE3 BE6 BE5 BG7",
             "BJ1 BG2 BJ8 BE4 BL2 BK5"), # we_n=BK8 cas_n=BJ4 ras_n=BF8
             IOStandard("SSTL12_DCI")),
-        Subsignal("we_n", Pins("BK8"), IOStandard("SSTL12_DCI")), # A14
+        Subsignal("we_n",  Pins("BK8"), IOStandard("SSTL12_DCI")), # A14
         Subsignal("cas_n", Pins("BJ4"), IOStandard("SSTL12_DCI")), # A15
         Subsignal("ras_n", Pins("BF8"), IOStandard("SSTL12_DCI")), # A16
         Subsignal("act_n", Pins("BG3"), IOStandard("SSTL12_DCI")),
-        Subsignal("ba", Pins("BG8 BK4"), IOStandard("SSTL12_DCI")),
-        Subsignal("bg", Pins("BF3 BF2"), IOStandard("SSTL12_DCI")),
-        Subsignal("cke", Pins("BE1"), IOStandard("SSTL12_DCI")),
+        Subsignal("ba",    Pins("BG8 BK4"), IOStandard("SSTL12_DCI")),
+        Subsignal("bg",    Pins("BF3 BF2"), IOStandard("SSTL12_DCI")),
+        Subsignal("cke",   Pins("BE1"), IOStandard("SSTL12_DCI")),
         Subsignal("clk_n", Pins("BJ2"), IOStandard("DIFF_SSTL12_DCI")),
         Subsignal("clk_p", Pins("BJ3"), IOStandard("DIFF_SSTL12_DCI")),
-        Subsignal("cs_n", Pins("BL3"), IOStandard("SSTL12_DCI")),
+        Subsignal("cs_n",  Pins("BL3"), IOStandard("SSTL12_DCI")),
         Subsignal("dq", Pins(
             "A11 A10 A9 A8 B12 B10 C12 B11",
             "E11 D11 E12 F11 F10 E9 F9 G11",
@@ -127,7 +127,7 @@ _io = [
             IOStandard("DIFF_POD12"), # DIFF_POD12_DCI
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
-        Subsignal("odt", Pins("BH2"), IOStandard("SSTL12_DCI")),
+        Subsignal("odt",     Pins("BH2"), IOStandard("SSTL12_DCI")),
         Subsignal("reset_n", Pins("BH12"), IOStandard("LVCMOS12")),
         Misc("SLEW=FAST")
     ),
