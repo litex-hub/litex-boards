@@ -10,7 +10,7 @@
 # Copyright (c) 2020 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# Board support for this chinese Kintex 420T board by "HPC FPGA Board Store"
+# Board support for this chinese Kintex 420T board by "SITLINV FPGA Board Store"
 # https://www.aliexpress.com/item/1005001631827738.html
 
 import os
@@ -19,7 +19,7 @@ from migen import *
 
 from litex.gen import LiteXModule
 
-from litex_boards.platforms import hpcstore_xc7k420t
+from litex_boards.platforms import sitlinv_xc7k420t
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -71,13 +71,13 @@ class BaseSoC(SoCCore):
         with_pcie       = False,
         with_sata       = False,
         **kwargs):
-        platform = hpcstore_xc7k420t.Platform(io_voltage)
+        platform = sitlinv_xc7k420t.Platform(io_voltage)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on HPC Store XC7K420T", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on SITLINV XC7K420T", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -139,7 +139,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=hpcstore_xc7k420t.Platform, description="LiteX SoC on AliExpress HPC Store XC7K420T")
+    parser = LiteXArgumentParser(platform=sitlinv_xc7k420t.Platform, description="LiteX SoC on AliExpress SITLINV FPGA Store XC7K420T")
     parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--io-voltage",      default="3.3V",            help="IO voltage chosen by Jumper J3. Can be: '3.3V' or '2.5V'.")
     parser.add_target_argument("--with-pcie",       action="store_true",       help="Enable PCIe support.")

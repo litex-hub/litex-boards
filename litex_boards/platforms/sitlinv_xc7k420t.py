@@ -8,7 +8,7 @@ from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
-# Board support for this chinese Kintex 420T board by "HPC FPGA Board Store"
+# Board support for this chinese Kintex 420T board by "SITLINV FPGA Board Store"
 # https://www.aliexpress.com/item/1005001631827738.html
 
 # IOs ----------------------------------------------------------------------------------------------
