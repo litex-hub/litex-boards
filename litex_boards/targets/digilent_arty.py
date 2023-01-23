@@ -71,6 +71,8 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, variant="a7-35", toolchain="vivado", sys_clk_freq=100e6,
+        with_xadc       = False,
+        with_dna        = False,
         with_ethernet   = False,
         with_etherbone  = False,
         eth_ip          = "192.168.1.50",
@@ -91,11 +93,11 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Arty A7", **kwargs)
 
         # XADC -------------------------------------------------------------------------------------
-        if toolchain == "vivado":
+        if with_xadc:
             self.xadc = XADC()
 
         # DNA --------------------------------------------------------------------------------------
-        if toolchain == "vivado":
+        if with_dna:
             self.dna = DNA()
             self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
@@ -161,6 +163,8 @@ def main():
     parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--variant",      default="a7-35",           help="Board variant (a7-35 or a7-100).")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-xadc",    action="store_true",       help="Enable 7-Series XADC.")
+    parser.add_target_argument("--with-dna",     action="store_true",       help="Enable 7-Series DNA.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",        action="store_true",    help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",       action="store_true",    help="Enable Etherbone support.")
@@ -181,6 +185,8 @@ def main():
         variant        = args.variant,
         toolchain      = args.toolchain,
         sys_clk_freq   = args.sys_clk_freq,
+        with_xadc      = args.with_xadc,
+        with_dna       = args.with_dna,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
