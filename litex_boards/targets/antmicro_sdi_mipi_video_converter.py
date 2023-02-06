@@ -11,7 +11,7 @@ import os
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-import platforms.antmicro_sdi_mipi_video_converter
+import litex_boards.platforms.antmicro_sdi_mipi_video_converter
 
 from litex.soc.cores.ram import NXLRAM
 from litex.soc.cores.clock import NXPLL
@@ -66,7 +66,7 @@ class BaseSoC(SoCCore):
     }
 
     def __init__(self, sys_clk_freq=int(75e6), device="LIFCL-40-9BG256C", toolchain="radiant", with_led_chaser=True, **kwargs):
-        platform = antmicro_sdi_mipi_video_converter.Platform(device=device, toolchain=toolchain)
+        platform = litex_boards.platforms.antmicro_sdi_mipi_video_converter.Platform(device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -138,4 +138,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+ 
