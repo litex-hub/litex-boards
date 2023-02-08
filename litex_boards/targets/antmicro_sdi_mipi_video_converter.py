@@ -20,6 +20,7 @@ from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -80,10 +81,10 @@ class BaseSoC(SoCCore):
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
         
         self.submodules.spram = NXLRAM(32, 64*kB)
-        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 16*kB)
+        self.bus.add_slave("sram", self.spram.bus, SoCRegion(origin=self.mem_map["sram"], size=16*kB))
 
         self.submodules.main_ram = NXLRAM(32, 64*kB)
-        self.register_mem("main_ram", self.mem_map["main_ram"], self.main_ram.bus, 64*kB)
+        self.bus.add_slave("main_ram", self.main_ram.bus, SoCRegion(origin=self.mem_map["main_ram"], size=64*kB))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
