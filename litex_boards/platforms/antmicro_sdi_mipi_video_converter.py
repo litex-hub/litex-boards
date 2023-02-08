@@ -6,6 +6,8 @@ from litex.build.lattice.programmer import EcpprogProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+	("clk12", 0, Pins("G15"), IOStandard("LVCMOS33")),
+
     ("serial", 0,
         Subsignal("tx", Pins("J12"), IOStandard("LVCMOS33")),
         Subsignal("rx", Pins("J11"), IOStandard("LVCMOS33")),
