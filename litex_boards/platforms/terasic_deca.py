@@ -325,5 +325,5 @@ class Platform(AlteraPlatform):
         AlteraPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
         # Generate PLL clocsk in STA
-        self.toolchain.additional_sdc_commands.append("derive_pll_clocks -create_base_clocks -use_net_name")
-        self.toolchain.additional_sdc_commands.append("derive_clock_uncertainty")
+        self.toolchain.additional_sdc_commands.insert(0, "derive_pll_clocks -create_base_clocks -use_net_name")
+        self.toolchain.additional_sdc_commands.insert(0, "derive_clock_uncertainty")
