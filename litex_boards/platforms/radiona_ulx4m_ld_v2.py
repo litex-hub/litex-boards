@@ -1,248 +1,177 @@
-#!/usr/bin/env python3
-
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
-# Copyright (c) 2021 Greg Davill <greg.davill@gmail.com>
-# Copyright (c) 2023 Goran Mahovlic <goran.mahovlic@gmail.com>
+# Copyright (c) 2020 Greg Davill <greg.davill@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# Build/Use:
-# ./radiona_ulx4m_ld.py  --uart-name=uart --uart-baudrate=115200 --sdram-device MT41K64M16 --csr-csv=csr.csv --build
+from litex.build.generic_platform import *
+from litex.build.lattice import LatticePlatform
+#from litex.build.dfu import DFUProg
 
-import os
-import sys
-import argparse
+# IOs ----------------------------------------------------------------------------------------------
 
-from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
+_io_r0_1 = [
+    ("clk25", 0, Pins("G2"), IOStandard("LVCMOS33")),
+    ("rst_n", 0, Pins("F1"), IOStandard("LVCMOS33")),
 
-from litex_boards.platforms import radiona_ulx4m_ld_v2
+    ("rgb_led", 0,
+        Subsignal("r", Pins("A3"), IOStandard("LVCMOS33")),
+        Subsignal("g", Pins("B3"), IOStandard("LVCMOS33")),
+        Subsignal("b", Pins("B2"),  IOStandard("LVCMOS33")),
+    ),
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
+    ("user_btn", 0, Pins("E1"), IOStandard("LVCMOS33")),
 
-from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
-from litex.soc.integration.builder import *
-from litex.soc.cores.led import LedChaser
-from litex.soc.cores.gpio import GPIOTristate
-from litex.soc.cores.video import VideoHDMIPHY
+    ("user_led", 0, Pins("A3"), IOStandard("LVCMOS33")),
+    ("user_led", 1, Pins("B3"), IOStandard("LVCMOS33")),
+    ("user_led", 2, Pins("B2"),  IOStandard("LVCMOS33")),
+    ("user_led", 3, Pins("C3"), IOStandard("LVCMOS33")),
+    ("user_led", 4, Pins("C2"), IOStandard("LVCMOS33")),
+    ("user_led", 5, Pins("C1"),  IOStandard("LVCMOS33")),
+    ("user_led", 6, Pins("D1"), IOStandard("LVCMOS33")),
+    ("user_led", 7, Pins("D3"), IOStandard("LVCMOS33")),
 
-from litedram.common import PHYPadsReducer
-from litedram.modules import MT41K64M16,MT41K128M16,MT41K256M16,MT41K512M16
-from litedram.phy import ECP5DDRPHY
+    ("ddram", 0,
+        Subsignal("a", Pins(
+            "F18 L17 D19 E18 H16 T20 U17 T17",
+            "E16 U19 J17 J16 P17 U20 N20 P18"),
+            IOStandard("SSTL135_I")),
+        Subsignal("ba",    Pins("P19 G16 P20"), IOStandard("SSTL135_I")),
+        Subsignal("ras_n", Pins("R20"),  IOStandard("SSTL135_I")),
+        Subsignal("cas_n", Pins("F20"),  IOStandard("SSTL135_I")),
+        Subsignal("we_n",  Pins("H17"),  IOStandard("SSTL135_I")),
+        Subsignal("cs_n",  Pins("H18"),  IOStandard("SSTL135_I")),
+        Subsignal("dm", Pins("F16 U16"), IOStandard("SSTL135_I")),
+        Subsignal("dq", Pins(
+            "R17 L19 R16 L16 M18 M19 N18 N17",
+            "J19 C20 F19 E20 J18 K19 E19 G20"),
+            IOStandard("SSTL135_I"),
+            Misc("TERMINATION=75")), # Misc("TERMINATION=75") Disabled to reduce heat
+        Subsignal("dqs_p", Pins("N16 G19"), IOStandard("SSTL135D_I"),
+            Misc("TERMINATION=OFF DIFFRESISTOR=100")),
+        Subsignal("clk_p", Pins("L20"), IOStandard("SSTL135D_I")),
+        Subsignal("cke",   Pins("N19"),  IOStandard("SSTL135_I")),
+        Subsignal("odt",   Pins("T19"), IOStandard("SSTL135_I")),
+        Subsignal("reset_n", Pins("T18"), IOStandard("SSTL135_I")),
+        #Subsignal("vccio", Pins("H15 J15 H14 L15 M15 L14"), IOStandard("SSTL135_II")),
+        #Subsignal("gnd",   Pins("G15 K15"), IOStandard("SSTL135_II")),
+        Misc("SLEWRATE=FAST")
+    ),
 
-from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
+    ("usb", 0,
+        Subsignal("d_p", Pins("F4")),
+        Subsignal("d_n", Pins("E3")),
+        Subsignal("pullup", Pins("F5")),
+        IOStandard("LVCMOS33")
+    ),
+    ("uart", 0,
+        Subsignal("rx",    Pins("N4"), Misc("PULLMODE=UP"), IOStandard("LVCMOS33")),
+        Subsignal("tx",    Pins("N3"), Misc("PULLMODE=NONE"), IOStandard("LVCMOS33")),
+        Subsignal("tx_enable", Pins("T1"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33")
+    ),
 
-# CRG ---------------------------------------------------------------------------------------------
+    # Serial
+    ("serial", 0,
+        Subsignal("rx", Pins("N4"), Misc("PULLMODE=UP"), IOStandard("LVCMOS33")),
+        Subsignal("tx", Pins("N3"),  Misc("PULLMODE=NONE"), IOStandard("LVCMOS33")),
+        Subsignal("tx_enable", Pins("T1"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33")
+    ),
 
-class _CRG(Module):
-    def __init__(self, platform, sys_clk_freq, with_video_pll=True):
-        self.rst = Signal()
-        self.clock_domains.cd_init    = ClockDomain()
-        self.clock_domains.cd_por     = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys     = ClockDomain()
-        self.clock_domains.cd_sys2x   = ClockDomain()
-        self.clock_domains.cd_sys2x_i = ClockDomain(reset_less=True)
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("R2")),
+        Subsignal("miso", Pins("V2")),
+        Subsignal("mosi", Pins("W2")),
+        Subsignal("wp", Pins("Y2")),
+        Subsignal("hold", Pins("W1")),
+        IOStandard("LVCMOS33")
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("R2")),
+        Subsignal("dq", Pins("W2", "V2", "Y2", "W1")),
+        IOStandard("LVCMOS33")
+    ),
 
-        # # #
+    ("sdcard", 0,
+        Subsignal("clk",  Pins("G1")),
+        Subsignal("cmd",  Pins("P1"), Misc("PULLMODE=UP")),
+        Subsignal("data", Pins("B15 B18 E14 P2"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+    ),
 
-        self.stop  = Signal()
-        self.reset = Signal()
+    # GPDI
+    ("gpdi", 0,
+        Subsignal("clk_p",    Pins("J20"), IOStandard("SSTL135D_I"), Misc("DRIVE=4")),
+        #Subsignal("clk_n",   Pins("B18"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data0_p",  Pins("F17"), IOStandard("SSTL135D_I"), Misc("DRIVE=4")),
+        #Subsignal("data0_n", Pins("A13"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data1_p",  Pins("D18"), IOStandard("SSTL135D_I"), Misc("DRIVE=4")),
+        #Subsignal("data1_n", Pins("C14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("data2_p",  Pins("C18"), IOStandard("SSTL135D_I"), Misc("DRIVE=4")),
+        #Subsignal("data2_n", Pins("B16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        #Subsignal("cec",     Pins("A18"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+        #Subsignal("scl",     Pins("E19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+        #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
+    ),
+]
 
-        # Clk / Rst
-        clk25 = platform.request("clk25")
-        rst_n = platform.request("rst_n", 0)
+# Connectors ---------------------------------------------------------------------------------------
 
-        # Power on reset
-        por_count = Signal(16, reset=2**16-1)
-        por_done  = Signal()
-        self.comb += self.cd_por.clk.eq(clk25)
-        self.comb += por_done.eq(por_count == 0)
-        self.sync.por += If(~por_done, por_count.eq(por_count - 1))
+_connectors_r0_1 = [
+    # Feather 0.1" Header Pin Numbers,
+    # Note: Pin nubering is not continuous.
+    ("GPIO", "P16 P17"),
+]
 
-        # USB PLL
-#        if with_usb_pll:
-#            self.submodules.usb_pll = usb_pll = ECP5PLL()
-#            self.comb += usb_pll.reset.eq(rst | self.rst)
-#            usb_pll.register_clkin(clk25, 25e6)
-#            self.clock_domains.cd_usb_12 = ClockDomain()
-#            self.clock_domains.cd_usb_48 = ClockDomain()
-#            usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
-#            usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
-
-        # Video PLL
-        if with_video_pll:
-            self.submodules.video_pll = video_pll = ECP5PLL()
-            self.comb += video_pll.reset.eq(rst_n | self.rst)
-            video_pll.register_clkin(clk25, 25e6)
-            self.clock_domains.cd_hdmi   = ClockDomain()
-            self.clock_domains.cd_hdmi5x = ClockDomain()
-            video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
-            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
-
-        # PLL
-        self.submodules.pll = pll = ECP5PLL()
-        self.comb += pll.reset.eq(~por_done | rst_n | self.rst)
-        pll.register_clkin(clk25, 25e6)
-        pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
-        pll.create_clkout(self.cd_init,   25e6)
-        self.specials += [
-            Instance("ECLKSYNCB",
-                i_ECLKI = self.cd_sys2x_i.clk,
-                i_STOP  = self.stop,
-                o_ECLKO = self.cd_sys2x.clk),
-            Instance("CLKDIVF",
-                p_DIV     = "2.0",
-                i_ALIGNWD = 0,
-                i_CLKI    = self.cd_sys2x.clk,
-                i_RST     = self.reset,
-                o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys,    ~pll.locked | self.reset),
-            AsyncResetSynchronizer(self.cd_sys2x,  ~pll.locked | self.reset),
-        ]
-
-# BaseSoC ------------------------------------------------------------------------------------------
-
-#        revision = kwargs.get("revision", "0.1")
-#        device = kwargs.get("device", "UM-45F")
-
-class BaseSoC(SoCCore):
-    def __init__(self, revision="0.1", device="UM-85F", sdram_device="MT41K256M16", sys_clk_freq=int(50e6),
-        toolchain="trellis", with_ethernet=False, with_etherbone=False, 
-        with_video_terminal=True,
-        with_video_framebuffer=False,
-        eth_ip="192.168.1.50",
-        eth_dynamic_ip   = False,
-        with_spi_flash   = False,
-        with_led_chaser  = True,
-        with_syzygy_gpio = False,
-        **kwargs)       :
-        platform = radiona_ulx4m_ld_v2.Platform(revision="0.1", device="UM-85F" ,toolchain="trellis")
-
-        # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] in ["serial", "usb_acm"]:
-            kwargs["uart_name"] = "serial"
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on ULX4M-LD-V2",
-            **kwargs)
-
-        # CRG --------------------------------------------------------------------------------------
-        with_video_pll = with_video_terminal or with_video_framebuffer
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll)
-
-        # DDR3 SDRAM -------------------------------------------------------------------------------
-        if not self.integrated_main_ram_size:
-            available_sdram_modules = {
-                "MT41K64M16":  MT41K64M16,
-                "MT41K128M16": MT41K128M16,
-                "MT41K256M16": MT41K256M16,
-                "MT41K512M16": MT41K512M16,
-            }
-            sdram_module = available_sdram_modules.get(sdram_device)
-
-            self.submodules.ddrphy = ECP5DDRPHY(
-                pads = PHYPadsReducer(platform.request("ddram"), [0, 1]),
-                sys_clk_freq=sys_clk_freq)
-            self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
-            self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
-            self.add_sdram("sdram",
-                phy           = self.ddrphy,
-                module        = sdram_module(sys_clk_freq, "1:2"),
-                l2_cache_size = kwargs.get("l2_size", 8192)
-            )
-
-        # Ethernet / Etherbone ---------------------------------------------------------------------
-        if with_ethernet or with_etherbone:
-            self.submodules.ethphy = LiteEthPHYRGMII(
-                clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"))
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
-            if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
-
-        # SPI Flash --------------------------------------------------------------------------------
-        if with_spi_flash:
-            from litespi.modules import IS25LP128
-            from litespi.opcodes import SpiNorFlashOpCodes as Codes
-            self.add_spi_flash(mode="4x", module=IS25LP128(Codes.READ_1_1_4))
-
-        # Video ------------------------------------------------------------------------------------
-        if with_video_terminal or with_video_framebuffer:
-            self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
-            if with_video_terminal:
-                self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
-            if with_video_framebuffer:
-                self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
-
-        # Leds -------------------------------------------------------------------------------------
-        if with_led_chaser:
-            self.submodules.leds = LedChaser(
-                pads         = platform.request_all("user_led"),
-                sys_clk_freq = sys_clk_freq)
+_connectors_r0_2 = [
+    # Feather 0.1" Header Pin Numbers,
+    # Note: Pin nubering is not continuous.
+    ("GPIO", "P16 P17 K5 J5 - K4 H16 - - R1 P3 P4 G16 N17 L16 C4 T1 - - - - - - - -"),
+]
 
 
-        # GPIOs ------------------------------------------------------------------------------------
+# Standard Feather Pins
+feather_serial = [
+    ("serial", 0,
+        Subsignal("tx", Pins("GPIO:1"), IOStandard("LVCMOS33")),
+        Subsignal("rx", Pins("GPIO:0"), IOStandard("LVCMOS33"))
+    )
+]
 
-# Build --------------------------------------------------------------------------------------------
+feather_i2c = [
+    ("i2c", 0,
+        Subsignal("sda", Pins("GPIO:2"), IOStandard("LVCMOS33")),
+        Subsignal("scl", Pins("GPIO:3"), IOStandard("LVCMOS33"))
+    )
+]
 
-def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on ULX4M-LD-V2")
-    parser.add_argument("--build",           action="store_true",    help="Build bitstream.")
-    parser.add_argument("--load",            action="store_true",    help="Load bitstream.")
-    parser.add_argument("--toolchain",       default="trellis",      help="FPGA toolchain (trellis or diamond).")
-    parser.add_argument("--sys-clk-freq",    default=100e6,           help="System clock frequency.")
-    parser.add_argument("--revision",        default="1.0",          help="Board Revision (1.0).")
-    parser.add_argument("--device",          default="UM-85F",          help="ECP5 device (25F, 45F, 85F).")
-    parser.add_argument("--sdram-device",    default="MT41K32M16",   help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
-    ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_argument("--with-spi-flash",  action="store_true",    help="Enable SPI Flash (MMAPed).")
-    sdopts = parser.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    parser.add_argument("--with-syzygy-gpio",action="store_true", help="Enable GPIOs through SYZYGY Breakout on Port-A.")
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
-    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
-    args = parser.parse_args()
+feather_spi = [
+    ("spi",0,
+        Subsignal("miso", Pins("GPIO:14"), IOStandard("LVCMOS33")),
+        Subsignal("mosi", Pins("GPIO:16"), IOStandard("LVCMOS33")),
+        Subsignal("sck",  Pins("GPIO:15"), IOStandard("LVCMOS33"))
+    )
+]
 
-    assert not (args.with_etherbone and args.eth_dynamic_ip)
 
-    soc = BaseSoC(
-        toolchain        = args.toolchain,
-        revision         = args.revision,
-        device           = args.device,
-        sdram_device     = args.sdram_device,
-        sys_clk_freq     = int(float(args.sys_clk_freq)),
-        with_ethernet    = args.with_ethernet,
-        with_etherbone   = args.with_etherbone,
-        eth_ip           = args.eth_ip,
-        eth_dynamic_ip   = args.eth_dynamic_ip,
-        with_spi_flash   = args.with_spi_flash,
-        with_video_terminal    = args.with_video_terminal,
-        with_video_framebuffer = args.with_video_framebuffer,
-        with_syzygy_gpio = args.with_syzygy_gpio,
-        **soc_core_argdict(args))
-    if args.with_spi_sdcard:
-        soc.add_spi_sdcard()
-    if args.with_sdcard:
-        soc.add_sdcard()
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
-    builder.build(**builder_kargs, run=args.build)
+# Platform -----------------------------------------------------------------------------------------
 
-    if args.load:
-        prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
+class Platform(LatticePlatform):
+    default_clk_name   = "clk25"
+    default_clk_period = 1e9/25e6
 
-if __name__ == "__main__":
-    main()
+    def __init__(self, revision="0.1", device="85F", **kwargs):
+        assert revision in ["0.1"]
+        self.revision = revision
+        io         = {"0.1": _io_r0_1}[revision]
+        connectors = {"0.1": _connectors_r0_1}[revision]
+        LatticePlatform.__init__(self, f"LFE5UM5G-85F-8BG381C", io, connectors, **kwargs)
+
+#    def create_programmer(self):
+#        return DFUProg(vid="1209", pid="5af0")
+
+    def do_finalize(self, fragment):
+        LatticePlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)
