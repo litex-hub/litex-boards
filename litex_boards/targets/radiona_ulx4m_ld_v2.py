@@ -192,7 +192,7 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on ULX4M-LD-V2")
+    parser = LiteXArgumentParser(platform=radiona_ulx4m_ld_v2.Platform, description="LiteX SoC on ULX4M-LD-V2")    
     parser.add_argument("--build",           action="store_true",    help="Build bitstream.")
     parser.add_argument("--load",            action="store_true",    help="Load bitstream.")
     parser.add_argument("--toolchain",       default="trellis",      help="FPGA toolchain (trellis or diamond).")
