@@ -15,7 +15,6 @@ import litex_boards.platforms.antmicro_sdi_mipi_video_converter
 
 from litex.soc.cores.ram import NXLRAM
 from litex.soc.cores.clock import NXPLL
-from litex.build.io import CRG
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
@@ -45,7 +44,7 @@ class _CRG(Module):
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)
-        por_done  = Signal()
+        por_done = Signal()
         self.comb += por_done.eq(por_count == 0)
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
@@ -53,21 +52,22 @@ class _CRG(Module):
         self.submodules.sys_pll = sys_pll = NXPLL(platform=platform, create_output_port_clocks=True)
         sys_pll.register_clkin(self.cd_por.clk, hf_clk_freq)
         sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked | ~por_done )
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked | ~por_done)
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     mem_map = {
-        "rom"  : 0x00000000,
-        "sram" : 0x40000000,
+        "rom": 0x00000000,
+        "sram": 0x40000000,
         "main_ram": 0x60000000,
-        "csr"  : 0xf0000000,
+        "csr": 0xf0000000,
     }
 
     def __init__(self, sys_clk_freq=int(75e6), device="LIFCL-40-9BG256C", toolchain="radiant", with_led_chaser=True, **kwargs):
-        platform = litex_boards.platforms.antmicro_sdi_mipi_video_converter.Platform(device=device, toolchain=toolchain)
+        platform = litex_boards.platforms.antmicro_sdi_mipi_video_converter.Platform(
+            device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -76,10 +76,11 @@ class BaseSoC(SoCCore):
 
         # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
         kwargs["integrated_sram_size"] = 0
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Crosslink-NX Evaluation Board", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq,
+                         ident="LiteX SoC on Crosslink-NX Evaluation Board", **kwargs)
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
-        
+
         self.submodules.spram = NXLRAM(32, 64*kB)
         self.bus.add_slave("sram", self.spram.bus, SoCRegion(origin=self.mem_map["sram"], size=16*kB))
 
@@ -89,10 +90,11 @@ class BaseSoC(SoCCore):
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.submodules.leds = LedChaser(
-                pads         = Cat(*[platform.request("user_led", i) for i in range(2)]),
-                sys_clk_freq = sys_clk_freq)
+                pads=Cat(*[platform.request("user_led", i) for i in range(2)]),
+                sys_clk_freq=sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
+
 
 def main():
     from litex.soc.integration.soc import LiteXSoCArgumentParser
@@ -113,9 +115,9 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
-        device       = args.device,
-        toolchain    = args.toolchain,
+        sys_clk_freq=int(float(args.sys_clk_freq)),
+        device=args.device,
+        toolchain=args.toolchain,
         **soc_core_argdict(args)
     )
 
@@ -127,7 +129,8 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer(args.prog_target, args.programmer)
         if args.programmer == "ecpprog" and args.prog_target == "flash":
-            prog.flash(address=args.address, bitstream=builder.get_bitstream_filename(mode="sram"))
+            prog.flash(address=args.address,
+                       bitstream=builder.get_bitstream_filename(mode="sram"))
         else:
             if args.programmer == "radiant":
                 os.system("sudo modprobe -rf ftdi_sio")
@@ -137,6 +140,6 @@ def main():
             if args.programmer == "radiant":
                 os.system("sudo modprobe ftdi_sio")
 
+
 if __name__ == "__main__":
     main()
- 

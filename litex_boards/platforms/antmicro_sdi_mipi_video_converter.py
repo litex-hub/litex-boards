@@ -6,12 +6,12 @@ from litex.build.lattice.programmer import EcpprogProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-	("clk12", 0, Pins("G15"), IOStandard("LVCMOS33")),
+    ("clk12", 0, Pins("G15"), IOStandard("LVCMOS33")),
 
     ("serial", 0,
         Subsignal("tx", Pins("J12"), IOStandard("LVCMOS33")),
         Subsignal("rx", Pins("J11"), IOStandard("LVCMOS33")),
-    ),
+     ),
 
     # Section 7.3 General Purpose LEDs
     ("user_led", 0, Pins("E15"), IOStandard("LVCMOS33")),
@@ -29,7 +29,7 @@ _io = [
         Subsignal("mosi", Pins("C14")),
         Subsignal("miso", Pins("D16")),
         IOStandard("LVCMOS33")
-    )
+     )
 ]
 
 
@@ -43,7 +43,7 @@ _connectors = []
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticePlatform):
-    default_clk_name   = "clk12"
+    default_clk_name = "clk12"
     default_clk_period = 1e9/12e6
 
     def __init__(self, device="LIFCL-40-9BG400C", toolchain="radiant", **kwargs):
@@ -55,13 +55,12 @@ class Platform(LatticePlatform):
         assert device in ["LIFCL-40-9BG256C", "LIFCL-40-9BG400C", "LIFCL-40-8BG400CES", "LIFCL-40-8BG400CES2", "LIFCL-40-8BG400C"]
         LatticePlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
 
-    def create_programmer(self, mode = "direct", prog="radiant"):
-        assert mode in ["direct","flash"]
-        assert prog in ["radiant","ecpprog"]
+    def create_programmer(self, mode="direct", prog="radiant"):
+        assert mode in ["direct", "flash"]
+        assert prog in ["radiant", "ecpprog"]
 
         if prog == "ecpprog":
             return EcpprogProgrammer()
-
 
         xcf_template_direct = """<?xml version='1.0' encoding='utf-8' ?>
 <!DOCTYPE		ispXCF	SYSTEM	"IspXCF.dtd" >
