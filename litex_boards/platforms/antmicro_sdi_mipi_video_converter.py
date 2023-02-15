@@ -1,3 +1,9 @@
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2023 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
 from litex.build.lattice.programmer import LatticeProgrammer
