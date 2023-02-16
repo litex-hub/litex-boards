@@ -5,30 +5,32 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeNexusPlatform
 from litex.build.lattice.programmer import LatticeProgrammer
 from litex.build.lattice.programmer import EcpprogProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
+    # Clk.
     ("clk12", 0, Pins("G15"), IOStandard("LVCMOS33")),
 
+    # Serial.
     ("serial", 0,
         Subsignal("tx", Pins("J12"), IOStandard("LVCMOS33")),
         Subsignal("rx", Pins("J11"), IOStandard("LVCMOS33")),
      ),
 
-    # Section 7.3 General Purpose LEDs
+    # Leds (Section 7.3).
     ("user_led", 0, Pins("E15"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("E16"), IOStandard("LVCMOS33")),
 
-    # Section 7.1 DIP Switch
+    # DIP Switches (Section 7.1).
     ("user_dip_btn", 0, Pins("F15"), IOStandard("LVCMOS33")),
     ("user_dip_btn", 1, Pins("H10"), IOStandard("LVCMOS33")),
 
 
-    # Section 6.3.1. SPI Configuration
+    # SPI Flash (Section 6.3.1.).
     ("spiflash", 0,
         Subsignal("cs_n", Pins("C15")),
         Subsignal("clk",  Pins("C16")),
@@ -38,17 +40,13 @@ _io = [
      )
 ]
 
-
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = []
 
-# Test and Demo ------------------------------------------------------------------------------------
-
-
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeNexusPlatform):
     default_clk_name = "clk12"
     default_clk_period = 1e9/12e6
 
@@ -59,7 +57,7 @@ class Platform(LatticePlatform):
         if device == "LIFCL":
             device == "LIFCL-40-9BG400C"
         assert device in ["LIFCL-40-9BG256C", "LIFCL-40-9BG400C", "LIFCL-40-8BG400CES", "LIFCL-40-8BG400CES2", "LIFCL-40-8BG400C"]
-        LatticePlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
+        LatticeNexusPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self, mode="direct", prog="radiant"):
         assert mode in ["direct", "flash"]
