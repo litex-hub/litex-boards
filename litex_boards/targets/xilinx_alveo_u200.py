@@ -3,6 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
+# Copyright (c) 2023 Do Viet Thanh <thanhdv@soc.one>
 # Copyright (c) 2020 Fei Gao <feig@princeton.edu>
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # Copyright (c) 2020 David Shah <dave@ds0.me>

@@ -1,6 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
+# Copyright (c) 2023 Do Viet Thanh <thanhdv@soc.one>
 # Copyright (c) 2020 David Shah <dave@ds0.me>
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
