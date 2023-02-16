@@ -95,13 +95,13 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── adi_plutosdr
     ├── alchitry_au
     ├── alchitry_mojo
-    ├── aliexpress_stlv7325
     ├── aliexpress_xc7k420t
     ├── alinx_ax7010
     ├── alinx_axu2cga
     ├── antmicro_artix_dc_scm
     ├── antmicro_datacenter_ddr4_test_board
     ├── antmicro_lpddr4_test_board
+    ├── antmicro_sdi_mipi_video_converter
     ├── arduino_mkrvidor4000
     ├── avalanche
     ├── avnet_aesku40
@@ -139,12 +139,14 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── enclustra_mercury_xu5
     ├── fairwaves_xtrx
     ├── fpc_iii
+    ├── fpgawars_alhambra2
+    ├── gadgetfactory_papilio_pro
     ├── gsd_butterstick
     ├── gsd_orangecrab
     ├── hackaday_hadbadge
-    ├── hpcstore_xc7k420t
     ├── icebreaker_bitsy
     ├── icebreaker
+    ├── isx_im1283
     ├── jungle_electronics_fireant
     ├── kosagi_fomu_evt
     ├── kosagi_fomu_hacker
@@ -165,10 +167,10 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── linsn_rv901t
     ├── litex_acorn_baseboard
     ├── logicbone
-    ├── machdyne_krote
-    ├── machdyne_schoko
     ├── machdyne_konfekt
+    ├── machdyne_krote
     ├── machdyne_noir
+    ├── machdyne_schoko
     ├── marblemini
     ├── marble
     ├── micronova_mercury2
@@ -186,6 +188,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── pano_logic_g2
     ├── qmtech_10cl006
     ├── qmtech_5cefa2
+    ├── qmtech_ep4ce15_starter_kit
     ├── qmtech_ep4cex5
     ├── qmtech_ep4cgx150
     ├── qmtech_wukong
@@ -193,6 +196,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── quicklogic_quickfeather
     ├── qwertyembedded_beaglewire
     ├── radiona_ulx3s
+    ├── radiona_ulx4m_ld_v2
     ├── rcs_arctic_tern_bmc_card
     ├── redpitaya
     ├── rz_easyfpga
@@ -205,10 +209,12 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── sipeed_tang_nano
     ├── sipeed_tang_primer_20k
     ├── sipeed_tang_primer
+    ├── sitlinv_a_e115fb
+    ├── sitlinv_stlv7325
+    ├── sitlinv_xc7k420t
     ├── sqrl_acorn
     ├── sqrl_fk33
     ├── sqrl_xcu1525
-    ├── taobao_a_e115fb
     ├── terasic_de0nano
     ├── terasic_de10lite
     ├── terasic_de10nano
@@ -225,6 +231,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── trenz_tec0117
     ├── tul_pynq_z2
     ├── xilinx_ac701
+    ├── xilinx_alveo_u200
     ├── xilinx_alveo_u250
     ├── xilinx_alveo_u280
     ├── xilinx_kc705
