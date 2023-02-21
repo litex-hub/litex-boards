@@ -171,6 +171,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── machdyne_krote
     ├── machdyne_noir
     ├── machdyne_schoko
+    ├── machdyne_kopflos
     ├── marblemini
     ├── marble
     ├── micronova_mercury2
