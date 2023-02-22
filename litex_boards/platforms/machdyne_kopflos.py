@@ -76,10 +76,10 @@ _io_vx = [
         IOStandard("LVCMOS33")
     ),
     ("eth", 0,
-        Subsignal("rx_data", Pins("N1 P2")),
+        Subsignal("rx_data", Pins("N1 P2"), Misc("PULLMODE=UP")),
         Subsignal("tx_data", Pins("T2 R2")),
         Subsignal("tx_en", Pins("P3")),
-        Subsignal("crs_dv", Pins("M3")),
+        Subsignal("crs_dv", Pins("M3"), Misc("PULLMODE=UP")),
         Subsignal("rst_n", Pins("N4")),
         IOStandard("LVCMOS33")
     ),

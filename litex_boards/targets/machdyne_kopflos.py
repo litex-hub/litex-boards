@@ -151,7 +151,6 @@ class BaseSoC(SoCCore):
                 clock_pads = platform.request("eth_clocks"),
                 pads = platform.request("eth"),
                 with_hw_init_reset=True,
-                hw_init_mode_cfg=[1,1,1],
                 refclk_cd=None)
             self.add_ethernet(phy=self.ethphy)
 
