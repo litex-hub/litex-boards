@@ -14,6 +14,9 @@ import sys
 import json
 
 from migen import *
+
+from litex.gen import *
+
 from litex_boards.platforms import machdyne_noir
 
 from litex.build.lattice.trellis import trellis_args, trellis_argdict
@@ -37,16 +40,16 @@ from litex.soc.integration.soc import SoCRegion
 
 # CRG ---------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, sdram_rate):
-        self.rst = Signal()
-        self.clock_domains.cd_por = ClockDomain()
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_sys2x    = ClockDomain()
-        self.clock_domains.cd_sys2x_i  = ClockDomain()
-        self.clock_domains.cd_init = ClockDomain()
-        self.clock_domains.cd_video = ClockDomain()
-        self.clock_domains.cd_video5x = ClockDomain()
+        self.rst        = Signal()
+        self.cd_por     = ClockDomain()
+        self.cd_sys     = ClockDomain()
+        self.cd_sys2x   = ClockDomain()
+        self.cd_sys2x_i = ClockDomain()
+        self.cd_init    = ClockDomain()
+        self.cd_video   = ClockDomain()
+        self.cd_video5x = ClockDomain()
 
         self.stop  = Signal()
         self.reset = Signal()
@@ -63,7 +66,7 @@ class _CRG(Module):
 
         # PLL
         sys2x_clk_ecsout = Signal()
-        self.submodules.pll = pll = ECP5PLL()
+        self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | self.rst)
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
@@ -87,14 +90,14 @@ class _CRG(Module):
         ]
 
         pll2 = ECP5PLL()
-        self.submodules.pll2 = pll2
+        self.pll2 = pll2
         pll2.register_clkin(clk48, 48e6)
         pll2.create_clkout(self.cd_video, 25e6)
         pll2.create_clkout(self.cd_video5x, 125e6)
 
-        self.clock_domains.cd_usb_12 = ClockDomain()
-        self.clock_domains.cd_usb = ClockDomain()
-        self.clock_domains.cd_usb_48 = ClockDomain()
+        self.cd_usb_12 = ClockDomain()
+        self.cd_usb    = ClockDomain()
+        self.cd_usb_48 = ClockDomain()
         self.cd_usb_48 = self.cd_usb
         pll2.create_clkout(self.cd_usb, 48e6)
         pll2.create_clkout(self.cd_usb_12, 12e6)
@@ -111,7 +114,7 @@ class BaseSoC(SoCCore):
         platform = machdyne_noir.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
+        self.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Schoko", **kwargs)
@@ -128,7 +131,7 @@ class BaseSoC(SoCCore):
             sdram_module = available_sdram_modules.get(sdram_device)
 
             ddram_pads = platform.request("ddram")
-            self.submodules.ddrphy = ECP5DDRPHY(
+            self.ddrphy = ECP5DDRPHY(
                 pads         = ddram_pads,
                 sys_clk_freq = sys_clk_freq,
                 cmd_delay    = 0 if sys_clk_freq > 64e6 else 100)
@@ -143,20 +146,20 @@ class BaseSoC(SoCCore):
 
         # USB Host ---------------------------------------------------------------------------------
         if with_usb_host:
-            self.submodules.usb_ohci = USBOHCI(platform, platform.request("usb_host"), usb_clk_freq=int(48e6))
+            self.usb_ohci = USBOHCI(platform, platform.request("usb_host"), usb_clk_freq=int(48e6))
             self.bus.add_slave("usb_ohci_ctrl", self.usb_ohci.wb_ctrl, region=SoCRegion(origin=self.mem_map["usb_ohci"], size=0x100000, cached=False))
             self.dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
             self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
 
         # DDMI Framebuffer -------------------------------------------------------------------------------------
-        self.submodules.videophy = VideoHDMIPHY(platform.request("ddmi"),
+        self.videophy = VideoHDMIPHY(platform.request("ddmi"),
             clock_domain="video")
         self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz",
             clock_domain="video", format="rgb565")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            self.submodules.leds = LedChaser(
+            self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
