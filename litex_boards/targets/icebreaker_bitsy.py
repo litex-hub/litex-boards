@@ -19,7 +19,7 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.gen import LiteXModule
+from litex.gen import *
 
 from litex_boards.platforms import icebreaker_bitsy
 

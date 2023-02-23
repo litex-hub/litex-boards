@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex.gen import LiteXModule
+from litex.gen import *
 
 from litex.build.io import DDROutput
 

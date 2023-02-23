@@ -8,7 +8,7 @@
 
 from migen import *
 
-from litex.gen import LiteXModule
+from litex.gen import *
 
 from litex_boards.platforms import digilent_zedboard
 from litex.build.tools import write_to_file

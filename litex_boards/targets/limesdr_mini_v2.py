@@ -13,7 +13,7 @@
 
 from migen import *
 
-from litex.gen import LiteXModule
+from litex.gen import *
 
 from litex_boards.platforms import limesdr_mini_v2
 

@@ -11,7 +11,7 @@ import json
 
 from migen import *
 
-from litex.gen import LiteXModule
+from litex.gen import *
 
 from litex_boards.platforms import antmicro_datacenter_ddr4_test_board
 

@@ -13,7 +13,7 @@
 from migen import *
 from litex_boards.platforms import terasic_deca
 
-from litex.gen import LiteXModule
+from litex.gen import *
 
 from litex.soc.cores.clock import Max10PLL
 from litex.soc.integration.soc_core import *
