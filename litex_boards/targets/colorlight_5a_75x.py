@@ -47,7 +47,7 @@ from litex.gen import *
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import colorlight_5a_75b, colorlight_5a_75e
+from litex_boards.platforms import colorlight_5a_75b, colorlight_5a_75e, colorlight_i5a_907
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -125,11 +125,13 @@ class BaseSoC(SoCCore):
         sdram_rate       = "1:1",
         **kwargs):
         board = board.lower()
-        assert board in ["5a-75b", "5a-75e"]
+        assert board in ["5a-75b", "5a-75e", "i5a-907"]
         if board == "5a-75b":
             platform = colorlight_5a_75b.Platform(revision=revision, toolchain=toolchain)
         elif board == "5a-75e":
             platform = colorlight_5a_75e.Platform(revision=revision, toolchain=toolchain)
+        elif board == "i5a-907":
+            platform = colorlight_i5a_907.Platform(revision=revision, toolchain=toolchain)
 
         if board == "5a-75e" and revision == "6.0" and (with_etherbone or with_ethernet):
             assert use_internal_osc, "You cannot use the 25MHz clock as system clock since it is provided by the Ethernet PHY and will stop during PHY reset."
