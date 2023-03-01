@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -265,18 +265,18 @@ _connectors = []
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(Xilinx7SeriesPlatform):
+class Platform(XilinxUSPPlatform):
     default_clk_name   = "clk300"
     default_clk_period = 1e9/300e6
 
     def __init__(self, toolchain="vivado"):
-        Xilinx7SeriesPlatform.__init__(self, "xcvu9p-fsgd2104-2l-e", _io, _connectors, toolchain=toolchain)
+        XilinxUSPPlatform.__init__(self, "xcvu9p-fsgd2104-2l-e", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return VivadoProgrammer()
 
     def do_finalize(self, fragment):
-        Xilinx7SeriesPlatform.do_finalize(self, fragment)
+        XilinxUSPPlatform.do_finalize(self, fragment)
         # For passively cooled boards, overheating is a significant risk if airflow isn't sufficient
         self.add_platform_command("set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]")
         # Reduce programming time

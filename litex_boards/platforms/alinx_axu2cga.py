@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform
+from litex.build.xilinx import XilinxUSPPlatform
 from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -161,17 +161,17 @@ psu_config = {
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(Xilinx7SeriesPlatform):
+class Platform(XilinxUSPPlatform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
     def __init__(self, toolchain="vivado"):
-        Xilinx7SeriesPlatform.__init__(self, "xczu2cg-sfvc784-1-e", _io, _connectors, toolchain=toolchain)
+        XilinxUSPPlatform.__init__(self, "xczu2cg-sfvc784-1-e", _io, _connectors, toolchain=toolchain)
         self.psu_config = psu_config
 
     def create_programmer(self, cable):
         return OpenFPGALoader("axu2cga", cable)
 
     def do_finalize(self, fragment):
-        Xilinx7SeriesPlatform.do_finalize(self, fragment)
+        XilinxUSPPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)

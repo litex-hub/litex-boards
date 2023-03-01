@@ -8,7 +8,7 @@
 # as a generic FPGA PCIe development board: http://www.squirrelsresearch.com/forest-kitten-33
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -78,18 +78,18 @@ _io = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(Xilinx7SeriesPlatform):
+class Platform(XilinxUSPPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
     def __init__(self, toolchain="vivado"):
-        Xilinx7SeriesPlatform.__init__(self, "xcvu33p-fsvh2104-2L-e-es1", _io, toolchain=toolchain)
+        XilinxUSPPlatform.__init__(self, "xcvu33p-fsvh2104-2L-e-es1", _io, toolchain=toolchain)
 
     def create_programmer(self):
         return VivadoProgrammer()
 
     def do_finalize(self, fragment):
-        Xilinx7SeriesPlatform.do_finalize(self, fragment)
+        XilinxUSPPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)
         # Shutdown on overheatng
         self.add_platform_command("set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]")

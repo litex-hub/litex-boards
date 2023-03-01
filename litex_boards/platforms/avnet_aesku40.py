@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import XilinxUSPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -182,18 +182,18 @@ _numato_sdcard_pmod_io = numato_sdcard_pmod_io("pmod0") # SDCARD PMOD on JD.
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(Xilinx7SeriesPlatform):
+class Platform(XilinxUSPlatform):
     default_clk_name   = "clk250"
     default_clk_period = 1e9/250e6
 
     def __init__(self):
-        Xilinx7SeriesPlatform.__init__(self, "xcku040-fbva676-1-c", _io, _connectors, toolchain="vivado")
+        XilinxUSPlatform.__init__(self, "xcku040-fbva676-1-c", _io, _connectors, toolchain="vivado")
 
     def create_programmer(self):
         return VivadoProgrammer()
 
     def do_finalize(self, fragment):
-        Xilinx7SeriesPlatform.do_finalize(self, fragment)
+        XilinxUSPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk250", loose=True), 1e9/250e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 44]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 45]")

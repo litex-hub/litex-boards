@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
 
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -69,17 +69,17 @@ _io = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(Xilinx7SeriesPlatform):
+class Platform(XilinxUSPPlatform):
     default_clk_name   = "clk125"
     default_clk_period = 1e9/125e6
 
     def __init__(self, toolchain="vivado"):
-        Xilinx7SeriesPlatform.__init__(self, "xczu9eg-ffvb1156-2-i", _io, toolchain=toolchain)
+        XilinxUSPPlatform.__init__(self, "xczu9eg-ffvb1156-2-i", _io, toolchain=toolchain)
 
     def create_programmer(self):
         return VivadoProgrammer()
 
     def do_finalize(self, fragment):
-        Xilinx7SeriesPlatform.do_finalize(self, fragment)
+        XilinxUSPPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("clk300", loose=True), 1e9/300e6)

@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
 
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -21,12 +21,12 @@ _io = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(Xilinx7SeriesPlatform):
+class Platform(XilinxUSPPlatform):
     default_clk_name   = "pmod_hda16_cc"
     default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="vivado"):
-        Xilinx7SeriesPlatform.__init__(self, "xck26-sfvc784-2lv-c", _io, toolchain=toolchain)
+        XilinxUSPPlatform.__init__(self, "xck26-sfvc784-2lv-c", _io, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]", ]
         self.default_clk_freq = 1e9 / self.default_clk_period
@@ -35,5 +35,5 @@ class Platform(Xilinx7SeriesPlatform):
         return VivadoProgrammer()
 
     def do_finalize(self, fragment, *args, **kwargs):
-        Xilinx7SeriesPlatform.do_finalize(self, fragment, *args, **kwargs)
+        XilinxUSPPlatform.do_finalize(self, fragment, *args, **kwargs)
         self.add_period_constraint(self.lookup_request("pmod_hda16_cc", loose=True), 1e9/100e6)
