@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -36,16 +36,16 @@ _io = [
         Subsignal("okAA",  Pins("T19")),
         Subsignal("okHU",  Pins("U20 U26 T22")),
         Subsignal("okUH",  Pins("V23 T23 U22 U25 U21")),
-        Subsignal("okUHU", Pins("P26 P25 R26 R25 R23 R22 P21 P20",
-                                "R21 R20 P23 N23 T25 N24 N22 V26",
-                                "N19 V21 N21 W20 W26 W19 Y25 Y26",
-                                "Y22 V22 W21 AA23 Y23 AA24 W25 AA25")),
-        Misc("SLEW=FAST"),
+        Subsignal("okUHU", Pins(
+            "P26 P25 R26 R25 R23 R22 P21 P20",
+            "R21 R20 P23 N23 T25 N24 N22 V26",
+            "N19 V21 N21 W20 W26 W19 Y25 Y26",
+            "Y22 V22 W21 AA23 Y23 AA24 W25 AA25")),
         IOStandard("LVCMOS18"),
+        Misc("SLEW=FAST"),
     ),
 
     # TODO: Add SMA & SFP+
-
 
     # DDR4 SDRAM
     ("ddram", 0,
@@ -88,7 +88,6 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 # TODO: SYZYGY Connectors & SYZYGY to PMODS!
-
 
 _connectors = [
     ("pmod1", "AC14 AC13 AF15 AF14 AF13 AE13 H13  J13"),
@@ -137,20 +136,21 @@ def sdcard_pmod_io(pmod):
 ]
 
 _sdcard_pmod_io = sdcard_pmod_io("pmod3") # SDCARD PMOD on JD.
+
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "sys_clk100"
     default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxPlatform.__init__(self, "xcau25p-ffvb676-2-e", _io, _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xcau25p-ffvb676-2-e", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return VivadoProgrammer()
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("sys_clk100", loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("ddr_clk100", loose=True), 1e9/100e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
