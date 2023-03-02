@@ -162,7 +162,6 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            # FIXME: Un-tested.
             from liteeth.phy.rmii import LiteEthPHYRMII
             self.ethphy = LiteEthPHYRMII(
                 clock_pads = self.platform.request("eth_clocks"),
