@@ -122,7 +122,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
-        # FIXME: WIP.
+        # FIXME: WIP / Untested.
         if not self.integrated_main_ram_size:
             self.ddrphy = GW2DDRPHY(
                 pads         = PHYPadsReducer(platform.request("ddram"), [0, 1]),
@@ -176,12 +176,11 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
-            # FIXME: Un-tested.
             hdmi_pads = platform.request("hdmi")
             self.comb += hdmi_pads.hdp.eq(1)
             self.videophy = VideoHDMIPHY(hdmi_pads, clock_domain="hdmi", pn_swap=["r", "g", "b"])
-            self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
-            #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+            #self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
