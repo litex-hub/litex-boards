@@ -75,6 +75,14 @@ _io = [
     ),
 
     # TODO: SPI/RGB LCD
+        ("spilcd", 0,
+        Subsignal("clk",  Pins("79")),
+        Subsignal("mosi", Pins("77")),
+        Subsignal("cs", Pins("48")),
+        Subsignal("reset", Pins("47")),
+        Subsignal("rs", Pins("47")),         
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
