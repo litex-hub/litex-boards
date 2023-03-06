@@ -111,8 +111,8 @@ class BaseSoC(SoCCore):
             self.add_pcie(phy=self.pcie_phy, ndmas=1, address_width=64)
             # FIXME: Apply it to all targets (integrate it in LitePCIe?).
             platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
-            platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~pcie_support/*gtp_channel.gtpe2_channel_i}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y5 [get_cells -hierarchical -filter {{NAME=~pcie_support/*gtp_channel.gtpe2_channel_i}}]")
+            platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~*gtp_channel.gtpe2_channel_i}}]")
+            platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y5 [get_cells -hierarchical -filter {{NAME=~*gtp_channel.gtpe2_channel_i}}]")
 
             # ICAP (For FPGA reload over PCIe).
             from litex.soc.cores.icap import ICAP
