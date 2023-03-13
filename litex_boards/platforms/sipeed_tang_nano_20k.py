@@ -62,6 +62,18 @@ _io = [
     # Buttons.
     ("btn", 0,  Pins("88"), IOStandard("LVCMOS33")),
     ("btn", 1,  Pins("87"), IOStandard("LVCMOS33")),
+
+    # SDRAM (embedded in SIP, requires specific IO naming)
+    ("O_sdram_clk",   0, Pins(1),  IOStandard("LVCMOS33")),
+    ("O_sdram_cke",   0, Pins(1),  IOStandard("LVCMOS33")),
+    ("O_sdram_cs_n",  0, Pins(1),  IOStandard("LVCMOS33")),
+    ("O_sdram_cas_n", 0, Pins(1),  IOStandard("LVCMOS33")),
+    ("O_sdram_ras_n", 0, Pins(1),  IOStandard("LVCMOS33")),
+    ("O_sdram_wen_n", 0, Pins(1),  IOStandard("LVCMOS33")),
+    ("O_sdram_dqm",   0, Pins(4),  IOStandard("LVCMOS33")),
+    ("O_sdram_addr",  0, Pins(11), IOStandard("LVCMOS33")),
+    ("O_sdram_ba",    0, Pins(2),  IOStandard("LVCMOS33")),
+    ("IO_sdram_dq",   0, Pins(32), IOStandard("LVCMOS33")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

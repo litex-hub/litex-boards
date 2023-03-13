@@ -21,6 +21,9 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.led import LedChaser, WS2812
 
+from litedram.modules import M12L64322A  # FIXME: use the real model number
+from litedram.phy import GENSDRPHY
+
 from litex_boards.platforms import sipeed_tang_nano_20k
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -66,7 +69,30 @@ class BaseSoC(SoCCore):
 
         # TODO: XTX SPI Flash
 
-        # TODO: copackaged SDRAM
+        # SDR SDRAM --------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            class SDRAMPads:
+                def __init__(self):
+                    self.clk   = platform.request("O_sdram_clk")
+                    self.cke   = platform.request("O_sdram_cke")
+                    self.cs_n  = platform.request("O_sdram_cs_n")
+                    self.cas_n = platform.request("O_sdram_cas_n")
+                    self.ras_n = platform.request("O_sdram_ras_n")
+                    self.we_n  = platform.request("O_sdram_wen_n")
+                    self.dm    = platform.request("O_sdram_dqm")
+                    self.a     = platform.request("O_sdram_addr")
+                    self.ba    = platform.request("O_sdram_ba")
+                    self.dq    = platform.request("IO_sdram_dq")
+            sdram_pads = SDRAMPads()
+
+            self.specials += DDROutput(0, 1, sdram_pads.clk, ClockSignal("sys"))
+
+            self.sdrphy = GENSDRPHY(sdram_pads, sys_clk_freq)
+            self.add_sdram("sdram",
+                phy           = self.sdrphy,
+                module        = M12L64322A(sys_clk_freq, "1:1"), # FIXME.
+                l2_cache_size = 128,
+            )
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
