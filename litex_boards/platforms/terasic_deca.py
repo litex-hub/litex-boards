@@ -238,7 +238,7 @@ _io = [
         Subsignal("mclk",   Pins("A7")),
         Subsignal("lrclk",  Pins("A10")),
         Subsignal("sclk",   Pins("D12")),
-        IOStandard("3.3-V LVTTL")
+        IOStandard("1.8 V")
     ),
 
     # MIPI.
