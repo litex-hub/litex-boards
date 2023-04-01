@@ -69,7 +69,7 @@ Hoping you will find this useful and enjoy it, please contribute back if you mak
 [> Supported boards
 -------------------
 
-LiteX-Boards currently supports > 120 boards from very various FPGA Vendors (Xilinx, Intel, Lattice, Efinix, Gowin, etc...)!
+LiteX-Boards currently supports > 150 boards from very various FPGA Vendors (Xilinx, Intel, Lattice, Efinix, Gowin, etc...)!
 Some of these boards are fully open-hardware boards (Fomu, NeTV2, OrangeCrab, Butterstick, etc...) with FPGAs often supported by the open-source toolchains, some of them are repurposed off-the-shelf hardware (Colorlight 5A/I5/I9, SQRL Acorn CLE 215+, FK33, Siglent SDS1104X-E, Decklink Mini 4k, etc...) and we also of course support popular/regular FPGA dev boards :)
 
 
@@ -146,6 +146,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── hackaday_hadbadge
     ├── icebreaker_bitsy
     ├── icebreaker
+    ├── ice_v_wireless
     ├── isx_im1283
     ├── jungle_electronics_fireant
     ├── kosagi_fomu_evt
@@ -168,10 +169,10 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── litex_acorn_baseboard
     ├── logicbone
     ├── machdyne_konfekt
+    ├── machdyne_kopflos
     ├── machdyne_krote
     ├── machdyne_noir
     ├── machdyne_schoko
-    ├── machdyne_kopflos
     ├── marblemini
     ├── marble
     ├── micronova_mercury2
@@ -190,6 +191,8 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── pano_logic_g2
     ├── qmtech_10cl006
     ├── qmtech_5cefa2
+    ├── qmtech_artix7_fbg484
+    ├── qmtech_artix7_fgg676
     ├── qmtech_ep4ce15_starter_kit
     ├── qmtech_ep4cex5
     ├── qmtech_ep4cgx150
@@ -206,6 +209,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── scarabhardware_minispartan6
     ├── seeedstudio_spartan_edge_accelerator
     ├── siglent_sds1104xe
+    ├── sipeed_tang_nano_20k
     ├── sipeed_tang_nano_4k
     ├── sipeed_tang_nano_9k
     ├── sipeed_tang_nano
