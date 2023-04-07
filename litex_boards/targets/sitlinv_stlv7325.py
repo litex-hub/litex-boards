@@ -71,6 +71,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
+        vccio                  = "2.5V",
         with_ethernet          = False,
         with_etherbone         = False,
         local_ip               = "192.168.1.50",
@@ -84,7 +85,7 @@ class BaseSoC(SoCCore):
         with_video_framebuffer = False,
         with_video_terminal    = False,
         **kwargs):
-        platform = sitlinv_stlv7325.Platform()
+        platform = sitlinv_stlv7325.Platform(vccio)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -189,6 +190,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sitlinv_stlv7325.Platform, description="LiteX SoC on AliExpress STLV7325.")
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--vccio",         default="2.5V", type=str, help="IO Voltage (set by J4), can be 2.5V or 3.3V")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",    help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",        action="store_true",    help="Enable Etherbone support.")
@@ -212,6 +214,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq           = args.sys_clk_freq,
+        vccio                  = args.vccio,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
         local_ip               = args.local_ip,
