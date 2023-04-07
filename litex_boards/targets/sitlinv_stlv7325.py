@@ -22,6 +22,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
+from litex.soc.cores.video   import VideoS7HDMIPHY
 
 from litedram.modules import MT8JTF12864
 from litedram.phy import s7ddrphy
@@ -162,7 +163,7 @@ class BaseSoC(SoCCore):
 
         # HDMI Options -----------------------------------------------------------------------------
         if (with_video_colorbars or with_video_framebuffer or with_video_terminal):
-            self.submodules.videophy = VideoS6HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
             if with_video_colorbars:
                 self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             if with_video_terminal:
