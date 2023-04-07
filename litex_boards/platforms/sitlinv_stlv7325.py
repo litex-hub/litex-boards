@@ -8,11 +8,15 @@ from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
+# This board is available here:
+# https://www.aliexpress.com/item/1005001275162791.html
+
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     # Clk / Rst
     ("cpu_reset_n", 0, Pins("AC16"), IOStandard("LVCMOS15")),
+
     ("clk100",      0, Pins("F17"), IOStandard("LVCMOS25")),
     ("clk200", 0,
         Subsignal("p", Pins("AB11"), IOStandard("DIFF_SSTL15")),
@@ -294,6 +298,7 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_platform_command("""
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 2.5 [current_design]
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 """)
         self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
@@ -303,6 +308,7 @@ set_property CONFIG_VOLTAGE 2.5 [current_design]
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk100",        loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("clk200",        loose=True), 1e9/200e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:tx", 0, loose=True), 1e9/125e6)

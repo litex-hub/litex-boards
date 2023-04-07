@@ -39,11 +39,14 @@ class _CRG(LiteXModule):
         self.cd_sys    = ClockDomain()
         self.cd_sys4x  = ClockDomain()
         self.cd_idelay = ClockDomain()
+        self.cd_hdmi   = ClockDomain()
+        self.cd_hdmi5x = ClockDomain()
 
         # # #
 
         # Clk/Rst.
         clk200 = platform.request("clk200")
+        clk100 = platform.request("clk100")
         rst_n  = platform.request("cpu_reset_n")
 
         # PLL.
@@ -54,6 +57,12 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)
         pll.create_clkout(self.cd_idelay, 200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
+
+        self.submodules.pll2 = pll2 = S7MMCM(speedgrade=-2)
+        self.comb += pll2.reset.eq(~rst_n | self.rst)
+        pll2.register_clkin(clk100, 100e6)
+        pll2.create_clkout(self.cd_hdmi,   25e6,  margin=0)
+        pll2.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
 
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
@@ -151,6 +160,16 @@ class BaseSoC(SoCCore):
             # Core
             self.add_sata(phy=self.sata_phy, mode="read+write")
 
+        # HDMI Options -----------------------------------------------------------------------------
+        if (with_video_colorbars or with_video_framebuffer or with_video_terminal):
+            self.submodules.videophy = VideoS6HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            if with_video_colorbars:
+                self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -179,6 +198,12 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    viopts = target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (HDMI).")
+    builder_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
