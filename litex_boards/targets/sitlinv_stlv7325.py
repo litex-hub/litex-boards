@@ -59,7 +59,7 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_idelay, 200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
-        self.submodules.pll2 = pll2 = S7MMCM(speedgrade=-2)
+        self.submodules.pll2 = pll2 = S7PLL(speedgrade=-2)
         self.comb += pll2.reset.eq(~rst_n | self.rst)
         pll2.register_clkin(clk100, 100e6)
         pll2.create_clkout(self.cd_hdmi,   25e6,  margin=0)
