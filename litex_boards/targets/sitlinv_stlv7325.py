@@ -71,15 +71,18 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
-        with_ethernet   = False,
-        with_etherbone  = False,
-        local_ip        = "192.168.1.50",
-        remote_ip       = "",
-        eth_dynamic_ip  = False,
-        with_led_chaser = True,
-        with_pcie       = False,
-        with_sata       = False,
-        with_jtagbone   = True,
+        with_ethernet          = False,
+        with_etherbone         = False,
+        local_ip               = "192.168.1.50",
+        remote_ip              = "",
+        eth_dynamic_ip         = False,
+        with_led_chaser        = True,
+        with_pcie              = False,
+        with_sata              = False,
+        with_jtagbone          = True,
+        with_video_colorbars   = False,
+        with_video_framebuffer = False,
+        with_video_terminal    = False,
         **kwargs):
         platform = sitlinv_stlv7325.Platform()
 
@@ -199,26 +202,27 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    viopts = target_group.add_mutually_exclusive_group()
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (HDMI).")
-    builder_args(parser)
-    soc_core_args(parser)
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
-        sys_clk_freq   = args.sys_clk_freq,
-        with_ethernet  = args.with_ethernet,
-        with_etherbone = args.with_etherbone,
-        local_ip       = args.local_ip,
-        remote_ip      = args.remote_ip,
-        eth_dynamic_ip = args.eth_dynamic_ip,
-        with_pcie      = args.with_pcie,
-        with_sata      = args.with_sata,
-        with_jtagbone  = args.with_jtagbone,
+        sys_clk_freq           = args.sys_clk_freq,
+        with_ethernet          = args.with_ethernet,
+        with_etherbone         = args.with_etherbone,
+        local_ip               = args.local_ip,
+        remote_ip              = args.remote_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
+        with_pcie              = args.with_pcie,
+        with_sata              = args.with_sata,
+        with_jtagbone          = args.with_jtagbone,
+        with_video_colorbars   = args.with_video_colorbars,
+        with_video_framebuffer = args.with_video_framebuffer,
+        with_video_terminal    = args.with_video_terminal,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:
