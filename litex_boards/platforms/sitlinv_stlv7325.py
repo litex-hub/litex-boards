@@ -284,9 +284,95 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    # TODO; add FMC / BTB
-]
+    ("LPC", {
+        # Row C
+        "DP0_C2M_P"     : "", # not connected
+        "DP0_C2M_N"     : "", # not connected
+        "DP0_M2C_P"     : "", # not connected
+        "DP0_M2C_N"     : "", # not connected
+        "LA06_P"        : "AE23",
+        "LA06_N"        : "AF23",
+        "LA10_P"        : "AD26",
+        "LA10_N"        : "AE26",
+        "LA14_P"        : "Y25",
+        "LA14_N"        : "Y26",
+        "LA18_CC_P"     : "U26",
+        "LA18_CC_N"     : "V26",
+        "LA27_P"        : "R26",
+        "LA27_N"        : "P26",
 
+        # Row D
+        "GBTCLK0_M2C_P" : "", # not connected
+        "GBTCLK0_M2C_N" : "", # not connected
+        "LA01_CC_P"     : "AE22",
+        "LA01_CC_N"     : "AF22",
+        "LA05_P"        : "AF24",
+        "LA05_N"        : "AF25",
+        "LA09_P"        : "AB22",
+        "LA09_N"        : "AC22",
+        "LA13_P"        : "AB26",
+        "LA13_N"        : "AC26",
+        "LA17_CC_P"     : "W25",
+        "LA17_CC_N"     : "W26",
+        "LA23_P"        : "AA23",
+        "LA23_N"        : "AB24",
+        "LA26_P"        : "U17",
+        "LA26_N"        : "T17",
+
+        # Row G
+        "CLK1_M2C_P"    : "Y23",
+        "CLK1_M2C_N"    : "AA24",
+        "LA00_CC_P"     : "AA25",
+        "LA00_CC_N"     : "AB25",
+        "LA03_P"        : "U24",
+        "LA03_N"        : "U25",
+        "LA08_P"        : "T24",
+        "LA08_N"        : "T25",
+        "LA12_P"        : "R22",
+        "LA12_N"        : "R23",
+        "LA16_P"        : "R25",
+        "LA16_N"        : "P25",
+        "LA20_P"        : "P24",
+        "LA20_N"        : "N24",
+        "LA22_P"        : "P23",
+        "LA22_N"        : "N23",
+        "LA25_P"        : "V21",
+        "LA25_N"        : "W21",
+        "LA29_P"        : "R16",
+        "LA29_N"        : "R17",
+        "LA31_P"        : "P16",
+        "LA31_N"        : "N17",
+        "LA33_P"        : "T22",
+        "LA33_N"        : "T23",
+
+        # Row H
+        "CLK0_M2C_P"    : "Y22",
+        "CLK0_M2C_N"    : "AA22",
+        "LA02_P"        : "V23",
+        "LA02_N"        : "V24",
+        "LA04_P"        : "AD21",
+        "LA04_N"        : "AE21",
+        "LA07_P"        : "AB21",
+        "LA07_N"        : "AC21",
+        "LA11_P"        : "AD23",
+        "LA11_N"        : "AD24",
+        "LA15_P"        : "AD25",
+        "LA15_N"        : "AE25",
+        "LA19_P"        : "AC23",
+        "LA19_N"        : "AC24",
+        "LA21_P"        : "W23",
+        "LA21_N"        : "W24",
+        "LA24_P"        : "T18",
+        "LA24_N"        : "T19",
+        "LA28_P"        : "R18",
+        "LA28_N"        : "P18",
+        "LA30_P"        : "U22",
+        "LA30_N"        : "V22",
+        "LA32_P"        : "T20",
+        "LA32_N"        : "R20",
+        }
+    )
+]
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
