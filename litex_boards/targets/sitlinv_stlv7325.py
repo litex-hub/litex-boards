@@ -22,6 +22,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
+from litex.soc.cores.video   import VideoS7HDMIPHY
 
 from litedram.modules import MT8JTF12864
 from litedram.phy import s7ddrphy
@@ -39,11 +40,14 @@ class _CRG(LiteXModule):
         self.cd_sys    = ClockDomain()
         self.cd_sys4x  = ClockDomain()
         self.cd_idelay = ClockDomain()
+        self.cd_hdmi   = ClockDomain()
+        self.cd_hdmi5x = ClockDomain()
 
         # # #
 
         # Clk/Rst.
         clk200 = platform.request("clk200")
+        clk100 = platform.request("clk100")
         rst_n  = platform.request("cpu_reset_n")
 
         # PLL.
@@ -55,23 +59,33 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_idelay, 200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
+        self.submodules.pll2 = pll2 = S7PLL(speedgrade=-2)
+        self.comb += pll2.reset.eq(~rst_n | self.rst)
+        pll2.register_clkin(clk100, 100e6)
+        pll2.create_clkout(self.cd_hdmi,   25e6,  margin=0)
+        pll2.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
+
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
-        with_ethernet   = False,
-        with_etherbone  = False,
-        local_ip        = "192.168.1.50",
-        remote_ip       = "",
-        eth_dynamic_ip  = False,
-        with_led_chaser = True,
-        with_pcie       = False,
-        with_sata       = False,
-        with_jtagbone   = True,
+        vccio                  = "2.5V",
+        with_ethernet          = False,
+        with_etherbone         = False,
+        local_ip               = "192.168.1.50",
+        remote_ip              = "",
+        eth_dynamic_ip         = False,
+        with_led_chaser        = True,
+        with_pcie              = False,
+        with_sata              = False,
+        with_jtagbone          = True,
+        with_video_colorbars   = False,
+        with_video_framebuffer = False,
+        with_video_terminal    = False,
         **kwargs):
-        platform = sitlinv_stlv7325.Platform()
+        platform = sitlinv_stlv7325.Platform(vccio)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -151,6 +165,16 @@ class BaseSoC(SoCCore):
             # Core
             self.add_sata(phy=self.sata_phy, mode="read+write")
 
+        # HDMI Options -----------------------------------------------------------------------------
+        if (with_video_colorbars or with_video_framebuffer or with_video_terminal):
+            self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            if with_video_colorbars:
+                self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -166,6 +190,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sitlinv_stlv7325.Platform, description="LiteX SoC on AliExpress STLV7325.")
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--vccio",         default="2.5V", type=str, help="IO Voltage (set by J4), can be 2.5V or 3.3V")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",    help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",        action="store_true",    help="Enable Etherbone support.")
@@ -179,20 +204,28 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    viopts = parser.target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (HDMI).")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
-        sys_clk_freq   = args.sys_clk_freq,
-        with_ethernet  = args.with_ethernet,
-        with_etherbone = args.with_etherbone,
-        local_ip       = args.local_ip,
-        remote_ip      = args.remote_ip,
-        eth_dynamic_ip = args.eth_dynamic_ip,
-        with_pcie      = args.with_pcie,
-        with_sata      = args.with_sata,
-        with_jtagbone  = args.with_jtagbone,
+        sys_clk_freq           = args.sys_clk_freq,
+        vccio                  = args.vccio,
+        with_ethernet          = args.with_ethernet,
+        with_etherbone         = args.with_etherbone,
+        local_ip               = args.local_ip,
+        remote_ip              = args.remote_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
+        with_pcie              = args.with_pcie,
+        with_sata              = args.with_sata,
+        with_jtagbone          = args.with_jtagbone,
+        with_video_colorbars   = args.with_video_colorbars,
+        with_video_framebuffer = args.with_video_framebuffer,
+        with_video_terminal    = args.with_video_terminal,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:
