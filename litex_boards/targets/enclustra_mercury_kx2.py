@@ -4,13 +4,14 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2020 Mark Standke <mstandke@cern.ch>
+# Copyright (c) 2023 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import enclustra_mercury_kx2
+from litex_boards.platforms import enclustra_mercury_kx2, enclustra_st1
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -31,7 +32,7 @@ class _CRG(LiteXModule):
 
         # # #
 
-        self.pll = pll = S7MMCM(speedgrade=-2)
+        self.pll = pll = S7PLL(speedgrade=-2)
         self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
         pll.register_clkin(platform.request("clk200"), 200e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
@@ -45,8 +46,11 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, with_st1_baseboard=False, **kwargs):
         platform = enclustra_mercury_kx2.Platform()
+        if with_st1_baseboard:
+            baseboard = enclustra_st1.EnclustraST1()
+            platform.add_baseboard(baseboard)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -78,10 +82,12 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=enclustra_mercury_kx2.Platform, description="LiteX SoC on KX2.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_argument("--with-st1-baseboard",  action="store_true", help="add enclustra ST1 baseboard")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
+        with_st1_baseboard = args.with_st1_baseboard,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
