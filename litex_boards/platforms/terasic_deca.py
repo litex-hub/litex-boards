@@ -91,48 +91,44 @@ _io = [
         Subsignal("a", Pins(
             "E21 V20 V21 C20 Y21 J14 V18 U20",
             "Y20 W22 C22 Y22 N18 V22 W20"),
-            IOStandard("SSTL-15 CLASS I"),
+            IOStandard("SSTL-15"),
         ),
-        Subsignal("ba",    Pins("D19 W19 F19"), IOStandard("SSTL-15 CLASS I")),
-        Subsignal("ras_n", Pins("D22"), IOStandard("SSTL-15 CLASS I")),
-        Subsignal("cas_n", Pins("E20"), IOStandard("SSTL-15 CLASS I")),
-        Subsignal("we_n",  Pins("E22"), IOStandard("SSTL-15 CLASS I")),
+        Subsignal("ba",    Pins("D19 W19 F19"), IOStandard("SSTL-15")),
+        Subsignal("ras_n", Pins("D22"), IOStandard("SSTL-15")),
+        Subsignal("cas_n", Pins("E20"), IOStandard("SSTL-15")),
+        Subsignal("we_n",  Pins("E22"), IOStandard("SSTL-15")),
         Subsignal("dm", Pins("N19 J15"),
-            IOStandard("SSTL-15 CLASS I"),
-            Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION")
+            IOStandard("SSTL-15"),
+            Misc("OUTPUT_TERMINATION \"SERIES 40 OHM WITH CALIBRATION\""),
+            Misc("DM_PIN ON")
         ),
         Subsignal("dq", Pins(
             "L20 L19 L18 M15 M18 M14 M20 N20",
             "K19 K18 J18 K20 H18 J20 H20 H19"),
-            IOStandard("SSTL-15 CLASS I"),
-            Misc("INPUT_TERMINATION=PARALLEL 50 OHM WITH CALIBRATION"),
-            Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION"),
+            IOStandard("SSTL-15"),
+            Misc("OUTPUT_TERMINATION \"SERIES 40 OHM WITH CALIBRATION\""),
         ),
         Subsignal("dqs_p", Pins("L14 K14"),
-            IOStandard("DIFFERENTIAL 1.5-V SSTL CLASS I"),
-            Misc("INPUT_TERMINATION=PARALLEL 50 OHM WITH CALIBRATION"),
-            Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION")
+            IOStandard("DIFFERENTIAL 1.5-V SSTL"),
+            Misc("OUTPUT_TERMINATION \"SERIES 40 OHM WITH CALIBRATION\"")
         ),
         Subsignal("dqs_n", Pins("L15 K15"),
-            IOStandard("DIFFERENTIAL 1.5-V SSTL CLASS I"),
-            Misc("INPUT_TERMINATION=PARALLEL 50 OHM WITH CALIBRATION"),
-            Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION")
+            IOStandard("DIFFERENTIAL 1.5-V SSTL"),
+            Misc("OUTPUT_TERMINATION \"SERIES 40 OHM WITH CALIBRATION\"")
         ),
         Subsignal("clk_p", Pins("D18"),
-            IOStandard("DIFFERENTIAL 1.5-V SSTL CLASS I"),
-            Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION"),
-            Misc("D5_DELAY=2")
+            IOStandard("DIFFERENTIAL 1.5-V SSTL"),
+            Misc("OUTPUT_TERMINATION \"SERIES 40 OHM WITH CALIBRATION\""),
+            Misc("CKN_CK_PAIR ON -from ddram_clk_n")
         ),
         Subsignal("clk_n", Pins("E18"),
-            IOStandard("DIFFERENTIAL 1.5-V SSTL CLASS I"),
-            Misc("OUTPUT_TERMINATION=SERIES 50 OHM WITH CALIBRATION"),
-            Misc("D5_DELAY=2")
+            IOStandard("DIFFERENTIAL 1.5-V SSTL"),
+            Misc("OUTPUT_TERMINATION \"SERIES 40 OHM WITH CALIBRATION\""),
         ),
-        Subsignal("cs_n",    Pins("F22"), IOStandard("SSTL-15 CLASS I")),
-        Subsignal("cke",     Pins("B22"), IOStandard("SSTL-15 CLASS I")),
-        Subsignal("odt",     Pins("G22"), IOStandard("SSTL-15 CLASS I")),
-        Subsignal("reset_n", Pins("U19"), IOStandard("SSTL-15 CLASS I")),
-        Misc("CURRENT_STRENGTH_NEW=MAXIMUM CURRENT")
+        Subsignal("cs_n",    Pins("F22"), IOStandard("SSTL-15")),
+        Subsignal("cke",     Pins("B22"), IOStandard("SSTL-15")),
+        Subsignal("odt",     Pins("G22"), IOStandard("SSTL-15")),
+        Subsignal("reset_n", Pins("U19"), IOStandard("SSTL-15")),
     ),
 
     # Audio.
@@ -317,6 +313,24 @@ class Platform(AlteraPlatform):
         self.add_platform_command("set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF")
         self.add_platform_command("set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF")
         self.add_platform_command("set_global_assignment -name INTERNAL_FLASH_UPDATE_MODE \"SINGLE IMAGE WITH ERAM\"")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[0] -to ddram_dq[0]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[0] -to ddram_dq[1]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[0] -to ddram_dq[2]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[0] -to ddram_dq[3]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[0] -to ddram_dq[4]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[0] -to ddram_dq[5]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[0] -to ddram_dq[6]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[0] -to ddram_dq[7]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[1] -to ddram_dq[8]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[1] -to ddram_dq[9]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[1] -to ddram_dq[10]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[1] -to ddram_dq[11]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[1] -to ddram_dq[12]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[1] -to ddram_dq[13]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[1] -to ddram_dq[14]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[1] -to ddram_dq[15]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[0] -to ddram_dm[0]")
+        self.add_platform_command("set_instance_assignment -name DQ_GROUP 9 -from ddram_dqs_p[1] -to ddram_dm[1]")
 
     def create_programmer(self):
         return USBBlaster(cable_name="Arrow MAX 10 DECA")
