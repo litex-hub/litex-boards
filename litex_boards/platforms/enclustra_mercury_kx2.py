@@ -218,54 +218,54 @@ _connectors = [
         165 : "A15",   166: "A19",
     }),
     ("C", {
-        69:   "J8",     70  :   "K15",
-        71:   "J14",    72  :   "M16",
-
-        75:   "A9",     76  :   "G15",
-        77:   "A8",     78  :   "F15",
-        79:   "C9",     80  :   "J15",
-        81:   "B9",     82  :   "J16",
-
-        85:   "D9",     86  :   "F17",
-        87:   "D8",     88  :   "E17",
-        89:   "E10",    90  :   "E15",
-        91:   "D10",    92  :   "E16",
-
-        95:   "F9",     96  :   "H16",
-        97:   "F8",     98  :   "G16",
-        99:   "H9",     100 :   "D15",
-        101:   "H8",    102 :   "D16",
-
-        105:   "N18",   106 :   "P16",
-        107:   "M19",   108 :   "N17",
-        109:   "R16",   110 :   "U17",
-        111:   "R17",   112 :   "T17",
-
-        115:   "P23",   116 :   "R18",
-        117:   "N23",   118 :   "P18",
-        119:   "T24",   120 :   "R22",
-        121:   "T25",   122 :   "R23",
-
-        125:   "N19",   126 :   "P24",
-        127:   "M20",   128 :   "N24",
-        129:   "T18",   130 :   "P19",
-        131:   "T19",   132 :   "P20",
-
-        135:   "U19",   136 :   "T22",
-        137:   "U20",   138 :   "T23",
-        139:   "T20",   140 :   "K25",
-        141:   "R20",   142 :   "K26",
-
-        145:   "R25",   146 :   "N21",
-        147:   "P25",   148 :   "N22",
-
-        151:   "R21",   152 :   "M24",
-        153:   "P21",   154 :   "L24",
-
-        157:   "M21",   158 :   "M25",
-        159:   "M22",   160 :   "L25",
-        161:   "R26",   162 :   "N26",
-        163:   "P26",   164 :   "M26",
+        69:   "J8",     
+        71:   "J14",     72 :   "K15",
+                         74 :   "M16",
+        75:   "A9",     
+        77:   "A8",      78 :   "G15",
+        79:   "C9",      80 :   "F15",
+        81:   "B9",      82 :   "J15",
+                         84 :   "J16",
+        85:   "D9",     
+        87:   "D8",      88 :   "F17",
+        89:   "E10",     90 :   "E17",
+        91:   "D10",     92 :   "E15",
+                         94 :   "E16",
+        95:   "F9",     
+        97:   "F8",      98 :   "H16",
+        99:   "H9",     100 :   "G16",
+        101:   "H8",    102 :   "D15",
+                        104 :   "D16",
+        105:   "N18",   
+        107:   "M19",   108 :   "P16",
+        109:   "R16",   110 :   "N17",
+        111:   "R17",   113 :   "U17",
+                        114 :   "T17",
+        115:   "P23",   
+        117:   "N23",   118 :   "R18",
+        119:   "T24",   120 :   "P18",
+        121:   "T25",   122 :   "R22",
+                        124 :   "R23",
+        125:   "N19",   
+        127:   "M20",   128 :   "P24",
+        129:   "T18",   130 :   "N24",
+        131:   "T19",   132 :   "P19",
+                        134 :   "P20",
+        135:   "U19",   
+        137:   "U20",   138 :   "T22",
+        139:   "T20",   140 :   "T23",
+        141:   "R20",   142 :   "K25",
+                        144 :   "K26",
+        145:   "R25",   
+        147:   "P25",   148 :   "N21",
+                        150 :   "N22",
+        151:   "R21", 
+        153:   "P21",   154 :   "M24",
+                        156 :   "L24",     
+        157:   "M21",   160 :   "M25",
+        159:   "M22",   162 :   "L25",
+        161:   "R26",   164 :   "N26",
+        163:   "P26",   166 :   "M26",
     })
 ]
 
@@ -276,7 +276,7 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_period = 1e9/200e6
 
     def __init__(self, toolchain="vivado"):
-        Xilinx7SeriesPlatform.__init__(self, "xc7k160tffg676-2", _io, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xc7k160tffg676-2", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")
         self.add_platform_command("set_property CFGBVS GND [current_design]")
         # DDR3 is connected to banks 32, 33 and 34
@@ -297,8 +297,8 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN PULLNONE [current_design]")
 
     def add_baseboard(self, bb):
-        self.add_extension(bb.io)
         self.add_connector(bb.connectors)
+        self.add_extension(bb.io)
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7k160t.bit")

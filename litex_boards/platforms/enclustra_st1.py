@@ -57,7 +57,7 @@ class EnclustraST1:
                 Subsignal("sda",     Pins("A:57"), Misc("SLEW=SLOW")),
                 IOStandard("LVCMOS" + vccio_a)
             ),
-            ("i2c_mipi_sel", 0, Pins("A63"), IOStandard("LVCMOS" + vccio_a)),
+            ("i2c_mipi_sel", 0, Pins("A:63"), IOStandard("LVCMOS" + vccio_a)),
 
             # HDMI Bus
             ("hdmi", 0,
