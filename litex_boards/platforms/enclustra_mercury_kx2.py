@@ -2,6 +2,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2020 Mark Standke <mstandke@cern.ch>
+# Copyright (c) 2023 Hans Baier <hansfbaier@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
