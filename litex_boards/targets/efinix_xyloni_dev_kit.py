@@ -44,7 +44,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, sys_clk_freq=33.333e6,, with_led_chaser=True, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=33.333e6, with_led_chaser=True, **kwargs):
         platform = efinix_xyloni_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
