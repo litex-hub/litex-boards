@@ -142,3 +142,6 @@ class Platform(XilinxUSPPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 65]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")
+
+        # For HBM2 IP in Vivado 2019.2 (https://www.xilinx.com/support/answers/72607.html)
+        self.add_platform_command("connect_debug_port dbg_hub/clk [get_nets apb_clk]")
