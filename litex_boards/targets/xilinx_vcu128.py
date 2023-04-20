@@ -5,6 +5,7 @@
 #
 # Copyright (c) 2020 Fei Gao <feig@princeton.edu>
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2022 Jiajie Chen <c@jia.je>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
