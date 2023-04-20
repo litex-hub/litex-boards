@@ -55,21 +55,13 @@ _io = [
         Subsignal("a", Pins(
             "BF50 BD51 BG48 BE50 BE49 BE51 BF53 BG50",
             "BF51 BG47 BF47 BG49 BF48 BF52"),
-            # Swap A3A4, A5A6, A7A8, A11A13
-            # "BF50 BD51 BG48 BE49 BE50 BF53 BE51 BF51",
-            # "BG50 BG47 BF47 BF52 BF48 BG49"),
             IOStandard("SSTL12_DCI")),
         Subsignal("ba",        Pins("BE54 BE53"), IOStandard("SSTL12_DCI")),
-        # Swap BA0/1
-        # Subsignal("ba",        Pins("BE53 BE54"), IOStandard("SSTL12_DCI")),
         Subsignal("bg",        Pins("BG54"), IOStandard("SSTL12_DCI")),
         Subsignal("ras_n",     Pins("BJ54"), IOStandard("SSTL12_DCI")),
         Subsignal("cas_n",     Pins("BH54"), IOStandard("SSTL12_DCI")),
         Subsignal("we_n",      Pins("BG53"), IOStandard("SSTL12_DCI")),
-        Subsignal("cs_n",      Pins("BP49 BK48"), IOStandard("SSTL12_DCI")),
-        # Subsignal("cs_n",      Pins("BP49"), IOStandard("SSTL12_DCI")),
-        #Subsignal("cs_n",      Pins("BP49"), IOStandard("SSTL12_DCI")),
-        # Subsignal("bot_cs_n",  Pins("BK48"), IOStandard("SSTL12_DCI")), # Clam-shell fashion
+        Subsignal("cs_n",      Pins("BP49 BK48"), IOStandard("SSTL12_DCI")), # Clam-shell topology
         Subsignal("act_n",     Pins("BG52"), IOStandard("SSTL12_DCI")),
         #Subsignal("ten",       Pins("BJ53"), IOStandard("SSTL12_DCI")),
         #Subsignal("alert_n",   Pins("BJ52"), IOStandard("SSTL12_DCI")),

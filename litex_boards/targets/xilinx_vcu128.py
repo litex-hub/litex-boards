@@ -68,9 +68,6 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             self.ddrphy = usddrphy.USPDDRPHY(
                 pads             = platform.request("ddram"),
-                # pads             = PHYPadsReducer(platform.request("ddram"), [0, 2, 4, 7]),
-                # pads             = PHYPadsReducer(platform.request("ddram"), [1, 3, 5, 6]),
-                # pads             = PHYPadsReducer(platform.request("ddram"), [0]),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
                 iodelay_clk_freq = 500e6)
