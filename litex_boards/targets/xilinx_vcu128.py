@@ -71,6 +71,7 @@ class BaseSoC(SoCCore):
                 pads             = platform.request("ddram"),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
+                is_clam_shell    = True,
                 iodelay_clk_freq = 500e6)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
