@@ -100,8 +100,8 @@ _io = [
 
     # SGMII Clock
     ("eth_clocks", 0,
-        Subsignal("p", Pins("BK23"), IOStandard("LVCMOS18")),
-        Subsignal("n", Pins("BK22"), IOStandard("LVCMOS18")),
+        Subsignal("p", Pins("BH27"), IOStandard("LVDS")),
+        Subsignal("n", Pins("BJ27"), IOStandard("LVDS")),
     ),
 
     # SGMII Ethernet
@@ -109,10 +109,10 @@ _io = [
         Subsignal("int_n", Pins("BF22"), IOStandard("LVCMOS18")),
         Subsignal("mdio",  Pins("BG23"), IOStandard("LVCMOS18")),
         Subsignal("mdc",   Pins("BN27"), IOStandard("LVCMOS18")),
-        Subsignal("rx_p",  Pins("BH21"), IOStandard("LVCMOS18")),
-        Subsignal("rx_n",  Pins("BJ21"), IOStandard("LVCMOS18")),
-        Subsignal("tx_p",  Pins("BG22"), IOStandard("LVCMOS18")),
-        Subsignal("tx_n",  Pins("BH22"), IOStandard("LVCMOS18")),
+        Subsignal("rx_p",  Pins("BJ22"), IOStandard("LVDS")),
+        Subsignal("rx_n",  Pins("BK21"), IOStandard("LVDS")),
+        Subsignal("tx_p",  Pins("BG22"), IOStandard("LVDS")),
+        Subsignal("tx_n",  Pins("BH22"), IOStandard("LVDS")),
     ),
 ]
 
