@@ -67,7 +67,7 @@ _io = [
 
     # HDMI
     ("hdmi", 0,
-        Subsignal("tx_d_r", Pins("AS12 AE12 W8 Y8 AD11 AD10 AE11 Y5")),
+        Subsignal("tx_d_r", Pins("AD12 AE12 W8 Y8 AD11 AD10 AE11 Y5")),
         Subsignal("tx_d_g", Pins("AF10 Y4 AE9 AB4 AE7 AF6 AF8 AF5")),
         Subsignal("tx_d_b", Pins("AE4 AH2 AH4 AH5 AH6 AG6 AF9 AE8")),
         Subsignal("tx_clk", Pins("AG5")),
