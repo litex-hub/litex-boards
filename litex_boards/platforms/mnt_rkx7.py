@@ -154,9 +154,9 @@ _io = [
         Subsignal("de",      Pins("AA15")),
         Subsignal("hsync", Pins("AB15")), # hsync_n for negative
         Subsignal("vsync", Pins("AB16")), # vsync_n for negative
-        Subsignal("b", Pins("AF14 AF15 AE15 AE16 AF17 AE17 AA14 AF18")), # [16:23]
+        Subsignal("r", Pins("AF14 AF15 AE15 AE16 AF17 AE17 AA14 AF18")), # [16:23]
         Subsignal("g", Pins("AD15 AE18 AD16 AF19 AC16 AD14 AC17 AC14")), # [8:15]
-        Subsignal("r", Pins("AB14 Y15  AA17 AA18 Y16  AF20 AD20 AB17")), # [0:7]
+        Subsignal("b", Pins("AB14 Y15  AA17 AA18 Y16  AF20 AD20 AB17")), # [0:7]
         IOStandard("LVCMOS18"), Misc("DRIVE=4"),
     ),
 
