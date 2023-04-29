@@ -138,6 +138,8 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_rst     = kwargs["uart_name"] not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
+        if board == "i5a-907":
+            with_rst = True
         with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
         self.crg = _CRG(platform, sys_clk_freq,
             use_internal_osc = use_internal_osc,
@@ -178,17 +180,19 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         # Disable leds when serial is used.
-        if platform.lookup_request("serial", loose=True) is None and with_led_chaser:
+        if platform.lookup_request("serial", loose=True) is None and with_led_chaser or board == "i5a-907":
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
+
+        self.add_uartbone(name="uartbone")
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=colorlight_5a_75b.Platform, description="LiteX SoC on Colorlight 5A-75X.")
-    parser.add_target_argument("--board",             default="5a-75b",         help="Board type (5a-75b or 5a-75e).")
+    parser.add_target_argument("--board",             default="5a-75b",         help="Board type (5a-75b, 5a-75e or i5a-907).")
     parser.add_target_argument("--revision",          default="7.0",            help="Board revision (6.0, 6.1, 7.0 or 8.0).")
     parser.add_target_argument("--sys-clk-freq",      default=60e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()

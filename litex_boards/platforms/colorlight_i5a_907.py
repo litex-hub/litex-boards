@@ -2,10 +2,14 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2020 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2023 Charles-Henri Mousset <ch.mousset@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 # The Colorlight 5A-75B PCB and IOs have been documented by @miek and @smunaut:
 # https://github.com/q3k/chubby75/tree/master/5a-75b
+# The Colorlight 5A-907 PCB, which is heavily based on the 5A-75B has been documented by @chmouss:
+# https://github.com/chmousset/colorlight_reverse
+
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeECP5Platform
@@ -13,7 +17,7 @@ from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
-_io_v7_0 = [ # Documented by @miek
+_io_v7_0 = [ # Documented by @miek and @chmouss
     # Clk
     ("clk25", 0, Pins("P6"), IOStandard("LVCMOS33")),
 
@@ -25,8 +29,14 @@ _io_v7_0 = [ # Documented by @miek
 
     # Serial
     ("serial", 0,
-        Subsignal("tx", Pins("P11")), # led (J19 DATA_LED-)
-        Subsignal("rx", Pins("M13")), # btn (J19 KEY+)
+        Subsignal("tx", Pins("P15")), # FAN pin 1
+        Subsignal("rx", Pins("L14")), # FAN pin 2
+        IOStandard("LVCMOS33")
+    ),
+
+    ("uartbone", 0,
+        Subsignal("tx", Pins("F15")), # EXT_VOL pin 1
+        Subsignal("rx", Pins("E16")), # EXT_VOL pin 2
         IOStandard("LVCMOS33")
     ),
 
@@ -95,20 +105,29 @@ _io_v7_0 = [ # Documented by @miek
     ),
 
     # USB
+    # To use the USB:
+    # shunt R124 and R134
+    # remove R107
+    # connect on R107's pad towards FPGA to R124 shunt through a 1.5k resistor
     ("usb", 0,
-        Subsignal("d_p", Pins("M8")),
-        Subsignal("d_n", Pins("R2")),
-        Subsignal("pullup", Pins("P4")),
+        Subsignal("d_p", Pins("F15")),  # EXT_VOL pin 1
+        Subsignal("d_n", Pins("E16")),  # EXT_VOL pin 2
+        Subsignal("pullup", Pins("A12")),  # R107's pad towards FPGA
         IOStandard("LVCMOS33")
     ),
 ]
 
-# From https://github.com/q3k/chubby75/blob/master/5a-75b/hardware_V7.0.md
+# Documented by @chmouss
 _connectors_v7_0 = [
-    ("j1", "- "),
-    ("j2", "- "),
-    ("j3", "- "),
-    ("j4", "- "),
+    ("door", "- - P16"),
+    ("smoke", "- - M14 -"),
+    ("fan", "- P15 L14"),
+    ("ext_vol", "- F15 E16"),
+    # pinout:  1  2  3   4   5   6 7  8  9   10  11  12  13 14  15  16  17  18  19  20 21  22  23  24  25  26
+    ("j1", "-  L2 K1 F12 J14 B16 - J5 K2 F3  F1  T4  G3  -  G2  H3  R5  H5  J4  K3  -  R8  G1  K4  C2  P8  E3"),
+    ("j2", "-  L2 K1 F12 J14 B16 - J2 J1 H4  K5  R7  P1  -  R1  L5  P7  F2  P4  R2  -  N7  M8  M9  T6  M7  R6"),
+    ("j3", "-  L2 K1 F12 J14 B16 - G4 G5 M11 N11 L13 P12 -  K15 N12 G13 L16 K16 J15 -  G12 J16 J12 H15 F13 G16"),
+    ("j4", "-  L2 K1 F12 J14 B16 - F5 F4 H13 J13 E15 H12 -  G14 H14 D16 G15 A15 F16 -  F14 A14 E13 B14 E14 A13"),
 ]
 
 
