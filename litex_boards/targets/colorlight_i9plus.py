@@ -9,6 +9,17 @@
 # Copyright (c) 2023 Charles-Henri Mousset <ch.mousset@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Connecting to the JTAG port can be done using the 4 headers on the i9+:
+# J2: TDO
+# J3: TDI
+# J4: TMS
+# J5: TCK
+
+# wuxx's extension board's JTAG isn't compatible with the i9+ headers.
+# The extension board's pogopins must be isolated to avoid shorts.
+# However, is provides PMOD-compatible headers and the ethernet IOs are compatible.
+# See https://github.com/wuxx/Colorlight-FPGA-Projects#ext-board for more infos.
+
 
 from migen import *
 
