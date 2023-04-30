@@ -7,7 +7,7 @@
 
 # The Colorlight 5A-75B PCB and IOs have been documented by @miek and @smunaut:
 # https://github.com/q3k/chubby75/tree/master/5a-75b
-# The Colorlight 5A-907 PCB, which is heavily based on the 5A-75B has been documented by @chmouss:
+# The Colorlight 5A-907 PCB, which is heavily based on the 5A-75B, has been documented by @chmouss:
 # https://github.com/chmousset/colorlight_reverse
 
 
@@ -108,7 +108,8 @@ _io_v7_0 = [ # Documented by @miek and @chmouss
     # To use the USB:
     # shunt R124 and R134
     # remove R107
-    # connect on R107's pad towards FPGA to R124 shunt through a 1.5k resistor
+    # connect R107's pad towards FPGA to R124 shunt through a 1.5k resistor
+    # note: it conflicts with uartbone
     ("usb", 0,
         Subsignal("d_p", Pins("F15")),  # EXT_VOL pin 1
         Subsignal("d_n", Pins("E16")),  # EXT_VOL pin 2
@@ -138,7 +139,7 @@ class Platform(LatticeECP5Platform):
     default_clk_period = 1e9/25e6
 
     def __init__(self, revision="7.0", toolchain="trellis"):
-        assert revision in ["6.1", "7.0", "8.0"]
+        assert revision in ["7.0"]
         self.revision = revision
         device     = {"7.0": "LFE5U-25F-6BG256C"}[revision]
         io         = {"7.0": _io_v7_0           }[revision]
