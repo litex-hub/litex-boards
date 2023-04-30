@@ -90,7 +90,7 @@ class BaseSoC(SoCCore):
         platform = colorlight_i9plus.Platform(toolchain=toolchain)
 
         # PMOD: uart on P2 (top) -------------------------------------------------------------------
-        if with_pmod_uart:
+        if with_pmod_uart or kwargs.get("uart_name", "") == "serial":
             platform.add_extension(colorlight_i9plus.pmod_uart())
 
         # CRG --------------------------------------------------------------------------------------
