@@ -39,6 +39,10 @@
 # Disclaimer: SoC 2) is still a Proof of Concept with large timings violations on the IP/UDP and
 # Etherbone stack that need to be optimized. It was initially just used to validate the reversed
 # pinout but happens to work on hardware...
+#
+# Note you can also use the i5a-907 board:
+# ./colorlight_5a_75x.py --board=i5a-907 --revision=7.0 --build
+
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -47,7 +51,7 @@ from litex.gen import *
 
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import colorlight_5a_75b, colorlight_5a_75e
+from litex_boards.platforms import colorlight_5a_75b, colorlight_5a_75e, colorlight_i5a_907
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -118,6 +122,7 @@ class BaseSoC(SoCCore):
     def __init__(self, board, revision, sys_clk_freq=60e6, toolchain="trellis",
         with_ethernet    = False,
         with_etherbone   = False,
+        with_uartbone    = False,
         eth_ip           = "192.168.1.50",
         eth_phy          = 0,
         with_led_chaser  = True,
@@ -125,17 +130,21 @@ class BaseSoC(SoCCore):
         sdram_rate       = "1:1",
         **kwargs):
         board = board.lower()
-        assert board in ["5a-75b", "5a-75e"]
+        assert board in ["5a-75b", "5a-75e", "i5a-907"]
         if board == "5a-75b":
             platform = colorlight_5a_75b.Platform(revision=revision, toolchain=toolchain)
         elif board == "5a-75e":
             platform = colorlight_5a_75e.Platform(revision=revision, toolchain=toolchain)
+        elif board == "i5a-907":
+            platform = colorlight_i5a_907.Platform(revision=revision, toolchain=toolchain)
 
         if board == "5a-75e" and revision == "6.0" and (with_etherbone or with_ethernet):
             assert use_internal_osc, "You cannot use the 25MHz clock as system clock since it is provided by the Ethernet PHY and will stop during PHY reset."
 
         # CRG --------------------------------------------------------------------------------------
         with_rst     = kwargs["uart_name"] not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
+        if board == "i5a-907":
+            with_rst = True
         with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
         self.crg = _CRG(platform, sys_clk_freq,
             use_internal_osc = use_internal_osc,
@@ -176,22 +185,31 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         # Disable leds when serial is used.
-        if platform.lookup_request("serial", loose=True) is None and with_led_chaser:
+        if (platform.lookup_request("serial", loose=True) is None and with_led_chaser
+            or board == "i5a-907"):
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
+
+        # Uartbone ---------------------------------------------------------------------------------
+        if with_uartbone:
+            if board != "i5a-907":
+                raise ValueError("uartbone only supported on i5a-907")
+            self.add_uartbone(name="uartbone")
+
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=colorlight_5a_75b.Platform, description="LiteX SoC on Colorlight 5A-75X.")
-    parser.add_target_argument("--board",             default="5a-75b",         help="Board type (5a-75b or 5a-75e).")
+    parser.add_target_argument("--board",             default="5a-75b",         help="Board type (5a-75b, 5a-75e or i5a-907).")
     parser.add_target_argument("--revision",          default="7.0",            help="Board revision (6.0, 6.1, 7.0 or 8.0).")
     parser.add_target_argument("--sys-clk-freq",      default=60e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",           action="store_true",    help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",          action="store_true",    help="Enable Etherbone support.")
+    parser.add_target_argument("--with-uartbone",     action="store_true",    help="Add uartbone on 'FAN OUT' connector.")
     parser.add_target_argument("--eth-ip",            default="192.168.1.50", help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-phy",           default=0, type=int,    help="Ethernet PHY (0 or 1).")
     parser.add_target_argument("--use-internal-osc",  action="store_true",    help="Use internal oscillator.")
@@ -203,6 +221,7 @@ def main():
         toolchain        = args.toolchain,
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
+        with_uartbone    = args.with_uartbone,
         eth_ip           = args.eth_ip,
         eth_phy          = args.eth_phy,
         use_internal_osc = args.use_internal_osc,
