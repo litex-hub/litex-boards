@@ -8,23 +8,25 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
+from migen.fhdl.specials import Tristate
 
 from litex.gen import *
 
 from litex_boards.platforms import mnt_rkx7
 
-from litex.soc.cores.clock import *
+
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.interconnect.csr import *
 from litex.soc.interconnect.axi import *
 from litex.soc.interconnect.wishbone import *
+
+from litex.soc.cores.clock import *
 from litex.soc.cores.bitbang import I2CMaster
 from litex.soc.cores.gpio import GPIOOut
 from litex.soc.cores.video import VideoDVIPHY
 from litex.soc.cores.usb_ohci import USBOHCI
-from migen.fhdl.specials import Tristate
 
 from litedram.modules import IS43TR16512B
 from litedram.phy import s7ddrphy
@@ -84,6 +86,7 @@ class BaseSoC(SoCCore):
         with_etherbone = False,
         with_spi_flash = True,
         with_usb_host  = True,
+        with_analyzer  = False,
         **kwargs):
         platform = mnt_rkx7.Platform()
 
@@ -177,28 +180,29 @@ class BaseSoC(SoCCore):
             dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
             self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
 
-        # LiteScope UART
-        self.add_uartbone(name="litescope_serial")
-        # LiteScope Analyzer (optional)
-        # analyzer_signals = [
-        #     ulpi_data.din,
-        #     utmi.linestate,
-        #     utmi.txvalid,
-        #     utmi.rxerror,
-        #     utmi.rxvalid,
-        #     usb_ulpi.dir,
-        #     usb_ulpi.stp,
-        #     usb_ulpi.nxt,
-        #     usbh_dbg_state,
-        #     ulpi_dbg_state,
-        #     usb_host_intr,
-        #     usb_host_dbg_intr,
-        #     ]
-        # from litescope import LiteScopeAnalyzer
-        # self.analyzer = LiteScopeAnalyzer(analyzer_signals,
-        #                                              depth        = 256,
-        #                                              clock_domain = "ulpi",
-        #                                              csr_csv      = "analyzer.csv")
+        # LiteScope Analyzer -----------------------------------------------------------------------
+        if with_analyzer:
+            from litescope import LiteScopeAnalyzer
+            self.add_uartbone(name="debug_serial")
+            analyzer_signals = [
+                ulpi_data.din,
+                utmi.linestate,
+                utmi.txvalid,
+                utmi.rxerror,
+                utmi.rxvalid,
+                usb_ulpi.dir,
+                usb_ulpi.stp,
+                usb_ulpi.nxt,
+                usbh_dbg_state,
+                ulpi_dbg_state,
+                usb_host_intr,
+                usb_host_dbg_intr,
+            ]
+            self.analyzer = LiteScopeAnalyzer(analyzer_signals,
+                depth        = 256,
+                clock_domain = "ulpi",
+                csr_csv      = "analyzer.csv"
+            )
 
 # Build --------------------------------------------------------------------------------------------
 

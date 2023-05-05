@@ -26,7 +26,7 @@ _io = [
         Subsignal("rx", Pins("G16")),
         IOStandard("LVCMOS33")
     ),
-    ("litescope_serial", 0,
+    ("debug_serial", 0,
         Subsignal("tx", Pins("C17")),
         Subsignal("rx", Pins("C16")),
         IOStandard("LVCMOS33")
