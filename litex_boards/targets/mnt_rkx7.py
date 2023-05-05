@@ -173,7 +173,8 @@ class BaseSoC(SoCCore):
         if with_usb_host:
             self.usb_ohci = USBOHCI(platform, platform.request("usb"))
             self.bus.add_slave("usb_ohci_ctrl", self.usb_ohci.wb_ctrl, region=SoCRegion(origin=self.mem_map["usb_ohci"], size=0x100000, cached=False))
-            self.dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
+            dma_bus = getattr(self, "dma_bus", self.bus)
+            dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
             self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
 
         # LiteScope UART
