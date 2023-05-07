@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-
 #
 # This file is part of LiteX-Boards.
+#
+# Copyright (c) 2023 Kazumoto Kojima
+# Copyright (c) 2023 Hans Baier <hansfbaier@gmail.com>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -24,55 +26,6 @@ from litedram.modules import MT41J128M16
 from litedram.phy import s7ddrphy
 
 from liteeth.phy.mii import LiteEthPHYMII
-
-# SevenSeg -----------------------------------------------------------------------------------------
-from migen.genlib.misc import WaitTimer
-from litex.soc.interconnect.csr import *
-
-class SevenSeg(Module, AutoCSR):
-    def __init__(self, segs, sels, sys_clk_freq, period=1e-2):
-        self.segs = segs
-        self.sels = sels
-
-        n = len(sels)
-        self._out = CSRStorage(4*n, description="7 Seg LEDs Control.")
-        xdigits = Signal(4*n)
-        select = Signal(n)
-        count = Signal(max=n)
-        table = [
-            0x3f, 0x06, 0x5b, 0x4f, 
-            0x66, 0x6d, 0x7d, 0x07, 
-            0x7f, 0x6f, 0x77, 0x7c, 
-            0x39, 0x5e, 0x79, 0x71
-        ]
-        abcdefg = Signal(8)
-        hexa = Signal(4)
-        cases = {}
-        for i in range(16):
-            cases[i] = abcdefg.eq(table[i])
- 
-        self.comb += Case(hexa, cases)
-
-        timer = WaitTimer(int(period*sys_clk_freq/(2*n)))
-        self.submodules += timer
-        self.comb += timer.wait.eq(~timer.done)
-        self.sync += If(timer.done,
-                        If(count == n-1,
-                           count.eq(0),
-                           select.eq(1 << (n-1)),
-                           xdigits.eq(self._out.storage)
-                        ).Else(
-                           count.eq(count + 1),
-                           select.eq(select >> 1),
-                           xdigits.eq(xdigits >> 4) 
-                        )
-                     )
-        self.comb += [
-            hexa.eq(xdigits[0:4]),
-            segs.eq(~abcdefg),
-            sels.eq(select)
-        ]
-
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -112,7 +65,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="yosys+nextpnr", sys_clk_freq=int(100e6), with_daughterboard=False,
+    def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6), with_daughterboard=False,
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
                  local_ip="", remote_ip="",
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False, with_video_colorbars=False,
@@ -198,10 +151,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
-        self.submodules.sevenseg = SevenSeg(
-                segs         = platform.request_all("seven_seg"),
-                sels         = platform.request_all("seven_seg_ctl"),
-                sys_clk_freq = sys_clk_freq)
+        if (with_daughterboard):
+            from litex_boards.platforms.qmtech_daughterboard import SevenSeg
+            self.submodules.sevenseg = SevenSeg(
+                    segs         = platform.request_all("seven_seg"),
+                    sels         = platform.request_all("seven_seg_ctl"),
+                    sys_clk_freq = sys_clk_freq)
 
         if not with_daughterboard and kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "jtag_serial"
@@ -210,7 +165,7 @@ class BaseSoC(SoCCore):
 
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC on QMTech XC7K325T")
-    parser.add_argument("--toolchain",           default="yosys+nextpnr",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
+    parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     parser.add_argument("--build",               action="store_true",              help="Build bitstream.")
     parser.add_argument("--load",                action="store_true",              help="Load bitstream.")
     parser.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")

@@ -1,6 +1,9 @@
 #
 # This file is part of LiteX-Boards.
 #
+# Copyright (c) 2023 Kazumoto Kojima
+# Copyright (c) 2023 Hans Baier <hansfbaier@gmail.com>
+#
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
@@ -13,14 +16,23 @@ _io = [
     # Clk / Rst
     ("clk50", 0, Pins("F22"), IOStandard("LVCMOS33")),
 
+    # The core board does not have a USB serial on it,
+    # so you will have to attach an USB to serial adapter
+    # on these pins
+    ("gpio_serial", 0,
+        Subsignal("tx", Pins("J2:7")),
+        Subsignal("rx", Pins("J2:8")),
+        IOStandard("LVCMOS33")
+    ),
+
     # SPIFlash
     # S25FL256L
-    #("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
-    #    Subsignal("cs_n", Pins("C23")),
-    #    Subsignal("clk",  Pins("C8")),
-    #    Subsignal("dq",   Pins("B24", "A25", "B22", "A22")),
-    #    IOStandard("LVCMOS33")
-    #),
+    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+        Subsignal("cs_n", Pins("C23")),
+        Subsignal("clk",  Pins("C8")),
+        Subsignal("dq",   Pins("B24", "A25", "B22", "A22")),
+        IOStandard("LVCMOS33")
+    ),
 
     # DDR3 SDRAM
     # MT41J128M16JT-125K
@@ -125,24 +137,31 @@ class Platform(XilinxPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    core_resources = [
+    core_resources_daughterboard = [
         ("onboard_led_1", 0, Pins("J26"), IOStandard("LVCMOS33")),
         ("onboard_led_2", 0, Pins("H26"), IOStandard("LVCMOS33")),
         ("cpu_reset", 0, Pins("AD21"), IOStandard("LVCMOS33")),
     ]
 
-    def __init__(self, toolchain="yosys+nexpnr", with_daughterboard=False):
+    core_resources_standalone = [
+        ("user_led", 0, Pins("J26"), IOStandard("LVCMOS33")),
+        ("user_led", 1, Pins("H26"), IOStandard("LVCMOS33")),
+        ("cpu_reset", 0, Pins("AD21"), IOStandard("LVCMOS33")),
+    ]
+
+    def __init__(self, toolchain="vivado", with_daughterboard=False):
         device = "xc7k325tffg676-1"
         io = _io
         connectors = _connectors
 
-        io += self.core_resources
-
         if with_daughterboard:
+            io += self.core_resources_daughterboard
             from litex_boards.platforms.qmtech_daughterboard import QMTechDaughterboard
             daughterboard = QMTechDaughterboard(IOStandard("LVCMOS33"))
             io += daughterboard.io
             connectors += daughterboard.connectors
+        else:
+            io += self.core_resources_standalone
 
         XilinxPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
 
