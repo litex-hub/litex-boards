@@ -31,7 +31,7 @@ _io = [
         Subsignal("n", Pins("H5"), IOStandard("DIFF_HSTL_I_10"))
     ),
 
-    ("cpu_reset_n", 0, Pins("A20"), IOStandard("LVCMOS18")),
+    ("cpu_reset", 0, Pins("A20"), IOStandard("LVCMOS18")),
     ("pi_reset_n",  0, Pins("A18"), IOStandard("LVCMOS33")),
 
     # Leds
