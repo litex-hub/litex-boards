@@ -226,7 +226,8 @@ def main():
             "#define TARGET_ETHPHY_INIT_FUNC() mdio_write(0, 0, 0x2100)")
 
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
-    builder.build(**builder_kwargs, run=args.build)
+    if args.build:
+	    builder.build(**builder_kwargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
