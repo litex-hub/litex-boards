@@ -109,19 +109,19 @@ class BaseSoC(SoCCore):
                 data_pads    = self.platform.request("sfp", 0),
                 sys_clk_freq = self.clk_freq)
 
-            self.add_ethernet(phy=self.ethphy)
             self.add_etherbone(phy=self.ethphy, ip_address="192.168.0.222")
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-52]")
 
         # Video ------------------------------------------------------------------------------------
         if (with_video_colorbars or with_video_framebuffer or with_video_terminal):
+            videomode = "800x600@60Hz"
             self.submodules.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
             if with_video_colorbars:
-                self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+                self.add_video_colorbars(phy=self.videophy, timings=videomode, clock_domain="hdmi")
             if with_video_terminal:
-                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_terminal(phy=self.videophy, timings=videomode, clock_domain="hdmi")
             if with_video_framebuffer:
-                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_framebuffer(phy=self.videophy, timings=videomode, clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
