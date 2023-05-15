@@ -75,8 +75,7 @@ _io = [
         Subsignal("sys",  Pins("C19")),
         IOStandard("LVCMOS33")),
 
-    # The Serial which connects to the second UART
-    # of the FTDI on the base board (first FTDI port is JTAG)
+    # USB Serial
     ("serial", 0,
         Subsignal("tx",  Pins("A17")),
         Subsignal("rx",  Pins("K15")),
