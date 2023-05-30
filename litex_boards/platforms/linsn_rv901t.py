@@ -28,6 +28,15 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # SPIFlash (25Q32JV)
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("T3")),
+        Subsignal("clk",  Pins("R11")),
+        Subsignal("mosi", Pins("T10")),
+        Subsignal("miso", Pins("P10")),
+        IOStandard("LVCMOS33"),
+    ),
+
     # RGMII Ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("D1")),
