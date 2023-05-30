@@ -15,7 +15,7 @@ from litex.build.openocd import OpenOCD
 
 def _get_io(voltage="2.5V"):
     assert voltage in ["2.5V", "3.3V"]
-    VCCIO = str(25 if voltage == "2.5V" else 33)
+    VCCIO = {"2.5V": "25", "3.3V": "33"}[voltage]
     _io = [
         # Clk / Rst
         ("cpu_reset_n", 0, Pins("AC16"), IOStandard("LVCMOS15")),
@@ -203,7 +203,7 @@ def _get_io(voltage="2.5V"):
 
         # PCIe
         ("pcie_x1", 0,
-            Subsignal("rst_n", Pins("E17"), IOStandard("LVCMOS15")),
+            Subsignal("rst_n", Pins("E17"), IOStandard("LVCMOS" + VCCIO)),
             Subsignal("clk_p", Pins("H6")),
             Subsignal("clk_n", Pins("H5")),
             Subsignal("rx_p",  Pins("B6")),
@@ -212,7 +212,7 @@ def _get_io(voltage="2.5V"):
             Subsignal("tx_n",  Pins("A3"))
         ),
         ("pcie_x2", 0,
-            Subsignal("rst_n", Pins("E17"), IOStandard("LVCMOS15")),
+            Subsignal("rst_n", Pins("E17"), IOStandard("LVCMOS" + VCCIO)),
             Subsignal("clk_p", Pins("H6")),
             Subsignal("clk_n", Pins("H5")),
             Subsignal("rx_p",  Pins("B6 C4")),
@@ -221,7 +221,7 @@ def _get_io(voltage="2.5V"):
             Subsignal("tx_n",  Pins("A3 B1"))
         ),
         ("pcie_x4", 0,
-            Subsignal("rst_n", Pins("E17"), IOStandard("LVCMOS15")),
+            Subsignal("rst_n", Pins("E17"), IOStandard("LVCMOS" + VCCIO)),
             Subsignal("clk_p", Pins("H6")),
             Subsignal("clk_n", Pins("H5")),
             Subsignal("rx_p",  Pins("B6 C4 E4 G4")),

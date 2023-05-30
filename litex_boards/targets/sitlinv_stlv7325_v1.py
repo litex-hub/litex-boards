@@ -15,7 +15,7 @@ from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import sitlinv_stlv7325
+from litex_boards.platforms import sitlinv_stlv7325_v1
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -85,13 +85,13 @@ class BaseSoC(SoCCore):
         with_video_framebuffer = False,
         with_video_terminal    = False,
         **kwargs):
-        platform = sitlinv_stlv7325.Platform(vccio)
+        platform = sitlinv_stlv7325_v1.Platform(vccio)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Sitlinv STLV7325", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Sitlinv STLV7325-V1", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -188,7 +188,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=sitlinv_stlv7325.Platform, description="LiteX SoC on AliExpress STLV7325.")
+    parser = LiteXArgumentParser(platform=sitlinv_stlv7325_v1.Platform, description="LiteX SoC on Sitlinv STLV7325-V1.")
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--vccio",         default="2.5V", type=str, help="IO Voltage (set by J4), can be 2.5V or 3.3V")
     ethopts = parser.target_group.add_mutually_exclusive_group()
