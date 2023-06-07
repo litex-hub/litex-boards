@@ -486,7 +486,7 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
-    def __init__(self, vccio):
+    def __init__(self, vccio="3.3V"):
         assert vccio in ["2.5V", "3.3V"]
         Xilinx7SeriesPlatform.__init__(self, "xc7k325t-ffg676-2", _get_io(vccio), _connectors, toolchain="vivado")
         self.add_platform_command("""
