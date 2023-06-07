@@ -72,7 +72,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
-        vccio                  = "2.5V",
+        vccio                  = "3.3V",
         with_ethernet          = False,
         with_led_chaser        = True,
         with_pcie              = False,
@@ -172,7 +172,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sitlinv_stlv7325_v2.Platform, description="LiteX SoC on AliExpress STLV7325-v2.")
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--vccio",         default="2.5V", type=str, help="IO Voltage (set by J4), can be 2.5V or 3.3V")
+    parser.add_target_argument("--vccio",         default="3.3V", type=str, help="IO Voltage (set by J4), can be 2.5V or 3.3V")
     parser.add_target_argument("--with-pcie",       action="store_true",    help="Enable PCIe support.")
     parser.add_target_argument("--driver",          action="store_true",    help="Generate PCIe driver.")
     parser.add_target_argument("--with-ethernet",   action="store_true",    help="Enable Ethernet support.")

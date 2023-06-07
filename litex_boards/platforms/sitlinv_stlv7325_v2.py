@@ -486,13 +486,14 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
-    def __init__(self, vccio="2.5V"):
+    def __init__(self, vccio):
+        assert vccio in ["2.5V", "3.3V"]
         Xilinx7SeriesPlatform.__init__(self, "xc7k325t-ffg676-2", _get_io(vccio), _connectors, toolchain="vivado")
         self.add_platform_command("""
 set_property CFGBVS VCCO [current_design]
-set_property CONFIG_VOLTAGE 2.5 [current_design]
+set_property CONFIG_VOLTAGE %s [current_design]
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
-""")
+""" % vccio.replace("V", ""))
         self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
