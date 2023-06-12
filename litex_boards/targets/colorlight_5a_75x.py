@@ -128,6 +128,7 @@ class BaseSoC(SoCCore):
         with_led_chaser  = True,
         use_internal_osc = False,
         sdram_rate       = "1:1",
+        with_spi_flash   = False,
         **kwargs):
         board = board.lower()
         assert board in ["5a-75b", "5a-75e", "i5a-907"]
@@ -197,6 +198,25 @@ class BaseSoC(SoCCore):
                 raise ValueError("uartbone only supported on i5a-907")
             self.add_uartbone(name="uartbone")
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            if board == "i5a-907":
+                raise ValueError("SPI Flash chip is unknown on i5a-907, feel free to fix")
+                # from litespi.modules import XXXXXX as SpiFlashModule
+            elif board == "5a-75b" and revision == "6.0":
+                raise ValueError("SPI Flash chip is unknown on 5A-75B v6.0, feel free to fix")
+                # from litespi.modules import XXXXXX as SpiFlashModule
+            elif board == "5a-75b" and revision == "6.1":
+                # It's very possible that V6.0 uses this as well, but no documentation can be found for it
+                from litespi.modules import GD25Q16C as SpiFlashModule
+            # 5A-75B v7.0/v8.0 and all 5A-75Es seem to use W25Q32JV
+            else:
+                from litespi.modules import W25Q32JV as SpiFlashModule
+
+            from litespi.opcodes import SpiNorFlashOpCodes
+            self.mem_map["spiflash"] = 0x20000000
+            self.add_spi_flash(mode="1x", module=SpiFlashModule(SpiNorFlashOpCodes.READ_1_1_1), with_master=False)
+
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -214,6 +234,7 @@ def main():
     parser.add_target_argument("--eth-phy",           default=0, type=int,    help="Ethernet PHY (0 or 1).")
     parser.add_target_argument("--use-internal-osc",  action="store_true",    help="Use internal oscillator.")
     parser.add_target_argument("--sdram-rate",        default="1:1",          help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-spi-flash",    action="store_true",    help="Add SPI flash support to the SoC")
     args = parser.parse_args()
 
     soc = BaseSoC(board=args.board, revision=args.revision,
@@ -226,6 +247,7 @@ def main():
         eth_phy          = args.eth_phy,
         use_internal_osc = args.use_internal_osc,
         sdram_rate       = args.sdram_rate,
+        with_spi_flash   = args.with_spi_flash,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
