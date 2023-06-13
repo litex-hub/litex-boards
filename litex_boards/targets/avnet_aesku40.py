@@ -111,10 +111,17 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=avnet_aesku40.Platform, description="LiteX SoC on AESKU40.")
     parser.add_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
+    parser.add_target_argument("--eth-ip",   default="192.168.1.50", help="Ethernet/Etherbone IP address.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
         **parser.soc_argdict
 	)
     builder = Builder(soc, **parser.builder_argdict)
