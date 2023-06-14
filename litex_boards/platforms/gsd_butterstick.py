@@ -233,7 +233,7 @@ class Platform(LatticeECP5Platform):
         connectors = {"1.0": _connectors_r1_0}[revision]
         LatticeECP5Platform.__init__(self, f"LFE5UM5G-{device}-8BG381C", io, connectors, toolchain=toolchain, **kwargs)
 
-    def create_programmer(self, programmer):
+    def create_programmer(self, programmer="jtag"):
         if programmer == "jtag":
             return OpenOCDJTAGProgrammer("openocd_butterstick.cfg")
         elif programmer == "dfu":
