@@ -42,7 +42,7 @@ _io = [
     ),
 
     # PCIe.
-    ("pcie_x4", 0,
+    ("pcie_x4", 0, # GTH Bank 227.
         Subsignal("rst_n", Pins("AF2"), IOStandard("LVCMOS12"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("B10")),
         Subsignal("clk_n", Pins("B9")),
@@ -52,14 +52,14 @@ _io = [
         Subsignal("tx_n",  Pins("D5 C7 B5 A7")),
     ),
 
-    ("pcie_x8", 0,
+    ("pcie_x8", 0, # GTH Bank 227 and 226.
         Subsignal("rst_n", Pins("AF2"), IOStandard("LVCMOS12"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("H10")),
         Subsignal("clk_n", Pins("H9")),
-        Subsignal("rx_p",  Pins("N4 M2 K2 J4 H2 G4 F2 E4")),
-        Subsignal("rx_n",  Pins("N3 M1 K1 J3 H1 G3 F1 E3")),
-        Subsignal("tx_p",  Pins("P6 M6 L4 K6 H6 G8 F6 E8")),
-        Subsignal("tx_n",  Pins("P5 M5 L3 K5 H5 G7 F5 E7")),
+        Subsignal("rx_p",  Pins("D2 C4 B2 A4 H2 G4 F2 E4")),
+        Subsignal("rx_n",  Pins("D1 C3 B1 A3 H1 G3 F1 E3")),
+        Subsignal("tx_p",  Pins("D6 C8 B6 A8 H6 G8 F6 E8")),
+        Subsignal("tx_n",  Pins("D5 C7 B5 A7 H5 G7 F5 E7")),
     ),
 
     # DDR4 SDRAM.
