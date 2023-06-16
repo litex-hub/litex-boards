@@ -109,6 +109,7 @@ _io_r1_0 = [
         Misc("SLEWRATE=FAST")
     ),
 
+    # USB
     ("ulpi", 0,
         Subsignal("data",  Pins("B9 C6 A7 E9 A8 D9 C10 C7")),
         Subsignal("clk",   Pins("B6")),
