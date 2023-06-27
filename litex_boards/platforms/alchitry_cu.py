@@ -34,8 +34,8 @@ _io = [
 
     # Serial
     ("serial", 0,
-        Subsignal("tx", Pins("P14")),
-        Subsignal("rx", Pins("M9")),
+        Subsignal("rx", Pins("P14")),
+        Subsignal("tx", Pins("M9")),
         IOStandard("LVCMOS33")
     ),
 
@@ -50,8 +50,8 @@ _io = [
     ("spiflash", 0,
         Subsignal("mosi", Pins("M11")),
         Subsignal("miso", Pins("P11")),
-        Subsignal("sck",  Pins("P12")),
-        Subsignal("ss",   Pins("P13")),
+        Subsignal("clk",  Pins("P12")),
+        Subsignal("cs_n", Pins("P13")),
         IOStandard("LVCMOS33")
     ),
 ]
