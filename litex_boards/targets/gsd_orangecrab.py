@@ -10,10 +10,10 @@ import os
 import sys
 
 from migen import *
-from migen.genlib.misc import WaitTimer
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
+from litex.gen.genlib.misc import WaitTimer
 
 from litex_boards.platforms import gsd_orangecrab
 
