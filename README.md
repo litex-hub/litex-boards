@@ -94,6 +94,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── adi_adrv2crr_fmc
     ├── adi_plutosdr
     ├── alchitry_au
+    ├── alchitry_cu
     ├── alchitry_mojo
     ├── aliexpress_xc7k420t
     ├── alinx_ax7010
