@@ -98,7 +98,7 @@ class BaseSoC(SoCCore):
         # Add a UARTBone bridge --------------------------------------------------------------------
         debug_uart = False
         if debug_uart:
-            self.add_uartbone(name="serial")
+            self.add_uartbone()
 
 # Flash --------------------------------------------------------------------------------------------
 

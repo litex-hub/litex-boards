@@ -196,7 +196,7 @@ class BaseSoC(SoCCore):
         if with_uartbone:
             if board != "i5a-907":
                 raise ValueError("uartbone only supported on i5a-907")
-            self.add_uartbone(name="uartbone")
+            self.add_uartbone(uart_name="uartbone")
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:

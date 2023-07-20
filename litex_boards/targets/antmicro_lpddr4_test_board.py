@@ -108,7 +108,7 @@ class BaseSoC(SoCCore):
 
         # UartBone ---------------------------------------------------------------------------------
         if with_uartbone:
-            self.add_uartbone("serial", baudrate=1e6)
+            self.add_uartbone(baudrate=1e6)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

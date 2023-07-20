@@ -183,7 +183,7 @@ class BaseSoC(SoCCore):
         # LiteScope Analyzer -----------------------------------------------------------------------
         if with_analyzer:
             from litescope import LiteScopeAnalyzer
-            self.add_uartbone(name="debug_serial")
+            self.add_uartbone(uart_name="debug_serial")
             analyzer_signals = [
                 ulpi_data.din,
                 utmi.linestate,

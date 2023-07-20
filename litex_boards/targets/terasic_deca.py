@@ -86,7 +86,7 @@ class BaseSoC(SoCCore):
 
         # UARTbone ---------------------------------------------------------------------------------
         if with_uartbone:
-            self.add_uartbone(name=real_uart_name, baudrate=kwargs["uart_baudrate"])
+            self.add_uartbone(uart_name=real_uart_name, baudrate=kwargs["uart_baudrate"])
 
         # JTAGbone ---------------------------------------------------------------------------------
         if with_jtagbone:
