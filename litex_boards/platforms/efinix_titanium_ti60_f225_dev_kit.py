@@ -131,24 +131,30 @@ iobank_info = [
 _connectors = [
     ["P1",
         "---", # 0
-        #3V3      5V     GND GND                 GND GND                 GND GND
+        #3V3      5V     GND GND                 GND GND                 GND GND         ↓
         "--- H14 --- G14 --- --- F12 G13 E12 F13 --- --- E15 H13 E14 H12 --- --- C13 G15",
+        #  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20 ↑
+        # 21  22  23  24  25  26  27  28  28  30  31  32  33  34  35  36  37  38  39  40 ↓
         "D13 F15 --- --- D15 G11 D14 F11 --- --- C14 N14 C15 P14 --- ---  K4  A4  J3  B5",
-        #        GND GND                 GND GND                 GND GND
+        #        GND GND                 GND GND                 GND GND                 ↑
     ],
     ["P2",
         "---", # 0
-        #3V3      5V     GND GND                 GND GND                 GND GND
+        #3V3      5V     GND GND                 GND GND                 GND GND         ↓
         "---  R9 ---  P9 --- --- L11 N10 K11 M10 --- --- L12 R10 L13 P10 --- --- M14 R12",
+        #  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20 ↑
+        # 21  22  23  24  25  26  27  28  28  30  31  32  33  34  35  36  37  38  39  40 ↓
         "M15 R11 --- --- K10 P11 J10 P12 --- --- K12 N13 J12 P15 --- ---  H5  H4 P13 R14",
-        #        GND GND                 GND GND                 GND GND
+        #        GND GND                 GND GND                 GND GND                 ↑
     ],
     ["P3",
         "---", # 0
-        #3V3      5V     GND GND                 GND GND                 GND GND
+        #3V3      5V     GND GND                 GND GND                 GND GND         ↓
         "---  R5 ---  P5 --- ---  M7  R6  L7  P6 --- ---  R8  N6  P8  M6 --- ---  K7  R7",
+        #  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20 ↑
+        # 21  22  23  24  25  26  27  28  28  30  31  32  33  34  35  36  37  38  39  40 ↓
         " L8  P7 --- ---  N8  L6  M8  K6 --- ---  M9  A3  L9  B3 --- --- E10  C3 F10  C4",
-        #        GND GND                 GND GND                 GND GND
+        #        GND GND                 GND GND                 GND GND                 ↑
     ],
 ]
 
