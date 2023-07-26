@@ -56,7 +56,7 @@ class _CRG(LiteXModule):
 
         # PLL
         self.pll = pll = GW2APLL(devicename=platform.devicename, device=platform.device)
-        self.comb += pll.reset.eq(~por_done)
+        self.comb += pll.reset.eq(~por_done | self.rst)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         self.specials += [

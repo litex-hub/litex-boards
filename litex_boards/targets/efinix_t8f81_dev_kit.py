@@ -29,6 +29,7 @@ mB = 1024*kB
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
+        self.rst    = Signal()
         self.cd_sys = ClockDomain()
 
         # # #
@@ -38,7 +39,7 @@ class _CRG(LiteXModule):
 
         # PLL.
         self.pll = pll = TRIONPLL(platform)
-        self.comb += pll.reset.eq(~rst_n)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk33, 33.333e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
 

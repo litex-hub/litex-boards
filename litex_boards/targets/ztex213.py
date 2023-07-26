@@ -31,6 +31,7 @@ from litedram.phy import s7ddrphy
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
+        self.rst          = Signal()
         self.cd_sys       = ClockDomain()
         self.cd_sys4x     = ClockDomain()
         self.cd_sys4x_dqs = ClockDomain()
@@ -53,7 +54,7 @@ class _CRG(LiteXModule):
         self.comb += self.cd_por.clk.eq(clk48)
         self.comb += por_done.eq(por_count == 0)
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
-        self.comb += pll.reset.eq(~por_done)
+        self.comb += pll.reset.eq(~por_done | self.rst)
 
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 

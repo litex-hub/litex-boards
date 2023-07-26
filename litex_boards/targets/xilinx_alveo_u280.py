@@ -46,6 +46,7 @@ from litescope import LiteScopeAnalyzer
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, ddram_channel, with_hbm):
         if with_hbm:
+            self.rst        = Signal()
             self.cd_sys     = ClockDomain()
             self.cd_hbm_ref = ClockDomain()
             self.cd_apb     = ClockDomain()
@@ -60,6 +61,7 @@ class _CRG(LiteXModule):
 
         if with_hbm:
             self.pll = pll = USMMCM(speedgrade=-2)
+            self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(platform.request("sysclk", ddram_channel), 100e6)
             pll.create_clkout(self.cd_sys,     sys_clk_freq)
             pll.create_clkout(self.cd_hbm_ref, 100e6)

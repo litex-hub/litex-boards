@@ -28,6 +28,7 @@ from liteeth.phy.titaniumrgmii import LiteEthPHYRGMII
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
+        self.rst    = Signal()
         self.cd_sys = ClockDomain()
 
         # # #
@@ -37,7 +38,7 @@ class _CRG(LiteXModule):
 
         # PLL
         self.pll = pll = TITANIUMPLL(platform)
-        self.comb += pll.reset.eq(~rst_n)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk25, 25e6)
         # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
         # (integer) of the reference clock. If all your system clocks do not fall within

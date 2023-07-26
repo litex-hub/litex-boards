@@ -32,6 +32,7 @@ mB = 1024*kB
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
+        self.rst    = Signal()
         self.cd_por = ClockDomain()
         self.cd_sys = ClockDomain()
 
@@ -48,6 +49,7 @@ class _CRG(LiteXModule):
 
         # PLL
         self.sys_pll = sys_pll = NXPLL(platform=platform, create_output_port_clocks=True)
+        self.comb += sys_pll.reset.eq(self.rst)
         sys_pll.register_clkin(self.cd_por.clk, hf_clk_freq)
         sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked | ~por_done)

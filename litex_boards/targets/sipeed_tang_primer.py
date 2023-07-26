@@ -25,7 +25,8 @@ from litex.soc.cores.led import LedChaser
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.cd_sys   = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
@@ -34,7 +35,7 @@ class _CRG(LiteXModule):
         rst_n = platform.request("user_btn", 0)
 
         self.comb += self.cd_sys.clk.eq(clk24)
-        self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n | self.rst)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

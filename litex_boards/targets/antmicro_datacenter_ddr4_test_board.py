@@ -39,6 +39,7 @@ from litespi.opcodes import SpiNorFlashOpCodes as Codes
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, iodelay_clk_freq, with_video_pll=False):
+        self.rst          = Signal()
         self.cd_sys       = ClockDomain()
         self.cd_sys2x     = ClockDomain()
         self.cd_sys4x     = ClockDomain()
@@ -54,6 +55,7 @@ class _CRG(LiteXModule):
         clk100 = platform.request("clk100")
 
         self.pll = pll = S7PLL(speedgrade=-1)
+        self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys2x,     2 * sys_clk_freq)
@@ -66,6 +68,7 @@ class _CRG(LiteXModule):
         # Video PLL.
         if with_video_pll:
             self.video_pll = video_pll = S7MMCM(speedgrade=-1)
+            self.comb += video_pll.reset.eq(self.rst)
             video_pll.register_clkin(clk100, 100e6)
             video_pll.create_clkout(self.cd_hdmi,   40e6)
             video_pll.create_clkout(self.cd_hdmi5x, 5*40e6)
