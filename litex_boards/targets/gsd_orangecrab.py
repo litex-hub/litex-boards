@@ -65,7 +65,7 @@ class _CRG(LiteXModule):
             usb_pll.create_clkout(self.cd_usb_12, 12e6)
 
         # FPGA Reset (press usr_btn for 1 second to fallback to bootloader)
-        reset_timer = WaitTimer(int(48e6))
+        reset_timer = WaitTimer(48e6)
         reset_timer = ClockDomainsRenamer("por")(reset_timer)
         self.submodules += reset_timer
         self.comb += reset_timer.wait.eq(~rst_n)
@@ -135,7 +135,7 @@ class _CRGSDRAM(LiteXModule):
             usb_pll.create_clkout(self.cd_usb_12, 12e6)
 
         # FPGA Reset (press usr_btn for 1 second to fallback to bootloader)
-        reset_timer = WaitTimer(int(48e6))
+        reset_timer = WaitTimer(48e6)
         reset_timer = ClockDomainsRenamer("por")(reset_timer)
         self.submodules += reset_timer
         self.comb += reset_timer.wait.eq(~rst_n)

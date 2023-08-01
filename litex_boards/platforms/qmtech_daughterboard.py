@@ -39,7 +39,7 @@ class SevenSeg(Module, AutoCSR):
 
         self.comb += Case(hexa, cases)
 
-        timer = WaitTimer(int(period*sys_clk_freq/(2*n)))
+        timer = WaitTimer(period*sys_clk_freq/(2*n))
         self.submodules += timer
         self.comb += timer.wait.eq(~timer.done)
         self.sync += If(timer.done,
