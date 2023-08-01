@@ -106,7 +106,7 @@ def main():
     parser.add_target_argument("--device",        default="LIFCL-40-9BG400C", help="FPGA device (LIFCL-40-9BG400C, LIFCL-40-8BG400CES, or LIFCL-40-8BG400CES2).")
     parser.add_target_argument("--sys-clk-freq",  default=75e6, type=float,   help="System clock frequency.")
     parser.add_target_argument("--serial",        default="serial",           help="UART Pins (serial (requires R15 and R17 to be soldered) or serial_pmod[0-2]).")
-    parser.add_target_argument("--programmer",    default="radiant",          help="Programmer (radiant or ecpprog).")
+    parser.add_target_argument("--programmer",    default="radiant",          help="Programmer (radiant or ecpprog or openocd).")
     parser.add_target_argument("--address",       default=0x0,                help="Flash address to program bitstream at.")
     parser.add_target_argument("--prog-target",   default="direct",           help="Programming Target (direct or flash).")
     args = parser.parse_args()

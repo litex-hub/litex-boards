@@ -9,6 +9,7 @@ from litex.build.generic_platform import *
 from litex.build.lattice import LatticeNexusPlatform
 from litex.build.lattice.programmer import LatticeProgrammer
 from litex.build.lattice.programmer import EcpprogProgrammer
+from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -271,11 +272,13 @@ class Platform(LatticeNexusPlatform):
 
     def create_programmer(self, mode = "direct", prog="radiant"):
         assert mode in ["direct","flash"]
-        assert prog in ["radiant","ecpprog"]
+        assert prog in ["radiant","ecpprog","openocd"]
 
         if prog == "ecpprog":
             return EcpprogProgrammer()
 
+        if prog == "openocd":
+            return OpenOCDJTAGProgrammer("openocd_evn_nx.cfg")
 
         xcf_template_direct = """<?xml version='1.0' encoding='utf-8' ?>
 <!DOCTYPE		ispXCF	SYSTEM	"IspXCF.dtd" >
