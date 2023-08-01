@@ -46,6 +46,7 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6, toolchain="trellis", x5_clk_freq=None,
         with_led_chaser = True,
+        with_jtagbone   = True,
         **kwargs):
         platform = lattice_ecp5_evn.Platform(toolchain=toolchain)
 
@@ -54,6 +55,10 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ECP5 Evaluation Board", **kwargs)
+
+        # JtagBone ---------------------------------------------------------------------------------
+        if with_jtagbone:
+            self.add_jtagbone()
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -68,12 +73,14 @@ def main():
     parser = LiteXArgumentParser(platform=lattice_ecp5_evn.Platform, description="LiteX SoC on ECP5 Evaluation Board.")
     parser.add_target_argument("--sys-clk-freq", default=60e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--x5-clk-freq",  type=int,                 help="Use X5 oscillator as system clock at the specified frequency.")
+    parser.add_target_argument("--with-jtagbone", action="store_true",     help="Add JTAGBone.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         toolchain    = args.toolchain,
         sys_clk_freq = args.sys_clk_freq,
         x5_clk_freq  = args.x5_clk_freq,
+        with_jtagbone = args.with_jtagbone,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
