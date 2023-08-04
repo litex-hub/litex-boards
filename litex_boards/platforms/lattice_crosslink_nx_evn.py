@@ -259,6 +259,16 @@ class Platform(LatticeNexusPlatform):
         assert device in ["LIFCL-40-9BG400C", "LIFCL-40-8BG400CES"]
         LatticeNexusPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
 
+    def request(self, *args, **kwargs):
+        import time
+        if "serial" in args:
+            msg =  "FT2232H will be used as serial, make sure that:\n"
+            msg += " -the hardware has been modified: R18 and R19 should be removed, two 0 Ω resistors shoud be populated on R15 (and not R16) and R17.\n"
+            msg += " -the chip is configured as UART with virtual COM on port B (With FTProg or https://github.com/trabucayre/fixFT2232_ecp5evn)."
+            print(msg)
+            time.sleep(2)
+        return LatticeNexusPlatform.request(self, *args, **kwargs)
+
     def create_programmer(self, mode = "direct", prog="radiant"):
         assert mode in ["direct","flash"]
         assert prog in ["radiant","ecpprog"]
