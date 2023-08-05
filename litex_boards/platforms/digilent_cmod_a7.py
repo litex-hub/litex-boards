@@ -49,6 +49,7 @@ _io = [
             IOStandard("LVCMOS33")),
         Subsignal("wen", Pins("R19"), IOStandard("LVCMOS33")),
         Subsignal("cen", Pins("N19"), IOStandard("LVCMOS33")),
+        Subsignal("oe",  Pins("P19"), IOStandard("LVCMOS33")),
         Misc("SLEW=FAST"),
     ),
 

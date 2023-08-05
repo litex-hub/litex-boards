@@ -70,7 +70,8 @@ class AsyncSRAM(LiteXModule):
         self.comb += [
             cen.eq(~chip_ena),
             wen.eq(~write_ena),
-            tristate_data.oe.eq(write_ena)
+            tristate_data.oe.eq(write_ena),
+            oe.eq(tristate_data.oe),
         ]
         ########################
         # address and data
