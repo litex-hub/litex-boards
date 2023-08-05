@@ -56,6 +56,7 @@ class AsyncSRAM(LiteXModule):
         data = issiram.data
         wen = issiram.wen
         cen = issiram.cen
+        oe = issiram.oe
         ########################
         tristate_data = TSTriple(data_width)
         self.specials += tristate_data.get_tristate(data)
