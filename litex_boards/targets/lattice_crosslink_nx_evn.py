@@ -92,6 +92,12 @@ class BaseSoC(SoCCore):
                 pads         = Cat(*[platform.request("user_led", i) for i in range(14)]),
                 sys_clk_freq = sys_clk_freq)
 
+        # UARTBone ---------------------------------------------------------------------------------
+        debug_uart = False
+        if debug_uart:
+            self.add_uartbone()
+
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
