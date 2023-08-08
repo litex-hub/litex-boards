@@ -56,6 +56,7 @@ class AsyncSRAM(LiteXModule):
         data = issiram.data
         wen = issiram.wen
         cen = issiram.cen
+        oe = issiram.oe
         ########################
         tristate_data = TSTriple(data_width)
         self.specials += tristate_data.get_tristate(data)
@@ -70,7 +71,8 @@ class AsyncSRAM(LiteXModule):
         self.comb += [
             cen.eq(~chip_ena),
             wen.eq(~write_ena),
-            tristate_data.oe.eq(write_ena)
+            tristate_data.oe.eq(write_ena),
+            oe.eq(tristate_data.oe),
         ]
         ########################
         # address and data
