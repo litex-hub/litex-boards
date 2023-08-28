@@ -229,7 +229,7 @@ class Platform(LatticeECP5Platform):
         LatticeECP5Platform.__init__(self, f"LFE5U-{device}-8MG285C", io, connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
-        return DFUProg(vid="1209", pid="5af0")
+        return DFUProg(vid="1209", pid="5af0", alt=0)
 
     def do_finalize(self, fragment):
         LatticeECP5Platform.do_finalize(self, fragment)
