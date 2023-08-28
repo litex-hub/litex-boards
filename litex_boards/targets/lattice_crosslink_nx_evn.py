@@ -63,10 +63,12 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     mem_map = {
-        "rom"  : 0x00000000,
-        "sram" : 0x40000000,
-        "csr"  : 0xf0000000,
+        "rom"      : 0x00000000,
+        "sram"     : 0x40000000,
+        "main_ram" : 0x60000000,
+        "csr"      : 0xf0000000,
     }
+
     def __init__(self, sys_clk_freq=75e6, device="LIFCL-40-9BG400C", toolchain="radiant",
         with_led_chaser = True,
         with_spi_flash  = False,
@@ -85,9 +87,11 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Crosslink-NX Evaluation Board", **kwargs)
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
-        size = 128*kB
-        self.spram = NXLRAM(32, size)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(origin=self.mem_map["sram"], size=size))
+        self.spram = NXLRAM(32, 64*kB)
+        self.bus.add_slave("sram", self.spram.bus, SoCRegion(origin=self.mem_map["sram"], size=16*kB))
+
+        self.main_ram = NXLRAM(32, 64*kB)
+        self.bus.add_slave("main_ram", self.main_ram.bus, SoCRegion(origin=self.mem_map["main_ram"], size=64*kB))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
