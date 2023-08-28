@@ -136,7 +136,7 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer(args.prog_target, args.programmer)
         if args.programmer == "ecpprog" and args.prog_target == "flash":
-            prog.flash(address=args.address, bitstream=builder.get_bitstream_filename(mode="sram"))
+            prog.flash(args.address, builder.get_bitstream_filename(mode="sram"))
         else:
             prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
