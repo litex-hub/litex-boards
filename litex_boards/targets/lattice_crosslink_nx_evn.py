@@ -69,6 +69,7 @@ class BaseSoC(SoCCore):
     }
     def __init__(self, sys_clk_freq=75e6, device="LIFCL-40-9BG400C", toolchain="radiant",
         with_led_chaser = True,
+        with_spi_flash  = False,
         with_uartbone   = False,
         **kwargs):
         platform = lattice_crosslink_nx_evn.Platform(device=device, toolchain=toolchain)
@@ -98,6 +99,12 @@ class BaseSoC(SoCCore):
         if with_uartbone:
             self.add_uartbone()
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import MX25L12833F
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", clk_freq=100_000, module=MX25L12833F(Codes.READ_4_4_4), with_master=True)
+
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -110,6 +117,7 @@ def main():
     parser.add_target_argument("--programmer",    default="radiant",          help="Programmer (radiant or ecpprog).")
     parser.add_target_argument("--address",       default=0x0,                help="Flash address to program bitstream at.")
     parser.add_target_argument("--prog-target",   default="direct",           help="Programming Target (direct or flash).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-uartbone", action="store_true",        help="Add UartBone on 1st serial.")
     args = parser.parse_args()
 
@@ -117,6 +125,7 @@ def main():
         sys_clk_freq = args.sys_clk_freq,
         device       = args.device,
         toolchain    = args.toolchain,
+        with_spi_flash = args.with_spi_flash,
         with_uartbone = args.with_uartbone,
         **parser.soc_argdict
     )
