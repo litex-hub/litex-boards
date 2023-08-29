@@ -25,7 +25,7 @@ from liteeth.phy.rmii import LiteEthPHYRMII
 from litex_boards.platforms import sipeed_tang_primer_20k
 
 from litedram.common import PHYPadsReducer
-from litedram.modules import MT41J128M16
+from litedram.modules import MT41K64M16
 from litedram.phy import GW2DDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ class _CRG(LiteXModule):
 
         # PLL
         self.pll = pll = GW2APLL(devicename=platform.devicename, device=platform.device)
-        self.comb += pll.reset.eq(~por_done | self.rst)
+        self.comb += pll.reset.eq(~por_done)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
         self.specials += [
@@ -70,7 +70,7 @@ class _CRG(LiteXModule):
                 i_HCLKIN   = self.cd_sys2x.clk,
                 i_RESETN   = ~self.reset,
                 o_CLKOUT   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
+            AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.rst | self.reset),
         ]
 
         # Init clock domain
@@ -122,10 +122,9 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
-        # FIXME: WIP / Untested.
         if not self.integrated_main_ram_size:
             self.ddrphy = GW2DDRPHY(
-                pads         = PHYPadsReducer(platform.request("ddram"), [0, 1]),
+                pads         = platform.request("ddram"),
                 sys_clk_freq = sys_clk_freq
             )
             self.ddrphy.settings.rtt_nom = "disabled"
@@ -133,26 +132,9 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41J128M16(sys_clk_freq, "1:2"),
-                l2_cache_size = 0
+                module        = MT41K64M16(sys_clk_freq, "1:2"),
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
-            # ./sipeed_tang_primer_20k.py --cpu-variant=lite --uart-name=crossover+uartbone --csr-csv=csr.csv --build --load
-            # litex_server --uart --uart-port=/dev/ttyUSB2
-            # litex_term crossover
-            # litescope_cli
-            if kwargs["uart_name"] == "crossover+uartbone":
-                from litescope import LiteScopeAnalyzer
-                analyzer_signals = [
-                    self.ddrphy.dfi.p0,
-                    self.ddrphy.dfi.p0.wrdata_en,
-                    self.ddrphy.dfi.p1.rddata_en,
-                ]
-                self.analyzer = LiteScopeAnalyzer(analyzer_signals,
-                depth        = 128,
-                clock_domain = "sys",
-                samplerate   = sys_clk_freq,
-                csr_csv      = "analyzer.csv"
-                )
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
