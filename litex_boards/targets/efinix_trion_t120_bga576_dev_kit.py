@@ -72,7 +72,6 @@ class BaseSoC(SoCCore):
             from litespi.modules import W25Q128JV
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="4x", module=W25Q128JV(Codes.READ_1_1_4), with_master=True)
-            platform.toolchain.excluded_ios.append(platform.lookup_request("spiflash4x").dq)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -99,8 +98,6 @@ class BaseSoC(SoCCore):
                     clock_pads         = platform.request("eth_clocks", eth_phy),
                     pads               = platform.request("eth", eth_phy),
                     with_hw_init_reset = False)
-                # FIXME: Avoid this.
-                platform.toolchain.excluded_ios.append(platform.lookup_request("eth").mdio)
             # Use Ethernet RMII PMOD.
             else:
                 from litex.build.generic_platform import Pins, Subsignal, IOStandard
