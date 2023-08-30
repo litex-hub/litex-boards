@@ -100,10 +100,6 @@ class BaseSoC(SoCCore):
                     pads               = platform.request("eth", eth_phy),
                     with_hw_init_reset = False)
                 # FIXME: Avoid this.
-                platform.toolchain.excluded_ios.append(platform.lookup_request("eth_clocks").tx)
-                platform.toolchain.excluded_ios.append(platform.lookup_request("eth_clocks").rx)
-                platform.toolchain.excluded_ios.append(platform.lookup_request("eth").tx_data)
-                platform.toolchain.excluded_ios.append(platform.lookup_request("eth").rx_data)
                 platform.toolchain.excluded_ios.append(platform.lookup_request("eth").mdio)
             # Use Ethernet RMII PMOD.
             else:
