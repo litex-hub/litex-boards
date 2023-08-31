@@ -338,9 +338,9 @@ def sim_args(parser):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(description="LiteX SoC Simulation utility")
-    parser.set_platform(litex_sim.Platform)
+    parser = LiteXArgumentParser(platform=litex_sim.Platform, description="LiteX SoC Simulation utility")
     sim_args(parser)
+
     args = parser.parse_args()
 
     soc_kwargs = soc_core_argdict(args)
@@ -445,13 +445,14 @@ def main():
             generate_gtkw_savefile(builder, vns, args.trace_fst)
 
     builder = Builder(soc, **parser.builder_argdict)
-    builder.build(
-        sim_config       = sim_config,
-        interactive      = not args.non_interactive,
-        video            = args.with_video_framebuffer or args.with_video_terminal,
-        pre_run_callback = pre_run_callback,
-        **parser.toolchain_argdict,
-    )
+    if args.build:
+        builder.build(
+            sim_config       = sim_config,
+            interactive      = not args.non_interactive,
+            video            = args.with_video_framebuffer or args.with_video_terminal,
+            pre_run_callback = pre_run_callback,
+            **parser.toolchain_argdict,
+        )
 
 if __name__ == "__main__":
     main()
