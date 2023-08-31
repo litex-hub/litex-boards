@@ -14,7 +14,9 @@ import argparse
 
 from migen import *
 
+from litex_boards.platforms import litex_sim
 from litex.build.sim.config import SimConfig
+from litex.build.io import CRG
 
 from litex.soc.integration.common import *
 from litex.soc.integration.soc_core import *
@@ -45,9 +47,9 @@ from litex.soc.cores.video import VideoGenericPHY
 
 from litescope import LiteScopeAnalyzer
 
-# Simulation SoC -----------------------------------------------------------------------------------
+# BaseSoC ------------------------------------------------------------------------------------------
 
-class SimSoC(SoCCore):
+class BaseSoC(SoCCore):
     def __init__(self,
         with_sdram            = False,
         with_sdram_bist       = False,
@@ -72,7 +74,7 @@ class SimSoC(SoCCore):
         sim_debug             = False,
         trace_reset_on        = False,
         **kwargs):
-        platform     = Platform()
+        platform     = litex_sim.Platform()
         sys_clk_freq = int(1e6)
 
         # CRG --------------------------------------------------------------------------------------
@@ -337,7 +339,7 @@ def sim_args(parser):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(description="LiteX SoC Simulation utility")
-    parser.set_platform(SimPlatform)
+    parser.set_platform(litex_sim.Platform)
     sim_args(parser)
     args = parser.parse_args()
 
@@ -355,7 +357,7 @@ def main():
         sim_config.add_module("serial2console", "serial")
 
     # Create config SoC that will be used to prepare/configure real one.
-    conf_soc = SimSoC(**soc_kwargs)
+    conf_soc = BaseSoC(**soc_kwargs)
 
     # ROM.
     if args.rom_init:
@@ -410,7 +412,7 @@ def main():
         sim_config.add_module("video", "vga")
 
     # SoC ------------------------------------------------------------------------------------------
-    soc = SimSoC(
+    soc = BaseSoC(
         with_sdram             = args.with_sdram,
         with_sdram_bist        = args.with_sdram_bist,
         with_ethernet          = args.with_ethernet,
