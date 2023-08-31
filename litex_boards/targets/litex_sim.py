@@ -54,6 +54,8 @@ class BaseSoC(SoCCore):
         with_sdram            = False,
         with_sdram_bist       = False,
         with_ethernet         = False,
+        local_ip              = None,
+        remote_ip             = None,
         ethernet_phy_model    = "sim",
         with_etherbone        = False,
         etherbone_mac_address = 0x10e2d5000001,
@@ -64,6 +66,7 @@ class BaseSoC(SoCCore):
         sdram_data_width      = 32,
         sdram_spd_data        = None,
         sdram_verbosity       = 0,
+        ram_boot_address      = None,
         with_i2c              = False,
         with_sdcard           = False,
         with_spi_flash        = False,
@@ -71,19 +74,60 @@ class BaseSoC(SoCCore):
         with_gpio             = False,
         with_video_framebuffer = False,
         with_video_terminal = False,
+        sim_config            = None,
         sim_debug             = False,
         trace_reset_on        = False,
         **kwargs):
         platform     = litex_sim.Platform()
         sys_clk_freq = int(1e6)
 
+        # SimConfig --------------------------------------------------------------------------------
+        print(sim_config)
+        sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
+
         # CRG --------------------------------------------------------------------------------------
         self.crg = CRG(platform.request("sys_clk"))
 
         # SoCCore ----------------------------------------------------------------------------------
+
+        # UART.
+        if kwargs["uart_name"] == "serial":
+            kwargs["uart_name"] = "sim"
+            sim_config.add_module("serial2console", "serial")
+
+        # Ethernet.
+        if with_ethernet or with_etherbone:
+            if ethernet_phy_model == "sim":
+                sim_config.add_module("ethernet", "eth", args={"interface": "tap0", "ip": remote_ip})
+            elif ethernet_phy_model == "xgmii":
+                sim_config.add_module("xgmii_ethernet", "xgmii_eth", args={"interface": "tap0", "ip": remote_ip})
+            elif ethernet_phy_model == "gmii":
+                sim_config.add_module("gmii_ethernet", "gmii_eth", args={"interface": "tap0", "ip": remote_ip})
+            else:
+                raise ValueError("Unknown Ethernet PHY model: " + ethernet_phy_model)
+
+        # I2C.
+        if with_i2c:
+            sim_config.add_module("spdeeprom", "i2c")
+
+        # Video.
+        if with_video_framebuffer or with_video_terminal:
+            sim_config.add_module("video", "vga")
+
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq,
             ident = "LiteX Simulation",
             **kwargs)
+
+        if ram_boot_address is not None:
+            if ram_boot_address == 0:
+                ram_boot_address = conf_soc.mem_map["main_ram"]
+            self.add_constant("ROM_BOOT_ADDRESS", ram_boot_address)
+
+        if with_ethernet:
+            for i in range(4):
+                self.add_constant("LOCALIP{}".format(i+1), int(local_ip.split(".")[i]))
+            for i in range(4):
+                self.add_constant("REMOTEIP{}".format(i+1), int(remote_ip.split(".")[i]))
 
         # BIOS Config ------------------------------------------------------------------------------
         # FIXME: Expose?
@@ -209,7 +253,7 @@ class BaseSoC(SoCCore):
 
         # Video Framebuffer ------------------------------------------------------------------------
         if with_video_framebuffer:
-            video_pads = platform.request("vga")
+            video_pads = platform.request("vga", 0)
             self.submodules.videophy = VideoGenericPHY(video_pads)
             self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", format="rgb888")
 
@@ -345,16 +389,11 @@ def main():
 
     soc_kwargs = soc_core_argdict(args)
 
-    sys_clk_freq = int(1e6)
-    sim_config   = SimConfig()
-    sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
-
     # Configuration --------------------------------------------------------------------------------
 
-    # UART.
-    if soc_kwargs["uart_name"] == "serial":
-        soc_kwargs["uart_name"] = "sim"
-        sim_config.add_module("serial2console", "serial")
+    # Create the simulator configuration, filled by BaseSoC(), used by Builder()
+    sim_config = SimConfig()
+    soc_kwargs["sim_config"] = sim_config
 
     # Create config SoC that will be used to prepare/configure real one.
     conf_soc = BaseSoC(**soc_kwargs)
@@ -367,7 +406,6 @@ def main():
         )
 
     # RAM / SDRAM.
-    ram_boot_address = None
     soc_kwargs["integrated_main_ram_size"] = args.integrated_main_ram_size
     if args.integrated_main_ram_size:
         if args.ram_init is not None:
@@ -376,7 +414,7 @@ def main():
                 endianness = conf_soc.cpu.endianness,
                 offset     = conf_soc.mem_map["main_ram"]
             )
-            ram_boot_address = get_boot_address(args.ram_init)
+            soc_kwargs["ram_boot_address"] = get_boot_address(args.ram_init)
     elif args.with_sdram:
         assert args.ram_init is None
         soc_kwargs["sdram_module"]     = args.sdram_module
@@ -390,26 +428,7 @@ def main():
                 endianness = conf_soc.cpu.endianness,
                 offset     = conf_soc.mem_map["main_ram"]
             )
-            ram_boot_address = get_boot_address(args.sdram_init)
-
-    # Ethernet.
-    if args.with_ethernet or args.with_etherbone:
-        if args.ethernet_phy_model == "sim":
-            sim_config.add_module("ethernet", "eth", args={"interface": "tap0", "ip": args.remote_ip})
-        elif args.ethernet_phy_model == "xgmii":
-            sim_config.add_module("xgmii_ethernet", "xgmii_eth", args={"interface": "tap0", "ip": args.remote_ip})
-        elif args.ethernet_phy_model == "gmii":
-            sim_config.add_module("gmii_ethernet", "gmii_eth", args={"interface": "tap0", "ip": args.remote_ip})
-        else:
-            raise ValueError("Unknown Ethernet PHY model: " + args.ethernet_phy_model)
-
-    # I2C.
-    if args.with_i2c:
-        sim_config.add_module("spdeeprom", "i2c")
-
-    # Video.
-    if args.with_video_framebuffer or args.with_video_terminal:
-        sim_config.add_module("video", "vga")
+            soc_kwargs["ram_boot_address"] = get_boot_address(args.sdram_init)
 
     # SoC ------------------------------------------------------------------------------------------
     soc = BaseSoC(
@@ -418,6 +437,8 @@ def main():
         with_ethernet          = args.with_ethernet,
         ethernet_phy_model     = args.ethernet_phy_model,
         with_etherbone         = args.with_etherbone,
+        local_ip               = args.local_ip,
+        remote_ip              = args.remote_ip,
         with_analyzer          = args.with_analyzer,
         with_i2c               = args.with_i2c,
         with_sdcard            = args.with_sdcard,
@@ -429,15 +450,6 @@ def main():
         trace_reset_on         = int(float(args.trace_start)) > 0 or int(float(args.trace_end)) > 0,
         spi_flash_init         = None if args.spi_flash_init is None else get_mem_data(args.spi_flash_init, endianness="big"),
         **soc_kwargs)
-    if ram_boot_address is not None:
-        if ram_boot_address == 0:
-            ram_boot_address = conf_soc.mem_map["main_ram"]
-        soc.add_constant("ROM_BOOT_ADDRESS", ram_boot_address)
-    if args.with_ethernet:
-        for i in range(4):
-            soc.add_constant("LOCALIP{}".format(i+1), int(args.local_ip.split(".")[i]))
-        for i in range(4):
-            soc.add_constant("REMOTEIP{}".format(i+1), int(args.remote_ip.split(".")[i]))
 
     # Build/Run ------------------------------------------------------------------------------------
     def pre_run_callback(vns):
