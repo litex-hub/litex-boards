@@ -63,9 +63,12 @@ class BaseSoC(SoCCore):
         with_analyzer         = False,
         sdram_module          = "MT48LC16M16",
         sdram_init            = [],
+        sdram_from_spd_dump   = None,
         sdram_data_width      = 32,
         sdram_spd_data        = None,
         sdram_verbosity       = 0,
+        rom_init              = None,
+        ram_init              = None,
         ram_boot_address      = None,
         with_i2c              = False,
         with_sdcard           = False,
@@ -73,17 +76,14 @@ class BaseSoC(SoCCore):
         spi_flash_init        = [],
         with_gpio             = False,
         with_video_framebuffer = False,
-        with_video_terminal = False,
-        sim_config            = None,
+        with_video_terminal   = False,
         sim_debug             = False,
         trace_reset_on        = False,
         **kwargs):
         platform     = litex_sim.Platform()
         sys_clk_freq = int(1e6)
-
-        # SimConfig --------------------------------------------------------------------------------
-        print(sim_config)
-        sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
+        self.sim_config = SimConfig()
+        self.sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = CRG(platform.request("sys_clk"))
@@ -93,34 +93,62 @@ class BaseSoC(SoCCore):
         # UART.
         if kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "sim"
-            sim_config.add_module("serial2console", "serial")
+            self.sim_config.add_module("serial2console", "serial")
 
         # Ethernet.
         if with_ethernet or with_etherbone:
             if ethernet_phy_model == "sim":
-                sim_config.add_module("ethernet", "eth", args={"interface": "tap0", "ip": remote_ip})
+                self.sim_config.add_module("ethernet", "eth", args={"interface": "tap0", "ip": remote_ip})
             elif ethernet_phy_model == "xgmii":
-                sim_config.add_module("xgmii_ethernet", "xgmii_eth", args={"interface": "tap0", "ip": remote_ip})
+                self.sim_config.add_module("xgmii_ethernet", "xgmii_eth", args={"interface": "tap0", "ip": remote_ip})
             elif ethernet_phy_model == "gmii":
-                sim_config.add_module("gmii_ethernet", "gmii_eth", args={"interface": "tap0", "ip": remote_ip})
+                self.sim_config.add_module("gmii_ethernet", "gmii_eth", args={"interface": "tap0", "ip": remote_ip})
             else:
                 raise ValueError("Unknown Ethernet PHY model: " + ethernet_phy_model)
 
         # I2C.
         if with_i2c:
-            sim_config.add_module("spdeeprom", "i2c")
+            self.sim_config.add_module("spdeeprom", "i2c")
 
         # Video.
         if with_video_framebuffer or with_video_terminal:
-            sim_config.add_module("video", "vga")
+            self.sim_config.add_module("video", "vga")
 
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq,
-            ident = "LiteX Simulation",
+            ident="LiteX Simulation",
             **kwargs)
 
+        # ROM.
+        if rom_init:
+            kwargs["integrated_rom_init"] = get_mem_data(rom_init,
+                data_width = self.bus.data_width,
+                endianness = self.cpu.endianness
+            )
+
+        # RAM / SDRAM.
+        if ram_boot_address == 0:
+            ram_boot_address = self.mem_map["main_ram"]
+        if self.integrated_main_ram_size:
+            if ram_init is not None:
+                kwargs["integrated_main_ram_init"] = get_mem_data(ram_init,
+                    data_width = self.bus.data_width,
+                    endianness = self.cpu.endianness,
+                    offset     = self.mem_map["main_ram"]
+                )
+                ram_boot_address = get_boot_address(ram_init)
+        elif with_sdram:
+            assert ram_init is None
+            if sdram_from_spd_dump:
+                sdram_spd_data = parse_spd_hexdump(sdram_from_spd_dump)
+            if sdram_init != []:
+                sdram_init = get_mem_data(sdram_init,
+                    data_width = self.bus.data_width,
+                    endianness = self.cpu.endianness,
+                    offset     = self.mem_map["main_ram"]
+                )
+                ram_boot_address = get_boot_address(sdram_init)
+
         if ram_boot_address is not None:
-            if ram_boot_address == 0:
-                ram_boot_address = conf_soc.mem_map["main_ram"]
             self.add_constant("ROM_BOOT_ADDRESS", ram_boot_address)
 
         if with_ethernet:
@@ -384,56 +412,20 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=litex_sim.Platform, description="LiteX SoC Simulation utility")
     sim_args(parser)
-
     args = parser.parse_args()
-
     soc_kwargs = soc_core_argdict(args)
-
-    # Configuration --------------------------------------------------------------------------------
-
-    # Create the simulator configuration, filled by BaseSoC(), used by Builder()
-    sim_config = SimConfig()
-    soc_kwargs["sim_config"] = sim_config
-
-    # Create config SoC that will be used to prepare/configure real one.
-    conf_soc = BaseSoC(**soc_kwargs)
-
-    # ROM.
-    if args.rom_init:
-        soc_kwargs["integrated_rom_init"] = get_mem_data(args.rom_init,
-            data_width = conf_soc.bus.data_width,
-            endianness = conf_soc.cpu.endianness
-        )
-
-    # RAM / SDRAM.
-    soc_kwargs["integrated_main_ram_size"] = args.integrated_main_ram_size
-    if args.integrated_main_ram_size:
-        if args.ram_init is not None:
-            soc_kwargs["integrated_main_ram_init"] = get_mem_data(args.ram_init,
-                data_width = conf_soc.bus.data_width,
-                endianness = conf_soc.cpu.endianness,
-                offset     = conf_soc.mem_map["main_ram"]
-            )
-            soc_kwargs["ram_boot_address"] = get_boot_address(args.ram_init)
-    elif args.with_sdram:
-        assert args.ram_init is None
-        soc_kwargs["sdram_module"]     = args.sdram_module
-        soc_kwargs["sdram_data_width"] = int(args.sdram_data_width)
-        soc_kwargs["sdram_verbosity"]  = int(args.sdram_verbosity)
-        if args.sdram_from_spd_dump:
-            soc_kwargs["sdram_spd_data"] = parse_spd_hexdump(args.sdram_from_spd_dump)
-        if args.sdram_init is not None:
-            soc_kwargs["sdram_init"] = get_mem_data(args.sdram_init,
-                data_width = conf_soc.bus.data_width,
-                endianness = conf_soc.cpu.endianness,
-                offset     = conf_soc.mem_map["main_ram"]
-            )
-            soc_kwargs["ram_boot_address"] = get_boot_address(args.sdram_init)
 
     # SoC ------------------------------------------------------------------------------------------
     soc = BaseSoC(
+        rom_init               = args.rom_init,
+        ram_init               = args.ram_init,
         with_sdram             = args.with_sdram,
         with_sdram_bist        = args.with_sdram_bist,
+        sdram_module           = args.sdram_module,
+        sdram_verbosity        = int(args.sdram_verbosity),
+        sdram_data_width       = int(args.sdram_data_width),
+        sdram_from_spd_dump    = args.sdram_from_spd_dump,
+        integrated_main_ram_size = args.integrated_main_ram_size,
         with_ethernet          = args.with_ethernet,
         ethernet_phy_model     = args.ethernet_phy_model,
         with_etherbone         = args.with_etherbone,
@@ -451,15 +443,15 @@ def main():
         spi_flash_init         = None if args.spi_flash_init is None else get_mem_data(args.spi_flash_init, endianness="big"),
         **soc_kwargs)
 
+
     # Build/Run ------------------------------------------------------------------------------------
     def pre_run_callback(vns):
         if args.trace:
             generate_gtkw_savefile(builder, vns, args.trace_fst)
-
-    builder = Builder(soc, **parser.builder_argdict)
     if args.build:
+        builder = Builder(soc, **parser.builder_argdict)
         builder.build(
-            sim_config       = sim_config,
+            sim_config       = soc.sim_config,
             interactive      = not args.non_interactive,
             video            = args.with_video_framebuffer or args.with_video_terminal,
             pre_run_callback = pre_run_callback,
