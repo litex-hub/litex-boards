@@ -88,11 +88,8 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.crg = CRG(platform.request("sys_clk"))
 
-        #conf_soc = SoCCore(self, platform, **kwargs)
-
-        # UART -------------------------------------------------------------------------------------
-        if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "sim"
+        # Config SoCCore ---------------------------------------------------------------------------
+        conf_soc = SoCCore(litex_sim.Platform(), clk_freq=sys_clk_freq, **kwargs)
 
         # ROM --------------------------------------------------------------------------------------
         if rom_init is not None:
