@@ -63,7 +63,7 @@ class BaseSoC(SoCCore):
         etherbone_ip_address  = "192.168.1.51",
         with_analyzer         = False,
         sdram_module          = "MT48LC16M16",
-        sdram_init            = [],
+        sdram_init            = None,
         sdram_from_spd_dump   = None,
         sdram_data_width      = 32,
         sdram_spd_data        = None,
@@ -134,7 +134,7 @@ class BaseSoC(SoCCore):
             assert ram_init is None
             if sdram_from_spd_dump:
                 sdram_spd_data = parse_spd_hexdump(sdram_from_spd_dump)
-            if sdram_init != []:
+            if sdram_init is not None:
                 sdram_init = get_mem_data(sdram_init,
                     data_width = self.bus.data_width,
                     endianness = self.cpu.endianness,
@@ -162,7 +162,7 @@ class BaseSoC(SoCCore):
                 l2_cache_reverse        = False,
                 with_bist               = with_sdram_bist
             )
-            if sdram_init != []:
+            if sdram_init is not None:
                 # Skip SDRAM test to avoid corrupting pre-initialized contents.
                 self.add_constant("SDRAM_TEST_DISABLE")
             else:
