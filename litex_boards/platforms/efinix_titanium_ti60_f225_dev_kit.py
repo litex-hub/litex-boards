@@ -160,14 +160,14 @@ _connectors = [
 
 # QSE Extensions -----------------------------------------------------------------------------------
 
-def rgmii_ethernet_qse_ios(con):
+def rgmii_ethernet_qse_ios(con, n=""):
     return [
-        ("eth_clocks", 0,
+        (f"eth{n}_clocks", 0,
             Subsignal("tx", Pins(f"{con}:26")),
             Subsignal("rx", Pins(f"{con}:2")),
             IOStandard("1.8_V_LVCMOS"),
         ),
-        ("eth", 0,
+        (f"eth{n}", 0,
             Subsignal("rx_ctl",  Pins(f"{con}:27")),
             Subsignal("rx_data", Pins(f"{con}:21 {con}:19 {con}:15 {con}:13")),
             Subsignal("tx_ctl",  Pins(f"{con}:20")),
