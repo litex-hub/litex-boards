@@ -8,7 +8,7 @@
 
 # Build/Use:
 # ./terasic_deca.py --uart-name jtag_uart --build --load
-# litex_term --jtag-config ../prog/openocd_max10_blaster2.cfg jtag
+# litex_term --jtag-config ../prog/openocd_usb_blaster2.cfg jtag
 
 from migen import *
 from litex_boards.platforms import terasic_deca

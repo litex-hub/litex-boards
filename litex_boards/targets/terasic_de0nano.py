@@ -8,7 +8,7 @@
 
 # Build/Use:
 # ./terasic_de0nano.py --uart-name=jtag_uart --build --load
-# litex_term --jtag-config ../prog/openocd_max10_blaster.cfg jtag
+# litex_term --jtag-config ../prog/openocd_usb_blaster.cfg jtag
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
