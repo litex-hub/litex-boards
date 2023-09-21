@@ -15,6 +15,13 @@ _io_physical_litex = [
     ("clk74a", 0, Pins("V15"), IOStandard("3.3-V LVCMOS")),
     ("clk74b", 0, Pins("H16"), IOStandard("1.8 V")),
 
+    # Serial.
+    ("serial", 0,
+        Subsignal("tx", Pins("K21")),
+        Subsignal("rx", Pins("K22")),
+        IOStandard("1.8V")
+    ),
+
     # SDR SDRAM
     ("sdram_clock", 0, Pins("G12"), IOStandard("1.8V")),
     ("sdram", 0,
