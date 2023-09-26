@@ -78,8 +78,8 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(GowinPlatform):
-    default_clk_name   = "clk27"
-    default_clk_period = 1e9/27e6
+    default_clk_name   = "clk50"
+    default_clk_period = 1e9/50e6
 
     def __init__(self, dock="standard", toolchain="gowin"):
         GowinPlatform.__init__(self, "GW5AST-LV138FPG676AES", _io, _connectors, toolchain=toolchain, devicename="GW5AST-138B")
