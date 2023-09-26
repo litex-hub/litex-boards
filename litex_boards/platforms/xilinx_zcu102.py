@@ -13,8 +13,8 @@ from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
 _io = [
     # Clk / Rst
     ("clk125", 0,
-        Subsignal("p", Pins("G21"), IOStandard("LVDS")),
-        Subsignal("n", Pins("F21"), IOStandard("LVDS")),
+        Subsignal("p", Pins("G21"), IOStandard("LVDS_25")),
+        Subsignal("n", Pins("F21"), IOStandard("LVDS_25")),
     ),
     ("clk300", 0,
         Subsignal("p", Pins("AL8"), IOStandard("DIFF_SSTL12_DCI")),
