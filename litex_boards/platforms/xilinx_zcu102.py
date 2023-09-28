@@ -54,9 +54,9 @@ _io = [
     ("serial", 0,
         Subsignal("cts", Pins("E12")),
         Subsignal("rts", Pins("D12")),
-        Subsignal("tx",  Pins("E13")),
-        Subsignal("rx",  Pins("F13")),
-        IOStandard("LVCMOS18")
+        Subsignal("rx",  Pins("E13")),
+        Subsignal("tx",  Pins("F13")),
+        IOStandard("LVCMOS33")
     ),
 
     # I2C
