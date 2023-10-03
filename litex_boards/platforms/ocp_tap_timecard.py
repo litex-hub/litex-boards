@@ -160,7 +160,7 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
-    def __init__(self,toolchain="vivado"):
+    def __init__(self, toolchain="vivado", with_multiboot=True):
         Xilinx7SeriesPlatform.__init__(self, "xc7a100t-fgg484-2", _io, toolchain=toolchain)
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
@@ -176,18 +176,20 @@ class Platform(Xilinx7SeriesPlatform):
         self.toolchain.additional_commands = [
             # Non-Multiboot SPI-Flash bitstream generation.
             "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin",
-
-            # Multiboot SPI-Flash Operational bitstream generation.
-            "set_property BITSTREAM.CONFIG.TIMER_CFG 0x0001fbd0 [current_design]",
-            "set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]",
-            "write_bitstream -force {build_name}_operational.bit ",
-            "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_operational.bit\" -file {build_name}_operational.bin",
-
-            # Multiboot SPI-Flash Fallback bitstream generation.
-            "set_property BITSTREAM.CONFIG.NEXT_CONFIG_ADDR 0x00400000 [current_design]",
-            "write_bitstream -force {build_name}_fallback.bit ",
-            "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_fallback.bit\" -file {build_name}_fallback.bin"
         ]
+        if with_multiboot:
+            self.toolchain.additional_commands += [
+                # Multiboot SPI-Flash Operational bitstream generation.
+                "set_property BITSTREAM.CONFIG.TIMER_CFG 0x0001fbd0 [current_design]",
+                "set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]",
+                "write_bitstream -force {build_name}_operational.bit ",
+                "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_operational.bit\" -file {build_name}_operational.bin",
+
+                # Multiboot SPI-Flash Fallback bitstream generation.
+                "set_property BITSTREAM.CONFIG.NEXT_CONFIG_ADDR 0x00400000 [current_design]",
+                "write_bitstream -force {build_name}_fallback.bit ",
+                "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_fallback.bit\" -file {build_name}_fallback.bin"
+            ]
 
     def create_programmer(self, name='openocd'):
         if name == 'openocd':
