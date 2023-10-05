@@ -11,7 +11,7 @@ from litex.build.generic_platform import Subsignal, Pins, IOStandard, Misc
 # SevenSeg -----------------------------------------------------------------------------------------
 from migen import *
 
-from litex.gen.genlib.misc import WaitTimer
+from migen.genlib.misc import WaitTimer
 
 from litex.soc.interconnect.csr import AutoCSR, CSRStorage
 
