@@ -8,7 +8,7 @@
 
 # Build/Use ----------------------------------------------------------------------------------------
 # Build/Load bitstream:
-# ./siglent_ds1104xe.py --with-etherbone --uart-name=crossover --csr-csv=csr.csv --build --load
+# ./siglent_sds1104xe.py --with-etherbone --uart-name=crossover --csr-csv=csr.csv --build --load
 #
 # Test Ethernet:
 # ping 192.168.1.50
