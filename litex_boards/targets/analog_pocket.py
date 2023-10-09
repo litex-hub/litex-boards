@@ -4,6 +4,8 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2023 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2020 Paul Sajna <sajattack@gmail.com>
+# Copyright (c) 2022 Thomas Watson <twatson52@icloud.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 # ./analog_pocket.py --sdram-rate=1:2 --uart-name=jtag_uart --build --load
@@ -29,8 +31,10 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, sdram_rate="1:1"):
-        self.rst       = Signal()
-        self.cd_sys    = ClockDomain()
+        self.rst         = Signal()
+        self.cd_sys      = ClockDomain()
+        self.cd_video    = ClockDomain()
+        self.cd_video_90 = ClockDomain()
         if sdram_rate == "1:2":
             self.cd_sys2x    = ClockDomain()
             self.cd_sys2x_ps = ClockDomain()
@@ -52,6 +56,8 @@ class _CRG(LiteXModule):
             pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180)  # Idealy 90° but needs to be increased.
         else:
             pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+        pll.create_clkout(self.cd_video,    25e6)
+        pll.create_clkout(self.cd_video_90, 25e6, phase=90)
 
         # SDRAM clock
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
@@ -78,6 +84,49 @@ class BaseSoC(SoCCore):
                 module        = AS4C32M16(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
+
+        # Video ------------------------------------------------------------------------------------
+
+        from litex.soc.interconnect import stream
+        from litex.soc.cores.video import video_data_layout
+        from litex.build.io import SDROutput, DDROutput
+
+        class VideoDDRPHY(Module):
+            def __init__(self, pads, clock_domain="sys"):
+                self.sink = sink = stream.Endpoint(video_data_layout)
+
+                # # #
+
+                # Always ack Sink, no backpressure.
+                self.comb += sink.ready.eq(1)
+
+                # Drive Clk.
+                self.specials += DDROutput(i1=1, i2=0, o=pads.clk, clk=ClockSignal(clock_domain+"_90"))
+
+                # Drive Controls.
+                self.specials += SDROutput(i=sink.de,     o=pads.de,    clk=ClockSignal(clock_domain))
+                self.specials += SDROutput(i=sink.hsync,  o=pads.hsync, clk=ClockSignal(clock_domain))
+                self.specials += SDROutput(i=sink.vsync,  o=pads.vsync, clk=ClockSignal(clock_domain))
+                self.specials += SDROutput(i=Constant(0), o=pads.skip,  clk=ClockSignal(clock_domain))
+
+                # Drive Datas.
+                data = Signal(24)
+                for i in range(8):
+                    self.comb += data[ 0+i].eq(sink.b[i] & sink.de)
+                    self.comb += data[ 8+i].eq(sink.g[i] & sink.de)
+                    self.comb += data[16+i].eq(sink.r[i] & sink.de)
+                for i in range(12):
+                    self.specials += DDROutput(
+                        i1  = data[12 + i],
+                        i2  = data[ 0 + i],
+                        o   = pads.data[i],
+                        clk = ClockSignal(clock_domain)
+                    )
+
+        self.videophy = VideoDDRPHY(platform.request("video"), clock_domain="video")
+        #self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
+        self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
+        #self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
 
 # Build --------------------------------------------------------------------------------------------
 
