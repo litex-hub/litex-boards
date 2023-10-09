@@ -2,6 +2,8 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2023 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2020 Paul Sajna <sajattack@gmail.com>
+# Copyright (c) 2022 Thomas Watson <twatson52@icloud.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -23,7 +25,10 @@ _io_physical_litex = [
     ),
 
     # SDR SDRAM
-    ("sdram_clock", 0, Pins("G12"), IOStandard("1.8V")),
+    ("sdram_clock", 0, Pins("G12"),
+        Misc("OUTPUT_TERMINATION \"SERIES 50 OHM WITHOUT CALIBRATION\""),
+        IOStandard("1.8V")
+    ),
     ("sdram", 0,
         Subsignal("a",     Pins(
             "D17 D12 F12 E14 F13 E16 E15 F14",
@@ -39,11 +44,27 @@ _io_physical_litex = [
             "J13 G15 G16 G13 H13 J19 G11 K20",
         )),
         Subsignal("dm", Pins("D13 H18")),
+        Misc("CURRENT_STRENGTH_NEW \"4MA\""),
         IOStandard("1.8V"),
     ),
 ]
 
-_io_fpga2fpga_litex = []
+_io_fpga2fpga_litex = [
+    # Video Scaler.
+    ("video", 0,
+        Subsignal("clk",   Pins("R17")),
+        Subsignal("de",    Pins("N20")),
+        Subsignal("skip",  Pins("N21")),
+        Subsignal("hsync", Pins("P17")),
+        Subsignal("vsync", Pins("T15")),
+        Subsignal("data",  Pins(
+            "R21 P22 N16 P18 P19 T20",
+            "T19 T18 T22 R22 R15 R16"
+        )),
+        Misc("OUTPUT_TERMINATION \"SERIES 50 OHM WITHOUT CALIBRATION\""),
+        IOStandard("1.8 V"),
+    ),
+]
 
 # IOs (Analog) -------------------------------------------------------------------------------------
 
