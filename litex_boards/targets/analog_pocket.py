@@ -129,13 +129,13 @@ class BaseSoC(SoCCore):
                             clk = ClockSignal(clock_domain)
                         )
 
-        self.videophy = VideoDDRPHY(platform.request("video"), clock_domain="video")
-        if with_video_colorbars:
-            self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
-        if with_video_terminal:
-            self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
-        if with_video_framebuffer:
-            self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
+            self.videophy = VideoDDRPHY(platform.request("video"), clock_domain="video")
+            if with_video_colorbars:
+                self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
 
 # Build --------------------------------------------------------------------------------------------
 
