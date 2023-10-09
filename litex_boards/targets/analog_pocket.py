@@ -66,7 +66,11 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, sdram_rate="1:1", **kwargs):
+    def __init__(self, sys_clk_freq=50e6, sdram_rate="1:1",
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        with_video_colorbars   = False,
+        **kwargs):
         platform = analog_pocket.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -87,46 +91,51 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
 
-        from litex.soc.interconnect import stream
-        from litex.soc.cores.video import video_data_layout
-        from litex.build.io import SDROutput, DDROutput
+        if with_video_colorbars or with_video_framebuffer or with_video_terminal:
 
-        class VideoDDRPHY(Module):
-            def __init__(self, pads, clock_domain="sys"):
-                self.sink = sink = stream.Endpoint(video_data_layout)
+            from litex.soc.interconnect import stream
+            from litex.soc.cores.video import video_data_layout
+            from litex.build.io import SDROutput, DDROutput
 
-                # # #
+            class VideoDDRPHY(Module):
+                def __init__(self, pads, clock_domain="sys"):
+                    self.sink = sink = stream.Endpoint(video_data_layout)
 
-                # Always ack Sink, no backpressure.
-                self.comb += sink.ready.eq(1)
+                    # # #
 
-                # Drive Clk.
-                self.specials += DDROutput(i1=1, i2=0, o=pads.clk, clk=ClockSignal(clock_domain+"_90"))
+                    # Always ack Sink, no backpressure.
+                    self.comb += sink.ready.eq(1)
 
-                # Drive Controls.
-                self.specials += SDROutput(i=sink.de,     o=pads.de,    clk=ClockSignal(clock_domain))
-                self.specials += SDROutput(i=sink.hsync,  o=pads.hsync, clk=ClockSignal(clock_domain))
-                self.specials += SDROutput(i=sink.vsync,  o=pads.vsync, clk=ClockSignal(clock_domain))
-                self.specials += SDROutput(i=Constant(0), o=pads.skip,  clk=ClockSignal(clock_domain))
+                    # Drive Clk.
+                    self.specials += DDROutput(i1=1, i2=0, o=pads.clk, clk=ClockSignal(clock_domain+"_90"))
 
-                # Drive Datas.
-                data = Signal(24)
-                for i in range(8):
-                    self.comb += data[ 0+i].eq(sink.b[i] & sink.de)
-                    self.comb += data[ 8+i].eq(sink.g[i] & sink.de)
-                    self.comb += data[16+i].eq(sink.r[i] & sink.de)
-                for i in range(12):
-                    self.specials += DDROutput(
-                        i1  = data[12 + i],
-                        i2  = data[ 0 + i],
-                        o   = pads.data[i],
-                        clk = ClockSignal(clock_domain)
-                    )
+                    # Drive Controls.
+                    self.specials += SDROutput(i=sink.de,     o=pads.de,    clk=ClockSignal(clock_domain))
+                    self.specials += SDROutput(i=sink.hsync,  o=pads.hsync, clk=ClockSignal(clock_domain))
+                    self.specials += SDROutput(i=sink.vsync,  o=pads.vsync, clk=ClockSignal(clock_domain))
+                    self.specials += SDROutput(i=Constant(0), o=pads.skip,  clk=ClockSignal(clock_domain))
+
+                    # Drive Datas.
+                    data = Signal(24)
+                    for i in range(8):
+                        self.comb += data[ 0+i].eq(sink.b[i] & sink.de)
+                        self.comb += data[ 8+i].eq(sink.g[i] & sink.de)
+                        self.comb += data[16+i].eq(sink.r[i] & sink.de)
+                    for i in range(12):
+                        self.specials += DDROutput(
+                            i1  = data[12 + i],
+                            i2  = data[ 0 + i],
+                            o   = pads.data[i],
+                            clk = ClockSignal(clock_domain)
+                        )
 
         self.videophy = VideoDDRPHY(platform.request("video"), clock_domain="video")
-        #self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
-        self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
-        #self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
+        if with_video_colorbars:
+            self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
+        if with_video_terminal:
+            self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
+        if with_video_framebuffer:
+            self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -135,11 +144,18 @@ def main():
     parser = LiteXArgumentParser(platform=analog_pocket.Platform, description="LiteX SoC on Analog Pocket.")
     parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",   default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal.")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer.")
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        sdram_rate   = args.sdram_rate,
+        sys_clk_freq           = args.sys_clk_freq,
+        sdram_rate             = args.sdram_rate,
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
+        with_video_colorbars   = args.with_video_colorbars,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
