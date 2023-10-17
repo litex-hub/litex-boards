@@ -137,6 +137,63 @@ class BaseSoC(SoCCore):
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
 
+
+                if True:
+                    #./analog_pocket.py --uart-name="crossover" --with-video-framebuffer --csr-csv=csr.csv --build --load
+                    # litex_server --jtag --jtag-config=openocd_usb_blaster.cfg
+                    # litex_term crossover
+                    # litescope_cli -r main_vfb_dma_source_source_last
+
+                    # Add JTAGBone.
+                    self.add_jtagbone()
+
+                    # Add UART auto-flush.
+                    self.uart.add_auto_tx_flush(sys_clk_freq=sys_clk_freq, timeout=1, interval=128)
+
+                    # DMA/VTG Synchro Debug.
+                    from litescope import LiteScopeAnalyzer
+                    analyzer_signals = [
+                        self.video_framebuffer.dma.source.valid,
+                        self.video_framebuffer.dma.source.ready,
+                        self.video_framebuffer.dma.source.last,
+                        self.video_framebuffer.source.valid,
+                        self.video_framebuffer.source.ready,
+                        self.video_framebuffer.source.last,
+                        self.video_framebuffer.vtg_sink.valid,
+                        self.video_framebuffer.vtg_sink.ready,
+                        self.video_framebuffer.vtg_sink.last,
+                    ]
+                    self.analyzer = LiteScopeAnalyzer(analyzer_signals,
+                        depth        = 512,
+                        clock_domain = "sys",
+                        samplerate   = sys_clk_freq,
+                        csr_csv      = "analyzer.csv"
+                    )
+
+
+                    #!/usr/bin/env python3
+
+                    # import time
+                    #
+                    # from litex import RemoteClient
+                    #
+                    # bus = RemoteClient()
+                    # bus.open()
+                    #
+                    # # # #
+                    #
+                    # for i in range(640*10):
+                    #     bus.write(0x40c00000 + 4*i, 0x00000000)
+                    #     time.sleep(0.01)
+                    #
+                    # for i in range(640*10):
+                    #     bus.write(0x40c00000 + 4*i, 0xffffffff)
+                    #     time.sleep(0.1)
+
+# # #
+
+bus.close()
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
