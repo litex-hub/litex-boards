@@ -190,9 +190,9 @@ class BaseSoC(SoCCore):
                     #     bus.write(0x40c00000 + 4*i, 0xffffffff)
                     #     time.sleep(0.1)
 
-# # #
+                    # # # #
 
-bus.close()
+                    # bus.close()
 
 # Build --------------------------------------------------------------------------------------------
 
