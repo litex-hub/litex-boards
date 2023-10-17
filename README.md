@@ -217,6 +217,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── sipeed_tang_nano
     ├── sipeed_tang_mega_138k
     ├── sipeed_tang_primer_20k
+    ├── sipeed_tang_primer_25k
     ├── sipeed_tang_primer
     ├── sitlinv_a_e115fb
     ├── sitlinv_stlv7325
