@@ -138,7 +138,7 @@ class BaseSoC(SoCCore):
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="video")
 
 
-                if True:
+                if False:
                     #./analog_pocket.py --uart-name="crossover" --with-video-framebuffer --csr-csv=csr.csv --build --load
                     # litex_server --jtag --jtag-config=openocd_usb_blaster.cfg
                     # litex_term crossover
