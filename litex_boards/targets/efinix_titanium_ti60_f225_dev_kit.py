@@ -53,6 +53,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=200e6,
         with_spi_flash = False,
         with_hyperram  = False,
+        with_jtagbone  = False,
         with_ethernet  = False,
         with_etherbone = False,
         eth_phy        = 0,
@@ -65,6 +66,10 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Titanium Ti60 F225 Dev Kit", **kwargs)
+
+        # JTAGBone ---------------------------------------------------------------------------------
+        if with_jtagbone:
+            self.add_jtagbone()
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -117,6 +122,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=200e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-hyperram",  action="store_true",       help="Enable HyperRAM.")
+    parser.add_target_argument("--with-jtagbone",  action="store_true",       help="Enable JTAGbone support.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
@@ -131,6 +137,7 @@ def main():
         sys_clk_freq   = args.sys_clk_freq,
         with_spi_flash = args.with_spi_flash,
         with_hyperram  = args.with_hyperram,
+        with_jtagbone  = args.with_jtagbone,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
