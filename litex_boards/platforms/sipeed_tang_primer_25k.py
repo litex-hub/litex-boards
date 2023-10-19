@@ -75,8 +75,8 @@ _connectors = [
 _dock_io = [
     # Serial.
     ("serial", 0,
-        Subsignal("rx", Pins("J1:20")),
-        Subsignal("tx", Pins("J1:19")),
+        Subsignal("rx", Pins("J1:19")),
+        Subsignal("tx", Pins("J1:21")),
         IOStandard("LVCMOS33")
     ),
 
