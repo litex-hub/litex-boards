@@ -97,52 +97,31 @@ class BaseSoC(SoCCore):
 
         # Etherbone --------------------------------------------------------------------------------
         if with_etherbone:
-            # FIXME: Simplify LiteEth Hybrid MAC integration.
-            from liteeth.common import convert_ip
-            from liteeth.mac import LiteEthMAC
-            from liteeth.core.arp import LiteEthARP
-            from liteeth.core.ip import LiteEthIP
-            from liteeth.core.udp import LiteEthUDP
-            from liteeth.core.icmp import LiteEthICMP
-            from liteeth.core import LiteEthUDPIPCore
-            from liteeth.frontend.etherbone import LiteEthEtherbone
+            from litex.soc.integration.soc import SoCRegion
 
             # Ethernet PHY
             self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            etherbone_ip_address  = convert_ip("192.168.1.51")
-            etherbone_mac_address = 0x10e2d5000001
 
-            # Ethernet MAC
-            self.ethmac = LiteEthMAC(phy=self.ethphy, dw=8,
-                interface  = "hybrid",
-                endianness = self.cpu.endianness,
-                hw_mac     = etherbone_mac_address)
+            self.add_etherbone(
+                phy         = self.ethphy,
+                ip_address  = "192.168.1.51",
+                mac_address = 0x10e2d5000001,
+                data_width  = 8,
+                interface   = "hybrid",
+                endianness  = self.cpu.endianness)
 
-            # Software Interface.
-            self.add_memory_region("ethmac", getattr(self.mem_map, "ethmac", None), 0x2000, type="io")
-            self.add_wb_slave(self.mem_regions["ethmac"].origin, self.ethmac.bus, 0x2000)
+            ## Software Interface.
+            ethmac = self.get_module("ethcore_etherbone").mac
+            ethmac_region_size = (ethmac.rx_slots.constant + ethmac.tx_slots.constant)*ethmac.slot_size.constant
+            ethmac_region = SoCRegion(origin=self.mem_map.get("ethmac", None), size=ethmac_region_size, cached=False)
+            self.bus.add_slave(name="ethmac", slave=ethmac.bus, region=ethmac_region)
+            # Add IRQs (if enabled).
             if self.irq.enabled:
                 self.irq.add("ethmac", use_loc_if_exists=True)
 
-            # Hardware Interface.
-            self.arp  = LiteEthARP(self.ethmac, etherbone_mac_address, etherbone_ip_address, sys_clk_freq, dw=8)
-            self.ip   = LiteEthIP(self.ethmac, etherbone_mac_address, etherbone_ip_address, self.arp.table, dw=8)
-            self.icmp = LiteEthICMP(self.ip, etherbone_ip_address, dw=8)
-            self.udp  = LiteEthUDP(self.ip, etherbone_ip_address, dw=8)
             self.add_constant("ETH_PHY_NO_RESET") # Disable reset from BIOS to avoid disabling Hardware Interface.
-
-            # Etherbone
-            self.etherbone = LiteEthEtherbone(self.udp, 1234, mode="master")
-            self.bus.add_master(master=self.etherbone.wishbone.bus)
-
-            # Timing constraints
-            eth_rx_clk = self.ethphy.crg.cd_eth_rx.clk
-            eth_tx_clk = self.ethphy.crg.cd_eth_tx.clk
-            self.platform.add_period_constraint(eth_rx_clk, 1e9/self.ethphy.rx_clk_freq)
-            self.platform.add_period_constraint(eth_tx_clk, 1e9/self.ethphy.tx_clk_freq)
-            self.platform.add_false_path_constraints(self.crg.cd_sys.clk, eth_rx_clk, eth_tx_clk)
 
         # Video ------------------------------------------------------------------------------------
         video_timings = ("800x480@60Hz", {
