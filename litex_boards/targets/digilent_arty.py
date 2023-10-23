@@ -78,7 +78,6 @@ class BaseSoC(SoCCore):
         eth_ip          = "192.168.1.50",
         eth_dynamic_ip  = False,
         with_led_chaser = True,
-        with_jtagbone   = True,
         with_spi_flash  = False,
         with_buttons    = False,
         with_pmod_gpio  = False,
@@ -122,10 +121,6 @@ class BaseSoC(SoCCore):
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
-
-        # Jtagbone ---------------------------------------------------------------------------------
-        if with_jtagbone:
-            self.add_jtagbone()
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -174,7 +169,6 @@ def main():
     sdopts.add_argument("--with-spi-sdcard",       action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",           action="store_true", help="Enable SDCard support.")
     parser.add_target_argument("--sdcard-adapter",                      help="SDCard PMOD adapter (digilent or numato).")
-    parser.add_target_argument("--with-jtagbone",  action="store_true", help="Enable JTAGbone support.")
     parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     args = parser.parse_args()
@@ -191,7 +185,6 @@ def main():
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
-        with_jtagbone  = args.with_jtagbone,
         with_spi_flash = args.with_spi_flash,
         with_pmod_gpio = args.with_pmod_gpio,
         **parser.soc_argdict

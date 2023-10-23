@@ -77,7 +77,6 @@ class BaseSoC(SoCCore):
         with_led_chaser        = True,
         with_pcie              = False,
         with_sata              = False, sata_gen="gen2",
-        with_jtagbone          = False,
         with_video_colorbars   = False,
         with_video_framebuffer = False,
         with_video_terminal    = False,
@@ -102,10 +101,6 @@ class BaseSoC(SoCCore):
                 module        = MT8JTF12864(sys_clk_freq, "1:4"),
                 l2_cache_size = kwargs.get("l2_size", 8192),
             )
-
-        # Jtagbone ---------------------------------------------------------------------------------
-        if with_jtagbone:
-            self.add_jtagbone()
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet:
@@ -178,7 +173,6 @@ def main():
     parser.add_target_argument("--with-ethernet",   action="store_true",    help="Enable Ethernet support.")
     parser.add_target_argument("--with-sata",       action="store_true",    help="Enable SATA support.")
     parser.add_target_argument("--sata-gen",        default="2",    help="SATA Gen..", choices=["1", "2", "3"])
-    parser.add_target_argument("--with-jtagbone",   action="store_true",    help="Enable Jtagbone support.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
@@ -195,7 +189,6 @@ def main():
         with_pcie              = args.with_pcie,
         with_sata              = args.with_sata,
         sata_gen               = "gen" + args.sata_gen,
-        with_jtagbone          = args.with_jtagbone,
         with_video_colorbars   = args.with_video_colorbars,
         with_video_framebuffer = args.with_video_framebuffer,
         with_video_terminal    = args.with_video_terminal,

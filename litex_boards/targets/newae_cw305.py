@@ -65,11 +65,9 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
+        kwargs["uart_name"]     = "crossover"
+        kwargs["with_jtagbone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on NewAE-CW305", **kwargs)
-
-        # JTAGBone ---------------------------------------------------------------------------------
-        self.add_jtagbone()
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

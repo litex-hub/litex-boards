@@ -69,11 +69,10 @@ class BaseSoC(SoCMini):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCMini ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
+        kwargs["uart_name"]     = "crossover"
+        kwargs["uart_baudrate"] = 1e6 # CH552 firmware does not support traditional baudrates.
+        kwargs["with_uartbone"] = True
         SoCMini.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano", **kwargs)
-
-        # UARTBone ---------------------------------------------------------------------------------
-        self.add_uartbone(baudrate=int(1e6)) # CH552 firmware does not support traditional baudrates.
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

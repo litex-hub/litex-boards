@@ -85,8 +85,6 @@ class BaseSoC(SoCCore):
             eth_dynamic_ip         = False,
             with_hyperram          = False,
             with_sdcard            = False,
-            with_jtagbone          = True,
-            with_uartbone          = False,
             with_spi_flash         = False,
             with_led_chaser        = True,
             with_video_terminal    = False,
@@ -141,10 +139,6 @@ class BaseSoC(SoCCore):
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
-
-        # UartBone ---------------------------------------------------------------------------------
-        if with_uartbone:
-            self.add_uartbone(baudrate=1e6)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -205,8 +199,6 @@ def main():
     parser.add_target_argument("--eth-reset-time",         default="10e-3",        help="Duration of Ethernet PHY reset.")
     parser.add_target_argument("--with-hyperram",          action="store_true",    help="Add HyperRAM.")
     parser.add_target_argument("--with-sdcard",            action="store_true",    help="Add SDCard.")
-    parser.add_target_argument("--with-jtagbone",          action="store_true",    help="Add JTAGBone.")
-    parser.add_target_argument("--with-uartbone",          action="store_true",    help="Add UartBone on 2nd serial.")
     parser.add_target_argument("--with-video-terminal",    action="store_true",    help="Enable Video Terminal (HDMI).")
     parser.add_target_argument("--with-video-framebuffer", action="store_true",    help="Enable Video Framebuffer (HDMI).")
     parser.add_target_argument("--with-spi-flash",         action="store_true",    help="Enable SPI Flash (MMAPed).")
@@ -223,8 +215,6 @@ def main():
         eth_dynamic_ip         = args.eth_dynamic_ip,
         with_hyperram          = args.with_hyperram,
         with_sdcard            = args.with_sdcard,
-        with_jtagbone          = args.with_jtagbone,
-        with_uartbone          = args.with_uartbone,
         with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,

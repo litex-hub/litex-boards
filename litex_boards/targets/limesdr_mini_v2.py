@@ -75,11 +75,9 @@ class BaseSoC(SoCCore):
         platform = limesdr_mini_v2.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
+        kwargs["uart_name"]     = "crossover"
+        kwargs["with_jtagbone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on LimeSDR-Mini-V2", **kwargs)
-
-        # JTAGBone ---------------------------------------------------------------------------------
-        self.add_jtagbone()
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
