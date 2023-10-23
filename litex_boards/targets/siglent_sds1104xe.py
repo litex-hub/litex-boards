@@ -104,6 +104,7 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
 
+            # Etherbone.
             self.add_etherbone(
                 phy         = self.ethphy,
                 ip_address  = "192.168.1.51",
@@ -112,7 +113,7 @@ class BaseSoC(SoCCore):
                 interface   = "hybrid",
                 endianness  = self.cpu.endianness)
 
-            ## Software Interface.
+            # Software Interface.
             ethmac = self.get_module("ethcore_etherbone").mac
             ethmac_region_size = (ethmac.rx_slots.constant + ethmac.tx_slots.constant)*ethmac.slot_size.constant
             ethmac_region = SoCRegion(origin=self.mem_map.get("ethmac", None), size=ethmac_region_size, cached=False)
