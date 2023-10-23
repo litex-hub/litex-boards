@@ -69,11 +69,9 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
+        kwargs["uart_name"]    = "crossover"
+        kwargs["with_jtabone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Blackmagic Decklink Quad HDMI Recorder", **kwargs)
-
-        # JTAGBone  --------------------------------------------------------------------------------
-        self.add_jtagbone()
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

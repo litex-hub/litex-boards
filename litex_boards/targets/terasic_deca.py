@@ -59,7 +59,6 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
         with_led_chaser     = True,
         with_uartbone       = False,
-        with_jtagbone       = False,
         with_video_terminal = False,
         with_spi_sdcard     = False,
         with_ethernet       = False,
@@ -76,7 +75,7 @@ class BaseSoC(SoCCore):
         # Defaults to JTAG-UART since no hardware UART.
         real_uart_name = kwargs["uart_name"]
         if real_uart_name == "serial":
-            if with_jtagbone:
+            if kwargs["with_jtagbone"]:
                 kwargs["uart_name"] = "crossover"
             else:
                 kwargs["uart_name"] = "jtag_uart"
@@ -87,10 +86,6 @@ class BaseSoC(SoCCore):
         # UARTbone ---------------------------------------------------------------------------------
         if with_uartbone:
             self.add_uartbone(uart_name=real_uart_name, baudrate=kwargs["uart_baudrate"])
-
-        # JTAGbone ---------------------------------------------------------------------------------
-        if with_jtagbone:
-            self.add_jtagbone()
 
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -150,7 +145,6 @@ def main():
     parser.add_target_argument("--eth-ip",              default="192.168.1.50", help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip",      action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--with-uartbone",       action="store_true",    help="Enable UARTbone support.")
-    parser.add_target_argument("--with-jtagbone",       action="store_true",    help="Enable JTAGbone support.")
     parser.add_target_argument("--with-video-terminal", action="store_true",    help="Enable Video Terminal (VGA).")
     parser.add_target_argument("--with-spi-sdcard",     action="store_true",    help="Enable SPI SD card controller.")
     args = parser.parse_args()
@@ -162,7 +156,6 @@ def main():
         eth_ip              = args.eth_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
         with_uartbone       = args.with_uartbone,
-        with_jtagbone       = args.with_jtagbone,
         with_video_terminal = args.with_video_terminal,
         with_spi_sdcard     = args.with_spi_sdcard,
         **parser.soc_argdict

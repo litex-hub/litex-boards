@@ -73,10 +73,9 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
             kwargs["uart_name"] = "crossover" # Defaults to Crossover-UART.
+        kwargs["with_jtagbone"]  = True
+        kwargs["jtagbone_chain"] = 2 # Chain 1 already used by HBM2 debug probes.
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on FK33", **kwargs)
-
-        # JTAGBone --------------------------------------------------------------------------------
-        self.add_jtagbone(chain=2) # Chain 1 already used by HBM2 debug probes.
 
         # HBM --------------------------------------------------------------------------------------
         if with_hbm:

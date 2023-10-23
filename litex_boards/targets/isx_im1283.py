@@ -51,7 +51,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=80e6, with_led_chaser=True, with_jtagbone=True, **kwargs):
+    def __init__(self, sys_clk_freq=80e6, with_led_chaser=True, **kwargs):
         platform = isx_im1283.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -61,10 +61,6 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
-
-        # Jtagbone ---------------------------------------------------------------------------------
-        if with_jtagbone:
-            self.add_jtagbone()
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -90,7 +86,6 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=isx_im1283.Platform, description="LiteX SoC on iM1283.")
     parser.add_argument("--sys-clk-freq", default=80e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-jtagbone", action="store_true", help="Enable Jtagbone support.")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
@@ -98,7 +93,6 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
-        with_jtagbone = args.with_jtagbone,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:

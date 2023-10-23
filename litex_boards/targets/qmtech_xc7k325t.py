@@ -69,7 +69,7 @@ class BaseSoC(SoCCore):
                  with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
                  local_ip="", remote_ip="",
                  with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False, with_video_colorbars=False,
-                 with_jtagbone=True, with_spi_flash=False, **kwargs):
+                 with_spi_flash=False, **kwargs):
         platform = qmtech_xc7k325t.Platform(toolchain=toolchain, with_daughterboard=with_daughterboard)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -125,10 +125,6 @@ class BaseSoC(SoCCore):
             self.add_constant("REMOTEIP3", int(remote_ip[2]))
             self.add_constant("REMOTEIP4", int(remote_ip[3]))
 
-        # Jtagbone ---------------------------------------------------------------------------------
-        if with_jtagbone:
-            self.add_jtagbone()
-
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MT25QL128
@@ -182,7 +178,6 @@ def main():
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support.")
-    parser.add_argument("--with-jtagbone",       action="store_true",              help="Enable Jtagbone support.")
     parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
     viopts = parser.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
@@ -203,7 +198,6 @@ def main():
         eth_dynamic_ip         = args.eth_dynamic_ip,
         local_ip               = args.local_ip,
         remote_ip              = args.remote_ip,
-        with_jtagbone          = args.with_jtagbone,
         with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,

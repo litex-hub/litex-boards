@@ -71,6 +71,8 @@ class BaseSoC(SoCCore):
         self.crg = CRG(platform, sys_clk_freq, ddram_channel)
 
         # SoCCore ----------------------------------------------------------------------------------
+        kwargs["with_jtagbone"] = True
+
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ADI ADRV2CRR-FMC", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
@@ -116,9 +118,6 @@ class BaseSoC(SoCCore):
 
         # SYSMON -----------------------------------------------------------------------------------
         self.sysmon = ZynqUSPSystemMonitor()
-
-        # JTAG -------------------------------------------------------------------------------------
-        self.add_jtagbone()
 
 # Build --------------------------------------------------------------------------------------------
 

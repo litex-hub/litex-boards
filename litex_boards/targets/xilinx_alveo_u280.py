@@ -102,13 +102,12 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, ddram_channel, with_hbm)
 
         # SoCCore ----------------------------------------------------------------------------------
+        kwargs["jtagbone_chain"] = 2 # Chain 1 already used by HBM2 debug probes.
+
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alveo U280 (ES1)", **kwargs)
 
         # HBM / DRAM -------------------------------------------------------------------------------
         if with_hbm:
-            # JTAGBone -----------------------------------------------------------------------------
-            #self.add_jtagbone(chain=2) # Chain 1 already used by HBM2 debug probes.
-
             # Add HBM Core.
             self.hbm = hbm = ClockDomainsRenamer({"axi": "sys"})(USPHBM2(platform))
 

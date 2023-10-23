@@ -144,9 +144,6 @@ class BaseSoC(SoCCore):
                     # litex_term crossover
                     # litescope_cli -r main_vfb_dma_source_source_last
 
-                    # Add JTAGBone.
-                    self.add_jtagbone()
-
                     # Add UART auto-flush.
                     self.uart.add_auto_tx_flush(sys_clk_freq=sys_clk_freq, timeout=1, interval=128)
 

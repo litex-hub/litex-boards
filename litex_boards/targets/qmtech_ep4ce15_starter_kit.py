@@ -61,8 +61,6 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
-        with_jtaguart   = False,
-        with_jtagbone   = False,
         with_led_chaser = True,
         sdram_rate      = "1:1",
         **kwargs):
@@ -72,19 +70,13 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, sdram_rate = sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
-        if with_jtagbone:
+        if kwargs["with_jtagbone"]:
             kwargs["uart_name"] = "crossover"
-        if with_jtaguart:
-            kwargs["uart_name"] = "jtag_uart"
 
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTECH Cyclone IV Starter Kit",
             **kwargs
         )
-
-        # JTAGbone ---------------------------------------------------------------------------------
-        if with_jtagbone:
-            self.add_jtagbone()
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -111,15 +103,11 @@ def main():
     parser = LiteXArgumentParser(platform=qmtech_ep4ce15_starter_kit.Platform, description="LiteX SoC on QMTECH EP4CE15")
     parser.add_target_argument("--sys-clk-freq",  default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",    default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    parser.add_target_argument("--with-jtaguart", action="store_true",      help="Enable JTAGUart support.")
-    parser.add_target_argument("--with-jtagbone", action="store_true",      help="Enable JTAGbone support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq           = args.sys_clk_freq,
         sdram_rate             = args.sdram_rate,
-        with_jtagbone          = args.with_jtagbone,
-        with_jtaguart          = args.with_jtaguart,
         **parser.soc_argdict
     )
 

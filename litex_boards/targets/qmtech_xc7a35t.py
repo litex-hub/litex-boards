@@ -75,7 +75,6 @@ class BaseSoC(SoCCore):
         with_led_chaser        = True,
         with_video_terminal    = False,
         with_video_framebuffer = False,
-        with_jtagbone          = True,
         with_spi_flash         = False,
         **kwargs):
         platform = qmtech_xc7a35t.Platform(toolchain=toolchain, with_daughterboard=with_daughterboard)
@@ -117,10 +116,6 @@ class BaseSoC(SoCCore):
             # The daughterboard has the tx clock wired to a non-clock pin, so we can't help it
             self.platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets eth_clocks_tx_IBUF]")
 
-        # Jtagbone ---------------------------------------------------------------------------------
-        if with_jtagbone:
-            self.add_jtagbone()
-
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MT25QL128
@@ -159,7 +154,6 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",       action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",           action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-jtagbone",  action="store_true", help="Enable Jtagbone support.")
     parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
@@ -174,7 +168,6 @@ def main():
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
-        with_jtagbone          = args.with_jtagbone,
         with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,

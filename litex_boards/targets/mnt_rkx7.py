@@ -94,6 +94,7 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
+        #kwargs["with_jtagbone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on MNT-RKX7", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
@@ -141,9 +142,6 @@ class BaseSoC(SoCCore):
         self.i2c0 = I2CMaster(platform.request("i2c", 0))
         self.i2c1 = I2CMaster(platform.request("i2c", 1))
         self.i2c2 = I2CMaster(platform.request("i2c", 2))
-
-        # JTAG -------------------------------------------------------------------------------------
-        #self.add_jtagbone()
 
         # Backlight --------------------------------------------------------------------------------
         # Motherboard display connector backlight, currently unused (the new backlight signals

@@ -84,7 +84,6 @@ class BaseSoC(SoCCore):
         eth_ip          = "192.168.1.50",
         eth_dynamic_ip  = False,
         with_led_chaser = True,
-        with_jtagbone   = True,
         with_spi_flash  = False,
         **kwargs):
         platform = colorlight_i9plus.Platform(toolchain=toolchain)
@@ -127,10 +126,6 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
-        # Jtagbone ---------------------------------------------------------------------------------
-        if with_jtagbone:
-            self.add_jtagbone()
-
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MX25L12833F
@@ -160,7 +155,6 @@ def main():
     parser.add_target_argument("--eth-port",       default=0, type=int,       help="Ethernet port to use (0/1)")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--with-jtagbone",  action="store_true",       help="Enable JTAGbone support.")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
 
@@ -176,7 +170,6 @@ def main():
         eth_port       = args.eth_port,
         eth_ip         = args.eth_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
-        with_jtagbone  = args.with_jtagbone,
         with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict
     )
