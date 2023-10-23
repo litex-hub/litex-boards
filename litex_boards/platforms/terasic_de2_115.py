@@ -13,6 +13,27 @@ from litex.build.altera.programmer import USBBlaster
 _io = [
     # Clk
     ("clk50", 0, Pins("Y2"), IOStandard("3.3-V LVTTL")),
+    ("clk25", 0, Pins("A14"), IOStandard("3.3-V LVTTL")),
+
+    # Red LEDs
+    ("user_led", 0, Pins("G19"), IOStandard("2.5 V")),
+    ("user_led", 1, Pins("F19"), IOStandard("2.5 V")),
+    ("user_led", 2, Pins("E19"), IOStandard("2.5 V")),
+    ("user_led", 3, Pins("F21"), IOStandard("2.5 V")),
+    ("user_led", 4, Pins("F18"), IOStandard("2.5 V")),
+    ("user_led", 5, Pins("E18"), IOStandard("2.5 V")),
+    ("user_led", 6, Pins("J19"), IOStandard("2.5 V")),
+    ("user_led", 7, Pins("H19"), IOStandard("2.5 V")),
+    ("user_led", 8, Pins("J17"), IOStandard("2.5 V")),
+    ("user_led", 9, Pins("G17"), IOStandard("2.5 V")),
+    ("user_led", 10, Pins("J15"), IOStandard("2.5 V")),
+    ("user_led", 11, Pins("H16"), IOStandard("2.5 V")),
+    ("user_led", 12, Pins("J16"), IOStandard("2.5 V")),
+    ("user_led", 13, Pins("H17"), IOStandard("2.5 V")),
+    ("user_led", 14, Pins("F15"), IOStandard("2.5 V")),
+    ("user_led", 15, Pins("G15"), IOStandard("2.5 V")),
+    ("user_led", 16, Pins("G16"), IOStandard("2.5 V")),
+    ("user_led", 17, Pins("H15"), IOStandard("2.5 V")),
 
     # Serial
     ("serial", 0,
@@ -38,6 +59,59 @@ _io = [
         Subsignal("dm", Pins("U2 W4")),
         IOStandard("3.3-V LVTTL")
     ),
+
+    # SD Card
+    ("sdcard", 0,
+        Subsignal("data", Pins("AE14 AF13 AB14 AC14")),
+        Subsignal("cmd",  Pins("AD14")),
+        Subsignal("clk",  Pins("AE13")),
+        Misc("FAST_OUTPUT_REGISTER ON"),
+        IOStandard("3.3-V LVTTL"),
+    ),
+
+    # MII Ethernet (88E1111)
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("B17")),
+        Subsignal("rx", Pins("A15")),
+        IOStandard("2.5 V")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n", Pins("C19")),
+        Subsignal("int_n", Pins("A21")),
+        Subsignal("mdio", Pins("B21")),
+        Subsignal("mdc", Pins("C20")),
+        Subsignal("rx_dv", Pins("C17")),
+        Subsignal("rx_er", Pins("D18")),
+        Subsignal("rx_data", Pins("C16 D16 D17 C15")),
+        Subsignal("tx_en", Pins("A18")),
+        Subsignal("tx_er", Pins("B18")),
+        Subsignal("tx_data", Pins("C18 D19 A19 B19")),
+        Subsignal("col", Pins("E15")),
+        Subsignal("crs", Pins("D15")),
+        IOStandard("2.5 V")
+    ),
+
+    # MII Ethernet (88E1111)
+    ("eth_clocks", 1,
+        Subsignal("tx", Pins("C22")),
+        Subsignal("rx", Pins("B15")),
+        IOStandard("2.5 V")
+    ),
+    ("eth", 1,
+        Subsignal("rst_n",   Pins("D22")),
+        Subsignal("int_n",   Pins("D24")),
+        Subsignal("mdio",    Pins("D25")),
+        Subsignal("mdc",     Pins("D23")),
+        Subsignal("rx_dv",   Pins("A22")),
+        Subsignal("rx_er",   Pins("C24")),
+        Subsignal("rx_data", Pins("B23 C21 A23 D21")),
+        Subsignal("tx_en",   Pins("B25")),
+        Subsignal("tx_er",   Pins("A25")),
+        Subsignal("tx_data", Pins("C25 A26 B26 C26")),
+        Subsignal("col",     Pins("B22")),
+        Subsignal("crs",     Pins("D20")),
+        IOStandard("2.5 V")
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
@@ -55,3 +129,4 @@ class Platform(AlteraPlatform):
     def do_finalize(self, fragment):
         AlteraPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+        self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)
