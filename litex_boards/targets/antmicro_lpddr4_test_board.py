@@ -55,7 +55,6 @@ class BaseSoC(SoCCore):
             eth_dynamic_ip  = False,
             with_hyperram   = False,
             with_sdcard     = False,
-            with_uartbone   = False,
             with_led_chaser = True,
             **kwargs):
         platform = antmicro_lpddr4_test_board.Platform()
@@ -103,10 +102,6 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
-        # UartBone ---------------------------------------------------------------------------------
-        if with_uartbone:
-            self.add_uartbone(baudrate=1e6)
-
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -128,7 +123,6 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip",   action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--with-hyperram",    action="store_true",    help="Add HyperRAM.")
     parser.add_target_argument("--with-sdcard",      action="store_true",    help="Add SDCard.")
-    parser.add_target_argument("--with-uartbone",    action="store_true",    help="Add UartBone on 2nd serial.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -142,7 +136,6 @@ def main():
         eth_dynamic_ip    = args.eth_dynamic_ip,
         with_hyperram     = args.with_hyperram,
         with_sdcard       = args.with_sdcard,
-        with_uartbone     = args.with_uartbone,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

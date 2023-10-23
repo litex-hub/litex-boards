@@ -95,11 +95,6 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
 
-        # Add a UARTBone bridge --------------------------------------------------------------------
-        debug_uart = False
-        if debug_uart:
-            self.add_uartbone()
-
 # Flash --------------------------------------------------------------------------------------------
 
 def flash(bios_flash_offset, target="lattice_ice40up5k_evn"):

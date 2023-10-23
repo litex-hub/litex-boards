@@ -122,7 +122,6 @@ class BaseSoC(SoCCore):
     def __init__(self, board, revision, sys_clk_freq=60e6, toolchain="trellis",
         with_ethernet    = False,
         with_etherbone   = False,
-        with_uartbone    = False,
         eth_ip           = "192.168.1.50",
         eth_phy          = 0,
         with_led_chaser  = True,
@@ -155,6 +154,11 @@ class BaseSoC(SoCCore):
         )
 
         # SoCCore ----------------------------------------------------------------------------------
+        # Uartbone ---------------------------------------------------------------------------------
+        if kwargs["with_uartbone"]:
+            if board != "i5a-907":
+                raise ValueError("uartbone only supported on i5a-907")
+
         SoCCore.__init__(self, platform, int(sys_clk_freq), ident="LiteX SoC on Colorlight " + board.upper(), **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
@@ -192,12 +196,6 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
 
-        # Uartbone ---------------------------------------------------------------------------------
-        if with_uartbone:
-            if board != "i5a-907":
-                raise ValueError("uartbone only supported on i5a-907")
-            self.add_uartbone(uart_name="uartbone")
-
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             if board == "i5a-907":
@@ -229,7 +227,6 @@ def main():
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",           action="store_true",    help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",          action="store_true",    help="Enable Etherbone support.")
-    parser.add_target_argument("--with-uartbone",     action="store_true",    help="Add uartbone on 'FAN OUT' connector.")
     parser.add_target_argument("--eth-ip",            default="192.168.1.50", help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-phy",           default=0, type=int,    help="Ethernet PHY (0 or 1).")
     parser.add_target_argument("--use-internal-osc",  action="store_true",    help="Use internal oscillator.")
@@ -242,7 +239,6 @@ def main():
         toolchain        = args.toolchain,
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
-        with_uartbone    = args.with_uartbone,
         eth_ip           = args.eth_ip,
         eth_phy          = args.eth_phy,
         use_internal_osc = args.use_internal_osc,
