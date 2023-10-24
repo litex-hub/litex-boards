@@ -207,11 +207,13 @@ class Platform(Xilinx7SeriesPlatform):
         else:
             io.extend(_io_v2)
         Xilinx7SeriesPlatform.__init__(self, "xc7a100t{}fgg676".format(speed_grade), io, _connectors,  toolchain=toolchain)
+
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = \
             ["write_cfgmem -force -format bin -interface spix4 -size 16 "
-             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
+            "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
+
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 16]")
         if board_version < 2:
             self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk50_IBUF]")
