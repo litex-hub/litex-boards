@@ -17,6 +17,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser, WS2812
+from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII
 
@@ -29,7 +30,7 @@ from litex_boards.platforms import sipeed_tang_mega_138k
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_sdram=False):
+    def __init__(self, platform, sys_clk_freq, with_sdram=False, with_video_pll=False):
         self.rst      = Signal()
         self.cd_sys   = ClockDomain()
         self.cd_por   = ClockDomain()
@@ -60,6 +61,18 @@ class _CRG(LiteXModule):
             sdram_clk = ClockSignal("sys_ps")
             self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
 
+        if with_video_pll:
+            self.cd_hdmi   = ClockDomain()
+            self.cd_hdmi5x = ClockDomain()
+            pll.create_clkout(self.cd_hdmi5x, 125e6, margin=1e-3)
+            self.specials += Instance("CLKDIV",
+                p_DIV_MODE = "5",
+                i_HCLKIN   = self.cd_hdmi5x.clk,
+                i_RESETN   = 1, # Disable reset signal.
+                i_CALIB    = 0, # No calibration.
+                o_CLKOUT   = self.cd_hdmi.clk
+            )
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -69,6 +82,7 @@ class BaseSoC(SoCCore):
         local_ip            = "192.168.1.50",
         remote_ip           = "",
         eth_dynamic_ip      = False,
+        with_video_terminal = False,
         with_sdram          = False,
         with_led_chaser     = True,
         with_rgb_led        = False,
@@ -78,10 +92,18 @@ class BaseSoC(SoCCore):
         platform = sipeed_tang_mega_138k.Platform(toolchain="gowin")
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_sdram=with_sdram)
+        self.crg = _CRG(platform, sys_clk_freq, with_sdram=with_sdram, with_video_pll=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K", **kwargs)
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            hdmi_pads = platform.request("hdmi_in") # yes DVI_RX because DVI_TX seems not working
+            self.comb += hdmi_pads.hdp.eq(1)
+            self.videophy = VideoGowinHDMIPHY(hdmi_pads, clock_domain="hdmi")
+            #self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -141,6 +163,7 @@ def main():
     parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-sdram",      action="store_true",      help="Enable optional SDRAM module.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",  help="Enable Video Terminal (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",      help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",        action="store_true",      help="Enable Etherbone support.")
@@ -153,6 +176,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
+        with_video_terminal = args.with_video_terminal,
         with_sdram          = args.with_sdram,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
