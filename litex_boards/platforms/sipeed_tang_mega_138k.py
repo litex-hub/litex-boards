@@ -158,6 +158,50 @@ _connectors = [
     ],
 ]
 
+# Dock IOs -----------------------------------------------------------------------------------------
+
+# Note: SOM.J1 -> dock.J6 odd/even revert
+#       SOM.J2 -> dock.J7 odd/even revert
+#       SOM.J3 -> dock.J8 odd/even revert
+
+_dock_io = [
+    # HDMI In
+    ("hdmi_in", 0,
+        Subsignal("clk_p",   Pins("J1:107")),
+        Subsignal("clk_n",   Pins("J1:109")),
+        Subsignal("data0_p", Pins("J1:87")),
+        Subsignal("data0_n", Pins("J1:85")),
+        Subsignal("data1_p", Pins("J1:103")),
+        Subsignal("data1_n", Pins("J1:105")),
+        Subsignal("data2_p", Pins("J1:93")),
+        Subsignal("data2_n", Pins("J1:95")),
+        Subsignal("hdp",     Pins("J1:99")),
+        #Subsignal("scl",     Pins("J1:89")),
+        #Subsignal("sda",     Pins("J1:91")),
+        #Subsignal("cec",     Pins("J1:97")),
+        IOStandard("LVCMOS33D"),
+        Misc("PULL_MODE=NONE DRIVE=8")
+    ),
+
+    # HDMI Out
+    ("hdmi_out", 0,
+        Subsignal("clk_p",   Pins("J1:14")),
+        Subsignal("clk_n",   Pins("J1:12")),
+        Subsignal("data0_p", Pins("J1:6")),
+        Subsignal("data0_n", Pins("J1:4")),
+        Subsignal("data1_p", Pins("J1:18")),
+        Subsignal("data1_n", Pins("J1:16")),
+        Subsignal("data2_p", Pins("J1:10")),
+        Subsignal("data2_n", Pins("J1:8")),
+        Subsignal("hdp",     Pins("J2:39")),
+        #Subsignal("scl",     Pins("J1:89")),
+        #Subsignal("sda",     Pins("J1:91")),
+        #Subsignal("cec",     Pins("J2:41")),
+        IOStandard("LVCMOS33D"),
+        Misc("PULL_MODE=NONE DRIVE=8")
+    ),
+]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(GowinPlatform):
@@ -166,6 +210,7 @@ class Platform(GowinPlatform):
 
     def __init__(self, dock="standard", toolchain="gowin"):
         GowinPlatform.__init__(self, "GW5AST-LV138FPG676AES", _io, _connectors, toolchain=toolchain, devicename="GW5AST-138B")
+        self.add_extension(_dock_io)
 
         self.toolchain.options["use_sspi_as_gpio"] = 1
         self.toolchain.options["use_cpu_as_gpio"]  = 1
