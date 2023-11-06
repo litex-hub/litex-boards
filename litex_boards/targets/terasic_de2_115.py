@@ -16,11 +16,14 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import terasic_de2_115
 
 from litex.soc.cores.clock import CycloneIVPLL
+from litex.soc.cores.led import LedChaser
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import IS42S16320
 from litedram.phy import GENSDRPHY
+
+from liteeth.phy.mii import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -48,7 +51,18 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, **kwargs):
+    def __init__(
+        self,
+        sys_clk_freq=50e6,
+        with_ethernet=False,
+        with_etherbone=False,
+        with_sdcard=False,
+        with_led_chaser=True,
+        ethernet_phy=0,
+        etherbone_ip="192.168.1.50",
+        etherbone_phy=1,
+        **kwargs,
+    ):
         platform = terasic_de2_115.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -66,18 +80,78 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
+        # Add debug interface if the CPU has one ---------------------------------------------------
+        if hasattr(self.cpu, "debug_bus"):
+            self.register_mem(
+                name="vexriscv_debug",
+                address=0xF00F0000,
+                interface=self.cpu.debug_bus,
+                size=0x100,
+            )
+
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads=platform.request_all("user_led"), sys_clk_freq=sys_clk_freq
+            )
+            self.leds.add_pwm()
+
+        # SD Card ----------------------------------------------------------------------------------
+        if with_sdcard:
+            self.add_sdcard()
+
+        # Ethernet ---------------------------------------------------------------------------------
+        if with_ethernet:
+            # Ethernet PHY
+            self.submodules.ethphy = LiteEthPHYMII(
+                clock_pads=platform.request("eth_clocks", ethernet_phy),
+                pads=platform.request("eth", ethernet_phy),
+            )
+            self.add_ethernet(
+                phy=self.ethphy,
+                phy_cd="ethphy_eth" if with_etherbone else "eth",
+                dynamic_ip=True,
+            )
+        if with_etherbone:
+            # Ethernet PHY
+            self.submodules.ethbphy = LiteEthPHYMII(
+                clock_pads=platform.request("eth_clocks", etherbone_phy),
+                pads=platform.request("eth", etherbone_phy),
+            )
+            self.add_etherbone(
+                phy=self.ethbphy,
+                phy_cd="ethbphy_eth" if with_ethernet else "eth",
+                ip_address=etherbone_ip,
+            )
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=terasic_de2_115.Platform, description="LiteX SoC on DE2-115.")
+
     parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-led-chaser", action="store_true", help="Enable LED chaser.")
+    parser.add_target_argument("--with-sdcard", action="store_true", help="Enable SD card support.")
+    parser.add_target_argument("--with-ethernet", action="store_true", help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--etherbone-ip", default="192.168.48.100", help="Etherbone IP address.")
+    parser.add_target_argument("--etherbone-phy", default=1, type=int, help="Etherbone PHY (0 or 1).")
+    parser.add_target_argument("--ethernet-phy", default=0, type=int, help="Ethernet  PHY (0 or 1).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        **parser.soc_argdict
+        sys_clk_freq=args.sys_clk_freq,
+        with_sdcard=args.with_sdcard,
+        with_ethernet=args.with_ethernet,
+        with_etherbone=args.with_etherbone,
+        with_led_chaser=args.with_led_chaser,
+        etherbone_ip=args.etherbone_ip,
+        etherbone_phy=args.etherbone_phy,
+        ethernet_phy=args.ethernet_phy,
+        **parser.soc_argdict,
     )
+
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
