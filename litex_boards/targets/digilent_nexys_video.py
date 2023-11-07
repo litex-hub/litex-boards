@@ -49,7 +49,7 @@ class _CRG(LiteXModule):
             self.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk100, 100e6)
-        pll.create_clkout(self.cd_sys,       sys_clk_freq)
+        pll.create_clkout(self.cd_sys,       sys_clk_freq, reset_buf="bufg")
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
