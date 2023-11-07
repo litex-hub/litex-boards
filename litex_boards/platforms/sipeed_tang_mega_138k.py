@@ -51,22 +51,6 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
     ("ephy_clk", 0, Pins("E18"), IOStandard("LVCMOS33")),
-
-    ("sdram_clock", 0, Pins("AC26"), IOStandard("LVCMOS33")),
-    ("sdram", 0,
-        Subsignal("a",   Pins(
-            "V17 U15 V16 U16 T23 T25 R25 P25",
-            "W23 V23 W21 U24 U25")),
-        Subsignal("dq",  Pins(
-            "V22  U22  W19  V19  Y20 W20 V26 U26",
-            "AB25 AB26 AA25 AA24 Y26 Y25 W26 W25")),
-        Subsignal("ba",    Pins("P21 Y21")),
-        Subsignal("cas_n", Pins("P24")),
-        Subsignal("cs_n",  Pins("U14")),
-        Subsignal("ras_n", Pins("P23")),
-        Subsignal("we_n",  Pins("R23")),
-        IOStandard("LVCMOS33"),
-    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -199,6 +183,23 @@ _dock_io = [
         #Subsignal("cec",     Pins("J2:41")),
         IOStandard("LVCMOS33D"),
         Misc("PULL_MODE=NONE DRIVE=8")
+    ),
+
+    ("sdram_clock", 0, Pins("V23"), IOStandard("LVCMOS33")),
+    ("sdram", 0,
+        Subsignal("a",   Pins(
+            "V19   W19 U22 V22 Y25 AA25 AA24 AB25",
+            "AB26 AC26 Y20 U25 U24")),
+        Subsignal("dq",  Pins(
+            "U16 V16 U15 V17 W21 Y21 P21 U17",
+            "P25 W23 T25 R25 R23 T23 P24 P23")),
+        Subsignal("ba",    Pins("V26 W20")),
+        Subsignal("cas_n", Pins("W26")),
+        Subsignal("cs_n",  Pins("U26")),
+        Subsignal("ras_n", Pins("W25")),
+        Subsignal("we_n",  Pins("Y26")),
+        IOStandard("LVCMOS33"),
+        Misc("PULL_MODE=UP")
     ),
 ]
 
