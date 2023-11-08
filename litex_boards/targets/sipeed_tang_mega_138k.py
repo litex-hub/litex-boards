@@ -31,12 +31,16 @@ from litex_boards.platforms import sipeed_tang_mega_138k
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_sdram=False, with_ddr3=False, with_video_pll=False):
+    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2", with_ddr3=False, with_video_pll=False):
         self.rst      = Signal()
         self.cd_sys   = ClockDomain()
         self.cd_por   = ClockDomain()
         if with_sdram:
-            self.cd_sys_ps = ClockDomain()
+            if sdram_rate == "1:2":
+                self.cd_sys2x    = ClockDomain()
+                self.cd_sys2x_ps = ClockDomain()
+            else:
+                self.cd_sys_ps = ClockDomain()
 
         if with_ddr3:
             self.cd_init    = ClockDomain()
@@ -61,12 +65,16 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~por_done | self.rst | rst)
         pll.register_clkin(self.clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=not with_ddr3)
-        if with_sdram:
-            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
 
         # SDRAM clock
         if with_sdram:
-            sdram_clk = ClockSignal("sys_ps")
+            if sdram_rate == "1:2":
+                pll.create_clkout(self.cd_sys2x,    2*sys_clk_freq)
+                pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180)
+                sdram_clk = ClockSignal("sys2x_ps")
+            else:
+                pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+                sdram_clk = ClockSignal("sys_ps")
             self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
 
         # DDR3 clock
@@ -108,6 +116,7 @@ class BaseSoC(SoCCore):
         with_video_terminal = False,
         with_ddr3           = False,
         with_sdram          = False,
+        sdram_rate          = "1:2",
         with_led_chaser     = True,
         with_rgb_led        = False,
         with_buttons        = True,
@@ -116,7 +125,10 @@ class BaseSoC(SoCCore):
         platform = sipeed_tang_mega_138k.Platform(toolchain="gowin")
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_sdram=with_sdram, with_ddr3=with_ddr3, with_video_pll=with_video_terminal)
+        self.crg = _CRG(platform, sys_clk_freq,
+            with_sdram     = with_sdram,
+            with_ddr3      = with_ddr3,
+            with_video_pll = with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K", **kwargs)
@@ -187,10 +199,14 @@ class BaseSoC(SoCCore):
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if with_sdram and not self.integrated_main_ram_size:
-            self.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+            if sdram_rate == "1:2":
+                sdrphy_cls = HalfRateGENSDRPHY
+            else:
+                sdrphy_cls = GENSDRPHY
+            self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = AS4C32M16(sys_clk_freq, "1:1"),
+                module        = AS4C32M16(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
