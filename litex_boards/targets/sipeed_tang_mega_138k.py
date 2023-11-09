@@ -5,6 +5,7 @@
 #
 # Copyright (c) 2022-2023 Icenowy Zheng <uwu@icenowy.me>
 # Copyright (c) 2022 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2023 Gwenhael Goavec-Merou <gwenhael@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
@@ -17,11 +18,13 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser, WS2812
+from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII
 
-from litedram.modules import AS4C32M16
+from litedram.modules import AS4C32M16, MT41K64M16
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
+from litedram.phy import GW5DDRPHY
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import sipeed_tang_mega_138k
@@ -29,12 +32,23 @@ from litex_boards.platforms import sipeed_tang_mega_138k
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_sdram=False):
+    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2", with_ddr3=False, with_video_pll=False):
         self.rst      = Signal()
         self.cd_sys   = ClockDomain()
         self.cd_por   = ClockDomain()
         if with_sdram:
-            self.cd_sys_ps = ClockDomain()
+            if sdram_rate == "1:2":
+                self.cd_sys2x    = ClockDomain()
+                self.cd_sys2x_ps = ClockDomain()
+            else:
+                self.cd_sys_ps = ClockDomain()
+
+        if with_ddr3:
+            self.cd_init    = ClockDomain()
+            self.cd_sys2x   = ClockDomain()
+            self.cd_sys2x_i = ClockDomain()
+            self.stop       = Signal()
+            self.reset      = Signal()
 
         # Clk
         self.clk50 = platform.request("clk50")
@@ -51,14 +65,45 @@ class _CRG(LiteXModule):
         self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~por_done | self.rst | rst)
         pll.register_clkin(self.clk50, 50e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq)
-        if with_sdram:
-            pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=not with_ddr3)
 
         # SDRAM clock
         if with_sdram:
-            sdram_clk = ClockSignal("sys_ps")
+            if sdram_rate == "1:2":
+                pll.create_clkout(self.cd_sys2x,    2*sys_clk_freq)
+                pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180)
+                sdram_clk = ClockSignal("sys2x_ps")
+            else:
+                pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+                sdram_clk = ClockSignal("sys_ps")
             self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
+
+        # DDR3 clock
+        if with_ddr3:
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            self.specials += [
+                Instance("DHCE",
+                    i_CLKIN  = self.cd_sys2x_i.clk,
+                    i_CEN    = self.stop,
+                    o_CLKOUT = self.cd_sys2x.clk
+                ),
+                AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.rst | self.reset),
+            ]
+            # Init clock domain
+            self.comb += self.cd_init.clk.eq(self.clk50)
+            self.comb += self.cd_init.rst.eq(pll.reset)
+
+        if with_video_pll:
+            self.cd_hdmi   = ClockDomain()
+            self.cd_hdmi5x = ClockDomain()
+            pll.create_clkout(self.cd_hdmi5x, 125e6, margin=1e-3)
+            self.specials += Instance("CLKDIV",
+                p_DIV_MODE = "5",
+                i_HCLKIN   = self.cd_hdmi5x.clk,
+                i_RESETN   = 1, # Disable reset signal.
+                i_CALIB    = 0, # No calibration.
+                o_CLKOUT   = self.cd_hdmi.clk
+            )
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -69,7 +114,10 @@ class BaseSoC(SoCCore):
         local_ip            = "192.168.1.50",
         remote_ip           = "",
         eth_dynamic_ip      = False,
+        with_video_terminal = False,
+        with_ddr3           = False,
         with_sdram          = False,
+        sdram_rate          = "1:2",
         with_led_chaser     = True,
         with_rgb_led        = False,
         with_buttons        = True,
@@ -78,10 +126,36 @@ class BaseSoC(SoCCore):
         platform = sipeed_tang_mega_138k.Platform(toolchain="gowin")
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_sdram=with_sdram)
+        self.crg = _CRG(platform, sys_clk_freq,
+            with_sdram     = with_sdram,
+            with_ddr3      = with_ddr3,
+            with_video_pll = with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K", **kwargs)
+
+        # DDR3 SDRAM -------------------------------------------------------------------------------
+        if with_ddr3 and not self.integrated_main_ram_size:
+            self.ddrphy = GW5DDRPHY(
+                pads         = platform.request("ddram"),
+                sys_clk_freq = sys_clk_freq
+            )
+            self.ddrphy.settings.rtt_nom = "disabled"
+            self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
+            self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
+            self.add_sdram("sdram",
+                phy           = self.ddrphy,
+                module        = MT41K64M16(sys_clk_freq, "1:2"),
+                l2_cache_size = 0#kwargs.get("l2_size", 8192)
+            )
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            hdmi_pads = platform.request("hdmi_in") # yes DVI_RX because DVI_TX seems not working
+            self.comb += hdmi_pads.hdp.eq(1)
+            self.videophy = VideoGowinHDMIPHY(hdmi_pads, clock_domain="hdmi")
+            #self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -126,10 +200,14 @@ class BaseSoC(SoCCore):
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if with_sdram and not self.integrated_main_ram_size:
-            self.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+            if sdram_rate == "1:2":
+                sdrphy_cls = HalfRateGENSDRPHY
+            else:
+                sdrphy_cls = GENSDRPHY
+            self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = AS4C32M16(sys_clk_freq, "1:1"),
+                module        = AS4C32M16(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -141,6 +219,8 @@ def main():
     parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-sdram",      action="store_true",      help="Enable optional SDRAM module.")
+    parser.add_target_argument("--with-ddr3",       action="store_true",      help="Enable optional DDR3 module.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",  help="Enable Video Terminal (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",      help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",        action="store_true",      help="Enable Etherbone support.")
@@ -153,6 +233,8 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
+        with_video_terminal = args.with_video_terminal,
+        with_ddr3           = args.with_ddr3,
         with_sdram          = args.with_sdram,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
