@@ -5,6 +5,7 @@
 #
 # Copyright (c) 2022-2023 Icenowy Zheng <uwu@icenowy.me>
 # Copyright (c) 2022 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2023 Gwenhael Goavec-Merou <gwenhael@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
