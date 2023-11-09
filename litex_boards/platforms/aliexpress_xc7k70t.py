@@ -42,15 +42,15 @@ _io = [
     # SDRAM
     ("sdram_clock", 0, Pins("P23"), IOStandard("LVCMOS33"), Misc("SLEW=FAST")),
     ("sdram", 0,
-        Subsignal("a", Pins("L25 L24 K23 M26 G25 F24 H26 F23 E23 J26 M25 G24")),
-        Subsignal("dq", Pins("T23 T25 T24 R25 R23 R26 P24 P25 F25 H24 E26 H23 E25 J24 D26 J23")),
-        Subsignal("ba", Pins("K25 M24")),
-        Subsignal("dm", Pins("N23 G26")),
+        Subsignal("a",     Pins("L25 L24 K23 M26 G25 F24 H26 F23 E23 J26 M25 G24")),
+        Subsignal("dq",    Pins("T23 T25 T24 R25 R23 R26 P24 P25 F25 H24 E26 H23 E25 J24 D26 J23")),
+        Subsignal("ba",    Pins("K25 M24")),
+        Subsignal("dm",    Pins("N23 G26")),
         Subsignal("ras_n", Pins("N24")),
         Subsignal("cas_n", Pins("K26")),
-        Subsignal("we_n", Pins("P26")),
-        Subsignal("cs_n", Pins("N26")),
-        Subsignal("cke", Pins("J25")),
+        Subsignal("we_n",  Pins("P26")),
+        Subsignal("cs_n",  Pins("N26")),
+        Subsignal("cke",   Pins("J25")),
         IOStandard("LVCMOS33"),
         Misc("SLEW = FAST")
     ),
@@ -103,14 +103,15 @@ _io = [
 
     # HDMI out
     ("hdmi_out", 0,
-        Subsignal("clk_p",   Pins("E10"), IOStandard("TMDS_33")),
-        Subsignal("clk_n",   Pins("D10"), IOStandard("TMDS_33")),
-        Subsignal("data0_p", Pins("D9"),  IOStandard("TMDS_33")),
-        Subsignal("data0_n", Pins("D8"),  IOStandard("TMDS_33")),
-        Subsignal("data1_p", Pins("C9"),  IOStandard("TMDS_33")),
-        Subsignal("data1_n", Pins("B9"),  IOStandard("TMDS_33")),
-        Subsignal("data2_p", Pins("A9"),  IOStandard("TMDS_33")),
-        Subsignal("data2_n", Pins("A8"),  IOStandard("TMDS_33")),
+        Subsignal("clk_p",   Pins("E10")),
+        Subsignal("clk_n",   Pins("D10")),
+        Subsignal("data0_p", Pins("D9")),
+        Subsignal("data0_n", Pins("D8")),
+        Subsignal("data1_p", Pins("C9")),
+        Subsignal("data1_n", Pins("B9")),
+        Subsignal("data2_p", Pins("A9")),
+        Subsignal("data2_n", Pins("A8")),
+        IOStandard("TMDS_33"),
     ),
 
     # PCIe
@@ -176,26 +177,26 @@ _connectors = [
 
     # 3.3V
     ("HR_IO", {
-        0    : "D19",
-        1    : "D18",
-        2    : "C21",
-        3    : "D20",
-        4    : "C22",
-        5    : "D21",
-        6    : "C24",
-        7    : "D23",
-        8    : "D24",
-        9    : "A19",
-        10   : "B19",
-        11   : "A20",
-        12   : "B20",
-        13   : "B21",
-        14   : "A23",
-        15   : "A24",
-        16   : "B25",
-        17   : "B26",
-        18   : "C26",
-        19   : "D25",
+        0  : "D19",
+        1  : "D18",
+        2  : "C21",
+        3  : "D20",
+        4  : "C22",
+        5  : "D21",
+        6  : "C24",
+        7  : "D23",
+        8  : "D24",
+        9  : "A19",
+        10 : "B19",
+        11 : "A20",
+        12 : "B20",
+        13 : "B21",
+        14 : "A23",
+        15 : "A24",
+        16 : "B25",
+        17 : "B26",
+        18 : "C26",
+        19 : "D25",
     }),
 
     # 3.3V
@@ -231,7 +232,7 @@ set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 """)
-        self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
+        self.toolchain.bitstream_commands  = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
     def create_programmer(self):
@@ -239,5 +240,6 @@ set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk50",         0, loose=True), 1e9/50e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:tx", 0, loose=True), 1e9/125e6)

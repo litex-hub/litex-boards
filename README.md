@@ -97,6 +97,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── alchitry_cu
     ├── alchitry_mojo
     ├── aliexpress_xc7k420t
+    ├── aliexpress_xc7k70t
     ├── alinx_ax7010
     ├── alinx_axu2cga
     ├── analog_pocket

@@ -60,7 +60,6 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6, sdram_rate="1:1",
         with_hdmi              = False,
         with_ethernet          = False,
-        with_jtagbone          = False,
         with_pcie              = False,
         with_sdram             = True,
         with_led_chaser        = True,
@@ -99,10 +98,6 @@ class BaseSoC(SoCCore):
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
 
-        # Jtagbone ---------------------------------------------------------------------------------
-        if with_jtagbone:
-            self.add_jtagbone()
-
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet:
             self.ethphy = LiteEthPHYRGMII(
@@ -131,16 +126,15 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=aliexpress_xc7k70t.Platform, description="LiteX SoC on AliExpress XC7K70T PCIe board.")
-    parser.add_target_argument("--sys-clk-freq", default=90e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",   default="1:1",             help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
-    parser.add_argument("--with-ethernet",  action="store_true", help="Enable ethernet")
-    parser.add_argument("--with-jtagbone",  action="store_true", help="Enable JTAGbone")
-    parser.add_argument("--with-pcie",  action="store_true", help="Enable PCIe")
-    parser.add_argument("--with-hdmi",  action="store_true", help="Enable HDMI")
+    parser.add_target_argument("--sys-clk-freq",    default=90e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",      default="1:1",             help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_argument("--with-ethernet",          action="store_true",       help="Enable ethernet")
+    parser.add_argument("--with-pcie",              action="store_true",       help="Enable PCIe")
+    parser.add_argument("--with-hdmi",              action="store_true",       help="Enable HDMI")
     viopts = parser.target_group.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
-    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
-    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (HDMI).")
+    viopts.add_argument("--with-video-terminal",    action="store_true",       help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true",       help="Enable Video Framebuffer (HDMI).")
+    viopts.add_argument("--with-video-colorbars",   action="store_true",       help="Enable Video Colorbars (HDMI).")
     args = parser.parse_args()
 
     # Note: baudrate is fixed because regardless of USB->TTL baud, the AVR <-> FPGA baudrate is
@@ -150,7 +144,6 @@ def main():
         sdram_rate             = args.sdram_rate,
         with_ethernet          = args.with_ethernet,
         with_pcie              = args.with_pcie,
-        with_jtagbone          = args.with_jtagbone,
         with_hdmi              = args.with_hdmi,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
