@@ -35,51 +35,36 @@ _io = [
     ("led_n", 4,  Pins("N21"), IOStandard("LVCMOS33")),
     ("led_n", 5,  Pins("N23"), IOStandard("LVCMOS33")),
 
-    # RGMII Ethernet
-    ("eth_clocks", 0,
-        Subsignal("tx", Pins("H24")),
-        Subsignal("rx", Pins("C23")),
-        IOStandard("LVCMOS33")
-    ),
-    ("eth", 0,
-        Subsignal("rst_n",   Pins("E17")),
-        Subsignal("mdio",    Pins("K22")),
-        Subsignal("mdc",     Pins("K23")),
-        Subsignal("rx_ctl",  Pins("C22")),
-        Subsignal("rx_data", Pins("B26 C26 D26 E26")),
-        Subsignal("tx_ctl",  Pins("J24")),
-        Subsignal("tx_data", Pins("K21 J21 L19 K18")),
-        IOStandard("LVCMOS33"),
-    ),
-    ("ephy_clk", 0, Pins("E18"), IOStandard("LVCMOS33")),
-
-    # DDR3 SDRAM IMD128M16R39CG8GNF-125.
+    # DDR3 SDRAM H5TQ4G63EFR-RDC
     ("ddram", 0,
         Subsignal("a", Pins(
             "N1 R1 R2 N2 P1 T2 N4 U1",
-            "T4 T3 M1 P4 N3 U2 U5 M6"),
-            IOStandard("SSTL15")
+            "T4 T3 M1 P4 N3 U2 U5   "), # (M6 unused in 256x16)
+            IOStandard("SSTL15"),
+            Misc("DRIVE=12"),
         ),
-        Subsignal("ba",      Pins("M4 L5 K3"),    IOStandard("SSTL15")),
-        Subsignal("ras_n",   Pins("H2"),          IOStandard("SSTL15")),
-        Subsignal("cas_n",   Pins("H1"),          IOStandard("SSTL15")),
-        Subsignal("we_n",    Pins("J3"),          IOStandard("SSTL15")),
-        Subsignal("cs_n",    Pins("L4"),          IOStandard("SSTL15")),
-        Subsignal("dm",      Pins("F4 H9 E3 A3"), IOStandard("SSTL15")),
+        Subsignal("ba",      Pins("M4 L5 K3"),    IOStandard("SSTL15"), Misc("DRIVE=12")),
+        Subsignal("ras_n",   Pins("H2"),          IOStandard("SSTL15"), Misc("DRIVE=12")),
+        Subsignal("cas_n",   Pins("H1"),          IOStandard("SSTL15"), Misc("DRIVE=12")),
+        Subsignal("we_n",    Pins("J3"),          IOStandard("SSTL15"), Misc("DRIVE=12")),
+        Subsignal("cs_n",    Pins("L4"),          IOStandard("SSTL15"), Misc("DRIVE=12")),
+        Subsignal("dm",      Pins("F4 H9 E3 A3"), IOStandard("SSTL15"), Misc("DRIVE=12")),
         Subsignal("dq",      Pins(
             "G4 J6 L8 G5 K7 J5 K8 K6",
             "E6 H8 H6 G8 D6 F8 G6 F7",
             "C4 F3 B4 E5 D3 D5 A4 D4",
             "E1 A2 G2 C2 F2 E2 G1 D1"),
-            IOStandard("SSTL15")),
-        Subsignal("dqs_p",   Pins("J4 H7 B5 C1"), IOStandard("SSTL15D")), # DRIVE=8
-        Subsignal("dqs_n",   Pins("H4 G7 A5 B1"), IOStandard("SSTL15D")), # DRIVE=8
-        Subsignal("clk_p",   Pins("M2"),          IOStandard("SSTL15D")), # DRIVE=8
-        Subsignal("clk_n",   Pins("L2"),          IOStandard("SSTL15D")), # DRIVE=8
-        Subsignal("cke",     Pins("L3"),          IOStandard("SSTL15")),  # DRIVE=4
-        Subsignal("odt",     Pins("J1"),          IOStandard("SSTL15")),
-        Subsignal("reset_n", Pins("N8"),          IOStandard("SSTL15")),
-        Misc("PULL_MODE=NONE DRIVE=12 BANK_VCCIO=1.5"),
+            IOStandard("SSTL15"),
+            Misc("DRIVE=12"),
+            ),
+        Subsignal("dqs_p",   Pins("J4 H7 B5 C1"), IOStandard("SSTL15D"), Misc("DRIVE=8")),
+        Subsignal("dqs_n",   Pins("H4 G7 A5 B1"), IOStandard("SSTL15D"), Misc("DRIVE=8")),
+        Subsignal("clk_p",   Pins("M2"),          IOStandard("SSTL15D"), Misc("DRIVE=8")),
+        Subsignal("clk_n",   Pins("L2"),          IOStandard("SSTL15D"), Misc("DRIVE=8")),
+        Subsignal("cke",     Pins("L3"),          IOStandard("SSTL15"),  Misc("DRIVE=4")),
+        Subsignal("odt",     Pins("J1"),          IOStandard("SSTL15"),  Misc("DRIVE=12")),
+        Subsignal("reset_n", Pins("N8"),          IOStandard("SSTL15"),  Misc("DRIVE=12")),
+        Misc("PULL_MODE=NONE BANK_VCCIO=1.5"),
     ),
 ]
 
@@ -231,6 +216,24 @@ _dock_io = [
         IOStandard("LVCMOS33"),
         Misc("PULL_MODE=UP")
     ),
+
+    # RGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("H24")),
+        Subsignal("rx", Pins("C23")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("E17")),
+        Subsignal("mdio",    Pins("K22")),
+        Subsignal("mdc",     Pins("K23")),
+        Subsignal("rx_ctl",  Pins("C22")),
+        Subsignal("rx_data", Pins("B26 C26 D26 E26")),
+        Subsignal("tx_ctl",  Pins("J24")),
+        Subsignal("tx_data", Pins("K21 J21 L19 K18")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("ephy_clk", 0, Pins("E18"), IOStandard("LVCMOS33")),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
