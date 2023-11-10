@@ -102,7 +102,8 @@ class BaseSoC(SoCCore):
             # Ethernet PHY
             self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"))
+                pads       = self.platform.request("eth"),
+            )
 
             # Etherbone.
             self.add_etherbone(
@@ -111,10 +112,11 @@ class BaseSoC(SoCCore):
                 mac_address = 0x10e2d5000001,
                 data_width  = 8,
                 interface   = "hybrid",
-                endianness  = self.cpu.endianness)
+                endianness  = self.cpu.endianness
+            )
 
             # Software Interface.
-            ethmac = self.get_module("ethcore_etherbone").mac
+            self.ethmac = ethmac = self.get_module("ethcore_etherbone").mac
             ethmac_region_size = (ethmac.rx_slots.constant + ethmac.tx_slots.constant)*ethmac.slot_size.constant
             ethmac_region = SoCRegion(origin=self.mem_map.get("ethmac", None), size=ethmac_region_size, cached=False)
             self.bus.add_slave(name="ethmac", slave=ethmac.bus, region=ethmac_region)
