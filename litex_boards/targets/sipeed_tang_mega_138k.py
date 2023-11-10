@@ -22,7 +22,7 @@ from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII
 
-from litedram.modules import AS4C32M16, MT41K64M16
+from litedram.modules import AS4C32M16, MT41J256M16
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 from litedram.phy import GW5DDRPHY
 from litex.build.io import DDROutput
@@ -145,7 +145,7 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41K64M16(sys_clk_freq, "1:2"),
+                module        = MT41J256M16(sys_clk_freq, "1:2"),
                 l2_cache_size = 0#kwargs.get("l2_size", 8192)
             )
 
