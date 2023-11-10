@@ -35,24 +35,6 @@ _io = [
     ("led_n", 4,  Pins("N21"), IOStandard("LVCMOS33")),
     ("led_n", 5,  Pins("N23"), IOStandard("LVCMOS33")),
 
-    # RGMII Ethernet
-    ("eth_clocks", 0,
-        Subsignal("tx", Pins("H24")),
-        Subsignal("rx", Pins("C23")),
-        IOStandard("LVCMOS33")
-    ),
-    ("eth", 0,
-        Subsignal("rst_n",   Pins("E17")),
-        Subsignal("mdio",    Pins("K22")),
-        Subsignal("mdc",     Pins("K23")),
-        Subsignal("rx_ctl",  Pins("C22")),
-        Subsignal("rx_data", Pins("B26 C26 D26 E26")),
-        Subsignal("tx_ctl",  Pins("J24")),
-        Subsignal("tx_data", Pins("K21 J21 L19 K18")),
-        IOStandard("LVCMOS33"),
-    ),
-    ("ephy_clk", 0, Pins("E18"), IOStandard("LVCMOS33")),
-
     # DDR3 SDRAM H5TQ4G63EFR-RDC
     ("ddram", 0,
         Subsignal("a", Pins(
@@ -234,6 +216,24 @@ _dock_io = [
         IOStandard("LVCMOS33"),
         Misc("PULL_MODE=UP")
     ),
+
+    # RGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("H24")),
+        Subsignal("rx", Pins("C23")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("E17")),
+        Subsignal("mdio",    Pins("K22")),
+        Subsignal("mdc",     Pins("K23")),
+        Subsignal("rx_ctl",  Pins("C22")),
+        Subsignal("rx_data", Pins("B26 C26 D26 E26")),
+        Subsignal("tx_ctl",  Pins("J24")),
+        Subsignal("tx_data", Pins("K21 J21 L19 K18")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("ephy_clk", 0, Pins("E18"), IOStandard("LVCMOS33")),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
