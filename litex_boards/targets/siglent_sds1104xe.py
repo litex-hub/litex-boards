@@ -95,10 +95,8 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
-        # Etherbone --------------------------------------------------------------------------------
+        # Etherbone + Ethernet ---------------------------------------------------------------------
         if with_etherbone:
-            from litex.soc.integration.soc import SoCRegion
-
             # Ethernet PHY
             self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
@@ -111,20 +109,8 @@ class BaseSoC(SoCCore):
                 ip_address  = "192.168.1.51",
                 mac_address = 0x10e2d5000001,
                 data_width  = 8,
-                interface   = "hybrid",
-                endianness  = self.cpu.endianness
+                with_ethmac = True,
             )
-
-            # Software Interface.
-            self.ethmac = ethmac = self.get_module("ethcore_etherbone").mac
-            ethmac_region_size = (ethmac.rx_slots.constant + ethmac.tx_slots.constant)*ethmac.slot_size.constant
-            ethmac_region = SoCRegion(origin=self.mem_map.get("ethmac", None), size=ethmac_region_size, cached=False)
-            self.bus.add_slave(name="ethmac", slave=ethmac.bus, region=ethmac_region)
-            # Add IRQs (if enabled).
-            if self.irq.enabled:
-                self.irq.add("ethmac", use_loc_if_exists=True)
-
-            self.add_constant("ETH_PHY_NO_RESET") # Disable reset from BIOS to avoid disabling Hardware Interface.
 
         # Video ------------------------------------------------------------------------------------
         video_timings = ("800x480@60Hz", {
