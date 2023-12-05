@@ -32,6 +32,9 @@ class _CRG(LiteXModule):
         self.cd_sys4x  = ClockDomain()
         self.cd_idelay = ClockDomain()
 
+        # Clk.
+        clk200 = platform.request("sys_clk200")
+
         # # #
         # PLL.
         self.pll = pll = USMMCM(speedgrade=-2)
@@ -116,8 +119,7 @@ def main():
         **parser.soc_argdict
 	)
 
-    soc.platform.add_extension(alinx_axau15._sdcard_pmod_io)
-    soc.add_spi_sdcard()
+    soc.add_sdcard()
 
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
