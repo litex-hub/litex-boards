@@ -26,8 +26,8 @@ _io = [
     ("user_btn_2", 0, Pins("AA23"), IOStandard("LVCMOS33")),
 
     # Leds
-    ("user_led", 0, Pins("W21"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("AC16"), IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("W21"), IOStandard("LVCMOS18")),
+    ("user_led", 1, Pins("AC16"), IOStandard("LVCMOS18")),
 
         # Serial
     ("serial", 0,
@@ -58,7 +58,7 @@ _io = [
         Subsignal("we_n",    Pins("K26"), IOStandard("SSTL12_DCI")), 
         Subsignal("cs_n",    Pins("H23"), IOStandard("SSTL12_DCI")),
         Subsignal("act_n",   Pins("K25"), IOStandard("SSTL12_DCI")),
-        Subsignal("par",      Pins("L24"), IOStandard("SSTL12_DCI")),
+        #Subsignal("par",      Pins("L24"), IOStandard("SSTL12_DCI")),
         Subsignal("dm",      Pins("E25 L18"),
             IOStandard("POD12_DCI")),
         Subsignal("dq",      Pins(

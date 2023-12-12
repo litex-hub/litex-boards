@@ -23,6 +23,9 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT40A512M16
 from litedram.phy import usddrphy
 
+from litepcie.phy.usppciephy import USPPCIEPHY
+from litepcie.software import generate_litepcie_software
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -53,6 +56,7 @@ class BaseSoC(SoCCore):
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
         with_led_chaser        = True,
+        with_pcie              = True,
         **kwargs):
         platform = alinx_axau15.Platform()
 
@@ -75,6 +79,14 @@ class BaseSoC(SoCCore):
                 size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
+
+        # PCIe -------------------------------------------------------------------------------------
+        if with_pcie:
+            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+                speed      = "gen4",
+                data_width = 256,
+                bar0_size  = 0x20000)
+            self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # TODO: add SFP+ cages for ethernet
         # Ethernet / Etherbone ---------------------------------------------------------------------
@@ -101,6 +113,8 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alinx_axau15.Platform, description="LiteX SoC on AXAU15.")
     parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float, help="System clock frequency.")
+    parser.add_argument("--driver", action="store_true", help="Generate LitePCIe driver")
+
     #ethopts = parser.target_group.add_mutually_exclusive_group()
     #ethopts.add_argument("--with-ethernet",        action="store_true",    help="Enable Ethernet support.")
     #ethopts.add_argument("--with-etherbone",       action="store_true",    help="Enable Etherbone support.")
@@ -124,6 +138,9 @@ def main():
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
+
+    if args.driver:
+        generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()
