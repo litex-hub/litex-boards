@@ -165,7 +165,19 @@ def main():
     if args.flash:
         prog = soc.platform.create_programmer()
         prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
-        prog.flash(0, builder.get_bios_filename(), external=True)
+        if args.cpu_type != "gowin_emcu":
+            prog.flash(0, builder.get_bios_filename(), external=True)
+
+    if args.cpu_type == "gowin_emcu":
+        import time
+        bios_filename = builder.get_bios_filename()
+        msg = "\n"
+        msg += "Gowin EMCU firmware must be written in flash with:\n"
+        msg += f"openFPGALoader -b tangnano4k --mcufw {bios_filename}\n"
+        msg += "Warning: this will erase ALL the internal flash"
+        msg += "\n"
+        print(msg)
+        time.sleep(2)
 
 
 if __name__ == "__main__":
