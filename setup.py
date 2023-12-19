@@ -20,7 +20,7 @@ setup(
     download_url                  = "https://github.com/litex-hub/litex-boards",
     test_suite                    = "test",
     license                       = "BSD",
-    python_requires               = "~=3.6",
+    python_requires               = "~=3.7",
     install_requires              = ["litex"],
     include_package_data          = True,
     packages                      = find_packages(exclude=['test*']),
