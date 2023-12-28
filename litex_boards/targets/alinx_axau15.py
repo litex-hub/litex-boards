@@ -9,7 +9,6 @@
 import os
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -29,16 +28,17 @@ from litepcie.software import generate_litepcie_software
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
-        self.rst = Signal()
+    def __init__(self, platform, sys_clk_freq):
+        self.rst       = Signal()
         self.cd_sys    = ClockDomain()
         self.cd_sys4x  = ClockDomain()
         self.cd_idelay = ClockDomain()
 
-        # Clk.
-        clk200 = platform.request("sys_clk200")
-
         # # #
+
+        # Clk.
+        clk200 = platform.request("clk200")
+
         # PLL.
         self.pll = pll = USMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst)
@@ -52,11 +52,11 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(125e6),
-        with_ethernet          = False,
-        with_etherbone         = False,
-        eth_ip                 = "192.168.1.50",
-        with_led_chaser        = True,
-        with_pcie              = True,
+        with_ethernet   = False,
+        with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        with_led_chaser = True,
+        with_pcie       = True,
         **kwargs):
         platform = alinx_axau15.Platform()
 
@@ -88,8 +88,8 @@ class BaseSoC(SoCCore):
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
-        # TODO: add SFP+ cages for ethernet
         # Ethernet / Etherbone ---------------------------------------------------------------------
+        # TODO: add SFP+ cages for ethernet
         # if with_ethernet or with_etherbone:
         #     self.ethphy = KU_1000BASEX(self.crg.cd_eth.clk,
         #         data_pads    = self.platform.request("sfp", 0),
@@ -125,11 +125,11 @@ def main():
     #assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
-        sys_clk_freq           = args.sys_clk_freq,
-        #with_ethernet         = args.with_ethernet,
-        #with_etherbone        = args.with_etherbone,
-        #eth_ip                = args.eth_ip,
-        #eth_dynamic_ip        = args.eth_dynamic_ip,
+        sys_clk_freq    = args.sys_clk_freq,
+        #with_ethernet  = args.with_ethernet,
+        #with_etherbone = args.with_etherbone,
+        #eth_ip         = args.eth_ip,
+        #eth_dynamic_ip = args.eth_dynamic_ip,
         **parser.soc_argdict
 	)
 

@@ -10,42 +10,43 @@ from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk / Rst
-    ("sys_clk200", 0,
+    # Clk / Rst.
+    ("clk200", 0,
         Subsignal("p", Pins("T24"), IOStandard("LVDS")),
         Subsignal("n", Pins("U24"), IOStandard("LVDS"))
     ),
 
-    ("gth_clk156", 0,
+    ("clk156", 0,
         Subsignal("p", Pins("T7"), IOStandard("LVDS")),
         Subsignal("n", Pins("T6"), IOStandard("LVDS"))
     ),
 
-    # Buttons
-    ("user_btn_1", 0, Pins("N26"),  IOStandard("LVCMOS33")),
-    ("user_btn_2", 0, Pins("AA23"), IOStandard("LVCMOS33")),
+    # Buttons.
+    ("user_btn", 0, Pins("N26"),  IOStandard("LVCMOS33")),
+    ("user_btn", 1, Pins("AA23"), IOStandard("LVCMOS33")),
 
-    # Leds
+    # Leds.
     ("user_led", 0, Pins("W21"), IOStandard("LVCMOS18")),
     ("user_led", 1, Pins("AC16"), IOStandard("LVCMOS18")),
 
-        # Serial
+    # Serial.
     ("serial", 0,
-        Subsignal("tx",  Pins("A13")),
-        Subsignal("rx",  Pins("A12")),
+        Subsignal("tx", Pins("A13")),
+        Subsignal("rx", Pins("A12")),
         IOStandard("LVCMOS33")
     ),
 
+    # SDCard.
     ("sdcard", 0,
-            Subsignal("data", Pins(f"Y22 Y23 W20 W19"), Misc("PULLUP True")),
-            Subsignal("cmd",  Pins(f"AA24"), Misc("PULLUP True")),
-            Subsignal("clk",  Pins(f"AA25")),
-            Subsignal("cd",   Pins(f"Y25")),
-            Misc("SLEW=FAST"),
-            IOStandard("LVCMOS18"),
+        Subsignal("data", Pins("Y22 Y23 W20 W19"), Misc("PULLUP True")),
+        Subsignal("cmd",  Pins("AA24"),            Misc("PULLUP True")),
+        Subsignal("clk",  Pins("AA25")),
+        Subsignal("cd",   Pins("Y25")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS18"),
     ),
 
-    # DDR4 SDRAM MT40A512M16
+    # DDR4 SDRAM MT40A512M16.
     ("ddram", 0,
         Subsignal("a", Pins(
             "G25 M26 L25 E26 M25 F22 H26 F24",
@@ -83,6 +84,7 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
+    # SPIFlash.
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("AA12")),
         Subsignal("clk",  Pins("Y11")), 
@@ -90,7 +92,7 @@ _io = [
         IOStandard("LVCMOS18")
     ),
 
-    # RGMII Ethernet
+    # RGMII Ethernet.
     ("eth_clocks", 0,
         Subsignal("tx", Pins("AE16")),
         Subsignal("rx", Pins("AD21")),
@@ -107,7 +109,7 @@ _io = [
         Subsignal("tx_data", Pins("Y18 AA18 AB24 AC24"), IOStandard("LVCMOS18")),
     ),
 
-    # PCIe
+    # PCIe.
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("T19"), IOStandard("LVCMOS18")),
         Subsignal("clk_p", Pins("AB7")),
@@ -243,23 +245,23 @@ _connectors = [
         "LA32_N"        : "AD26",
         }
     ),
-    # ("XADC", {
-    #     "GPIO0"   : "AB25",
-    #     "GPIO1"   : "AA25",
-    #     "GPIO2"   : "AB28",
-    #     "GPIO3"   : "AA27",
-    #     "VAUX0_N" : "J24",
-    #     "VAUX0_P" : "J23",
-    #     "VAUX8_N" : "L23",
-    #     "VAUX8_P" : "L22",
-    #     }
-    # ),
+    ("XADC", {
+        "GPIO0"   : "AB25",
+        "GPIO1"   : "AA25",
+        "GPIO2"   : "AB28",
+        "GPIO3"   : "AA27",
+        "VAUX0_N" : "J24",
+        "VAUX0_P" : "J23",
+        "VAUX8_N" : "L23",
+        "VAUX8_P" : "L22",
+        }
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxUSPPlatform):
-    default_clk_name   = "sys_clk200"
+    default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
     def __init__(self, toolchain="vivado"):
@@ -270,5 +272,6 @@ class Platform(XilinxUSPPlatform):
 
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("sys_clk200", loose=True), 1e9/200e6)
-        #self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
+        self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)
+        self.add_period_constraint(self.lookup_request("clk156", loose=True), 1e9/156e6)
+        self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")
