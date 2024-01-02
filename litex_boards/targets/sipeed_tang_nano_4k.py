@@ -53,10 +53,10 @@ class _CRG(LiteXModule):
             self.cd_hdmi5x = ClockDomain()
             video_pll.create_clkout(self.cd_hdmi5x, 125e6)
             self.specials += Instance("CLKDIV",
-                p_DIV_MODE= "5",
-                i_RESETN = rst_n,
-                i_HCLKIN = self.cd_hdmi5x.clk,
-                o_CLKOUT = self.cd_hdmi.clk
+                p_DIV_MODE = "5",
+                i_RESETN   = rst_n,
+                i_HCLKIN   = self.cd_hdmi5x.clk,
+                o_CLKOUT   = self.cd_hdmi.clk,
             )
 
 # BaseSoC ------------------------------------------------------------------------------------------
@@ -85,23 +85,30 @@ class BaseSoC(SoCCore):
         if self.cpu_type == 'vexriscv':
             assert self.cpu_variant == 'minimal', 'use --cpu-variant=minimal to fit into number of BSRAMs'
 
-        # Gowin EMCU Integration -------------------------------------------------------------------
+        # Gowin EMCU -------------------------------------------------------------------------------
         if self.cpu_type == "gowin_emcu":
+            # Use EMCU's UART.
             self.cpu.connect_uart(platform.request("serial"))
+            # Use EMCU's SRAM.
             self.bus.add_region("sram", SoCRegion(
-                origin=self.cpu.mem_map["sram"],
-                size=16 * kB)
-            )
+                origin = self.cpu.mem_map["sram"],
+                size   = 16 * kB,
+            ))
+            # Use ECMU's FLASH as ROM.
             self.bus.add_region("rom", SoCRegion(
-                origin=self.cpu.mem_map["rom"],
-                size=32 * kB,
-                linker=True)
-            )
+                origin = self.cpu.mem_map["rom"],
+                size   = 32 * kB,
+                linker = True,
+            ))
+        # No Gowin EMCU ----------------------------------------------------------------------------
         else:
+            # Use SPI-Flash as ROM.
+
             # SPI Flash ----------------------------------------------------------------------------
             from litespi.modules import W25Q32
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
+
             # Add ROM linker region ----------------------------------------------------------------
             self.bus.add_region("rom", SoCRegion(
                 origin = self.bus.regions["spiflash"].origin,
@@ -143,9 +150,9 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_nano_4k.Platform, description="LiteX SoC on Tang Nano 4K.")
-    parser.add_target_argument("--flash",       action="store_true",        help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",default=27e6, type=float,   help="System clock frequency.")
-    parser.add_target_argument("--with-video-terminal",action="store_true", help="System clock frequency.")
+    parser.add_target_argument("--flash",               action="store_true",        help="Flash Bitstream and BIOS.")
+    parser.add_target_argument("--sys-clk-freq",        default=27e6, type=float,   help="System clock frequency.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",        help="Enable Video Terminal (HDMI).")
     args = parser.parse_args()
 
     soc = BaseSoC(
