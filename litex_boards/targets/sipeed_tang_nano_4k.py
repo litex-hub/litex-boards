@@ -170,22 +170,23 @@ def main():
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
-        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
+        prog               = soc.platform.create_programmer()
+        bitstream_filename = builder.get_bitstream_filename(mode="flash", ext=".fs") # FIXME
+        bios_filename      = builder.get_bios_filename()
         if args.cpu_type != "gowin_emcu":
-            prog.flash(0, builder.get_bios_filename(), external=True)
-
-    if args.cpu_type == "gowin_emcu":
-        import time
-        bios_filename = builder.get_bios_filename()
-        msg = "\n"
-        msg += "Gowin EMCU firmware must be written in flash with:\n"
-        msg += f"openFPGALoader -b tangnano4k --mcufw {bios_filename}\n"
-        msg += "Warning: this will erase ALL the internal flash"
-        msg += "\n"
-        print(msg)
-        time.sleep(2)
-
+            prog.flash(address=0, data_file=bitstream_filename)
+            prog.flash(address=0, data_file=bios_filename, external=True)
+        else:
+            prog.flash(
+                address   = 0,
+                data_file = bitstream_filename,
+                mcufw     = bios_filename,
+            )
+            # Note: Recommend using v0.11.0 version of openFPGALoader since probable regression with
+            # commit f71858f96a75c7c0a96f31a4ed3f167e4b914ef0.
+            # With recent version, in case of CRC check error, erase device with Gowin's programmer:
+            # sudo modprobe -r ftdi_sio
+            # ./programmer_cli -d GW1NSR-4C -r 7
 
 if __name__ == "__main__":
     main()
