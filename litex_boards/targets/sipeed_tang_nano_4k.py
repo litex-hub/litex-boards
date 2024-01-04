@@ -182,11 +182,6 @@ def main():
                 data_file = bitstream_filename,
                 mcufw     = bios_filename,
             )
-            # Note: Recommend using v0.11.0 version of openFPGALoader since probable regression with
-            # commit f71858f96a75c7c0a96f31a4ed3f167e4b914ef0.
-            # With recent version, in case of CRC check error, erase device with Gowin's programmer:
-            # sudo modprobe -r ftdi_sio
-            # ./programmer_cli -d GW1NSR-4C -r 7
 
 if __name__ == "__main__":
     main()
