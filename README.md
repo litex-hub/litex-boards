@@ -174,6 +174,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── machdyne_konfekt
     ├── machdyne_kopflos
     ├── machdyne_krote
+    ├── machdyne_minze
     ├── machdyne_mozart_ml1
     ├── machdyne_noir
     ├── machdyne_schoko
