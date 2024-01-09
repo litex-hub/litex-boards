@@ -22,6 +22,25 @@ _io = [
     ("user_led", 1, Pins("J5"),  IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("T9"),  IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("T10"), IOStandard("LVCMOS33")),
+    
+    ("analog", 0,
+    #Subsignal("usbdet_p", Pins("C3"), IOStandard("LVCMOS33")),  # DVT
+    #Subsignal("usbdet_n", Pins("A3"), IOStandard("LVCMOS33")),  # DVT
+    #Subsignal("vbus_div", Pins("C4"), IOStandard("LVCMOS33")),  # DVT
+    Subsignal("vaux0_n", Pins("C14"), IOStandard("LVCMOS33")),    # DVT
+    Subsignal("vaux4_n", Pins("C5"), IOStandard("LVCMOS33")),    # DVT
+    #Subsignal("noise1", Pins("A8"), IOStandard("LVCMOS33")),  # DVT
+    # diff grounds
+    #Subsignal("usbdet_p_n", Pins("B3"), IOStandard("LVCMOS33")),  # DVT
+    #Subsignal("usbdet_n_n", Pins("A2"), IOStandard("LVCMOS33")),  # DVT
+    #Subsignal("vbus_div_n", Pins("B4"), IOStandard("LVCMOS33")),  # DVT
+    Subsignal("vaux0_p", Pins("D14"), IOStandard("LVCMOS33")),      # DVT
+    Subsignal("vaux4_p", Pins("C6"), IOStandard("LVCMOS33")),      # DVT
+    #Subsignal("noise1_n", Pins("A7"), IOStandard("LVCMOS33")),    # DVT
+    # dedicated pins (no I/O standard applicable)
+    Subsignal("ana_vn", Pins("K9")),
+    Subsignal("ana_vp", Pins("J10")),
+    ),
 
     ("rgb_led", 0,
         Subsignal("r", Pins("G6")),
