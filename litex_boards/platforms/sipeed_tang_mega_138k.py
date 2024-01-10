@@ -27,6 +27,16 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # SPIFlash.
+    ("spiflash", 0,
+        Subsignal("cs_n",   Pins("P18"), IOStandard("LVCMOS33")),
+        Subsignal("clk",    Pins("H13"), IOStandard("LVCMOS33")),
+        Subsignal("miso",   Pins("R15"), IOStandard("LVCMOS33")),
+        Subsignal("mosi",   Pins("R14"), IOStandard("LVCMOS33")),
+        Subsignal("wp_n",   Pins("P14"), IOStandard("LVCMOS33")),
+        Subsignal("hold_n", Pins("N14"), IOStandard("LVCMOS33")),
+    ),
+
     # Leds
     ("led_n", 0,  Pins("J14"), IOStandard("LVCMOS33")),
     ("led_n", 1,  Pins("R26"), IOStandard("LVCMOS33")),
@@ -164,6 +174,10 @@ _connectors = [
 #       SOM.J3 -> dock.J8 odd/even revert
 
 _dock_io = [
+    ("btn_n", 0,  Pins( "J3:60"), IOStandard("LVCMOS33")),
+    ("btn_n", 1,  Pins( "J3:62"), IOStandard("LVCMOS33")),
+    ("btn_n", 2,  Pins( "J3:64"), IOStandard("LVCMOS33")),
+    ("btn_n", 3,  Pins( "J3:66"), IOStandard("LVCMOS33")),
     # HDMI In
     ("hdmi_in", 0,
         Subsignal("clk_p",   Pins("J1:107")),
@@ -236,6 +250,21 @@ _dock_io = [
     ("ephy_clk", 0, Pins("E18"), IOStandard("LVCMOS33")),
 ]
 
+_dock_connectors = [
+    ["sdram_connector",
+        # -------------------------------------------------------------
+        "---", # 0
+        #                                                     ( 1-10).
+        "  U16 V16  U15  V17  W21  Y21  P21  U17  P23  P24",
+        #  5V  GND                                            (11-20).
+        "  --- ---  T23  R23  R25  T25  W23  P25  U24  V23",
+        #                                                     (21-30).
+        " AC26 U25 AB25 AB26 AA25 AA24  Y26  Y25  L22  M24",
+        #                                                     (31-40).
+        "  W26 W25  U26  V26  W20  Y20  V19  W19  U22  V22",
+    ],
+]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(GowinPlatform):
@@ -245,7 +274,9 @@ class Platform(GowinPlatform):
     def __init__(self, dock="standard", toolchain="gowin"):
         GowinPlatform.__init__(self, "GW5AST-LV138FPG676AES", _io, _connectors, toolchain=toolchain, devicename="GW5AST-138B")
         self.add_extension(_dock_io)
+        self.add_connector(_dock_connectors)
 
+        self.toolchain.options["use_mspi_as_gpio"] = 1
         self.toolchain.options["use_sspi_as_gpio"] = 1
         self.toolchain.options["use_cpu_as_gpio"]  = 1
         self.toolchain.options["rw_check_on_ram"]  = 1
