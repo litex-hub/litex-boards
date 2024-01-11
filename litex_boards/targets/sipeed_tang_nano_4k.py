@@ -74,7 +74,6 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if "cpu_type" in kwargs and kwargs["cpu_type"] == "gowin_emcu":
-            kwargs["with_uart"]            = False # CPU has own UART
             kwargs["integrated_sram_size"] = 0     # SRAM is directly attached to CPU
             kwargs["integrated_rom_size"]  = 0     # boot flash directly attached to CPU
         else:
@@ -87,8 +86,6 @@ class BaseSoC(SoCCore):
 
         # Gowin EMCU -------------------------------------------------------------------------------
         if self.cpu_type == "gowin_emcu":
-            # Use EMCU's UART.
-            self.cpu.connect_uart(platform.request("serial"))
             # Use EMCU's SRAM.
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],
@@ -152,11 +149,13 @@ def main():
     parser = LiteXArgumentParser(platform=sipeed_tang_nano_4k.Platform, description="LiteX SoC on Tang Nano 4K.")
     parser.add_target_argument("--flash",               action="store_true",        help="Flash Bitstream and BIOS.")
     parser.add_target_argument("--sys-clk-freq",        default=27e6, type=float,   help="System clock frequency.")
+    parser.add_target_argument("--with-hyperram",       action="store_true",        help="Enable HyperRAM.")
     parser.add_target_argument("--with-video-terminal", action="store_true",        help="Enable Video Terminal (HDMI).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
+        with_hyperram       = args.with_hyperram,
         with_video_terminal = args.with_video_terminal,
         **parser.soc_argdict
     )
