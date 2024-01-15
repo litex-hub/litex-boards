@@ -37,6 +37,11 @@ _io = [
         Subsignal("hold_n", Pins("N14"), IOStandard("LVCMOS33")),
     ),
 
+    # PCI Express
+    ("pcie", 0,
+        Subsignal("rst_n", Pins("L23")),
+    ),
+
     # Leds
     ("led_n", 0,  Pins("J14"), IOStandard("LVCMOS33")),
     ("led_n", 1,  Pins("R26"), IOStandard("LVCMOS33")),
@@ -44,6 +49,9 @@ _io = [
     ("led_n", 3,  Pins("M25"), IOStandard("LVCMOS33")),
     ("led_n", 4,  Pins("N21"), IOStandard("LVCMOS33")),
     ("led_n", 5,  Pins("N23"), IOStandard("LVCMOS33")),
+
+    ("led_done", 0, Pins("W10"), IOStandard("LVCMOS33")),
+    ("led_ready", 0, Pins("V11"), IOStandard("LVCMOS33")),
 
     # DDR3 SDRAM H5TQ4G63EFR-RDC
     ("ddram", 0,
@@ -178,6 +186,27 @@ _dock_io = [
     ("btn_n", 1,  Pins( "J3:62"), IOStandard("LVCMOS33")),
     ("btn_n", 2,  Pins( "J3:64"), IOStandard("LVCMOS33")),
     ("btn_n", 3,  Pins( "J3:66"), IOStandard("LVCMOS33")),
+
+    # FAN
+    ("fan", 0,
+        Subsignal("pwm", Pins("T18")),
+        Subsignal("tac", Pins("T17")),
+        IOStandard("LVCMOS33")
+    ),
+
+    ("led_ws2812", 0, Pins("H16"), IOStandard("LVCMOS33")),
+
+    # LCD
+    ("lcd", 0,
+        Subsignal("r", Pins("H19 J19 G25 H18 J18 K17")),
+        Subsignal("g", Pins("J16 K15 F22 G22 G21 G20")),
+        Subsignal("b", Pins("F20 G19 F19 F18 M17 M16")),
+        Subsignal("en", Pins("A24")),
+        Subsignal("clk", Pins("H21")),
+        IOStandard("LVCMOS33"),
+        Misc("PULL_MODE=NONE DRIVE=24 BANK_VCCIO=3.3")
+    ),
+
     # HDMI In
     ("hdmi_in", 0,
         Subsignal("clk_p",   Pins("J1:107")),
@@ -276,13 +305,15 @@ class Platform(GowinPlatform):
         self.add_extension(_dock_io)
         self.add_connector(_dock_connectors)
 
-        self.toolchain.options["use_mspi_as_gpio"] = 1
-        self.toolchain.options["use_sspi_as_gpio"] = 1
-        self.toolchain.options["use_cpu_as_gpio"]  = 1
-        self.toolchain.options["rw_check_on_ram"]  = 1
-        self.toolchain.options["bit_security"]     = 0
-        self.toolchain.options["bit_encrypt"]      = 0
-        self.toolchain.options["bit_compress"]     = 0
+        self.toolchain.options["use_ready_as_gpio"] = 1
+        self.toolchain.options["use_done_as_gpio"]  = 1
+        self.toolchain.options["use_mspi_as_gpio"]  = 1
+        self.toolchain.options["use_sspi_as_gpio"]  = 1
+        self.toolchain.options["use_cpu_as_gpio"]   = 1
+        self.toolchain.options["rw_check_on_ram"]   = 1
+        self.toolchain.options["bit_security"]      = 0
+        self.toolchain.options["bit_encrypt"]       = 0
+        self.toolchain.options["bit_compress"]      = 0
 
     def create_programmer(self, kit="openfpgaloader"):
         return OpenFPGALoader(cable="ft2232")
