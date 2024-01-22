@@ -181,7 +181,7 @@ class BaseSoC(SoCCore):
             clk50_half = Signal()
             self.specials += Instance("CLKDIV",
                 p_DIV_MODE = "2",
-                i_HCLKIN   = self.crg.clk50,
+                i_HCLKIN   = platform.lookup_request("clk50"),
                 i_RESETN   = 1,
                 i_CALIB    = 0,
                 o_CLKOUT   = clk50_half)
@@ -191,19 +191,19 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, data_width=32)
 
-        if local_ip:
-            local_ip = local_ip.split(".")
-            self.add_constant("LOCALIP1", int(local_ip[0]))
-            self.add_constant("LOCALIP2", int(local_ip[1]))
-            self.add_constant("LOCALIP3", int(local_ip[2]))
-            self.add_constant("LOCALIP4", int(local_ip[3]))
+            if local_ip:
+                local_ip = local_ip.split(".")
+                self.add_constant("LOCALIP1", int(local_ip[0]))
+                self.add_constant("LOCALIP2", int(local_ip[1]))
+                self.add_constant("LOCALIP3", int(local_ip[2]))
+                self.add_constant("LOCALIP4", int(local_ip[3]))
 
-        if remote_ip:
-            remote_ip = remote_ip.split(".")
-            self.add_constant("REMOTEIP1", int(remote_ip[0]))
-            self.add_constant("REMOTEIP2", int(remote_ip[1]))
-            self.add_constant("REMOTEIP3", int(remote_ip[2]))
-            self.add_constant("REMOTEIP4", int(remote_ip[3]))
+            if remote_ip:
+                remote_ip = remote_ip.split(".")
+                self.add_constant("REMOTEIP1", int(remote_ip[0]))
+                self.add_constant("REMOTEIP2", int(remote_ip[1]))
+                self.add_constant("REMOTEIP3", int(remote_ip[2]))
+                self.add_constant("REMOTEIP4", int(remote_ip[3]))
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if with_sdram and not self.integrated_main_ram_size:
