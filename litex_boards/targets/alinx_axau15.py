@@ -56,7 +56,7 @@ class BaseSoC(SoCCore):
         with_etherbone  = False,
         eth_ip          = "192.168.1.50",
         with_led_chaser = True,
-        with_pcie       = True,
+        with_pcie       = False,
         **kwargs):
         platform = alinx_axau15.Platform()
 
@@ -145,7 +145,6 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
-        # TODO: add option for FrontPanel Programming
 
 if __name__ == "__main__":
     main()
