@@ -201,6 +201,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── qmtech_ep4ce15_starter_kit
     ├── qmtech_ep4cex5
     ├── qmtech_ep4cgx150
+    ├── qmtech_kintex7_devboard
     ├── qmtech_wukong
     ├── qmtech_xc7a35t
     ├── quicklogic_quickfeather
