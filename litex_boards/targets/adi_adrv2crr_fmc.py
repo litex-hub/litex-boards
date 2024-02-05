@@ -93,9 +93,9 @@ class BaseSoC(SoCCore):
         if with_pcie:
             assert self.csr_data_width == 32
 
-            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x8"),
                 speed = "gen3",
-                data_width = 128,
+                data_width = 256,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
