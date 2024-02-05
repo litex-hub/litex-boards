@@ -41,7 +41,7 @@ class CRG(LiteXModule):
 
         # # #
 
-        self.pll = pll = USPMMCM(speedgrade=-1)
+        self.pll = pll = USPMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("ddram_refclk", ddram_channel), 300e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
