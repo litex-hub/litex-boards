@@ -41,7 +41,7 @@ class CRG(LiteXModule):
 
         # # #
 
-        self.pll = pll = USPMMCM(speedgrade=-1)
+        self.pll = pll = USPMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("ddram_refclk", ddram_channel), 300e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
@@ -93,9 +93,9 @@ class BaseSoC(SoCCore):
         if with_pcie:
             assert self.csr_data_width == 32
 
-            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x8"),
                 speed = "gen3",
-                data_width = 128,
+                data_width = 256,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
