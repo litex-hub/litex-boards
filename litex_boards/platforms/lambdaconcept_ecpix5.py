@@ -54,11 +54,11 @@ _io = [
             "H2 L2 N1 J1 M1 K1 H1"),
             IOStandard("SSTL15_I")),
         Subsignal("ba",    Pins("U6 N3 N4"), IOStandard("SSTL15_I")),
-        Subsignal("ras_n", Pins("T3"), IOStandard("SSTL15_I")),
-        Subsignal("cas_n", Pins("P2"), IOStandard("SSTL15_I")),
-        Subsignal("we_n",  Pins("R3"), IOStandard("SSTL15_I")),
-        Subsignal("dm", Pins("U4 U1"), IOStandard("SSTL15_I")),
-        Subsignal("dq", Pins(
+        Subsignal("ras_n", Pins("T3"),       IOStandard("SSTL15_I")),
+        Subsignal("cas_n", Pins("P2"),       IOStandard("SSTL15_I")),
+        Subsignal("we_n",  Pins("R3"),       IOStandard("SSTL15_I")),
+        Subsignal("dm",    Pins("U4 U1"),    IOStandard("SSTL15_I")),
+        Subsignal("dq",    Pins(
             "T4 W4 R4 W5 R6 P6 P5 P4",
             "R1 W3 T2 V3 U3 W1 T1 W2",),
             IOStandard("SSTL15_I"),
@@ -105,10 +105,10 @@ _io = [
     ("sata", 0,
         Subsignal("clk_p", Pins("AF12")),
         Subsignal("clk_n", Pins("AF13")),
-        Subsignal("rx_p", Pins("AF15")),
-        Subsignal("rx_n", Pins("AF16")),
-        Subsignal("tx_p", Pins("AD16")),
-        Subsignal("tx_n", Pins("AD17")),
+        Subsignal("rx_p",  Pins("AF15")),
+        Subsignal("rx_n",  Pins("AF16")),
+        Subsignal("tx_p",  Pins("AD16")),
+        Subsignal("tx_n",  Pins("AD17")),
         IOStandard("LVCMOS33"),
     ),
 
@@ -117,13 +117,13 @@ _io = [
         Subsignal("cs_n", Pins("AA2")),
         Subsignal("mosi", Pins("AE2")),
         Subsignal("miso", Pins("AD2")),
-        Subsignal("wp", Pins("AF2")),
+        Subsignal("wp",   Pins("AF2")),
         Subsignal("hold", Pins("AE1")),
         IOStandard("LVCMOS33")
     ),
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("AA2")),
-        Subsignal("dq", Pins("AE2", "AD2", "AF2", "AE1")),
+        Subsignal("dq",   Pins("AE2 AD2 AF2 AE1")),
         IOStandard("LVCMOS33")
     ),
 
@@ -140,15 +140,15 @@ _io = [
 
     # HDMI / IT6613
     ("hdmi", 0,
-        Subsignal("r", Pins("AD26 AE25 AF25 AE26 E10 D11 D10 C10  D9  E8 H5 J4")),
-        Subsignal("g", Pins("AA23 AA22 AA24 AA25  E1  F2  F1 D17 D16 E16 J6 H6")),
-        Subsignal("b", Pins("AD25 AC26 AB24 AB25  B3  C3  D3  B1  C2  D2 D1 E3")),
+        Subsignal("r",     Pins("AD26 AE25 AF25 AE26 E10 D11 D10 C10  D9  E8 H5 J4")),
+        Subsignal("g",     Pins("AA23 AA22 AA24 AA25  E1  F2  F1 D17 D16 E16 J6 H6")),
+        Subsignal("b",     Pins("AD25 AC26 AB24 AB25  B3  C3  D3  B1  C2  D2 D1 E3")),
         Subsignal("de",    Pins("A3")),
         Subsignal("clk",   Pins("C1")),
         Subsignal("vsync", Pins("A4")),
         Subsignal("hsync", Pins("B4")),
-        Subsignal("sda", Pins("E17")),
-        Subsignal("scl", Pins("C17")),
+        Subsignal("sda",   Pins("E17")),
+        Subsignal("scl",   Pins("C17")),
         IOStandard("LVCMOS33")
     ),
 ]
@@ -159,7 +159,7 @@ _connectors = [
     ("pmod0", "T25 U25 U24 V24 T26 U26 V26 W26"),
     ("pmod1", "U23 V23 U22 V21 W25 W24 W23 W22"),
     ("pmod2", "J24 H22 E21 D18 K22 J21 H21 D22"),
-    ("pmod3", "E4 F4 E6 H4 F3 D4 D5 F5"),
+    ("pmod3", " E4  F4  E6  H4  F3  D4  D5  F5"),
     ("pmod4", "E26 D25 F26 F25 C26 C25 A25 A24"),
     ("pmod5", "D19 C21 B21 C22 D21 A21 A22 A23"),
     ("pmod6", "C16 B17 C18 B19 A17 A18 A19 C19"),
