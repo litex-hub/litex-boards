@@ -75,7 +75,9 @@ class BaseSoC(SoCCore):
         with_dna        = False,
         with_ethernet   = False,
         with_etherbone  = False,
+        with_hybrid     = False,
         eth_ip          = "192.168.1.50",
+        remote_ip       = None,
         eth_dynamic_ip  = False,
         with_led_chaser = True,
         with_spi_flash  = False,
@@ -113,14 +115,14 @@ class BaseSoC(SoCCore):
             )
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
-        if with_ethernet or with_etherbone:
+        if with_ethernet or with_etherbone or with_hybrid:
             self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
-            if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+            if with_etherbone or with_hybrid:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=True)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -160,10 +162,13 @@ def main():
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-xadc",    action="store_true",       help="Enable 7-Series XADC.")
     parser.add_target_argument("--with-dna",     action="store_true",       help="Enable 7-Series DNA.")
+    parser.add_target_argument("--with-usb",     action="store_true",       help="Enable USB Host.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",        action="store_true",    help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",       action="store_true",    help="Enable Etherbone support.")
+    ethopts.add_argument("--with-hybrid",          action="store_true",    help="Enable Etherbone+Ethernet support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",       action="store_true", help="Enable SPI-mode SDCard support.")
@@ -183,7 +188,9 @@ def main():
         with_dna       = args.with_dna,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
+        with_hybrid    = args.with_hybrid,
         eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         with_spi_flash = args.with_spi_flash,
         with_pmod_gpio = args.with_pmod_gpio,
@@ -197,6 +204,36 @@ def main():
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
+
+    # USB Host ---------------------------------------------------------------------------------
+    if args.with_usb:
+        from litex.soc.cores.usb_ohci import USBOHCI
+        from litex.build.generic_platform import Subsignal, Pins, IOStandard
+
+        soc.crg.clock_domains.cd_usb = ClockDomain()
+        soc.crg.pll.create_clkout(soc.crg.cd_usb, 48e6, margin=0)
+
+        # Machdyne PMOD (https://github.com/machdyne/usb_host_dual_socket_pmod)
+        _usb_pmod_ios = [
+            ("usb_pmoda", 0, # USB1 (top socket)
+                Subsignal("dp", Pins("pmoda:2")),
+                Subsignal("dm", Pins("pmoda:3")),
+                IOStandard("LVCMOS33"),
+            ),
+            ("usb_pmoda", 1, # USB2 (bottom socket)
+                Subsignal("dp", Pins("pmoda:0")),
+                Subsignal("dm", Pins("pmoda:1")),
+                IOStandard("LVCMOS33"),
+            )
+        ]
+        soc.platform.add_extension(_usb_pmod_ios)
+        soc.submodules.usb_ohci = USBOHCI(soc.platform, soc.platform.request("usb_pmoda", 0), usb_clk_freq=int(48e6))
+        soc.mem_map["usb_ohci"] = 0xc0000000
+        soc.bus.add_slave("usb_ohci_ctrl", soc.usb_ohci.wb_ctrl, region=SoCRegion(origin=soc.mem_map["usb_ohci"], size=0x100000, cached=False)) # FIXME: Mapping.
+        soc.dma_bus.add_master("usb_ohci_dma", master=soc.usb_ohci.wb_dma)
+
+        soc.comb += soc.cpu.interrupt[16].eq(soc.usb_ohci.interrupt)
+
 
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
