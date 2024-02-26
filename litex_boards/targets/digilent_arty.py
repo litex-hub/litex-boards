@@ -75,7 +75,6 @@ class BaseSoC(SoCCore):
         with_dna        = False,
         with_ethernet   = False,
         with_etherbone  = False,
-        with_hybrid     = False,
         eth_ip          = "192.168.1.50",
         remote_ip       = None,
         eth_dynamic_ip  = False,
@@ -116,14 +115,14 @@ class BaseSoC(SoCCore):
             )
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
-        if with_ethernet or with_etherbone or with_hybrid:
+        if with_ethernet or with_etherbone:
             self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            if with_ethernet:
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            elif with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
-            if with_etherbone or with_hybrid:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=True)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -188,25 +187,23 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_arty.Platform, description="LiteX SoC on Arty A7.")
-    parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
-    parser.add_target_argument("--variant",      default="a7-35",           help="Board variant (a7-35 or a7-100).")
-    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-xadc",    action="store_true",       help="Enable 7-Series XADC.")
-    parser.add_target_argument("--with-dna",     action="store_true",       help="Enable 7-Series DNA.")
-    parser.add_target_argument("--with-usb",     action="store_true",       help="Enable USB Host.")
-    ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",        action="store_true",    help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",       action="store_true",    help="Enable Etherbone support.")
-    ethopts.add_argument("--with-hybrid",          action="store_true",    help="Enable Etherbone+Ethernet support.")
-    parser.add_target_argument("--eth-ip",         default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--variant",        default="a7-35",           help="Board variant (a7-35 or a7-100).")
+    parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-xadc",      action="store_true",       help="Enable 7-Series XADC.")
+    parser.add_target_argument("--with-dna",       action="store_true",       help="Enable 7-Series DNA.")
+    parser.add_target_argument("--with-usb",       action="store_true",       help="Enable USB Host.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",       action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",           action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--sdcard-adapter",                      help="SDCard PMOD adapter (digilent or numato).")
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
-    parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    sdopts.add_argument("--with-spi-sdcard",       action="store_true",       help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",           action="store_true",       help="Enable SDCard support.")
+    parser.add_target_argument("--sdcard-adapter",                            help="SDCard PMOD adapter (digilent or numato).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-pmod-gpio", action="store_true",       help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -219,7 +216,6 @@ def main():
         with_dna       = args.with_dna,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
-        with_hybrid    = args.with_hybrid,
         eth_ip         = args.eth_ip,
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
