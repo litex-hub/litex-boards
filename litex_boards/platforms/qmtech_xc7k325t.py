@@ -16,6 +16,10 @@ _io = [
     # Clk / Rst
     ("clk50", 0, Pins("F22"), IOStandard("LVCMOS33")),
 
+    # Buttons
+    ("user_btn_n", 0, Pins("AF9"),   IOStandard("LVCMOS33")),
+    ("user_btn_n", 1, Pins("AF10"),  IOStandard("LVCMOS33")),
+
     # The core board does not have a USB serial on it,
     # so you will have to attach an USB to serial adapter
     # on these pins
