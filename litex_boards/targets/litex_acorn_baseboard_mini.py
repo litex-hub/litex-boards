@@ -46,7 +46,7 @@ _serial_io = [
 # CRG ----------------------------------------------------------------------------------------------
 
 class CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_eth=False):
         self.rst          = Signal()
         self.cd_sys       = ClockDomain()
         self.cd_sys4x     = ClockDomain()
@@ -71,10 +71,18 @@ class CRG(LiteXModule):
         self.comb += self.cd_idelay.clk.eq(clk200_se)
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
+        # Eth PLL.
+        if with_eth:
+            self.cd_eth_ref = ClockDomain()
+            self.eth_pll = eth_pll = S7PLL()
+            self.comb += eth_pll.reset.eq(self.rst)
+            eth_pll.register_clkin(clk200_se, 200e6)
+            eth_pll.create_clkout(self.cd_eth_ref, 156.25e6, margin=0)
+
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="cle-215+", sys_clk_freq=156.25e6,
+    def __init__(self, variant="cle-215+", sys_clk_freq=125.00e6,
         with_ethernet   = False,
         with_etherbone  = False,
         eth_ip          = "192.168.1.50",
@@ -86,7 +94,7 @@ class BaseSoC(SoCCore):
         platform.add_extension(_serial_io, prepend=True)
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = CRG(platform, sys_clk_freq)
+        self.crg = CRG(platform, sys_clk_freq, with_eth=with_ethernet or with_etherbone)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Acorn CLE-101/215(+)", **kwargs)
@@ -121,14 +129,14 @@ class BaseSoC(SoCCore):
                 fbdiv_45   = 4,
                 refclk_div = 1
             )
-            qpll = QPLL(ClockSignal("sys"), qpll_settings)
+            qpll = QPLL(self.crg.cd_eth_ref.clk, qpll_settings)
             print(qpll)
             self.submodules += qpll
 
             self.ethphy = A7_1000BASEX(
                 qpll_channel = qpll.channels[0],
                 data_pads    = self.platform.request("sfp"),
-                sys_clk_freq = self.clk_freq,
+                sys_clk_freq = sys_clk_freq,
                 rx_polarity  = 1,  # Inverted on Acorn.
                 tx_polarity  = 0   # Inverted on Acorn and on baseboard.
             )
@@ -152,7 +160,7 @@ def main():
     parser = LiteXArgumentParser(platform=sqrl_acorn.Platform, description="LiteX SoC on Acorn CLE-101/215(+).")
     parser.add_target_argument("--flash",          action="store_true",          help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="cle-215+",           help="Board variant (cle-215+, cle-215 or cle-101).")
-    parser.add_target_argument("--sys-clk-freq",   default=156.25e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",   default=125.00e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true",          help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",          help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",       help="Ethernet/Etherbone IP address.")
