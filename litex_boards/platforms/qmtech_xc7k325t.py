@@ -140,13 +140,11 @@ class Platform(XilinxPlatform):
     core_resources_daughterboard = [
         ("onboard_led_1", 0, Pins("J26"), IOStandard("LVCMOS33")),
         ("onboard_led_2", 0, Pins("H26"), IOStandard("LVCMOS33")),
-        ("cpu_reset", 0, Pins("AD21"), IOStandard("LVCMOS33")),
     ]
 
     core_resources_standalone = [
         ("user_led", 0, Pins("J26"), IOStandard("LVCMOS33")),
         ("user_led", 1, Pins("H26"), IOStandard("LVCMOS33")),
-        ("cpu_reset", 0, Pins("AD21"), IOStandard("LVCMOS33")),
     ]
 
     def __init__(self, toolchain="vivado", with_daughterboard=False):
