@@ -19,6 +19,7 @@ class TestTargets(unittest.TestCase):
         "qmtech_rp2040_daughterboard",       # Reason: Not a real platform.
         "enclustra_st1",                     # Readon: Not a real platform.
         "quicklogic_quickfeather",           # Reason: No default clock.
+        "colognechip_gatemate_evb",          # Reason: toolchain not yet mainlined
         "efinix_titanium_ti60_f225_dev_kit", # Reason: Require Efinity toolchain.
         "efinix_trion_t120_bga576_dev_kit",  # Reason: Require Efinity toolchain.
         "efinix_trion_t20_bga256_dev_kit",   # Reason: Require Efinity toolchain.
@@ -33,6 +34,7 @@ class TestTargets(unittest.TestCase):
     excluded_targets   = [
         "simple",                            # Reason: Generic target.
         "quicklogic_quickfeather",           # Reason: No default clock.
+        "colognechip_gatemate_evb",          # Reason: toolchain not yet mainlined
         "efinix_titanium_ti60_f225_dev_kit", # Reason: Require Efinity toolchain.
         "efinix_trion_t120_bga576_dev_kit",  # Reason: Require Efinity toolchain.
         "efinix_trion_t20_bga256_dev_kit",   # Reason: Require Efinity toolchain.
