@@ -89,6 +89,7 @@ class BaseSoC(SoCCore):
         remote_ip       = None,
         eth_dynamic_ip  = False,
         with_led_chaser = True,
+        with_sata       = False, sata_gen="gen2",
         **kwargs):
         platform = Platform(variant=variant)
         platform.add_extension(_serial_io, prepend=True)
@@ -147,6 +148,42 @@ class BaseSoC(SoCCore):
             elif with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
+        # SATA -------------------------------------------------------------------------------------
+        if with_sata:
+            from litex.build.generic_platform import Subsignal, Pins
+            from litesata.phy import LiteSATAPHY
+
+            # IOs
+            _sata_io = [
+                ("sata", 0,
+                    # Inverted on Acorn.
+                    Subsignal("tx_p",  Pins("B6")),
+                    Subsignal("tx_n",  Pins("A5")),
+                    # Inverted on Acorn.
+                    Subsignal("rx_p",  Pins("B10")),
+                    Subsignal("rx_n",  Pins("A10")),
+                ),
+            ]
+            platform.add_extension(_sata_io)
+
+            # RefClk, generate 150MHz from PLL.
+            self.cd_sata_refclk = ClockDomain()
+            self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
+            sata_refclk = ClockSignal("sata_refclk")
+            platform.add_platform_command("set_property SEVERITY {{WARNING}} [get_drc_checks REQP-49]")
+
+            # PHY
+            self.sata_phy = LiteSATAPHY(platform.device,
+                refclk     = sata_refclk,
+                pads       = platform.request("sata"),
+                gen        = sata_gen,
+                clk_freq   = sys_clk_freq,
+                data_width = 16
+            )
+
+            # Core
+            self.add_sata(phy=self.sata_phy, mode="read+write")
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -166,6 +203,8 @@ def main():
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",       help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",      help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",          help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--with-sata",      action="store_true",          help="Enable SATA support (over FMCRAID).")
+    parser.add_target_argument("--sata-gen",       default="2",                  help="SATA Gen.", choices=["1", "2"])
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -176,6 +215,8 @@ def main():
         eth_ip         = args.eth_ip,
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
+        with_sata      = args.with_sata,
+        sata_gen       = "gen" + args.sata_gen,
         **parser.soc_argdict
     )
 
