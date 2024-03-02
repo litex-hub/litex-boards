@@ -111,6 +111,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── berkeleylab_marblemini
     ├── berkeleylab_marble
     ├── camlink_4k
+    ├── colognechip_gatemate_evb
     ├── colorlight_5a_75b
     ├── colorlight_5a_75e
     ├── colorlight_i5
