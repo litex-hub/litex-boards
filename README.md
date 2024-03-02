@@ -192,6 +192,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── numato_nereid
     ├── numato_tagus
     ├── ocp_tap_timecard
+    ├── olimex_gatemate_a1_evb
     ├── opalkelly_xem8320
     ├── pano_logic_g2
     ├── qmtech_10cl006
