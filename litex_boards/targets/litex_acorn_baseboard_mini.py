@@ -10,6 +10,7 @@ from migen import *
 
 from litex.gen import *
 
+from litex.build.generic_platform import Subsignal, Pins
 from litex.build.io import DifferentialInput
 from litex.build.openocd import OpenOCD
 
@@ -29,6 +30,8 @@ from litedram.phy import s7ddrphy
 
 from liteeth.phy.a7_gtp import QPLLSettings, QPLL
 from liteeth.phy.a7_1000basex import A7_1000BASEX
+
+from litesata.phy import LiteSATAPHY
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -150,9 +153,6 @@ class BaseSoC(SoCCore):
 
         # SATA -------------------------------------------------------------------------------------
         if with_sata:
-            from litex.build.generic_platform import Subsignal, Pins
-            from litesata.phy import LiteSATAPHY
-
             # IOs
             _sata_io = [
                 ("sata", 0,
