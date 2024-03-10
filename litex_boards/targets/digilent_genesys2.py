@@ -21,6 +21,11 @@ from litedram.modules import MT41J256M16
 from litedram.phy import s7ddrphy
 
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
+from litex.build.generic_platform import Subsignal, Pins, IOStandard
+from ctucan import CTUCAN, CTUCANWishboneWrapper
+from litex.soc.integration.soc import SoCRegion
+
+
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -87,6 +92,14 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+def can_io():
+    return [(
+        "can",
+        0,
+        Subsignal("rx", Pins("pmodc:pmodc1")),
+        Subsignal("tx", Pins("pmodc:pmodc2")),
+        IOStandard("LVCMOS33"),
+    )]
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -99,14 +112,25 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-ctucan", action="store_true", help="Enable CTUCAN.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
+        with_ctucan = args.with_ctucan,
         **parser.soc_argdict
     )
+
+    if args.with_ctucan:
+        soc.platform.add_extension(can_io())
+        can_pads = soc.platform.request("can")
+        soc.submodules.can = CTUCAN(soc.platform, can_pads, "vhdl")
+        can_region = SoCRegion(origin=soc.mem_map.get("can", None), size=soc.can.wbwrapper.size, cached=False)
+        soc.bus.add_slave(name="can", slave=soc.can.wbwrapper.bus, region=can_region)
+        soc.irq.add("can")
+
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
