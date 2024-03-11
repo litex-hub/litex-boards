@@ -28,7 +28,7 @@ from litedram.phy import ECP5DDRPHY
 # CRG ---------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
+    def __init__(self, platform, sys_clk_freq, with_usb_pll=False, with_dfu_rst=True):
         self.rst    = Signal()
         self.cd_por = ClockDomain()
         self.cd_sys = ClockDomain()
@@ -38,7 +38,7 @@ class _CRG(LiteXModule):
         # Clk / Rst
         clk48 = platform.request("clk48")
         rst_n = platform.request("usr_btn", loose=True)
-        if rst_n is None: rst_n = 1
+        if (rst_n is None) or (not with_dfu_rst): rst_n = 1
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)
@@ -65,15 +65,15 @@ class _CRG(LiteXModule):
             usb_pll.create_clkout(self.cd_usb_12, 12e6)
 
         # FPGA Reset (press usr_btn for 1 second to fallback to bootloader)
-        reset_timer = WaitTimer(48e6)
-        reset_timer = ClockDomainsRenamer("por")(reset_timer)
-        self.submodules += reset_timer
-        self.comb += reset_timer.wait.eq(~rst_n)
-        self.comb += platform.request("rst_n").eq(~reset_timer.done)
-
+        if with_dfu_rst:
+            reset_timer = WaitTimer(48e6)
+            reset_timer = ClockDomainsRenamer("por")(reset_timer)
+            self.submodules += reset_timer
+            self.comb += reset_timer.wait.eq(~rst_n)
+            self.comb += platform.request("rst_n").eq(~reset_timer.done)
 
 class _CRGSDRAM(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_usb_pll=False):
+    def __init__(self, platform, sys_clk_freq, with_usb_pll=False, with_dfu_rst=True):
         self.rst = Signal()
         self.cd_init     = ClockDomain()
         self.cd_por      = ClockDomain()
@@ -89,7 +89,7 @@ class _CRGSDRAM(LiteXModule):
         # Clk / Rst
         clk48 = platform.request("clk48")
         rst_n = platform.request("usr_btn", loose=True)
-        if rst_n is None: rst_n = 1
+        if (rst_n is None) or (not with_dfu_rst): rst_n = 1
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)
@@ -135,24 +135,26 @@ class _CRGSDRAM(LiteXModule):
             usb_pll.create_clkout(self.cd_usb_12, 12e6)
 
         # FPGA Reset (press usr_btn for 1 second to fallback to bootloader)
-        reset_timer = WaitTimer(48e6)
-        reset_timer = ClockDomainsRenamer("por")(reset_timer)
-        self.submodules += reset_timer
-        self.comb += reset_timer.wait.eq(~rst_n)
-        self.comb += platform.request("rst_n").eq(~reset_timer.done)
+        if with_dfu_rst:
+            reset_timer = WaitTimer(48e6)
+            reset_timer = ClockDomainsRenamer("por")(reset_timer)
+            self.submodules += reset_timer
+            self.comb += reset_timer.wait.eq(~rst_n)
+            self.comb += platform.request("rst_n").eq(~reset_timer.done)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, revision="0.2", device="25F", sys_clk_freq=48e6, toolchain="trellis",
         sdram_device    = "MT41K64M16",
+        with_dfu_rst    = True,
         with_led_chaser = True,
         **kwargs):
         platform = gsd_orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         crg_cls      = _CRGSDRAM if kwargs.get("integrated_main_ram_size", 0) == 0 else _CRG
-        self.crg = crg_cls(platform, sys_clk_freq, with_usb_pll=True)
+        self.crg = crg_cls(platform, sys_clk_freq, with_usb_pll=True, with_dfu_rst=with_dfu_rst)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Defaults to USB ACM through ValentyUSB.
@@ -204,6 +206,7 @@ def main():
     parser.add_target_argument("--device",          default="25F",            help="ECP5 device (25F, 45F or 85F).")
     parser.add_target_argument("--sdram-device",    default="MT41K64M16",     help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--without-dfu-rst", action="store_true",      help="Disable DFU Reset when pressing Button for 1s.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -212,6 +215,7 @@ def main():
         device       = args.device,
         sdram_device = args.sdram_device,
         sys_clk_freq = args.sys_clk_freq,
+        with_dfu_rst = not args.without_dfu_rst,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
