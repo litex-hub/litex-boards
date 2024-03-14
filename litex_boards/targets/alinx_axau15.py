@@ -46,6 +46,8 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_sys,    sys_clk_freq, with_reset=False)
         pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
+
+        # IDelayCtrl.
         self.idelayctrl = USIDELAYCTRL(cd_ref=self.cd_sys4x, cd_sys=self.cd_sys)
 
 # BaseSoC ------------------------------------------------------------------------------------------
@@ -64,15 +66,15 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "serial"
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on AXAU15", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AXAU15", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             self.ddrphy = usddrphy.USPDDRPHY(platform.request("ddram"),
                 memtype          = "DDR4",
                 sys_clk_freq     = sys_clk_freq,
-                iodelay_clk_freq = 500e6)
+                iodelay_clk_freq = 500e6
+            )
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = MT40A512M16(sys_clk_freq, "1:4"),

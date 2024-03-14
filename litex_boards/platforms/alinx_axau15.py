@@ -16,7 +16,7 @@ _io = [
         Subsignal("n", Pins("U24"), IOStandard("LVDS"))
     ),
 
-    ("clk156", 0,
+    ("clk156p25", 0,
         Subsignal("p", Pins("T7"), IOStandard("LVDS")),
         Subsignal("n", Pins("T6"), IOStandard("LVDS"))
     ),
@@ -26,7 +26,7 @@ _io = [
     ("user_btn", 1, Pins("AA23"), IOStandard("LVCMOS33")),
 
     # Leds.
-    ("user_led", 0, Pins("W21"), IOStandard("LVCMOS18")),
+    ("user_led", 0, Pins("W21"),  IOStandard("LVCMOS18")),
     ("user_led", 1, Pins("AC16"), IOStandard("LVCMOS18")),
 
     # Serial.
