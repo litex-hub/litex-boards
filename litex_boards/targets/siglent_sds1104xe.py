@@ -16,6 +16,20 @@
 # Test Console:
 # litex_server --udp
 # litex_term crossover
+#
+#
+# With Jtagbone ------------------------------------------------------------------------------------
+# Build/Load bitstream:
+# ./siglent_sds1104xe.py --with-jtagbone --uart-name=crossover --csr-csv=csr.csv --build --load
+#
+# In a first terminal:
+# litex_server --jtag --jtag-config openocd_xc7z_ft232.cfg
+#
+# In a second terminal:
+# litex_cli --regs # to dump all registers
+# Or
+# litex_term crossover # to have access to LiteX bios
+#
 # --------------------------------------------------------------------------------------------------
 
 from migen import *
