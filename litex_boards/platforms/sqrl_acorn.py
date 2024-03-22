@@ -116,6 +116,8 @@ class Platform(Xilinx7SeriesPlatform):
             "cle-215+": "xc7a200t-fbg484-3"
         }[variant]
 
+        self.variant = variant
+
         Xilinx7SeriesPlatform.__init__(self, device, _io, toolchain=toolchain)
         self.add_extension(_serial_io)
         self.add_extension(_sdcard_io)
@@ -146,8 +148,13 @@ class Platform(Xilinx7SeriesPlatform):
         ]
 
     def create_programmer(self, name='openocd'):
+        proxy = {
+	    "cle-101":  "bscan_spi_xc7a100t.bit",
+	    "cle-215":  "bscan_spi_xc7a200t.bit",
+            "cle-215+": "bscan_spi_xc7a200t.bit"
+	}[self.variant]
         if name == 'openocd':
-            return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a200t.bit")
+            return OpenOCD("openocd_xc7_ft232.cfg", proxy)
         elif name == 'vivado':
             # TODO: some board versions may have s25fl128s
             return VivadoProgrammer(flash_part='s25fl256sxxxxxx0-spi-x1_x2_x4')
