@@ -22,6 +22,8 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT40A512M16
 from litedram.phy import usddrphy
 
+from liteeth.phy.usrgmii import LiteEthPHYRGMII
+
 from litepcie.phy.usppciephy import USPPCIEPHY
 from litepcie.software import generate_litepcie_software
 
@@ -57,6 +59,7 @@ class BaseSoC(SoCCore):
         with_ethernet   = False,
         with_etherbone  = False,
         eth_ip          = "192.168.1.50",
+        remote_ip       = None,
         with_led_chaser = True,
         with_pcie       = False,
         **kwargs):
@@ -91,17 +94,18 @@ class BaseSoC(SoCCore):
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
-        # TODO: add SFP+ cages for ethernet
-        # if with_ethernet or with_etherbone:
-        #     self.ethphy = KU_1000BASEX(self.crg.cd_eth.clk,
-        #         data_pads    = self.platform.request("sfp", 0),
-        #         sys_clk_freq = self.clk_freq)
-        #     self.comb += self.platform.request("sfp_tx_disable_n", 0).eq(1)
-        #     self.platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-1753]")
-        #     if with_ethernet:
-        #         self.add_ethernet(phy=self.ethphy)
-        #     if with_etherbone:
-        #         self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+        if with_ethernet or with_etherbone:
+            self.ethphy = LiteEthPHYRGMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"),
+                tx_delay   = 1e-9,
+                rx_delay   = 1e-9,
+                usp        = True
+            )
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, remote_ip=remote_ip)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -117,21 +121,23 @@ def main():
     parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float, help="System clock frequency.")
     parser.add_argument("--driver", action="store_true", help="Generate LitePCIe driver")
 
-    #ethopts = parser.target_group.add_mutually_exclusive_group()
-    #ethopts.add_argument("--with-ethernet",        action="store_true",    help="Enable Ethernet support.")
-    #ethopts.add_argument("--with-etherbone",       action="store_true",    help="Enable Etherbone support.")
-    #parser.add_target_argument("--eth-ip",         default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    #parser.add_target_argument("--eth-dynamic-ip", action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",        action="store_true",      help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",       action="store_true",      help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
     args = parser.parse_args()
 
-    #assert not (args.with_etherbone and args.eth_dynamic_ip)
+    assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
-        sys_clk_freq    = args.sys_clk_freq,
-        #with_ethernet  = args.with_ethernet,
-        #with_etherbone = args.with_etherbone,
-        #eth_ip         = args.eth_ip,
-        #eth_dynamic_ip = args.eth_dynamic_ip,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
         **parser.soc_argdict
 	)
 

@@ -100,7 +100,7 @@ _io = [
     ),
     ("eth", 0,
         Subsignal("rst_n",   Pins("AF23"), IOStandard("LVCMOS18")),
-        Subsignal("int_n",   Pins("AK16"), IOStandard("LVCMOS18")),
+        #Subsignal("int_n",   Pins(""), IOStandard("LVCMOS18")),
         Subsignal("mdio",    Pins("AE18"), IOStandard("LVCMOS18")),
         Subsignal("mdc",     Pins("AF20"), IOStandard("LVCMOS18")),
         Subsignal("rx_ctl",  Pins("AE21"), IOStandard("LVCMOS18")),
