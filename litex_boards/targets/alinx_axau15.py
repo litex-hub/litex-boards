@@ -24,7 +24,7 @@ from litedram.phy import usddrphy
 
 from liteeth.phy.usrgmii import LiteEthPHYRGMII
 
-from litepcie.phy.usppciephy import USPPCIEPHY
+from litepcie.phy.usppciephy import USPHBMPCIEPHY # FIXME: Use proper name.
 from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = USPHBMPCIEPHY(platform, platform.request("pcie_x4"),
                 speed      = "gen3",
                 data_width = 128,
                 bar0_size  = 0x20000)
@@ -119,14 +119,14 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alinx_axau15.Platform, description="LiteX SoC on AXAU15.")
     parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float, help="System clock frequency.")
-    parser.add_argument("--driver", action="store_true", help="Generate LitePCIe driver")
-
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",        action="store_true",      help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",       action="store_true",      help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--with-pcie",      action="store_true",      help="Enable PCIe support.")
+    parser.add_target_argument("--driver",         action="store_true",      help="Generate PCIe driver.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -138,6 +138,7 @@ def main():
         eth_ip         = args.eth_ip,
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
+        with_pcie      = args.with_pcie,
         **parser.soc_argdict
 	)
 
