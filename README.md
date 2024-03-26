@@ -256,6 +256,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── xilinx_sp605
     ├── xilinx_vc707
     ├── xilinx_vcu118
+    ├── xilinx_zc706
     ├── xilinx_zcu102
     ├── xilinx_zcu104
     ├── xilinx_zcu106
