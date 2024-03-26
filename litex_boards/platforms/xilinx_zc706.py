@@ -12,7 +12,7 @@ from litex.build.openfpgaloader import OpenFPGALoader
 
 _io = [
     # Clk / Rst.
-    ("sysclk", 0,
+    ("clk200", 0,
         Subsignal("p", Pins("H9"), IOStandard("LVDS")),
         Subsignal("n", Pins("G9"), IOStandard("LVDS")),
     ),
@@ -34,17 +34,17 @@ _io = [
     ("user_btn_r", 0, Pins("R27"),  IOStandard("LVCMOS25")),
 
     # Switches.
-    ("user_dip_btn", 3, Pins("AJ13"), IOStandard("LVCMOS25")),
-    ("user_dip_btn", 2, Pins("AC17"), IOStandard("LVCMOS25")),
-    ("user_dip_btn", 1, Pins("AC16"), IOStandard("LVCMOS25")),
     ("user_dip_btn", 0, Pins("AB17"), IOStandard("LVCMOS25")),
+    ("user_dip_btn", 1, Pins("AC16"), IOStandard("LVCMOS25")),
+    ("user_dip_btn", 2, Pins("AC17"), IOStandard("LVCMOS25")),
+    ("user_dip_btn", 3, Pins("AJ13"), IOStandard("LVCMOS25")),
 
     # SMA.
     ("user_sma_clock", 0,
-        Subsignal("p", Pins("AD18"), IOStandard("LVDS_25"),
-            Misc("DIFF_TERM=TRUE")),
-        Subsignal("n", Pins("AD19"), IOStandard("LVDS_25"),
-            Misc("DIFF_TERM=TRUE")),
+        Subsignal("p", Pins("AD18")),
+        Subsignal("n", Pins("AD19")),
+        IOStandard("LVDS_25"),
+        Misc("DIFF_TERM=TRUE")
     ),
     ("user_sma_clock_p", Pins("AD18"), IOStandard("LVCMOS25")),
     ("user_sma_clock_n", Pins("AD19"), IOStandard("LVCMOS25")),
@@ -82,6 +82,7 @@ _io = [
     ),
 
     # SFP.
+    ("sfp_tx_disable_n", 0, Pins("AA18"), IOStandard("LVCMOS25")),
     ("sfp", 0,
         Subsignal("txp", Pins("W4")),
         Subsignal("txn", Pins("W3")),
@@ -96,7 +97,6 @@ _io = [
         Subsignal("p", Pins("Y6")),
         Subsignal("n", Pins("Y5")),
     ),
-    ("sfp_tx_disable_n", 0, Pins("AA18"), IOStandard("LVCMOS25")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -323,7 +323,7 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
-    default_clk_name   = "sysclk"
+    default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
     def __init__(self, toolchain="vivado"):
@@ -334,4 +334,4 @@ class Platform(Xilinx7SeriesPlatform):
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("sysclk", loose=True), 1e9/200e6)
+        self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)

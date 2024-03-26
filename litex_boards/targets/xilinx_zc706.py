@@ -34,14 +34,18 @@ from litex.soc.cores.led import LedChaser
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst       = Signal()
-        self.cd_sys    = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
 
+        # Clk/Rst.
+        clk200 = platform.request("clk200")
+
+        # PLL.
         self.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(self.rst)
-        pll.register_clkin(platform.request("sysclk"), 200e6)
+        pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
@@ -57,7 +61,7 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZCU102", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZCU706", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -70,7 +74,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_zc706.Platform, description="LiteX SoC on ZC706.")
-    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock generator.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(sys_clk_freq=args.sys_clk_freq, **parser.soc_argdict)
