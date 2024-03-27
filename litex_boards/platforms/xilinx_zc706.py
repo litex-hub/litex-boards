@@ -49,6 +49,48 @@ _io = [
     ("user_sma_clock_p", Pins("AD18"), IOStandard("LVCMOS25")),
     ("user_sma_clock_n", Pins("AD19"), IOStandard("LVCMOS25")),
 
+    # FAN.
+    ("fan", 0,
+        Subsignal("tach",  Pins("AA19")),
+        Subsignal("pwm_n", Pins("AB19")),
+        IOStandard("LVCMOS18")
+    ),
+
+    # DDR3 SDRAM.
+    ("ddram", 0
+        Subsignal("a", Pins(
+            "E10 B9 E11 A9 D11  B6  F9 E8",
+            "B10 J8 D6  B7 H12 A10 G11 C6"),
+            IOStandard("SSTL15")),
+        Subsignal("ba",      Pins("F8 H7 A7"),    IOStandard("SSTL15")),
+        Subsignal("ras_n",   Pins("H11"),      IOStandard("SSTL15")),
+        Subsignal("cas_n",   Pins("E7"),       IOStandard("SSTL15")),
+        Subsignal("we_n",    Pins("F7"),     IOStandard("SSTL15")),
+        Subsignal("cs_n",    Pins("J11 H8"), IOStandard("SSTL15")),
+        Subsignal("dm",      Pins("J3 F2 E1 C2 L12 G14 C16 C11"),
+            IOStandard("SSTL15")),
+        Subsignal("dq",      Pins(
+            " L1  L2  K5  J4  K1  L3  J5  K6",
+            " G6  H4  H6  H3  G1  H2  G5  G4",
+            " E2  E3  D4  E5  F4  F3  D1  D3",
+            " A2  B2  B4  B5  A3  B1  C1  C4",
+            "K10  L9 K12  J9 K11 L10 J10  L7",
+            "F14 F15 F13 G16 G15 E12 D13 E13",
+            "D15 E15 D16 E16 C17 B16 D14 B17",
+            "B12 C12 A12 A14 A13 B11 C14 B14",
+            IOStandard("SSTL15")),
+        Subsignal("dqs_p",   Pins("K3 J1 E6 A5 L8 G12 F17 B15"),
+            IOStandard("SSTL15")),
+        Subsignal("dqs_n",   Pins("K2 H1 D5 A4 K8 F12 E17 A15"),
+            IOStandard("SSTL15")),
+        Subsignal("clk_p",   Pins("G10 D9"), IOStandard("DIFF_SSTL15")),
+        Subsignal("clk_n",   Pins("F10 D8"), IOStandard("DIFF_SSTL15")),
+        Subsignal("cke",     Pins("D10 C7"), IOStandard("SSTL15")),
+        Subsignal("odt",     Pins("G7 C9"),  IOStandard("SSTL15")),
+        Subsignal("reset_n", Pins("G17"),    IOStandard("LVCMOS15")),
+        Misc("SLEW=FAST"),
+    ),
+
     # PCIe.
     ("pcie_x1", 0,
         Subsignal("rst_n",  Pins("AK23"), IOStandard("LVCMOS25")),
@@ -79,6 +121,20 @@ _io = [
         Subsignal("tx_n",   Pins("N3 P1 R3 T1")),
         Subsignal("rx_p",   Pins("P6 T6 U4 V6")),
         Subsignal("rx_n",   Pins("P5 T5 U3 V5")),
+    ),
+
+    # SMA.
+    ("user_sma_mgt_refclk", 0,
+        Subsignal("p", Pins("W7")),
+        Subsignal("n", Pins("W8"))
+    ),
+    ("user_sma_mgt_tx", 0,
+        Subsignal("p", Pins("Y2")),
+        Subsignal("n", Pins("Y1"))
+    ),
+    ("user_sma_mgt_rx", 0,
+        Subsignal("p", Pins("AB6")),
+        Subsignal("n", Pins("AB5"))
     ),
 
     # SFP.
