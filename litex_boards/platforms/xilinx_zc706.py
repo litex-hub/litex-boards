@@ -57,17 +57,18 @@ _io = [
     ),
 
     # DDR3 SDRAM.
-    ("ddram", 0
+    ("ddram", 0,
         Subsignal("a", Pins(
             "E10 B9 E11 A9 D11  B6  F9 E8",
             "B10 J8 D6  B7 H12 A10 G11 C6"),
             IOStandard("SSTL15")),
-        Subsignal("ba",      Pins("F8 H7 A7"),    IOStandard("SSTL15")),
-        Subsignal("ras_n",   Pins("H11"),      IOStandard("SSTL15")),
-        Subsignal("cas_n",   Pins("E7"),       IOStandard("SSTL15")),
-        Subsignal("we_n",    Pins("F7"),     IOStandard("SSTL15")),
-        Subsignal("cs_n",    Pins("J11 H8"), IOStandard("SSTL15")),
-        Subsignal("dm",      Pins("J3 F2 E1 C2 L12 G14 C16 C11"),
+        Subsignal("ba",      Pins("F8 H7 A7"), IOStandard("SSTL15")),
+        Subsignal("ras_n",   Pins("H11"), IOStandard("SSTL15")),
+        Subsignal("cas_n",   Pins("E7"),  IOStandard("SSTL15")),
+        Subsignal("we_n",    Pins("F7"),  IOStandard("SSTL15")),
+        Subsignal("cs_n",    Pins("J11"), IOStandard("SSTL15")), # J11 H8
+        Subsignal("dm",      Pins(
+            "J3 F2 E1 C2 L12 G14 C16 C11"),
             IOStandard("SSTL15")),
         Subsignal("dq",      Pins(
             " L1  L2  K5  J4  K1  L3  J5  K6",
@@ -77,18 +78,19 @@ _io = [
             "K10  L9 K12  J9 K11 L10 J10  L7",
             "F14 F15 F13 G16 G15 E12 D13 E13",
             "D15 E15 D16 E16 C17 B16 D14 B17",
-            "B12 C12 A12 A14 A13 B11 C14 B14",
-            IOStandard("SSTL15")),
+            "B12 C12 A12 A14 A13 B11 C14 B14"),
+            IOStandard("SSTL15_T_DCI")),
         Subsignal("dqs_p",   Pins("K3 J1 E6 A5 L8 G12 F17 B15"),
-            IOStandard("SSTL15")),
+            IOStandard("DIFF_SSTL15")),
         Subsignal("dqs_n",   Pins("K2 H1 D5 A4 K8 F12 E17 A15"),
-            IOStandard("SSTL15")),
-        Subsignal("clk_p",   Pins("G10 D9"), IOStandard("DIFF_SSTL15")),
-        Subsignal("clk_n",   Pins("F10 D8"), IOStandard("DIFF_SSTL15")),
-        Subsignal("cke",     Pins("D10 C7"), IOStandard("SSTL15")),
-        Subsignal("odt",     Pins("G7 C9"),  IOStandard("SSTL15")),
-        Subsignal("reset_n", Pins("G17"),    IOStandard("LVCMOS15")),
+            IOStandard("DIFF_SSTL15")),
+        Subsignal("clk_p",   Pins("G10"), IOStandard("DIFF_SSTL15")), # G10 D9
+        Subsignal("clk_n",   Pins("F10"), IOStandard("DIFF_SSTL15")), # F10 D8
+        Subsignal("cke",     Pins("D10"), IOStandard("SSTL15")),      # D10 C7
+        Subsignal("odt",     Pins("G7"),  IOStandard("SSTL15")),      # G7 C9
+        Subsignal("reset_n", Pins("G17"), IOStandard("LVCMOS15")),
         Misc("SLEW=FAST"),
+        Misc("VCCAUX_IO=HIGH")
     ),
 
     # PCIe.
@@ -391,3 +393,4 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)
+        self.add_platform_command("set_property DCI_CASCADE {{34}} [get_iobanks 33]")
