@@ -40,14 +40,20 @@ class _CRG(LiteXModule):
 
         # # #
 
+        # Clk/Rst.
+        clk200 = platform.request("clk200")
+        rst    = platform.request("cpu_reset")
+
+        # PLL.
         self.pll = pll = S7MMCM(speedgrade=-2)
-        self.comb += pll.reset.eq(platform.request("cpu_reset") | self.rst)
-        pll.register_clkin(platform.request("clk200"), 200e6)
+        self.comb += pll.reset.eq(rst | self.rst)
+        pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)
         pll.create_clkout(self.cd_idelay, 200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
+        # IDelayCtrl.
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
