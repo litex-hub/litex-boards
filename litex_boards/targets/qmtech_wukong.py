@@ -74,7 +74,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=125e6, board_version=1, speedgrade=-2,
+    def __init__(self, sys_clk_freq=100e6, revision=1, speedgrade=-2,
         with_ethernet          = False,
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
@@ -83,7 +83,7 @@ class BaseSoC(SoCCore):
         with_video_framebuffer = False,
         video_timing           = "640x480@60Hz",
         **kwargs):
-        platform = qmtech_wukong.Platform(board_version=board_version,speedgrade=speedgrade)
+        platform = qmtech_wukong.Platform(revision=revision,speedgrade=speedgrade)
 
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = (with_video_terminal or with_video_framebuffer)
@@ -93,7 +93,7 @@ class BaseSoC(SoCCore):
         )
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident=f"LiteX SoC on QMTECH Wukong Board V{board_version}", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident=f"LiteX SoC on QMTECH Wukong Board V{revision}", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -138,8 +138,8 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_wukong.Platform, description="LiteX SoC on QMTECH Wukong Board.")
     parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--board-version",   default=1,                 help="Board version (1 , 2 or 3).")
-    parser.add_target_argument("--speedgrade",      default=-1,                help="FPGA speedgrade (-1 or -2).")
+    parser.add_target_argument("--revision",        default=1,                 help="Board version (1 , 2 or 3).")
+    parser.add_target_argument("--speedgrade",      default=-1,    type=int,   help="FPGA speedgrade (-1 or -2).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",       help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",        action="store_true",       help="Enable Etherbone support.")
@@ -154,7 +154,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq           = args.sys_clk_freq,
-        board_version          = int(args.board_version),
+        revision               = int(args.revision),
         speedgrade             = args.speedgrade,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
@@ -167,7 +167,7 @@ def main():
         soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
         soc.add_spi_sdcard()
     if args.with_sdcard:
-        if int(args.board_version) == 1:
+        if int(args.revision) == 1:
             soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
         soc.add_sdcard()
 

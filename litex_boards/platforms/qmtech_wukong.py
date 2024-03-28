@@ -223,7 +223,7 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self, board_version=1, speedgrade=-2, toolchain="vivado"):
+    def __init__(self, revision=1, speedgrade=-2, toolchain="vivado"):
         # Check Speedgrade.
         if speedgrade not in [-1,-2]:
             raise ValueError(f"Speedgrade {speedgrade} unsupported.")
@@ -233,7 +233,7 @@ class Platform(Xilinx7SeriesPlatform):
             1 : _io_v1,
             2 : _io_v2,
             3 : _io_v3,
-        }[board_version])
+        }[revision])
         # Create Platform.
         Xilinx7SeriesPlatform.__init__(self, f"xc7a100t{speedgrade}fgg676", io, _connectors,  toolchain=toolchain)
 
@@ -244,7 +244,7 @@ class Platform(Xilinx7SeriesPlatform):
             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 16]")
-        if board_version == 1:
+        if revision == 1:
             self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk50_IBUF]")
         self.add_platform_command("set_property CFGBVS VCCO [current_design]")
         self.add_platform_command("set_property CONFIG_VOLTAGE 3.3 [current_design]")
