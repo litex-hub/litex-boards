@@ -23,8 +23,7 @@ from litex.soc.cores.gpio import GPIOIn
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
 
-from liteeth.phy import LiteEthPHY
-from liteeth.phy import LiteEthPHYMII
+from liteeth.phy import LiteEthPHYGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -110,10 +109,9 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.ethphy = LiteEthPHY(
+            self.ethphy = LiteEthPHYGMII(
                 clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"),
-                clk_freq   = sys_clk_freq)
+                pads       = self.platform.request("eth"))
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, nrxslots=2, local_ip=eth_ip, remote_ip=remote_ip)
             if with_etherbone:
