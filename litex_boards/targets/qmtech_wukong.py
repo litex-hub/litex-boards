@@ -43,11 +43,11 @@ class _CRG(LiteXModule):
 
         # Clk/Rst.
         clk50 = platform.request("clk50")
-        rst = platform.request("cpu_reset")
+        rst_n = platform.request("cpu_reset")
 
         # Main PLL.
         self.pll = pll = S7MMCM(speedgrade=speed_grade)
-        self.comb += pll.reset.eq(~rst | self.rst)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
@@ -55,7 +55,7 @@ class _CRG(LiteXModule):
 
         # IDelay PLL.
         self.pll_idelay = pll_idelay = S7PLL(speedgrade=speed_grade)
-        self.comb += pll_idelay.reset.eq(~rst | self.rst)
+        self.comb += pll_idelay.reset.eq(~rst_n | self.rst)
         pll_idelay.register_clkin(clk50, 50e6)
         pll_idelay.create_clkout(self.cd_idelay, 200e6)
         pll_idelay.create_clkout(self.cd_clk100, 100e6)
@@ -66,7 +66,7 @@ class _CRG(LiteXModule):
         # Video PLL.
         if with_video_pll:
             self.video_pll = video_pll = S7MMCM(speedgrade=speed_grade)
-            self.comb += video_pll.reset.eq(~rst | self.rst)
+            self.comb += video_pll.reset.eq(~rst_n | self.rst)
             video_pll.register_clkin(clk50, 50e6)
             video_pll.create_clkout(self.cd_hdmi,   pix_clk)
             video_pll.create_clkout(self.cd_hdmi5x, 5*pix_clk)
@@ -74,7 +74,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=100e6, board_version=1, speedgrade=-2,
+    def __init__(self, sys_clk_freq=125e6, board_version=1, speedgrade=-2,
         with_ethernet          = False,
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
@@ -138,7 +138,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_wukong.Platform, description="LiteX SoC on QMTECH Wukong Board.")
     parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--board-version",   default=1,                 help="Board version (1 or 2).")
+    parser.add_target_argument("--board-version",   default=1,                 help="Board version (1 , 2 or 3).")
     parser.add_target_argument("--speedgrade",      default=-1,                help="FPGA speedgrade (-1 or -2).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",         action="store_true",       help="Enable Ethernet support.")
@@ -167,7 +167,7 @@ def main():
         soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
         soc.add_spi_sdcard()
     if args.with_sdcard:
-        if int(args.board_version) < 2:
+        if int(args.board_version) == 1:
             soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
         soc.add_sdcard()
 
