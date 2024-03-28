@@ -10,32 +10,32 @@ from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
-# IOs specific to V1 of the board
+# IOs specific to V1 of the board.
 _io_v1 = [
-    # Reset (Key1 button)
-    ("cpu_reset",  0, Pins("J8"),  IOStandard("LVCMOS33")),  # key1
+    # Reset (Key1 button).
+    ("cpu_reset", 0, Pins("J8"),  IOStandard("LVCMOS33")),
 
-    #Clock
-    ("clk50"   ,   0, Pins("M22"), IOStandard("LVCMOS33")),
+    # Clock.
+    ("clk50"   ,  0, Pins("M22"), IOStandard("LVCMOS33")),
 
-    # Leds
-    ("user_led",   0, Pins("J6"),   IOStandard("LVCMOS33")),
-    ("user_led",   1, Pins("H6"),   IOStandard("LVCMOS33")),
+    # Leds.
+    ("user_led",  0, Pins("J6"),   IOStandard("LVCMOS33")),
+    ("user_led",  1, Pins("H6"),   IOStandard("LVCMOS33")),
 ]
 
-# IOs specific to V2 of the board
+# IOs specific to V2 of the board.
 _io_v2 = [
-    # Reset (Key1 button)
+    # Reset (Key1 button).
     ("cpu_reset",  0, Pins("M6"),  IOStandard("LVCMOS33")),
 
-    # Clock
+    # Clock.
     ("clk50"   ,   0, Pins("M21"), IOStandard("LVCMOS33")),
 
-    # Leds
+    # Leds.
     ("user_led",   0, Pins("V16"),   IOStandard("LVCMOS33")),
     ("user_led",   1, Pins("V17"),   IOStandard("LVCMOS33")),
 
-    # SD-Card
+    # SD-Card.
     ("sdcard", 0,
      Subsignal("data", Pins("M5 M7 H6 J6")),
      Subsignal("cmd",  Pins("J8")),
@@ -46,19 +46,19 @@ _io_v2 = [
      ),
 ]
 
-# IO commons to both versions of the board
+# IO commons to both versions of the board.
 _io_common = [
-    # Key0 button (Key1 is used as cpu reset and is version specific)
+    # Key0 button (Key1 is used as cpu reset and is version specific).
     ("user_btn",   0, Pins("H7"),   IOStandard("LVCMOS33")),
 
-    # Serial
+    # Serial.
     ("serial", 0,
         Subsignal("tx", Pins("E3")),
         Subsignal("rx", Pins("F3")),
         IOStandard("LVCMOS33"),
     ),
 
-    # SPIFlash
+    # SPIFlash.
     ("spiflash", 0,
         Subsignal("cs_n", Pins("P18")),
         Subsignal("clk",  Pins("H13")),
@@ -75,7 +75,7 @@ _io_common = [
         IOStandard("LVCMOS33")
     ),
 
-    # DDR3 SDRAM
+    # DDR3 SDRAM.
     ("ddram", 0,
         Subsignal("a", Pins(
             "E17 G17 F17 C17 G16 D16 H16 E16",
@@ -108,7 +108,7 @@ _io_common = [
         Misc("SLEW=FAST"),
     ),
 
-    # GMII Ethernet
+    # GMII Ethernet.
     ("eth_clocks", 0,
         Subsignal("tx", Pins("M2")),
         Subsignal("gtx", Pins("U1")),
@@ -130,7 +130,7 @@ _io_common = [
         IOStandard("LVCMOS33")
     ),
 
-    # HDMI out
+    # HDMI out.
     ("hdmi_out", 0,
         Subsignal("clk_p",   Pins("D4"), IOStandard("TMDS_33")),
         Subsignal("clk_n",   Pins("C4"), IOStandard("TMDS_33")),
@@ -157,7 +157,7 @@ _connectors = [
             " V26  W26  U25  U26  V24  W24  V23  W23",
             " V18  W18  U22  V22  U21  V21  T20  U20",
             " T19 U19"),
-    ("jp2", "H21 H22 K21 J21 H26 G26 G25 F25",
+    ("jp2", " H21 H22 K21 J21 H26 G26 G25 F25",
             "G20 G21 F23 E23 E26 D26 E25 D25"),
     ("jp3", " AF7  AE7  AD8  AC8  AF9  AE9 AD10 AC10",
             "AA11 AB11 AF11 AE11 AD14 AC14 AF13 AE13",
@@ -200,13 +200,15 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self, board_version=1, speed_grade=-2, toolchain="vivado"):
+    def __init__(self, board_version=1, speedgrade=-2, toolchain="vivado"):
         io = _io_common
+        if speedgrade not in [-1,-2]:
+            raise ValueError(f"Speedgrade {speedgrade} unsupported.")
         if board_version < 2:
             io.extend(_io_v1)
         else:
             io.extend(_io_v2)
-        Xilinx7SeriesPlatform.__init__(self, "xc7a100t{}fgg676".format(speed_grade), io, _connectors,  toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, "xc7a100t{}fgg676".format(speedgrade), io, _connectors,  toolchain=toolchain)
 
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
