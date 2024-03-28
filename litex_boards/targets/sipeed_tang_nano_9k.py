@@ -73,7 +73,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM
-        kwargs["integrated_rom_size"] = 0
+        # kwargs["integrated_rom_size"] = 0
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano 9K", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
@@ -82,12 +82,12 @@ class BaseSoC(SoCCore):
         self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
 
         # Add ROM linker region --------------------------------------------------------------------
-        self.bus.add_region("rom", SoCRegion(
-            origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 64*kB,
-            linker = True)
-        )
-        self.cpu.set_reset_address(self.bus.regions["rom"].origin)
+        #self.bus.add_region("rom", SoCRegion(
+        #    origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
+        #    size   = 64*kB,
+        #    linker = True)
+        #)
+        #self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
         # HyperRAM ---------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
