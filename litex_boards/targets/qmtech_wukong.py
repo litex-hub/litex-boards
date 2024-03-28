@@ -78,6 +78,7 @@ class BaseSoC(SoCCore):
         with_ethernet          = False,
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
+        remote_ip              = None,
         with_led_chaser        = True,
         with_video_terminal    = False,
         with_video_framebuffer = False,
@@ -114,7 +115,7 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"),
                 clk_freq   = sys_clk_freq)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, nrxslots=2)
+                self.add_ethernet(phy=self.ethphy, nrxslots=2, local_ip=eth_ip, remote_ip=remote_ip)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
@@ -144,6 +145,7 @@ def main():
     ethopts.add_argument("--with-ethernet",         action="store_true",       help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",        action="store_true",       help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",          default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100",   help="Remote IP address of TFTP server.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",        action="store_true",       help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",            action="store_true",       help="Enable SDCard support.")
@@ -159,6 +161,7 @@ def main():
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
+        remote_ip              = args.remote_ip,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
