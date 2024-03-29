@@ -93,7 +93,7 @@ class BaseSoC(SoCCore):
 
         # When nor jtagbone, nor etherbone are set forces jtagbone.
         kwargs["uart_name"]     = "crossover"
-        if kwargs["with_jtagbone"] or with_etherbone:
+        if not (kwargs["with_jtagbone"] or with_etherbone):
             kwargs["with_jtagbone"] = True
 
         # CRG --------------------------------------------------------------------------------------
