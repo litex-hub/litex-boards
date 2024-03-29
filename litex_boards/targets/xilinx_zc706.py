@@ -89,16 +89,16 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZCU706", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
-        if not self.integrated_main_ram_size:
-            self.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
-                memtype      = "DDR3",
-                nphases      = 4,
-                sys_clk_freq = sys_clk_freq)
-            self.add_sdram("sdram",
-                phy           = self.ddrphy,
-                module        = MT8JTF12864(sys_clk_freq, "1:4"),
-                l2_cache_size = kwargs.get("l2_size", 8192)
-            )
+        #if not self.integrated_main_ram_size:
+        #    self.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
+        #        memtype      = "DDR3",
+        #        nphases      = 4,
+        #        sys_clk_freq = sys_clk_freq)
+        #    self.add_sdram("sdram",
+        #        phy           = self.ddrphy,
+        #        module        = MT8JTF12864(sys_clk_freq, "1:4"),
+        #        l2_cache_size = kwargs.get("l2_size", 8192)
+        #    )
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
