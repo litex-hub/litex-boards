@@ -130,7 +130,7 @@ class Platform(AlteraPlatform):
         ),
     ]
 
-    def __init__(self, variant="ep4ce15", toolchain="quartus", with_daughterboard=False):
+    def __init__(self, variant="ep4ce15", toolchain="quartus", with_daughterboard=False, with_core_resources=True):
         device = {
             "ep4ce15": "EP4CE15F23C8",
             "ep4ce55": "EP4CE55F23C8"
@@ -143,7 +143,7 @@ class Platform(AlteraPlatform):
             daughterboard = QMTechDaughterboard(IOStandard("3.3-V LVTTL"))
             io += daughterboard.io
             connectors += daughterboard.connectors
-        else:
+        elif with_core_resources:
             io += self.core_resources
 
         AlteraPlatform.__init__(self, device, io, connectors, toolchain=toolchain)

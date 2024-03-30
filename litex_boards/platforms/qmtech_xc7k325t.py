@@ -151,7 +151,7 @@ class Platform(XilinxPlatform):
         ("user_led", 1, Pins("H26"), IOStandard("LVCMOS33")),
     ]
 
-    def __init__(self, toolchain="vivado", with_daughterboard=False):
+    def __init__(self, toolchain="vivado", with_daughterboard=False, with_core_resources=True):
         device = "xc7k325tffg676-1"
         io = _io
         connectors = _connectors
@@ -162,7 +162,7 @@ class Platform(XilinxPlatform):
             daughterboard = QMTechDaughterboard(IOStandard("LVCMOS33"))
             io += daughterboard.io
             connectors += daughterboard.connectors
-        else:
+        elif with_core_resources:
             io += self.core_resources_standalone
 
         XilinxPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
