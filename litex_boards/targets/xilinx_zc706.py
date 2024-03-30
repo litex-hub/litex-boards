@@ -100,7 +100,7 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZCU706", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZC706", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         #if not self.integrated_main_ram_size:
