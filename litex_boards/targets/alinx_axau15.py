@@ -24,7 +24,7 @@ from litedram.phy import usddrphy
 
 from liteeth.phy.usrgmii import LiteEthPHYRGMII
 
-from litepcie.phy.usppciephy import USPHBMPCIEPHY # FIXME: Use proper name.
+from litepcie.phy.usppciephy import USPPCIEPHY
 from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -87,10 +87,12 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.pcie_phy = USPHBMPCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
                 speed      = "gen3",
                 data_width = 128,
-                bar0_size  = 0x20000)
+                ip_name    = "pcie4c_uscale_plus",
+                bar0_size  = 0x20000,
+            )
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
             # Set manual locations to avoid Vivado to remap lanes to X0Y4, X0Y5, X0Y6, X0Y7.
