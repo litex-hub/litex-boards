@@ -6,7 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.openocd import OpenOCD
+from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -127,8 +127,8 @@ class Platform(Xilinx7SeriesPlatform):
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
 
-    def create_programmer(self, cfg="openocd_xc7_ft2232.cfg"):
-        return OpenOCD(cfg, "bscan_spi_xc7a50t.bit")
+    def create_programmer(self):
+        return OpenFPGALoader(cable="ch347_jtag")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
