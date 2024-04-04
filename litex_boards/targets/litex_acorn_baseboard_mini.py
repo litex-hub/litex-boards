@@ -49,7 +49,7 @@ _serial_io = [
 # CRG ----------------------------------------------------------------------------------------------
 
 class CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_dram=False, with_eth=False):
+    def __init__(self, platform, sys_clk_freq, with_dram=False, with_eth=False, with_sata=False):
         self.rst          = Signal()
         self.cd_sys       = ClockDomain()
         self.cd_sys4x     = ClockDomain()
@@ -84,6 +84,14 @@ class CRG(LiteXModule):
             eth_pll.register_clkin(clk200_se, 200e6)
             eth_pll.create_clkout(self.cd_eth_ref, 156.25e6, margin=0)
 
+        # SATA PLL.
+        if with_sata:
+            self.cd_sata_ref = ClockDomain()
+            self.sata_pll = sata_pll = S7PLL()
+            self.comb += sata_pll.reset.eq(self.rst)
+            sata_pll.register_clkin(clk200_se, 200e6)
+            sata_pll.create_clkout(self.cd_sata_ref, 150e6, margin=0)
+
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -103,9 +111,11 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Acorn CLE-101/215(+)", **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
+        with_eth = (with_ethernet or with_etherbone)
         self.crg = CRG(platform, sys_clk_freq,
             with_dram = not self.integrated_main_ram_size,
-            with_eth  = with_ethernet or with_etherbone,
+            with_eth  = with_eth,
+            with_sata = with_sata,
         )
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
@@ -120,6 +130,33 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
+        # Ethernet / SATA RefClk/Shared-QPLL -------------------------------------------------------
+
+        # Ethernet QPLL Settings.
+        qpll_eth_settings = QPLLSettings(
+            refclksel  = 0b111,
+            fbdiv      = 4,
+            fbdiv_45   = 4,
+            refclk_div = 1,
+        )
+
+        # SATA QPLL Settings.
+        qpll_sata_settings = QPLLSettings(
+            refclksel  = 0b111,
+            fbdiv      = 5,
+            fbdiv_45   = 4,
+            refclk_div = 1,
+        )
+
+        # Shared QPLL.
+        self.qpll = qpll = QPLL(
+            gtgrefclk0    = Open() if not with_eth  else self.crg.cd_eth_ref.clk,
+            qpllsettings0 = None   if not with_eth  else qpll_eth_settings,
+            gtgrefclk1    = Open() if not with_sata else self.crg.cd_sata_ref.clk,
+            qpllsettings1 = None   if not with_sata else qpll_sata_settings,
+        )
+        platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
+
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             _eth_io = [
@@ -132,16 +169,6 @@ class BaseSoC(SoCCore):
             ]
             platform.add_extension(_eth_io)
 
-            qpll_settings = QPLLSettings(
-                refclksel  = 0b001,
-                fbdiv      = 4,
-                fbdiv_45   = 4,
-                refclk_div = 1
-            )
-            qpll = QPLL(self.crg.cd_eth_ref.clk, qpll_settings)
-            print(qpll)
-            self.submodules += qpll
-
             self.ethphy = A7_1000BASEX(
                 qpll_channel = qpll.channels[0],
                 data_pads    = self.platform.request("sfp"),
@@ -149,7 +176,6 @@ class BaseSoC(SoCCore):
                 rx_polarity  = 1,  # Inverted on Acorn.
                 tx_polarity  = 0   # Inverted on Acorn and on baseboard.
             )
-            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
 
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
@@ -163,7 +189,7 @@ class BaseSoC(SoCCore):
                 ("sata", 0,
                     # Inverted on Acorn.
                     Subsignal("tx_p",  Pins("B6")),
-                    Subsignal("tx_n",  Pins("A5")),
+                    Subsignal("tx_n",  Pins("A6")),
                     # Inverted on Acorn.
                     Subsignal("rx_p",  Pins("B10")),
                     Subsignal("rx_n",  Pins("A10")),
@@ -171,20 +197,16 @@ class BaseSoC(SoCCore):
             ]
             platform.add_extension(_sata_io)
 
-            # RefClk, generate 150MHz from PLL.
-            self.cd_sata_refclk = ClockDomain()
-            self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
-            sata_refclk = ClockSignal("sata_refclk")
-            platform.add_platform_command("set_property SEVERITY {{WARNING}} [get_drc_checks REQP-49]")
-
             # PHY
             self.sata_phy = LiteSATAPHY(platform.device,
-                refclk     = sata_refclk,
+                refclk     = self.crg.cd_sata_ref.clk,
                 pads       = platform.request("sata"),
                 gen        = sata_gen,
                 clk_freq   = sys_clk_freq,
-                data_width = 16
+                data_width = 16,
+                qpll       = qpll.channels[1],
             )
+            platform.add_platform_command("set_property SEVERITY {{WARNING}} [get_drc_checks REQP-49]")
 
             # Core
             self.add_sata(phy=self.sata_phy, mode="read+write")
