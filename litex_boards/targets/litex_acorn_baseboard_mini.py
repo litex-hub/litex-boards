@@ -134,27 +134,28 @@ class BaseSoC(SoCCore):
 
         # Ethernet QPLL Settings.
         qpll_eth_settings = QPLLSettings(
-            refclksel  = 0b001,
+            refclksel  = 0b111,
             fbdiv      = 4,
             fbdiv_45   = 4,
-            refclk_div = 1
+            refclk_div = 1,
         )
 
         # SATA QPLL Settings.
         qpll_sata_settings = QPLLSettings(
-            refclksel  = 0b001,
-            fbdiv      = 4,
+            refclksel  = 0b111,
+            fbdiv      = 5,
             fbdiv_45   = 4,
-            refclk_div = 1
+            refclk_div = 1,
         )
 
         # Shared QPLL.
         self.qpll = qpll = QPLL(
-            gtrefclk0     = Open() if not with_eth  else self.crg.cd_eth_ref.clk,
+            gtgrefclk0    = Open() if not with_eth  else self.crg.cd_eth_ref.clk,
             qpllsettings0 = None   if not with_eth  else qpll_eth_settings,
-            gtrefclk1     = Open() if not with_sata else self.crg.cd_sata_ref.clk,
+            gtgrefclk1    = Open() if not with_sata else self.crg.cd_sata_ref.clk,
             qpllsettings1 = None   if not with_sata else qpll_sata_settings,
         )
+        platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -175,7 +176,6 @@ class BaseSoC(SoCCore):
                 rx_polarity  = 1,  # Inverted on Acorn.
                 tx_polarity  = 0   # Inverted on Acorn and on baseboard.
             )
-            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
 
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
