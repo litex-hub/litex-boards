@@ -56,6 +56,13 @@ _io = [
         IOStandard("LVCMOS18")
     ),
 
+    # I2C (SI570, SFP, HDMI, EEPROM, ...)
+    ("i2c", 0,
+        Subsignal("scl", Pins("AJ14"), Misc("PULLUP=True")),
+        Subsignal("sda", Pins("AJ18"), Misc("PULLUP=True")),
+        IOStandard("LVCMOS25")
+    ),
+
     # DDR3 SDRAM.
     ("ddram", 0,
         Subsignal("a", Pins(
