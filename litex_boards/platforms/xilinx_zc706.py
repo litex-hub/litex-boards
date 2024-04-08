@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -394,8 +394,11 @@ class Platform(Xilinx7SeriesPlatform):
     def __init__(self, toolchain="vivado"):
         Xilinx7SeriesPlatform.__init__(self, "xc7z045ffg900-2", _io,  _connectors, toolchain=toolchain)
 
-    def create_programmer(self):
-        return OpenFPGALoader("zc706")
+    def create_programmer(self, name='vivado'):
+        if name == 'vivado':
+            return VivadoProgrammer()
+        else:
+            return OpenFPGALoader("zc706")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)

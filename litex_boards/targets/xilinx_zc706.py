@@ -103,16 +103,16 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZC706", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
-        #if not self.integrated_main_ram_size:
-        #    self.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
-        #        memtype      = "DDR3",
-        #        nphases      = 4,
-        #        sys_clk_freq = sys_clk_freq)
-        #    self.add_sdram("sdram",
-        #        phy           = self.ddrphy,
-        #        module        = MT8JTF12864(sys_clk_freq, "1:4"),
-        #        l2_cache_size = kwargs.get("l2_size", 8192)
-        #    )
+        if not self.integrated_main_ram_size:
+            self.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
+                memtype      = "DDR3",
+                nphases      = 4,
+                sys_clk_freq = sys_clk_freq)
+            self.add_sdram("sdram",
+                phy           = self.ddrphy,
+                module        = MT8JTF12864(sys_clk_freq, "1:4"),
+                l2_cache_size = kwargs.get("l2_size", 8192)
+            )
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -148,6 +148,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_zc706.Platform, description="LiteX SoC on ZC706.")
     parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--programmer",     default="vivado",          help="Programmer select from Vivado/openFPGALoader.")
     parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
@@ -175,8 +176,8 @@ def main():
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
-        prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
+        prog = soc.platform.create_programmer(args.programmer)
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"), device=1)
 
 if __name__ == "__main__":
     main()
