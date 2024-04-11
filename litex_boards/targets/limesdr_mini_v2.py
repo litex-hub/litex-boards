@@ -11,6 +11,11 @@
 # litex_server --jtag --jtag-config=openocd_limesdr_mini_v2.cfg
 # litex_term crossover
 
+# loading a demo
+# ./limesdr_mini_v2.py --integrated-main-ram-size 0x8000 --load --build --uart-name=jtag_uart
+# litex_bare_metal_demo --build-path build/limesdr_mini_v2
+# litex_term jtag --jtag-config=openocd_limesdr_mini_v2.cfg --kernel demo.bin
+
 from migen import *
 
 from litex.gen import *
@@ -75,8 +80,9 @@ class BaseSoC(SoCCore):
         platform = limesdr_mini_v2.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"]     = "crossover"
-        kwargs["with_jtagbone"] = True
+        if kwargs["uart_name"] != "jtag_uart":
+            kwargs["uart_name"]     = "crossover"
+            kwargs["with_jtagbone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on LimeSDR-Mini-V2", **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
