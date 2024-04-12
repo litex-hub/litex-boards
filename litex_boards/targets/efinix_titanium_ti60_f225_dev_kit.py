@@ -13,8 +13,6 @@ from litex.gen import *
 
 from litex_boards.platforms import efinix_titanium_ti60_f225_dev_kit
 
-from litex.build.generic_platform import *
-
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -90,23 +88,6 @@ class BaseSoC(SoCCore):
                 self.add_ethernet(phy=self.ethphy, software_debug=True)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy)
-
-            # Extension board on P2 + External Logic Analyzer.
-            _pmod_ios = [
-                ("debug", 0, Pins(
-                    "L11", # GPIOR_P_15
-                    "K11", # GPIOR_N_15
-                    "N10", # GPIOR_P_12
-                    "M10", # GPIOR_N_12
-                    ),
-                    IOStandard("1.8_V_LVCMOS")
-                ),
-            ]
-            platform.add_extension(_pmod_ios)
-            debug = platform.request("debug")
-            self.comb += debug[0].eq(self.ethphy.tx.sink.valid)
-            self.comb += debug[1].eq(self.ethphy.tx.sink.data[0])
-            self.comb += debug[2].eq(self.ethphy.tx.sink.data[1])
 
 # Build --------------------------------------------------------------------------------------------
 
