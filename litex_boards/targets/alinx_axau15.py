@@ -61,7 +61,8 @@ class BaseSoC(SoCCore):
         eth_ip          = "192.168.1.50",
         remote_ip       = None,
         with_led_chaser = True,
-        with_pcie       = False,
+        with_pcie       = False, pcie_speed="gen3",
+        with_sdcard     = False,
         **kwargs):
         platform = alinx_axau15.Platform()
 
@@ -88,8 +89,8 @@ class BaseSoC(SoCCore):
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
             self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
-                speed      = "gen3",
-                data_width = 128,
+                speed      = pcie_speed,
+                data_width = {"gen3": 128, "gen4": 256}[pcie_speed],
                 ip_name    = "pcie4c_uscale_plus",
                 bar0_size  = 0x20000,
             )
@@ -116,6 +117,10 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
+        # SD Card ----------------------------------------------------------------------------------
+        if with_sdcard:
+            self.add_sdcard()
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -135,7 +140,9 @@ def main():
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--with-pcie",      action="store_true",      help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-speed",     default="gen3",           help="PCIe speed.", choices=["gen3", "gen4"])
     parser.add_target_argument("--driver",         action="store_true",      help="Generate PCIe driver.")
+    parser.add_target_argument("--with-sdcard",    action="store_true",      help="Add SDCard.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -148,6 +155,8 @@ def main():
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         with_pcie      = args.with_pcie,
+        pcie_speed     = args.pcie_speed,
+        with_sdcard    = args.with_sdcard,
         **parser.soc_argdict
 	)
 
