@@ -55,7 +55,7 @@ class _CRG(LiteXModule):
         rst   = ~platform.request("cpu_reset") if with_rst else 0
 
         # PLL.
-        self.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-2)
         self.comb += pll.reset.eq(rst | self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -71,7 +71,7 @@ class _CRG(LiteXModule):
             self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
         if with_hdmi:
-            self.submodules.pll2 = pll2 = S7MMCM(speedgrade=-1)
+            self.submodules.pll2 = pll2 = S7MMCM(speedgrade=-2)
             self.comb += pll2.reset.eq(rst | self.rst)
             pll2.register_clkin(clk50, 50e6)
             pll2.create_clkout(self.cd_hdmi,   25e6,  margin=0)
