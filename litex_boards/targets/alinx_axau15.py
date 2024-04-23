@@ -160,8 +160,6 @@ def main():
         **parser.soc_argdict
 	)
 
-    soc.add_sdcard()
-
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
