@@ -17,6 +17,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.soc import SoCRegion
+from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.hyperbus import HyperRAM
 
@@ -72,8 +73,28 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.hyperram = HyperRAM(platform.request("hyperram"), latency=7, sys_clk_freq=sys_clk_freq)
-            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=32*1024*1024))
+            # HyperRAM Parameters.
+            hyperram_device     = "W958D6NW"
+            hyperram_size       = 32*1024*1024
+            hyperram_cache_size = 16*1024
+
+            # HyperRAM Bus/Slave Interface.
+            hyperram_bus = wishbone.Interface(data_width=32, address_width=32, addressing="word")
+            self.bus.add_slave(name="main_ram", slave=hyperram_bus, region=SoCRegion(origin=0x40000000, size=hyperram_size))
+
+            # HyperRAM L2 Cache.
+            hyperram_cache = wishbone.Cache(
+                cachesize = hyperram_cache_size//4,
+                master    = hyperram_bus,
+                slave     = wishbone.Interface(data_width=32, address_width=32, addressing="word")
+            )
+            hyperram_cache = FullMemoryWE()(hyperram_cache)
+            self.hyperram_cache = hyperram_cache
+            self.add_config("L2_SIZE", hyperram_cache_size)
+
+            # HyperRAM Core.
+            self.hyperram = HyperRAM(platform.request("hyperram"), latency=7, latency_mode="variable", sys_clk_freq=sys_clk_freq)
+            self.comb += self.hyperram_cache.slave.connect(self.hyperram.bus)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
