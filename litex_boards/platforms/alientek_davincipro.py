@@ -314,7 +314,7 @@ class Platform(Xilinx7SeriesPlatform):
         assert variant in ["a7-35", "a7-100"]
         kgates = variant.split("-")[-1]
         self.kgates = kgates
-        Xilinx7SeriesPlatform.__init__(self, f"xc7a{kgates}t-fgg484-2", _io, _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, f"xc7a{kgates}tfgg484-2", _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
              "set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]",
