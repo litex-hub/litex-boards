@@ -111,6 +111,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── berkeleylab_marblemini
     ├── berkeleylab_marble
     ├── camlink_4k
+    ├── colognechip_gatemate_evb
     ├── colorlight_5a_75b
     ├── colorlight_5a_75e
     ├── colorlight_i5
@@ -192,6 +193,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── numato_nereid
     ├── numato_tagus
     ├── ocp_tap_timecard
+    ├── olimex_gatemate_a1_evb
     ├── opalkelly_xem8320
     ├── pano_logic_g2
     ├── qmtech_10cl006
@@ -219,7 +221,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── sipeed_tang_nano_4k
     ├── sipeed_tang_nano_9k
     ├── sipeed_tang_nano
-    ├── sipeed_tang_mega_138k
+    ├── sipeed_tang_mega_138k_pro
     ├── sipeed_tang_primer_20k
     ├── sipeed_tang_primer_25k
     ├── sipeed_tang_primer
@@ -254,6 +256,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── xilinx_sp605
     ├── xilinx_vc707
     ├── xilinx_vcu118
+    ├── xilinx_zc706
     ├── xilinx_zcu102
     ├── xilinx_zcu104
     ├── xilinx_zcu106

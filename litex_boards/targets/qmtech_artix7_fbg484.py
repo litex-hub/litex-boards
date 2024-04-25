@@ -21,7 +21,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT41J128M16
+from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
 
 from liteeth.phy.mii import LiteEthPHYMII
@@ -100,7 +100,7 @@ class BaseSoC(SoCCore):
                 sys_clk_freq   = sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41J128M16(sys_clk_freq, "1:4"),
+                module        = MT41K128M16(sys_clk_freq, "1:4"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 

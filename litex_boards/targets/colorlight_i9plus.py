@@ -179,11 +179,11 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer(cfg="prog/openocd_xc7_ft2232.cfg")
+        prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer(cfg="prog/openocd_xc7_ft2232.cfg")
+        prog = soc.platform.create_programmer()
         prog.flash(0, builder.get_bitstream_filename(mode="flash"))
 
 if __name__ == "__main__":

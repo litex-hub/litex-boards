@@ -136,7 +136,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_ep4cgx150.Platform, description="LiteX SoC on QMTECH EP4CE15.")
-    parser.add_target_argument("--sys-clk-freq",        default=80e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=90e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",          default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     parser.add_target_argument("--with-daughterboard",  action="store_true",      help="Board plugged into the QMTech daughterboard.")
     ethopts = parser.target_group.add_mutually_exclusive_group()

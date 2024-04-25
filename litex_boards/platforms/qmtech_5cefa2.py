@@ -42,8 +42,13 @@ _io = [
         Subsignal("we_n",  Pins("W9")),
         Subsignal("dq", Pins(
             "AA12 Y11 AA10 AB10 Y10 AA9 AB8 AA8",
-            " U10 T10 U11  R12  U12 P12 R10 R11")),
+            " U10 T10 U11  R12  U12 P12 R10 R11"),
+            Misc("FAST_OUTPUT_ENABLE_REGISTER ON"),
+            Misc("FAST_INPUT_REGISTER ON")),
         Subsignal("dm", Pins("AB7 V10")),
+        Misc("CURRENT_STRENGTH_NEW \"MAXIMUM CURRENT\""),
+        Misc("FAST_OUTPUT_REGISTER ON"),
+        Misc("ALLOW_SYNCH_CTRL_USAGE OFF"),
         IOStandard("3.3-V LVTTL")
     ),
 ]
@@ -129,7 +134,7 @@ class Platform(AlteraPlatform):
         ),
  ]
 
-    def __init__(self, toolchain="quartus", with_daughterboard=False):
+    def __init__(self, toolchain="quartus", with_daughterboard=False, with_core_resources=True):
         device = "5CEFA2F23C8"
         io = _io
         connectors = _connectors
@@ -139,7 +144,7 @@ class Platform(AlteraPlatform):
             daughterboard = QMTechDaughterboard(IOStandard("3.3-V LVTTL"))
             io += daughterboard.io
             connectors += daughterboard.connectors
-        else:
+        elif with_core_resources:
             io += self.core_resources
 
         AlteraPlatform.__init__(self, device, io, connectors, toolchain=toolchain)

@@ -27,7 +27,7 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 from litedram.phy import GW5DDRPHY
 from litex.build.io import DDROutput
 
-from litex_boards.platforms import sipeed_tang_mega_138k
+from litex_boards.platforms import sipeed_tang_mega_138k_pro
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ class BaseSoC(SoCCore):
         with_rgb_led        = False,
         with_buttons        = True,
         **kwargs):
-        platform = sipeed_tang_mega_138k.Platform(toolchain="gowin")
+        platform = sipeed_tang_mega_138k_pro.Platform(toolchain="gowin")
 
         # CRG --------------------------------------------------------------------------------------
         cpu_clk_freq = int(800e6) if kwargs["cpu_type"] == "gowin_ae350" else 0
@@ -137,7 +137,7 @@ class BaseSoC(SoCCore):
             with_video_pll = with_video_terminal,
         )
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K Pro", **kwargs)
         if cpu_clk_freq:
             self.add_config("CPU_CLK_FREQ", cpu_clk_freq)
 
@@ -222,7 +222,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=sipeed_tang_mega_138k.Platform, description="LiteX SoC on Tang Mega 138K.")
+    parser = LiteXArgumentParser(platform=sipeed_tang_mega_138k_pro.Platform, description="LiteX SoC on Tang Mega 138K Pro.")
     parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-sdram",      action="store_true",      help="Enable optional SDRAM module.")

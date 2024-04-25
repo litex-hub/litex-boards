@@ -67,7 +67,7 @@ _io = [
     # VGA
     ("vga", 0,
         Subsignal("hsync_n", Pins("P19")),
-        Subsignal("vsync_n", Pins("R18")),
+        Subsignal("vsync_n", Pins("R19")),
         Subsignal("r", Pins("G19 H19 J19 N19")),
         Subsignal("g", Pins("J17 H17 G17 D17")),
         Subsignal("b", Pins("N18 L18 K18 J18")),

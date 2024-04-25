@@ -16,6 +16,10 @@ _io = [
     # Clk / Rst
     ("clk50", 0, Pins("F22"), IOStandard("LVCMOS33")),
 
+    # Buttons
+    ("user_btn_n", 0, Pins("AF9"),   IOStandard("LVCMOS33")),
+    ("user_btn_n", 1, Pins("AF10"),  IOStandard("LVCMOS33")),
+
     # The core board does not have a USB serial on it,
     # so you will have to attach an USB to serial adapter
     # on these pins
@@ -140,16 +144,14 @@ class Platform(XilinxPlatform):
     core_resources_daughterboard = [
         ("onboard_led_1", 0, Pins("J26"), IOStandard("LVCMOS33")),
         ("onboard_led_2", 0, Pins("H26"), IOStandard("LVCMOS33")),
-        ("cpu_reset", 0, Pins("AD21"), IOStandard("LVCMOS33")),
     ]
 
     core_resources_standalone = [
         ("user_led", 0, Pins("J26"), IOStandard("LVCMOS33")),
         ("user_led", 1, Pins("H26"), IOStandard("LVCMOS33")),
-        ("cpu_reset", 0, Pins("AD21"), IOStandard("LVCMOS33")),
     ]
 
-    def __init__(self, toolchain="vivado", with_daughterboard=False):
+    def __init__(self, toolchain="vivado", with_daughterboard=False, with_core_resources=True):
         device = "xc7k325tffg676-1"
         io = _io
         connectors = _connectors
@@ -160,13 +162,14 @@ class Platform(XilinxPlatform):
             daughterboard = QMTechDaughterboard(IOStandard("LVCMOS33"))
             io += daughterboard.io
             connectors += daughterboard.connectors
-        else:
+        elif with_core_resources:
             io += self.core_resources_standalone
 
         XilinxPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
 
         self.toolchain.bitstream_commands = \
-            ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
+            ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
+            "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]"]
         self.toolchain.additional_commands = \
             ["write_cfgmem -force -format bin -interface spix4 -size 16 "
             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]

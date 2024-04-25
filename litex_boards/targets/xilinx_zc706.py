@@ -3,18 +3,38 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2014-2015 Sebastien Bourdeauducq <sb@m-labs.hk>
-# Copyright (c) 2014-2020 Florent Kermarrec <florent@enjoy-digital.fr>
-# Copyright (c) 2014-2015 Yann Sionneau <ys@m-labs.hk>
+# Copyright (c) 2024 Gwenhael Goavec-Merou <gwenhael@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
+# Build/use
+# Build/Load bitstream:
+# ./xilinx_zc7006.py --with-etherbone --uart-name=crossover --csr-csv=csr.csv --build --load
+#
+# Test Ethernet:
+# ping 192.168.1.50
+#
+# Test Console:
+# litex_server --udp
+# litex_term crossover
+#
+#
+# Build/Load bitstream:
+# ./xilinx_zc706.py --with-jtagbone --uart-name=crossover --csr-csv=csr.csv --build --load
+#
+# litex_server --jtag --jtag-config openocd_xc7z_smt2-nc.cfg
+#
+# In a second terminal:
+# litex_cli --regs # to dump all registers
+# Or
+# litex_term crossover # to have access to LiteX bios
+#
+# --------------------------------------------------------------------------------------------------
 
 from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import xilinx_kc705
+from litex_boards.platforms import xilinx_zc706
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -24,7 +44,7 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT8JTF12864
 from litedram.phy import s7ddrphy
 
-from liteeth.phy import LiteEthPHY
+from liteeth.phy.k7_1000basex import K7_1000BASEX
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.software import generate_litepcie_software
@@ -37,20 +57,21 @@ class _CRG(LiteXModule):
         self.cd_sys    = ClockDomain()
         self.cd_sys4x  = ClockDomain()
         self.cd_idelay = ClockDomain()
+        self.cd_eth    = ClockDomain()
 
         # # #
 
         # Clk/Rst.
         clk200 = platform.request("clk200")
-        rst    = platform.request("cpu_reset")
 
         # PLL.
-        self.pll = pll = S7MMCM(speedgrade=-2)
-        self.comb += pll.reset.eq(rst | self.rst)
+        self.pll = pll = S7PLL(speedgrade=-1)
+        self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)
         pll.create_clkout(self.cd_idelay, 200e6)
+        pll.create_clkout(self.cd_eth,    200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         # IDelayCtrl.
@@ -61,18 +82,25 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6,
         with_ethernet   = False,
+        with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
         with_led_chaser = True,
-        with_spi_flash  = False,
         with_pcie       = False,
-        with_sata       = False,
         **kwargs):
-        platform = xilinx_kc705.Platform()
+        platform = xilinx_zc706.Platform()
+
+        # When nor jtagbone, nor etherbone are set forces jtagbone.
+        kwargs["uart_name"]     = "crossover"
+        if not (kwargs["with_jtagbone"] or with_etherbone):
+            kwargs["with_jtagbone"] = True
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on KC705", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ZC706", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -86,19 +114,20 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
-        # Ethernet ---------------------------------------------------------------------------------
-        if with_ethernet:
-            self.ethphy = LiteEthPHY(
-                clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"),
-                clk_freq   = self.clk_freq)
-            self.add_ethernet(phy=self.ethphy)
-
-        # SPI Flash --------------------------------------------------------------------------------
-        if with_spi_flash:
-            from litespi.modules import N25Q128A13
-            from litespi.opcodes import SpiNorFlashOpCodes as Codes
-            self.add_spi_flash(mode="4x", module=N25Q128A13(Codes.READ_1_1_4), rate="1:1", with_master=True)
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.ethphy = K7_1000BASEX(
+                refclk_or_clk_pads = self.crg.cd_eth.clk,
+                data_pads          = self.platform.request("sfp", 0),
+                sys_clk_freq       = self.clk_freq,
+                with_csr           = False
+            )
+            self.comb += self.platform.request("sfp_tx_disable_n", 0).eq(1)
+            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-52]")
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            elif with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -107,65 +136,36 @@ class BaseSoC(SoCCore):
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
-        # SATA -------------------------------------------------------------------------------------
-        if with_sata:
-            from litex.build.generic_platform import Subsignal, Pins
-            from litesata.phy import LiteSATAPHY
-
-            # IOs
-            _sata_io = [
-                # SFP 2 SATA Adapter / https://shop.trenz-electronic.de/en/TE0424-01-SFP-2-SATA-Adapter
-                ("sfp2sata", 0,
-                    Subsignal("tx_p", Pins("H2")),
-                    Subsignal("tx_n", Pins("H1")),
-                    Subsignal("rx_p", Pins("G4")),
-                    Subsignal("rx_n", Pins("G3")),
-                ),
-            ]
-            platform.add_extension(_sata_io)
-
-            # RefClk, Generate 150MHz from PLL.
-            self.cd_sata_refclk = ClockDomain()
-            self.crg.pll.create_clkout(self.cd_sata_refclk, 150e6)
-            sata_refclk = ClockSignal("sata_refclk")
-            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-52]")
-
-            # PHY
-            self.sata_phy = LiteSATAPHY(platform.device,
-                refclk     = sata_refclk,
-                pads       = platform.request("sfp2sata"),
-                gen        = "gen2",
-                clk_freq   = sys_clk_freq,
-                data_width = 16)
-
-            # Core
-            self.add_sata(phy=self.sata_phy, mode="read+write")
-
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
-                sys_clk_freq = sys_clk_freq)
+                sys_clk_freq = sys_clk_freq
+            )
 
 # Build --------------------------------------------------------------------------------------------
-
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=xilinx_kc705.Platform, description="LiteX SoC on KC705.")
+    parser = LiteXArgumentParser(platform=xilinx_zc706.Platform, description="LiteX SoC on ZC706.")
     parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--programmer",     default="vivado",          help="Programmer select from Vivado/openFPGALoader.")
     parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--with-pcie",      action="store_true",       help="Enable PCIe support.")
     parser.add_target_argument("--driver",         action="store_true",       help="Generate PCIe driver.")
-    parser.add_target_argument("--with-sata",      action="store_true",       help="Enable SATA support (over SFP2SATA).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
-        with_spi_flash = args.with_spi_flash,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
         with_pcie      = args.with_pcie,
-        with_sata      = args.with_sata,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
@@ -176,8 +176,8 @@ def main():
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
-        prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
+        prog = soc.platform.create_programmer(args.programmer)
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"), device=1)
 
 if __name__ == "__main__":
     main()
