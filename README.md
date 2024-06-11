@@ -75,7 +75,7 @@ Some of these boards are fully open-hardware boards (Fomu, NeTV2, OrangeCrab, Bu
 
 Most of the peripherals present are generally supported: DRAM, UART, Ethernet, SPI-Flash, SDCard, PCIe, SATA, etc... making LiteX-Boards' targets hopefully a good base infrastructure to create your own custom SoCs!
 
-> **Note:** All boards with >= 32MB of memory and enough logic can be considered as Linux Capable, have a look at [LiteX-on-LiteX-Vexriscv](https://github.com/litex-hub/linux-on-litex-vexriscv) project to try Linux on your FPGA board!
+> **Note:** All boards with >= 32MB of memory and enough logic can be considered as Linux Capable, have a look at [Linux-on-LiteX-Vexriscv](https://github.com/litex-hub/linux-on-litex-vexriscv) project to try Linux on your FPGA board!
 
 
 <figure>
