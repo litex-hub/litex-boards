@@ -148,6 +148,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── gsd_butterstick
     ├── gsd_orangecrab
     ├── hackaday_hadbadge
+    ├── hseda_xc7a35t
     ├── icebreaker_bitsy
     ├── icebreaker
     ├── ice_v_wireless
