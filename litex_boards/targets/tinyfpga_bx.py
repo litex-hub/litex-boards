@@ -19,9 +19,6 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-kB = 1024
-mB = 1024*kB
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -44,7 +41,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 32*kB,
+            size   = 32 * KILOBYTE,
             linker = True)
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)

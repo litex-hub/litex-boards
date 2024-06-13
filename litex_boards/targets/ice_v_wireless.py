@@ -28,11 +28,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-
-kB = 1024
-mB = 1024*kB
-
-# PSRAM flash emulation ----------------------------------------------------------------------------------------------
+# PSRAM flash emulation ----------------------------------------------------------------------------
 
 from litespi.spi_nor_flash_module import SpiNorFlashModule
 from litespi.opcodes import SpiNorFlashOpCodes as Codes
@@ -137,17 +133,17 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ICE-V Wireless", **kwargs)
 
         # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
-        self.spram = Up5kSPRAM(size=128*kB)
-        self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128*kB))
+        self.spram = Up5kSPRAM(size=128 * KILOBYTE)
+        self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128 * KILOBYTE))
         self.bus.add_region("sram", SoCRegion(
-                origin = self.bus.regions["psram"].origin + 0*kB,
-                size   = 64*kB,
+                origin = self.bus.regions["psram"].origin + 0 * KILOBYTE,
+                size   = 64 * KILOBYTE,
                 linker = True)
         )
         if not self.integrated_main_ram_size:
             self.bus.add_region("main_ram", SoCRegion(
-                origin = self.bus.regions["psram"].origin + 64*kB,
-                size   = 64*kB,
+                origin = self.bus.regions["psram"].origin + 64 * KILOBYTE,
+                size   = 64 * KILOBYTE,
                 linker = True)
             )
 
@@ -164,7 +160,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 32*kB,
+            size   = 32 * KILOBYTE,
             linker = True)
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)

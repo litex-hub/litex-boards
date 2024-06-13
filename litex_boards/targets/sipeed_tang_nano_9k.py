@@ -22,9 +22,6 @@ from litex.soc.cores.video import *
 
 from litex.soc.cores.hyperbus import HyperRAM
 
-kB = 1024
-mB = 1024*kB
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -84,7 +81,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 64*kB,
+            size   = 64 * KILOBYTE,
             linker = True)
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)
@@ -115,7 +112,7 @@ class BaseSoC(SoCCore):
                 os.system("mv hyperbus.py.txt hyperbus.py")
             from hyperbus import HyperRAM
             self.hyperram = HyperRAM(hyperram_pads)
-            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4*mB))
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4 * MEGABYTE))
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:

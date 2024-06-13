@@ -20,8 +20,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-kB = 1024
-mB = 1024*kB
+# CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
@@ -44,6 +43,8 @@ class _CRG(LiteXModule):
         self.comb += self.cd_sys.clk.eq(sys)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done)
 
+# BaseSoC ------------------------------------------------------------------------------------------
+
 class BaseSoC(SoCCore):
 
     def __init__(self, sys_clk_freq=12e6, with_led_chaser=True, bios_flash_offset=0x50000, **kwargs):
@@ -59,7 +60,7 @@ class BaseSoC(SoCCore):
         self.add_spi_flash(mode='1x', module=N25Q032A(Codes.READ_1_1_1), with_master=False)
         self.bus.add_region("rom", SoCRegion(
             origin=self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size=32*kB,
+            size=32 * KILOBYTE,
             linker=True
         ))
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)

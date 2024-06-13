@@ -36,10 +36,6 @@ from litex.soc.cores.led import LedChaser
 
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-kB = 1024
-mB = 1024*kB
-
-
 # _CRG ---------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -77,7 +73,7 @@ class BaseSoC(SoCCore):
 
         # Disable Integrated ROM since too large for iCE40.
         kwargs["integrated_rom_size"]  = 0
-        kwargs["integrated_sram_size"]  = 4*kB
+        kwargs["integrated_sram_size"]  = 4 * KILOBYTE
 
         # Set CPU variant / reset address
         kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
@@ -98,7 +94,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.mem_map["spiflash"] + bios_flash_offset,
-            size   = 32*kB,
+            size   = 32 * KILOBYTE,
             linker = True)
         )
 

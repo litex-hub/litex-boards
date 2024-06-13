@@ -27,9 +27,6 @@ from litex.soc.cores.uart import UARTWishboneBridge
 from litedram.phy import GENSDRPHY
 from litedram.modules import MT48LC32M8
 
-kB = 1024
-mB = 1024*kB
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -70,7 +67,7 @@ class BaseSoC(SoCCore):
 
         # Disable Integrated ROM since too large for iCE40.
         kwargs["integrated_rom_size"]  = 0
-        kwargs["integrated_sram_size"] = 2*kB
+        kwargs["integrated_sram_size"] = 2 * KILOBYTE
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -95,7 +92,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 32*kB,
+            size   = 32 * KILOBYTE,
             linker = True)
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)

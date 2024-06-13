@@ -23,9 +23,6 @@ from litex.soc.interconnect import wishbone
 
 from litex.soc.integration.soc import colorer
 
-kB = 1024
-mB = 1024*kB
-
 # _CRG ---------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):

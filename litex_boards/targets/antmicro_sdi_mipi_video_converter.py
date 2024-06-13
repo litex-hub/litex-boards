@@ -25,9 +25,6 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-kB = 1024
-mB = 1024*kB
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -80,11 +77,11 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Antmicro SDI MIPI Video Converter Board", **kwargs)
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------
-        self.spram = NXLRAM(32, 64*kB)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(origin=self.mem_map["sram"], size=16*kB))
+        self.spram = NXLRAM(32, 64 * KILOBYTE)
+        self.bus.add_slave("sram", self.spram.bus, SoCRegion(origin=self.mem_map["sram"], size=16 * KILOBYTE))
 
-        self.main_ram = NXLRAM(32, 64*kB)
-        self.bus.add_slave("main_ram", self.main_ram.bus, SoCRegion(origin=self.mem_map["main_ram"], size=64*kB))
+        self.main_ram = NXLRAM(32, 64 * KILOBYTE)
+        self.bus.add_slave("main_ram", self.main_ram.bus, SoCRegion(origin=self.mem_map["main_ram"], size=64 * KILOBYTE))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

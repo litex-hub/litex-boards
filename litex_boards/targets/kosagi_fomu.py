@@ -25,9 +25,6 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-kB = 1024
-mB = 1024*kB
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -87,17 +84,17 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Fomu", **kwargs)
 
         # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
-        self.spram = Up5kSPRAM(size=128*kB)
-        self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128*kB))
+        self.spram = Up5kSPRAM(size=128 * KILOBYTE)
+        self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128 * KILOBYTE))
         self.bus.add_region("sram", SoCRegion(
-                origin = self.bus.regions["psram"].origin + 0*kB,
-                size   = 64*kB,
+                origin = self.bus.regions["psram"].origin + 0 * KILOBYTE,
+                size   = 64 * KILOBYTE,
                 linker = True)
         )
         if not self.integrated_main_ram_size:
             self.bus.add_region("main_ram", SoCRegion(
-                origin = self.bus.regions["psram"].origin + 64*kB,
-                size   = 64*kB,
+                origin = self.bus.regions["psram"].origin + 64 * KILOBYTE,
+                size   = 64 * KILOBYTE,
                 linker = True)
             )
 
@@ -117,7 +114,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 32*kB,
+            size   = 32 * KILOBYTE,
             linker = True)
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)
@@ -137,7 +134,7 @@ def flash(build_dir, build_name, bios_flash_offset):
     bios      = open(f"{build_dir}/software/bios/bios.bin", "rb")
     image     = open(f"{build_dir}/image.bin", "wb")
     # Copy bitstream at 0.
-    assert bios_flash_offset >= 128*kB
+    assert bios_flash_offset >= 128 * KILOBYTE
     for i in range(0, bios_flash_offset):
         b = bitstream.read(1)
         if not b:
@@ -145,7 +142,7 @@ def flash(build_dir, build_name, bios_flash_offset):
         else:
             image.write(b)
     # Copy bios at bios_flash_offset.
-    for i in range(0, 32*kB):
+    for i in range(0, 32 * KILOBYTE):
         b = bios.read(1)
         if not b:
             image.write(0xff.to_bytes(1, "big"))

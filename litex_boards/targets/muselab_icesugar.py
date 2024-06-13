@@ -22,9 +22,6 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-kB = 1024
-mB = 1024*kB
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -75,8 +72,8 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Muselab iCESugar", **kwargs)
 
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
-        self.spram = Up5kSPRAM(size=64*kB)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=64*kB))
+        self.spram = Up5kSPRAM(size=64 * KILOBYTE)
+        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=64 * KILOBYTE))
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q64FV
@@ -86,7 +83,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 32*kB,
+            size   = 32 * KILOBYTE,
             linker = True)
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)

@@ -28,10 +28,6 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-kB = 1024
-mB = 1024*kB
-
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -82,13 +78,13 @@ class BaseSoC(SoCCore):
         # SRAM/HyperRAM ----------------------------------------------------------------------------
         if hyperram == "none":
             # 128KB LRAM (used as SRAM) ------------------------------------------------------------
-            size = 128*kB
+            size = 128 * KILOBYTE
             self.spram = NXLRAM(32, size)
             self.bus.add_slave("sram", slave=self.spram.bus, region=SoCRegion(origin=self.mem_map["sram"],
                 size=size))
         else:
             # Use HyperRAM generic PHY as SRAM -----------------------------------------------------
-            size = 8*1024*kB
+            size = 8*1024 * KILOBYTE
             hr_pads = platform.request("hyperram", int(hyperram))
             self.hyperram = HyperRAM(hr_pads, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave("sram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["sram"],
