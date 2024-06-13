@@ -25,6 +25,9 @@ from litex.soc.cores.led import LedChaser
 
 from litex.build.generic_platform import IOStandard, Subsignal, Pins
 
+from litepcie.phy.s7pciephy import S7PCIEPHY
+from litepcie.software import generate_litepcie_software
+
 from litedram.modules import MT41K512M16
 from litedram.phy import s7ddrphy
 
@@ -95,7 +98,8 @@ class CRG(LiteXModule):
 # BaseSoC -----------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="cle-215+", sys_clk_freq=125.00e6,
+    def __init__(self, variant="cle-215+", sys_clk_freq=125e6,
+        with_pcie       = False,
         with_ethernet   = False,
         with_etherbone  = False,
         eth_ip          = "192.168.1.50",
@@ -129,6 +133,16 @@ class BaseSoC(SoCCore):
                 module        = MT41K512M16(sys_clk_freq, "1:4"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
+
+        # PCIe -------------------------------------------------------------------------------------
+        if with_pcie:
+            assert not with_sata and (not with_ethernet or with_etherbone)
+            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1_baseboard"),
+                data_width = 64,
+                bar0_size  = 0x20000)
+            self.add_pcie(phy=self.pcie_phy, ndmas=1)
+            platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtp_channel.gtpe2_channel_i}}]")
+            platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y4 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtp_channel.gtpe2_channel_i}}]")
 
         # Ethernet / SATA RefClk/Shared-QPLL -------------------------------------------------------
 
@@ -225,6 +239,8 @@ def main():
     parser.add_target_argument("--flash",          action="store_true",          help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="cle-215+",           help="Board variant (cle-215+, cle-215 or cle-101).")
     parser.add_target_argument("--sys-clk-freq",   default=125.00e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",      action="store_true",          help="Enable PCIe support.")
+    parser.add_target_argument("--driver",         action="store_true",          help="Generate PCIe driver.")
     parser.add_target_argument("--with-ethernet",  action="store_true",          help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",          help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",       help="Ethernet/Etherbone IP address.")
@@ -237,6 +253,7 @@ def main():
     soc = BaseSoC(
         variant        = args.variant,
         sys_clk_freq   = args.sys_clk_freq,
+        with_pcie      = args.with_pcie,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
@@ -250,6 +267,9 @@ def main():
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
+
+    if args.driver:
+        generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
         prog = soc.platform.create_programmer()

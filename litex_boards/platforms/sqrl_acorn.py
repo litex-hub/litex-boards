@@ -43,7 +43,7 @@ _io = [
     # PCIe.
     ("pcie_clkreq_n", 0, Pins("G1"), IOStandard("LVCMOS33")),
     ("pcie_x1_baseboard", 0,
-        Subsignal("rst_n", Pins("A15"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+        Subsignal("rst_n", Pins("A15"), IOStandard("LVCMOS15"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
         Subsignal("clk_n", Pins("E6")),
         Subsignal("rx_p",  Pins("B8")),
@@ -52,7 +52,7 @@ _io = [
         Subsignal("tx_n",  Pins("A4")),
     ),
     ("pcie_x4", 0,
-        Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+        Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS15"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
         Subsignal("clk_n", Pins("E6")),
         Subsignal("rx_p",  Pins("B10 B8 D11 D9")),
