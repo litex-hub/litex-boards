@@ -42,14 +42,23 @@ _io = [
 
     # PCIe.
     ("pcie_clkreq_n", 0, Pins("G1"), IOStandard("LVCMOS33")),
+    ("pcie_x1_baseboard", 0,
+        Subsignal("rst_n", Pins("A15"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+        Subsignal("clk_p", Pins("F6")),
+        Subsignal("clk_n", Pins("E6")),
+        Subsignal("rx_p",  Pins("B8")),
+        Subsignal("rx_n",  Pins("A8")),
+        Subsignal("tx_p",  Pins("B4")),
+        Subsignal("tx_n",  Pins("A4")),
+    ),
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
         Subsignal("clk_n", Pins("E6")),
         Subsignal("rx_p",  Pins("B10 B8 D11 D9")),
         Subsignal("rx_n",  Pins("A10 A8 C11 C9")),
-        Subsignal("tx_p",  Pins("B6 B4 D5 D7")),
-        Subsignal("tx_n",  Pins("A6 A4 C5 C7")),
+        Subsignal("tx_p",  Pins("B6  B4  D5 D7")),
+        Subsignal("tx_n",  Pins("A6  A4  C5 C7")),
     ),
 
     # DDR3 SDRAM.
