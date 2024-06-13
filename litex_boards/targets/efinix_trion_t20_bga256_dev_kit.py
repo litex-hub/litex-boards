@@ -15,6 +15,7 @@ from litex.gen import *
 
 from litex_boards.platforms import efinix_trion_t20_bga256_dev_kit
 
+from litex.build.io import ClkOutput
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
@@ -22,12 +23,18 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from litedram.modules import NDS36PT5
+from litedram.phy import GENSDRPHY
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
+    name_sdram_clk = "sdram_clk"
+
     def __init__(self, platform, sys_clk_freq):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
+        self.cd_sys_ps = ClockDomain()
 
         # # #
 
@@ -39,6 +46,7 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
+        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=180, name=self.name_sdram_clk)  
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -51,6 +59,18 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Trion T20 BGA256 Dev Kit", **kwargs)
+
+        # SDR SDRAM --------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size and sys_clk_freq <= 50e6 :
+            self.specials += ClkOutput(self.crg.name_sdram_clk, platform.request("sdram_clock"))
+
+            self.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+            self.add_sdram("sdram",
+                phy           = self.sdrphy,
+                module        = NDS36PT5(sys_clk_freq, "1:1"),
+                l2_cache_size = kwargs.get("l2_size", 8192),
+                with_bist     = kwargs.get("with_bist", False)
+            )
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -70,7 +90,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_trion_t20_bga256_dev_kit.Platform, description="LiteX SoC on Efinix Trion T20 BGA256 Dev Kit.")
     parser.add_target_argument("--flash",          action="store_true",             help="Flash bitstream.")
-    parser.add_target_argument("--sys-clk-freq",   default=100e6,       type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",   default=45e6,        type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",             help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
 

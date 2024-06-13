@@ -49,6 +49,22 @@ _io = [
         Subsignal("miso", Pins("N1")),
         IOStandard("3.3_V_LVTTL_/_LVCMOS")
     ),
+
+    # SDRAM NDS36PT5-20ET
+    ("sdram_clock", 0, Pins("P16"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("SLEW=FAST")),
+    ("sdram", 0,
+        Subsignal("a", Pins("C12 D11 C11 E11 J13 J14 J15 K12 K14 L15 D12 L16 M12")),
+        Subsignal("dq", Pins("B14 A14 B13 A13 B12 B11 A11 B10 K15 E16 D16 C16 C15 B16 B15 A15")),
+        Subsignal("ba", Pins("C14 C13")),
+        Subsignal("dm", Pins("K16 B9")),
+        Subsignal("ras_n", Pins("E12")),
+        Subsignal("cas_n", Pins("H12")),
+        Subsignal("we_n", Pins("J12")),
+        Subsignal("cs_n", Pins("D13")),
+        Subsignal("cke", Pins("M16")),
+        IOStandard("3.3_V_LVTTL_/_LVCMOS"),
+        Misc("SLEW = FAST")
+    ),
 ]
 
 # Bank voltage ---------------------------------------------------------------------------------------
