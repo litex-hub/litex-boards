@@ -222,6 +222,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lambdaconcept_ecpix5.Platform, description="LiteX SoC on ECPIX-5.")
+    parser.add_target_argument("--version",         default="r02",            help="board version r0X (0 < X <= 3).")
     parser.add_target_argument("--flash",           action="store_true",      help="Flash bitstream to SPI Flash.")
     parser.add_target_argument("--device",          default="85F",            help="ECP5 device (45F or 85F).")
     parser.add_target_argument("--sys-clk-freq",    default=75e6, type=float, help="System clock frequency.")
@@ -252,12 +253,12 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(args.version)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
-        prog.flash(None, builder.get_bitstream_filename(mode="flash", ext=".svf")) # FIXME
+        prog = soc.platform.create_programmer(args.version)
+        prog.flash(0, builder.get_bitstream_filename(mode="flash"))
 
 if __name__ == "__main__":
     main()
