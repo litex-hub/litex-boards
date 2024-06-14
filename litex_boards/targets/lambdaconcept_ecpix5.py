@@ -78,6 +78,9 @@ class BaseSoC(SoCCore):
     def __init__(self, device="85F", sys_clk_freq=75e6, toolchain="trellis",
         with_ethernet          = False,
         with_etherbone         = False,
+        eth_ip                 = "192.168.1.50",
+        remote_ip              = None,
+        eth_dynamic_ip         = False,
         with_video_terminal    = False,
         with_video_framebuffer = False,
         with_led_chaser        = True,
@@ -109,10 +112,10 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 rx_delay   = 0e-9)
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # HDMI -------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
@@ -230,6 +233,9 @@ def main():
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
@@ -242,6 +248,9 @@ def main():
         toolchain              = args.toolchain,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
+        eth_ip                 = args.eth_ip,
+        remote_ip              = args.remote_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
