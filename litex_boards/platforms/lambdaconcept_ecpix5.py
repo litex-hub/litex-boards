@@ -176,8 +176,9 @@ class Platform(LatticeECP5Platform):
         assert device in ["45F", "85F"]
         LatticeECP5Platform.__init__(self, f"LFE5UM5G-{device}-8BG554I", _io, _connectors, toolchain=toolchain, **kwargs)
 
-    def create_programmer(self):
-        return OpenFPGALoader("ecpix5")
+    def create_programmer(self, version="r02"):
+        board_name = {True: "ecpix5_r03", False: "ecpix5"}[version=="r03"]
+        return OpenFPGALoader(board_name)
 
     def do_finalize(self, fragment):
         LatticeECP5Platform.do_finalize(self, fragment)
