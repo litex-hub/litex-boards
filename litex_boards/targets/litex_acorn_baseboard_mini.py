@@ -136,7 +136,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            assert not with_sata and (not with_ethernet or with_etherbone)
+            assert not with_sata
             self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1_baseboard"),
                 data_width = 64,
                 bar0_size  = 0x20000)
@@ -145,8 +145,6 @@ class BaseSoC(SoCCore):
             platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y7 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtp_channel.gtpe2_channel_i}}]")
 
         # PCIe / Ethernet / SATA / Shared-QPLL -----------------------------------------------------
-
-        assert not (with_pcie and with_sata)
 
         if not with_pcie:
             # Ethernet QPLL Settings.
