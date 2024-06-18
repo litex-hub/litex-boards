@@ -76,7 +76,7 @@ class CRG(LiteXModule):
 
         # IDelayCtrl.
         if with_dram:
-            self.comb += self.cd_idelay.clk.eq(clk200_se)
+            self.specials += Instance("BUFG", i_I=clk200_se, o_O=self.cd_idelay.clk)
             self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
         # Eth PLL.
@@ -144,32 +144,63 @@ class BaseSoC(SoCCore):
             platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtp_channel.gtpe2_channel_i}}]")
             platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y7 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtp_channel.gtpe2_channel_i}}]")
 
-        # Ethernet / SATA RefClk/Shared-QPLL -------------------------------------------------------
+        # PCIe / Ethernet / SATA / Shared-QPLL -----------------------------------------------------
 
-        # Ethernet QPLL Settings.
-        qpll_eth_settings = QPLLSettings(
-            refclksel  = 0b111,
-            fbdiv      = 4,
-            fbdiv_45   = 4,
-            refclk_div = 1,
-        )
+        assert not (with_pcie and with_sata)
 
-        # SATA QPLL Settings.
-        qpll_sata_settings = QPLLSettings(
-            refclksel  = 0b111,
-            fbdiv      = 5,
-            fbdiv_45   = 4,
-            refclk_div = 1,
-        )
+        if not with_pcie:
+            # Ethernet QPLL Settings.
+            qpll_eth_settings = QPLLSettings(
+                refclksel  = 0b111,
+                fbdiv      = 4,
+                fbdiv_45   = 4,
+                refclk_div = 1,
+            )
+            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
 
-        # Shared QPLL.
-        self.qpll = qpll = QPLL(
-            gtgrefclk0    = Open() if not with_eth  else self.crg.cd_eth_ref.clk,
-            qpllsettings0 = None   if not with_eth  else qpll_eth_settings,
-            gtgrefclk1    = Open() if not with_sata else self.crg.cd_sata_ref.clk,
-            qpllsettings1 = None   if not with_sata else qpll_sata_settings,
-        )
-        platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
+            # SATA QPLL Settings.
+            qpll_sata_settings = QPLLSettings(
+                refclksel  = 0b111,
+                fbdiv      = 5,
+                fbdiv_45   = 4,
+                refclk_div = 1,
+            )
+            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
+
+            # Shared QPLL.
+            self.qpll = qpll = QPLL(
+                gtgrefclk0    = Open() if not with_eth  else self.crg.cd_eth_ref.clk,
+                qpllsettings0 = None   if not with_eth  else qpll_eth_settings,
+                gtgrefclk1    = Open() if not with_sata else self.crg.cd_sata_ref.clk,
+                qpllsettings1 = None   if not with_sata else qpll_sata_settings,
+            )
+
+        if with_pcie:
+            # PCIe QPLL Settings.
+            qpll_pcie_settings = QPLLSettings(
+                refclksel  = 0b001,
+                fbdiv      = 5,
+                fbdiv_45   = 5,
+                refclk_div = 1,
+            )
+
+            # Ethernet QPLL Settings.
+            qpll_eth_settings = QPLLSettings(
+                refclksel  = 0b111,
+                fbdiv      = 4,
+                fbdiv_45   = 4,
+                refclk_div = 1,
+            )
+            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-49]")
+
+            # Shared QPLL.
+            self.qpll = qpll = QPLL(
+                gtrefclk0     = Open() if not with_pcie else self.pcie_phy.pcie_refclk,
+                qpllsettings0 = None   if not with_pcie else qpll_pcie_settings,
+                gtgrefclk1    = Open() if not with_eth  else self.crg.cd_eth_ref.clk,
+                qpllsettings1 = None   if not with_eth  else qpll_eth_settings,
+            )
+            self.pcie_phy.use_external_qpll(qpll_channel=qpll.channels[0])
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -184,7 +215,7 @@ class BaseSoC(SoCCore):
             platform.add_extension(_eth_io)
 
             self.ethphy = A7_1000BASEX(
-                qpll_channel = qpll.channels[0],
+                qpll_channel = qpll.channels[1 if with_pcie else 0],
                 data_pads    = self.platform.request("sfp"),
                 sys_clk_freq = sys_clk_freq,
                 rx_polarity  = 1,  # Inverted on Acorn.
