@@ -29,24 +29,23 @@ from litedram.phy import GENSDRPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    name_sdram_clk = "sdram_clk"
-
     def __init__(self, platform, sys_clk_freq):
-        self.rst    = Signal()
-        self.cd_sys = ClockDomain()
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
         self.cd_sys_ps = ClockDomain()
 
         # # #
 
+        # Clk/Rst.
         clk50 = platform.request("clk50")
         rst_n = platform.request("user_btn", 0)
 
-        # PLL
+        # PLL.
         self.pll = pll = TRIONPLL(platform)
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
-        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=180, name=self.name_sdram_clk)  
+        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=180, name="sdram_clk")
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -62,7 +61,7 @@ class BaseSoC(SoCCore):
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size and sys_clk_freq <= 50e6 :
-            self.specials += ClkOutput(self.crg.name_sdram_clk, platform.request("sdram_clock"))
+            self.specials += ClkOutput("sdram_clk", platform.request("sdram_clock"))
 
             self.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",

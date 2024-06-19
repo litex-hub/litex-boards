@@ -11,17 +11,17 @@ from litex.build.efinix import EfinixProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk
+    # Clk.
     ("clk50", 0, Pins("L13"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 
-    # Serial
+    # Serial.
     ("serial", 0,
         Subsignal("tx", Pins("H4:18")), # 27 on H4
         Subsignal("rx", Pins("H4:19")), # 28 on H4
         IOStandard("3.3_V_LVTTL_/_LVCMOS") , Misc("WEAK_PULLUP")
     ),
 
-    # Leds
+    # Leds.
     ("user_led", 0, Pins("D14"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
     ("user_led", 1, Pins("E13"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
     ("user_led", 2, Pins("G13"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
@@ -31,17 +31,17 @@ _io = [
     ("user_led", 6, Pins("P15"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
     ("user_led", 7, Pins("M14"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
 
-    # Buttons
+    # Buttons.
     ("user_btn", 0, Pins("P2"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_btn", 1, Pins("N3"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_btn", 2, Pins("L4"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
 
-    # Switches
+    # Switches.
     ("user_sw", 0, Pins("H14"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_sw", 1, Pins("H15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
     ("user_sw", 2, Pins("H16"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
 
-    # SPIFlash
+    # SPIFlash.
     ("spiflash", 0,
         Subsignal("cs_n", Pins("P3")),
         Subsignal("clk",  Pins("M3")),
@@ -50,18 +50,18 @@ _io = [
         IOStandard("3.3_V_LVTTL_/_LVCMOS")
     ),
 
-    # SDRAM NDS36PT5-20ET
+    # SDRAM (NDS36PT5-20ET).
     ("sdram_clock", 0, Pins("P16"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("SLEW=FAST")),
     ("sdram", 0,
-        Subsignal("a", Pins("C12 D11 C11 E11 J13 J14 J15 K12 K14 L15 D12 L16 M12")),
-        Subsignal("dq", Pins("B14 A14 B13 A13 B12 B11 A11 B10 K15 E16 D16 C16 C15 B16 B15 A15")),
-        Subsignal("ba", Pins("C14 C13")),
-        Subsignal("dm", Pins("K16 B9")),
+        Subsignal("a",     Pins("C12 D11 C11 E11 J13 J14 J15 K12 K14 L15 D12 L16 M12")),
+        Subsignal("dq",    Pins("B14 A14 B13 A13 B12 B11 A11 B10 K15 E16 D16 C16 C15 B16 B15 A15")),
+        Subsignal("ba",    Pins("C14 C13")),
+        Subsignal("dm",    Pins("K16 B9")),
         Subsignal("ras_n", Pins("E12")),
         Subsignal("cas_n", Pins("H12")),
-        Subsignal("we_n", Pins("J12")),
-        Subsignal("cs_n", Pins("D13")),
-        Subsignal("cke", Pins("M16")),
+        Subsignal("we_n",  Pins("J12")),
+        Subsignal("cs_n",  Pins("D13")),
+        Subsignal("cke",   Pins("M16")),
         IOStandard("3.3_V_LVTTL_/_LVCMOS"),
         Misc("SLEW = FAST")
     ),
@@ -70,16 +70,16 @@ _io = [
 # Bank voltage ---------------------------------------------------------------------------------------
 
 _bank_info = [
-            ("1A",       "3.3 V LVTTL / LVCMOS"),
-            ("1B_1C",    "3.3 V LVTTL / LVCMOS"),
-            ("1D_1E",    "3.3 V LVTTL / LVCMOS"),
-            ("3A_3B_3C", "3.3 V LVTTL / LVCMOS"),
-            ("3D_3E",    "3.3 V LVTTL / LVCMOS"),
-            ("4A",       "3.3 V LVTTL / LVCMOS"),
-            ("4B",       "3.3 V LVTTL / LVCMOS"),
-            ("BR",       "1.2 V"),
-            ("TL",       "1.2 V"),
-            ("TR",       "1.2 V"),
+    ("1A",       "3.3 V LVTTL / LVCMOS"),
+    ("1B_1C",    "3.3 V LVTTL / LVCMOS"),
+    ("1D_1E",    "3.3 V LVTTL / LVCMOS"),
+    ("3A_3B_3C", "3.3 V LVTTL / LVCMOS"),
+    ("3D_3E",    "3.3 V LVTTL / LVCMOS"),
+    ("4A",       "3.3 V LVTTL / LVCMOS"),
+    ("4B",       "3.3 V LVTTL / LVCMOS"),
+    ("BR",       "1.2 V"),
+    ("TL",       "1.2 V"),
+    ("TR",       "1.2 V"),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
