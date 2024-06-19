@@ -56,8 +56,6 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {"csr": 0xA000_0000}  # default GP0 address on ZynqMP
-
     def __init__(self, sys_clk_freq=100e6, **kwargs):
         platform = xilinx_kv260.Platform()
 
@@ -127,13 +125,6 @@ class BaseSoC(SoCCore):
                 'PSU__UART1__PERIPHERAL__IO'       : 'MIO 36 .. 37',
             })
 
-            # Connect Zynq AXI master to the SoC
-            wb_gp0 = wishbone.Interface()
-            self.submodules += axi.AXI2Wishbone(
-                axi          = self.cpu.add_axi_gp_master(),
-                wishbone     = wb_gp0,
-                base_address = self.mem_map["csr"])
-            self.bus.add_master(master=wb_gp0)
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],
                 size   = 2 * 1024 * 1024 * 1024)  # DDR

@@ -79,14 +79,6 @@ class BaseSoC(SoCCore):
             os.system("mv zybo_z7_ps7.txt xci/zybo_z7_ps7.xci")
             self.cpu.set_ps7_xci("xci/zybo_z7_ps7.xci")
 
-            # Connect AXI GP0 to the SoC with base address of 0x43c00000 (default one)
-            wb_gp0  = wishbone.Interface()
-            self.submodules += axi.AXI2Wishbone(
-                axi          = self.cpu.add_axi_gp_master(),
-                wishbone     = wb_gp0,
-                base_address = 0x43c00000)
-            self.bus.add_master(master=wb_gp0)
-
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
             self.videophy = VideoS7HDMIPHY(platform.request("hdmi_tx"), clock_domain="hdmi")

@@ -50,7 +50,6 @@ class _CRG(LiteXModule):
 
 
 class BaseSoC(SoCCore):
-    mem_map = {"csr": 0x43c0_0000}  # default GP0 address on Zynq
 
     def __init__(self, sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
         platform = digilent_zedboard.Platform()
@@ -69,14 +68,6 @@ class BaseSoC(SoCCore):
             self.cpu.set_ps7(name="Zynq",
                              preset="ZedBoard",
                              config={'PCW_FPGA0_PERIPHERAL_FREQMHZ': sys_clk_freq / 1e6})
-
-            # Connect AXI GP0 to the SoC
-            wb_gp0 = wishbone.Interface()
-            self.submodules += axi.AXI2Wishbone(
-                axi          = self.cpu.add_axi_gp_master(),
-                wishbone     = wb_gp0,
-                base_address = self.mem_map["csr"])
-            self.bus.add_master(master=wb_gp0)
 
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],

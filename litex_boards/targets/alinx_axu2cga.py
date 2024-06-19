@@ -77,22 +77,11 @@ class BaseSoC(SoCCore):
         if kwargs.get("cpu_type", None) == "zynqmp":
             kwargs["integrated_sram_size"] = 0
             kwargs["with_uart"] = False
-            self.mem_map = {
-                "csr": 0x8000_0000, # Zynq GP0 default
-            }
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AXU2CGA", **kwargs)
 
         # ZynqMP Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
             self.cpu.config.update(platform.psu_config)
-
-            # Connect AXI HPM0 LPD to the SoC
-            wb_lpd = wishbone.Interface()
-            self.submodules += axi.AXI2Wishbone(
-                axi          = self.cpu.add_axi_gp_master(2, 32),
-                wishbone     = wb_lpd,
-                base_address = self.mem_map["csr"])
-            self.bus.add_master(master=wb_lpd)
 
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],
