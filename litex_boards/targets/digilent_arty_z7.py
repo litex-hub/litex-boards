@@ -80,15 +80,15 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         use_ps7_clk = (kwargs.get("cpu_type", None) == "zynq7000")
+        if use_ps7_clk:
+            sys_clk_freq = 100e6
+
         self.crg = _CRG(platform, sys_clk_freq, use_ps7_clk)
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs["integrated_sram_size"] = 0
             kwargs["with_uart"]            = False
-            self.mem_map = {
-                'csr': 0x4000_0000,  # Zynq GP0 default
-            }
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Arty Z7", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
@@ -100,14 +100,6 @@ class BaseSoC(SoCCore):
                     **platform.ps7_config,
                     "PCW_FPGA0_PERIPHERAL_FREQMHZ" : sys_clk_freq / 1e6,
                 })
-
-            # Connect AXI GP0 to the SoC
-            wb_gp0 = wishbone.Interface()
-            self.submodules += axi.AXI2Wishbone(
-                axi          = self.cpu.add_axi_gp_master(),
-                wishbone     = wb_gp0,
-                base_address = self.mem_map["csr"])
-            self.bus.add_master(master=wb_gp0)
 
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],

@@ -81,20 +81,11 @@ class BaseSoC(SoCCore):
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs["integrated_sram_size"] = 0
             kwargs["with_uart"]            = False
-            self.mem_map = {"csr": 0x4000_0000}  # Zynq GP0 default
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Snickerdoodle", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
             load_ps7(self, xci_file)
-
-            # Connect AXI GP0 to the SoC with base address of 0x43c00000 (default one)
-            wb_gp0  = wishbone.Interface()
-            self.submodules += axi.AXI2Wishbone(
-                axi          = self.cpu.add_axi_gp_master(),
-                wishbone     = wb_gp0,
-                base_address = self.mem_map["csr"])
-            self.bus.add_master(master=wb_gp0)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

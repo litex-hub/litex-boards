@@ -57,9 +57,6 @@ class BaseSoC(SoCCore):
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs["integrated_sram_size"] = 0x0
             kwargs["with_uart"] = False
-            self.mem_map = {
-                'csr': 0x4000_0000,  # Zynq GP0 default
-            }
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zybo Z7/original Zybo", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
@@ -74,13 +71,6 @@ class BaseSoC(SoCCore):
             else:
                 self.cpu.set_ps7(name="ps", config = platform.ps7_config)
 
-            # Connect AXI GP0 to the SoC with base address of 0x40000000 (default one)
-            wb_gp0  = wishbone.Interface()
-            self.submodules += axi.AXI2Wishbone(
-                axi          = self.cpu.add_axi_gp_master(),
-                wishbone     = wb_gp0,
-                base_address = 0x40000000)
-            self.bus.add_master(master=wb_gp0)
             #TODO memory size dependend on board variant
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],
