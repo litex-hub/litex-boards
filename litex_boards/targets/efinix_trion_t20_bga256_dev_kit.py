@@ -23,6 +23,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from litex.gen.genlib.misc import WaitTimer
+
 from litedram.modules import NDS36PT5
 from litedram.phy import GENSDRPHY
 
@@ -40,9 +42,15 @@ class _CRG(LiteXModule):
         clk50 = platform.request("clk50")
         rst_n = platform.request("user_btn", 0)
 
+        # A pulse is necessary to do a reset.
+        self.rst_pulse = Signal()
+        reset_timer = WaitTimer(25e-6*sys_clk_freq)
+        self.comb += self.rst_pulse.eq(self.rst ^ reset_timer.done)
+        self.comb += reset_timer.wait.eq(self.rst)
+
         # PLL.
         self.pll = pll = TRIONPLL(platform)
-        self.comb += pll.reset.eq(~rst_n | self.rst)
+        self.comb += pll.reset.eq(~rst_n | self.rst_pulse)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=180, name="sdram_clk")
