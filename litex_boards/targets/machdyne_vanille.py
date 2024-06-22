@@ -16,14 +16,12 @@ from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import machdyne_konfekt
+from litex_boards.platforms import machdyne_vanille
 
 from litex.build.io import DDROutput
 
 from litex.soc.cores.clock import *
-from litex.soc.cores.led import LedChaser
 from litex.soc.cores.usb_ohci import USBOHCI
-from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.video import VideoHDMIPHY
 
 from litex.soc.integration.soc_core import *
@@ -39,8 +37,7 @@ from litex.soc.integration.soc import SoCRegion
 # CRG ---------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, sdram_rate = "1:2"):
-        self.rst        = Signal()
+    def __init__(self, platform, sys_clk_freq, sdram_rate):
         self.cd_por     = ClockDomain()
         self.cd_sys     = ClockDomain()
         self.cd_video   = ClockDomain()
@@ -58,7 +55,7 @@ class _CRG(LiteXModule):
 
         # PLL
         self.pll = pll = ECP5PLL()
-        self.comb += pll.reset.eq(~por_done | self.rst)
+        self.comb += pll.reset.eq(~por_done)
         pll.register_clkin(clk48, 48e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
@@ -106,15 +103,18 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         "usb_ohci":     0xc0000000,
     }}
-    def __init__(self, revision="v0", device="12F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, **kwargs):
+    def __init__(self, revision="v0", device="12F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(48e6), toolchain="trellis", with_usb_host=False, **kwargs):
 
-        platform = machdyne_konfekt.Platform(revision=revision, device=device, toolchain=toolchain)
+        platform = machdyne_vanille.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Konfekt", **kwargs)
+
+        kwargs['uart_name'] = "stub"
+
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Vanille", **kwargs)
 
         # DRAM -------------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -155,32 +155,28 @@ class BaseSoC(SoCCore):
         self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz",
             clock_domain="video", format="rgb565")
 
-        # Leds -------------------------------------------------------------------------------------
-        if with_led_chaser:
-            self.leds = LedChaser(
-                pads         = platform.request_all("user_led"),
-                sys_clk_freq = sys_clk_freq)
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=machdyne_konfekt.Platform, description="LiteX SoC on Konfekt")
-    parser.add_argument("--sys-clk-freq",    default=40e6,         help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=machdyne_vanille.Platform, description="LiteX SoC on Vanille")
+    parser.add_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
     parser.add_argument("--revision",        default="v0",         help="Board Revision (v0).")
-    parser.add_argument("--device",          default="12F",        help="ECP5 device (12F, 25F, 45F or 85F).")
-    parser.add_argument("--cable",           default="dirtyJtag",  help="OpenFPGALoader cable type.")
+    parser.add_argument("--device",          default="12F",        help="ECP5 device (25F, 45F or 85F).")
+    parser.add_argument("--cable",           default="usb-blaster", help="Specify an openFPGALoader cable.")
     parser.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
     parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
     parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
+    parser.add_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
     parser.add_argument("--sdram-device",    default="W9825G6KH6", help="SDRAM device (W9825G6KH6 or IS42S16320).")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
+        toolchain    = args.toolchain,
+        revision     = args.revision,
+        device       = args.device,
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        revision = args.revision,
-        device = args.device,
         sdram_device = args.sdram_device,
         with_usb_host = args.with_usb_host,
         **parser.soc_argdict)
@@ -192,6 +188,7 @@ def main():
         soc.add_spi_sdcard()
 
     builder = Builder(soc, **parser.builder_argdict)
+
     if args.build:
         builder.build(**parser.toolchain_argdict)
 

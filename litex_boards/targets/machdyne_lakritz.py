@@ -16,7 +16,7 @@ from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import machdyne_konfekt
+from litex_boards.platforms import machdyne_lakritz
 
 from litex.build.io import DDROutput
 
@@ -106,15 +106,15 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         "usb_ohci":     0xc0000000,
     }}
-    def __init__(self, revision="v0", device="12F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, **kwargs):
+    def __init__(self, revision="v0", device="25F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(48e6), toolchain="trellis", with_led_chaser=False, with_video_framebuffer=False, with_usb_host=False, **kwargs):
 
-        platform = machdyne_konfekt.Platform(revision=revision, device=device, toolchain=toolchain)
+        platform = machdyne_lakritz.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Konfekt", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Lakritz", **kwargs)
 
         # DRAM -------------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -150,10 +150,13 @@ class BaseSoC(SoCCore):
             self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
 
         # DDMI Framebuffer -------------------------------------------------------------------------------------
-        self.videophy = VideoHDMIPHY(platform.request("ddmi"),
-            clock_domain="video")
-        self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz",
-            clock_domain="video", format="rgb565")
+        if with_video_framebuffer:
+            self.videophy = VideoHDMIPHY(platform.request("ddmi"),
+                clock_domain="video")
+            self.add_video_framebuffer(phy=self.videophy,
+                timings="640x480@60Hz",
+                clock_domain="video",
+                format="rgb565")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -165,22 +168,23 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=machdyne_konfekt.Platform, description="LiteX SoC on Konfekt")
-    parser.add_argument("--sys-clk-freq",    default=40e6,         help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=machdyne_lakritz.Platform, description="LiteX SoC on Lakritz")
+    parser.add_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
     parser.add_argument("--revision",        default="v0",         help="Board Revision (v0).")
-    parser.add_argument("--device",          default="12F",        help="ECP5 device (12F, 25F, 45F or 85F).")
-    parser.add_argument("--cable",           default="dirtyJtag",  help="OpenFPGALoader cable type.")
+    parser.add_argument("--device",          default="25F",        help="ECP5 device (12F, 25F, 45F or 85F).")
+    parser.add_argument("--cable",           default="dirtyJtag",  help="Specify an openFPGALoader cable.")
     parser.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
     parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
+    parser.add_argument("--with-video-framebuffer",   action="store_true",  help="Enable DDMI framebuffer.")
     parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
     parser.add_argument("--sdram-device",    default="W9825G6KH6", help="SDRAM device (W9825G6KH6 or IS42S16320).")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
+        revision     = args.revision,
+        device       = args.device,
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        revision = args.revision,
-        device = args.device,
         sdram_device = args.sdram_device,
         with_usb_host = args.with_usb_host,
         **parser.soc_argdict)
@@ -196,7 +200,7 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer(cable=args.cable)
+        prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":

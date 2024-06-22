@@ -17,53 +17,36 @@ _io_vx = [
     ("clk48", 0,  Pins("A7"),  IOStandard("LVCMOS33")),
 
     # Leds
-    ("user_led", 0, Pins("B1"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("C1"), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins("D1"),  IOStandard("LVCMOS33")),
-    ("rgb_led", 0,
-        Subsignal("r", Pins("B1"), IOStandard("LVCMOS33")),
-        Subsignal("g", Pins("C1"), IOStandard("LVCMOS33")),
-        Subsignal("b", Pins("D1"),  IOStandard("LVCMOS33")),
-    ),
+    ("user_led", 0, Pins("A2"), IOStandard("LVCMOS33")),
 
     # SDRAM
     ("sdram_clock", 0, Pins("F16"), IOStandard("LVTTL33")),
     ("sdram", 0,
         Subsignal("a", Pins(
-            "R14 M14 L14 L13 G12 G13 G14 G15",
+            "M13 M14 L14 L13 G12 G13 G14 G15",
             "F12 F13 T15 F14 E14")),
-        Subsignal("ba",    Pins("T14 T13")),
+        Subsignal("ba",    Pins("P14 N13")),
         Subsignal("cs_n",  Pins("G16")),
         Subsignal("cke",   Pins("F15")),
         Subsignal("ras_n", Pins("J16")),
         Subsignal("cas_n", Pins("K16")),
         Subsignal("we_n",  Pins("L15")),
         Subsignal("dq", Pins(
-            "R15 R16 P16 P15 N16 N14 M16 M15",
-            "E15 D16 D14 C16 B16 C14 C15 B15")),
-        Subsignal("dm", Pins("L16 E16")),
+            "R15 R16 P15 P16 N16 N14 M16 M15",
+            "E16 D14 D16 C15 C16 C14 B16 B15")),
+        Subsignal("dm", Pins("L16 E15")),
         IOStandard("LVTTL33")
-    ),
-
-    # VGA
-    ("vga", 0,
-        Subsignal("r",     Pins("J3")),
-        Subsignal("g",     Pins("K3")),
-        Subsignal("b",     Pins("H2")),
-        Subsignal("hsync", Pins("J1")),
-        Subsignal("vsync", Pins("J2")),
-        IOStandard("LVCMOS33")
     ),
 
     # Differential Data Multiple Interface
     ("ddmi", 0,
-        Subsignal("clk_p",    Pins("R5"),
+        Subsignal("clk_p",    Pins("L1"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data0_p",  Pins("P4"),
+        Subsignal("data0_p",  Pins("M1"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data1_p",  Pins("P1"),
+        Subsignal("data1_p",  Pins("R2"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data2_p",  Pins("N1"),
+        Subsignal("data2_p",  Pins("R4"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
     ),
 
@@ -77,11 +60,47 @@ _io_vx = [
 
     # USB HOST
     ("usb_host", 0,
-        Subsignal("dp", Pins("PMODB:0 PMODB:2")),
-        Subsignal("dm", Pins("PMODB:1 PMODB:3")),
-        #Subsignal("dp", Pins("F2 PMODB:0")),
-        #Subsignal("dm", Pins("E1 PMODB:1")),
+        #Subsignal("dp", Pins("A3")),
+        #Subsignal("dm", Pins("A4")),
+        Subsignal("dp", Pins("A3 B1")),
+        Subsignal("dm", Pins("A4 B2")),
         IOStandard("LVCMOS33")
+    ),
+
+    # 3.5MM AUDIO
+    ("audio_pwm", 0,
+        Subsignal("left", Pins("M3")),
+        Subsignal("right", Pins("N1")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # 3.5MM VIDEO
+    ("video_dac", 0,
+        Subsignal("data", Pins("P1 R1 P2 N3")),
+        IOStandard("LVCMOS33")
+    ),
+
+]
+
+_io_v0 = [
+
+    # SD card w/ SD-mode interface
+    ("sdcard", 0,
+        Subsignal("clk", Pins("F2"), Misc("PULLMODE=NONE")),
+        Subsignal("cmd", Pins("K1"), Misc("PULLMODE=NONE")),
+        Subsignal("data", Pins("F3 F1 K3 K2"), Misc("PULLMODE=NONE")),
+        Misc("SLEWRATE=FAST"),
+        IOStandard("LVCMOS33")
+    ),
+
+    # SD card w/ SPI interface
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("F2")),
+        Subsignal("mosi", Pins("K1")),
+        Subsignal("cs_n", Pins("K2")),
+        Subsignal("miso", Pins("F3")),
+        Misc("SLEWRATE=FAST"),
+        IOStandard("LVCMOS33"),
     ),
 
     # UART PMOD
@@ -91,36 +110,12 @@ _io_vx = [
         IOStandard("LVCMOS33")
     ),
 
-    # SPI
-    ("spiflash", 0,
-        Subsignal("cs_n",   Pins("N8"), Misc("PULLMODE=UP")),
-        Subsignal("clk",    Pins("N9")),
-        Subsignal("miso",   Pins("T7"), Misc("PULLMODE=UP")),
-        Subsignal("mosi",   Pins("T8"), Misc("PULLMODE=UP")),
-        Misc("SLEWRATE=SLOW"),
-        IOStandard("LVCMOS33"),
-    ),
-
-]
-
-_io_v1 = [
-
-    # SD card w/ SD-mode interface
-    ("sdcard", 0,
-        Subsignal("cd", Pins("A13")),
-        Subsignal("clk", Pins("D6")),
-        Subsignal("cmd", Pins("C6")),
-        Subsignal("data", Pins("E6 B13 B12 B6")),
-        Misc("SLEW=FAST"),
-        IOStandard("LVCMOS33")
-    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors_vx = [
-    ("PMODA", "A2 A3 A4 A5 B3 B4 B5 A6"),
-    ("PMODB", "A12 A11 B11 B10 A9 A10 B8 B9"),
+    ("PMODA", "B11 B12 B13 B14 A11 A12 A13 A14")
 ]
 
 # Platform -----------------------------------------------------------------------------------------
@@ -129,15 +124,15 @@ class Platform(LatticeECP5Platform):
     default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
-    def __init__(self, revision="v1", device="45F", toolchain="trellis", **kwargs):
-        assert revision in ["v1", "v2"]
+    def __init__(self, revision="v0", device="25F", toolchain="trellis", **kwargs):
+        assert revision in ["v0"]
         assert device in ["12F", "25F", "45F", "85F"]
         self.revision = revision
 
         io = _io_vx
         connectors = _connectors_vx
 
-        if revision == "v1": io += _io_v1
+        if revision == "v0": io += _io_v0
 
         LatticeECP5Platform.__init__(self, f"LFE5U-{device}-6BG256", io, connectors, toolchain=toolchain, **kwargs)
 

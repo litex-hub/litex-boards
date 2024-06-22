@@ -1,12 +1,12 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copright (c) 2023 Lone Dynamics Corporation <info@lonedynamics.com>
+# Copyright (c) 2023 Lone Dynamics Corporation <info@lonedynamics.com>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.lattice import LatticePlatform
+from litex.build.lattice import LatticeECP5Platform
 from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ _connectors_vx = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(LatticePlatform):
+class Platform(LatticeECP5Platform):
     default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
@@ -120,11 +120,11 @@ class Platform(LatticePlatform):
 
         if revision == "v0": io += _io_v0
 
-        LatticePlatform.__init__(self, f"LFE5U-{device}-6BG256", io, connectors, toolchain=toolchain, **kwargs)
+        LatticeECP5Platform.__init__(self, f"LFE5U-{device}-6BG256", io, connectors, toolchain=toolchain, **kwargs)
 
     def create_programmer(self, cable):
         return OpenFPGALoader(cable=cable)
 
     def do_finalize(self, fragment):
-        LatticePlatform.do_finalize(self, fragment)
+        LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk48", loose=True), 1e9/48e6)
