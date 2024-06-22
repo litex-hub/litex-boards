@@ -17,18 +17,7 @@ _io_vx = [
     ("clk48", 0,  Pins("A7"),  IOStandard("LVCMOS33")),
 
     # Leds
-    ("user_led", 0, Pins("G1"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("E1"), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins("C1"),  IOStandard("LVCMOS33")),
-
-    ("rgb_led", 0,
-        Subsignal("r", Pins("G1"), IOStandard("LVCMOS33")),
-        Subsignal("g", Pins("E1"), IOStandard("LVCMOS33")),
-        Subsignal("b", Pins("C1"),  IOStandard("LVCMOS33")),
-    ),
-
-    # Buttons
-    ("usr_btn", 0, Pins("K1"), IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("A2"), IOStandard("LVCMOS33")),
 
     # SDRAM
     ("sdram_clock", 0, Pins("F16"), IOStandard("LVTTL33")),
@@ -43,21 +32,21 @@ _io_vx = [
         Subsignal("cas_n", Pins("K16")),
         Subsignal("we_n",  Pins("L15")),
         Subsignal("dq", Pins(
-            "R15 R16 P16 P15 N16 N14 M16 M15",
-            "E15 D16 D14 C16 B16 C14 C15 B15")),
-        Subsignal("dm", Pins("L16 E16")),
+            "R15 R16 P15 P16 N16 N14 M16 M15",
+            "E16 D14 D16 C15 C16 C14 B16 B15")),
+        Subsignal("dm", Pins("L16 E15")),
         IOStandard("LVTTL33")
     ),
 
     # Differential Data Multiple Interface
     ("ddmi", 0,
-        Subsignal("clk_p",    Pins("M1"),
+        Subsignal("clk_p",    Pins("L1"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data0_p",  Pins("P1"),
+        Subsignal("data0_p",  Pins("M1"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
         Subsignal("data1_p",  Pins("R2"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data2_p",  Pins("R5"),
+        Subsignal("data2_p",  Pins("R4"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
     ),
 
@@ -71,52 +60,54 @@ _io_vx = [
 
     # USB HOST
     ("usb_host", 0,
-        Subsignal("dp", Pins("B1")),
-        Subsignal("dm", Pins("B2")),
+        #Subsignal("dp", Pins("A3")),
+        #Subsignal("dm", Pins("A4")),
+        Subsignal("dp", Pins("A3 B1")),
+        Subsignal("dm", Pins("A4 B2")),
         IOStandard("LVCMOS33")
     ),
 
     # 3.5MM AUDIO
     ("audio_pwm", 0,
-        Subsignal("left", Pins("M11")),
-        Subsignal("right", Pins("P12")),
+        Subsignal("left", Pins("M3")),
+        Subsignal("right", Pins("N1")),
         IOStandard("LVCMOS33")
     ),
 
     # 3.5MM VIDEO
     ("video_dac", 0,
-        Subsignal("data", Pins("T13 R12 T14 R13")),
+        Subsignal("data", Pins("P1 R1 P2 N3")),
         IOStandard("LVCMOS33")
     ),
 
-    # DEBUG UART
-    ("serial", 0,
-        Subsignal("tx", Pins("J2")),
-        Subsignal("rx", Pins("J1")),
-        IOStandard("LVCMOS33")
-    ),
 ]
 
 _io_v0 = [
 
     # SD card w/ SD-mode interface
     ("sdcard", 0,
-    #    Subsignal("cd", Pins("A5")),
-        Subsignal("clk", Pins("B4")),
-        Subsignal("cmd", Pins("A3")),
-        Subsignal("data", Pins("A4 B5 A2 B3")),
+        Subsignal("clk", Pins("F2"), Misc("PULLMODE=NONE")),
+        Subsignal("cmd", Pins("K1"), Misc("PULLMODE=NONE")),
+        Subsignal("data", Pins("F3 F1 K3 K2"), Misc("PULLMODE=NONE")),
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33")
     ),
 
     # SD card w/ SPI interface
     ("spisdcard", 0,
-        Subsignal("clk",  Pins("B4")),
-        Subsignal("mosi", Pins("A3")),
-        Subsignal("cs_n", Pins("B3")),
-        Subsignal("miso", Pins("A4")),
+        Subsignal("clk",  Pins("F2")),
+        Subsignal("mosi", Pins("K1")),
+        Subsignal("cs_n", Pins("K2")),
+        Subsignal("miso", Pins("F3")),
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
+    ),
+
+    # UART PMOD
+    ("serial", 0,
+        Subsignal("tx", Pins("PMODA:1")),
+        Subsignal("rx", Pins("PMODA:2")),
+        IOStandard("LVCMOS33")
     ),
 
 ]
@@ -124,7 +115,7 @@ _io_v0 = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors_vx = [
-
+    ("PMODA", "B11 B12 B13 B14 A11 A12 A13 A14")
 ]
 
 # Platform -----------------------------------------------------------------------------------------
@@ -133,7 +124,7 @@ class Platform(LatticePlatform):
     default_clk_name   = "clk48"
     default_clk_period = 1e9/48e6
 
-    def __init__(self, revision="v0", device="12F", toolchain="trellis", **kwargs):
+    def __init__(self, revision="v0", device="25F", toolchain="trellis", **kwargs):
         assert revision in ["v0"]
         assert device in ["12F", "25F", "45F", "85F"]
         self.revision = revision

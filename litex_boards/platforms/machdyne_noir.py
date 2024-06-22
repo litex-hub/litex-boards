@@ -1,7 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copright (c) 2022 Lone Dynamics Corporation <info@lonedynamics.com>
+# Copyright (c) 2022 Lone Dynamics Corporation <info@lonedynamics.com>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
