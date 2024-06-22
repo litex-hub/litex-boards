@@ -1,7 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2022 Lone Dynamics Corporation <info@lonedynamics.com>
+# Copyright (c) 2023 Lone Dynamics Corporation <info@lonedynamics.com>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,17 +14,7 @@ from litex.build.openfpgaloader import OpenFPGALoader
 _io_vx = [
 
     # Clock
-    ("clk48", 0,  Pins("A7"),  IOStandard("LVCMOS33")),
-
-    # Leds
-    ("user_led", 0, Pins("C1"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("E1"), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins("G1"),  IOStandard("LVCMOS33")),
-    ("rgb_led", 0,
-        Subsignal("r", Pins("C1"), IOStandard("LVCMOS33")),
-        Subsignal("g", Pins("E1"), IOStandard("LVCMOS33")),
-        Subsignal("b", Pins("G1"),  IOStandard("LVCMOS33")),
-    ),
+    ("clk48", 0,  Pins("C7"),  IOStandard("LVCMOS33")),
 
     # DDR3L
     ("ddram", 0,
@@ -54,74 +44,61 @@ _io_vx = [
 
     # Differential Data Multiple Interface
     ("ddmi", 0,
-        Subsignal("clk_p",    Pins("M1"),
+        Subsignal("clk_p",    Pins("B10"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data0_p",  Pins("P1"),
+        Subsignal("data0_p",  Pins("A9"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data1_p",  Pins("R2"),
+        Subsignal("data1_p",  Pins("C8"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data2_p",  Pins("R5"),
+        Subsignal("data2_p",  Pins("A11"),
             IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
     ),
 
     # USB-C
     ("usb", 0,
-        Subsignal("d_p", Pins("T6")),
-        Subsignal("d_n", Pins("R6")),
-        Subsignal("pullup", Pins("R7")),
+        Subsignal("d_p", Pins("A13")),
+        Subsignal("d_n", Pins("A14")),
+        Subsignal("pullup", Pins("B14")),
         IOStandard("LVCMOS33")
     ),
 
-    # USB HOST
+    # DUAL USB HOST
     ("usb_host", 0,
-        Subsignal("dp", Pins("B1")),
-        Subsignal("dm", Pins("B2")),
+        Subsignal("dp", Pins("A5 A3")),
+        Subsignal("dm", Pins("A6 A4")),
         IOStandard("LVCMOS33")
     ),
 
-    # 3.5MM AUDIO
-    ("audio_pwm", 0,
-        Subsignal("left", Pins("N7")),
-        Subsignal("right", Pins("M7")),
+    # ETHERNET
+    ("eth_clocks", 0,
+        Subsignal("ref_clk", Pins("A7")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rx_data", Pins("B5 B4"), Misc("PULLMODE=UP")),
+        Subsignal("tx_data", Pins("C6 B6")),
+        Subsignal("tx_en", Pins("C5")),
+        Subsignal("crs_dv", Pins("E7"), Misc("PULLMODE=UP")),
+        Subsignal("rst_n", Pins("D7")),
         IOStandard("LVCMOS33")
     ),
 
     # DEBUG UART
     ("serial", 0,
-        Subsignal("tx", Pins("J2")),
-        Subsignal("rx", Pins("J1")),
+        Subsignal("tx", Pins("B3")),
+        Subsignal("rx", Pins("A2")),
         IOStandard("LVCMOS33")
     ),
-
-    # SPI
-    ("spiflash", 0,
-        Subsignal("cs_n",   Pins("N8")),
-        Subsignal("miso",   Pins("T7")),
-        Subsignal("mosi",   Pins("T8")),
-        Misc("SLEWRATE=FAST"),
-        IOStandard("LVCMOS33"),
-    ),
-
 ]
 
 _io_v0 = [
 
-    # SD card w/ SD-mode interface
-    ("sdcard", 0,
-        Subsignal("cd", Pins("A5")),
-        Subsignal("clk", Pins("B4")),
-        Subsignal("cmd", Pins("A3"), Misc("PULLMODE=UP")),
-        Subsignal("data", Pins("A4 B5 A2 B3"), Misc("PULLMODE=UP")),
-        Misc("SLEWRATE=FAST"),
-        IOStandard("LVCMOS33")
-    ),
-
     # SD card w/ SPI interface
     ("spisdcard", 0,
-        Subsignal("clk",  Pins("B4")),
-        Subsignal("mosi", Pins("A3")),
-        Subsignal("cs_n", Pins("B3")),
-        Subsignal("miso", Pins("A4")),
+        Subsignal("clk",  Pins("L1")),
+        Subsignal("mosi", Pins("L4")),
+        Subsignal("cs_n", Pins("L2")),
+        Subsignal("miso", Pins("L3")),
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
@@ -131,6 +108,7 @@ _io_v0 = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors_vx = [
+
 ]
 
 # Platform -----------------------------------------------------------------------------------------

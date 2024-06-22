@@ -17,16 +17,15 @@ from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import machdyne_kopflos
+from litex_boards.platforms import machdyne_mozart_ml2
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
 from litex.build.io import DDROutput
 
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.cores.clock import *
-from litex.soc.cores.led import LedChaser
 from litex.soc.cores.usb_ohci import USBOHCI
+from litex.soc.cores.video import VideoHDMIPHY
 
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -34,8 +33,6 @@ from litex.soc.interconnect.csr_eventmanager import *
 
 from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
 from litedram.phy import ECP5DDRPHY
-
-from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from litex.soc.integration.soc import SoCRegion
 
@@ -49,6 +46,8 @@ class _CRG(LiteXModule):
         self.cd_sys2x   = ClockDomain()
         self.cd_sys2x_i = ClockDomain()
         self.cd_init    = ClockDomain()
+        self.cd_video   = ClockDomain()
+        self.cd_video5x = ClockDomain()
 
         self.stop  = Signal()
         self.reset = Signal()
@@ -91,14 +90,25 @@ class _CRG(LiteXModule):
         pll2 = ECP5PLL()
         self.pll2 = pll2
         pll2.register_clkin(clk48, 48e6)
+        pll2.create_clkout(self.cd_video, 25e6)
+        pll2.create_clkout(self.cd_video5x, 125e6)
 
+        pll3 = ECP5PLL()
+        self.pll3 = pll3
+        pll3.register_clkin(clk48, 48e6)
         self.cd_usb_12 = ClockDomain()
-        self.cd_usb    = ClockDomain()
+        self.cd_usb = ClockDomain()
         self.cd_usb_48 = ClockDomain()
         self.cd_usb_48 = self.cd_usb
-        pll2.create_clkout(self.cd_usb, 48e6)
-        pll2.create_clkout(self.cd_usb_12, 12e6)
-        self.comb += pll2.reset.eq(~por_done)
+        pll3.create_clkout(self.cd_usb, 48e6)
+        pll3.create_clkout(self.cd_usb_12, 12e6)
+        self.comb += pll3.reset.eq(~por_done)
+
+        #pll4 = ECP5PLL()
+        #self.pll4 = pll4
+        #pll4.register_clkin(clk48, 48e6)
+        #pll4.create_clkout(self.cd_eth, 50e6)
+        #self.comb += pll4.reset.eq(~por_done)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -106,18 +116,17 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         "usb_ohci":     0xc0000000,
     }}
-    def __init__(self, revision="v0", device="12F", sdram_device="MT41K128M16", sdram_rate="1:2", sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, with_ethernet=False, **kwargs):
+    def __init__(self, revision="v0", device="45F", sdram_rate="1:2", sys_clk_freq=int(48e6), toolchain="trellis", with_usb_host=False, with_ethernet=False, sdram_device="MT41K256M16", **kwargs):
 
-        platform = machdyne_kopflos.Platform(revision=revision, device=device ,toolchain=toolchain)
+        platform = machdyne_mozart_ml2.Platform(revision=revision, device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Schoko", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Mozart ML2", **kwargs)
 
-        # DDR3L ----------------------------------------------------------------------------------
-
+        # DDR3L -------------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             available_sdram_modules = {
                 "MT41K64M16":  MT41K64M16,
@@ -138,8 +147,14 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = sdram_module(sys_clk_freq, "1:2"),
-                l2_cache_size = kwargs.get("l2_size", 8192) 
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
+
+        # DDMI Framebuffer -------------------------------------------------------------------------------------
+        self.videophy = VideoHDMIPHY(platform.request("ddmi"),
+            clock_domain="video")
+        self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz",
+            clock_domain="video", format="rgb565")
 
         # USB Host ---------------------------------------------------------------------------------
         if with_usb_host:
@@ -148,6 +163,7 @@ class BaseSoC(SoCCore):
             self.dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
             self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
 
+        # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet:
             from liteeth.phy.rmii import LiteEthPHYRMII
             self.ethphy = LiteEthPHYRMII(
@@ -157,26 +173,21 @@ class BaseSoC(SoCCore):
                 refclk_cd=None)
             self.add_ethernet(phy=self.ethphy)
 
-        # Leds -------------------------------------------------------------------------------------
-        if with_led_chaser:
-            self.leds = LedChaser(
-                pads         = platform.request_all("user_led"),
-                sys_clk_freq = sys_clk_freq)
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=machdyne_kopflos.Platform, description="LiteX SoC on Schoko")
-    parser.add_argument("--sys-clk-freq",    default=40e6,         help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=machdyne_mozart_ml2.Platform, description="LiteX SoC on Mozart ML2")
+    parser.add_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
     parser.add_argument("--revision",        default="v0",         help="Board Revision (v0).")
-    parser.add_argument("--device",          default="12F",        help="ECP5 device (12F, 25F, 45F or 85F).")
-    parser.add_argument("--cable",           default="dirtyJtag",  help="Specify an openFPGALoader cable.")
+    parser.add_argument("--device",          default="45F",        help="ECP5 device (12F, 25F, 45F or 85F).")
+    parser.add_argument("--cable",           default="usb-blaster", help="Specify an openFPGALoader cable.")
     parser.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
     parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
     parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
     parser.add_argument("--with-ethernet",   action="store_true",  help="Enable ethernet support.")
-    parser.add_argument("--sdram-device",    default="MT41K128M16", help="SDRAM device.")
+    parser.add_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
+    parser.add_argument("--sdram-device",    default="MT41K256M16", help="SDRAM device.")
 
     args = parser.parse_args()
 
@@ -185,9 +196,9 @@ def main():
         revision     = args.revision,
         device       = args.device,
         sys_clk_freq = int(float(args.sys_clk_freq)),
-        sdram_device = args.sdram_device,
         with_usb_host = args.with_usb_host,
         with_ethernet = args.with_ethernet,
+        sdram_device  = args.sdram_device,
         **parser.soc_argdict)
 
     if args.with_sdcard:
@@ -197,11 +208,12 @@ def main():
         soc.add_spi_sdcard()
 
     builder = Builder(soc, **parser.builder_argdict)
+
     if args.build:
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(cable=args.cable)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":

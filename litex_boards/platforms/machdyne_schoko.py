@@ -77,8 +77,10 @@ _io_vx = [
 
     # USB HOST
     ("usb_host", 0,
-        Subsignal("dp", Pins("F2")),
-        Subsignal("dm", Pins("E1")),
+        Subsignal("dp", Pins("PMODB:0 PMODB:2")),
+        Subsignal("dm", Pins("PMODB:1 PMODB:3")),
+        #Subsignal("dp", Pins("F2 PMODB:0")),
+        #Subsignal("dm", Pins("E1 PMODB:1")),
         IOStandard("LVCMOS33")
     ),
 
@@ -102,20 +104,6 @@ _io_vx = [
 ]
 
 _io_v1 = [
-
-    # SD card w/ SPI interface
-    ("spisdcard", 0,
-        Subsignal("clk",  Pins("D6")),
-        Subsignal("mosi", Pins("C6")),
-        Subsignal("cs_n", Pins("B6")),
-        Subsignal("miso", Pins("E6")),
-        Misc("SLEWRATE=FAST"),
-        IOStandard("LVCMOS33"),
-    ),
-
-]
-
-_io_v2 = [
 
     # SD card w/ SD-mode interface
     ("sdcard", 0,
@@ -143,14 +131,13 @@ class Platform(LatticeECP5Platform):
 
     def __init__(self, revision="v1", device="45F", toolchain="trellis", **kwargs):
         assert revision in ["v1", "v2"]
-        assert device in ["25F", "45F", "85F"]
+        assert device in ["12F", "25F", "45F", "85F"]
         self.revision = revision
 
         io = _io_vx
         connectors = _connectors_vx
 
         if revision == "v1": io += _io_v1
-        if revision == "v2": io += _io_v2
 
         LatticeECP5Platform.__init__(self, f"LFE5U-{device}-6BG256", io, connectors, toolchain=toolchain, **kwargs)
 

@@ -18,7 +18,6 @@ from litex.gen import *
 
 from litex_boards.platforms import machdyne_minze
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
 from litex.build.io import DDROutput
 
 from litex.soc.cores.clock import *
@@ -95,7 +94,7 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         "usb_ohci":     0xc0000000,
     }}
-    def __init__(self, revision="v0", device="12F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(48e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, **kwargs):
+    def __init__(self, revision="v0", device="12F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(48e6), toolchain="trellis", with_led_chaser=False, with_usb_host=False, **kwargs):
 
         platform = machdyne_minze.Platform(revision=revision, device=device ,toolchain=toolchain)
 
@@ -148,44 +147,27 @@ class BaseSoC(SoCCore):
         #    clock_domain="video")
 
         # Leds -------------------------------------------------------------------------------------
-        #if with_led_chaser:
-        #    self.leds = LedChaser(
-        #        pads         = platform.request_all("user_led"),
-        #        sys_clk_freq = sys_clk_freq)
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.soc.integration.soc import LiteXSoCArgumentParser
-    parser = LiteXSoCArgumentParser(description="LiteX SoC on Minze")
-    target_group = parser.add_argument_group(title="Target options")
-    target_group.add_argument("--build",           action="store_true",  help="Build design.")
-    target_group.add_argument("--load",            action="store_true",  help="Load bitstream to SRAM.")
-    target_group.add_argument("--flash",           action="store_true",  help="Flash bitstream to MMOD.")
-    target_group.add_argument("--toolchain",       default="trellis",    help="FPGA toolchain (trellis or diamond).")
-    target_group.add_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
-    target_group.add_argument("--revision",        default="v0",         help="Board Revision (v0).")
-    target_group.add_argument("--device",          default="12F",        help="ECP5 device (25F, 45F or 85F).")
-    target_group.add_argument("--cable",           default="usb-blaster", help="Specify an openFPGALoader cable.")
-    target_group.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
-    target_group.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
-    target_group.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
-    target_group.add_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
-    target_group.add_argument("--sdram-device",    default="W9825G6KH6", help="SDRAM device (W9825G6KH6 or IS42S16320).")
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=machdyne_minze.Platform, description="LiteX SoC on Minze")
+    parser.add_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
+    parser.add_argument("--revision",        default="v0",         help="Board Revision (v0).")
+    parser.add_argument("--device",          default="12F",        help="ECP5 device (25F, 45F or 85F).")
+    parser.add_argument("--cable",           default="dirtyJtag",  help="Specify an openFPGALoader cable.")
+    parser.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
+    parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
+    parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
+    parser.add_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
+    parser.add_argument("--sdram-device",    default="W9825G6KH6", help="SDRAM device (W9825G6KH6 or IS42S16320).")
 
-    builder_args(parser)
-    soc_core_args(parser)
-    trellis_args(parser)
     args = parser.parse_args()
-
-    print("")
-    print("")
-    print("")
-    print(args)
-
-    print("")
-    print("")
-    print("")
 
     soc = BaseSoC(
         toolchain    = args.toolchain,
@@ -194,7 +176,7 @@ def main():
         sys_clk_freq = int(float(args.sys_clk_freq)),
         sdram_device = args.sdram_device,
         with_usb_host = args.with_usb_host,
-        **soc_core_argdict(args))
+        **parser.soc_argdict)
 
     if args.with_sdcard:
         soc.add_sdcard()
@@ -202,19 +184,14 @@ def main():
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder_kargs = trellis_argdict(args) if args.toolchain == "trellis" else {}
+    builder = Builder(soc, **parser.builder_argdict)
 
     if args.build:
-        builder.build(**builder_kargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer(args.cable)
+        prog = soc.platform.create_programmer(cable=args.cable)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
-
-    if args.flash:
-        prog = soc.platform.create_programmer(args.cable)
-        prog.flash(0x100000, builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()
