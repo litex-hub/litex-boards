@@ -132,6 +132,9 @@ _connectors_vx = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
+    default_clk_name   = "clk48"
+    default_clk_period = 1e9/48e6
+
     def __init__(self, revision="v0", variant="a7-35", toolchain="vivado"):
 
         assert revision in ["v0"]
