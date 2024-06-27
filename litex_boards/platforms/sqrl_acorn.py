@@ -42,15 +42,6 @@ _io = [
 
     # PCIe.
     ("pcie_clkreq_n", 0, Pins("G1"), IOStandard("LVCMOS33")),
-    ("pcie_x1_baseboard", 0,
-        Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
-        Subsignal("clk_p", Pins("F6")),
-        Subsignal("clk_n", Pins("E6")),
-        Subsignal("rx_p",  Pins("D9")),
-        Subsignal("rx_n",  Pins("C9")),
-        Subsignal("tx_p",  Pins("D7")),
-        Subsignal("tx_n",  Pins("C7")),
-    ),
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS15"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
@@ -112,6 +103,48 @@ _sdcard_io = [
     ),
 ]
 
+_litex_acorn_baseboard_mini_io = [
+    # Serial.
+    ("serial", 0,
+        Subsignal("tx", Pins("G1"),  IOStandard("LVCMOS33")), # CLK_REQ
+        Subsignal("rx", Pins("Y13"), IOStandard("LVCMOS18")), # SMB_ALERT_N
+    ),
+
+    # PCIe.
+    ("pcie_x1", 0,
+        Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+        Subsignal("clk_p", Pins("F6")),
+        Subsignal("clk_n", Pins("E6")),
+        Subsignal("rx_p",  Pins("D9")),
+        Subsignal("rx_n",  Pins("C9")),
+        Subsignal("tx_p",  Pins("D7")),
+        Subsignal("tx_n",  Pins("C7")),
+    ),
+    # SFP0.
+    ("sfp", 0,
+        Subsignal("txp", Pins(" D5")),
+        Subsignal("txn", Pins(" C5")),
+        Subsignal("rxp", Pins("D11")),
+        Subsignal("rxn", Pins("C11")),
+    ),
+    # SFP1.
+    ("sfp", 1,
+        Subsignal("txp", Pins("B4")),
+        Subsignal("txn", Pins("A4")),
+        Subsignal("rxp", Pins("B8")),
+        Subsignal("rxn", Pins("C8")),
+    ),
+    # SATA.
+    ("sata", 0,
+        # Inverted on Acorn.
+        Subsignal("tx_p",  Pins("B6")),
+        Subsignal("tx_n",  Pins("A6")),
+        # Inverted on Acorn.
+        Subsignal("rx_p",  Pins("B10")),
+        Subsignal("rx_n",  Pins("A10")),
+    ),
+
+]
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
