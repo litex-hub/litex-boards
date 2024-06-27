@@ -120,14 +120,20 @@ _litex_acorn_baseboard_mini_io = [
         Subsignal("tx_p",  Pins("D7")),
         Subsignal("tx_n",  Pins("C7")),
     ),
-    # SFP0.
+    # SFP-I2C.
+    ("sfp_i2c", 0,
+        Subsignal("sda", Pins("Y12")),
+        Subsignal("scl", Pins("Y11")),
+        IOStandard("LVCMOS18"),
+    ),
+    # SFP-0.
     ("sfp", 0,
         Subsignal("txp", Pins(" D5")),
         Subsignal("txn", Pins(" C5")),
         Subsignal("rxp", Pins("D11")),
         Subsignal("rxn", Pins("C11")),
     ),
-    # SFP1.
+    # SFP-1.
     ("sfp", 1,
         Subsignal("txp", Pins("B4")),
         Subsignal("txn", Pins("A4")),
@@ -143,6 +149,8 @@ _litex_acorn_baseboard_mini_io = [
         Subsignal("rx_p",  Pins("B10")),
         Subsignal("rx_n",  Pins("A10")),
     ),
+    # Debug.
+    ("debug", 0, Pins("H5 J5 K2 J2"), IOStandard("LVCMOS33")),
 
 ]
 # Platform -----------------------------------------------------------------------------------------
