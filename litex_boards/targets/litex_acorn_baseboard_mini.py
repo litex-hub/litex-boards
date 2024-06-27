@@ -42,13 +42,6 @@ class Platform(sqrl_acorn.Platform):
     def create_programmer(self, name="openocd"):
         return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a200t.bit")
 
-_serial_io = [
-    ("serial", 0,
-        Subsignal("tx", Pins("G1"),  IOStandard("LVCMOS33")), # CLK_REQ
-        Subsignal("rx", Pins("Y13"), IOStandard("LVCMOS18")), # SMB_ALERT_N
-    ),
-]
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class CRG(LiteXModule):
@@ -109,7 +102,7 @@ class BaseSoC(SoCCore):
         with_sata       = False, sata_gen="gen2",
         **kwargs):
         platform = Platform(variant=variant)
-        platform.add_extension(_serial_io, prepend=True)
+        platform.add_extension(sqrl_acorn._litex_acorn_baseboard_mini_io, prepend=True)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Acorn CLE-101/215(+)", **kwargs)
@@ -137,7 +130,7 @@ class BaseSoC(SoCCore):
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
             assert not with_sata
-            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1_baseboard"),
+            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"),
                 data_width = 64,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
@@ -202,16 +195,6 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            _eth_io = [
-                ("sfp", 0,
-                    Subsignal("txp", Pins("D5")),
-                    Subsignal("txn", Pins("C5")),
-                    Subsignal("rxp", Pins("D11")),
-                    Subsignal("rxn", Pins("C11")),
-                ),
-            ]
-            platform.add_extension(_eth_io)
-
             self.ethphy = A7_1000BASEX(
                 qpll_channel = qpll.channels[1 if with_pcie else 0],
                 data_pads    = self.platform.request("sfp"),
@@ -227,19 +210,6 @@ class BaseSoC(SoCCore):
 
         # SATA -------------------------------------------------------------------------------------
         if with_sata:
-            # IOs
-            _sata_io = [
-                ("sata", 0,
-                    # Inverted on Acorn.
-                    Subsignal("tx_p",  Pins("B6")),
-                    Subsignal("tx_n",  Pins("A6")),
-                    # Inverted on Acorn.
-                    Subsignal("rx_p",  Pins("B10")),
-                    Subsignal("rx_n",  Pins("A10")),
-                ),
-            ]
-            platform.add_extension(_sata_io)
-
             # PHY
             self.sata_phy = LiteSATAPHY(platform.device,
                 refclk     = self.crg.cd_sata_ref.clk,
