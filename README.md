@@ -162,6 +162,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── lambdaconcept_ecpix5
     ├── lambdaconcept_pcie_screamer_m2
     ├── lambdaconcept_pcie_screamer
+    ├── lattice_certuspro_nx_evn
     ├── lattice_crosslink_nx_evn
     ├── lattice_crosslink_nx_vip
     ├── lattice_ecp5_evn
