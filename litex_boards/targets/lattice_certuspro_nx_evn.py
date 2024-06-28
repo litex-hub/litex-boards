@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2024 Enjoy-Digital <enjoy-digital.fr>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
+from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
+
+from litex.gen import *
+
+from litex_boards.platforms import lattice_certuspro_nx_evn
+
+from litex.build.io import CRG
+from litex.build.generic_platform import *
+
+from litex.soc.cores.clock import *
+from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import SoCRegion
+from litex.soc.integration.builder import *
+
+from litex.soc.cores.led import LedChaser
+
+# CRG ----------------------------------------------------------------------------------------------
+
+class _CRG(LiteXModule):
+    def __init__(self, platform, sys_clk_freq):
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        self.cd_por = ClockDomain()
+
+        # # #
+
+        # Clk / Rst
+        self.rst_n = platform.request("user_btn", 0)
+
+        # Clocking
+        self.sys_clk = sys_osc = NXOSCA()
+        sys_osc.create_hf_clk(self.cd_sys, sys_clk_freq)
+        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
+
+        # Power on reset
+        por_count = Signal(16, reset=2**16-1)
+        por_done  = Signal()
+        self.comb += por_done.eq(por_count == 0)
+        self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
+        self.sync.por += If(~por_done, por_count.eq(por_count - 1))
+        self.specials += [
+            AsyncResetSynchronizer(self.cd_por, ~self.rst_n),
+            AsyncResetSynchronizer(self.cd_sys, ~por_done | self.rst)
+        ]
+
+# BaseSoC ------------------------------------------------------------------------------------------
+
+class BaseSoC(SoCCore):
+    def __init__(self, sys_clk_freq=75e6, toolchain="radiant",
+        with_led_chaser = True,
+        **kwargs):
+        platform = lattice_certuspro_nx_evn.Platform(toolchain=toolchain)
+        platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
+
+        # CRG --------------------------------------------------------------------------------------
+        self.crg = _CRG(platform, sys_clk_freq)
+
+        # SoCCore -----------------------------------------_----------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on CertusPro-NX Eval Board", **kwargs)
+
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
+
+# Build --------------------------------------------------------------------------------------------
+
+def main():
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=lattice_certuspro_nx_evn.Platform, description="LiteX SoC on CertusPro-NX EVN Board.")
+    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream to SPI Flash.")
+    args = parser.parse_args()
+
+    soc = BaseSoC(
+        sys_clk_freq = args.sys_clk_freq,
+        **parser.soc_argdict
+    )
+
+    builder = Builder(soc, **parser.builder_argdict)
+    if args.build:
+        builder.build(**parser.toolchain_argdict)
+
+    if args.load:
+        prog = soc.platform.create_programmer(args.prog_target)
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
+
+    if args.flash:
+        prog = soc.platform.create_programmer(args.prog_target)
+        prog.load_bitstream(0, builder.get_bitstream_filename(mode="flash"))
+
+if __name__ == "__main__":
+    main()
