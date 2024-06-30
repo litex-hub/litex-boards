@@ -31,6 +31,8 @@ from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
 
 from liteeth.phy.mii import LiteEthPHYMII
+from litex.build.generic_platform import Subsignal, Pins, IOStandard
+from ctucan import CTUCAN, CTUCANWishboneWrapper
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -182,6 +184,14 @@ class BaseSoC(SoCCore):
                 with_irq = self.irq.enabled
             )
 
+def can_io():
+    return [(
+        "can",
+        0,
+        Subsignal("rx", Pins("ck_io:ck_io0")),
+        Subsignal("tx", Pins("ck_io:ck_io1")),
+        IOStandard("LVCMOS33"),
+    )]
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -204,6 +214,7 @@ def main():
     parser.add_target_argument("--sdcard-adapter",                            help="SDCard PMOD adapter (digilent or numato).")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-pmod-gpio", action="store_true",       help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    parser.add_target_argument("--with-ctucan", action="store_true", help="Enable CTUCAN.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -222,8 +233,18 @@ def main():
         with_usb       = args.with_usb,
         with_spi_flash = args.with_spi_flash,
         with_pmod_gpio = args.with_pmod_gpio,
+        with_ctucan = args.with_ctucan,
         **parser.soc_argdict
     )
+
+    if args.with_ctucan:
+        soc.platform.add_extension(can_io())
+        can_pads = soc.platform.request("can")
+        soc.submodules.can = CTUCAN(soc.platform, can_pads, "vhdl")
+        soc.add_memory_region("can", None, soc.can.wbwrapper.size, type=[])
+        soc.add_wb_slave(soc.bus.regions["can"].origin, soc.can.wbwrapper.bus)
+        soc.add_interrupt("can")
+
     if args.sdcard_adapter == "numato":
         soc.platform.add_extension(digilent_arty._numato_sdcard_pmod_io)
     else:
