@@ -136,6 +136,7 @@ class Platform(LatticeNexusPlatform):
     def __init__(self, device="LFCPNX", toolchain="radiant", **kwargs):
         assert device in ["LFCPNX"]
         LatticeNexusPlatform.__init__(self, device + "-100-9LFG672C", _io, _connectors, toolchain=toolchain, **kwargs)
+        self.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
         # Evaluation mode (with free license)
         self.toolchain.set_prj_strategy_opts({"bit_ip_eval": "true"})
 

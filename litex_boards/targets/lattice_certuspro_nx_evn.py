@@ -60,7 +60,6 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         **kwargs):
         platform = lattice_certuspro_nx_evn.Platform(toolchain=toolchain)
-        platform.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
