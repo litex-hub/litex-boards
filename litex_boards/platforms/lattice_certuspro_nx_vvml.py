@@ -6,6 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeNexusPlatform
+from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
