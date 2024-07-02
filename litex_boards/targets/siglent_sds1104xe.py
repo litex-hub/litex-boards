@@ -120,8 +120,8 @@ class BaseSoC(SoCCore):
             # Etherbone.
             self.add_etherbone(
                 phy         = self.ethphy,
-                ip_address  = "192.168.1.51",
-                mac_address = 0x10e2d5000001,
+                ip_address  = "192.168.1.50",
+                mac_address = 0x10e2d5000000,
                 data_width  = 8,
                 with_ethmac = True,
             )
