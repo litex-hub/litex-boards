@@ -35,23 +35,28 @@ class _CRG(LiteXModule):
         # # #
 
         # Clk / Rst
-        self.rst_n = platform.request("user_btn", 0)
+        self.clk125 = platform.request("clk125")
+        self.rst_n  = platform.request("user_btn", 0)
 
         # Clocking
-        self.sys_clk = sys_osc = NXOSCA()
-        sys_osc.create_hf_clk(self.cd_sys, sys_clk_freq)
-        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
+        self.hf_clk = NXOSCA()
+        hf_clk_freq = 25e6
+        self.hf_clk.create_hf_clk(self.cd_por, hf_clk_freq)
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)
         por_done  = Signal()
         self.comb += por_done.eq(por_count == 0)
-        self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
-        self.specials += [
-            AsyncResetSynchronizer(self.cd_por, ~self.rst_n),
-            AsyncResetSynchronizer(self.cd_sys, ~por_done | self.rst)
-        ]
+        self.specials += AsyncResetSynchronizer(self.cd_por, ~self.rst_n)
+
+        # PLL
+        self.sys_pll = sys_pll = NXPLL(platform=platform, create_output_port_clocks=True)
+        self.comb += sys_pll.reset.eq(self.rst | ~por_done)
+        sys_pll.register_clkin(self.clk125, 125e6)
+        sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked)
+
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
