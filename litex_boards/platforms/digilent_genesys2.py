@@ -141,26 +141,28 @@ _io = [
 
 _connectors = [
     ("HPC", {
-        "DP0_C2M_P":     "Y2",
-        "DP0_C2M_N":     "Y1",
-        "DP0_M2C_P":     "AA4",
-        "DP0_M2C_N":     "AA3",
-        "GBTCLK0_M2C_P": "L8",
-        "GBTCLK0_M2C_N": "L7",
+        "DP0_C2M_P"     : "Y2",
+        "DP0_C2M_N"     : "Y1",
+        "DP0_M2C_P"     : "AA4",
+        "DP0_M2C_N"     : "AA3",
+        "GBTCLK0_M2C_P" : "L8",
+        "GBTCLK0_M2C_N" : "L7",
         }
     ),
-    ("pmodc", {
-        "pmodc1":     "AC26",
-        "pmodc2":     "AJ27",
-        "pmodc3":     "AH30",
-        "pmodc4":     "AK29",
-        "pmodc5":     "AD26",
-        "pmodc6":     "AG30",
-        "pmodc7":     "AK30",
-        "pmodc8":     "AK28",
-        }
-    ),
+    ("pmodc", "AC26 AJ27 AH30 AK29 AD26 AG30 AK30 AK28"),
 ]
+
+# PMODS --------------------------------------------------------------------------------------------
+
+def can_pmod_io(pmod, n):
+    return [
+        # SN65HVD230 based transceiver on PMOD, https://www.waveshare.com/sn65hvd230-can-board.htm.
+        ("can", n,
+            Subsignal("tx", Pins(f"{pmod}:2")),
+            Subsignal("rx", Pins(f"{pmod}:3")),
+            IOStandard("LVCMOS33"),
+        ),
+    ]
 
 # Platform -----------------------------------------------------------------------------------------
 

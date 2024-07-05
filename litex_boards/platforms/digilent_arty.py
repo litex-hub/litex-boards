@@ -332,6 +332,16 @@ def numato_sdcard_pmod_io(pmod):
 ]
 _numato_sdcard_pmod_io = numato_sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
 
+def can_pmod_io(pmod, n):
+    return [
+        # SN65HVD230 based transceiver on PMOD, https://www.waveshare.com/sn65hvd230-can-board.htm.
+        ("can", n,
+            Subsignal("tx",  Pins(f"{pmod}:2")),
+            Subsignal("rx",  Pins(f"{pmod}:3")),
+            IOStandard("LVCMOS33"),
+        ),
+    ]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
