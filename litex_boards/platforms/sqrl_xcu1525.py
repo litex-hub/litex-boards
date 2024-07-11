@@ -264,7 +264,7 @@ _io = [
 
     # QSFP-0.
     ("qsfp0_refclk_rst", 0, Pins("AT22"), IOStandard("LVCMOS12")),
-    ("qsfp0_modskll",    0, Pins("BE16"), IOStandard("LVCMOS12")),
+    ("qsfp0_modsell",    0, Pins("BE16"), IOStandard("LVCMOS12")),
     ("qsfp0_resetl",     0, Pins("BE17"), IOStandard("LVCMOS12")),
     ("qsfp0_modprsl",    0, Pins("BE20"), IOStandard("LVCMOS12")),
     ("qsfp0_intl",       0, Pins("BE21"), IOStandard("LVCMOS12")),
@@ -311,7 +311,7 @@ _io = [
 
     # QSFP-1.
     ("qsfp1_refclk_rst", 0, Pins("AU20"), IOStandard("LVCMOS12")),
-    ("qsfp1_modskll",    0, Pins("AY20"), IOStandard("LVCMOS12")),
+    ("qsfp1_modsell",    0, Pins("AY20"), IOStandard("LVCMOS12")),
     ("qsfp1_resetl",     0, Pins("BC18"), IOStandard("LVCMOS12")),
     ("qsfp1_modprsl",    0, Pins("BC19"), IOStandard("LVCMOS12")),
     ("qsfp1_intl",       0, Pins("AV21"), IOStandard("LVCMOS12")),
