@@ -69,7 +69,7 @@ class BaseSoC(SoCCore):
 
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
         self.spram = Up5kSPRAM(size=128 * KILOBYTE)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=128 * KILOBYTE))
+        self.bus.add_slave("sram", self.spram.bus, SoCRegion(origin=self.mem_map["sram"], size=128 * KILOBYTE))
 
         # SPI Flash --------------------------------------------------------------------------------
         # 4x mode is not possible on this board since WP and HOLD pins are not connected to the FPGA

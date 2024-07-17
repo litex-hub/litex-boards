@@ -73,7 +73,7 @@ class BaseSoC(SoCCore):
 
         # 128KB SPRAM (used as SRAM) ---------------------------------------------------------------
         self.spram = Up5kSPRAM(size=64 * KILOBYTE)
-        self.bus.add_slave("sram", self.spram.bus, SoCRegion(size=64 * KILOBYTE))
+        self.bus.add_slave("sram", self.spram.bus, SoCRegion(origin=self.mem_map["sram"], size=64 * KILOBYTE))
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q64FV
