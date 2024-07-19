@@ -6,6 +6,8 @@
 # Copyright (c) 2021-2024 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+import subprocess
+
 from migen import *
 
 from litex.gen import *
@@ -39,8 +41,18 @@ from litesata.phy import LiteSATAPHY
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(sqrl_acorn.Platform):
+    def detect_ftdi_chip(self):
+        lsusb_log = subprocess.run(['lsusb'], capture_output=True, text=True)
+        for ftdi_chip in ["ft232", "ft2232", "ft4232"]:
+            if f"Future Technology Devices International, Ltd {ftdi_chip.upper()}" in lsusb_log.stdout:
+                return ftdi_chip
+        return None
+
     def create_programmer(self, name="openocd"):
-        return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a200t.bit")
+        ftdi_chip = self.detect_ftdi_chip()
+        if ftdi_chip is None:
+            raise RuntimeError("No compatible FTDI device found.")
+        return OpenOCD(f"openocd_xc7_{ftdi_chip}.cfg", "bscan_spi_xc7a200t.bit")
 
 # CRG ----------------------------------------------------------------------------------------------
 
