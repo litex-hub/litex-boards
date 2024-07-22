@@ -39,7 +39,7 @@ class _CRG(LiteXModule):
         self.rst_n  = platform.request("user_btn", 0)
 
         # Clocking
-        self.hf_clk = NXOSCA()
+        self.hf_clk = NXOSCA(platform)
         hf_clk_freq = 25e6
         self.hf_clk.create_hf_clk(self.cd_por, hf_clk_freq)
 

@@ -34,7 +34,7 @@ class _CRG(LiteXModule):
         self.cd_sys = ClockDomain()
 
         # Built in OSC
-        self.hf_clk = NXOSCA()
+        self.hf_clk = NXOSCA(platform)
         hf_clk_freq = 25e6
         self.hf_clk.create_hf_clk(self.cd_por, hf_clk_freq)
 

@@ -38,7 +38,7 @@ class _CRG(LiteXModule):
 
         # TODO: replace with PLL
         # Clocking
-        self.sys_clk = sys_osc = NXOSCA()
+        self.sys_clk = sys_osc = NXOSCA(platform)
         sys_osc.create_hf_clk(self.cd_sys, sys_clk_freq)
         platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
         rst_n = platform.request("gsrn")
