@@ -60,7 +60,7 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Mercury XU5", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Enclustra Mercury XU5", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -84,7 +84,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=enclustra_mercury_xu5.Platform, description="LiteX SoC on Mercury XU5.")
+    parser = LiteXArgumentParser(platform=enclustra_mercury_xu5.Platform, description="LiteX SoC on Enclustra Mercury XU5.")
     parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
