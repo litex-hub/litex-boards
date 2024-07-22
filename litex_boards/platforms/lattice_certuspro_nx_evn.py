@@ -137,9 +137,14 @@ class Platform(LatticeNexusPlatform):
     def __init__(self, device="LFCPNX", toolchain="radiant", **kwargs):
         assert device in ["LFCPNX"]
         LatticeNexusPlatform.__init__(self, device + "-100-9LFG672C", _io, _connectors, toolchain=toolchain, **kwargs)
-        self.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=SERIAL}}")
+        # SPI Pins may be used as General IO Pins (see FPGA-AN-02048 4.1.7)
+        self.add_platform_command("ldc_set_sysconfig {{MASTER_SPI_PORT=DISABLE}}")
         # Evaluation mode (with free license)
         self.toolchain.set_prj_strategy_opts({"bit_ip_eval": "true"})
 
     def create_programmer(self):
         return OpenFPGALoader()
+
+    def do_finalize(self, fragment):
+        LatticeNexusPlatform.do_finalize(self, fragment)
+        self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
