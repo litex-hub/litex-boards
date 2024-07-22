@@ -1,11 +1,12 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2023 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2023-2024 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
+from litex.build.xilinx import XilinxUSPPlatform
+from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -301,7 +302,7 @@ class Platform(XilinxUSPPlatform):
         XilinxUSPPlatform.__init__(self, "xczu7ev-fbvb900-2-i", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
-        return VivadoProgrammer()
+        return OpenFPGALoader(fpga_part="xczu7ev", cable="ft2232")
 
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
