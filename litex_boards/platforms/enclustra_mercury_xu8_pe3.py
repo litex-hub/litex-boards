@@ -5,8 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxUSPPlatform
-from litex.build.openfpgaloader import OpenFPGALoader
+from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -302,7 +301,7 @@ class Platform(XilinxUSPPlatform):
         XilinxUSPPlatform.__init__(self, "xczu7ev-fbvb900-2-i", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
-        return OpenFPGALoader(fpga_part="xczu7ev", cable="ft2232")
+        return VivadoProgrammer()
 
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
