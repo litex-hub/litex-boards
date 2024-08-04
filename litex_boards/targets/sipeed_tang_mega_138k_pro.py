@@ -22,7 +22,7 @@ from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII
 
-from litedram.modules import AS4C32M16, MT41J256M16
+from litedram.modules import AS4C32M16, MT41J256M16, W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 from litedram.phy import GW5DDRPHY
 from litex.build.io import DDROutput
@@ -122,12 +122,21 @@ class BaseSoC(SoCCore):
         with_video_terminal = False,
         with_ddr3           = False,
         with_sdram          = False,
+        sdram_model         = "sipeed",
         sdram_rate          = "1:2",
         with_led_chaser     = True,
         with_rgb_led        = False,
         with_buttons        = True,
         **kwargs):
         platform = sipeed_tang_mega_138k_pro.Platform(toolchain="gowin")
+
+        assert not with_sdram or (sdram_model in ["sipeed", "mister"])
+
+        if with_sdram:
+            platform.add_extension({
+                "sipeed": sipeed_tang_mega_138k_pro.sipeedSDRAM(),
+                "mister": sipeed_tang_mega_138k_pro.misterSDRAM}[sdram_model]
+            )
 
         # CRG --------------------------------------------------------------------------------------
         cpu_clk_freq = int(800e6) if kwargs["cpu_type"] == "gowin_ae350" else 0
@@ -207,6 +216,9 @@ class BaseSoC(SoCCore):
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if with_sdram and not self.integrated_main_ram_size:
+            module_cls = {
+                "sipeed": W9825G6KH6,
+                "mister": AS4C32M16}[sdram_model]
             if sdram_rate == "1:2":
                 sdrphy_cls = HalfRateGENSDRPHY
             else:
@@ -214,7 +226,7 @@ class BaseSoC(SoCCore):
             self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = AS4C32M16(sys_clk_freq, sdram_rate),
+                module        = module_cls(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -226,6 +238,11 @@ def main():
     parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-sdram",      action="store_true",      help="Enable optional SDRAM module.")
+    parser.add_target_argument("--sdram-model",     default="sipeed",         help="SDRAM module model.",
+        choices=[
+            "sipeed",
+            "mister"
+    ])
     parser.add_target_argument("--with-ddr3",       action="store_true",      help="Enable optional DDR3 module.")
     parser.add_target_argument("--with-video-terminal", action="store_true",  help="Enable Video Terminal (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
@@ -243,6 +260,7 @@ def main():
         with_video_terminal = args.with_video_terminal,
         with_ddr3           = args.with_ddr3,
         with_sdram          = args.with_sdram,
+        sdram_model         = args.sdram_model,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         local_ip            = args.local_ip,
