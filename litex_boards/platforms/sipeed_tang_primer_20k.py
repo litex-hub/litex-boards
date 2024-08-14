@@ -135,15 +135,15 @@ _connectors = [
 
 _dock_io = [
     # Leds
-    ("led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS18")), # CHECKME: Should be LVCMOS33.
-    ("led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS18")), # CHECKME: Should be LVCMOS33.
-    ("led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS18")), # CHECKME: Should be LVCMOS33.
-    ("led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS18")), # CHECKME: Should be LVCMOS33.
+    ("led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS33")),
+    ("led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS33")),
+    ("led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS33")),
+    ("led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS33")),
     ("led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS33")),
     ("led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS33")),
 
     # RGB Led.
-    ("rgb_led", 0, Pins("CARD1:45"), IOStandard("LVCMOS18")),
+    ("rgb_led", 0, Pins("CARD1:45"), IOStandard("LVCMOS33")),
 
     # Buttons.
     ("btn_n", 0,  Pins( "CARD1:15"), IOStandard("LVCMOS33")),
@@ -162,10 +162,10 @@ _dock_io = [
         Subsignal("data1_n", Pins("CARD1:56")),
         Subsignal("data2_p", Pins("CARD1:52")),
         Subsignal("data2_n", Pins("CARD1:50")),
-        Subsignal("hdp", Pins("CARD1:154"), IOStandard("LVCMOS18")),
-        Subsignal("cec", Pins("CARD1:152"), IOStandard("LVCMOS18")),
-        Subsignal("sda", Pins("CARD1:95"),  IOStandard("LVCMOS18")),
-        Subsignal("scl", Pins("CARD1:97"),  IOStandard("LVCMOS18")),
+        Subsignal("hdp", Pins("CARD1:154"), IOStandard("LVCMOS33")),
+        Subsignal("cec", Pins("CARD1:152"), IOStandard("LVCMOS33")),
+        #Subsignal("sda", Pins("CARD1:95")), # Conflict with eth mdc
+        #Subsignal("scl", Pins("CARD1:97")), # Conflict with eth mdio
         Misc("PULL_MODE=NONE"),
     ),
 
@@ -174,8 +174,8 @@ _dock_io = [
         # Control.
         Subsignal("rst",   Pins("CARD1:123")),
         Subsignal("bl",    Pins("CARD1:186")),
-        Subsignal("sda",   Pins("CARD1: 95")),
-        Subsignal("scl",   Pins("CARD1: 97")),
+        #Subsignal("sda",   Pins("CARD1: 95")), # Conflict with eth mdc
+        #Subsignal("scl",   Pins("CARD1: 97")), # Conflict with eth mdio
         Subsignal("int",   Pins("CARD1:125")),
 
         # Video.
@@ -186,7 +186,7 @@ _dock_io = [
         Subsignal("r",     Pins("CARD1:193 CARD1:191 CARD1:181 CARD1:177 CARD1:175")),
         Subsignal("g",     Pins("CARD1:180 CARD1:131 CARD1:129 CARD1:194 CARD1:192 CARD1:182")),
         Subsignal("b",     Pins("CARD1:121 CARD1:119 CARD1:115 CARD1:113 CARD1:109")),
-        IOStandard("LVCMOS18")
+        IOStandard("LVCMOS33")
     ),
 
     # RMII Ethernet
