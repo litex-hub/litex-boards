@@ -62,8 +62,8 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCMini):
-    def __init__(self, sys_clk_freq=48e6, with_led_chaser=True, **kwargs):
-        platform = sipeed_tang_nano.Platform()
+    def __init__(self, toolchain="gowin", sys_clk_freq=48e6, with_led_chaser=True, **kwargs):
+        platform = sipeed_tang_nano.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -90,6 +90,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        toolchain    = args.toolchain,
         sys_clk_freq = args.sys_clk_freq,
         **parser.soc_argdict
     )
