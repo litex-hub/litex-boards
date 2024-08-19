@@ -125,6 +125,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── digilent_basys3
     ├── digilent_cmod_a7
     ├── digilent_genesys2
+    ├── digilent_netfpga_sume
     ├── digilent_nexys4ddr
     ├── digilent_nexys4
     ├── digilent_nexys_video
