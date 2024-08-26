@@ -63,7 +63,16 @@ _connectors = [
 
 def raw_pmod_io(pmod):
     return [(pmod, 0, Pins(" ".join([f"{pmod}:{i:d}" for i in range(8)])), IOStandard("3.3_V_LVTTL_/_LVCMOS"))]
-
+def jtag_pmod_io(pmod):
+    return [
+        ("usb_uart", 0,
+            Subsignal("tck", Pins(f"{pmod}:0")),
+            Subsignal("tdi", Pins(f"{pmod}:1")),
+            Subsignal("tdo", Pins(f"{pmod}:2")),
+            Subsignal("tms", Pins(f"{pmod}:3")),
+            IOStandard("3.3_V_LVCMOS")
+        ),
+    ]
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(EfinixPlatform):

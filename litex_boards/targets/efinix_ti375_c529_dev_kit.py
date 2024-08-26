@@ -62,6 +62,24 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Ti375 C529 Dev Kit", **kwargs)
 
+        if hasattr(self.cpu, "jtag_clk"):
+            _jtag_io = [
+                ("jtag", 0,
+                 Subsignal("tck", Pins("pmod0:0")),
+                 Subsignal("tdi", Pins("pmod0:1")),
+                 Subsignal("tdo", Pins("pmod0:2")),
+                 Subsignal("tms", Pins("pmod0:3")),
+                 IOStandard("3.3_V_LVCMOS"),
+                 )
+            ]
+            self.platform.add_extension(_jtag_io)
+            jtag_pads = platform.request("jtag")
+            self.comb += self.cpu.jtag_clk.eq(jtag_pads.tck)
+            self.comb += self.cpu.jtag_tms.eq(jtag_pads.tms)
+            self.comb += self.cpu.jtag_tdi.eq(jtag_pads.tdi)
+            self.comb += jtag_pads.tdo.eq(self.cpu.jtag_tdo)
+            platform.add_false_path_constraints(self.crg.cd_sys.clk, jtag_pads.tck)
+
         # LPDDR4 SDRAM -----------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             # DRAM / PLL Blocks.
@@ -73,22 +91,8 @@ class BaseSoC(SoCCore):
             from litex.build.efinix import InterfaceWriterBlock, InterfaceWriterXMLBlock
             import xml.etree.ElementTree as et
 
-#             class PLLDRAMBlock(InterfaceWriterBlock):
-#                 @staticmethod
-#                 def generate():
-#                     return """
-# design.create_block("dram_pll", block_type="PLL")
-# design.set_property("dram_pll", {"REFCLK_FREQ":"100.0"}, block_type="PLL")
-# design.gen_pll_ref_clock("dram_pll", pll_res="PLL_BL0", refclk_src="EXTERNAL", refclk_name="dram_pll_clkin", ext_refclk_no="0")
-# design.set_property("dram_pll","LOCKED_PIN","dram_pll_locked", block_type="PLL")
-# design.set_property("dram_pll","RSTN_PIN","dram_pll_rst_n", block_type="PLL")
-# design.set_property("dram_pll", {"CLKOUT0_PIN" : "dram_pll_CLKOUT0"}, block_type="PLL")
-# design.set_property("dram_pll","CLKOUT0_PHASE","0","PLL")
-# calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
-# """
-#             platform.toolchain.ifacewriter.blocks.append(PLLDRAMBlock())
             data_width = 512
-            axi_bus = axi.AXIInterface(data_width=data_width, address_width=28, id_width=8) # 256MB.
+            axi_bus = axi.AXIInterface(data_width=data_width, address_width=30, id_width=8) # 256MB.
             class DRAMXMLBlock(InterfaceWriterXMLBlock):
                 @staticmethod
                 def generate(root, namespaces):
@@ -354,11 +358,6 @@ class BaseSoC(SoCCore):
 
             platform.toolchain.ifacewriter.xml_blocks.append(DRAMXMLBlock())
 
-            # DRAM Rst.
-            # ---------
-            #dram_pll_rst_n = platform.add_iface_io("dram_pll_rst_n")
-            #self.comb += dram_pll_rst_n.eq(platform.request("user_btn", 1))
-
             # DRAM AXI-Ports.
             # --------------
             ios = [(f"ddr0", 0,
@@ -471,17 +470,10 @@ class BaseSoC(SoCCore):
             self.sync += self.cfg_count.eq(self.cfg_count + (self.cfg_count != 0xFF))
             self.sync += self.cfg_state.eq(self.cfg_state | (self.cfg_count == 0xFF))
 
-
-
-            # Connect AXI interface to the main bus of the SoC.
-            # axi_lite_port = axi.AXILiteInterface(data_width=data_width, address_width=28)
-            # self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
-            # self.bus.add_slave(f"target{n}", axi_lite_port, SoCRegion(origin=0x4000_0000 + 0x1000_0000*n, size=0x1000_0000)) # 256MB.
-
             # Use DRAM's target0 port as Main Ram  -----------------------------------------------------
             self.bus.add_region("main_ram", SoCRegion(
                 origin = 0x4000_0000,
-                size   = 0x1000_0000, # 256MB.
+                size   = 0x4000_0000, # 1GB.
                 mode="rwx",
             ))
 
