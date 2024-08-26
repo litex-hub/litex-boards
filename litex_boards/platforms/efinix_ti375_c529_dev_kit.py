@@ -13,8 +13,8 @@ from litex.build.efinix import EfinixProgrammer
 
 _io = [
     # Clk
-    ("clk25", 0, Pins("L17"), IOStandard("1.8_V_LVCMOS")),
-    ("clk100", 0, Pins("U4"), IOStandard("3.3_V_LVCMOS")),
+    ("clk25", None, Pins("L17"), IOStandard("1.8_V_LVCMOS")),
+    ("clk100", None, Pins("U4"), IOStandard("3.3_V_LVCMOS")),
 
     # Serial
     ("serial", 0,
@@ -25,6 +25,9 @@ _io = [
 
     # Buttons
     ("user_btn", 0, Pins("U19"), IOStandard("3.3_V_LVCMOS")),
+
+    # DRAM.
+    ("dram_pll_refclk", 0, Pins("XXX"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 ]
 
 
@@ -64,8 +67,8 @@ def raw_pmod_io(pmod):
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(EfinixPlatform):
-    default_clk_name   = "clk25"
-    default_clk_period = 1e9/25e6
+    default_clk_name   = "clk100"
+    default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="efinity"):
         EfinixPlatform.__init__(self, "Ti375C529C4", _io, _connectors, iobank_info=_bank_info, toolchain=toolchain)
@@ -75,4 +78,4 @@ class Platform(EfinixPlatform):
 
     def do_finalize(self, fragment):
         EfinixPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)
+        self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
