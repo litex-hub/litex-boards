@@ -399,6 +399,7 @@ class BaseSoC(SoCCore):
                 Subsignal("r_id",       Pins(6)), #5:0] 
                 Subsignal("r_resp",     Pins(2)), #1:0] 
                 Subsignal("r_last",     Pins(1)), #
+                Subsignal("resetn",     Pins(1)),
             )]
 
             io   = platform.add_iface_ios(ios)
@@ -441,6 +442,7 @@ class BaseSoC(SoCCore):
                 axi_bus.r.id.eq(io.r_id),
                 axi_bus.r.resp.eq(io.r_resp),
                 axi_bus.r.last.eq(io.r_last),
+                io.resetn.eq(~self.crg.cd_sys.rst),
             ]
 
             if hasattr(self.cpu, "add_memory_buses"):
