@@ -22,6 +22,7 @@ from litex.soc.cores.led import LedChaser
 from litex.soc.interconnect import axi
 
 from liteeth.phy.trionrgmii import LiteEthPHYRGMII
+from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -43,7 +44,9 @@ class _CRG(LiteXModule):
         # (integer) of the reference clock. If all your system clocks do not fall within
         # this range, you should dedicate one unused clock for CLKOUT0.
         pll.create_clkout(None, 100e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
+        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True, name="cd_sys_clkout")
+        pll.create_clkout(None, 100e6)
+        pll.create_clkout(None, 800e6, name="dram_clk") # LPDDR4 ctrl
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
@@ -60,7 +63,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Ti375 C529 Dev Kit", **kwargs)
 
         # LPDDR4 SDRAM -----------------------------------------------------------------------------
-        if None and not self.integrated_main_ram_size:
+        if not self.integrated_main_ram_size:
             # DRAM / PLL Blocks.
             # ------------------
             dram_pll_refclk = platform.request("dram_pll_refclk")
@@ -84,14 +87,15 @@ class BaseSoC(SoCCore):
 # calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
 # """
 #             platform.toolchain.ifacewriter.blocks.append(PLLDRAMBlock())
-
+            data_width = 512
+            axi_bus = axi.AXIInterface(data_width=data_width, address_width=28, id_width=8) # 256MB.
             class DRAMXMLBlock(InterfaceWriterXMLBlock):
                 @staticmethod
                 def generate(root, namespaces):
                     # CHECKME: Switch to DDRDesignService?
                     ddr_info = root.find("efxpt:ddr_info", namespaces)
 
-                    ddr = et.SubElement(ddr_info, "efxpt:ddr",
+                    ddr = et.SubElement(ddr_info, "efxpt:adv_ddr",
                         name            = "ddr_inst1",
                         ddr_def         = "DDR_0",
                                         clkin_sel="0",
@@ -112,7 +116,7 @@ class BaseSoC(SoCCore):
 
                     axi_target0 = et.SubElement(ddr, "efxpt:axi_target0",is_axi_width_256="false", is_axi_enable="true")
                     gen_pin_target0 = et.SubElement(axi_target0, "efxpt:gen_pin_axi")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_clk",     type_name=f"ACLK_0",   is_bus="false", is_clk="true", is_clk_invert="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="cd_sys_clkout",     type_name=f"ACLK_0",   is_bus="false", is_clk="true", is_clk_invert="false")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_apcmd", type_name="ARAPCMD_0", is_bus="false")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_ready", type_name="ARREADY_0", is_bus="false")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_valid", type_name="ARVALID_0", is_bus="false")
@@ -153,141 +157,333 @@ class BaseSoC(SoCCore):
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_w_strb", type_name="WSTRB_0", is_bus="true")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_resetn", type_name="ARSTN_0", is_bus="false")
 
-                    gen_pin_config = et.SubElement(ddr, "efxpt:gen_pin_controller")
-                    et.SubElement(gen_pin_config, name="", type_name="CTRL_CLK", is_bus="false", is_clk="true", is_clk_invert="false")
-                    et.SubElement(gen_pin_config, name="", type_name="CTRL_INT", is_bus="false")
-                    et.SubElement(gen_pin_config, name="", type_name="CTRL_MEM_RST_VALID", is_bus="false")
-                    et.SubElement(gen_pin_config, name="", type_name="CTRL_REFRESH", is_bus="false")
-                    et.SubElement(gen_pin_config, name="", type_name="CTRL_BUSY", is_bus="false")
-                    et.SubElement(gen_pin_config, name="", type_name="CTRL_CMD_Q_ALMOST_FULL", is_bus="false")
-                    et.SubElement(gen_pin_config, name="", type_name="CTRL_DP_IDLE", is_bus="false")
-                    et.SubElement(gen_pin_config, name="", type_name="CTRL_CKE", is_bus="true")
-                    et.SubElement(gen_pin_config, name="", type_name="CTRL_PORT_BUSY", is_bus="true")
+                    axi_target1 = et.SubElement(ddr, "efxpt:axi_target1",is_axi_width_256="false", is_axi_enable="false")
+                    gen_pin_target1 = et.SubElement(axi_target1, "efxpt:gen_pin_axi")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="cd_sys_clkout",     type_name=f"ACLK_1",   is_bus="false", is_clk="true", is_clk_invert="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_apcmd", type_name="ARAPCMD_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_ready", type_name="ARREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_valid", type_name="ARVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_qos", type_name="ARQOS_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_apcmd", type_name="AWAPCMD_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_allstrb", type_name="AWALLSTRB_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awcobuf", type_name="AWCOBUF_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_ready", type_name="AWREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_valid", type_name="AWVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_lock", type_name="AWLOCK_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_qos", type_name="AWQOS_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_b_ready", type_name="BREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_b_valid", type_name="BVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_last", type_name="RLAST_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_ready", type_name="RREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_valid", type_name="RVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_last", type_name="WLAST_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_ready", type_name="WREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_valid", type_name="WVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_addr", type_name="ARADDR_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_burst", type_name="ARBURST_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_id", type_name="ARID_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_len", type_name="ARLEN_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_size", type_name="ARSIZE_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_lock", type_name="ARLOCK_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_addr", type_name="AWADDR_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_burst", type_name="AWBURST_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_id", type_name="AWID_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_len", type_name="AWLEN_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_size", type_name="AWSIZE_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_cache", type_name="AWCACHE_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_b_id", type_name="BID_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_b_resp", type_name="BRESP_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_data", type_name="RDATA_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_id", type_name="RID_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_resp", type_name="RRESP_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_data", type_name="WDATA_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_strb", type_name="WSTRB_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_resetn", type_name="ARSTN_1", is_bus="false")
+
+                    gen_pin_controller = et.SubElement(ddr, "efxpt:gen_pin_controller")
+                    et.SubElement(gen_pin_controller,"efxpt:pin", name="", type_name="CTRL_CLK", is_bus="false", is_clk="true", is_clk_invert="false")
+                    et.SubElement(gen_pin_controller,"efxpt:pin", name="", type_name="CTRL_INT", is_bus="false")
+                    et.SubElement(gen_pin_controller,"efxpt:pin", name="", type_name="CTRL_MEM_RST_VALID", is_bus="false")
+                    et.SubElement(gen_pin_controller,"efxpt:pin", name="", type_name="CTRL_REFRESH", is_bus="false")
+                    et.SubElement(gen_pin_controller,"efxpt:pin", name="", type_name="CTRL_BUSY", is_bus="false")
+                    et.SubElement(gen_pin_controller,"efxpt:pin", name="", type_name="CTRL_CMD_Q_ALMOST_FULL", is_bus="false")
+                    et.SubElement(gen_pin_controller,"efxpt:pin", name="", type_name="CTRL_DP_IDLE", is_bus="false")
+                    et.SubElement(gen_pin_controller,"efxpt:pin", name="", type_name="CTRL_CKE", is_bus="true")
+                    et.SubElement(gen_pin_controller,"efxpt:pin", name="", type_name="CTRL_PORT_BUSY", is_bus="true")
 
                     gen_pin_cfg_ctrl = et.SubElement(ddr, "efxpt:gen_pin_cfg_ctrl")
-                    et.SubElement(gen_pin_cfg_ctrl, name="cfg_done", type_name="CFG_DONE", is_bus="false")
-                    et.SubElement(gen_pin_cfg_ctrl, name="cfg_start", type_name="CFG_START", is_bus="false")
-                    et.SubElement(gen_pin_cfg_ctrl, name="cfg_reset", type_name="CFG_RESET", is_bus="false")
-                    et.SubElement(gen_pin_cfg_ctrl, name="cfg_sel", type_name="CFG_SEL", is_bus="false")
+                    et.SubElement(gen_pin_cfg_ctrl,"efxpt:pin", name="cfg_done", type_name="CFG_DONE", is_bus="false")
+                    et.SubElement(gen_pin_cfg_ctrl,"efxpt:pin", name="cfg_start", type_name="CFG_START", is_bus="false")
+                    et.SubElement(gen_pin_cfg_ctrl,"efxpt:pin", name="cfg_reset", type_name="CFG_RESET", is_bus="false")
+                    et.SubElement(gen_pin_cfg_ctrl,"efxpt:pin", name="cfg_sel", type_name="CFG_SEL", is_bus="false")
 
-                    ctrl_reg_inf = et.SubElement(ddr, "efxpt:ctrl_reg_inf")
+                    ctrl_reg_inf = et.SubElement(ddr, "efxpt:ctrl_reg_inf", is_reg_ena= "false")
+                    gen_pin_ctrl_reg_inf = et.SubElement(ctrl_reg_inf, "efxpt:gen_pin_ctrl_reg_inf")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="axi0_ACLK", type_name="CR_ACLK", is_bus="false", is_clk="true", is_clk_invert="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regARESETn", type_name="CR_ARESETN", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regARVALID", type_name="CR_ARVALID", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regARREADY", type_name="CR_ARREADY", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regAWVALID", type_name="CR_AWVALID", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regAWREADY", type_name="CR_AWREADY", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regBVALID", type_name="CR_BVALID", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regBREADY", type_name="CR_BREADY", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regRLAST", type_name="CR_RLAST", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regRVALID", type_name="CR_RVALID", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regRREADY", type_name="CR_RREADY", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regWLAST", type_name="CR_WLAST", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regWVALID", type_name="CR_WVALID", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regWREADY", type_name="CR_WREADY", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regARADDR", type_name="CR_ARADDR", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regARID", type_name="CR_ARID", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regARLEN", type_name="CR_ARLEN", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regARSIZE", type_name="CR_ARSIZE", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regARBURST", type_name="CR_ARBURST", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regAWADDR", type_name="CR_AWADDR", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regAWID", type_name="CR_AWID", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regAWLEN", type_name="CR_AWLEN", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regAWSIZE", type_name="CR_AWSIZE", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regAWBURST", type_name="CR_AWBURST", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regBID", type_name="CR_BID", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regBRESP", type_name="CR_BRESP", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regRDATA", type_name="CR_RDATA", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regRID", type_name="CR_RID", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regRRESP", type_name="CR_RRESP", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regWDATA", type_name="CR_WDATA", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="regWSTRB", type_name="CR_WSTRB", is_bus="true")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="" ,type_name="CFG_PHY_RSTN", is_bus="false")
+                    et.SubElement(gen_pin_ctrl_reg_inf,"efxpt:pin", name="" ,type_name="CTRL_RSTN", is_bus="false")
 
+                    cs_fpga = et.SubElement(ddr, "efxpt:cs_fpga")
+                    et.SubElement(cs_fpga,"efxpt:param", name="DQ_PULLDOWN_DRV", value="34.3", value_type="str")
+                    et.SubElement(cs_fpga,"efxpt:param", name="DQ_PULLDOWN_ODT", value="60", value_type="str")
+                    et.SubElement(cs_fpga,"efxpt:param", name="DQ_PULLUP_DRV", value="34.3", value_type="str")
+                    et.SubElement(cs_fpga,"efxpt:param", name="DQ_PULLUP_ODT", value="Hi-Z", value_type="str")
+                    et.SubElement(cs_fpga,"efxpt:param", name="FPGA_VREF_RANGE0", value="22.040", value_type="float")
+                    et.SubElement(cs_fpga,"efxpt:param", name="FPGA_VREF_RANGE1", value="23.000", value_type="float")
+                    et.SubElement(cs_fpga,"efxpt:param", name="MEM_FPGA_VREF_RANGE", value="Range 1", value_type="str")
 
                     cs_memory = et.SubElement(ddr, "efxpt:cs_memory")
-                    et.SubElement(cs_memory, "efxpt:param", name="RTT_NOM",   value="RZQ/2",     value_type="str")
-                    et.SubElement(cs_memory, "efxpt:param", name="MEM_OTERM", value="40",        value_type="str")
-                    et.SubElement(cs_memory, "efxpt:param", name="CL",        value="RL=6/WL=3", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="BLEN", value="BL=16 Sequential", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="CA_ODT_CS0", value="RZQ/4", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="CA_ODT_CS1", value="Disable", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="CA_VREF_RANGE0", value="27.200", value_type="float")
+                    et.SubElement(cs_memory,"efxpt:param", name="CA_VREF_RANGE1", value="22.000", value_type="float")
+                    et.SubElement(cs_memory,"efxpt:param", name="DQ_ODT_CS0", value="RZQ/4", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="DQ_ODT_CS1", value="Disable", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="DQ_VREF_RANGE0", value="20.000", value_type="float")
+                    et.SubElement(cs_memory,"efxpt:param", name="DQ_VREF_RANGE1", value="27.200", value_type="float")
+                    et.SubElement(cs_memory,"efxpt:param", name="MEM_CA_RANGE", value="RANGE[1]", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="MEM_DQ_RANGE", value="RANGE[1]", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="NWR", value="nWR=6", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="ODTD_CA_CS0", value="Obeys ODT_CA Bond Pad", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="ODTD_CA_CS1", value="Obeys ODT_CA Bond Pad", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="ODTE_CK_CS0", value="Override Disabled" ,value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="ODTE_CK_CS1", value="Override Disabled" ,value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="ODTE_CS_CS0", value="Override Disabled" ,value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="ODTE_CS_CS1", value="Override Disabled" ,value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="PDDS_CS0", value="RZQ/6", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="PDDS_CS1", value="RFU", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="RL_DBI_READ", value="Yes", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="RL_DBI_READ_DISABLED", value="RL=6,nRTP=8", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="RL_DBI_READ_ENABLED", value="RL=6,nRTP=8", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="RL_DBI_WRITE", value="Yes", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="WL_SET", value="Set A" ,value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="WL_SET_A", value="WL=4", value_type="str")
+                    et.SubElement(cs_memory,"efxpt:param", name="WL_SET_B", value="WL=4", value_type="str")
 
-                    timing = et.SubElement(ddr, "efxpt:cs_memory_timing")
-                    et.SubElement(timing, "efxpt:param", name="tRAS",  value="42.000",  value_type="float")
-                    et.SubElement(timing, "efxpt:param", name="tRC",   value="60.000",  value_type="float")
-                    et.SubElement(timing, "efxpt:param", name="tRP",   value="18.000",  value_type="float")
-                    et.SubElement(timing, "efxpt:param", name="tRCD",  value="18.000",  value_type="float")
-                    et.SubElement(timing, "efxpt:param", name="tREFI", value="3.900",   value_type="float")
-                    et.SubElement(timing, "efxpt:param", name="tRFC",  value="210.000", value_type="float")
-                    et.SubElement(timing, "efxpt:param", name="tRTP",  value="10.000",  value_type="float")
-                    et.SubElement(timing, "efxpt:param", name="tWTR",  value="10.000",  value_type="float")
-                    et.SubElement(timing, "efxpt:param", name="tRRD",  value="10.000",  value_type="float")
-                    et.SubElement(timing, "efxpt:param", name="tFAW",  value="50.000",  value_type="float")
+                    cs_memory_timing = et.SubElement(ddr, "efxpt:cs_memory_timing")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tCCD", value="8", value_type="int")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tCCDMW", value="32", value_type="int")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tFAW", value="40.000", value_type="float")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tPPD", value="4", value_type="int")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tRAS", value="42.000", value_type="float")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tRCD", value="18.000", value_type="float")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tRPab", value="21.000", value_type="float")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tRPpb", value="18.000", value_type="float")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tRRD", value="10.000", value_type="float")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tRTP", value="7.500", value_type="float")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tSR", value="15.000", value_type="float")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tWR", value="18.000", value_type="float")
+                    et.SubElement(cs_memory_timing,"efxpt:param", name="tWTR", value="10.000", value_type="float")
 
-                    cs_control = et.SubElement(ddr, "efxpt:cs_control")
-                    et.SubElement(cs_control, "efxpt:param", name="AMAP",             value="ROW-COL_HIGH-BANK-COL_LOW", value_type="str")
-                    et.SubElement(cs_control, "efxpt:param", name="EN_AUTO_PWR_DN",   value="Off",                       value_type="str")
-                    et.SubElement(cs_control, "efxpt:param", name="EN_AUTO_SELF_REF", value="No",                        value_type="str")
 
-                    cs_gate_delay = et.SubElement(ddr, "efxpt:cs_gate_delay")
-                    et.SubElement(cs_gate_delay, "efxpt:param", name="EN_DLY_OVR", value="No", value_type="str")
-                    et.SubElement(cs_gate_delay, "efxpt:param", name="GATE_C_DLY", value="3",  value_type="int")
-                    et.SubElement(cs_gate_delay, "efxpt:param", name="GATE_F_DLY", value="0",  value_type="int")
+                    pin_swap = et.SubElement(ddr, "efxpt:pin_swap")
+                    et.SubElement(pin_swap,"efxpt:param", name="CA[0]", value="CA[0]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="CA[1]", value="CA[1]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="CA[2]", value="CA[2]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="CA[3]", value="CA[3]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="CA[4]", value="CA[4]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="CA[5]", value="CA[5]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DM[0]", value="DM[0]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DM[1]", value="DM[1]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DM[2]", value="DM[2]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DM[3]", value="DM[3]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[0]", value="DQ[3]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[10]", value="DQ[12]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[11]", value="DQ[11]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[12]", value="DQ[8]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[13]", value="DQ[10]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[14]", value="DQ[13]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[15]", value="DQ[14]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[16]", value="DQ[22]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[17]", value="DQ[17]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[18]", value="DQ[18]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[19]", value="DQ[19]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[1]", value="DQ[6]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[20]", value="DQ[16]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[21]", value="DQ[20]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[22]", value="DQ[21]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[23]", value="DQ[23]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[24]", value="DQ[29]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[25]", value="DQ[31]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[26]", value="DQ[28]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[27]", value="DQ[30]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[28]", value="DQ[25]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[29]", value="DQ[27]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[2]", value="DQ[4]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[30]", value="DQ[26]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[31]", value="DQ[24]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[3]", value="DQ[5]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[4]", value="DQ[0]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[5]", value="DQ[1]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[6]", value="DQ[7]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[7]", value="DQ[2]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[8]", value="DQ[15]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="DQ[9]", value="DQ[9]", value_type="str")
+                    et.SubElement(pin_swap,"efxpt:param", name="ENABLE_PIN_SWAP", value="true", value_type="bool")
 
             platform.toolchain.ifacewriter.xml_blocks.append(DRAMXMLBlock())
 
             # DRAM Rst.
             # ---------
-            dram_pll_rst_n = platform.add_iface_io("dram_pll_rst_n")
-            self.comb += dram_pll_rst_n.eq(platform.request("user_btn", 1))
+            #dram_pll_rst_n = platform.add_iface_io("dram_pll_rst_n")
+            #self.comb += dram_pll_rst_n.eq(platform.request("user_btn", 1))
 
             # DRAM AXI-Ports.
             # --------------
-            for n, data_width in {
-                0: 256, # target0: 256-bit.
-                1: 128, # target1: 128-bit
-            }.items():
-                axi_port = axi.AXIInterface(data_width=data_width, address_width=28, id_width=8) # 256MB.
-                ios = [(f"axi{n}", 0,
-                    Subsignal("wdata",   Pins(data_width)),
-                    Subsignal("wready",  Pins(1)),
-                    Subsignal("wid",     Pins(8)),
-                    Subsignal("bready",  Pins(1)),
-                    Subsignal("rdata",   Pins(data_width)),
-                    Subsignal("aid",     Pins(8)),
-                    Subsignal("bvalid",  Pins(1)),
-                    Subsignal("rlast",   Pins(1)),
-                    Subsignal("bid",     Pins(8)),
-                    Subsignal("asize",   Pins(3)),
-                    Subsignal("atype",   Pins(1)),
-                    Subsignal("aburst",  Pins(2)),
-                    Subsignal("wvalid",  Pins(1)),
-                    Subsignal("aaddr",   Pins(32)),
-                    Subsignal("rid",     Pins(8)),
-                    Subsignal("avalid",  Pins(1)),
-                    Subsignal("rvalid",  Pins(1)),
-                    Subsignal("alock",   Pins(2)),
-                    Subsignal("rready",  Pins(1)),
-                    Subsignal("rresp",   Pins(2)),
-                    Subsignal("wstrb",   Pins(data_width//8)),
-                    Subsignal("aready",  Pins(1)),
-                    Subsignal("alen",    Pins(8)),
-                    Subsignal("wlast",   Pins(1)),
-                )]
-                io   = platform.add_iface_ios(ios)
-                rw_n = axi_port.ar.valid
-                self.comb += [
-                    # Pseudo AW/AR Channels.
-                    io.atype.eq(~rw_n),
-                    io.aaddr.eq(  Mux(rw_n,   axi_port.ar.addr,  axi_port.aw.addr)),
-                    io.aid.eq(    Mux(rw_n,     axi_port.ar.id,    axi_port.aw.id)),
-                    io.alen.eq(   Mux(rw_n,    axi_port.ar.len,   axi_port.aw.len)),
-                    io.asize.eq(  Mux(rw_n,   axi_port.ar.size,  axi_port.aw.size)),
-                    io.aburst.eq( Mux(rw_n,  axi_port.ar.burst, axi_port.aw.burst)),
-                    io.alock.eq(  Mux(rw_n,   axi_port.ar.lock,  axi_port.aw.lock)),
-                    io.avalid.eq( Mux(rw_n,  axi_port.ar.valid, axi_port.aw.valid)),
-                    axi_port.aw.ready.eq(~rw_n & io.aready),
-                    axi_port.ar.ready.eq( rw_n & io.aready),
+            ios = [(f"ddr0", 0,
+                Subsignal("ar_valid",           Pins(1)), #
+                Subsignal("ar_ready",           Pins(1)), #
+                Subsignal("ar_addr",    Pins(33)), #32:0] 
+                Subsignal("ar_id",      Pins(6)), #5:0] 
+                Subsignal("ar_len",     Pins(8)), #7:0] 
+                Subsignal("ar_size",    Pins(3)), #2:0] 
+                Subsignal("ar_burst",   Pins(2)), #1:0] 
+                Subsignal("ar_lock",    Pins(1)), #
+                Subsignal("ar_apcmd",           Pins(1)), #
+                Subsignal("ar_qos",     Pins(1)), #
+                Subsignal("aw_valid",           Pins(1)), #
+                Subsignal("aw_ready",           Pins(1)), #
+                Subsignal("aw_addr",    Pins(33)), #32:0] 
+                Subsignal("aw_id",      Pins(6)), #5:0] 
+                Subsignal("aw_len",     Pins(8)), #7:0] 
+                Subsignal("aw_size",    Pins(3)), #2:0] 
+                Subsignal("aw_burst",   Pins(2)), #1:0] 
+                Subsignal("aw_lock",    Pins(1)), #
+                Subsignal("aw_cache",   Pins(4)), #3:0] 
+                Subsignal("aw_qos",     Pins(1)), #
+                Subsignal("aw_allstrb", Pins(1)), #
+                Subsignal("aw_apcmd",           Pins(1)), #
+                Subsignal("awcobuf",            Pins(1)), #
+                Subsignal("w_valid",            Pins(1)), #
+                Subsignal("w_ready",            Pins(1)), #
+                Subsignal("w_data",     Pins(data_width)), #512-1:0] 
+                Subsignal("w_strb",     Pins(data_width//8)), #64-1:0]
+                Subsignal("w_last",     Pins(1)), #
+                Subsignal("b_valid",            Pins(1)), #
+                Subsignal("b_ready",            Pins(1)), #
+                Subsignal("b_resp",     Pins(1)), #1:0] 
+                Subsignal("b_id",       Pins(6)), #5:0] 
+                Subsignal("r_valid",            Pins(1)), #
+                Subsignal("r_ready",            Pins(1)), #
+                Subsignal("r_data",     Pins(data_width)), #512-1:0] 
+                Subsignal("r_id",       Pins(6)), #5:0] 
+                Subsignal("r_resp",     Pins(2)), #1:0] 
+                Subsignal("r_last",     Pins(1)), #
+            )]
 
-                    # R Channel.
-                    axi_port.r.id.eq(io.rid),
-                    axi_port.r.data.eq(io.rdata),
-                    axi_port.r.last.eq(io.rlast),
-                    axi_port.r.resp.eq(io.rresp),
-                    axi_port.r.valid.eq(io.rvalid),
-                    io.rready.eq(axi_port.r.ready),
+            io   = platform.add_iface_ios(ios)
+            self.comb += [
+                io.ar_valid.eq(axi_bus.ar.valid),
+                axi_bus.ar.ready.eq(io.ar_ready),
+                io.ar_addr.eq(axi_bus.ar.addr),
+                io.ar_id.eq(axi_bus.ar.id),
+                io.ar_len.eq(axi_bus.ar.len),
+                io.ar_size.eq(axi_bus.ar.size),
+                io.ar_burst.eq(axi_bus.ar.burst),
+                io.ar_lock.eq(axi_bus.ar.lock),
+                io.ar_apcmd.eq(0),
+                io.ar_qos.eq(axi_bus.ar.qos),
+                io.aw_valid.eq(axi_bus.aw.valid),
+                axi_bus.aw.ready.eq(io.aw_ready),
+                io.aw_addr.eq(axi_bus.aw.addr),
+                io.aw_id.eq(axi_bus.aw.id),
+                io.aw_len.eq(axi_bus.aw.len),
+                io.aw_size.eq(axi_bus.aw.size),
+                io.aw_burst.eq(axi_bus.aw.burst),
+                io.aw_lock.eq(axi_bus.aw.lock),
+                io.aw_cache.eq(axi_bus.aw.cache),
+                io.aw_qos.eq(axi_bus.aw.qos),
+                io.aw_allstrb.eq(0),
+                io.aw_apcmd.eq(0),
+                io.awcobuf.eq(0),
+                io.w_valid.eq(axi_bus.w.valid),
+                axi_bus.w.ready.eq(io.w_ready),
+                io.w_data.eq(axi_bus.w.data),
+                io.w_strb.eq(axi_bus.w.strb),
+                io.w_last.eq(axi_bus.w.last),
+                axi_bus.b.valid.eq(io.b_valid),
+                io.b_ready.eq(axi_bus.b.ready),
+                axi_bus.b.resp.eq(io.b_resp),
+                axi_bus.b.id.eq(io.b_id),
+                axi_bus.r.valid.eq(io.r_valid),
+                io.r_ready.eq(axi_bus.r.ready),
+                axi_bus.r.data.eq(io.r_data),
+                axi_bus.r.id.eq(io.r_id),
+                axi_bus.r.resp.eq(io.r_resp),
+                axi_bus.r.last.eq(io.r_last),
+            ]
 
-                    # W Channel.
-                    io.wid.eq(axi_port.w.id),
-                    io.wstrb.eq(axi_port.w.strb),
-                    io.wdata.eq(axi_port.w.data),
-                    io.wlast.eq(axi_port.w.last),
-                    io.wvalid.eq(axi_port.w.valid),
-                    axi_port.w.ready.eq(io.wready),
+            if hasattr(self.cpu, "add_memory_buses"):
+                self.cpu.add_memory_buses(address_width = 32, data_width = data_width)
 
-                    # B Channel.
-                    axi_port.b.id.eq(io.bid),
-                    axi_port.b.valid.eq(io.bvalid),
-                    io.bready.eq(axi_port.b.ready),
-                ]
+                assert len(self.cpu.memory_buses) == 1
+                mbus = self.cpu.memory_buses[0]
+                self.comb +=mbus.connect(axi_bus)
+                
+            cfgs = [(f"cfg", 0,
+                Subsignal("start",  Pins(1)),
+                Subsignal("reset",   Pins(1)),
+                Subsignal("sel",    Pins(1)),
+                Subsignal("done",    Pins(1)),
+            )]
 
-                # Connect AXI interface to the main bus of the SoC.
-                axi_lite_port = axi.AXILiteInterface(data_width=data_width, address_width=28)
-                self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
-                self.bus.add_slave(f"target{n}", axi_lite_port, SoCRegion(origin=0x4000_0000 + 0x1000_0000*n, size=0x1000_0000)) # 256MB.
+            cfg = platform.add_iface_ios(cfgs)
+            self.cfg_state = Signal(1, reset=0)
+            self.cfg_count = Signal(8, reset=0)
+
+            self.comb += [
+                cfg.sel.eq(0),
+                cfg.reset.eq(self.cfg_state == 0),
+                cfg.start.eq(self.cfg_state != 0),
+            ]
+
+            self.sync += self.cfg_count.eq(self.cfg_count + (self.cfg_count != 0xFF))
+            self.sync += self.cfg_state.eq(self.cfg_state | (self.cfg_count == 0xFF))
+
+
+
+            # Connect AXI interface to the main bus of the SoC.
+            # axi_lite_port = axi.AXILiteInterface(data_width=data_width, address_width=28)
+            # self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
+            # self.bus.add_slave(f"target{n}", axi_lite_port, SoCRegion(origin=0x4000_0000 + 0x1000_0000*n, size=0x1000_0000)) # 256MB.
 
             # Use DRAM's target0 port as Main Ram  -----------------------------------------------------
             self.bus.add_region("main_ram", SoCRegion(
                 origin = 0x4000_0000,
                 size   = 0x1000_0000, # 256MB.
-                linker = True)
-            )
+                mode="rwx",
+            ))
 
 # Build --------------------------------------------------------------------------------------------
 
