@@ -28,6 +28,21 @@ _io = [
 
     # DRAM.
     ("dram_pll_refclk", 0, Pins("XXX"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+
+    # SD-Card
+    ("spisdcard", 0,
+     Subsignal("clk", Pins("C9")),
+     Subsignal("mosi", Pins("C10"), Misc("WEAK_PULLUP")),
+     Subsignal("cs_n", Pins("A9"), Misc("WEAK_PULLUP")),
+     Subsignal("miso", Pins("B9"), Misc("WEAK_PULLUP")),
+     IOStandard("3.3_V_LVCMOS"),
+     ),
+    ("sdcard", 0,
+     Subsignal("data", Pins("B9 B10 A8 A9"), Misc("WEAK_PULLUP")),
+     Subsignal("cmd", Pins("C10"), Misc("WEAK_PULLUP")),
+     Subsignal("clk", Pins("C9")),
+     IOStandard("3.3_V_LVCMOS"),
+     ),
 ]
 
 

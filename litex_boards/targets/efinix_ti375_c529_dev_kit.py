@@ -24,12 +24,17 @@ from litex.soc.interconnect import axi
 from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 
+# python3 -m litex_boards.targets.efinix_ti375_c529_dev_kit --cpu-type=vexiiriscv --cpu-variant=debian --update-repo=no --with-jtag-tap --with-sdcard --with-coherent-dma
+# python3 -m litex.tools.litex_json2dts_linux build/efinix_ti375_c529_dev_kit/csr.json --root-device=mmcblk0p2 > build/efinix_ti375_c529_dev_kit/linux.dts
+
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         #self.rst    = Signal()
         self.cd_sys = ClockDomain()
+        self.cd_usb       = ClockDomain()
 
         # # #
 
@@ -45,14 +50,19 @@ class _CRG(LiteXModule):
         # this range, you should dedicate one unused clock for CLKOUT0.
         pll.create_clkout(None, 100e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True, name="cd_sys_clkout")
-        pll.create_clkout(None, 100e6)
+        pll.create_clkout(self.cd_usb, 60e6, margin=0)
         pll.create_clkout(None, 800e6, name="dram_clk") # LPDDR4 ctrl
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
+    mem_map = {**SoCCore.mem_map, **{
+        "usb_ohci":     0xE0000000,
+    }}
+
     def __init__(self, sys_clk_freq=100e6,
+                 with_ohci=False,
         **kwargs):
         platform = efinix_ti375_c529_dev_kit.Platform()
 
@@ -62,6 +72,25 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Ti375 C529 Dev Kit", **kwargs)
 
+        # OHCI
+        if with_ohci:
+            from litex.soc.cores.usb_ohci import USBOHCI
+            from litex.build.generic_platform import Subsignal, Pins, IOStandard
+            from litex.soc.integration.soc import SoCRegion
+            _usb_pmod_ios = [
+               ("usb_pmod1", 0,
+                   Subsignal("dp", Pins("pmod1:0", "pmod1:1", "pmod1:2", "pmod1:3")),
+                   Subsignal("dm", Pins("pmod1:4", "pmod1:5", "pmod1:6", "pmod1:7")),
+                   IOStandard("3.3_V_LVCMOS"),
+               )
+            ]
+            platform.add_extension(_usb_pmod_ios)
+            self.submodules.usb_ohci = USBOHCI(platform, platform.request("usb_pmod1"), usb_clk_freq=int(60e6))
+            self.bus.add_slave("usb_ohci_ctrl", self.usb_ohci.wb_ctrl, region=SoCRegion(origin=self.mem_map["usb_ohci"], size=0x100000, cached=False))
+            self.dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
+            self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
+
+        # JTAG
         if hasattr(self.cpu, "jtag_clk"):
             _jtag_io = [
                 ("jtag", 0,
@@ -484,10 +513,19 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_ti375_c529_dev_kit.Platform, description="LiteX SoC on Efinix Ti375 C529 Dev Kit.")
+    parser.add_target_argument("--with-ohci",  action="store_true",       help="Enable USB OHCI.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
+        with_ohci  = args.with_ohci,
         **parser.soc_argdict)
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
