@@ -62,7 +62,7 @@ _io = [
     ("user_led", 15, Pins("N4"), IOStandard("LVCMOS33")), # Bank 1 Yellow
     ("user_led", 16, Pins("T4"), IOStandard("LVCMOS33")), # Bank 1 Red
     ("user_led", 17, Pins("T5"), IOStandard("LVCMOS33")), # Bank 1 Red
-    ("user_led", 18, Pins("R6"), IOStandard("LVCMOS33")), # Bank 1 Red
+    ("user_led", 18, Pins("T6"), IOStandard("LVCMOS33")), # Bank 1 Red
     ("user_led", 19, Pins("T7"), IOStandard("LVCMOS33")), # Bank 1 Red
     ("user_led", 20, Pins("U8"), IOStandard("LVCMOS33")), # Bank 1 Red
     ("user_led", 21, Pins("T8"), IOStandard("LVCMOS33")), # Bank 1 Red
