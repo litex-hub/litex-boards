@@ -20,10 +20,14 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.interconnect import axi
+from litex.soc.cores.bitbang import I2CMaster
 
 from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
-
+from litex.soc.cores.usb_ohci import USBOHCI
+from litex.soc.integration.soc import SoCRegion
+from litex.build.io import DDROutput
+from litex.build.io import SDRTristate
 # python3 -m litex_boards.targets.efinix_ti375_c529_dev_kit --cpu-type=vexiiriscv --cpu-variant=debian --update-repo=no --with-jtag-tap --with-sdcard --with-coherent-dma
 # python3 -m litex.tools.litex_json2dts_linux build/efinix_ti375_c529_dev_kit/csr.json --root-device=mmcblk0p2 > build/efinix_ti375_c529_dev_kit/linux.dts
 
@@ -35,6 +39,7 @@ class _CRG(LiteXModule):
         #self.rst    = Signal()
         self.cd_sys = ClockDomain()
         self.cd_usb       = ClockDomain()
+        self.cd_video       = ClockDomain()
 
         # # #
 
@@ -52,6 +57,7 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True, name="cd_sys_clkout")
         pll.create_clkout(self.cd_usb, 60e6, margin=0)
         pll.create_clkout(None, 800e6, name="dram_clk") # LPDDR4 ctrl
+        pll.create_clkout(self.cd_video, 25e6, name ="video_clk")
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
@@ -74,9 +80,7 @@ class BaseSoC(SoCCore):
 
         # OHCI
         if with_ohci:
-            from litex.soc.cores.usb_ohci import USBOHCI
-            from litex.build.generic_platform import Subsignal, Pins, IOStandard
-            from litex.soc.integration.soc import SoCRegion
+
             _usb_pmod_ios = [
                ("usb_pmod1", 0,
                    Subsignal("dp", Pins("pmod1:0", "pmod1:1", "pmod1:2", "pmod1:3")),
@@ -108,6 +112,101 @@ class BaseSoC(SoCCore):
             self.comb += self.cpu.jtag_tdi.eq(jtag_pads.tdi)
             self.comb += jtag_pads.tdo.eq(self.cpu.jtag_tdo)
             platform.add_false_path_constraints(self.crg.cd_sys.clk, jtag_pads.tck)
+
+        _hdmi_io = efinix_ti375_c529_dev_kit.hdmi_px("p1")
+        self.platform.add_extension(_hdmi_io)
+        self.submodules.videoi2c = I2CMaster(platform.request("hdmi_i2c"))
+
+        self.videoi2c.add_init(addr=0x72>>1, init=[
+            # # video input/output mode
+            (0xD6, 0xC0),
+            (0x15, 0x01),
+            (0x16, 0x38),
+            (0x18, 0xE7),
+            (0x19, 0x34),
+            (0x1A, 0x04),
+            (0x1B, 0xAD),
+            (0x1C, 0x00),
+            (0x1D, 0x00),
+            (0x1E, 0x1C),
+            (0x1F, 0x1B),
+            (0x20, 0x1D),
+            (0x21, 0xDC),
+            (0x22, 0x04),
+            (0x23, 0xAD),
+            (0x24, 0x1F),
+            (0x25, 0x24),
+            (0x26, 0x01),
+            (0x27, 0x35),
+            (0x28, 0x00),
+            (0x29, 0x00),
+            (0x2A, 0x04),
+            (0x2B, 0xAD),
+            (0x2C, 0x08),
+            (0x2D, 0x7C),
+            (0x2E, 0x1B),
+            (0x2F, 0x77),
+            (0x41, 0x10),
+            (0x48, 0x08), # (right justified
+            (0x55, 0x00),
+            (0x56, 0x28),
+            (0x96, 0xC0),
+            (0x98, 0x03),
+            (0x9A, 0xE0),
+            (0x9C, 0x30),
+            (0x9D, 0x61),
+            (0xA2, 0xA4),
+            (0xA3, 0xA4),
+            (0xAF, 0x06),
+            (0xBA, 0x60),
+            (0xD6, 0xC0),
+            (0xE0, 0xD0),
+            (0xDF, 0x01),
+            (0x9A, 0xE0),
+            (0xFD, 0xE0),
+            (0xFE, 0x80),
+            (0xF9, 0x00),
+            (0x7F, 0x00),
+            (0x94, 0x00),
+            (0xE2, 0x01),
+            (0x41, 0x10),
+        ])
+
+        clk_video = self.crg.cd_video.clk
+        self.comb += self.cpu.video_clk.eq(self.crg.cd_video.clk)
+        video_data = platform.request("hdmi_data")
+        self.specials += DDROutput(i1=Signal(reset=0b0), i2=Signal(reset=0b1),  o=video_data.clk, clk=clk_video)
+        self.specials += DDROutput(i1=self.cpu.video_color_en, i2=self.cpu.video_color_en,  o=video_data.de, clk=clk_video)
+        for i in range(self.cpu.video_color.nbits):
+            self.specials += DDROutput(i1=self.cpu.video_color[i], i2=self.cpu.video_color[i],  o=video_data.d[i], clk=clk_video)
+
+        video_sync = platform.request("hdmi_sync")
+        self.specials += SDRTristate(io=video_sync.vsync, o=Signal(reset=0b0), oe=self.cpu.video_vsync, i=Signal(), clk=clk_video)
+        self.specials += SDRTristate(io=video_sync.hsync, o=Signal(reset=0b0), oe=self.cpu.video_hsync, i=Signal(), clk=clk_video)
+
+        _debug_io = [
+            ("debug_io", 0,
+             Subsignal("p0", Pins("pmod2:0")),
+             Subsignal("p1", Pins("pmod2:1")),
+             Subsignal("p2", Pins("pmod2:2")),
+             Subsignal("p3", Pins("pmod2:3")),
+             Subsignal("p4", Pins("pmod2:4")),
+             Subsignal("p5", Pins("pmod2:5")),
+             Subsignal("p6", Pins("pmod2:6")),
+             Subsignal("p7", Pins("pmod2:7")),
+             IOStandard("3.3_V_LVCMOS"),
+             )
+        ]
+        self.platform.add_extension(_debug_io)
+        debug_io = platform.request("debug_io")
+        self. comb += debug_io.p0.eq(video_data.clk)
+        self. comb += debug_io.p1.eq(self.videoi2c._w.fields.scl)
+        self. comb += debug_io.p2.eq(self.videoi2c._r.fields.sda)
+        self. comb += debug_io.p3.eq(self.cpu.video_color_en)
+        self. comb += debug_io.p4.eq(self.cpu.video_vsync)
+        self. comb += debug_io.p5.eq(self.cpu.video_hsync)
+        self. comb += debug_io.p6.eq(self.crg.cd_sys.clk)
+        self.comb += debug_io.p7.eq(self.crg.cd_sys.clk)
 
         # LPDDR4 SDRAM -----------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

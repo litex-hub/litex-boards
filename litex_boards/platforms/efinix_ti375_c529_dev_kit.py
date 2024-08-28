@@ -72,6 +72,16 @@ _bank_info = [
 _connectors = [
     ("pmod0", "G15 G16 F16 F17 G17 A11 A13 A12"),
     ("pmod1", "B12 C14 C13 C12 D12 F12 D13 E13"),
+    ("pmod2", "E14 E16 F13 E15 F14 E11 F11 D11"),
+    ["p1",
+        "---", # 0
+     # 3V3      5V     GND GND                 GND GND                 GND GND         ↓
+     "--- B21 --- A21 --- --- C22 E21 B22 D21 --- --- B23 F21 A22 F22 --- --- D22 G21",
+     #  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20 ↑
+     # 21  22  23  24  25  26  27  28  28  30  31  32  33  34  35  36  37  38  39  40 ↓
+     "D23 G22 --- --- F23 H20 E23 G20 --- --- H22 K23 H23 L23 --- --- L19 M21 M19 M22",
+     #        GND GND                 GND GND                 GND GND                 ↑
+    ],
 ]
 
 # PMODS --------------------------------------------------------------------------------------------
@@ -86,6 +96,25 @@ def jtag_pmod_io(pmod):
             Subsignal("tdo", Pins(f"{pmod}:2")),
             Subsignal("tms", Pins(f"{pmod}:3")),
             IOStandard("3.3_V_LVCMOS")
+        ),
+    ]
+def hdmi_px(px):
+    return [
+        ("hdmi_i2c", 0,
+            Subsignal("sda", Pins(f"{px}:26")),
+            Subsignal("scl", Pins(f"{px}:28")),
+            IOStandard("1.8_V_LVCMOS"), Misc("WEAK_PULLUP"), Misc("SCHMITT_TRIGGER")
+        ),
+        ("hdmi_data", 0,
+            Subsignal("clk", Pins(f"{px}:4")),
+            Subsignal("de", Pins(f"{px}:33")),
+            Subsignal("d", Pins(f"{px}:31 {px}:27 {px}:25 {px}:21 {px}:19 {px}:15 {px}:13 {px}:9 {px}:7 {px}:2 {px}:8 {px}:10 {px}:14 {px}:16 {px}:20 {px}:22")),
+            IOStandard("1.8_V_LVCMOS")
+        ),
+        ("hdmi_sync", 0,
+            Subsignal("hsync", Pins(f"{px}:37")),
+            Subsignal("vsync", Pins(f"{px}:39")),
+            IOStandard("1.8_V_LVCMOS")
         ),
     ]
 # Platform -----------------------------------------------------------------------------------------
