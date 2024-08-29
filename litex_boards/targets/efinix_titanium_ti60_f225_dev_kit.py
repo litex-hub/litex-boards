@@ -75,8 +75,8 @@ class BaseSoC(SoCCore):
         if with_hyperram:
             # HyperRAM Parameters.
             hyperram_device     = "W958D6NW"
-            hyperram_size       = 32*1024*1024
-            hyperram_cache_size = 16*1024
+            hyperram_size       = 32 * MEGABYTE
+            hyperram_cache_size = 16 * KILOBYTE
 
             # HyperRAM Bus/Slave Interface.
             hyperram_bus = wishbone.Interface(data_width=32, address_width=32, addressing="word")

@@ -151,7 +151,7 @@ class CellularRAM(LiteXModule):
         ########################
 
 def addCellularRAM(soc, platform, name, origin):
-    size = 16*1024*1024
+    size = 16 * MEGABYTE
     ram_bus = wishbone.Interface(data_width=soc.bus.data_width)
     ram     = CellularRAM(soc,platform)
     soc.bus.add_slave(name, ram.bus, SoCRegion(origin=origin, size=size, mode="rw"))

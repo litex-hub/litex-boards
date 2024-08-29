@@ -81,7 +81,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy                     = self.sdrphy,
                 module                  = MT48LC32M8(sys_clk_freq, "1:1"),
-                l2_cache_size           = kwargs.get("l2_size", 1024)
+                l2_cache_size           = kwargs.get("l2_size", 1 * KILOBYTE)
             )
 
         # SPI Flash --------------------------------------------------------------------------------

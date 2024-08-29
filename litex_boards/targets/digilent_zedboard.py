@@ -50,7 +50,6 @@ class _CRG(LiteXModule):
 
 
 class BaseSoC(SoCCore):
-
     def __init__(self, sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
         platform = digilent_zedboard.Platform()
 
@@ -71,11 +70,11 @@ class BaseSoC(SoCCore):
 
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],
-                size   = 512 * 1024 * 1024 - self.cpu.mem_map["sram"])
+                size   = 512 * MEGABYTE - self.cpu.mem_map["sram"])
             )
             self.bus.add_region("rom", SoCRegion(
                 origin = self.cpu.mem_map["rom"],
-                size   = 256 * 1024 * 1024 // 8,
+                size   = 256 * MEGABYTE // 8,
                 linker = True)
             )
             self.constants["CONFIG_CLOCK_FREQUENCY"] = 666666687

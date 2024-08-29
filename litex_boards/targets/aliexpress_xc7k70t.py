@@ -85,7 +85,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
                 module        = W9812G6JB(sys_clk_freq, sdram_rate),
-                l2_cache_size = kwargs.get("l2_size", 1024)
+                l2_cache_size = kwargs.get("l2_size", 1 * KILOBYTE)
             )
         
         # HDMI Options -----------------------------------------------------------------------------

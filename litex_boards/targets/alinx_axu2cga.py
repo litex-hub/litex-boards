@@ -85,11 +85,11 @@ class BaseSoC(SoCCore):
 
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],
-                size   = 1 * 1024 * 1024 * 1024)  # DDR
+                size   = 1 * GIGABYTE)  # DDR
             )
             self.bus.add_region("rom", SoCRegion(
                 origin = self.cpu.mem_map["rom"],
-                size   = 512 * 1024 * 1024 // 8,
+                size   = 512 * MEGABYTE // 8,
                 linker = True)
             )
             self.constants["CONFIG_CLOCK_FREQUENCY"] = 1199880127

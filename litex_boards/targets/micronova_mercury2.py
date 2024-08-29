@@ -118,7 +118,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on MicroNova Mercury2", **kwargs)
 
         # Async RAM --------------------------------------------------------------------------------
-        addAsyncSram(self,platform,"main_ram", 0x40000000, 512*1024)
+        addAsyncSram(self,platform,"main_ram", 0x40000000, 512 * KILOBYTE)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
