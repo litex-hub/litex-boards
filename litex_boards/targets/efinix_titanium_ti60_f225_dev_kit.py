@@ -27,8 +27,10 @@ from liteeth.phy.titaniumrgmii import LiteEthPHYRGMII
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst    = Signal()
-        self.cd_sys = ClockDomain()
+        self.rst         = Signal()
+        self.cd_sys      = ClockDomain()
+        self.cd_sys2x    = ClockDomain()
+        self.cd_sys2x_ps = ClockDomain()
 
         # # #
 
@@ -43,8 +45,9 @@ class _CRG(LiteXModule):
         # (integer) of the reference clock. If all your system clocks do not fall within
         # this range, you should dedicate one unused clock for CLKOUT0.
         pll.create_clkout(None, 25e6)
-
-        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
+        pll.create_clkout(self.cd_sys,          sys_clk_freq, phase=0,   with_reset=True)
+        pll.create_clkout(self.cd_sys2x,    2 * sys_clk_freq, phase=0,   with_reset=True)
+        pll.create_clkout(self.cd_sys2x_ps, 2 * sys_clk_freq, phase=315, with_reset=True)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -93,7 +96,14 @@ class BaseSoC(SoCCore):
             self.add_config("L2_SIZE", hyperram_cache_size)
 
             # HyperRAM Core.
-            self.hyperram = HyperRAM(platform.request("hyperram"), latency=7, latency_mode="variable", sys_clk_freq=sys_clk_freq)
+            self.hyperram = HyperRAM(
+                pads         = platform.request("hyperram"),
+                latency      = 7,
+                latency_mode = "variable",
+                sys_clk_freq = sys_clk_freq,
+                clk_ratio    = "2:1",
+                dq_i_cd      = "sys2x_ps",
+            )
             self.comb += self.hyperram_cache.slave.connect(self.hyperram.bus)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
