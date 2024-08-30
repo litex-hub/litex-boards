@@ -21,6 +21,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.interconnect import axi
 from litex.soc.cores.bitbang import I2CMaster
+from litex.soc.cores.pwm import PWM
 
 from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
@@ -30,16 +31,21 @@ from litex.build.io import DDROutput
 from litex.build.io import SDRTristate
 # python3 -m litex_boards.targets.efinix_ti375_c529_dev_kit --cpu-type=vexiiriscv --cpu-variant=debian --update-repo=no --with-jtag-tap --with-sdcard --with-coherent-dma
 # python3 -m litex.tools.litex_json2dts_linux build/efinix_ti375_c529_dev_kit/csr.json --root-device=mmcblk0p2 > build/efinix_ti375_c529_dev_kit/linux.dts
+# timed 5026 gametics in 6544 realtics (26.881113 fps)
+# timed 5026 gametics in 3723 realtics (47.249531 fps)
+
+# TODO efx project ram from 8 words instead of 64, Fanout limit ?
 
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, cpu_clk_freq):
         #self.rst    = Signal()
         self.cd_sys = ClockDomain()
         self.cd_usb       = ClockDomain()
         self.cd_video       = ClockDomain()
+        self.cd_cpu = ClockDomain()
 
         # # #
 
@@ -53,11 +59,13 @@ class _CRG(LiteXModule):
         # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
         # (integer) of the reference clock. If all your system clocks do not fall within
         # this range, you should dedicate one unused clock for CLKOUT0.
-        pll.create_clkout(None, 100e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True, name="cd_sys_clkout")
-        pll.create_clkout(self.cd_usb, 60e6, margin=0)
+        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True, name="sys_clk")
+        pll.create_clkout(self.cd_cpu, cpu_clk_freq, name="cpu_clk")
+        pll.create_clkout(self.cd_usb, 60e6, margin=0, name="usb_clk")
         pll.create_clkout(None, 800e6, name="dram_clk") # LPDDR4 ctrl
-        pll.create_clkout(self.cd_video, 25e6, name ="video_clk")
+        pll.create_clkout(self.cd_video, 40e6, name ="video_clk")
+        platform.add_false_path_constraints(self.cd_sys.clk, self.cd_video.clk)
+        platform.add_false_path_constraints(self.cd_sys.clk, self.cd_usb.clk)
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
@@ -68,15 +76,28 @@ class BaseSoC(SoCCore):
     }}
 
     def __init__(self, sys_clk_freq=100e6,
+                 cpu_clk_freq=100e6,
                  with_ohci=False,
         **kwargs):
         platform = efinix_ti375_c529_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq)
+
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Ti375 C529 Dev Kit", **kwargs)
+
+        self.fan_pwm = PWM(
+            pwm=platform.request("fan_speed_control", 0),
+            with_csr       = True,
+            default_enable = 1,
+            default_width=  0x800,
+            default_period = 0xFFF
+        )
+
+        if hasattr(self.cpu, "cpu_clk"):
+            self.comb += self.cpu.cpu_clk.eq(self.crg.cd_cpu.clk)
 
         # OHCI
         if with_ohci:
@@ -113,100 +134,92 @@ class BaseSoC(SoCCore):
             self.comb += jtag_pads.tdo.eq(self.cpu.jtag_tdo)
             platform.add_false_path_constraints(self.crg.cd_sys.clk, jtag_pads.tck)
 
-        _hdmi_io = efinix_ti375_c529_dev_kit.hdmi_px("p1")
-        self.platform.add_extension(_hdmi_io)
-        self.submodules.videoi2c = I2CMaster(platform.request("hdmi_i2c"))
+        if hasattr(self.cpu, "video_clk"):
+            _hdmi_io = efinix_ti375_c529_dev_kit.hdmi_px("p1")
+            self.platform.add_extension(_hdmi_io)
+            self.submodules.videoi2c = I2CMaster(platform.request("hdmi_i2c"))
 
-        self.videoi2c.add_init(addr=0x72>>1, init=[
-            # # video input/output mode
-            (0xD6, 0xC0),
-            (0x15, 0x01),
-            (0x16, 0x38),
-            (0x18, 0xE7),
-            (0x19, 0x34),
-            (0x1A, 0x04),
-            (0x1B, 0xAD),
-            (0x1C, 0x00),
-            (0x1D, 0x00),
-            (0x1E, 0x1C),
-            (0x1F, 0x1B),
-            (0x20, 0x1D),
-            (0x21, 0xDC),
-            (0x22, 0x04),
-            (0x23, 0xAD),
-            (0x24, 0x1F),
-            (0x25, 0x24),
-            (0x26, 0x01),
-            (0x27, 0x35),
-            (0x28, 0x00),
-            (0x29, 0x00),
-            (0x2A, 0x04),
-            (0x2B, 0xAD),
-            (0x2C, 0x08),
-            (0x2D, 0x7C),
-            (0x2E, 0x1B),
-            (0x2F, 0x77),
-            (0x41, 0x10),
-            (0x48, 0x08), # (right justified
-            (0x55, 0x00),
-            (0x56, 0x28),
-            (0x96, 0xC0),
-            (0x98, 0x03),
-            (0x9A, 0xE0),
-            (0x9C, 0x30),
-            (0x9D, 0x61),
-            (0xA2, 0xA4),
-            (0xA3, 0xA4),
-            (0xAF, 0x06),
-            (0xBA, 0x60),
-            (0xD6, 0xC0),
-            (0xE0, 0xD0),
-            (0xDF, 0x01),
-            (0x9A, 0xE0),
-            (0xFD, 0xE0),
-            (0xFE, 0x80),
-            (0xF9, 0x00),
-            (0x7F, 0x00),
-            (0x94, 0x00),
-            (0xE2, 0x01),
-            (0x41, 0x10),
-        ])
+            self.videoi2c.add_init(addr=0x72>>1, init=[
+                # # video input/output mode
+                (0xD6, 0xC0),
+                (0x15, 0x01),
+                (0x16, 0x38),
+                (0x18, 0xE7),
+                (0x19, 0x34),
+                (0x1A, 0x04),
+                (0x1B, 0xAD),
+                (0x1C, 0x00),
+                (0x1D, 0x00),
+                (0x1E, 0x1C),
+                (0x1F, 0x1B),
+                (0x20, 0x1D),
+                (0x21, 0xDC),
+                (0x22, 0x04),
+                (0x23, 0xAD),
+                (0x24, 0x1F),
+                (0x25, 0x24),
+                (0x26, 0x01),
+                (0x27, 0x35),
+                (0x28, 0x00),
+                (0x29, 0x00),
+                (0x2A, 0x04),
+                (0x2B, 0xAD),
+                (0x2C, 0x08),
+                (0x2D, 0x7C),
+                (0x2E, 0x1B),
+                (0x2F, 0x77),
+                (0x41, 0x10),
+                (0x48, 0x08), # (right justified
+                (0x55, 0x00),
+                (0x56, 0x28),
+                (0x96, 0xC0),
+                (0x98, 0x03),
+                (0x9A, 0xE0),
+                (0x9C, 0x30),
+                (0x9D, 0x61),
+                (0xA2, 0xA4),
+                (0xA3, 0xA4),
+                (0xAF, 0x06),
+                (0xBA, 0x60),
+                (0xD6, 0xC0),
+                (0xE0, 0xD0),
+                (0xDF, 0x01),
+                (0x9A, 0xE0),
+                (0xFD, 0xE0),
+                (0xFE, 0x80),
+                (0xF9, 0x00),
+                (0x7F, 0x00),
+                (0x94, 0x00),
+                (0xE2, 0x01),
+                (0x41, 0x10),
+            ])
 
-        clk_video = self.crg.cd_video.clk
-        self.comb += self.cpu.video_clk.eq(self.crg.cd_video.clk)
-        video_data = platform.request("hdmi_data")
-        self.specials += DDROutput(i1=Signal(reset=0b0), i2=Signal(reset=0b1),  o=video_data.clk, clk=clk_video)
-        self.specials += DDROutput(i1=self.cpu.video_color_en, i2=self.cpu.video_color_en,  o=video_data.de, clk=clk_video)
-        for i in range(self.cpu.video_color.nbits):
-            self.specials += DDROutput(i1=self.cpu.video_color[i], i2=self.cpu.video_color[i],  o=video_data.d[i], clk=clk_video)
+            clk_video = self.crg.cd_video.clk
+            self.comb += self.cpu.video_clk.eq(self.crg.cd_video.clk)
+            video_data = platform.request("hdmi_data")
+            self.specials += DDROutput(i1=Signal(reset=0b0), i2=Signal(reset=0b1),  o=video_data.clk, clk=clk_video)
+            self.specials += DDROutput(i1=self.cpu.video_color_en, i2=self.cpu.video_color_en,  o=video_data.de, clk=clk_video)
+            for i in range(self.cpu.video_color.nbits):
+                self.specials += DDROutput(i1=self.cpu.video_color[i], i2=self.cpu.video_color[i],  o=video_data.d[i], clk=clk_video)
 
-        video_sync = platform.request("hdmi_sync")
-        self.specials += SDRTristate(io=video_sync.vsync, o=Signal(reset=0b0), oe=self.cpu.video_vsync, i=Signal(), clk=clk_video)
-        self.specials += SDRTristate(io=video_sync.hsync, o=Signal(reset=0b0), oe=self.cpu.video_hsync, i=Signal(), clk=clk_video)
+            video_sync = platform.request("hdmi_sync")
+            self.specials += SDRTristate(io=video_sync.vsync, o=Signal(reset=0b0), oe=self.cpu.video_vsync, i=Signal(), clk=clk_video)
+            self.specials += SDRTristate(io=video_sync.hsync, o=Signal(reset=0b0), oe=self.cpu.video_hsync, i=Signal(), clk=clk_video)
 
-        _debug_io = [
-            ("debug_io", 0,
-             Subsignal("p0", Pins("pmod2:0")),
-             Subsignal("p1", Pins("pmod2:1")),
-             Subsignal("p2", Pins("pmod2:2")),
-             Subsignal("p3", Pins("pmod2:3")),
-             Subsignal("p4", Pins("pmod2:4")),
-             Subsignal("p5", Pins("pmod2:5")),
-             Subsignal("p6", Pins("pmod2:6")),
-             Subsignal("p7", Pins("pmod2:7")),
-             IOStandard("3.3_V_LVCMOS"),
-             )
-        ]
-        self.platform.add_extension(_debug_io)
-        debug_io = platform.request("debug_io")
-        self. comb += debug_io.p0.eq(video_data.clk)
-        self. comb += debug_io.p1.eq(self.videoi2c._w.fields.scl)
-        self. comb += debug_io.p2.eq(self.videoi2c._r.fields.sda)
-        self. comb += debug_io.p3.eq(self.cpu.video_color_en)
-        self. comb += debug_io.p4.eq(self.cpu.video_vsync)
-        self. comb += debug_io.p5.eq(self.cpu.video_hsync)
-        self. comb += debug_io.p6.eq(self.crg.cd_sys.clk)
-        self.comb += debug_io.p7.eq(self.crg.cd_sys.clk)
+        # _debug_io = [
+        #     ("debug_io", 0,
+        #      Subsignal("p0", Pins("pmod2:0")),
+        #      Subsignal("p1", Pins("pmod2:1")),
+        #      Subsignal("p2", Pins("pmod2:2")),
+        #      Subsignal("p3", Pins("pmod2:3")),
+        #      Subsignal("p4", Pins("pmod2:4")),
+        #      Subsignal("p5", Pins("pmod2:5")),
+        #      Subsignal("p6", Pins("pmod2:6")),
+        #      Subsignal("p7", Pins("pmod2:7")),
+        #      IOStandard("3.3_V_LVCMOS"),
+        #      )
+        # ]
+
 
         # LPDDR4 SDRAM -----------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -221,6 +234,19 @@ class BaseSoC(SoCCore):
 
             data_width = 512
             axi_bus = axi.AXIInterface(data_width=data_width, address_width=30, id_width=8) # 256MB.
+
+            # self.platform.add_extension(_debug_io)
+            # debug_io = platform.request("debug_io")
+            # self.sync += debug_io.p0.eq(axi_bus.ar.valid)
+            # self.sync += debug_io.p1.eq(axi_bus.r.valid)
+            # self.sync += debug_io.p2.eq(axi_bus.ar.ready)
+            # self.sync += debug_io.p3.eq(axi_bus.r.ready)
+            # self.sync += debug_io.p4.eq(axi_bus.aw.valid)
+            # self.sync += debug_io.p5.eq(axi_bus.b.valid)
+            # self.sync += debug_io.p6.eq(axi_bus.aw.ready)
+            # self.sync += debug_io.p7.eq(axi_bus.b.ready)
+
+            axi_clk = self.crg.cd_cpu.clk.name_override
             class DRAMXMLBlock(InterfaceWriterXMLBlock):
                 @staticmethod
                 def generate(root, namespaces):
@@ -248,7 +274,7 @@ class BaseSoC(SoCCore):
 
                     axi_target0 = et.SubElement(ddr, "efxpt:axi_target0",is_axi_width_256="false", is_axi_enable="true")
                     gen_pin_target0 = et.SubElement(axi_target0, "efxpt:gen_pin_axi")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="cd_sys_clkout",     type_name=f"ACLK_0",   is_bus="false", is_clk="true", is_clk_invert="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name=axi_clk,     type_name=f"ACLK_0",   is_bus="false", is_clk="true", is_clk_invert="false")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_apcmd", type_name="ARAPCMD_0", is_bus="false")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_ready", type_name="ARREADY_0", is_bus="false")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_valid", type_name="ARVALID_0", is_bus="false")
@@ -291,7 +317,7 @@ class BaseSoC(SoCCore):
 
                     axi_target1 = et.SubElement(ddr, "efxpt:axi_target1",is_axi_width_256="false", is_axi_enable="false")
                     gen_pin_target1 = et.SubElement(axi_target1, "efxpt:gen_pin_axi")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="cd_sys_clkout",     type_name=f"ACLK_1",   is_bus="false", is_clk="true", is_clk_invert="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name=axi_clk,     type_name=f"ACLK_1",   is_bus="false", is_clk="true", is_clk_invert="false")
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_apcmd", type_name="ARAPCMD_1", is_bus="false")
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_ready", type_name="ARREADY_1", is_bus="false")
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_valid", type_name="ARVALID_1", is_bus="false")
@@ -530,6 +556,13 @@ class BaseSoC(SoCCore):
                 Subsignal("resetn",     Pins(1)),
             )]
 
+            if hasattr(self.cpu, "add_memory_buses"):
+                self.cpu.add_memory_buses(address_width = 32, data_width = data_width)
+
+                assert len(self.cpu.memory_buses) == 1
+                mbus = self.cpu.memory_buses[0]
+                self.comb +=mbus.connect(axi_bus)
+
             io   = platform.add_iface_ios(ios)
             self.comb += [
                 io.ar_valid.eq(axi_bus.ar.valid),
@@ -552,7 +585,7 @@ class BaseSoC(SoCCore):
                 io.aw_lock.eq(axi_bus.aw.lock),
                 io.aw_cache.eq(axi_bus.aw.cache),
                 io.aw_qos.eq(axi_bus.aw.qos),
-                io.aw_allstrb.eq(0),
+                io.aw_allstrb.eq(0 if not hasattr(self.cpu, "mBus_awallStrb") else self.cpu.mBus_awallStrb),
                 io.aw_apcmd.eq(0),
                 io.awcobuf.eq(0),
                 io.w_valid.eq(axi_bus.w.valid),
@@ -572,13 +605,6 @@ class BaseSoC(SoCCore):
                 axi_bus.r.last.eq(io.r_last),
                 io.resetn.eq(~self.crg.cd_sys.rst),
             ]
-
-            if hasattr(self.cpu, "add_memory_buses"):
-                self.cpu.add_memory_buses(address_width = 32, data_width = data_width)
-
-                assert len(self.cpu.memory_buses) == 1
-                mbus = self.cpu.memory_buses[0]
-                self.comb +=mbus.connect(axi_bus)
                 
             cfgs = [(f"cfg", 0,
                 Subsignal("start",  Pins(1)),
@@ -612,6 +638,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_ti375_c529_dev_kit.Platform, description="LiteX SoC on Efinix Ti375 C529 Dev Kit.")
+    parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--cpu-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ohci",  action="store_true",       help="Enable USB OHCI.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
@@ -619,6 +647,8 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        sys_clk_freq = args.sys_clk_freq,
+        cpu_clk_freq = args.cpu_clk_freq,
         with_ohci  = args.with_ohci,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
