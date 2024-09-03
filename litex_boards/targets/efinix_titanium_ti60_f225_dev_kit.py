@@ -117,7 +117,7 @@ class BaseSoC(SoCCore):
                 pads               = pads,
                 with_hw_init_reset = False)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=True)
+                self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
