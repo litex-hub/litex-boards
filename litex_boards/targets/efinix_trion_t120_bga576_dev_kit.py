@@ -53,6 +53,7 @@ class BaseSoC(SoCCore):
         eth_phy         = 0,
         eth_rmii_pmod   = True,
         eth_ip          = "192.168.1.50",
+        remote_ip       = None,
         with_led_chaser = True,
         **kwargs):
         platform = efinix_trion_t120_bga576_dev_kit.Platform()
@@ -126,9 +127,9 @@ class BaseSoC(SoCCore):
                 )
 
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, software_debug=False)
+                self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # LPDDR3 SDRAM -----------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -367,10 +368,11 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone", action="store_true",    help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",   default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-phy",  default=0, type=int,    help="Ethernet PHY: 0 (default) or 1.")
+    ethopts.add_argument("--with-ethernet",   action="store_true",     help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",  action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",    default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip", default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-phy",   default=0, type=int,     help="Ethernet PHY: 0 (default) or 1.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -379,6 +381,7 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
         eth_phy        = args.eth_phy,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
