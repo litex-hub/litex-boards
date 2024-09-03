@@ -66,9 +66,11 @@ _io = [
     ),
 
     ("eth", 0,
-        Subsignal("rx_ctl",  Pins("F24")),
+        #Subsignal("rx_ctl",  Pins("F24")), # Can't be used as DDIO
+        Subsignal("rx_ctl",  Pins("M22")),  # A wire must be soldered between R120 and R174
         Subsignal("rx_data", Pins("J20 K20 J19 H20")),
-        Subsignal("tx_ctl",  Pins("G24")),
+        #Subsignal("tx_ctl",  Pins("G24")), # Can't be used as DDIO
+        Subsignal("tx_ctl",  Pins("M21")),  # A wire must be soldered between ETH1_TXEN (Pad 30) and R173
         Subsignal("tx_data", Pins("L23 L22 K21 K19")),
         Subsignal("rst_n",   Pins("F21")),
         Subsignal("mdc",     Pins("G21")),
