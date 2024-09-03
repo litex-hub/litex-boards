@@ -7,6 +7,8 @@
 # Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+import time
+
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -94,6 +96,13 @@ class BaseSoC(SoCCore):
         if with_ethernet or with_etherbone:
             # Use board's Ethernet PHYs.
             if not eth_rmii_pmod:
+                msg =  "\n"
+                msg += "rx_ctl/tx_ctl pads location aren't compatible with DDIO mode.\n"
+                msg += "An hardware modification must be done:\n"
+                msg += "- rx_ctl: a wire must be soldered between R120 and R174\n"
+                msg += "- tx_ctl: a wire must be soldered between ETH1_TXEN (Pad 30) and R173\n"
+                print(msg)
+                time.sleep(2)
                 self.ethphy = LiteEthPHYRGMII(
                     platform           = platform,
                     clock_pads         = platform.request("eth_clocks", eth_phy),
