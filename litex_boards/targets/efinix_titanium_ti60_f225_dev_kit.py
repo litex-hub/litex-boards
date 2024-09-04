@@ -84,7 +84,7 @@ class BaseSoC(SoCCore):
 
             # HyperRAM Bus/Slave Interface.
             hyperram_bus = wishbone.Interface(data_width=32, address_width=32, addressing="word")
-            self.bus.add_slave(name="main_ram", slave=hyperram_bus, region=SoCRegion(origin=0x40000000, size=hyperram_size))
+            self.bus.add_slave(name="main_ram", slave=hyperram_bus, region=SoCRegion(origin=0x40000000, size=hyperram_size, mode="rwx"))
 
             # HyperRAM L2 Cache.
             hyperram_cache = wishbone.Cache(

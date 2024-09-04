@@ -112,7 +112,7 @@ class BaseSoC(SoCCore):
                 os.system("mv hyperbus.py.txt hyperbus.py")
             from hyperbus import HyperRAM
             self.hyperram = HyperRAM(hyperram_pads)
-            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4 * MEGABYTE))
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4 * MEGABYTE, mode="rwx"))
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
