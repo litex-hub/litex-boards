@@ -71,7 +71,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6,
+    def __init__(self, toolchain="gowin", sys_clk_freq=50e6,
         with_spi_flash      = False,
         with_led_chaser     = True,
         with_buttons        = True,
@@ -80,7 +80,7 @@ class BaseSoC(SoCCore):
         sdram_rate          = "1:2",
         **kwargs):
 
-        platform = sipeed_tang_primer_25k.Platform(toolchain="gowin")
+        platform = sipeed_tang_primer_25k.Platform(toolchain=toolchain)
 
         assert not with_sdram or (sdram_model in ["sipeed", "mister"])
 
@@ -147,6 +147,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        toolchain      = args.toolchain,
         sys_clk_freq   = args.sys_clk_freq,
         with_spi_flash = args.with_spi_flash,
         with_sdram     = args.with_sdram,
