@@ -28,14 +28,12 @@ from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 from litex.soc.cores.usb_ohci import USBOHCI
 from litex.soc.integration.soc import SoCRegion
 from litex.build.io import DDROutput
+from litex.build.io import SDROutput
 from litex.build.io import SDRTristate
-# python3 -m litex_boards.targets.efinix_ti375_c529_dev_kit --cpu-type=vexiiriscv --cpu-variant=debian --update-repo=no --with-jtag-tap --with-sdcard --with-coherent-dma
-# python3 -m litex.tools.litex_json2dts_linux build/efinix_ti375_c529_dev_kit/csr.json --root-device=mmcblk0p2 > build/efinix_ti375_c529_dev_kit/linux.dts
-# timed 5026 gametics in 6544 realtics (26.881113 fps)
-# timed 5026 gametics in 3723 realtics (47.249531 fps)
-
-# TODO efx project ram from 8 words instead of 64, Fanout limit ?
-
+# Full stream debian demo :
+# --cpu-type=vexiiriscv --cpu-variant=debian --update-repo=no --with-jtag-tap --with-sdcard --with-coherent-dma --with-ohci --vexii-video "name=video"
+# --vexii-args="--fetch-l1-hardware-prefetch=nl --fetch-l1-refill-count=2 --fetch-l1-mem-data-width-min=128 --lsu-l1-mem-data-width-min=128 --lsu-software-prefetch --lsu-hardware-prefetch rpt --performance-counters 9 --lsu-l1-store-buffer-ops=32 --lsu-l1-refill-count 4 --lsu-l1-writeback-count 4 --lsu-l1-store-buffer-slots=4 --relaxed-div"
+# --l2-bytes=524288 --sys-clk-freq 100000000 --cpu-clk-freq 200000000 --with-cpu-clk --bus-standard axi-lite --cpu-count=4 --build
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -59,12 +57,14 @@ class _CRG(LiteXModule):
         # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
         # (integer) of the reference clock. If all your system clocks do not fall within
         # this range, you should dedicate one unused clock for CLKOUT0.
-        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True, name="sys_clk")
-        pll.create_clkout(self.cd_cpu, cpu_clk_freq, name="cpu_clk")
-        pll.create_clkout(self.cd_usb, 60e6, margin=0, name="usb_clk")
-        pll.create_clkout(None, 800e6, name="dram_clk") # LPDDR4 ctrl
-        pll.create_clkout(self.cd_video, 40e6, name ="video_clk")
-        platform.add_false_path_constraints(self.cd_sys.clk, self.cd_video.clk)
+        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
+        pll.create_clkout(self.cd_cpu, cpu_clk_freq)
+        pll.create_clkout(self.cd_usb, 60e6, margin=0)
+        pll.create_clkout(None, 800e6) # LPDDR4 ctrl
+        pll.create_clkout(self.cd_video, 40e6)
+        platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_usb.clk)
+        platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_sys.clk)
+        platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_video.clk)
         platform.add_false_path_constraints(self.cd_sys.clk, self.cd_usb.clk)
 
 
@@ -106,7 +106,7 @@ class BaseSoC(SoCCore):
                ("usb_pmod1", 0,
                    Subsignal("dp", Pins("pmod1:0", "pmod1:1", "pmod1:2", "pmod1:3")),
                    Subsignal("dm", Pins("pmod1:4", "pmod1:5", "pmod1:6", "pmod1:7")),
-                   IOStandard("3.3_V_LVCMOS"),
+                   IOStandard("3.3_V_LVCMOS"), Misc("DRIVE_STRENGTH=8"),
                )
             ]
             platform.add_extension(_usb_pmod_ios)
@@ -225,10 +225,6 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             # DRAM / PLL Blocks.
             # ------------------
-            dram_pll_refclk = platform.request("dram_pll_refclk")
-            platform.toolchain.excluded_ios.append(dram_pll_refclk)
-            self.platform.toolchain.additional_sdc_commands.append(f"create_clock -period {1e9/100e6} dram_pll_refclk")
-
             from litex.build.efinix import InterfaceWriterBlock, InterfaceWriterXMLBlock
             import xml.etree.ElementTree as et
 
@@ -261,15 +257,6 @@ class BaseSoC(SoCCore):
                                         physical_rank="1",
                                         mem_type="LPDDR4x",
                                         mem_density="8G"
-                        # cs_preset_id    = "173",
-                        # cs_mem_type     = "LPDDR3",
-                        # cs_ctrl_width   = "x32",
-                        # cs_dram_width   = "x32",
-                        # cs_dram_density = "8G",
-                        # cs_speedbin     = "800",
-                        # target0_enable  = "true",
-                        # target1_enable  = "true",
-                        # ctrl_type       = "none"
                     )
 
                     axi_target0 = et.SubElement(ddr, "efxpt:axi_target0",is_axi_width_256="false", is_axi_enable="true")
@@ -515,44 +502,44 @@ class BaseSoC(SoCCore):
             # DRAM AXI-Ports.
             # --------------
             ios = [(f"ddr0", 0,
-                Subsignal("ar_valid",           Pins(1)), #
-                Subsignal("ar_ready",           Pins(1)), #
-                Subsignal("ar_addr",    Pins(33)), #32:0] 
-                Subsignal("ar_id",      Pins(6)), #5:0] 
-                Subsignal("ar_len",     Pins(8)), #7:0] 
-                Subsignal("ar_size",    Pins(3)), #2:0] 
-                Subsignal("ar_burst",   Pins(2)), #1:0] 
-                Subsignal("ar_lock",    Pins(1)), #
-                Subsignal("ar_apcmd",           Pins(1)), #
-                Subsignal("ar_qos",     Pins(1)), #
-                Subsignal("aw_valid",           Pins(1)), #
-                Subsignal("aw_ready",           Pins(1)), #
-                Subsignal("aw_addr",    Pins(33)), #32:0] 
-                Subsignal("aw_id",      Pins(6)), #5:0] 
-                Subsignal("aw_len",     Pins(8)), #7:0] 
-                Subsignal("aw_size",    Pins(3)), #2:0] 
-                Subsignal("aw_burst",   Pins(2)), #1:0] 
-                Subsignal("aw_lock",    Pins(1)), #
-                Subsignal("aw_cache",   Pins(4)), #3:0] 
-                Subsignal("aw_qos",     Pins(1)), #
-                Subsignal("aw_allstrb", Pins(1)), #
-                Subsignal("aw_apcmd",           Pins(1)), #
-                Subsignal("awcobuf",            Pins(1)), #
-                Subsignal("w_valid",            Pins(1)), #
-                Subsignal("w_ready",            Pins(1)), #
-                Subsignal("w_data",     Pins(data_width)), #512-1:0] 
-                Subsignal("w_strb",     Pins(data_width//8)), #64-1:0]
-                Subsignal("w_last",     Pins(1)), #
-                Subsignal("b_valid",            Pins(1)), #
-                Subsignal("b_ready",            Pins(1)), #
-                Subsignal("b_resp",     Pins(1)), #1:0] 
-                Subsignal("b_id",       Pins(6)), #5:0] 
-                Subsignal("r_valid",            Pins(1)), #
-                Subsignal("r_ready",            Pins(1)), #
-                Subsignal("r_data",     Pins(data_width)), #512-1:0] 
-                Subsignal("r_id",       Pins(6)), #5:0] 
-                Subsignal("r_resp",     Pins(2)), #1:0] 
-                Subsignal("r_last",     Pins(1)), #
+                Subsignal("ar_valid",           Pins(1)),
+                Subsignal("ar_ready",           Pins(1)),
+                Subsignal("ar_addr",    Pins(33)),
+                Subsignal("ar_id",      Pins(6)),
+                Subsignal("ar_len",     Pins(8)),
+                Subsignal("ar_size",    Pins(3)),
+                Subsignal("ar_burst",   Pins(2)),
+                Subsignal("ar_lock",    Pins(1)),
+                Subsignal("ar_apcmd",           Pins(1)),
+                Subsignal("ar_qos",     Pins(1)),
+                Subsignal("aw_valid",           Pins(1)),
+                Subsignal("aw_ready",           Pins(1)),
+                Subsignal("aw_addr",    Pins(33)),
+                Subsignal("aw_id",      Pins(6)),
+                Subsignal("aw_len",     Pins(8)),
+                Subsignal("aw_size",    Pins(3)),
+                Subsignal("aw_burst",   Pins(2)),
+                Subsignal("aw_lock",    Pins(1)),
+                Subsignal("aw_cache",   Pins(4)),
+                Subsignal("aw_qos",     Pins(1)),
+                Subsignal("aw_allstrb", Pins(1)),
+                Subsignal("aw_apcmd",           Pins(1)),
+                Subsignal("awcobuf",            Pins(1)),
+                Subsignal("w_valid",            Pins(1)),
+                Subsignal("w_ready",            Pins(1)),
+                Subsignal("w_data",     Pins(data_width)),
+                Subsignal("w_strb",     Pins(data_width//8)),
+                Subsignal("w_last",     Pins(1)),
+                Subsignal("b_valid",            Pins(1)),
+                Subsignal("b_ready",            Pins(1)),
+                Subsignal("b_resp",     Pins(1)),
+                Subsignal("b_id",       Pins(6)),
+                Subsignal("r_valid",            Pins(1)),
+                Subsignal("r_ready",            Pins(1)),
+                Subsignal("r_data",     Pins(data_width)),
+                Subsignal("r_id",       Pins(6)),
+                Subsignal("r_resp",     Pins(2)),
+                Subsignal("r_last",     Pins(1)),
                 Subsignal("resetn",     Pins(1)),
             )]
 
@@ -655,6 +642,7 @@ def main():
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
+
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
@@ -662,11 +650,6 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
-
-    # if args.flash:
-    #     from litex.build.openfpgaloader import OpenFPGALoader
-    #     prog = OpenFPGALoader("titanium_ti375_c529")
-    #     prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".hex")) # FIXME
 
 if __name__ == "__main__":
     main()

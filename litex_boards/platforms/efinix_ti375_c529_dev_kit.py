@@ -32,17 +32,27 @@ _io = [
     # SD-Card
     ("spisdcard", 0,
      Subsignal("clk", Pins("C9")),
-     Subsignal("mosi", Pins("C10"), Misc("WEAK_PULLUP")),
-     Subsignal("cs_n", Pins("A9"), Misc("WEAK_PULLUP")),
-     Subsignal("miso", Pins("B9"), Misc("WEAK_PULLUP")),
+     Subsignal("mosi", Pins("C10")),
+     Subsignal("cs_n", Pins("A9")),
+     Subsignal("miso", Pins("B9")),
      IOStandard("3.3_V_LVCMOS"),
      ),
     ("sdcard", 0,
-     Subsignal("data", Pins("B9 B10 A8 A9"), Misc("WEAK_PULLUP")),
-     Subsignal("cmd", Pins("C10"), Misc("WEAK_PULLUP")),
-     Subsignal("clk", Pins("C9")),
-     IOStandard("3.3_V_LVCMOS"),
+     Subsignal("data", Pins("B9 B10 A8 A9")),
+     Subsignal("cmd", Pins("C10")),
+     Subsignal("clk", Pins("C9")) , #, Misc("SLEWRATE=1"), Misc("DRIVE_STRENGTH=16")
+     IOStandard("3.3_V_LVTTL"),
      ),
+
+    # SD-Card through PMOD2
+    # ("sdcard", 0,
+    #  Subsignal("data", Pins("F13 F14 E11 E14"), Misc("WEAK_PULLUP")),
+    #  Subsignal("cmd", Pins("E16"), Misc("WEAK_PULLUP")),
+    #  Subsignal("clk", Pins("E15")),
+    #  IOStandard("3.3_V_LVCMOS"),
+    #  ),
+
+    ("fan_speed_control", 0, Pins("T19"), IOStandard("3.3_V_LVCMOS")),
 ]
 
 
