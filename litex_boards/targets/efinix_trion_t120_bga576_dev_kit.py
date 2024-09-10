@@ -186,6 +186,8 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
                         ctrl_type       = "none"
                     )
 
+                    ddr_clk_name = self.crg.cd_sys.clk.name_override # FIXME: can't know this information otherwise
+
                     gen_pin_target0 = et.SubElement(ddr, "efxpt:gen_pin_target0")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="axi0_wdata",  type_name=f"WDATA_0",  is_bus="true")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="axi0_wready", type_name=f"WREADY_0", is_bus="false")
@@ -211,7 +213,7 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="axi0_wstrb",  type_name=f"WSTRB_0",  is_bus="true")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="axi0_aready", type_name=f"AREADY_0", is_bus="false")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="axi0_alen",   type_name=f"ALEN_0",   is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="axi_clk",     type_name=f"ACLK_0",   is_bus="false", is_clk="true", is_clk_invert="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name=ddr_clk_name,  type_name=f"ACLK_0",   is_bus="false", is_clk="true", is_clk_invert="false")
 
                     gen_pin_target1 = et.SubElement(ddr, "efxpt:gen_pin_target1")
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="axi1_wdata",  type_name=f"WDATA_1",  is_bus="true")
@@ -238,7 +240,7 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="axi1_wstrb",  type_name=f"WSTRB_1",  is_bus="true")
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="axi1_aready", type_name=f"AREADY_1", is_bus="false")
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="axi1_alen",   type_name=f"ALEN_1",   is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="axi_clk",     type_name=f"ACLK_1",   is_bus="false", is_clk="true", is_clk_invert="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name=ddr_clk_name,  type_name=f"ACLK_1",   is_bus="false", is_clk="true", is_clk_invert="false")
 
                     gen_pin_config = et.SubElement(ddr, "efxpt:gen_pin_config")
                     et.SubElement(gen_pin_config, "efxpt:pin", name="", type_name="CFG_SEQ_RST",   is_bus="false")
