@@ -1,8 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2021 Franck Jullien <franck.jullien@collshade.fr>
-# Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2024 Dolu1990 <charles.papon.90@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -12,50 +11,42 @@ from litex.build.efinix import EfinixProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk
-    ("clk25", None, Pins("L17"), IOStandard("1.8_V_LVCMOS")),
-    ("clk100", None, Pins("U4"), IOStandard("3.3_V_LVCMOS")),
+    # Clk.
+    ("clk25",  0, Pins("L17"), IOStandard("1.8_V_LVCMOS")),
+    ("clk100", 0, Pins("U4"),  IOStandard("3.3_V_LVCMOS")),
 
-    # Serial
+    # Serial.
     ("serial", 0,
-     Subsignal("tx", Pins("E9")),
-     Subsignal("rx", Pins("E10")),
-     IOStandard("3.3_V_LVTTL"), Misc("WEAK_PULLUP")
-     ),
+        Subsignal("tx", Pins(" E9")),
+        Subsignal("rx", Pins("E10")),
+        IOStandard("3.3_V_LVTTL"),
+        Misc("WEAK_PULLUP"),
+    ),
 
-    # Buttons
+    # Buttons.
     ("user_btn", 0, Pins("U19"), IOStandard("3.3_V_LVCMOS")),
 
     # DRAM.
     ("dram_pll_refclk", 0, Pins("XXX"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 
-    # SD-Card
+    # SDCard.
     ("spisdcard", 0,
-     Subsignal("clk", Pins("C9")),
-     Subsignal("mosi", Pins("C10")),
-     Subsignal("cs_n", Pins("A9")),
-     Subsignal("miso", Pins("B9")),
-     IOStandard("3.3_V_LVCMOS"),
-     ),
+        Subsignal("clk",  Pins(" C9")),
+        Subsignal("mosi", Pins("C10")),
+        Subsignal("cs_n", Pins(" A9")),
+        Subsignal("miso", Pins(" B9")),
+        IOStandard("3.3_V_LVCMOS"),
+    ),
     ("sdcard", 0,
-     Subsignal("data", Pins("B9 B10 A8 A9")),
-     Subsignal("cmd", Pins("C10")),
-     Subsignal("clk", Pins("C9")) , #, Misc("SLEWRATE=1"), Misc("DRIVE_STRENGTH=16")
-     IOStandard("3.3_V_LVTTL"),
-     ),
+        Subsignal("data", Pins("B9 B10 A8 A9")),
+        Subsignal("cmd",  Pins("C10")),
+        Subsignal("clk",  Pins("C9")) , #, Misc("SLEWRATE=1"), Misc("DRIVE_STRENGTH=16")
+        IOStandard("3.3_V_LVTTL"),
+    ),
 
-    # SD-Card through PMOD2
-    # ("sdcard", 0,
-    #  Subsignal("data", Pins("F13 F14 E11 E14"), Misc("WEAK_PULLUP")),
-    #  Subsignal("cmd", Pins("E16"), Misc("WEAK_PULLUP")),
-    #  Subsignal("clk", Pins("E15")),
-    #  IOStandard("3.3_V_LVCMOS"),
-    #  ),
-
+    # FAN.
     ("fan_speed_control", 0, Pins("T19"), IOStandard("3.3_V_LVCMOS")),
 ]
-
-
 
 # Bank voltage ---------------------------------------------------------------------------------------
 
@@ -85,12 +76,12 @@ _connectors = [
     ("pmod2", "E14 E16 F13 E15 F14 E11 F11 D11"),
     ["p1",
         "---", # 0
-     # 3V3      5V     GND GND                 GND GND                 GND GND         ↓
-     "--- B21 --- A21 --- --- C22 E21 B22 D21 --- --- B23 F21 A22 F22 --- --- D22 G21",
-     #  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20 ↑
-     # 21  22  23  24  25  26  27  28  28  30  31  32  33  34  35  36  37  38  39  40 ↓
-     "D23 G22 --- --- F23 H20 E23 G20 --- --- H22 K23 H23 L23 --- --- L19 M21 M19 M22",
-     #        GND GND                 GND GND                 GND GND                 ↑
+        # 3V3      5V     GND GND                 GND GND                 GND GND         ↓
+        "--- B21 --- A21 --- --- C22 E21 B22 D21 --- --- B23 F21 A22 F22 --- --- D22 G21",
+        #  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  ↑
+        # 21  22  23  24  25  26  27  28  28  30  31  32  33  34  35  36  37  38  39  40  ↓
+        "D23 G22 --- --- F23 H20 E23 G20 --- --- H22 K23 H23 L23 --- --- L19 M21 M19 M22",
+        #        GND GND                 GND GND                 GND GND                  ↑
     ],
 ]
 
@@ -98,6 +89,7 @@ _connectors = [
 
 def raw_pmod_io(pmod):
     return [(pmod, 0, Pins(" ".join([f"{pmod}:{i:d}" for i in range(8)])), IOStandard("3.3_V_LVTTL_/_LVCMOS"))]
+
 def jtag_pmod_io(pmod):
     return [
         ("usb_uart", 0,
@@ -108,12 +100,15 @@ def jtag_pmod_io(pmod):
             IOStandard("3.3_V_LVCMOS")
         ),
     ]
+
 def hdmi_px(px):
     return [
         ("hdmi_i2c", 0,
             Subsignal("sda", Pins(f"{px}:26")),
             Subsignal("scl", Pins(f"{px}:28")),
-            IOStandard("1.8_V_LVCMOS"), Misc("WEAK_PULLUP"), Misc("SCHMITT_TRIGGER")
+            IOStandard("1.8_V_LVCMOS"),
+            Misc("WEAK_PULLUP"),
+            Misc("SCHMITT_TRIGGER"),
         ),
         ("hdmi_data", 0,
             Subsignal("clk", Pins(f"{px}:4")),
@@ -127,6 +122,7 @@ def hdmi_px(px):
             IOStandard("1.8_V_LVCMOS")
         ),
     ]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(EfinixPlatform):
