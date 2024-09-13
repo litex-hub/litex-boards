@@ -110,6 +110,7 @@ class BaseSoC(SoCCore):
         with_ethernet       = False,
         with_etherbone      = False,
         eth_ip              = "192.168.1.50",
+        remote_ip           = None,
         eth_dynamic_ip      = False,
         dock                = "standard",
         **kwargs):
@@ -159,7 +160,12 @@ class BaseSoC(SoCCore):
                 refclk_cd  = None
             )
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, with_timing_constraints=False)
+                self.add_ethernet(phy=self.ethphy,
+                    dynamic_ip              = eth_dynamic_ip,
+                    local_ip                = eth_ip,
+                    remote_ip               = remote_ip,
+                    with_timing_constraints = False
+                )
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False)
 
@@ -209,10 +215,11 @@ def main():
     parser.add_target_argument("--with-spi-flash",      action="store_true", help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    ethopts.add_argument("--with-ethernet",        action="store_true",     help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone",       action="store_true",     help="Add EtherBone.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP addresses setting.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -223,6 +230,7 @@ def main():
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         eth_ip              = args.eth_ip,
+        remote_ip           = args.remote_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
         dock                = args.dock,
         **parser.soc_argdict
