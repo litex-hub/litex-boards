@@ -376,11 +376,6 @@ class Platform(XilinxUSPPlatform):
 
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
-        # Clks Constraints.
-        self.add_period_constraint(self.lookup_request("clk300", 0, loose=True), 1e9/300e6)
-        self.add_period_constraint(self.lookup_request("clk300", 1, loose=True), 1e9/300e6)
-        self.add_period_constraint(self.lookup_request("clk300", 2, loose=True), 1e9/300e6)
-        self.add_period_constraint(self.lookup_request("clk300", 3, loose=True), 1e9/300e6)
 
         # For passively cooled boards, overheating is a significant risk if airflow isn't sufficient
         self.add_platform_command("set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]")
