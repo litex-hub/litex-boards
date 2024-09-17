@@ -59,7 +59,14 @@ class Platform(LatticeiCE40Platform):
         LatticeiCE40Platform.__init__(self, "ice40-up5k-uwg30", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
-        return IceStormProgrammer()
+        print("\033[93m")
+        print("-------------------------------------------------------------------------------")
+        print("Programming is not supported for this platform.")
+        print("Please use the official Signaloid C0-microSD utilities for flashing the device.")
+        print("https://github.com/signaloid/C0-microSD-utilities")
+        print("-------------------------------------------------------------------------------")
+        print("\033[0m")
+        return None
 
     def do_finalize(self, fragment):
         LatticeiCE40Platform.do_finalize(self, fragment)

@@ -123,10 +123,15 @@ class BaseSoC(SoCCore):
 # Flash --------------------------------------------------------------------------------------------
 
 def flash(build_dir, build_name, bios_flash_offset):
-    from litex.build.lattice.programmer import IceStormProgrammer
-    prog = IceStormProgrammer()
-    prog.flash(bios_flash_offset, f"{build_dir}/software/bios/bios.bin")
-    prog.flash(0x00000000,        f"{build_dir}/gateware/{build_name}.bin")
+    print("\033[93m")
+    print("-------------------------------------------------------------------------------")
+    print("Programming is not supported for this platform.")
+    print("Please use the official Signaloid C0-microSD utilities for flashing the device.")
+    print("https://github.com/signaloid/C0-microSD-utilities")
+    print(f"Bitstream path: {build_dir}/gateware/{build_name}.bin")
+    print(f"Binary path   : {build_dir}/software/bios/bios.bin")
+    print("-------------------------------------------------------------------------------")
+    print("\033[0m")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -152,8 +157,13 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".bin")) # FIXME
+        print("\033[93m")
+        print("-------------------------------------------------------------------------------")
+        print("Loading is not supported for this platform.")
+        print("Please use the official Signaloid C0-microSD utilities for flashing the device.")
+        print("https://github.com/signaloid/C0-microSD-utilities")
+        print("-------------------------------------------------------------------------------")
+        print("\033[0m")
 
     if args.flash:
         flash(builder.output_dir, soc.build_name, args.bios_flash_offset)
