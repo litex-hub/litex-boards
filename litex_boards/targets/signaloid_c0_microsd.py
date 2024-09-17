@@ -18,6 +18,8 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+KILOBYTE = 1024
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
