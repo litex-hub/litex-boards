@@ -27,8 +27,10 @@ from liteeth.phy.titaniumrgmii import LiteEthPHYRGMII
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst    = Signal()
-        self.cd_sys = ClockDomain()
+        self.rst         = Signal()
+        self.cd_sys      = ClockDomain()
+        self.cd_sys2x    = ClockDomain()
+        self.cd_sys2x_ps = ClockDomain()
 
         # # #
 
@@ -43,8 +45,9 @@ class _CRG(LiteXModule):
         # (integer) of the reference clock. If all your system clocks do not fall within
         # this range, you should dedicate one unused clock for CLKOUT0.
         pll.create_clkout(None, 25e6)
-
-        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
+        pll.create_clkout(self.cd_sys,          sys_clk_freq, phase=0,   with_reset=True)
+        pll.create_clkout(self.cd_sys2x,    2 * sys_clk_freq, phase=0,   with_reset=True)
+        pll.create_clkout(self.cd_sys2x_ps, 2 * sys_clk_freq, phase=315, with_reset=True)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -56,6 +59,7 @@ class BaseSoC(SoCCore):
         with_etherbone = False,
         eth_phy        = 0,
         eth_ip         = "192.168.1.50",
+        remote_ip      = None,
         **kwargs):
         platform = efinix_titanium_ti60_f225_dev_kit.Platform()
 
@@ -75,12 +79,12 @@ class BaseSoC(SoCCore):
         if with_hyperram:
             # HyperRAM Parameters.
             hyperram_device     = "W958D6NW"
-            hyperram_size       = 32*1024*1024
-            hyperram_cache_size = 16*1024
+            hyperram_size       = 32 * MEGABYTE
+            hyperram_cache_size = 16 * KILOBYTE
 
             # HyperRAM Bus/Slave Interface.
             hyperram_bus = wishbone.Interface(data_width=32, address_width=32, addressing="word")
-            self.bus.add_slave(name="main_ram", slave=hyperram_bus, region=SoCRegion(origin=0x40000000, size=hyperram_size))
+            self.bus.add_slave(name="main_ram", slave=hyperram_bus, region=SoCRegion(origin=0x40000000, size=hyperram_size, mode="rwx"))
 
             # HyperRAM L2 Cache.
             hyperram_cache = wishbone.Cache(
@@ -93,7 +97,14 @@ class BaseSoC(SoCCore):
             self.add_config("L2_SIZE", hyperram_cache_size)
 
             # HyperRAM Core.
-            self.hyperram = HyperRAM(platform.request("hyperram"), latency=7, latency_mode="variable", sys_clk_freq=sys_clk_freq)
+            self.hyperram = HyperRAM(
+                pads         = platform.request("hyperram"),
+                latency      = 7,
+                latency_mode = "variable",
+                sys_clk_freq = sys_clk_freq,
+                clk_ratio    = "2:1",
+                dq_i_cd      = "sys2x_ps",
+            )
             self.comb += self.hyperram_cache.slave.connect(self.hyperram.bus)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
@@ -106,9 +117,9 @@ class BaseSoC(SoCCore):
                 pads               = pads,
                 with_hw_init_reset = False)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, software_debug=True)
+                self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -123,10 +134,11 @@ def main():
     sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone", action="store_true",    help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",   default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-phy",  default=0, type=int,    help="Ethernet PHY: 0 (default) or 1.")
+    ethopts.add_argument("--with-ethernet",   action="store_true",     help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",  action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",    default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip", default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-phy",   default=0, type=int,     help="Ethernet PHY: 0 (default) or 1.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -136,6 +148,7 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
         eth_phy        = args.eth_phy,
          **parser.soc_argdict)
     if args.with_spi_sdcard:

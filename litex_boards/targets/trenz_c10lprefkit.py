@@ -73,7 +73,7 @@ class BaseSoC(SoCCore):
 
         # HyperRam ---------------------------------------------------------------------------------
         self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
-        self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8*1024*1024))
+        self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8 * MEGABYTE, mode="rwx"))
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

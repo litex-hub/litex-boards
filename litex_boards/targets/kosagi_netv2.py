@@ -64,6 +64,8 @@ class BaseSoC(SoCCore):
     def __init__(self, variant="a7-35", sys_clk_freq=100e6,
         with_pcie       = False,
         with_ethernet   = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
         with_led_chaser = True,
         **kwargs):
         platform = kosagi_netv2.Platform(variant=variant)
@@ -91,7 +93,7 @@ class BaseSoC(SoCCore):
             self.ethphy = LiteEthPHYRMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            self.add_ethernet(phy=self.ethphy)
+            self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -114,6 +116,8 @@ def main():
     parser.add_target_argument("--variant",       default="a7-35",           help="Board variant (a7-35 or a7-100).")
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ethernet", action="store_true",       help="Enable Ethernet support.")
+    parser.add_target_argument("--eth-ip",        default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",     default="192.168.1.100",   help="Remote IP address of TFTP server.")
     parser.add_target_argument("--with-pcie",     action="store_true",       help="Enable PCIe support.")
     parser.add_target_argument("--driver",        action="store_true",       help="Generate PCIe driver.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
@@ -125,6 +129,8 @@ def main():
         variant       = args.variant,
         sys_clk_freq  = args.sys_clk_freq,
         with_ethernet = args.with_ethernet,
+        eth_ip        = args.eth_ip,
+        remote_ip     = args.remote_ip,
         with_pcie     = args.with_pcie,
         **parser.soc_argdict
     )

@@ -70,7 +70,7 @@ class BaseSoC(SoCCore):
             )
             self.bus.add_region("rom", SoCRegion(
                 origin = self.mem_map["rom"],
-                size   = 4 * 128 * 1024,
+                size   = 4 * 128 * KILOBYTE,
                 linker = True)
             )
 

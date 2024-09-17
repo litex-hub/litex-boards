@@ -59,12 +59,12 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=27e6,
+    def __init__(self, toolchain="gowin", sys_clk_freq=27e6,
         with_hyperram       = False,
         with_led_chaser     = True,
         with_video_terminal = True,
         **kwargs):
-        platform = sipeed_tang_nano_4k.Platform()
+        platform = sipeed_tang_nano_4k.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
@@ -125,7 +125,7 @@ class BaseSoC(SoCCore):
             self.comb += platform.request("O_hpram_ck").eq(hyperram_pads.clk)
             self.comb += platform.request("O_hpram_ck_n").eq(~hyperram_pads.clk)
             self.hyperram = HyperRAM(hyperram_pads, sys_clk_freq=sys_clk_freq)
-            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8 * MEGABYTE))
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8 * MEGABYTE, mode="rwx"))
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
@@ -151,6 +151,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        toolchain           = args.toolchain,
         sys_clk_freq        = args.sys_clk_freq,
         with_hyperram       = args.with_hyperram,
         with_video_terminal = args.with_video_terminal,

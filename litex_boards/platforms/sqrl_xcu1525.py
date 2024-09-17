@@ -376,25 +376,31 @@ class Platform(XilinxUSPPlatform):
 
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
+
         # For passively cooled boards, overheating is a significant risk if airflow isn't sufficient
         self.add_platform_command("set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]")
+
         # Reduce programming time
         self.add_platform_command("set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]")
+
         # DDR4 memory channel C0 Clock constraint / Internal Vref
         self.add_period_constraint(self.lookup_request("clk300", 0, loose=True), 1e9/300e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 40]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 41]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 42]")
+
         # DDR4 memory channel C1 Clock constraint / Internal Vref
         self.add_period_constraint(self.lookup_request("clk300", 1, loose=True), 1e9/300e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 65]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 67]")
+
         # DDR4 memory channel C2 Clock constraint / Internal Vref
         self.add_period_constraint(self.lookup_request("clk300", 2, loose=True), 1e9/300e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 46]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 47]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 48]")
+
         # DDR4 memory channel C3 Clock constraint / Internal Vref
         self.add_period_constraint(self.lookup_request("clk300", 3, loose=True), 1e9/300e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 70]")

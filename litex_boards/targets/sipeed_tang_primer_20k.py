@@ -31,13 +31,14 @@ from litedram.phy import GW2DDRPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False, with_dram=False):
         self.rst        = Signal()
         self.cd_sys     = ClockDomain()
         self.cd_por     = ClockDomain()
-        self.cd_init    = ClockDomain()
-        self.cd_sys2x   = ClockDomain()
-        self.cd_sys2x_i = ClockDomain()
+        if with_dram:
+            self.cd_init    = ClockDomain()
+            self.cd_sys2x   = ClockDomain()
+            self.cd_sys2x_i = ClockDomain()
 
         # # #
 
@@ -58,24 +59,29 @@ class _CRG(LiteXModule):
         self.pll = pll = GW2APLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~por_done)
         pll.register_clkin(clk27, 27e6)
-        pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
-        self.specials += [
-            Instance("DHCEN",
-                i_CLKIN  = self.cd_sys2x_i.clk,
-                i_CE     = self.stop,
-                o_CLKOUT = self.cd_sys2x.clk),
-            Instance("CLKDIV",
-                p_DIV_MODE = "2",
-                i_CALIB    = 0,
-                i_HCLKIN   = self.cd_sys2x.clk,
-                i_RESETN   = ~self.reset,
-                o_CLKOUT   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.rst | self.reset),
-        ]
+        if with_dram:
+            # 2:1 clock needed for DDR
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            self.specials += [
+                Instance("DHCEN",
+                    i_CLKIN  = self.cd_sys2x_i.clk,
+                    i_CE     = self.stop,
+                    o_CLKOUT = self.cd_sys2x.clk),
+                Instance("CLKDIV",
+                    p_DIV_MODE = "2",
+                    i_CALIB    = 0,
+                    i_HCLKIN   = self.cd_sys2x.clk,
+                    i_RESETN   = ~self.reset,
+                    o_CLKOUT   = self.cd_sys.clk),
+            ]
 
-        # Init clock domain
-        self.comb += self.cd_init.clk.eq(clk27)
-        self.comb += self.cd_init.rst.eq(pll.reset)
+            # Init clock domain
+            self.comb += self.cd_init.clk.eq(clk27)
+            self.comb += self.cd_init.rst.eq(pll.reset)
+        else:
+            pll.create_clkout(self.cd_sys, sys_clk_freq)
+        
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.rst | self.reset)
 
         # Video PLL
         if with_video_pll:
@@ -95,7 +101,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=48e6,
+    def __init__(self, toolchain="gowin", sys_clk_freq=48e6,
         with_spi_flash      = False,
         with_led_chaser     = True,
         with_rgb_led        = False,
@@ -104,25 +110,28 @@ class BaseSoC(SoCCore):
         with_ethernet       = False,
         with_etherbone      = False,
         eth_ip              = "192.168.1.50",
+        remote_ip           = None,
         eth_dynamic_ip      = False,
         dock                = "standard",
         **kwargs):
 
         assert dock in ["standard", "lite"]
 
-        platform = sipeed_tang_primer_20k.Platform(dock, toolchain="gowin")
+        platform = sipeed_tang_primer_20k.Platform(dock, toolchain=toolchain)
 
         if dock == "lite":
             with_led_chaser = False # No leds on core board nor on dock lite.
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+        with_dram = (kwargs.get("integrated_main_ram_size", 0) == 0)
+        assert not (toolchain == "apicula" and with_dram)
+        self.crg  = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal, with_dram=with_dram)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
-        if not self.integrated_main_ram_size:
+        if with_dram:
             self.ddrphy = GW2DDRPHY(
                 pads         = platform.request("ddram"),
                 sys_clk_freq = sys_clk_freq
@@ -151,7 +160,12 @@ class BaseSoC(SoCCore):
                 refclk_cd  = None
             )
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, with_timing_constraints=False)
+                self.add_ethernet(phy=self.ethphy,
+                    dynamic_ip              = eth_dynamic_ip,
+                    local_ip                = eth_ip,
+                    remote_ip               = remote_ip,
+                    with_timing_constraints = False
+                )
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False)
 
@@ -201,19 +215,22 @@ def main():
     parser.add_target_argument("--with-spi-flash",      action="store_true", help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    ethopts.add_argument("--with-ethernet",        action="store_true",     help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone",       action="store_true",     help="Add EtherBone.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP addresses setting.")
     args = parser.parse_args()
 
     soc = BaseSoC(
+        toolchain           = args.toolchain,
         sys_clk_freq        = args.sys_clk_freq,
         with_spi_flash      = args.with_spi_flash,
         with_video_terminal = args.with_video_terminal,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         eth_ip              = args.eth_ip,
+        remote_ip           = args.remote_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
         dock                = args.dock,
         **parser.soc_argdict

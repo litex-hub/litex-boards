@@ -53,13 +53,13 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=48e6,
-        with_led_chaser     = True,
-        with_rgb_led        = False,
-        with_buttons        = True,
+    def __init__(self, toolchain="gowin", sys_clk_freq=48e6,
+        with_led_chaser = True,
+        with_rgb_led    = False,
+        with_buttons    = True,
         **kwargs):
 
-        platform = sipeed_tang_nano_20k.Platform(toolchain="gowin")
+        platform = sipeed_tang_nano_20k.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -131,7 +131,8 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq        = args.sys_clk_freq,
+        toolchain    = args.toolchain,
+        sys_clk_freq = args.sys_clk_freq,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:

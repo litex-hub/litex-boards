@@ -85,7 +85,7 @@ class BaseSoC(SoCCore):
 
         # 128KB SPRAM (used as 64kB SRAM / 64kB RAM) -----------------------------------------------
         self.spram = Up5kSPRAM(size=128 * KILOBYTE)
-        self.bus.add_slave("psram", self.spram.bus, SoCRegion(size=128 * KILOBYTE))
+        self.bus.add_slave("psram", self.spram.bus, SoCRegion(origin=self.mem_map["sram"], size=128 * KILOBYTE))
         self.bus.add_region("sram", SoCRegion(
                 origin = self.bus.regions["psram"].origin + 0 * KILOBYTE,
                 size   = 64 * KILOBYTE,

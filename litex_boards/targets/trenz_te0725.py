@@ -45,10 +45,10 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Trenz TE0725 Board", **kwargs)
 
         # Use HyperRAM generic PHY as SRAM ---------------------------------------------------------
-        size = int((64*1024*1024) / 8)
+        size = int((64 * MEGABYTE) / 8)
         hr_pads = platform.request("hyperram", 0)
         self.hyperram = HyperRAM(hr_pads, sys_clk_freq=sys_clk_freq)
-        self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=size))
+        self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=size, mode="rwx"))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
