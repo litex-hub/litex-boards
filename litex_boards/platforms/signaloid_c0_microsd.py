@@ -36,13 +36,13 @@ _io = [
         IOStandard("LVCMOS18"),
     ),
 
-    # SDCard (no CD)
-    ("sdcard", 0,
-        Subsignal("data", Pins("A1 A2 E5 F5")),
-        Subsignal("cmd", Pins("A4")),
-        Subsignal("clk", Pins("B3")),
-        IOStandard("LVCMOS33"),
-    ),
+    # SD Breakout pins
+    ("SD_DAT0", 0, Pins("A1"), IOStandard("LVCMOS33")),
+    ("SD_DAT1", 0, Pins("A2"), IOStandard("LVCMOS33")),
+    ("SD_DAT2", 0, Pins("E5"), IOStandard("LVCMOS33")),
+    ("SD_DAT3", 0, Pins("F5"), IOStandard("LVCMOS33")),
+    ("SD_CMD",  0, Pins("A4"), IOStandard("LVCMOS33")),
+    ("SD_CLK",  0, Pins("B3"), IOStandard("LVCMOS33")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
