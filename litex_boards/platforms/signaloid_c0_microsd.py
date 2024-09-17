@@ -1,6 +1,6 @@
 #
 # This file is part of LiteX-Boards.
-# Copyright (c) 2024, Signaloid <a.vailakis@gmail.com>
+# Copyright (c) 2024, Signaloid <developer-support@signaloid.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Signaloid C0-microSD FPGA SoM:
