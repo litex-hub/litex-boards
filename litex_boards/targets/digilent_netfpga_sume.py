@@ -74,11 +74,12 @@ class BaseSoC(SoCCore):
                 memtype          = "DDR3",
                 nphases          = 4,
                 sys_clk_freq     = sys_clk_freq
-                )
+            )
              self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = MT8KTF51264(sys_clk_freq, "1:4"),
-                l2_cache_size = kwargs.get("l2_size", 8192)
+                size          = 0x40000000,
+                l2_cache_size = kwargs.get("l2_size", 8192),
             )
             
         # Ethernet / Etherbone ---------------------------------------------------------------------
