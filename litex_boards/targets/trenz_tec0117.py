@@ -28,7 +28,7 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, sdram_rate):
         self.rst      = Signal()
         self.cd_sys   = ClockDomain()
         self.cd_sys2x = ClockDomain()
@@ -43,25 +43,28 @@ class _CRG(LiteXModule):
         self.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk100, 100e6)
-        pll.create_clkout(self.cd_sys2x, 2*sys_clk_freq, with_reset=False)
-        self.specials += Instance("CLKDIV",
-            p_DIV_MODE= "2",
-            i_RESETN = rst_n,
-            i_HCLKIN = self.cd_sys2x.clk,
-            o_CLKOUT = self.cd_sys.clk
-        )
+        if sdram_rate == "1:2":
+            pll.create_clkout(self.cd_sys2x, 2*sys_clk_freq, with_reset=False)
+            self.specials += Instance("CLKDIV",
+                p_DIV_MODE= "2",
+                i_RESETN = rst_n,
+                i_HCLKIN = self.cd_sys2x.clk,
+                o_CLKOUT = self.cd_sys.clk
+            )
+        else:
+            pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=False)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset=0x0000, sys_clk_freq=25e6, sdram_rate="1:1",
-        with_led_chaser = True,
+        with_led_chaser = True, toolchain="gowin",
         **kwargs):
-        platform = trenz_tec0117.Platform()
+        platform = trenz_tec0117.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM.
@@ -116,10 +119,10 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(bios_flash_offset):
+def flash(bios_flash_offset, toolchain="gowin"):
     # Create FTDI <--> SPI Flash proxy bitstream and load it.
     # -------------------------------------------------------
-    platform = trenz_tec0117.Platform()
+    platform = trenz_tec0117.Platform(toolchain=toolchain)
     flash    = platform.request("spiflash", 0)
     bus      = platform.request("spiflash", 1)
     module = Module()
@@ -131,9 +134,9 @@ def flash(bios_flash_offset):
     ]
     platform.build(module)
     prog = platform.create_programmer()
-    prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
+    prog.flash(0, "build/top.fs")
 
-    # Flash Image through proxy Bitstream.
+    # Flash Image through proxy Bitstream using pyspiflash
     # ------------------------------------
     from spiflash.serialflash import SerialFlashManager
     dev = SerialFlashManager.get_flash_device("ftdi://ftdi:2232/2")
@@ -161,6 +164,7 @@ def main():
     soc = BaseSoC(
         bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = args.sys_clk_freq,
+        toolchain         = args.toolchain,
         **parser.soc_argdict
     )
     soc.platform.add_extension(trenz_tec0117._sdcard_pmod_io)
@@ -175,12 +179,12 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.flash(0, builder.get_bitstream_filename(mode="sram"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs")) # FIXME
-        flash(int(args.bios_flash_offset, 0))
+        flash(int(args.bios_flash_offset, 0), toolchain=args.toolchain)
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs"))
 
 if __name__ == "__main__":
     main()
