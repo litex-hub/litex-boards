@@ -184,6 +184,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── machdyne_mozart_ml1
     ├── machdyne_mozart_ml2
     ├── machdyne_mozart_mx1
+    ├── machdyne_mozart_mx2
     ├── machdyne_noir
     ├── machdyne_schoko
     ├── machdyne_vanille
