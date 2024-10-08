@@ -69,7 +69,7 @@ class BaseSoC(SoCCore):
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size and sys_clk_freq <= 50e6 :
-            self.specials += ClkOutput(ClockSignal(self.cd_sys_ps), platform.request("sdram_clock"))
+            self.specials += ClkOutput(ClockSignal("sys_ps"), platform.request("sdram_clock"))
 
             self.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
