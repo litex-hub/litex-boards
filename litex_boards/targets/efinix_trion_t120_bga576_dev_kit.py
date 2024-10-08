@@ -13,6 +13,7 @@ from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
+from litex.gen.genlib.misc import WaitTimer
 
 from litex_boards.platforms import efinix_trion_t120_bga576_dev_kit
 
@@ -29,20 +30,27 @@ from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        #self.rst    = Signal()
+        self.rst    = Signal()
         self.cd_sys = ClockDomain()
+        self.cd_rst = ClockDomain(reset_less=True)
 
         # # #
 
         clk40 = platform.request("clk40")
         rst_n = platform.request("user_btn", 0)
 
+        self.comb += self.cd_rst.clk.eq(clk40)
+
+         # A pulse is necessary to do a reset.
+        self.rst_pulse = Signal()
+        self.reset_timer = reset_timer = ClockDomainsRenamer("rst")(WaitTimer(25e-6*platform.default_clk_freq))
+        self.comb += self.rst_pulse.eq(self.rst ^ reset_timer.done)
+        self.comb += reset_timer.wait.eq(self.rst)
 
         # PLL
         self.pll = pll = TRIONPLL(platform)
-        #self.comb += pll.reset.eq(~rst_n | self.rst)
-        self.comb += pll.reset.eq(~rst_n)
-        pll.register_clkin(clk40, 40e6)
+        self.comb += pll.reset.eq(~rst_n | self.rst_pulse)
+        pll.register_clkin(clk40, platform.default_clk_freq)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True, name="axi_clk")
 
 # BaseSoC ------------------------------------------------------------------------------------------

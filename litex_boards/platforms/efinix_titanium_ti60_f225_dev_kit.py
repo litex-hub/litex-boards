@@ -183,6 +183,7 @@ def rgmii_ethernet_qse_ios(con, n=""):
 
 class Platform(EfinixPlatform):
     default_clk_name   = "clk25"
+    default_clk_freq   = 25e6
     default_clk_period = 1e9/50e6
 
     def __init__(self, toolchain="efinity"):
