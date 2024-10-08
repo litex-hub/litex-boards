@@ -10,6 +10,7 @@ from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
+from litex.gen.genlib.misc import WaitTimer
 
 from litex.build.io import DDROutput, SDROutput, SDRTristate
 from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
@@ -39,11 +40,12 @@ from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, cpu_clk_freq):
-        #self.rst    = Signal()
+        self.rst      = Signal()
         self.cd_sys   = ClockDomain()
         self.cd_usb   = ClockDomain()
         self.cd_video = ClockDomain()
         self.cd_cpu   = ClockDomain()
+        self.cd_rst   = ClockDomain(reset_less=True)
 
         # # #
 
@@ -51,10 +53,18 @@ class _CRG(LiteXModule):
         clk100 = platform.request("clk100")
         rst_n  = platform.request("user_btn", 0)
 
+        self.comb += self.cd_rst.clk.eq(clk100)
+
+        # A pulse is necessary to do a reset.
+        self.rst_pulse = Signal()
+        self.reset_timer = reset_timer = ClockDomainsRenamer("rst")(WaitTimer(25e-6*platform.default_clk_freq))
+        self.comb += self.rst_pulse.eq(self.rst ^ reset_timer.done)
+        self.comb += reset_timer.wait.eq(self.rst)
+
         # PLL.
         self.pll = pll = TITANIUMPLL(platform)
-        self.comb += pll.reset.eq(~rst_n)
-        pll.register_clkin(clk100, 100e6)
+        self.comb += pll.reset.eq(~rst_n | self.rst_pulse)
+        pll.register_clkin(clk100, platform.default_clk_freq)
         # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
         # (integer) of the reference clock. If all your system clocks do not fall within
         # this range, you should dedicate one unused clock for CLKOUT0.
