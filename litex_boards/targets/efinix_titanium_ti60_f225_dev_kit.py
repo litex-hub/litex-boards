@@ -10,6 +10,7 @@ from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
+from litex.gen.genlib.misc import WaitTimer
 
 from litex_boards.platforms import efinix_titanium_ti60_f225_dev_kit
 
@@ -31,16 +32,25 @@ class _CRG(LiteXModule):
         self.cd_sys      = ClockDomain()
         self.cd_sys2x    = ClockDomain()
         self.cd_sys2x_ps = ClockDomain()
+        self.cd_rst      = ClockDomain(reset_less=True)
 
         # # #
 
         clk25 = platform.request("clk25")
         rst_n = platform.request("user_btn", 0)
 
+        self.comb += self.cd_rst.clk.eq(clk25)
+
+        # A pulse is necessary to do a reset.
+        self.rst_pulse = Signal()
+        self.reset_timer = reset_timer = ClockDomainsRenamer("rst")(WaitTimer(25e-6*platform.default_clk_freq))
+        self.comb += self.rst_pulse.eq(self.rst ^ reset_timer.done)
+        self.comb += reset_timer.wait.eq(self.rst)
+
         # PLL
         self.pll = pll = TITANIUMPLL(platform)
-        self.comb += pll.reset.eq(~rst_n | self.rst)
-        pll.register_clkin(clk25, 25e6)
+        self.comb += pll.reset.eq(~rst_n | self.rst_pulse)
+        pll.register_clkin(clk25, platform.default_clk_freq)
         # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
         # (integer) of the reference clock. If all your system clocks do not fall within
         # this range, you should dedicate one unused clock for CLKOUT0.
