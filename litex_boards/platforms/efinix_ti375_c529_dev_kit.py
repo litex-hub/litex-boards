@@ -11,9 +11,10 @@ from litex.build.efinix import EfinixProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    # Clk.
+    # Clk
     ("clk25",  0, Pins("L17"), IOStandard("1.8_V_LVCMOS")),
-    ("clk100", 0, Pins("U4"),  IOStandard("3.3_V_LVCMOS")),
+    ("clk100", 0, Pins("U4"), IOStandard("3.3_V_LVCMOS")),
+    ("clketh", 0, Pins("A14"), IOStandard("1.8_V_LVCMOS")),
 
     # Serial.
     ("serial", 0,
@@ -44,9 +45,33 @@ _io = [
         IOStandard("3.3_V_LVTTL"),
     ),
 
+    # ETH.
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("C17")),
+        Subsignal("rx", Pins("D15")),
+        IOStandard("1.8_V_LVCMOS"),
+        Misc("SLEWRATE=1"),
+        Misc("DRIVE_STRENGTH=16")
+     ),
+    ("eth", 0,
+        Subsignal("rst_n", Pins("D10"), IOStandard("3.3_V_LVCMOS")),
+        Subsignal("int_n", Pins("B11"), IOStandard("3.3_V_LVCMOS")),
+        Subsignal("mdio", Pins("B14")),
+        Subsignal("mdc", Pins("B19")),
+        Subsignal("rx_ctl", Pins("H18")),
+        Subsignal("rx_data", Pins("A18 A19 D16 D17")),
+        Subsignal("tx_ctl", Pins("B20")),
+        Subsignal("tx_data", Pins("B17 A16 A17 C19")),
+        IOStandard("1.8_V_LVCMOS"),
+        Misc("SLEWRATE=1"),
+        Misc("DRIVE_STRENGTH=16")
+     ),
+     
     # FAN.
     ("fan_speed_control", 0, Pins("T19"), IOStandard("3.3_V_LVCMOS")),
 ]
+
+    
 
 # Bank voltage ---------------------------------------------------------------------------------------
 
