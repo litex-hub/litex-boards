@@ -86,12 +86,12 @@ class BaseSoC(SoCCore):
             # Use EMCU's SRAM.
             self.bus.add_region("sram", SoCRegion(
                 origin = self.cpu.mem_map["sram"],
-                size   = 16 * kB,
+                size   = 16 * KILOBYTE,
             ))
             # Use ECMU's FLASH as ROM.
             self.bus.add_region("rom", SoCRegion(
                 origin = self.cpu.mem_map["rom"],
-                size   = 32 * kB,
+                size   = 32 * KILOBYTE,
                 linker = True,
             ))
         # No Gowin EMCU ----------------------------------------------------------------------------
