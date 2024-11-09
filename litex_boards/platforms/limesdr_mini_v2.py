@@ -36,7 +36,7 @@ _io = [
     # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("U17")),
-        Subsignal("clk",  Pins("U16")),
+        #Subsignal("clk",  Pins("U16")),
         Subsignal("miso", Pins("T18")),
         Subsignal("mosi", Pins("U18")),
         IOStandard("LVCMOS33"),
