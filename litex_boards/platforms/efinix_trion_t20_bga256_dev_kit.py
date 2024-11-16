@@ -113,6 +113,7 @@ _connectors = [
 
 class Platform(EfinixPlatform):
     default_clk_name   = "clk50"
+    default_clk_freq   = 50e6
     default_clk_period = 1e9/50e6
 
     def __init__(self, toolchain="efinity"):
