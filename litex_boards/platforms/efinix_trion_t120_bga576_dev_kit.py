@@ -174,6 +174,7 @@ def usb_pmod_io(pmod):
 
 class Platform(EfinixPlatform):
     default_clk_name   = "clk40"
+    default_clk_freq   = 40e6
     default_clk_period = 1e9/40e6
 
     def __init__(self, toolchain="efinity"):
