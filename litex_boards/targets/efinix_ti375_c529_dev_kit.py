@@ -12,7 +12,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen import *
 from litex.gen.genlib.misc import WaitTimer
 
-from litex.build.io import DDROutput, SDROutput, SDRTristate
+from litex.build.io import DDROutput, DDRInput, SDROutput, SDRTristate
 from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 
 from litex_boards.platforms import efinix_ti375_c529_dev_kit
@@ -27,6 +27,9 @@ from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
 from litex.soc.cores.pwm import PWM
+
+from liteeth.phy.trionrgmii import LiteEthPHYRGMII
+from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 from litex.soc.cores.usb_ohci import USBOHCI
 
 from liteeth.phy.trionrgmii import LiteEthPHYRGMII
@@ -40,17 +43,21 @@ from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, cpu_clk_freq):
-        self.rst      = Signal()
-        self.cd_sys   = ClockDomain()
-        self.cd_usb   = ClockDomain()
-        self.cd_video = ClockDomain()
-        self.cd_cpu   = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_usb    = ClockDomain()
+        self.cd_video  = ClockDomain()
+        self.cd_cpu    = ClockDomain()
+        self.cd_eth    = ClockDomain()
+        self.cd_eth_90 = ClockDomain()
+        self.cd_eth_rx = ClockDomain()
         self.cd_rst   = ClockDomain(reset_less=True)
 
         # # #
 
         # Clk/Rst.
         clk100 = platform.request("clk100")
+        clk25  = platform.request("clk25")
         rst_n  = platform.request("user_btn", 0)
 
         self.comb += self.cd_rst.clk.eq(clk100)
@@ -73,11 +80,34 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_usb,         60e6, margin=0)
         pll.create_clkout(None,               800e6) # LPDDR4 ctrl
         pll.create_clkout(self.cd_video,       40e6)
+
+        # PLL eth tx
+        self.pll2 = pll2 = TITANIUMPLL(platform)
+        self.comb += pll2.reset.eq(~rst_n)
+        pll2.register_clkin(clk25, 25e6)
+        # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
+        # (integer) of the reference clock. If all your system clocks do not fall within
+        # this range, you should dedicate one unused clock for CLKOUT0.
+        pll2.create_clkout(None, 25e6, with_reset=True)
+        pll2.create_clkout(self.cd_eth, 125e6)
+        pll2.create_clkout(self.cd_eth_90, 125e6, phase=90)
+
+        # PLL eth rx
+        self.pll3 = pll3 = TITANIUMPLL(platform)
+        self.comb += pll3.reset.eq(~rst_n)
+        self.eth_clocks = eth_clocks = platform.request("eth_clocks")
+        pll3.register_clkin(eth_clocks.rx, 125e6)
+        # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
+        # (integer) of the reference clock. If all your system clocks do not fall within
+        # this range, you should dedicate one unused clock for CLKOUT0.
+        pll3.create_clkout(None, 125e6, with_reset=True)
+        pll3.create_clkout(self.cd_eth_rx, 125e6,phase =270)
+        
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_usb.clk)
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_sys.clk)
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_video.clk)
         platform.add_false_path_constraints(self.cd_sys.clk, self.cd_usb.clk)
-
+        platform.add_false_path_constraints(self.cd_sys.clk, self.cd_eth.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -216,19 +246,59 @@ class BaseSoC(SoCCore):
             self.specials += SDRTristate(io=video_sync.vsync, o=Signal(reset=0b0), oe=self.cpu.video_vsync, i=Signal(), clk=clk_video)
             self.specials += SDRTristate(io=video_sync.hsync, o=Signal(reset=0b0), oe=self.cpu.video_hsync, i=Signal(), clk=clk_video)
 
-        # _debug_io = [
-        #     ("debug_io", 0,
-        #      Subsignal("p0", Pins("pmod2:0")),
-        #      Subsignal("p1", Pins("pmod2:1")),
-        #      Subsignal("p2", Pins("pmod2:2")),
-        #      Subsignal("p3", Pins("pmod2:3")),
-        #      Subsignal("p4", Pins("pmod2:4")),
-        #      Subsignal("p5", Pins("pmod2:5")),
-        #      Subsignal("p6", Pins("pmod2:6")),
-        #      Subsignal("p7", Pins("pmod2:7")),
-        #      IOStandard("3.3_V_LVCMOS"),
-        #      )
-        # ]
+ 		# Debug pins -----------------------------------------------------------------------------
+        if hasattr(self.cpu, "tracer_payload"):
+            _debug_io = [
+                ("debug_io", 0,
+                 Subsignal("p0", Pins("pmod2:0")),
+                 Subsignal("p1", Pins("pmod2:1")),
+                 Subsignal("p2", Pins("pmod2:2")),
+                 Subsignal("p3", Pins("pmod2:3")),
+                 Subsignal("p4", Pins("pmod2:4")),
+                 Subsignal("p5", Pins("pmod2:5")),
+                 Subsignal("p6", Pins("pmod2:6")),
+                 Subsignal("p7", Pins("pmod2:7")),
+                 IOStandard("3.3_V_LVCMOS"),
+                 Misc("SLEWRATE=1"), Misc("DRIVE_STRENGTH=8")
+                 )
+            ]
+            
+            self.platform.add_extension(_debug_io)
+            debug_io = platform.request("debug_io")
+
+            self.comb += debug_io.p0.eq(self.cpu.tracer_payload[0])
+            self.comb += debug_io.p1.eq(self.cpu.tracer_payload[1])
+            self.comb += debug_io.p2.eq(self.cpu.tracer_payload[2])
+            self.comb += debug_io.p3.eq(self.cpu.tracer_payload[3])
+            self.comb += debug_io.p4.eq(self.cpu.tracer_payload[4])
+            self.comb += debug_io.p5.eq(self.cpu.tracer_payload[5])
+            self.comb += debug_io.p6.eq(self.cpu.tracer_payload[6])
+            self.comb += debug_io.p7.eq(self.cpu.tracer_payload[7])
+
+        # CPU-ETH -----------------------------------------------------------------------------
+        if hasattr(self.cpu, "eth_tx_ref_clk"):
+            eth = platform.request("eth")
+            eth_clocks = self.crg.eth_clocks
+            # eth_clocks = platform.request("eth_clocks")
+
+            self.comb += self.cpu.eth_tx_ref_clk .eq(self.crg.cd_eth.clk)
+            self.specials += DDROutput(i1=self.cpu.eth_tx_clk[0], i2=self.cpu.eth_tx_clk[1],  o=eth_clocks.tx, clk=self.crg.cd_eth_90.clk)
+            self.specials += DDROutput(i1=self.cpu.eth_tx_ctl[0], i2=self.cpu.eth_tx_ctl[1],  o=eth.tx_ctl, clk=self.crg.cd_eth.clk)
+            for i in range(4):
+                self.specials += DDROutput(i1=self.cpu.eth_tx_d[0+i], i2=self.cpu.eth_tx_d[4+i], o=eth.tx_data[i], clk=self.crg.cd_eth.clk)
+
+            # Rx using pll
+            self.comb += self.cpu.eth_rx_clk .eq(self.crg.cd_eth_rx.clk)
+            self.specials += DDRInput(o1=self.cpu.eth_rx_ctl[0], o2=self.cpu.eth_rx_ctl[1],  i=eth.rx_ctl, clk=self.crg.cd_eth_rx.clk)
+            for i in range(4):
+                self.specials += DDRInput(o1=self.cpu.eth_rx_d[0+i], o2=self.cpu.eth_rx_d[4+i], i=eth.rx_data[i], clk=self.crg.cd_eth_rx.clk)
+
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[0], i2=self.cpu.eth_rx_d[4], o=debug_io.p0, clk=self.crg.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[1], i2=self.cpu.eth_rx_d[5], o=debug_io.p1, clk=self.crg.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[2], i2=self.cpu.eth_rx_d[6], o=debug_io.p2, clk=self.crg.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[3], i2=self.cpu.eth_rx_d[7], o=debug_io.p3, clk=self.crg.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=Signal(reset=1), i2=Signal(reset=0), o=debug_io.p4, clk=self.crg.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_ctl[0], i2=self.cpu.eth_rx_ctl[1], o=debug_io.p5, clk=self.crg.cd_eth_rx.clk)
 
 
         # LPDDR4 SDRAM -----------------------------------------------------------------------------
