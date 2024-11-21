@@ -11,9 +11,12 @@
 # The 101 variant is eguivalent to the LiteFury and 215 variant equivalent to the NiteFury from
 # RHSResearchLLC that are documented at: https://github.com/RHSResearchLLC/NiteFury-and-LiteFury.
 
+import subprocess
+
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
-from litex.build.openocd import OpenOCD
+from litex.build.xilinx           import Xilinx7SeriesPlatform
+from litex.build.openocd          import OpenOCD
+from litex.build.openfpgaloader   import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -197,17 +200,26 @@ class Platform(Xilinx7SeriesPlatform):
             "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_fallback.bit\" -file {build_name}_fallback.bin"
         ]
 
-    def create_programmer(self, name='openocd'):
-        proxy = {
-	    "cle-101":  "bscan_spi_xc7a100t.bit",
-	    "cle-215":  "bscan_spi_xc7a200t.bit",
-            "cle-215+": "bscan_spi_xc7a200t.bit"
-	}[self.variant]
-        if name == 'openocd':
-            return OpenOCD("openocd_xc7_ft232.cfg", proxy)
-        elif name == 'vivado':
-            # TODO: some board versions may have s25fl128s
-            return VivadoProgrammer(flash_part='s25fl256sxxxxxx0-spi-x1_x2_x4')
+    def detect_ftdi_chip(self):
+        lsusb_log = subprocess.run(['lsusb'], capture_output=True, text=True)
+        for ftdi_chip in ["ft232", "ft2232", "ft4232"]:
+            if f"Future Technology Devices International, Ltd {ftdi_chip.upper()}" in lsusb_log.stdout:
+                return ftdi_chip
+        return None
+
+    def create_programmer(self, name="openfpgaloader"):
+        ftdi_chip = self.detect_ftdi_chip()
+        if ftdi_chip is None:
+            raise RuntimeError("No compatible FTDI device found.")
+        device = {
+            "cle-101":  "xc7a100t",
+            "cle-215":  "xc7a200t",
+            "cle-215+": "xc7a200t"
+        }[self.variant]
+        if name == "openfpgaloader":
+            return OpenFPGALoader(cable=ftdi_chip, fpga_part="{device}fbg484", freq=10e6)
+        elif name == "openocd":
+            return OpenOCD(f"openocd_xc7_{ftdi_chip}.cfg", f"bscan_spi_{device}.bit")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
