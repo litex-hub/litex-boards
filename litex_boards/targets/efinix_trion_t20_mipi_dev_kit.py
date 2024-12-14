@@ -77,7 +77,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_trion_t20_mipi_dev_kit.Platform, description="LiteX SoC on Efinix Trion T20 MIPI Dev Kit.")
-    parser.add_target_argument("--flash",          action="store_true",             help="Flash bitstream.")
+    parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
