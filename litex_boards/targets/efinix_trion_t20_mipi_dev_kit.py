@@ -77,6 +77,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_trion_t20_mipi_dev_kit.Platform, description="LiteX SoC on Efinix Trion T20 MIPI Dev Kit.")
+    parser.add_target_argument("--flash",          action="store_true",             help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
@@ -92,6 +93,11 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
+
+    if args.flash:
+        from litex.build.openfpgaloader import OpenFPGALoader
+        prog = OpenFPGALoader("trion_t120_bga576")
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".hex")) # FIXME
 
 if __name__ == "__main__":
     main()
