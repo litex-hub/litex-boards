@@ -48,6 +48,23 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # HDMI
+    ("hdmi", 0,
+        Subsignal("clk_p",   Pins("33")),
+        Subsignal("clk_n",   Pins("34")),
+        Subsignal("data0_p", Pins("35")),
+        Subsignal("data0_n", Pins("36")),
+        Subsignal("data1_p", Pins("37")),
+        Subsignal("data1_n", Pins("38")),
+        Subsignal("data2_p", Pins("39")),
+        Subsignal("data2_n", Pins("40")),
+        Subsignal("hdp", Pins("26"), IOStandard("LVCMOS18")),
+        Subsignal("cec", Pins("25"), IOStandard("LVCMOS18")),
+        Subsignal("sda", Pins("53")),
+        Subsignal("scl", Pins("52")),
+        Misc("PULL_MODE=NONE"),
+    ),
+
     # Leds
     ("led_n", 0,  Pins("15"), IOStandard("LVCMOS33")),
     ("led_n", 1,  Pins("16"), IOStandard("LVCMOS33")),

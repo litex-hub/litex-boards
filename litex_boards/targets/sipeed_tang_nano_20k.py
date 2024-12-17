@@ -20,6 +20,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.led import LedChaser, WS2812
+from litex.soc.cores.video import VideoGowinHDMIPHY
 
 from litedram.modules import M12L64322A  # FIXME: use the real model number
 from litedram.phy import GENSDRPHY
@@ -29,10 +30,13 @@ from litex_boards.platforms import sipeed_tang_nano_20k
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_hdmi=False):
         self.rst      = Signal()
         self.cd_sys   = ClockDomain()
         self.cd_por   = ClockDomain()
+        if with_hdmi:
+            self.cd_hdmi   = ClockDomain()
+            self.cd_hdmi5x = ClockDomain()
 
         # Clk
         clk27 = platform.request("clk27")
@@ -50,6 +54,19 @@ class _CRG(LiteXModule):
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+        # HDMI PLL
+        if with_hdmi:
+            self.video_pll = video_pll = GW2APLL(devicename=platform.devicename, device=platform.device)
+            video_pll.register_clkin(clk27, 27e6)
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=1e-2)
+            self.specials += Instance("CLKDIV",
+                p_DIV_MODE = "5",
+                i_RESETN   = 1, # Disable reset signal.
+                i_CALIB    = 0, # No calibration.
+                i_HCLKIN   = self.cd_hdmi5x.clk,
+                o_CLKOUT   = self.cd_hdmi.clk
+            )
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -57,17 +74,26 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_rgb_led    = False,
         with_buttons    = True,
+        with_spi_flash  = False,
+        with_video_terminal  = False,
+        with_video_colorbars = False,
         **kwargs):
 
         platform = sipeed_tang_nano_20k.Platform(toolchain=toolchain)
 
+        with_hdmi = with_video_terminal or with_video_colorbars
+
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, with_hdmi=with_hdmi)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano 20K", **kwargs)
 
-        # TODO: XTX SPI Flash
+        # SPI Flash: XT25F64B ----------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import W25Q64 as SpiFlashModule # compatible with XT25F64B
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="1x", module=SpiFlashModule(Codes.READ_1_1_1))
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -93,6 +119,15 @@ class BaseSoC(SoCCore):
                 module        = M12L64322A(sys_clk_freq, "1:1"), # FIXME.
                 l2_cache_size = 128,
             )
+
+        # Video ------------------------------------------------------------------------------------
+        if with_hdmi:
+            self.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            if with_video_terminal:
+                # self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+            if with_video_colorbars:
+                self.add_video_colorbars(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -125,14 +160,23 @@ def main():
     parser = LiteXArgumentParser(platform=sipeed_tang_nano_20k.Platform, description="LiteX SoC on Tang Nano 20K.")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-rbg-led", action="store_true", help="Enable WS2812 RGB Led.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",            action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",                action="store_true", help="Enable SDCard support.")
+    viopts = parser.target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",   action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-colorbars",  action="store_true", help="Enable Video Colorbars (HDMI).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         toolchain    = args.toolchain,
         sys_clk_freq = args.sys_clk_freq,
+        with_rgb_led         = args.with_rbg_led,
+        with_spi_flash       = args.with_spi_flash,
+        with_video_terminal  = args.with_video_terminal,
+        with_video_colorbars = args.with_video_colorbars,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:
