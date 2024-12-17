@@ -47,13 +47,13 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=100e6,
+    def __init__(self, sys_clk_freq=100e6, toolchain="vivado",
         with_ethernet   = False,
         with_etherbone  = False,
         with_led_chaser = True,
         with_can        = False,
         **kwargs):
-        platform = digilent_genesys2.Platform()
+        platform = digilent_genesys2.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -115,6 +115,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
+        toolchain      = args.toolchain,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         with_can       = args.with_can,
