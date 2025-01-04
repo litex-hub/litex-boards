@@ -165,7 +165,7 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
-            if board == "5a-75e" and revision == "6.0":
+            if (board == "5a-75e" and revision == "6.0") or (board == "5a-75b" and (revision == "8.0" or revision == "8.2")):
                 sdram_cls  = M12L64322A
             else:
                 sdram_cls  = M12L16161A
@@ -222,7 +222,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=colorlight_5a_75b.Platform, description="LiteX SoC on Colorlight 5A-75X.")
     parser.add_target_argument("--board",             default="5a-75b",         help="Board type (5a-75b, 5a-75e or i5a-907).")
-    parser.add_target_argument("--revision",          default="7.0",            help="Board revision (6.0, 6.1, 7.0 or 8.0).")
+    parser.add_target_argument("--revision",          default="7.0",            help="Board revision (6.0, 6.1, 7.0, 8.0, or 8.2).")
     parser.add_target_argument("--sys-clk-freq",      default=60e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",           action="store_true",    help="Enable Ethernet support.")
