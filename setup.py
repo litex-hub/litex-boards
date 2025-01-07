@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fp:
 
 setup(
     name                          = "litex-boards",
-    version                       = "2024.08",
+    version                       = "2024.12",
     description                   = "LiteX supported boards",
     long_description              = long_description,
     long_description_content_type = "text/markdown",
