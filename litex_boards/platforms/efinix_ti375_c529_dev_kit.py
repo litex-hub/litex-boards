@@ -108,6 +108,87 @@ _connectors = [
         "D23 G22 --- --- F23 H20 E23 G20 --- --- H22 K23 H23 L23 --- --- L19 M21 M19 M22",
         #        GND GND                 GND GND                 GND GND                  ↑
     ],
+    ("LPC", {
+        "PRSNT_M2C_L"   : " H2", # FMC_PRESENT_n / GPIOB_P_26_EXTSPICLK
+
+        "CLK0_M2C_P"    : " H4", # FMC_M2C_CLK2_P / GPIOT_P_40_CLK23_P
+        "CLK0_M2C_N"    : " H5", # FMC_M2C_CLK2_N / GPIOT_N_40_CLK23_N
+        "CLK1_M2C_P"    : " G2", # FMC_M2C_CLK1_P / GPIOB_P_17_CLK4_P
+        "CLK1_M2C_N"    : " G3", # FMC_M2C_CLK1_N / GPIOB_N_17_CLK4_N
+
+        "DP0_M2C_P"     : " C6", # GPIOB32_TO_FMC_P_P0CTL4 / GPIOB_P_32
+        "DP0_M2C_N"     : " C7", # GPIOB32_TO_FMC_N_P1CTL4 / GPIOB_N_32
+
+        "LA00_CC_P"     : " G6", # FMC_GLOBAL_CLK_4_P / GPIOB_P_20_CLK7_P
+        "LA00_CC_N"     : " G7", # FMC_GLOBAL_CLK_4_N / GPIOB_N_20_CLK7_N
+        "LA01_CC_P"     : " D8", # FMC_GLOBAL_CLK_2_P / GPIOB_P_44_CLK11_P
+        "LA01_CC_N"     : " D9", # FMC_GLOBAL_CLK_2_N / GPIOB_N_44_CLK11_N
+        "LA02_P"        : " H7", # GPIOB35_TO_FMC_P / GPIOB_P_35
+        "LA02_N"        : " H8", # GPIOB35_TO_FMC_N / GPIOB_N_35
+        "LA03_P"        : " G9", # GPIOB27_TO_FMC_P / GPIOB_P_27
+        "LA03_N"        : "G10", # GPIOB27_TO_FMC_N / GPIOB_N_27
+        "LA04_P"        : "H10", # GPIOB21_TO_FMC_P / GPIOB_P_21
+        "LA04_N"        : "H11", # GPIOB21_TO_FMC_N / GPIOB_N_21
+        "LA05_P"        : "D11", # GPIOB41_TO_FMC_P / GPIOB_P_41
+        "LA05_N"        : "D12", # GPIOB41_TO_FMC_N / GPIOB_N_41
+        "LA06_P"        : "C10", # GPIOB34_TO_FMC_P / GPIOB_P_34
+        "LA06_N"        : "C11", # GPIOB34_TO_FMC_N / GPIOB_N_34
+        "LA07_P"        : "H13", # GPIOB18_TO_FMC_P / GPIOB_P_18_CLK5_P
+        "LA07_N"        : "H14", # GPIOB18_TO_FMC_N / GPIOB_N_18_CLK5_N
+        "LA08_P"        : "G12", # GPIOB31_TO_FMC_P / GPIOB_P_31
+        "LA08_N"        : "G13", # GPIOB31_TO_FMC_N / GPIOB_N_31
+        "LA09_P"        : "D14", # GPIOB42_TO_FMC_P / GPIOB_P_42
+        "LA09_N"        : "D15", # GPIOB42_TO_FMC_N / GPIOB_N_42
+        "LA10_P"        : "C14", # GPIOB30_TO_FMC_P / GPIOB_P_30_CDI9_PLLIN0
+        "LA10_N"        : "C15", # GPIOB30_TO_FMC_N / GPIOB_N_30_CDI8
+        "LA11_P"        : "H16", # GPIOB19_TO_FMC_P / GPIOB_P_19_NSTATUS_CLK6_P
+        "LA11_N"        : "H17", # GPIOB19_TO_FMC_N / GPIOB_N_19_TEST_N_CLK6_N
+        "LA12_P"        : "G15", # GPIOB23_TO_FMC_P / GPIOB_P_23_CBSEL1
+        "LA12_N"        : "G16", # GPIOB23_TO_FMC_N / GPIOB_N_23_CBSEL0
+        "LA13_P"        : "D17", # GPIOB24_TO_FMC_P / GPIOB_P_24_CDI15
+        "LA13_N"        : "D18", # GPIOB24_TO_FMC_N / GPIOB_N_24_CDI14
+        "LA14_P"        : "C18", # GPIOB29_TO_FMC_P / GPIOB_P_29_CDI11_EXTFB
+        "LA14_N"        : "C19", # GPIOB29_TO_FMC_N / GPIOB_N_29_CDI10
+        "LA15_P"        : "H19", # GPIOB06_TO_FMC_P / GPIOB_P_06_CDI26_EXTFB
+        "LA15_N"        : "H20", # GPIOB06_TO_FMC_N / GPIOB_N_06_CDI25
+        "LA16_P"        : "G18", # GPIOB11_TO_FMC_P / GPIOB_P_11
+        "LA16_N"        : "G19", # GPIOB11_TO_FMC_N / GPIOB_N_11
+        "LA17_CC_P"     : "D20", # FMC_GLOBAL_CLK_3_P_FMC_P0SDA / GPIOB_P_13_CDI21_CLK0_P
+        "LA17_CC_N"     : "D21", # FMC_GLOBAL_CLK_3_N_FMC_P0SCL / GPIOB_N_13_CDI20_CLK0_N
+        "LA18_CC_P"     : "C22", # FMC_GLOBAL_CLK_1_P_FMC_SPI_SCK / GPIOB_P_15_CDI17_CLK2_P
+        "LA18_CC_N"     : "C23", # FMC_GLOBAL_CLK_1_N_FMC_FPGA_SSN / GPIOB_N_15_CDI16_CLK2_N
+        "LA19_P"        : "H22", # GPIOB25_TO_FMC_P_FMCSPI_nCS0 / GPIOB_P_25_CDI13
+        "LA19_N"        : "H23", # GPIOB25_TO_FMC_N_FMCSPI_nCS1 / GPIOB_N_25_CDI12
+        "LA20_P"        : "G21", # GPIOB33_TO_FMC_P_FMC_P1SDA / GPIOB_P_33
+        "LA20_N"        : "G22", # GPIOB33_TO_FMC_N_FMC_P1SCL / GPIOB_N_33
+        "LA21_P"        : "H25", # GPIOB28_TO_FMC_P_P1CTL1_CDONE / GPIOB_P_28
+        "LA21_N"        : "H26", # GPIOB28_TO_FMC_N_P1CTL0_INIT_RST_N / GPIOB_N_28
+        "LA22_P"        : "G24", # GPIOB22_TO_FMC_P_P0CTL0 / GPIOB_P_22
+        "LA22_N"        : "G25", # GPIOB22_TO_FMC_N_P0CTL1 / GPIOB_N_22
+        "LA23_P"        : "D23", # GPIOB14_TO_FMC_P / GPIOB_P_14_CDI19_CLK1_P
+        "LA23_N"        : "D24", # GPIOB14_TO_FMC_N / GPIOB_N_14_CDI18_CLK1_N
+        "LA24_P"        : "H28", # GPIOB43_TO_FMC_P_P1CTL3 / GPIOB_P_43_CSO_CLK10_P
+        "LA24_N"        : "H29", # GPIOB43_TO_FMC_N_P1CTL2_PROG_N / GPIOB_N_43_CSI_CLK10_N
+        "LA25_P"        : "G27", # GPIOB08_TO_FMC_P_P0CTL2 / GPIOB_P_08_CDI22_EXTFB
+        "LA25_N"        : "G28", # GPIOB08_TO_FMC_N_P0CTL3 / GPIOB_N_08
+        "LA26_P"        : "D26", # GPIOB12_TO_FMC_P / GPIOB_P_12
+        "LA26_N"        : "D27", # GPIOB12_TO_FMC_N / GPIOB_N_12
+        "LA27_P"        : "C26", # GPIOB09_TO_FMC_P / GPIOB_P_09
+        "LA27_N"        : "C27", # GPIOB09_TO_FMC_N / GPIOB_N_09
+        "LA28_P"        : "H31", # GPIOB05_TO_FMC_P_P1CTL5 / GPIOB_P_05_CDI28_PLLIN0
+        "LA28_N"        : "H32", # GPIOB05_TO_FMC_N_P1CTL6 / GPIOB_N_05_CDI27
+        "LA29_P"        : "G30", # GPIOB10_TO_FMC_P_P0CTL5 / GPIOB_P_10
+        "LA29_N"        : "G31", # GPIOB10_TO_FMC_N_P0CTL6 / GPIOB_N_10
+        "LA30_P"        : "H34", # GPIOB04_TO_FMC_P_FMCSPIDATA3 / GPIOB_P_04_CDI30_EXTFB
+        "LA30_N"        : "H35", # GPIOB04_TO_FMC_N_FMCSPIDATA2 / GPIOB_N_04_CDI29
+        "LA31_P"        : "G33", # GPIOB16_TO_FMC_P_FMCSPIDAT1 / GPIOB_P_16_CLK3_P
+        "LA31_N"        : "G34", # GPIOB16_TO_FMC_N_FMCSPIDAT0 / GPIOB_N_16_CLK3_N
+        "LA32_P"        : "H37", # GPIOB03_TO_FMC_P_FMCSPIDATA7 / GPIOB_P_03_PLLIN0
+        "LA32_N"        : "H38", # GPIOB03_TO_FMC_N_FMCSPIDATA6 / GPIOB_N_03_CDI31
+        "LA33_P"        : "G36", # GPIOB07_TO_FMC_P_FMCSPIDAT5 / GPIOB_P_07_CDI24_PLLIN0
+        "LA33_N"        : "G37", # GPIOB07_TO_FMC_N_FMCSPIDAT4 / GPIOB_N_07_CDI23
+        }
+    ),
 ]
 
 # PMODS --------------------------------------------------------------------------------------------
