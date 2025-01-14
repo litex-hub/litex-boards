@@ -312,11 +312,11 @@ class Platform(LatticeECP5Platform):
     default_clk_period = 1e9/25e6
 
     def __init__(self, revision="7.0", toolchain="trellis"):
-        assert revision in ["6.1", "7.0", "8.0"]
+        assert revision in ["6.1", "7.0", "8.0", "8.2"]
         self.revision = revision
-        device     = {"6.1": "LFE5U-25F-6BG381C", "7.0": "LFE5U-25F-6BG256C", "8.0": "LFE5U-25F-6BG256C"}[revision]
-        io         = {"6.1": _io_v6_1,            "7.0": _io_v7_0,            "8.0": _io_v8_0}[revision]
-        connectors = {"6.1": _connectors_v6_1,    "7.0": _connectors_v7_0,    "8.0": _connectors_v8_0}[revision]
+        device     = {"6.1": "LFE5U-25F-6BG381C", "7.0": "LFE5U-25F-6BG256C", "8.0": "LFE5U-25F-6BG256C", "8.2": "LFE5U-25F-7BG256I"}[revision]
+        io         = {"6.1": _io_v6_1,            "7.0": _io_v7_0,            "8.0": _io_v8_0,            "8.2": _io_v8_0}[revision]
+        connectors = {"6.1": _connectors_v6_1,    "7.0": _connectors_v7_0,    "8.0": _connectors_v8_0,    "8.2": _connectors_v8_0}[revision]
         LatticeECP5Platform.__init__(self, device, io, connectors=connectors, toolchain=toolchain)
 
     def create_programmer(self):
