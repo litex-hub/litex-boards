@@ -153,7 +153,7 @@ _litex_acorn_baseboard_mini_io = [
         Subsignal("rx_n",  Pins("A10")),
     ),
     # Debug.
-    ("debug", 0, Pins("H5 J5 K2 J2"), IOStandard("LVCMOS33")),
+    ("debug", 0, Pins("H5 J5 J2 K2"), IOStandard("LVCMOS33")),
 
 ]
 # Platform -----------------------------------------------------------------------------------------
