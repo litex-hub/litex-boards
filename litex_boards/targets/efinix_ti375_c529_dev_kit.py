@@ -32,7 +32,7 @@ from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 from litex.soc.cores.usb_ohci import USBOHCI
 
-from liteeth.phy.trionrgmii import LiteEthPHYRGMII
+from liteeth.phy.titaniumrgmii import LiteEthPHYRGMII
 
 # Full stream debian demo :
 # --cpu-type=vexiiriscv --cpu-variant=debian --update-repo=no --with-jtag-tap --with-sdcard --with-coherent-dma --with-ohci --vexii-video "name=video"
@@ -90,7 +90,15 @@ class BaseSoC(SoCCore):
         "usb_ohci": 0xe0000000,
     }}
 
-    def __init__(self, sys_clk_freq=100e6, cpu_clk_freq=100e6, with_ohci=False, **kwargs):
+    def __init__(self,
+            sys_clk_freq   = 100e6,
+            cpu_clk_freq   = 100e6,
+            with_ethernet  = False,
+            with_etherbone = False,
+            eth_ip         = "192.168.1.50",
+            remote_ip      = None,
+            with_ohci=False,
+            **kwargs):
         platform = efinix_ti375_c529_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -146,6 +154,21 @@ class BaseSoC(SoCCore):
                 jtag_pads.tdo.eq(self.cpu.jtag_tdo),
             ]
             platform.add_false_path_constraints(self.crg.cd_sys.clk, jtag_pads.tck)
+
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.ethphy = LiteEthPHYRGMII(
+                platform           = platform,
+                clock_pads         = platform.request("eth_clocks"),
+                pads               = platform.request("eth"),
+                with_hw_init_reset = False)
+
+            platform.add_false_path_constraints(self.crg.cd_sys.clk, self.ethphy.crg.cd_eth_rx.clk, self.ethphy.crg.cd_eth_tx.clk)
+
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False, with_timing_constraints=False)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False)
 
         # HDMI -------------------------------------------------------------------------------------
         if hasattr(self.cpu, "video_clk"):
@@ -714,12 +737,21 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",   action="store_true",     help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",  action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",    default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip", default="192.168.1.100", help="Remote IP address of TFTP server.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        cpu_clk_freq = args.cpu_clk_freq,
-        with_ohci    = args.with_ohci,
+        sys_clk_freq   = args.sys_clk_freq,
+        cpu_clk_freq   = args.cpu_clk_freq,
+        with_ohci      = args.with_ohci,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
