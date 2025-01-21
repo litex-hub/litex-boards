@@ -233,6 +233,7 @@ def hdmi_px(px):
 
 class Platform(EfinixPlatform):
     default_clk_name   = "clk100"
+    default_clk_freq   = 100e6
     default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="efinity"):
