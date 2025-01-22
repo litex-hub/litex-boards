@@ -335,7 +335,7 @@ class BaseSoC(SoCCore):
             import xml.etree.ElementTree as et
 
             data_width = 512
-            axi_bus = axi.AXIInterface(data_width=data_width, address_width=30, id_width=8) # 256MB.
+            axi_bus = axi.AXIInterface(data_width=data_width, address_width=33, id_width=8)
 
             # self.platform.add_extension(_debug_io)
             # debug_io = platform.request("debug_io")
@@ -368,87 +368,87 @@ class BaseSoC(SoCCore):
                     axi_target0 = et.SubElement(ddr, "efxpt:axi_target0",is_axi_width_256="false", is_axi_enable="true")
                     gen_pin_target0 = et.SubElement(axi_target0, "efxpt:gen_pin_axi")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name=axi_clk,           type_name=f"ACLK_0",     is_bus="false", is_clk="true", is_clk_invert="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_apcmd",   type_name="ARAPCMD_0",   is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_ready",   type_name="ARREADY_0",   is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_valid",   type_name="ARVALID_0",   is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_qos",     type_name="ARQOS_0",     is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_apcmd",   type_name="AWAPCMD_0",   is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_allstrb", type_name="AWALLSTRB_0", is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_arapcmd",    type_name="ARAPCMD_0",   is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_arready",    type_name="ARREADY_0",   is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_arvalid",    type_name="ARVALID_0",   is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_arqos",      type_name="ARQOS_0",     is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awapcmd",    type_name="AWAPCMD_0",   is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awallstrb",  type_name="AWALLSTRB_0", is_bus="false")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awcobuf",    type_name="AWCOBUF_0",   is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_ready",   type_name="AWREADY_0",   is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_valid",   type_name="AWVALID_0",   is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_lock",    type_name="AWLOCK_0",    is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_qos",     type_name="AWQOS_0",     is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_b_ready",    type_name="BREADY_0",    is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_b_valid",    type_name="BVALID_0",    is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_r_last",     type_name="RLAST_0",     is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_r_ready",    type_name="RREADY_0",    is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_r_valid",    type_name="RVALID_0",    is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_w_last",     type_name="WLAST_0",     is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_w_ready",    type_name="WREADY_0",    is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_w_valid",    type_name="WVALID_0",    is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_addr",    type_name="ARADDR_0",    is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_burst",   type_name="ARBURST_0",   is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_id",      type_name="ARID_0",      is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_len",     type_name="ARLEN_0",     is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_size",    type_name="ARSIZE_0",    is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_ar_lock",    type_name="ARLOCK_0",    is_bus="false")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_addr",    type_name="AWADDR_0",    is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_burst",   type_name="AWBURST_0",   is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_id",      type_name="AWID_0",      is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_len",     type_name="AWLEN_0",     is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_size",    type_name="AWSIZE_0",    is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_aw_cache",   type_name="AWCACHE_0",   is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_b_id",       type_name="BID_0",       is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_b_resp",     type_name="BRESP_0",     is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_r_data",     type_name="RDATA_0",     is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_r_id",       type_name="RID_0",       is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_r_resp",     type_name="RRESP_0",     is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_w_data",     type_name="WDATA_0",     is_bus="true")
-                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_w_strb",     type_name="WSTRB_0",     is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awready",    type_name="AWREADY_0",   is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awvalid",    type_name="AWVALID_0",   is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awlock",     type_name="AWLOCK_0",    is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awqos",      type_name="AWQOS_0",     is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_bready",     type_name="BREADY_0",    is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_bvalid",     type_name="BVALID_0",    is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_rlast",      type_name="RLAST_0",     is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_rready",     type_name="RREADY_0",    is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_rvalid",     type_name="RVALID_0",    is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_wlast",      type_name="WLAST_0",     is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_wready",     type_name="WREADY_0",    is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_wvalid",     type_name="WVALID_0",    is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_araddr",     type_name="ARADDR_0",    is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_arburst",    type_name="ARBURST_0",   is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_arid",       type_name="ARID_0",      is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_arlen",      type_name="ARLEN_0",     is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_arsize",     type_name="ARSIZE_0",    is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_arlock",     type_name="ARLOCK_0",    is_bus="false")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awaddr",     type_name="AWADDR_0",    is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awburst",    type_name="AWBURST_0",   is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awid",       type_name="AWID_0",      is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awlen",      type_name="AWLEN_0",     is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awsize",     type_name="AWSIZE_0",    is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_awcache",    type_name="AWCACHE_0",   is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_bid",        type_name="BID_0",       is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_bresp",      type_name="BRESP_0",     is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_rdata",      type_name="RDATA_0",     is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_rid",        type_name="RID_0",       is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_rresp",      type_name="RRESP_0",     is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_wdata",      type_name="WDATA_0",     is_bus="true")
+                    et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_wstrb",      type_name="WSTRB_0",     is_bus="true")
                     et.SubElement(gen_pin_target0, "efxpt:pin", name="ddr0_resetn",     type_name="ARSTN_0",     is_bus="false")
 
                     axi_target1 = et.SubElement(ddr, "efxpt:axi_target1",is_axi_width_256="false", is_axi_enable="false")
                     gen_pin_target1 = et.SubElement(axi_target1, "efxpt:gen_pin_axi")
                     et.SubElement(gen_pin_target1, "efxpt:pin", name=axi_clk,     type_name=f"ACLK_1",   is_bus="false", is_clk="true", is_clk_invert="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_apcmd", type_name="ARAPCMD_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_ready", type_name="ARREADY_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_valid", type_name="ARVALID_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_qos", type_name="ARQOS_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_apcmd", type_name="AWAPCMD_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_allstrb", type_name="AWALLSTRB_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_arapcmd", type_name="ARAPCMD_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_arready", type_name="ARREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_arvalid", type_name="ARVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_arqos", type_name="ARQOS_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awapcmd", type_name="AWAPCMD_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awallstrb", type_name="AWALLSTRB_1", is_bus="false")
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awcobuf", type_name="AWCOBUF_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_ready", type_name="AWREADY_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_valid", type_name="AWVALID_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_lock", type_name="AWLOCK_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_qos", type_name="AWQOS_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_b_ready", type_name="BREADY_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_b_valid", type_name="BVALID_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_last", type_name="RLAST_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_ready", type_name="RREADY_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_valid", type_name="RVALID_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_last", type_name="WLAST_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_ready", type_name="WREADY_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_valid", type_name="WVALID_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_addr", type_name="ARADDR_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_burst", type_name="ARBURST_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_id", type_name="ARID_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_len", type_name="ARLEN_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_size", type_name="ARSIZE_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_ar_lock", type_name="ARLOCK_1", is_bus="false")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_addr", type_name="AWADDR_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_burst", type_name="AWBURST_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_id", type_name="AWID_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_len", type_name="AWLEN_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_size", type_name="AWSIZE_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_aw_cache", type_name="AWCACHE_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_b_id", type_name="BID_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_b_resp", type_name="BRESP_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_data", type_name="RDATA_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_id", type_name="RID_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_r_resp", type_name="RRESP_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_data", type_name="WDATA_1", is_bus="true")
-                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_w_strb", type_name="WSTRB_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awready", type_name="AWREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awvalid", type_name="AWVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awlock", type_name="AWLOCK_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awqos", type_name="AWQOS_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_bready", type_name="BREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_bvalid", type_name="BVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_rlast", type_name="RLAST_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_rready", type_name="RREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_rvalid", type_name="RVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_wlast", type_name="WLAST_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_wready", type_name="WREADY_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_wvalid", type_name="WVALID_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_araddr", type_name="ARADDR_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_arburst", type_name="ARBURST_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_arid", type_name="ARID_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_arlen", type_name="ARLEN_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_arsize", type_name="ARSIZE_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_arlock", type_name="ARLOCK_1", is_bus="false")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awaddr", type_name="AWADDR_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awburst", type_name="AWBURST_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awid", type_name="AWID_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awlen", type_name="AWLEN_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awsize", type_name="AWSIZE_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_awcache", type_name="AWCACHE_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_bid", type_name="BID_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_bresp", type_name="BRESP_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_rdata", type_name="RDATA_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_rid", type_name="RID_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_rresp", type_name="RRESP_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_wdata", type_name="WDATA_1", is_bus="true")
+                    et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_wstrb", type_name="WSTRB_1", is_bus="true")
                     et.SubElement(gen_pin_target1, "efxpt:pin", name="ddr1_resetn", type_name="ARSTN_1", is_bus="false")
 
                     gen_pin_controller = et.SubElement(ddr, "efxpt:gen_pin_controller")
@@ -607,88 +607,23 @@ class BaseSoC(SoCCore):
 
             # DRAM AXI-Ports.
             # --------------
+            axi_io = platform.add_iface_ios(axi_bus.get_ios("ddr0"))
+            self.comb += axi_bus.connect_to_pads(axi_io, mode="master")
+
             ios = [(f"ddr0", 0,
-                Subsignal("ar_valid",   Pins(1)),
-                Subsignal("ar_ready",   Pins(1)),
-                Subsignal("ar_addr",    Pins(33)),
-                Subsignal("ar_id",      Pins(6)),
-                Subsignal("ar_len",     Pins(8)),
-                Subsignal("ar_size",    Pins(3)),
-                Subsignal("ar_burst",   Pins(2)),
-                Subsignal("ar_lock",    Pins(1)),
-                Subsignal("ar_apcmd",   Pins(1)),
-                Subsignal("ar_qos",     Pins(1)),
-                Subsignal("aw_valid",   Pins(1)),
-                Subsignal("aw_ready",   Pins(1)),
-                Subsignal("aw_addr",    Pins(33)),
-                Subsignal("aw_id",      Pins(6)),
-                Subsignal("aw_len",     Pins(8)),
-                Subsignal("aw_size",    Pins(3)),
-                Subsignal("aw_burst",   Pins(2)),
-                Subsignal("aw_lock",    Pins(1)),
-                Subsignal("aw_cache",   Pins(4)),
-                Subsignal("aw_qos",     Pins(1)),
-                Subsignal("aw_allstrb", Pins(1)),
-                Subsignal("aw_apcmd",   Pins(1)),
+                Subsignal("arapcmd",   Pins(1)),
+                Subsignal("awallstrb", Pins(1)),
+                Subsignal("awapcmd",   Pins(1)),
                 Subsignal("awcobuf",    Pins(1)),
-                Subsignal("w_valid",    Pins(1)),
-                Subsignal("w_ready",    Pins(1)),
-                Subsignal("w_data",     Pins(data_width)),
-                Subsignal("w_strb",     Pins(data_width//8)),
-                Subsignal("w_last",     Pins(1)),
-                Subsignal("b_valid",    Pins(1)),
-                Subsignal("b_ready",    Pins(1)),
-                Subsignal("b_resp",     Pins(1)),
-                Subsignal("b_id",       Pins(6)),
-                Subsignal("r_valid",    Pins(1)),
-                Subsignal("r_ready",    Pins(1)),
-                Subsignal("r_data",     Pins(data_width)),
-                Subsignal("r_id",       Pins(6)),
-                Subsignal("r_resp",     Pins(2)),
-                Subsignal("r_last",     Pins(1)),
                 Subsignal("resetn",     Pins(1)),
             )]
 
             io   = platform.add_iface_ios(ios)
             self.comb += [
-                io.ar_valid.eq(axi_bus.ar.valid),
-                axi_bus.ar.ready.eq(io.ar_ready),
-                io.ar_addr.eq(axi_bus.ar.addr),
-                io.ar_id.eq(axi_bus.ar.id),
-                io.ar_len.eq(axi_bus.ar.len),
-                io.ar_size.eq(axi_bus.ar.size),
-                io.ar_burst.eq(axi_bus.ar.burst),
-                io.ar_lock.eq(axi_bus.ar.lock),
-                io.ar_apcmd.eq(0),
-                io.ar_qos.eq(axi_bus.ar.qos),
-                io.aw_valid.eq(axi_bus.aw.valid),
-                axi_bus.aw.ready.eq(io.aw_ready),
-                io.aw_addr.eq(axi_bus.aw.addr),
-                io.aw_id.eq(axi_bus.aw.id),
-                io.aw_len.eq(axi_bus.aw.len),
-                io.aw_size.eq(axi_bus.aw.size),
-                io.aw_burst.eq(axi_bus.aw.burst),
-                io.aw_lock.eq(axi_bus.aw.lock),
-                io.aw_cache.eq(axi_bus.aw.cache),
-                io.aw_qos.eq(axi_bus.aw.qos),
-                io.aw_allstrb.eq(0 if not hasattr(self.cpu, "mBus_awallStrb") else self.cpu.mBus_awallStrb),
-                io.aw_apcmd.eq(0),
+                io.arapcmd.eq(0),
+                io.awallstrb.eq(0 if not hasattr(self.cpu, "mBus_awallStrb") else self.cpu.mBus_awallStrb),
+                io.awapcmd.eq(0),
                 io.awcobuf.eq(0),
-                io.w_valid.eq(axi_bus.w.valid),
-                axi_bus.w.ready.eq(io.w_ready),
-                io.w_data.eq(axi_bus.w.data),
-                io.w_strb.eq(axi_bus.w.strb),
-                io.w_last.eq(axi_bus.w.last),
-                axi_bus.b.valid.eq(io.b_valid),
-                io.b_ready.eq(axi_bus.b.ready),
-                axi_bus.b.resp.eq(io.b_resp),
-                axi_bus.b.id.eq(io.b_id),
-                axi_bus.r.valid.eq(io.r_valid),
-                io.r_ready.eq(axi_bus.r.ready),
-                axi_bus.r.data.eq(io.r_data),
-                axi_bus.r.id.eq(io.r_id),
-                axi_bus.r.resp.eq(io.r_resp),
-                axi_bus.r.last.eq(io.r_last),
                 io.resetn.eq(~self.crg.cd_sys.rst),
             ]
                 
