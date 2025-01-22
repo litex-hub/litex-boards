@@ -649,13 +649,6 @@ class BaseSoC(SoCCore):
                 Subsignal("resetn",     Pins(1)),
             )]
 
-            if hasattr(self.cpu, "add_memory_buses"):
-                self.cpu.add_memory_buses(address_width = 32, data_width = data_width)
-
-                assert len(self.cpu.memory_buses) == 1
-                mbus = self.cpu.memory_buses[0]
-                self.comb +=mbus.connect(axi_bus)
-
             io   = platform.add_iface_ios(ios)
             self.comb += [
                 io.ar_valid.eq(axi_bus.ar.valid),
@@ -719,12 +712,23 @@ class BaseSoC(SoCCore):
             self.sync += self.cfg_count.eq(self.cfg_count + (self.cfg_count != 0xFF))
             self.sync += self.cfg_state.eq(self.cfg_state | (self.cfg_count == 0xFF))
 
-            # Use DRAM's target0 port as Main Ram.
-            self.bus.add_region("main_ram", SoCRegion(
+            soc_region = SoCRegion(
                 origin = 0x4000_0000,
                 size   = 0x4000_0000, # 1GB.
                 mode   ="rwx",
-            ))
+            )
+            # Use DRAM's target0 port as Main Ram.
+            if hasattr(self.cpu, "add_memory_buses"):
+                self.cpu.add_memory_buses(address_width = 32, data_width = data_width)
+
+                assert len(self.cpu.memory_buses) == 1
+                mbus = self.cpu.memory_buses[0]
+                self.comb +=mbus.connect(axi_bus)
+                self.bus.add_region("main_ram", soc_region)
+            else:
+                axi_lite_bus = axi.AXILiteInterface(data_width=data_width, address_width=axi_bus.address_width)
+                self.submodules += axi.AXILite2AXI(axi_lite_bus, axi_bus)
+                self.bus.add_slave("main_ram", axi_lite_bus, soc_region)
 
 # Build --------------------------------------------------------------------------------------------
 
