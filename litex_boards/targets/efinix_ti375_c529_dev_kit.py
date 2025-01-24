@@ -32,7 +32,7 @@ from liteeth.phy.trionrgmii import LiteEthPHYRGMII
 from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 from litex.soc.cores.usb_ohci import USBOHCI
 
-from liteeth.phy.trionrgmii import LiteEthPHYRGMII
+from liteeth.phy.titaniumrgmii import LiteEthPHYRGMII
 
 # Full stream debian demo :
 # --cpu-type=vexiiriscv --cpu-variant=debian --update-repo=no --with-jtag-tap --with-sdcard --with-coherent-dma --with-ohci --vexii-video "name=video"
@@ -48,16 +48,12 @@ class _CRG(LiteXModule):
         self.cd_usb    = ClockDomain()
         self.cd_video  = ClockDomain()
         self.cd_cpu    = ClockDomain()
-        self.cd_eth    = ClockDomain()
-        self.cd_eth_90 = ClockDomain()
-        self.cd_eth_rx = ClockDomain()
         self.cd_rst   = ClockDomain(reset_less=True)
 
         # # #
 
         # Clk/Rst.
         clk100 = platform.request("clk100")
-        clk25  = platform.request("clk25")
         rst_n  = platform.request("user_btn", 0)
 
         self.comb += self.cd_rst.clk.eq(clk100)
@@ -81,33 +77,11 @@ class _CRG(LiteXModule):
         pll.create_clkout(None,               800e6) # LPDDR4 ctrl
         pll.create_clkout(self.cd_video,       40e6)
 
-        # PLL eth tx
-        self.pll2 = pll2 = TITANIUMPLL(platform)
-        self.comb += pll2.reset.eq(~rst_n)
-        pll2.register_clkin(clk25, 25e6)
-        # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
-        # (integer) of the reference clock. If all your system clocks do not fall within
-        # this range, you should dedicate one unused clock for CLKOUT0.
-        pll2.create_clkout(None, 25e6, with_reset=True)
-        pll2.create_clkout(self.cd_eth, 125e6)
-        pll2.create_clkout(self.cd_eth_90, 125e6, phase=90)
-
-        # PLL eth rx
-        self.pll3 = pll3 = TITANIUMPLL(platform)
-        self.comb += pll3.reset.eq(~rst_n)
-        self.eth_clocks = eth_clocks = platform.request("eth_clocks")
-        pll3.register_clkin(eth_clocks.rx, 125e6)
-        # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
-        # (integer) of the reference clock. If all your system clocks do not fall within
-        # this range, you should dedicate one unused clock for CLKOUT0.
-        pll3.create_clkout(None, 125e6, with_reset=True)
-        pll3.create_clkout(self.cd_eth_rx, 125e6,phase =270)
         
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_usb.clk)
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_sys.clk)
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_video.clk)
         platform.add_false_path_constraints(self.cd_sys.clk, self.cd_usb.clk)
-        platform.add_false_path_constraints(self.cd_sys.clk, self.cd_eth.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -116,7 +90,15 @@ class BaseSoC(SoCCore):
         "usb_ohci": 0xe0000000,
     }}
 
-    def __init__(self, sys_clk_freq=100e6, cpu_clk_freq=100e6, with_ohci=False, **kwargs):
+    def __init__(self,
+            sys_clk_freq   = 100e6,
+            cpu_clk_freq   = 100e6,
+            with_ethernet  = False,
+            with_etherbone = False,
+            eth_ip         = "192.168.1.50",
+            remote_ip      = None,
+            with_ohci=False,
+            **kwargs):
         platform = efinix_ti375_c529_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -172,6 +154,21 @@ class BaseSoC(SoCCore):
                 jtag_pads.tdo.eq(self.cpu.jtag_tdo),
             ]
             platform.add_false_path_constraints(self.crg.cd_sys.clk, jtag_pads.tck)
+
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            self.ethphy = LiteEthPHYRGMII(
+                platform           = platform,
+                clock_pads         = platform.request("eth_clocks"),
+                pads               = platform.request("eth"),
+                with_hw_init_reset = False)
+
+            platform.add_false_path_constraints(self.crg.cd_sys.clk, self.ethphy.crg.cd_eth_rx.clk, self.ethphy.crg.cd_eth_tx.clk)
+
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False, with_timing_constraints=False)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False)
 
         # HDMI -------------------------------------------------------------------------------------
         if hasattr(self.cpu, "video_clk"):
@@ -277,28 +274,57 @@ class BaseSoC(SoCCore):
 
         # CPU-ETH -----------------------------------------------------------------------------
         if hasattr(self.cpu, "eth_tx_ref_clk"):
+            self.cd_eth    = ClockDomain()
+            self.cd_eth_90 = ClockDomain()
+            self.cd_eth_rx = ClockDomain()
+
+            clk25  = platform.request("clk25")
+
+            # PLL eth tx
+            self.pll2 = pll2 = TITANIUMPLL(platform)
+            self.comb += pll2.reset.eq(ResetSignal())
+            pll2.register_clkin(clk25, 25e6)
+            # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
+            # (integer) of the reference clock. If all your system clocks do not fall within
+            # this range, you should dedicate one unused clock for CLKOUT0.
+            pll2.create_clkout(None, 25e6, with_reset=True)
+            pll2.create_clkout(self.cd_eth, 125e6)
+            pll2.create_clkout(self.cd_eth_90, 125e6, phase=90)
+
+            # PLL eth rx
+            self.pll3 = pll3 = TITANIUMPLL(platform)
+            self.comb += pll3.reset.eq(ResetSignal())
+            self.eth_clocks = eth_clocks = platform.request("eth_clocks")
+            pll3.register_clkin(eth_clocks.rx, 125e6)
+            # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
+            # (integer) of the reference clock. If all your system clocks do not fall within
+            # this range, you should dedicate one unused clock for CLKOUT0.
+            pll3.create_clkout(None, 125e6, with_reset=True)
+            pll3.create_clkout(self.cd_eth_rx, 125e6,phase =270)
+
+            platform.add_false_path_constraints(self.crg.cd_sys.clk, self.cd_eth.clk)
+
             eth = platform.request("eth")
-            eth_clocks = self.crg.eth_clocks
             # eth_clocks = platform.request("eth_clocks")
 
-            self.comb += self.cpu.eth_tx_ref_clk .eq(self.crg.cd_eth.clk)
-            self.specials += DDROutput(i1=self.cpu.eth_tx_clk[0], i2=self.cpu.eth_tx_clk[1],  o=eth_clocks.tx, clk=self.crg.cd_eth_90.clk)
-            self.specials += DDROutput(i1=self.cpu.eth_tx_ctl[0], i2=self.cpu.eth_tx_ctl[1],  o=eth.tx_ctl, clk=self.crg.cd_eth.clk)
+            self.comb += self.cpu.eth_tx_ref_clk .eq(self.cd_eth.clk)
+            self.specials += DDROutput(i1=self.cpu.eth_tx_clk[0], i2=self.cpu.eth_tx_clk[1],  o=eth_clocks.tx, clk=self.cd_eth_90.clk)
+            self.specials += DDROutput(i1=self.cpu.eth_tx_ctl[0], i2=self.cpu.eth_tx_ctl[1],  o=eth.tx_ctl, clk=self.cd_eth.clk)
             for i in range(4):
-                self.specials += DDROutput(i1=self.cpu.eth_tx_d[0+i], i2=self.cpu.eth_tx_d[4+i], o=eth.tx_data[i], clk=self.crg.cd_eth.clk)
+                self.specials += DDROutput(i1=self.cpu.eth_tx_d[0+i], i2=self.cpu.eth_tx_d[4+i], o=eth.tx_data[i], clk=self.cd_eth.clk)
 
             # Rx using pll
-            self.comb += self.cpu.eth_rx_clk .eq(self.crg.cd_eth_rx.clk)
-            self.specials += DDRInput(o1=self.cpu.eth_rx_ctl[0], o2=self.cpu.eth_rx_ctl[1],  i=eth.rx_ctl, clk=self.crg.cd_eth_rx.clk)
+            self.comb += self.cpu.eth_rx_clk .eq(self.cd_eth_rx.clk)
+            self.specials += DDRInput(o1=self.cpu.eth_rx_ctl[0], o2=self.cpu.eth_rx_ctl[1],  i=eth.rx_ctl, clk=self.cd_eth_rx.clk)
             for i in range(4):
-                self.specials += DDRInput(o1=self.cpu.eth_rx_d[0+i], o2=self.cpu.eth_rx_d[4+i], i=eth.rx_data[i], clk=self.crg.cd_eth_rx.clk)
+                self.specials += DDRInput(o1=self.cpu.eth_rx_d[0+i], o2=self.cpu.eth_rx_d[4+i], i=eth.rx_data[i], clk=self.cd_eth_rx.clk)
 
-            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[0], i2=self.cpu.eth_rx_d[4], o=debug_io.p0, clk=self.crg.cd_eth_rx.clk)
-            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[1], i2=self.cpu.eth_rx_d[5], o=debug_io.p1, clk=self.crg.cd_eth_rx.clk)
-            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[2], i2=self.cpu.eth_rx_d[6], o=debug_io.p2, clk=self.crg.cd_eth_rx.clk)
-            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[3], i2=self.cpu.eth_rx_d[7], o=debug_io.p3, clk=self.crg.cd_eth_rx.clk)
-            # self.specials += DDROutput(i1=Signal(reset=1), i2=Signal(reset=0), o=debug_io.p4, clk=self.crg.cd_eth_rx.clk)
-            # self.specials += DDROutput(i1=self.cpu.eth_rx_ctl[0], i2=self.cpu.eth_rx_ctl[1], o=debug_io.p5, clk=self.crg.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[0], i2=self.cpu.eth_rx_d[4], o=debug_io.p0, clk=self.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[1], i2=self.cpu.eth_rx_d[5], o=debug_io.p1, clk=self.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[2], i2=self.cpu.eth_rx_d[6], o=debug_io.p2, clk=self.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_d[3], i2=self.cpu.eth_rx_d[7], o=debug_io.p3, clk=self.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=Signal(reset=1), i2=Signal(reset=0), o=debug_io.p4, clk=self.cd_eth_rx.clk)
+            # self.specials += DDROutput(i1=self.cpu.eth_rx_ctl[0], i2=self.cpu.eth_rx_ctl[1], o=debug_io.p5, clk=self.cd_eth_rx.clk)
 
 
         # LPDDR4 SDRAM -----------------------------------------------------------------------------
@@ -711,12 +737,21 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",   action="store_true",     help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",  action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",    default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip", default="192.168.1.100", help="Remote IP address of TFTP server.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        cpu_clk_freq = args.cpu_clk_freq,
-        with_ohci    = args.with_ohci,
+        sys_clk_freq   = args.sys_clk_freq,
+        cpu_clk_freq   = args.cpu_clk_freq,
+        with_ohci      = args.with_ohci,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
