@@ -1,217 +1,193 @@
+#!/usr/bin/env python3
+
 #
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2018 David Shah <dave@ds0.me>
 # SPDX-License-Identifier: BSD-2-Clause
 
-from litex.build.generic_platform import *
-from litex.build.lattice import LatticeECP5Platform
-from litex.build.lattice.programmer import UJProg
+from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
-# IOs ----------------------------------------------------------------------------------------------
+from litex.gen import *
 
-_io_common = [
-    # Clk / Rst
-    ("clk25", 0, Pins("G2"), IOStandard("LVCMOS33")),
-    ("rst",   0, Pins("R1"), IOStandard("LVCMOS33")),
+from litex.build.io import DDROutput
 
-    # Buttons
-    ("user_btn", 0, Pins( "D6"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # PWR
-    ("user_btn", 1, Pins( "R1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # F1
-    ("user_btn", 2, Pins( "T1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # F2
-    ("user_btn", 3, Pins("R18"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # UP
-    ("user_btn", 4, Pins( "V1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # DOWN
-    ("user_btn", 5, Pins( "U1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # LEFT
-    ("user_btn", 6, Pins("H16"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # RIGHT
+from litex_boards.platforms import radiona_ulx3s
 
-    # Leds
-    ("user_led", 0, Pins("B2"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("C2"), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins("C1"), IOStandard("LVCMOS33")),
-    ("user_led", 3, Pins("D2"), IOStandard("LVCMOS33")),
-    ("user_led", 4, Pins("D1"), IOStandard("LVCMOS33")),
-    ("user_led", 5, Pins("E2"), IOStandard("LVCMOS33")),
-    ("user_led", 6, Pins("E1"), IOStandard("LVCMOS33")),
-    ("user_led", 7, Pins("H3"), IOStandard("LVCMOS33")),
+from litex.soc.cores.clock import *
+from litex.soc.integration.soc_core import *
+from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoHDMIPHY
+from litex.soc.cores.led import LedChaser
+from litex.soc.cores.spi import SPIMaster
+from litex.soc.cores.gpio import GPIOOut
 
-    # Serial
-    ("serial", 0,
-        Subsignal("tx", Pins("L4"), IOStandard("LVCMOS33")),
-        Subsignal("rx", Pins("M1"), IOStandard("LVCMOS33"))
-    ),
+from litedram import modules as litedram_modules
+from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
-    # SDR SDRAM
-    ("sdram_clock", 0, Pins("F19"), IOStandard("LVCMOS33")),
-    ("sdram", 0,
-        Subsignal("a",     Pins(
-            "M20 M19 L20 L19 K20 K19 K18 J20",
-            "J19 H20 N19 G20 G19")),
-        Subsignal("dq",    Pins(
-            "J16 L18 M18 N18 P18 T18 T17 U20",
-            "E19 D20 D19 C20 E18 F18 J18 J17")),
-        Subsignal("we_n",  Pins("T20")),
-        Subsignal("ras_n", Pins("R20")),
-        Subsignal("cas_n", Pins("T19")),
-        Subsignal("cs_n",  Pins("P20")),
-        Subsignal("cke",   Pins("F20")),
-        Subsignal("ba",    Pins("P19 N20")),
-        Subsignal("dm",    Pins("U19 E20")),
-        IOStandard("LVCMOS33"),
-        Misc("SLEWRATE=FAST"),
-    ),
+# CRG ----------------------------------------------------------------------------------------------
 
-    # GPIOs
-    ("gpio", 0,
-        Subsignal("p", Pins("B11")),
-        Subsignal("n", Pins("C11")),
-        IOStandard("LVCMOS33")
-    ),
-    ("gpio", 1,
-        Subsignal("p", Pins("A10")),
-        Subsignal("n", Pins("A11")),
-        IOStandard("LVCMOS33")
-    ),
-    ("gpio", 2,
-        Subsignal("p", Pins("A9")),
-        Subsignal("n", Pins("B10")),
-        IOStandard("LVCMOS33")
-    ),
-    ("gpio", 3,
-        Subsignal("p", Pins("B9")),
-        Subsignal("n", Pins("C10")),
-        IOStandard("LVCMOS33")
-    ),
+class _CRG(LiteXModule):
+    def __init__(self, platform, sys_clk_freq, with_usb_pll=False, with_video_pll=False, sdram_rate="1:1"):
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        if sdram_rate == "1:2":
+            self.cd_sys2x    = ClockDomain()
+            self.cd_sys2x_ps = ClockDomain()
+        else:
+            self.cd_sys_ps = ClockDomain()
 
-    # USB
-    ("usb", 0,
-        Subsignal("d_p", Pins("D15")),
-        Subsignal("d_n", Pins("E15")),
-        Subsignal("pullup", Pins("B12 C12")),
-        IOStandard("LVCMOS33")
-    ),
+        # # #
 
-    # SPIFlash
-    ("spiflash", 0,
-        Subsignal("cs_n", Pins("R2")),
-        Subsignal("miso", Pins("V2")),
-        Subsignal("mosi", Pins("W2")),
-        Subsignal("wp", Pins("Y2")),
-        Subsignal("hold", Pins("W1")),
-        IOStandard("LVCMOS33")
-    ),
-    ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("R2")),
-        Subsignal("dq", Pins("W2", "V2", "Y2", "W1")),
-        IOStandard("LVCMOS33")
-    ),
+        # Clk / Rst
+        clk25 = platform.request("clk25")
+        rst   = platform.request("rst")
 
-    # OLED
-    ("oled_spi", 0,
-        Subsignal("clk",  Pins("P4")),
-        Subsignal("mosi", Pins("P3")),
-        IOStandard("LVCMOS33"),
-    ),
-    ("oled_ctl", 0,
-        Subsignal("dc",   Pins("P1")),
-        Subsignal("resn", Pins("P2")),
-        Subsignal("csn",  Pins("N2")),
-        IOStandard("LVCMOS33"),
-    ),
+        # PLL
+        self.pll = pll = ECP5PLL()
+        self.comb += pll.reset.eq(rst | self.rst)
+        pll.register_clkin(clk25, 25e6)
+        pll.create_clkout(self.cd_sys,    sys_clk_freq)
+        if sdram_rate == "1:2":
+            pll.create_clkout(self.cd_sys2x,    2*sys_clk_freq)
+            pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180) # Idealy 90° but needs to be increased.
+        else:
+           pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
 
-    # Others
-    ("ext0p", 0, Pins("B11"), IOStandard("LVCMOS33")),
-    ("ext1p", 0, Pins("A10"), IOStandard("LVCMOS33")),
-]
+        # USB PLL
+        if with_usb_pll:
+            self.usb_pll = usb_pll = ECP5PLL()
+            self.comb += usb_pll.reset.eq(rst | self.rst)
+            usb_pll.register_clkin(clk25, 25e6)
+            self.cd_usb_12 = ClockDomain()
+            self.cd_usb_48 = ClockDomain()
+            usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
+            usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
 
-_io_1_7 = [
-    # SDCard
-    ("spisdcard", 0,
-        Subsignal("clk",  Pins("J1")),
-        Subsignal("mosi", Pins("J3"), Misc("PULLMODE=UP")),
-        Subsignal("cs_n", Pins("H1"), Misc("PULLMODE=UP")),
-        Subsignal("miso", Pins("K2"), Misc("PULLMODE=UP")),
-        Misc("SLEWRATE=FAST"),
-        IOStandard("LVCMOS33"),
-    ),
-    ("sdcard", 0,
-        Subsignal("clk",  Pins("J1")),
-        Subsignal("cmd",  Pins("J3"), Misc("PULLMODE=UP")),
-        Subsignal("data", Pins("K2 K1 H2 H1"), Misc("PULLMODE=UP")),
-        Misc("SLEWRATE=FAST"),
-        IOStandard("LVCMOS33"),
-    ),
+        # Video PLL
+        if with_video_pll:
+            self.video_pll = video_pll = ECP5PLL()
+            self.comb += video_pll.reset.eq(rst | self.rst)
+            video_pll.register_clkin(clk25, 25e6)
+            self.cd_hdmi   = ClockDomain()
+            self.cd_hdmi5x = ClockDomain()
+            video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
+            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
 
-    # GPDI
-    ("gpdi", 0,
-        Subsignal("clk_p",    Pins("A17"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("clk_n",   Pins("B18"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data0_p",  Pins("A12"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("data0_n", Pins("A13"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data1_p",  Pins("A14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("data1_n", Pins("C14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data2_p",  Pins("A16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("data2_n", Pins("B16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("cec",     Pins("A18"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        #Subsignal("scl",     Pins("E19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
-    ),
-    # Wifi power
-    ("wifi_gpio0", 0, Pins("L2"), IOStandard("LVCMOS33")),
-]
+        # SDRAM clock
+        sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
+        self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
 
-_io_2_0 = [
-    # SDCard
-    ("spisdcard", 0,
-        Subsignal("clk",  Pins("H2")),
-        Subsignal("mosi", Pins("J1"), Misc("PULLMODE=UP")),
-        Subsignal("cs_n", Pins("K2"), Misc("PULLMODE=UP")),
-        Subsignal("miso", Pins("J3"), Misc("PULLMODE=UP")),
-        Misc("SLEWRATE=FAST"),
-        IOStandard("LVCMOS33"),
-    ),
-    ("sdcard", 0,
-        Subsignal("clk",  Pins("H2")),
-        Subsignal("cmd",  Pins("J1"), Misc("PULLMODE=UP")),
-        Subsignal("data", Pins("J3 H1 K1 K2"), Misc("PULLMODE=UP")),
-        #Subsignal("cd", Pins("N5")), # Not connected
-        #Subsignal("wp", Pins("P5")), # Not connected
-        Misc("SLEWRATE=FAST"),
-        IOStandard("LVCMOS33"),
-    ),
+        # Prevent ESP32 from resetting FPGA
+        self.comb += platform.request("wifi_gpio0").eq(1)
 
-    # GPDI
-    ("gpdi", 0,
-        Subsignal("clk_p",    Pins("A17"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("clk_n",   Pins("B18"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data0_p",  Pins("A16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("data0_n", Pins("B16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data1_p",  Pins("A14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("data1_n", Pins("C14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        Subsignal("data2_p",  Pins("A12"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("data2_n", Pins("A13"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("cec",     Pins("A18"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        #Subsignal("scl",     Pins("E19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
-    ),
-    # Wifi power
-    ("wifi_gpio0", 0, Pins("F1"), IOStandard("LVCMOS33")),    
-]
+# BaseSoC ------------------------------------------------------------------------------------------
 
-# Platform -----------------------------------------------------------------------------------------
+class BaseSoC(SoCCore):
+    def __init__(self, device="LFE5U-45F", revision="2.0", toolchain="trellis", sys_clk_freq=50e6,
+        sdram_module_cls       = "MT48LC16M16",
+        sdram_rate             = "1:1",
+        with_led_chaser        = True,
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
+        with_spi_flash         = False,
+        **kwargs):
+        platform = radiona_ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
 
-class Platform(LatticeECP5Platform):
-    default_clk_name   = "clk25"
-    default_clk_period = 1e9/25e6
+        # CRG --------------------------------------------------------------------------------------
+        with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
+        with_video_pll = with_video_terminal or with_video_framebuffer
+        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, sdram_rate=sdram_rate)
 
-    def __init__(self, device="LFE5U-45F", revision="2.0", toolchain="trellis", **kwargs):
-        assert device in ["LFE5U-12F", "LFE5U-25F", "LFE5U-45F", "LFE5U-85F"]
-        assert revision in ["1.7", "2.0"]
-        _io = _io_common + {"1.7": _io_1_7, "2.0": _io_2_0}[revision]
-        LatticeECP5Platform.__init__(self, device + "-6BG381C", _io, toolchain=toolchain, **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX3S", **kwargs)
 
-    def create_programmer(self):
-        return UJProg()
+        # SDR SDRAM --------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
+            self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
+            self.add_sdram("sdram",
+                phy           = self.sdrphy,
+                module        = getattr(litedram_modules, sdram_module_cls)(sys_clk_freq, sdram_rate),
+                size          = 0x40000000,
+                l2_cache_size = kwargs.get("l2_size", 8192)
+            )
 
-    def do_finalize(self, fragment):
-        LatticeECP5Platform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal or with_video_framebuffer:
+            self.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import IS25LP128
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=IS25LP128(Codes.READ_1_1_4))
+
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
+
+    def add_oled(self):
+        pads = self.platform.request("oled_spi")
+        pads.miso = Signal()
+        self.oled_spi = SPIMaster(pads, 8, self.sys_clk_freq, 8e6)
+        self.oled_spi.add_clk_divider()
+
+        self.oled_ctl = GPIOOut(self.platform.request("oled_ctl"))
+
+# Build --------------------------------------------------------------------------------------------
+
+def main():
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=radiona_ulx3s.Platform, description="LiteX SoC on ULX3S")
+    parser.add_target_argument("--device",          default="LFE5U-45F",      help="FPGA device (LFE5U-12F, LFE5U-25F, LFE5U-45F or LFE5U-85F).")
+    parser.add_target_argument("--revision",        default="2.0",            help="Board revision (2.0 or 1.7).")
+    parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-module",    default="MT48LC16M16",    help="SDRAM module (MT48LC16M16, AS4C32M16 or AS4C16M16).")
+    parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable SPI Flash (MMAPed).")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",   action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",       action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-oled",  action="store_true", help="Enable SDD1331 OLED support.")
+    parser.add_target_argument("--sdram-rate", default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    args = parser.parse_args()
+
+    soc = BaseSoC(
+        device                 = args.device,
+        revision               = args.revision,
+        toolchain              = args.toolchain,
+        sys_clk_freq           = args.sys_clk_freq,
+        sdram_module_cls       = args.sdram_module,
+        sdram_rate             = args.sdram_rate,
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
+        with_spi_flash         = args.with_spi_flash,
+        **parser.soc_argdict)
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
+    if args.with_oled:
+        soc.add_oled()
+
+    builder = Builder(soc, **parser.builder_argdict)
+    if args.build:
+        builder.build(**parser.toolchain_argdict)
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
+
+if __name__ == "__main__":
+    main()
