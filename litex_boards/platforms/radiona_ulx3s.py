@@ -6,7 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeECP5Platform
-from litex.build.lattice.programmer import UJProg
+from litex.build.lattice.programmer import fujprog
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -210,7 +210,7 @@ class Platform(LatticeECP5Platform):
         LatticeECP5Platform.__init__(self, device + "-6BG381C", _io, toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
-        return UJProg()
+        return fujprog()
 
     def do_finalize(self, fragment):
         LatticeECP5Platform.do_finalize(self, fragment)
