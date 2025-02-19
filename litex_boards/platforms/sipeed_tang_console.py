@@ -51,6 +51,7 @@ _io = [
     # PCI Express
     ("pcie", 0,
         Subsignal("rst_n", Pins("W11")),
+        IOStandard("LVCMOS15"),
     ),
 
     # DDR3 SDRAM MY41J128M16JT-125
