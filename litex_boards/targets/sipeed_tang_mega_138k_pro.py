@@ -245,8 +245,9 @@ class BaseSoC(SoCCore):
             )
 
         # PCIe -------------------------------------------------------------------------------------
-        self.pcie_phy = GW5APCIEPHY(platform, platform.request("pcie"), nlanes=4, cd="sys")
-        self.add_pcie(phy=self.pcie_phy, ndmas=1, data_width=256)
+        if with_pcie:
+            self.pcie_phy = GW5APCIEPHY(platform, platform.request("pcie"), nlanes=4, cd="sys")
+            self.add_pcie(phy=self.pcie_phy, ndmas=1, data_width=256)
 
 # Build --------------------------------------------------------------------------------------------
 
