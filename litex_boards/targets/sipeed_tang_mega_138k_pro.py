@@ -22,6 +22,8 @@ from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII
 
+from litepcie.phy.gw5apciephy import GW5APCIEPHY
+
 from litedram.modules import AS4C32M16, MT41J256M16, W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 from litedram.phy import GW5DDRPHY
@@ -32,7 +34,12 @@ from litex_boards.platforms import sipeed_tang_mega_138k_pro
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, cpu_clk_freq=0, with_sdram=False, sdram_rate="1:2", with_ddr3=False, with_video_pll=False):
+    def __init__(self, platform, sys_clk_freq, cpu_clk_freq=0,
+        with_sdram     = False, sdram_rate="1:2",
+        with_ddr3      = False,
+        with_video_pll = False,
+        with_pcie      = False,
+        ):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
         if cpu_clk_freq:
@@ -51,6 +58,9 @@ class _CRG(LiteXModule):
             self.cd_sys2x_i = ClockDomain()
             self.stop       = Signal()
             self.reset      = Signal()
+
+        if with_pcie:
+            self.cd_crg_pcie = ClockDomain()
 
         # Clk
         clk50 = platform.request("clk50")
@@ -109,6 +119,8 @@ class _CRG(LiteXModule):
                 i_CALIB    = 0, # No calibration.
                 o_CLKOUT   = self.cd_hdmi.clk
             )
+        if with_pcie:
+            pll.create_clkout(self.cd_crg_pcie, 125e6, with_reset=False)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -124,6 +136,7 @@ class BaseSoC(SoCCore):
         with_sdram          = False,
         sdram_model         = "sipeed",
         sdram_rate          = "1:2",
+        with_pcie           = False,
         with_led_chaser     = True,
         with_rgb_led        = False,
         with_buttons        = True,
@@ -144,6 +157,7 @@ class BaseSoC(SoCCore):
             with_sdram     = with_sdram,
             with_ddr3      = with_ddr3,
             with_video_pll = with_video_terminal,
+            with_pcie      = with_pcie,
         )
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K Pro", **kwargs)
@@ -230,6 +244,10 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
+        # PCIe -------------------------------------------------------------------------------------
+        self.pcie_phy = GW5APCIEPHY(platform, platform.request("pcie"), nlanes=4, cd="sys")
+        self.add_pcie(phy=self.pcie_phy, ndmas=1, data_width=256)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -251,6 +269,7 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--remote-ip",       default="192.168.1.100",  help="Remote IP address of TFTP server.")
     parser.add_target_argument("--local-ip",        default="192.168.1.50",   help="Local IP address.")
+    parser.add_target_argument("--with-pcie",       action="store_true",      help="Enable PCIe support.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -261,6 +280,7 @@ def main():
         with_ddr3           = args.with_ddr3,
         with_sdram          = args.with_sdram,
         sdram_model         = args.sdram_model,
+        with_pcie           = args.with_pcie,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         local_ip            = args.local_ip,
