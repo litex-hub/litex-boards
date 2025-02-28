@@ -7,12 +7,11 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 from litex.gen.genlib.misc import WaitTimer
 
-from litex.build.io import DDROutput, DDRInput, SDROutput, SDRTristate
+from litex.build.io import DDROutput, DDRInput, SDRTristate
 from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 
 from litex_boards.platforms import efinix_ti375_c529_dev_kit
@@ -23,13 +22,10 @@ from litex.soc.integration.builder import *
 
 from litex.soc.interconnect import axi
 
-from litex.soc.cores.clock import *
-from litex.soc.cores.led import LedChaser
+from litex.soc.cores.clock.efinix import *
 from litex.soc.cores.bitbang import I2CMaster
 from litex.soc.cores.pwm import PWM
 
-from liteeth.phy.trionrgmii import LiteEthPHYRGMII
-from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 from litex.soc.cores.usb_ohci import USBOHCI
 
 from liteeth.phy.titaniumrgmii import LiteEthPHYRGMII
@@ -45,9 +41,9 @@ class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, cpu_clk_freq):
         self.rst    = Signal()
         self.cd_sys    = ClockDomain()
-        self.cd_usb    = ClockDomain()
-        self.cd_video  = ClockDomain()
-        self.cd_cpu    = ClockDomain()
+        # self.cd_usb    = ClockDomain()
+        # self.cd_video  = ClockDomain()
+        # self.cd_cpu    = ClockDomain()
         self.cd_rst   = ClockDomain(reset_less=True)
 
         # # #
@@ -71,17 +67,19 @@ class _CRG(LiteXModule):
         # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
         # (integer) of the reference clock. If all your system clocks do not fall within
         # this range, you should dedicate one unused clock for CLKOUT0.
+        pll.create_clkout(None,               platform.default_clk_freq)
         pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=True)
-        pll.create_clkout(self.cd_cpu, cpu_clk_freq)
-        pll.create_clkout(self.cd_usb,         60e6, margin=0)
+        pll.create_clkout(None,               sys_clk_freq)
+        # pll.create_clkout(self.cd_cpu, cpu_clk_freq)
+        # pll.create_clkout(self.cd_usb,         60e6, margin=0)
         pll.create_clkout(None,               800e6) # LPDDR4 ctrl
-        pll.create_clkout(self.cd_video,       40e6)
+        # pll.create_clkout(self.cd_video,       40e6)
 
-        
-        platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_usb.clk)
-        platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_sys.clk)
-        platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_video.clk)
-        platform.add_false_path_constraints(self.cd_sys.clk, self.cd_usb.clk)
+
+        # platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_usb.clk)
+        # platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_sys.clk)
+        # platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_video.clk)
+        # platform.add_false_path_constraints(self.cd_sys.clk, self.cd_usb.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -95,6 +93,7 @@ class BaseSoC(SoCCore):
             cpu_clk_freq   = 100e6,
             with_ethernet  = False,
             with_etherbone = False,
+            use_sfp        = False,
             eth_ip         = "192.168.1.50",
             remote_ip      = None,
             with_ohci=False,
@@ -157,18 +156,52 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.ethphy = LiteEthPHYRGMII(
-                platform           = platform,
-                clock_pads         = platform.request("eth_clocks"),
-                pads               = platform.request("eth"),
-                with_hw_init_reset = False)
+            if use_sfp:
+                _sfp_lpc_ios = [
+                        ("sfp_lpc1", 0,
+                            Subsignal("tx_p", Pins("LPC:LA09_P")),
+                            Subsignal("tx_n", Pins("LPC:LA09_N")),
+                            Subsignal("rx_p", Pins("LPC:LA05_P", "LPC:LA06_P", "LPC:LA07_P", "LPC:LA08_P")),
+                            Subsignal("rx_n", Pins("LPC:LA05_N", "LPC:LA06_N", "LPC:LA07_N", "LPC:LA08_N")),
+                            Subsignal("tx_enable", Pins("LPC:LA32_N")),
+                        )
+                    ]
+                platform.add_extension(_sfp_lpc_ios)
+
+                phypads = platform.request("sfp_lpc1")
+
+                self.comb += phypads.tx_enable.eq(1)
+
+                from liteeth.phy.titanium_lvds_1000basex import EfinixTitaniumLVDS_1000BASEX
+                self.ethphy = EfinixTitaniumLVDS_1000BASEX(pads=phypads,
+                                                           refclk=self.crg.cd_sys.clk,
+                                                           refclk_freq=sys_clk_freq,
+                                                           rx_delay=[1, 0, 2, 3])
+                if hasattr(self.ethphy, "ev") and self.irq.enabled:
+                    self.irq.add("ethphy", use_loc_if_exists=True)
+
+                self.comb += platform.request("user_led", 0).eq(self.ethphy.link_up)
+
+                self.comb += platform.request("user_led", 1).eq(self.ethphy.rx.fsm.ongoing("USE_0"))
+                self.comb += platform.request("user_led", 2).eq(self.ethphy.rx.fsm.ongoing("USE_1"))
+                self.comb += platform.request("user_led", 3).eq(self.ethphy.rx.fsm.ongoing("USE_2"))
+                self.comb += platform.request("user_led", 4).eq(self.ethphy.rx.fsm.ongoing("USE_3"))
+
+                self.add_constant("ETH_NETBOOT_SKIP_JSON")
+            else:
+                self.ethphy = LiteEthPHYRGMII(
+                    platform           = platform,
+                    clock_pads         = platform.request("eth_clocks"),
+                    pads               = platform.request("eth"),
+                    with_hw_init_reset = False)
 
             platform.add_false_path_constraints(self.crg.cd_sys.clk, self.ethphy.crg.cd_eth_rx.clk, self.ethphy.crg.cd_eth_tx.clk)
 
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False, with_timing_constraints=False)
+                # self.add_constant("ETH_UDP_RX_DEBUG", check_duplicate=False)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, ethmac_remote_ip=remote_ip, with_ethmac=True, with_timing_constraints=False)
 
         # HDMI -------------------------------------------------------------------------------------
         if hasattr(self.cpu, "video_clk"):
@@ -546,6 +579,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_ti375_c529_dev_kit.Platform, description="LiteX SoC on Efinix Ti375 C529 Dev Kit.")
+    parser.set_defaults(timer_uptime=True)
     parser.add_target_argument("--flash",         action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--cpu-clk-freq",  default=100e6, type=float, help="System clock frequency.")
@@ -556,6 +590,7 @@ def main():
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",   action="store_true",     help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",  action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--use-sfp",      action="store_true",     help="Use SFP instead of Ethernet PHY.")
     parser.add_target_argument("--eth-ip",    default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip", default="192.168.1.100", help="Remote IP address of TFTP server.")
     args = parser.parse_args()
@@ -568,6 +603,7 @@ def main():
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
         remote_ip      = args.remote_ip,
+        use_sfp        = args.use_sfp,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
