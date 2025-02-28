@@ -69,6 +69,13 @@ _io = [
      
     # FAN.
     ("fan_speed_control", 0, Pins("T19"), IOStandard("3.3_V_LVCMOS")),
+
+    # Leds
+    ("user_led", 0, Pins("R20")),
+    ("user_led", 1, Pins("V4"), IOStandard("3.3_V_LVCMOS")),
+    ("user_led", 2, Pins("U6"), IOStandard("3.3_V_LVCMOS")),
+    ("user_led", 3, Pins("L18")),
+    ("user_led", 4, Pins("E19")),
 ]
 
     
