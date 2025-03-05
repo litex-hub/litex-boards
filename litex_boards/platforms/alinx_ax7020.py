@@ -1,9 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2022 Yonggang Liu <ggang.liu@gmail.com>,
-# Copyright (c) 2025 Neil Liu <wetone.liu@gmail.com>,
-#   change clk100 to clk50
+# Copyright (c) 2025 Neil Liu <wetone.liu@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -61,6 +59,29 @@ _ps7_io = [
     ),
 ]
 
+
+ps7_config_variants = {
+    "common" : {
+        "PCW_FPGA_FCLK0_ENABLE"         : "1",
+        "PCW_FPGA0_PERIPHERAL_FREQMHZ"  : "100",
+        "PCW_S_AXI_HP0_FREQMHZ"         : "100",
+        "PCW_S_AXI_HP0_DATA_WIDTH"      : "32",
+        #"PCW_UART1_BAUD_RATE"           : "115200",
+        #"PCW_EN_UART1"                  : "1",
+        #"PCW_UART1_PERIPHERAL_ENABLE"   : "1",
+        #"PCW_UART1_UART1_IO"            : "MIO 48 .. 49",
+        "PCW_PRESET_BANK1_VOLTAGE"      : "LVCMOS 1.8V",
+        #"PCW_USE_M_AXI_GP0"             : "1",
+        "PCW_USE_S_AXI_HP0"             : "1",
+        #"PCW_USB0_PERIPHERAL_ENABLE"    : "1",
+        #"PCW_USB0_USB0_IO"              : "MIO 28 .. 39",
+        #"PCW_USB0_RESET_ENABLE"         : "1",
+        #"PCW_USB0_RESET_IO"             : "MIO 46",
+        #"PCW_EN_USB0"                   : "1",
+        "PCW_UIPARAM_DDR_PARTNO"        : "MT41K256M16 RE-125",
+    },
+}
+
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
@@ -70,32 +91,22 @@ _connectors = [
     ("pmodj11",  "F17 F16 F20 F19 G20 G19 H18 J18 L20 L19 M20 M19 K18 K17 J19 K19 H20 J20 L17 L16 M18 M17 D20 D19 E19 E18 G18 G17 H17 H16 G15 H15 J14 K14"),
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-_usb_uart_pmod_io = [
-    # USB-UART PMOD on JB:
-    # - https://store.digilentinc.com/pmod-usbuart-usb-to-uart-interface/
-    ("serial", 0,
-        Subsignal("tx", Pins("pmodj10:0")),
-        Subsignal("rx", Pins("pmodj10:1")),
-        IOStandard("LVCMOS33")
-    ),
-]
-
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk50"
-    default_clk_period = 1e9/50e6
+    default_clk_freq   = 50e6
+    default_clk_period = 1e9/default_clk_freq
 
     def __init__(self):
-        Xilinx7SeriesPlatform.__init__(self, "xc7z010clg400-1", _io, _connectors, toolchain="vivado")
-        #self.add_extension(_ps7_io)
-        #self.add_extension(_usb_uart_pmod_io)
+        self.ps7_config = ps7_config_variants["common"]
+        Xilinx7SeriesPlatform.__init__(self, "xc7z020clg400-2", _io, _connectors, toolchain="vivado")
+        self.add_extension(_ps7_io)
 
     def create_programmer(self):
         return VivadoProgrammer()
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+        self.add_period_constraint(self.lookup_request("clk50", loose=True), self.default_clk_period)
+
