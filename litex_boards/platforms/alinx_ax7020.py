@@ -73,7 +73,7 @@ ps7_config_variants = {
         "PCW_PRESET_BANK1_VOLTAGE"      : "LVCMOS 1.8V",
         #"PCW_USE_M_AXI_GP0"             : "1",
         "PCW_USE_S_AXI_HP0"             : "1",
-        #"PCW_USB0_PERIPHERAL_ENABLE"    : "1",
+        "PCW_USB0_PERIPHERAL_ENABLE"    : "1",
         #"PCW_USB0_USB0_IO"              : "MIO 28 .. 39",
         #"PCW_USB0_RESET_ENABLE"         : "1",
         #"PCW_USB0_RESET_IO"             : "MIO 46",
