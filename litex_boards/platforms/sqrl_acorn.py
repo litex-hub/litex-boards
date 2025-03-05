@@ -216,8 +216,13 @@ class Platform(Xilinx7SeriesPlatform):
             "cle-215":  "xc7a200t",
             "cle-215+": "xc7a200t"
         }[self.variant]
+        package = {
+            "cle-101":  "fgg484",
+            "cle-215":  "fbg484",
+            "cle-215+": "fbg484"
+        }[self.variant]
         if name == "openfpgaloader":
-            return OpenFPGALoader(cable=ftdi_chip, fpga_part=f"{device}fbg484", freq=10e6)
+            return OpenFPGALoader(cable=ftdi_chip, fpga_part=f"{device}{package}", freq=10e6)
         elif name == "openocd":
             return OpenOCD(f"openocd_xc7_{ftdi_chip}.cfg", f"bscan_spi_{device}.bit")
 
