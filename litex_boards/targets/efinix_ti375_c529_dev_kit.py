@@ -546,6 +546,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_ti375_c529_dev_kit.Platform, description="LiteX SoC on Efinix Ti375 C529 Dev Kit.")
+    parser.add_target_argument("--flash",         action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--cpu-clk-freq",  default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ohci",     action="store_true",       help="Enable USB OHCI.")
@@ -580,6 +581,10 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
+
+    if args.flash:
+        prog = soc.platform.create_programmer()
+        prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".hex"), device_id=0x006A0A79)
 
 if __name__ == "__main__":
     main()
