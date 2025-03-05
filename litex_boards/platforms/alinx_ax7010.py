@@ -1,7 +1,9 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2022 Yonggang Liu <ggang.liu@gmail.com>
+# Copyright (c) 2022 Yonggang Liu <ggang.liu@gmail.com>,
+# Copyright (c) 2025 Neil Liu <wetone.liu@gmail.com>,
+#   change clk100 to clk50
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -11,7 +13,7 @@ from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 
 _io = [
     # Clk / Rst
-    ("clk100",    0, Pins("U18"), IOStandard("LVCMOS33")),
+    ("clk50",    0, Pins("U18"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("M14"),  IOStandard("LVCMOS33")),
@@ -83,8 +85,8 @@ _usb_uart_pmod_io = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
-    default_clk_name   = "clk100"
-    default_clk_period = 1e9/100e6
+    default_clk_name   = "clk50"
+    default_clk_period = 1e9/50e6
 
     def __init__(self):
         Xilinx7SeriesPlatform.__init__(self, "xc7z010clg400-1", _io, _connectors, toolchain="vivado")
@@ -96,4 +98,4 @@ class Platform(Xilinx7SeriesPlatform):
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
+        self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
