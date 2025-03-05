@@ -247,7 +247,7 @@ class Platform(EfinixPlatform):
         EfinixPlatform.__init__(self, "Ti375C529C4", _io, _connectors, iobank_info=_bank_info, toolchain=toolchain)
 
     def create_programmer(self):
-        return EfinixProgrammer()
+        return EfinixProgrammer(family=self.family)
 
     def do_finalize(self, fragment):
         EfinixPlatform.do_finalize(self, fragment)
