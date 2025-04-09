@@ -50,8 +50,17 @@ class _CRG(LiteXModule):
 
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
-        platform = digilent_zedboard.Platform()
+    def __init__(self, toolchain="vivado", sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
+        platform = digilent_zedboard.Platform(toolchain)
+
+        assert not (toolchain != "vivado" and kwargs.get("cpu_type", None) == "zynq7000")
+
+        if kwargs.get("cpu_type", None) != "zynq7000":
+            from litex_boards.platforms.digilent_arty import usb_pmod_io
+            platform.add_extension(usb_pmod_io("pmodb"))
+            kwargs["uart_name"] = "usb_uart"
+        else:
+            kwargs["no_uart"] = True
 
         # CRG --------------------------------------------------------------------------------------
         use_ps7_clk = (kwargs.get("cpu_type", None) == "zynq7000")
@@ -139,10 +148,10 @@ def main():
     parser = LiteXArgumentParser(platform=digilent_zedboard.Platform, description="LiteX SoC on Zedboard.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.set_defaults(cpu_type="zynq7000")
-    parser.set_defaults(no_uart=True)
     args = parser.parse_args()
 
     soc = BaseSoC(
+        toolchain    = args.toolchain,
         sys_clk_freq = args.sys_clk_freq,
         **parser.soc_argdict
     )
