@@ -163,7 +163,19 @@ class BaseSoC(SoCCore):
                             Subsignal("tx_n", Pins("LPC:LA09_N")),
                             Subsignal("rx_p", Pins("LPC:LA05_P", "LPC:LA06_P", "LPC:LA07_P", "LPC:LA08_P")),
                             Subsignal("rx_n", Pins("LPC:LA05_N", "LPC:LA06_N", "LPC:LA07_N", "LPC:LA08_N")),
+                            Subsignal("scl", Pins("LPC:LA30_N")),
+                            Subsignal("sda", Pins("LPC:LA32_P")),
                             Subsignal("tx_enable", Pins("LPC:LA32_N")),
+                        ),
+
+                        ("sfp_lpc1", 1,
+                            Subsignal("tx_p", Pins("LPC:LA01_CC_P")),
+                            Subsignal("tx_n", Pins("LPC:LA01_CC_N")),
+                            Subsignal("rx_p", Pins("LPC:LA00_CC_P", "LPC:LA02_P", "LPC:LA03_P", "LPC:LA04_P")),
+                            Subsignal("rx_n", Pins("LPC:LA00_CC_N", "LPC:LA02_N", "LPC:LA03_N", "LPC:LA04_N")),
+                            Subsignal("scl", Pins("LPC:LA19_P")),
+                            Subsignal("sda", Pins("LPC:LA19_N")),
+                            Subsignal("tx_enable", Pins("LPC:LA16_P")),
                         )
                     ]
                 platform.add_extension(_sfp_lpc_ios)
@@ -180,12 +192,19 @@ class BaseSoC(SoCCore):
                 if hasattr(self.ethphy, "ev") and self.irq.enabled:
                     self.irq.add("ethphy", use_loc_if_exists=True)
 
-                self.comb += platform.request("user_led", 0).eq(self.ethphy.link_up)
+                phypads1 = platform.request("sfp_lpc1", 1)
 
-                self.comb += platform.request("user_led", 1).eq(self.ethphy.rx.fsm.ongoing("USE_0"))
-                self.comb += platform.request("user_led", 2).eq(self.ethphy.rx.fsm.ongoing("USE_1"))
-                self.comb += platform.request("user_led", 3).eq(self.ethphy.rx.fsm.ongoing("USE_2"))
-                self.comb += platform.request("user_led", 4).eq(self.ethphy.rx.fsm.ongoing("USE_3"))
+                self.comb += phypads1.tx_enable.eq(1)
+
+                from liteeth.phy.titanium_lvds_1000basex import EfinixTitaniumLVDS_1000BASEX
+                self.ethphy1 = EfinixTitaniumLVDS_1000BASEX(pads=phypads1,
+                                                           crg=self.ethphy.crg,
+                                                           rx_delay=[0, 0, 2, 2])
+                if hasattr(self.ethphy1, "ev") and self.irq.enabled:
+                    self.irq.add("ethphy1", use_loc_if_exists=True)
+
+                self.comb += platform.request("user_led", 0).eq(self.ethphy.link_up)
+                self.comb += platform.request("user_led", 1).eq(self.ethphy1.link_up)
 
                 self.add_constant("ETH_NETBOOT_SKIP_JSON")
             else:
@@ -199,6 +218,8 @@ class BaseSoC(SoCCore):
 
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False, with_timing_constraints=False)
+                if hasattr(self, "ethphy1"):
+                    self.add_ethernet(phy=self.ethphy1, name="ethmac1", software_debug=False, with_timing_constraints=False)
                 # self.add_constant("ETH_UDP_RX_DEBUG", check_duplicate=False)
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, ethmac_remote_ip=remote_ip, with_ethmac=True, with_timing_constraints=False)
