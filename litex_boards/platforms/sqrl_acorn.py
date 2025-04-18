@@ -141,7 +141,7 @@ _litex_acorn_baseboard_mini_io = [
         Subsignal("txp", Pins("B4")),
         Subsignal("txn", Pins("A4")),
         Subsignal("rxp", Pins("B8")),
-        Subsignal("rxn", Pins("C8")),
+        Subsignal("rxn", Pins("A8")),
     ),
     # SATA.
     ("sata", 0,
