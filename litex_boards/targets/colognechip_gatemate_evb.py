@@ -43,6 +43,7 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk10, 10e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
+        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
