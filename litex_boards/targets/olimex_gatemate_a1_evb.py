@@ -57,11 +57,11 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=24e6,
+    def __init__(self, sys_clk_freq=24e6, toolchain="colognechip",
         with_video_terminal = False,
         with_led_chaser     = True,
         **kwargs):
-        platform = olimex_gatemate_a1_evb.Platform()
+        platform = olimex_gatemate_a1_evb.Platform(toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, with_video_terminal)
@@ -94,6 +94,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
+        toolchain           = args.toolchain,
         with_video_terminal = args.with_video_terminal,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)

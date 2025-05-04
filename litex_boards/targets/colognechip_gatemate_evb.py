@@ -47,10 +47,10 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=48e6,
+    def __init__(self, sys_clk_freq=48e6, toolchain="colognechip",
         with_led_chaser = True,
         **kwargs):
-        platform = colognechip_gatemate_evb.Platform()
+        platform = colognechip_gatemate_evb.Platform(toolchain)
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
         platform.add_extension(colognechip_gatemate_evb.usb_pmod_io("PMODB"))
@@ -79,6 +79,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
+        toolchain    = args.toolchain,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
