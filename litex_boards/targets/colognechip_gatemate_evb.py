@@ -43,14 +43,15 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk10, 10e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
+        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=48e6,
+    def __init__(self, sys_clk_freq=48e6, toolchain="colognechip",
         with_led_chaser = True,
         **kwargs):
-        platform = colognechip_gatemate_evb.Platform()
+        platform = colognechip_gatemate_evb.Platform(toolchain)
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
         platform.add_extension(colognechip_gatemate_evb.usb_pmod_io("PMODB"))
@@ -79,6 +80,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
+        toolchain    = args.toolchain,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

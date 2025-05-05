@@ -47,21 +47,23 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk0, 10e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
+        platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
         if with_video_terminal:
             self.pll_video = pll_video = GateMatePLL(perf_mode="economy")
             self.comb += pll_video.reset.eq(~rst_n | self.rst)
             pll_video.register_clkin(clk0, 10e6)
             pll_video.create_clkout(self.cd_vga, 65e6)
+            platform.add_period_constraint(self.cd_vga.clk, 1e9/65e6)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=24e6,
+    def __init__(self, sys_clk_freq=24e6, toolchain="colognechip",
         with_video_terminal = False,
         with_led_chaser     = True,
         **kwargs):
-        platform = olimex_gatemate_a1_evb.Platform()
+        platform = olimex_gatemate_a1_evb.Platform(toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, with_video_terminal)
@@ -94,6 +96,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
+        toolchain           = args.toolchain,
         with_video_terminal = args.with_video_terminal,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
