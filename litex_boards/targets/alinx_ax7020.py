@@ -18,6 +18,10 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
 
+from litex.soc.integration.soc import SoCRegion
+from litex.soc.cores.cpu import zynq7000
+from litex.soc.interconnect import wishbone, axi
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -33,18 +37,41 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=100e6,
+    def __init__(self, sys_clk_freq=100e6, hp_data_width=32,
+        with_ps_ddr     = False,
         with_buttons    = True,
         with_led_chaser = True,
         **kwargs):
 
         platform = alinx_ax7020.Platform()
 
+        assert not (with_ps_ddr and kwargs.get("cpu_type", None) == "zynq7000")
+
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AX7020", **kwargs)
+
+        # PS DDR (Zynq7000 Integration) ------------------------------------------------------------
+        if with_ps_ddr:
+            self.ps = ps = zynq7000.Zynq7000(platform=platform, variant="standard")
+            ps.set_ps7(name="Zynq", config=platform.ps7_config)
+            axi_hp0 = ps.add_axi_hp_slave(clock_domain="sys", data_width=hp_data_width)
+
+            axi_hp0_region  = SoCRegion(origin=0x100000,                     size=0x2000_0000)
+            main_ram_region = SoCRegion(origin=self.cpu.mem_map["main_ram"], size=axi_hp0_region.size)
+
+            wb           = self.bus.add_adapter("axi_hp0", axi_hp0, direction="s2m")
+            remap_module = wishbone.Interface(data_width=32, address_width=32)
+
+            self.submodules += wishbone.Remapper(
+                master      = remap_module,
+                slave       = wb,
+                src_regions = [main_ram_region],
+                dst_regions = [axi_hp0_region]
+            )
+            self.bus.add_slave("main_ram", remap_module, main_ram_region)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -65,10 +92,12 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alinx_ax7020.Platform, description="LiteX SoC on Alinx AX7020.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-ps-ddr",  action="store_true",       help="Uses PS DDR via HP0 as Main RAM.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
+        with_ps_ddr  = args.with_ps_ddr,
         **parser.soc_argdict
     )
 
