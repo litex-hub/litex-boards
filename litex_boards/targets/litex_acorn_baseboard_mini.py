@@ -38,22 +38,6 @@ from liteeth.phy.a7_1000basex import A7_1000BASEX
 
 from litesata.phy import LiteSATAPHY
 
-# Platform -----------------------------------------------------------------------------------------
-
-class Platform(sqrl_acorn.Platform):
-    def detect_ftdi_chip(self):
-        lsusb_log = subprocess.run(['lsusb'], capture_output=True, text=True)
-        for ftdi_chip in ["ft232", "ft2232", "ft4232"]:
-            if f"Future Technology Devices International, Ltd {ftdi_chip.upper()}" in lsusb_log.stdout:
-                return ftdi_chip
-        return None
-
-    def create_programmer(self, name="openocd"):
-        ftdi_chip = self.detect_ftdi_chip()
-        if ftdi_chip is None:
-            raise RuntimeError("No compatible FTDI device found.")
-        return OpenOCD(f"openocd_xc7_{ftdi_chip}.cfg", "bscan_spi_xc7a200t.bit")
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class CRG(LiteXModule):
@@ -113,7 +97,7 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_sata       = False, sata_gen="gen2",
         **kwargs):
-        platform = Platform(variant=variant)
+        platform = sqrl_acorn.Platform(variant=variant)
         platform.add_extension(sqrl_acorn._litex_acorn_baseboard_mini_io, prepend=True)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -249,6 +233,11 @@ def main():
     parser = LiteXArgumentParser(platform=sqrl_acorn.Platform, description="LiteX SoC on Acorn CLE-101/215(+).")
     parser.add_target_argument("--flash",          action="store_true",          help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="cle-215+",           help="Board variant (cle-215+, cle-215 or cle-101).")
+    parser.add_target_argument("--programmer",     default="openocd",            help="Programmer select from OpenOCD/openFPGALoader.",
+        choices=[
+            "openocd",
+            "openfpgaloader"
+    ])
     parser.add_target_argument("--sys-clk-freq",   default=125.00e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-pcie",      action="store_true",          help="Enable PCIe support.")
     parser.add_target_argument("--driver",         action="store_true",          help="Generate PCIe driver.")
@@ -283,11 +272,11 @@ def main():
         generate_litepcie_software(soc, os.path.join(builder.output_dir, "driver"))
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(args.programmer)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(args.programmer)
         prog.flash(0, builder.get_bitstream_filename(mode="flash"))
 
 if __name__ == "__main__":

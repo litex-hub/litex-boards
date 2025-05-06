@@ -46,7 +46,7 @@ _io = [
     # PCIe.
     ("pcie_clkreq_n", 0, Pins("G1"), IOStandard("LVCMOS33")),
     ("pcie_x4", 0,
-        Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS15"), Misc("PULLUP=TRUE")),
+        Subsignal("rst_n", Pins("J1"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
         Subsignal("clk_n", Pins("E6")),
         Subsignal("rx_p",  Pins("B10 B8 D11 D9")),
@@ -141,7 +141,7 @@ _litex_acorn_baseboard_mini_io = [
         Subsignal("txp", Pins("B4")),
         Subsignal("txn", Pins("A4")),
         Subsignal("rxp", Pins("B8")),
-        Subsignal("rxn", Pins("C8")),
+        Subsignal("rxn", Pins("A8")),
     ),
     # SATA.
     ("sata", 0,
@@ -216,8 +216,13 @@ class Platform(Xilinx7SeriesPlatform):
             "cle-215":  "xc7a200t",
             "cle-215+": "xc7a200t"
         }[self.variant]
+        package = {
+            "cle-101":  "fgg484",
+            "cle-215":  "fbg484",
+            "cle-215+": "fbg484"
+        }[self.variant]
         if name == "openfpgaloader":
-            return OpenFPGALoader(cable=ftdi_chip, fpga_part="{device}fbg484", freq=10e6)
+            return OpenFPGALoader(cable=ftdi_chip, fpga_part=f"{device}{package}", freq=10e6)
         elif name == "openocd":
             return OpenOCD(f"openocd_xc7_{ftdi_chip}.cfg", f"bscan_spi_{device}.bit")
 
