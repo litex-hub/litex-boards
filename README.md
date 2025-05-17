@@ -193,6 +193,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── marble
     ├── micronova_mercury2
     ├── mist
+    ├── mlkpai_fs01_dr1v90m
     ├── mnt_rkx7
     ├── muselab_icesugar_pro
     ├── muselab_icesugar
