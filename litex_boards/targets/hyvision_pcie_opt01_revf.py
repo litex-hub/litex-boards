@@ -7,6 +7,13 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # Since this board has no uart, you want to build with JTAG UART:
 # python litex_boards/targets/hyvision_pcie_opt01_revf.py --build --uart-name=jtag_uart
+#
+# JTAG Connectors: j11 or j13
+# Pinout:
+#
+# | Pins |  1  |  2  |  3  |  4  |  5  |  6  |
+# |------|-----|-----|-----|-----|-----|-----|
+# | Pins | TMS | TDI | TDO | TCK | GND | VCC |
 
 from migen import *
 
