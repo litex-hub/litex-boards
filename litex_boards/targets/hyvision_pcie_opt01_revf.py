@@ -27,6 +27,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
 
+from litedram.common  import PHYPadsReducer
 from litedram.modules import K4T1G164QGBCE7
 from litedram.phy import s7ddrphy
 
@@ -94,7 +95,8 @@ class BaseSoC(SoCCore):
 
         # DDR2 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.ddrphy = s7ddrphy.K7DDRPHY(platform.request("ddram"),
+            self.ddrphy = s7ddrphy.K7DDRPHY(
+                pads         = PHYPadsReducer(platform.request("ddram"), [0, 1]),
                 memtype      = "DDR2",
                 nphases      = 2,
                 sys_clk_freq = sys_clk_freq)
