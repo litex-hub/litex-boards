@@ -69,7 +69,7 @@ _io = [
         Subsignal("ras_n", Pins("AA9"),         IOStandard("SSTL18_II")),
         Subsignal("cas_n", Pins("AB9"),         IOStandard("SSTL18_II")),
         Subsignal("we_n",  Pins("AC9"),         IOStandard("SSTL18_II")),
-        Subsignal("ba",    Pins("AD8 AB7 AC7"), IOStandard("SSTL18_II")),
+        Subsignal("ba",    Pins("AC7 AB7 AD8"), IOStandard("SSTL18_II")),
         Subsignal("a",     Pins("AC8 AA7 AA8 AF7 AE7 W8 V9 Y10 Y11 Y7 Y8 W9 W10"),
             IOStandard("SSTL18_II")),
         Subsignal("dq",    Pins(
