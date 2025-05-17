@@ -66,14 +66,6 @@ _io = [
     # ("user_btn", 2, Pins("P15"), IOStandard("LVCMOS33")),  # used for reset
 
     # SPIFlash
-    ("spiflash", 0,
-        Subsignal("cs_n", Pins("L13")),
-        Subsignal("mosi", Pins("K17")),
-        Subsignal("miso", Pins("K18")),
-        Subsignal("wp",   Pins("L14")),
-        Subsignal("hold", Pins("M14")),
-        IOStandard("LVCMOS33"),
-    ),
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("T19")),
         Subsignal("dq",   Pins("P22 R22 P21 R21 ")),
