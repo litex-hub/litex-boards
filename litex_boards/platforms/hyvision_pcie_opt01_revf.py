@@ -69,7 +69,7 @@ _io = [
         Subsignal("ras_n", Pins("AA9"),         IOStandard("SSTL18_II")),
         Subsignal("cas_n", Pins("AB9"),         IOStandard("SSTL18_II")),
         Subsignal("we_n",  Pins("AC9"),         IOStandard("SSTL18_II")),
-        Subsignal("ba",    Pins("AD8 AB7 AC7"), IOStandard("SSTL18_II")),
+        Subsignal("ba",    Pins("AC7 AB7 AD8"), IOStandard("SSTL18_II")),
         Subsignal("a",     Pins("AC8 AA7 AA8 AF7 AE7 W8 V9 Y10 Y11 Y7 Y8 W9 W10"),
             IOStandard("SSTL18_II")),
         Subsignal("dq",    Pins(
@@ -81,8 +81,8 @@ _io = [
         Subsignal("clk_p", Pins("V11 V8"),         IOStandard("DIFF_SSTL18_II")),
         Subsignal("clk_n", Pins("W11 V7"),         IOStandard("DIFF_SSTL18_II")),
         Subsignal("dm",    Pins("U6 Y3 AB6 AD4"),  IOStandard("SSTL18_II")),
-        Subsignal("odt",   Pins("AA13 AA12"),      IOStandard("SSTL18_II")),
-        Subsignal("cs_n",  Pins("AD9 AB12"),       IOStandard("SSTL18_II")),
+        Subsignal("odt",   Pins("AA13"),           IOStandard("SSTL18_II")), # FIXME: re-adds AA12 when 2nd chip working
+        Subsignal("cs_n",  Pins("AD9"),            IOStandard("SSTL18_II")), # FIXME: re-adds AB12 when 2nd chip working
         Misc("SLEW=FAST"),
     ),
 
