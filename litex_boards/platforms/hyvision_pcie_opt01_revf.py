@@ -75,9 +75,9 @@ _io = [
         Subsignal("dq",    Pins(
             " U5  U2  U1  V3  W3 U7 V6  V4  Y2  V2  V1  W1  Y1 AB2 AC2 AA3 ",
             "AA4 AB4 AC4 AC3 AC6 Y6 Y5 AD6 AD1 AE1 AE3 AE2 AE6 AE5 AF3 AF2"),
-            IOStandard("SSTL18_II")),
-        Subsignal("dqs_p", Pins("W6 AB1 AA5 AF5"), IOStandard("DIFF_SSTL18_II")), # AF5: Doubtful.
-        Subsignal("dqs_n", Pins("W5 AC1 AB5 AF4"), IOStandard("DIFF_SSTL18_II")), # AF4: Doubtful.
+            IOStandard("SSTL18_II_T_DCI")),
+        Subsignal("dqs_p", Pins("W6 AB1 AA5 AF5"), IOStandard("DIFF_SSTL18_II_T_DCI")), # AF5: Doubtful.
+        Subsignal("dqs_n", Pins("W5 AC1 AB5 AF4"), IOStandard("DIFF_SSTL18_II_T_DCI")), # AF4: Doubtful.
         Subsignal("clk_p", Pins("V11 V8"),         IOStandard("DIFF_SSTL18_II")),
         Subsignal("clk_n", Pins("W11 V7"),         IOStandard("DIFF_SSTL18_II")),
         Subsignal("dm",    Pins("U6 Y3 AB6 AD4"),  IOStandard("SSTL18_II")),
