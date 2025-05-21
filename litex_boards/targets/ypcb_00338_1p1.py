@@ -70,7 +70,9 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
 
-        # SoCCore -------------------------------------------------------------------------------
+        # SoCCore ----------------------------------------------------------------------------------
+        if kwargs["uart_name"] == "serial":
+            kwargs["uart_name"] = "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on YPCB-00338-1P1", **kwargs)
 
         # DDR3 SDRAM ------------------------------------------------------------------------------
