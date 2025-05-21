@@ -273,4 +273,5 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── xilinx_zcu104
     ├── xilinx_zcu106
     ├── xilinx_zcu216
+    ├── ypcb_00338_1p1
     └── ztex213
