@@ -108,6 +108,27 @@ _connectors = [
     ],
 ]
 
+# PMODs --------------------------------------------------------------------------------------------
+
+def pmods_io(pmod):
+    return [
+        # SDCard PMOD:
+        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
+        ("spisdcard", 0,
+            Subsignal("clk",  Pins(f"{pmod}:3")),
+            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP=true")),
+            Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULLUP=true")),
+            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP=true")),
+        ),
+        ("sdcard", 0,
+            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("PULLUP=true")),
+            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP=true")),
+            Subsignal("clk",  Pins(f"{pmod}:3")),
+            Subsignal("cd",   Pins(f"{pmod}:6")),
+        ),
+]
+_pmods_io = pmods_io("PMOD")
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(CologneChipPlatform):

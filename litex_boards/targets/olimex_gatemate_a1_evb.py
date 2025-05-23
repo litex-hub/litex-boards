@@ -61,6 +61,10 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=24e6, toolchain="colognechip",
         with_video_terminal = False,
+        with_ethernet       = False,
+        with_etherbone      = False,
+        eth_ip              = "192.168.1.50",
+        remote_ip           = None,
         with_led_chaser     = True,
         **kwargs):
         platform = olimex_gatemate_a1_evb.Platform(toolchain)
@@ -84,6 +88,36 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            from litex.build.generic_platform import Subsignal
+            def eth_lan8720_rmii_pmod_io(pmod):
+                # Lan8720 RMII PHY "PMOD": To be used as a PMOD, MDIO should be disconnected and TX1 connected to PMOD8 IO.
+                return [
+                    ("eth_rmii_clocks", 0,
+                        Subsignal("ref_clk", Pins(f"{pmod}:6")),
+                    ),
+                    ("eth_rmii", 0,
+                        Subsignal("rx_data", Pins(f"{pmod}:5 {pmod}:1")),
+                        Subsignal("crs_dv",  Pins(f"{pmod}:2")),
+                        Subsignal("tx_en",   Pins(f"{pmod}:4")),
+                        Subsignal("tx_data", Pins(f"{pmod}:0 {pmod}:7")),
+                    ),
+                ]
+            platform.add_extension(eth_lan8720_rmii_pmod_io("PMOD"))
+
+            from liteeth.phy.rmii import LiteEthPHYRMII
+            self.ethphy = LiteEthPHYRMII(
+                clock_pads = platform.request("eth_rmii_clocks"),
+                pads       = platform.request("eth_rmii"),
+                refclk_cd  = None
+            )
+
+        if with_ethernet:
+            self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False)
+        if with_etherbone:
+            self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -92,13 +126,32 @@ def main():
     parser.add_target_argument("--sys-clk-freq",        default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (VGA).")
     parser.add_target_argument("--flash",               action="store_true",      help="Flash bitstream.")
+    pmodopts = parser.target_group.add_mutually_exclusive_group()
+    pmodopts.add_argument("--with-spi-sdcard",          action="store_true",      help="Enable SPI-mode SDCard support.")
+    pmodopts.add_argument("--with-sdcard",              action="store_true",      help="Enable SDCard support.")
+    pmodopts.add_argument("--with-ethernet",            action="store_true",      help="Enable Ethernet support.")
+    pmodopts.add_argument("--with-etherbone",           action="store_true",      help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",              default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",           default="192.168.1.100",  help="Remote IP address of TFTP server.")
+
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
         toolchain           = args.toolchain,
         with_video_terminal = args.with_video_terminal,
+        with_ethernet       = args.with_ethernet,
+        with_etherbone      = args.with_etherbone,
+        eth_ip              = args.eth_ip,
+        remote_ip           = args.remote_ip,
         **parser.soc_argdict)
+
+    soc.platform.add_extension(olimex_gatemate_a1_evb._pmods_io)
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
+
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
