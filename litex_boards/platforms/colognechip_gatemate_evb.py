@@ -33,16 +33,16 @@ _io = [
     # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("IO_WA_A8")),
-        Subsignal("clk",  Pins("IO_WA_B8")),
+        Subsignal("clk",  Pins("IO_WA_B8"), Misc("SLEW=fast")),
         Subsignal("miso", Pins("IO_WA_B7")),
         Subsignal("mosi", Pins("IO_WA_A7")),
         Subsignal("wp",   Pins("IO_WA_B6")),
-        Subsignal("hold", Pins("IO_WA_B6")),
+        Subsignal("hold", Pins("IO_WA_A6")),
     ),
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("IO_WA_A8")),
-        Subsignal("clk",  Pins("IO_WA_B8")),
-        Subsignal("dq",   Pins("IO_WA_B7 IO_WA_A7 IO_WA_B6 IO_WA_B6")),
+        Subsignal("clk",  Pins("IO_WA_B8"), Misc("SLEW=fast")),
+        Subsignal("dq",   Pins("IO_WA_B7 IO_WA_A7 IO_WA_B6 IO_WA_A6")),
     ),
 
     # HyperRAM

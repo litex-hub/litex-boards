@@ -50,6 +50,7 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=48e6, toolchain="colognechip",
         with_led_chaser = True,
+        with_spi_flash  = True,
         **kwargs):
         platform = colognechip_gatemate_evb.Platform(toolchain)
 
@@ -63,6 +64,12 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on GateMate EVB", **kwargs)
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import MX25R6435F
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=MX25R6435F(Codes.READ_1_1_1), with_master=False)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -74,13 +81,15 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=colognechip_gatemate_evb.Platform, description="LiteX SoC on Gatemate EVB")
-    parser.add_target_argument("--sys-clk-freq", default=24e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",   default=24e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        toolchain    = args.toolchain,
+        sys_clk_freq   = args.sys_clk_freq,
+        toolchain      = args.toolchain,
+        with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
