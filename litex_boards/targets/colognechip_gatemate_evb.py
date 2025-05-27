@@ -15,8 +15,13 @@ from litex_boards.platforms import colognechip_gatemate_evb
 from litex.build.io import CRG
 
 from litex.soc.cores.clock.colognechip import GateMatePLL
+from litex.soc.cores.hyperbus import HyperRAM
+
+from litex.soc.interconnect import wishbone
+
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.integration.soc import SoCRegion
 
 from litex.build.generic_platform import Pins
 
@@ -49,6 +54,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=48e6, toolchain="colognechip",
+        with_l2_cache   = False,
         with_led_chaser = True,
         with_spi_flash  = True,
         **kwargs):
@@ -64,6 +70,40 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on GateMate EVB", **kwargs)
 
+        # HyperRAM ---------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            # HyperRAM Parameters.
+            hyperram_device     = "W958D6NW"
+            hyperram_size       =  8 * MEGABYTE
+            hyperram_cache_size = 16 * KILOBYTE
+
+            # HyperRAM Bus/Slave Interface.
+            hyperram_bus = wishbone.Interface(data_width=32, address_width=32, addressing="word")
+            self.bus.add_slave(name="main_ram", slave=hyperram_bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=hyperram_size, mode="rwx"))
+
+            # HyperRAM L2 Cache.
+            if with_l2_cache:
+                hyperram_cache = wishbone.Cache(
+                    cachesize = hyperram_cache_size//4,
+                    master    = hyperram_bus,
+                    slave     = wishbone.Interface(data_width=32, address_width=32, addressing="word")
+                )
+                hyperram_cache = FullMemoryWE()(hyperram_cache)
+                self.hyperram_cache = hyperram_cache
+                self.add_config("L2_SIZE", hyperram_cache_size)
+
+            # HyperRAM Core.
+            self.hyperram = HyperRAM(
+                pads         = platform.request("hyperram"),
+                latency      = 7,
+                latency_mode = "variable",
+                sys_clk_freq = sys_clk_freq,
+                clk_ratio    = "4:1",
+            )
+            if with_l2_cache:
+                self.comb += self.hyperram_cache.slave.connect(self.hyperram.bus)
+            else:
+                self.comb += hyperram_bus.connect(self.hyperram.bus)
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MX25R6435F
