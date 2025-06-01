@@ -13,6 +13,7 @@ from litex.gen import *
 from litex_boards.platforms import digilent_nexys_video
 
 from litex.soc.cores.clock import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoS7HDMIPHY
@@ -73,6 +74,7 @@ class BaseSoC(SoCCore):
         with_ethernet          = False,
         with_led_chaser        = True,
         with_sata              = False, sata_gen="gen2",
+        with_usb               = False,
         vadj                   = "1.2V",
         with_video_terminal    = False,
         with_video_framebuffer = False,
@@ -151,6 +153,32 @@ class BaseSoC(SoCCore):
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
 
+        # USB-OHCI ---------------------------------------------------------------------------------
+        if with_usb:
+            from litex.build.generic_platform import Subsignal, Pins, IOStandard
+            from litex.soc.cores.usb_ohci import USBOHCI
+
+            # Use the Video PLL if available
+            self.crg.cd_usb = ClockDomain()
+            self.crg.pll.create_clkout(self.crg.cd_usb, 48e6, margin=0)
+
+            # Machdyne PMOD (https://github.com/machdyne/usb_host_dual_socket_pmod) on JB
+            _usb_pmodb_dual_ios = [
+                ("usb_pmodb_dual", 0,
+                    Subsignal("dp", Pins("pmodb:0 pmodb:2")),
+                    Subsignal("dm", Pins("pmodb:1 pmodb:3")),
+                    IOStandard("LVCMOS33"),
+                ),
+            ]
+            self.platform.add_extension(_usb_pmodb_dual_ios)
+
+            self.submodules.usb_ohci = USBOHCI(self.platform, self.platform.request("usb_pmodb_dual"), usb_clk_freq=int(48e6))
+            self.mem_map["usb_ohci"] = 0x90000000
+            self.bus.add_slave("usb_ohci_ctrl", self.usb_ohci.wb_ctrl, region=SoCRegion(origin=self.mem_map["usb_ohci"], size=0x1000, cached=False)) # FIXME: Mapping.
+            self.dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
+
+            self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -167,6 +195,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_nexys_video.Platform, description="LiteX SoC on Nexys Video.")
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-usb",      action="store_true",       help="Enable USB Host.")
     parser.add_target_argument("--with-ethernet", action="store_true",       help="Enable Ethernet support.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
@@ -183,6 +212,7 @@ def main():
         toolchain              = args.toolchain,
         sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
+        with_usb               = args.with_usb,
         with_sata              = args.with_sata,
         sata_gen               = "gen" + args.sata_gen,
         vadj                   = args.vadj,
