@@ -124,6 +124,9 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",       action="store_true",      help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",           action="store_true",      help="Enable SDCard support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -131,6 +134,13 @@ def main():
         toolchain      = args.toolchain,
         with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict)
+
+    soc.platform.add_extension(colognechip_gatemate_evb.pmods_sdcard_io("PMODA"))
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
+
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
