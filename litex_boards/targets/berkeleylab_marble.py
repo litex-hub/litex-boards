@@ -10,13 +10,13 @@ To synthesize, add --build, to configure the FPGA over jtag, add --load.
  Example configs
 -----------------
 with ethernet and DDR3, default IP: 192.168.1.50/24
-  ./marble.py --with-ethernet --with-bist --spd-dump VR7PU286458FBAMJT.txt
+  ./berkeleylab_marble.py --with-ethernet --with-bist --spd-dump VR7PU286458FBAMJT.txt
 
 lightweight config
-  ./marble.py --integrated-main-ram-size 16384 --cpu-type serv
+  ./berkeleylab_marble.py --integrated-main-ram-size 16384 --cpu-type serv
 
 etherbone: access wishbone over ethernet
-  ./marble.py --with-etherbone --csr-csv build/csr.csv
+  ./berkeleylab_marble.py --with-etherbone --csr-csv build/csr.csv
 
 make sure reset is not asserted (RTS signal), set PC IP to 192.168.1.100/24,
 then test and benchmark the etherbone link:
