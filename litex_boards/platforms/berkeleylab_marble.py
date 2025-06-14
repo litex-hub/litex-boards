@@ -37,6 +37,7 @@ _io = [
     ),
     # Tunable VCXO. Warning: Non clock-capable pin
     ("clk20", 0, Pins("W11"), IOStandard("LVCMOS15")),
+    ("clk20_en", 0, Pins("V9"), IOStandard("LVCMOS15"), Misc("PULLUP=TRUE")),
     # Main system clock. White rabbit compatible
     ("clk125", 0,
         Subsignal("p", Pins("AC9"), IOStandard("DIFF_SSTL15")),
