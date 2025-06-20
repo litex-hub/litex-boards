@@ -55,10 +55,13 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6,
-        with_ethernet          = False,
-        with_etherbone         = False,
-        with_led_chaser        = True,
-        with_i2c               = False,
+        with_ethernet   = False,
+        with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
+        with_led_chaser = True,
+        with_i2c        = False,
         **kwargs):
         platform = digilent_netfpga_sume.Platform()
 
@@ -93,10 +96,10 @@ class BaseSoC(SoCCore):
             self.comb += self.platform.request("sfp_tx_disable_n").eq(1)
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks UCIO-1]")
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-44]")
-        if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
         if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+        if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
                 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
