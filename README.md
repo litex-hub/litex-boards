@@ -100,6 +100,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── aliexpress_xc7k70t
     ├── alinx_ax7010
     ├── alinx_ax7020
+    ├── alinx_ax7203
     ├── alinx_axu2cga
     ├── analog_pocket
     ├── antmicro_artix_dc_scm
