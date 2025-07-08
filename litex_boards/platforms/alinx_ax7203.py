@@ -21,6 +21,7 @@ _io = [
         Subsignal("n", Pins("T4"), IOStandard("DIFF_SSTL15")),
     ),
     ("cpu_reset_n", 0, Pins("T6"), IOStandard("LVCMOS15")),
+    ("hdmi_reset_n", 0, Pins("J19"), IOStandard("LVCMOS33")),
 
     ("clk148p5", 0,
         Subsignal("p", Pins("F6"), IOStandard("LVCMOS33")),
@@ -45,10 +46,24 @@ _io = [
     ),
 
     # Leds
-    ("user_led", 0, Pins("B13"), IOStandard("LVCMOS18")),
-    ("user_led", 1, Pins("C13"), IOStandard("LVCMOS18")),
-    ("user_led", 2, Pins("D14"), IOStandard("LVCMOS18")),
-    ("user_led", 3, Pins("D15"), IOStandard("LVCMOS18")),
+    ("user_led", 0, Pins("B13"), IOStandard("LVCMOS33")),
+    ("user_led", 1, Pins("C13"), IOStandard("LVCMOS33")),
+    ("user_led", 2, Pins("D14"), IOStandard("LVCMOS33")),
+    ("user_led", 3, Pins("D15"), IOStandard("LVCMOS33")),
+
+    # HDMI Out
+    ("hdmi", 0,
+        Subsignal("r",    Pins("V14 H14 J14 K13 K14 L13 L19 L20")),
+        Subsignal("g",    Pins("K17 J17 L16 K16 L14 L15 M15 M16")), 
+        Subsignal("b",    Pins("L18 M18 N18 N19 M20 N20 L21 M21")),
+        Subsignal("de",        Pins("V13")),
+        Subsignal("clk",       Pins("M13")),
+        Subsignal("vsync",   Pins("T14")),
+        Subsignal("hsync",   Pins("T15")),
+        Subsignal("scl", Pins("E16")),
+        Subsignal("sda", Pins("F16")),
+        IOStandard("LVCMOS33")
+    ),
 
     # DDR3 SDRAM
     ("ddram", 0,
