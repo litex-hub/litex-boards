@@ -23,28 +23,36 @@ from litepcie.software import generate_litepcie_software
 from litedram.modules import MT41J256M16
 from litedram.phy import s7ddrphy
 
+from litex.soc.cores.video import VideoDVIPHY
+from litex.soc.cores.bitbang import I2CMaster
+
 # CRG ----------------------------------------------------------------------------------------------
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
         self.rst          = Signal()
         self.cd_sys       = ClockDomain()
         self.cd_sys4x     = ClockDomain()
         self.cd_sys4x_dqs = ClockDomain()
         self.cd_idelay    = ClockDomain()
+        self.cd_hdmi      = ClockDomain(reset_less=True)
 
-        # Clk.
+        # Clk/Rst.
         clk200 = platform.request("clk200")
+        clk148p5 = platform.request("clk148p5")
+        rst_n  = platform.request("cpu_reset_n")
+        hdmi_reset = platform.request("hdmi_reset_n")
 
         # Main PLL.
         self.pll = pll = S7PLL(speedgrade=-2)
-        self.comb += pll.reset.eq(self.rst)
+        self.comb += pll.reset.eq(~rst_n | ~hdmi_reset | self.rst)
         pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
+        pll.create_clkout(self.cd_hdmi,      148.5e6, margin=2e-2)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
-
+        
         # IDELAY Ctrl.
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
@@ -54,12 +62,13 @@ class BaseSoC(SoCCore):
                  sys_clk_freq           = int(200e6),
                  with_led_chaser        = True,
                  with_pcie              = False,
+                 with_video_framebuffer = False,
                  **kwargs):
 
         platform = alinx_ax7203.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_framebuffer)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ALINX AX7203", **kwargs)
@@ -97,20 +106,42 @@ class BaseSoC(SoCCore):
             self.flash_cs_n = GPIOOut(platform.request("flash_cs_n"))
             self.flash      = S7SPIFlash(platform.request("flash"), sys_clk_freq, 25e6)
 
+        # Video ------------------------------------------------------------------------------------
+        if with_video_framebuffer:
+            hdmi_pads = platform.request("hdmi")
+            self.videophy = VideoDVIPHY(hdmi_pads, clock_domain="hdmi")
+            self.videoi2c = I2CMaster(hdmi_pads)
+            self.videoi2c.add_init(addr=0x72>>1, init_addr_len=1, init=[
+                (0x0008, 0x35)
+            ])
+
+            self.videoi2c.add_init(addr=0x7A>>1, init_addr_len=1, init=[
+                (0x002f, 0x00)
+            ])
+
+            self.videoi2c.add_init(addr=0x60>>1, init_addr_len=1, init=[
+                (0x0005, 0x10),
+                (0x0008, 0x05),
+                (0x0009, 0x01),
+                (0x0005, 0x04)
+            ])
+            self.add_video_colorbars(phy=self.videophy, timings="1920x1080@60Hz", clock_domain="hdmi")            
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
            self.leds = LedChaser(
                pads         = platform.request_all("user_led"),
                sys_clk_freq = sys_clk_freq)
-           
+
 # Build --------------------------------------------------------------------------------------------
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alinx_ax7203.Platform, description="LiteX SoC on ALINX AX7203.")
-    parser.add_target_argument("--flash",        action="store_true",          help="Flash bitstream.")
-    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float,     help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",    action="store_true",          help="Enable PCIe support.")
-    parser.add_target_argument("--driver",       action="store_true",          help="Generate drivers.")
+    parser.add_target_argument("--flash",                  action="store_true",          help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",           default=50e6, type=float,     help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",              action="store_true",          help="Enable PCIe support.")
+    parser.add_target_argument("--driver",                 action="store_true",          help="Generate drivers.")
+    parser.add_target_argument("--with-video-framebuffer", action="store_true",          help="Enable Video Framebuffer (HDMI).")
 
     args = parser.parse_args()
 
@@ -118,6 +149,7 @@ def main():
         sys_clk_freq           = args.sys_clk_freq,
         with_led_chaser        = True,
         with_pcie              = args.with_pcie,
+        with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
     )
 
