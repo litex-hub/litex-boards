@@ -28,7 +28,7 @@ _io = [
     ("user_led", 7, Pins("AM11"), IOStandard("LVCMOS12")),
 
     # Buttons
-    ("user_btn_c", 0, Pins("AL11"), IOStandard("LVCMOS12")),
+    ("user_btn_c", 0, Pins("AL10"), IOStandard("LVCMOS12")),
     ("user_btn_n", 0, Pins("AG13"), IOStandard("LVCMOS12")),
     ("user_btn_s", 0, Pins("AP20"), IOStandard("LVCMOS12")),
     ("user_btn_w", 0, Pins("AK12"), IOStandard("LVCMOS12")),
