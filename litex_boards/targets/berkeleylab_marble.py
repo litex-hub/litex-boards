@@ -74,6 +74,7 @@ class BaseSoC(SoCCore):
         with_etherbone  = False,
         with_rts_reset  = False,
         with_led_chaser = True,
+        with_i2c        = True,
         spd_dump        = None,
         **kwargs):
         platform = berkeleylab_marble.Platform()
@@ -131,9 +132,10 @@ class BaseSoC(SoCCore):
         if with_etherbone:
             self.add_etherbone(phy=self.ethphy, buffer_depth=255)
 
-        # System I2C (behing multiplexer) ----------------------------------------------------------
-        i2c_pads = platform.request('i2c_fpga')
-        self.i2c = I2CMaster(i2c_pads)
+        # System I2C (behind multiplexer) ----------------------------------------------------------
+        if with_i2c:
+            i2c_pads = platform.request('i2c_fpga')
+            self.i2c = I2CMaster(i2c_pads)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
