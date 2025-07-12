@@ -191,8 +191,6 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── machdyne_schoko
     ├── machdyne_vanille
     ├── machdyne_vivaldi_ml1
-    ├── marblemini
-    ├── marble
     ├── micronova_mercury2
     ├── mist
     ├── mlkpai_fs01_dr1v90m
