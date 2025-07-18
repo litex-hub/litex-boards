@@ -221,6 +221,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── qwertyembedded_beaglewire
     ├── radiona_ulx3s
     ├── radiona_ulx4m_ld_v2
+    ├── radiona_ulx4m_ls_v2
     ├── rcs_arctic_tern_bmc_card
     ├── redpitaya
     ├── rz_easyfpga
