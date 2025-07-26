@@ -65,8 +65,8 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
-        with_led_chaser        = True,
-        sdram_rate             = "1:1",
+        with_led_chaser = True,
+        sdram_rate      = "1:1",
         **kwargs):
         platform = qmtech_cyclone10_starterkit.Platform()
 
@@ -111,8 +111,8 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq           = args.sys_clk_freq,
-        sdram_rate             = args.sdram_rate,
+        sys_clk_freq = args.sys_clk_freq,
+        sdram_rate   = args.sdram_rate,
         **parser.soc_argdict
     )
 

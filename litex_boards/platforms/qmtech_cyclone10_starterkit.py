@@ -17,22 +17,22 @@ _io = [
 
     # fitted LEDs, active low
     ("user_led",  0, Pins("V10"), IOStandard("3.3-V LVTTL")), # D1
-    ("user_led",  1, Pins("U9"), IOStandard("3.3-V LVTTL")), # D2
-    ("user_led",  2, Pins("V9"), IOStandard("3.3-V LVTTL")), # D3
-    ("user_led",  3, Pins("V8"), IOStandard("3.3-V LVTTL")), # D4
-    ("user_led",  4, Pins("V5"), IOStandard("3.3-V LVTTL")), # D5
-    ("user_led",  5, Pins("Y4"), IOStandard("3.3-V LVTTL")), # D6
+    ("user_led",  1, Pins("U9"),  IOStandard("3.3-V LVTTL")), # D2
+    ("user_led",  2, Pins("V9"),  IOStandard("3.3-V LVTTL")), # D3
+    ("user_led",  3, Pins("V8"),  IOStandard("3.3-V LVTTL")), # D4
+    ("user_led",  4, Pins("V5"),  IOStandard("3.3-V LVTTL")), # D5
+    ("user_led",  5, Pins("Y4"),  IOStandard("3.3-V LVTTL")), # D6
 
     # 7-segments display
     ("seven_seg_ctl", 0,
-        Subsignal("dig", Pins("U11 V16 AA18")),
+        Subsignal("dig",      Pins("U11 V16 AA18")),
         Subsignal("segments", Pins("W14 AB19 AB18 V13 U12 V15 AA19 U14")), # A B C D E F G dot
         IOStandard("3.3-V LVTTL")
     ),
 
     # Button
-    ("key", 0, Pins("P4"),  IOStandard("3.3-V LVTTL")),
-    ("key", 1, Pins("P3"),  IOStandard("3.3-V LVTTL")),
+    ("key", 0, Pins("P4"), IOStandard("3.3-V LVTTL")),
+    ("key", 1, Pins("P3"), IOStandard("3.3-V LVTTL")),
 
     ("serial", 0,
         # Onboard CH340N
@@ -42,7 +42,6 @@ _io = [
 
     # SPIFlash (W25Q128)
     ("spiflash", 0,
-        # clk
         Subsignal("cs_n", Pins("E2")),
         Subsignal("clk",  Pins("K2")),
         Subsignal("mosi", Pins("D1")),
