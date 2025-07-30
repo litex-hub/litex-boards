@@ -168,48 +168,69 @@ class BaseSoC(SoCCore):
             if eth_phy in ["sfp0", "sfp1"]:
                 from liteeth.phy.titanium_lvds_1000basex import EfinixTitaniumLVDS_1000BASEX
                 _sfp_lpc_ios = [
-                        ("sfp_lpc1", 0,
-                            Subsignal("tx_enable", Pins("LPC:LA32_N")),
-                            Subsignal("tx_p",      Pins("LPC:LA09_P")),
-                            Subsignal("tx_n",      Pins("LPC:LA09_N")),
-                            Subsignal("rx_p",      Pins("LPC:LA05_P LPC:LA06_P LPC:LA07_P LPC:LA08_P")),
-                            Subsignal("rx_n",      Pins("LPC:LA05_N LPC:LA06_N LPC:LA07_N LPC:LA08_N")),
-                            Subsignal("scl",       Pins("LPC:LA30_N")),
-                            Subsignal("sda",       Pins("LPC:LA32_P")),
+                    # SFP0.
+                    ("sfp_lpc1", 0,
+                        Subsignal("tx_enable", Pins("LPC:LA32_N")),
+                        Subsignal("tx_p",      Pins("LPC:LA09_P")),
+                        Subsignal("tx_n",      Pins("LPC:LA09_N")),
+                        Subsignal("rx_p",      Pins("LPC:LA05_P LPC:LA06_P LPC:LA07_P LPC:LA08_P")),
+                        Subsignal("rx_n",      Pins("LPC:LA05_N LPC:LA06_N LPC:LA07_N LPC:LA08_N")),
+                        Subsignal("scl",       Pins("LPC:LA30_N")),
+                        Subsignal("sda",       Pins("LPC:LA32_P")),
 
-                        ),
+                    ),
 
-                        ("sfp_lpc1", 1,
-                            Subsignal("tx_enable", Pins("LPC:LA16_P")),
-                            Subsignal("tx_p",      Pins("LPC:LA01_CC_P")),
-                            Subsignal("tx_n",      Pins("LPC:LA01_CC_N")),
-                            Subsignal("rx_p",      Pins("LPC:LA00_CC_P LPC:LA02_P LPC:LA03_P LPC:LA04_P")),
-                            Subsignal("rx_n",      Pins("LPC:LA00_CC_N LPC:LA02_N LPC:LA03_N LPC:LA04_N")),
-                            Subsignal("scl",       Pins("LPC:LA19_P")),
-                            Subsignal("sda",       Pins("LPC:LA19_N")),
-                        )
-                    ]
+                    # SFP1.
+                    ("sfp_lpc1", 1,
+                        Subsignal("tx_enable", Pins("LPC:LA16_P")),
+                        Subsignal("tx_p",      Pins("LPC:LA01_CC_P")),
+                        Subsignal("tx_n",      Pins("LPC:LA01_CC_N")),
+                        Subsignal("rx_p",      Pins("LPC:LA00_CC_P LPC:LA02_P LPC:LA03_P LPC:LA04_P")),
+                        Subsignal("rx_n",      Pins("LPC:LA00_CC_N LPC:LA02_N LPC:LA03_N LPC:LA04_N")),
+                        Subsignal("scl",       Pins("LPC:LA19_P")),
+                        Subsignal("sda",       Pins("LPC:LA19_N")),
+                    )
+                ]
                 platform.add_extension(_sfp_lpc_ios)
 
+                # 1000 BaseX PHY.
                 ethphy_pads = platform.request("sfp_lpc1", int(eth_phy[-1]))
-                self.comb += ethphy_pads.tx_enable.eq(1)
-
                 self.ethphy = EfinixTitaniumLVDS_1000BASEX(
                     pads        = ethphy_pads,
                     refclk      = self.crg.cd_sys.clk,
                     refclk_freq = sys_clk_freq,
                     rx_delay    = [0, 0, 2, 2], # FIXME: Explain/Adjust.
                 )
-                if hasattr(self.ethphy, "ev") and self.irq.enabled:
-                    self.irq.add("ethphy", use_loc_if_exists=True)
+                self.comb += ethphy_pads.tx_enable.eq(1)
+
+                # Link Up LED for Debug.
                 self.comb += platform.request("user_led", 0).eq(self.ethphy.link_up)
 
-            platform.add_false_path_constraints(self.crg.cd_sys.clk, self.ethphy.crg.cd_eth_rx.clk, self.ethphy.crg.cd_eth_tx.clk)
+                # # IRQ (if enabled).
+                if hasattr(self.ethphy, "ev") and self.irq.enabled:
+                    self.irq.add("ethphy", use_loc_if_exists=True)
+
+            # Timing Constraints.
+            platform.add_false_path_constraints(
+                self.crg.cd_sys.clk,
+                self.ethphy.crg.cd_eth_rx.clk,
+                self.ethphy.crg.cd_eth_tx.clk,
+            )
 
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False, with_timing_constraints=False)
+                self.add_ethernet(
+                    phy                     = self.ethphy,
+                    local_ip                = eth_ip,
+                    remote_ip               = remote_ip,
+                    software_debug          = False,
+                    with_timing_constraints = False,
+                )
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False)
+                self.add_etherbone(
+                    phy                     = self.ethphy,
+                    ip_address              = eth_ip,
+                    with_timing_constraints = False,
+                )
 
         # HDMI -------------------------------------------------------------------------------------
         if hasattr(self.cpu, "video_clk"):
