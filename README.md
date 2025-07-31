@@ -264,6 +264,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── xilinx_alveo_u280
     ├── xilinx_kc705
     ├── xilinx_kcu105
+    ├── xilinx_kcu116
     ├── xilinx_kv260
     ├── xilinx_sp605
     ├── xilinx_vc707
