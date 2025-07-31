@@ -197,6 +197,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── mnt_rkx7
     ├── muselab_icesugar_pro
     ├── muselab_icesugar
+    ├── myir_myc_j7a100t
     ├── myminieye_runber
     ├── newae_cw305
     ├── numato_aller
