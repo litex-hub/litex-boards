@@ -73,7 +73,7 @@ class BaseSoC(SoCCore):
                 with_etherbone         = False,
                 ethernet_port          = "qsfp0_sfp0",
                 etherbone_port         = "qsfp0_sfp0", 
-                ethernet_ip            = "192.168.1.50",
+                eth_ip                 = "192.168.1.50",
                 eth_dynamic_ip         = True,
                 remote_ip              = None,
                 etherbone_ip           = "192.168.1.50",
@@ -128,7 +128,7 @@ class BaseSoC(SoCCore):
                 data_pads    = self.platform.request("qsfp{}_sfp".format(qsfp_id), sfp_lane),
                 sys_clk_freq = self.clk_freq,
                 refclk_from_fabric = True)
-            self.add_ethernet(phy=self.ethphy, local_ip=ethernet_ip if not eth_dynamic_ip else None, dynamic_ip=eth_dynamic_ip, remote_ip=remote_ip)
+            self.add_ethernet(phy=self.ethphy, local_ip=eth_ip if not eth_dynamic_ip else None, dynamic_ip=eth_dynamic_ip, remote_ip=remote_ip)
             qsfp_in_use[qsfp_id] = True
 
         if with_etherbone:
@@ -202,7 +202,7 @@ def main():
         with_etherbone = args.with_etherbone,
         ethernet_port  = args.ethernet_port,
         etherbone_port  = args.etherbone_port,
-        ethernet_ip    = args.ethernet_ip,
+        eth_ip         = args.ethernet_ip,
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         etherbone_ip  = args.etherbone_ip,
