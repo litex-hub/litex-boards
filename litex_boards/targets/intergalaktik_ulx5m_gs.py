@@ -93,7 +93,9 @@ def main():
     parser = LiteXArgumentParser(platform=intergalaktik_ulx5m_gs.Platform, description="LiteX SoC on ULX5M-GS")
     parser.add_target_argument("--sys-clk-freq",        default=20e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash",      action="store_true",      help="Enable SPI Flash (MMAPed).")
-    parser.add_target_argument("--with-spi-sdcard",     action="store_true",      help="Enable SPI-mode SDCard support.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard",            action="store_true",      help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",                action="store_true",      help="Enable SDCard support.")
 
     args = parser.parse_args()
 
@@ -105,6 +107,8 @@ def main():
 
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
+    if args.with_sdcard:
+        soc.add_sdcard()
 
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
