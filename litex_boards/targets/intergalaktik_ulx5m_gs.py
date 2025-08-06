@@ -35,13 +35,13 @@ class _CRG(LiteXModule):
 
         # Clk / Rst
         clk25 = platform.request("clk25")
-        self.rst = platform.request("user_btn", 1)
+        self.rst = ~platform.request("user_btn", 0)
 
         self.specials += Instance("CC_USR_RSTN", o_USR_RSTN = rst_n)
 
         # PLL
         self.pll = pll = GateMatePLL(perf_mode="economy")
-        self.comb += pll.reset.eq(~rst_n | self.rst)
+        self.comb += pll.reset.eq(~rst_n | ~self.rst)
 
         pll.register_clkin(clk25, 25e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
