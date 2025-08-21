@@ -273,7 +273,7 @@ _connectors_v8_2 = [
     ("j10", "R14 T14 D16 - C15 C16 B16  N4 N5 N3 P3 P4 M3 N1 M4 -"),
     ("j11", "B15 C14 T15 - P15 R15 P12  N4 N5 N3 P3 P4 M3 N1 M4 -"),
     ("j12", "P13 N12 N13 - M12 P14 N14  N4 N5 N3 P3 P4 M3 N1 M4 -"),
-    ("j13", "H15 H14 G16 - G16 G15 F15  N4 N5 N3 P3 P4 M3 N1 M4 -"),
+    ("j13", "H15 H14 G16 - F16 G15 F15  N4 N5 N3 P3 P4 M3 N1 M4 -"),
     ("j14", "E15 E16 L12 - L13 M14 L14  N4 N5 N3 P3 P4 M3 N1 M4 -"),
     ("j15", "J13 K13 J12 - H13 H12 G12  N4 N5 N3 P3 P4 M3 N1 M4 -"),
     ("j16", "G14 G13 F12 - F13 F14 E14  N4 N5 N3 P3 P4 M3 N1 M4 -"),
