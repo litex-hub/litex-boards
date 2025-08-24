@@ -34,8 +34,8 @@ from litedram.modules import AS4C256M16D3A
 from litedram.phy.s7ddrphy import A7DDRPHY
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteiclink.serdes.gtp_7series import GTPQuadPLL, GTP
-from litex_obsidian.platforms import berkeleylab_obsidian
-from litex_obsidian.platforms.berkeleylab_obsidian import raw_pmod_io
+from litex_boards.platforms import berkeleylab_obsidian
+from litex_boards.platforms.berkeleylab_obsidian import raw_pmod_io
 
 
 # ---------------------------
