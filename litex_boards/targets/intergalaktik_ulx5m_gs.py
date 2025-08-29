@@ -28,13 +28,13 @@ from litedram.phy import GENSDRPHY
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst        = Signal()
-        rst_n           = Signal()
-        self.cd_sys     = ClockDomain()
-        self.cd_sys_ps  = ClockDomain()
+        self.rst       = Signal()
+        rst_n          = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys_ps = ClockDomain()
 
         # Clk / Rst
-        clk25 = platform.request("clk25")
+        clk25    = platform.request("clk25")
         self.rst = ~platform.request("user_btn", 0)
 
         self.specials += Instance("CC_USR_RSTN", o_USR_RSTN = rst_n)
@@ -53,8 +53,8 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=20e6, toolchain="colognechip",
-        with_led_chaser     = True,
-        with_spi_flash      = False,
+        with_led_chaser = True,
+        with_spi_flash  = False,
         **kwargs):
         platform = intergalaktik_ulx5m_gs.Platform(toolchain)
 
@@ -91,18 +91,18 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=intergalaktik_ulx5m_gs.Platform, description="LiteX SoC on ULX5M-GS")
-    parser.add_target_argument("--sys-clk-freq",        default=20e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash",      action="store_true",      help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--sys-clk-freq",   default=20e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",            action="store_true",      help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",                action="store_true",      help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard",       action="store_true",      help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",           action="store_true",      help="Enable SDCard support.")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq        = args.sys_clk_freq,
-        toolchain           = args.toolchain,
-        with_spi_flash      = args.with_spi_flash,
+        sys_clk_freq   = args.sys_clk_freq,
+        toolchain      = args.toolchain,
+        with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict)
 
     if args.with_spi_sdcard:
