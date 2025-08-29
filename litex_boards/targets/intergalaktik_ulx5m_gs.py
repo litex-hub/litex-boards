@@ -20,7 +20,7 @@ from litex.build.io import DDROutput
 
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import IS42S16320
+from litedram.modules import IS42S16160
 
 from litedram.phy import GENSDRPHY
 
@@ -41,7 +41,7 @@ class _CRG(LiteXModule):
 
         # PLL
         self.pll = pll = GateMatePLL(perf_mode="economy")
-        self.comb += pll.reset.eq(~rst_n | ~self.rst)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
 
         pll.register_clkin(clk25, 25e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
@@ -76,7 +76,7 @@ class BaseSoC(SoCCore):
 
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = IS42S16320(sys_clk_freq, "1:1"),
+                module        = IS42S16160(sys_clk_freq, "1:1"),
                 l2_cache_size = kwargs.get("l2_size", 0)
             )
 
