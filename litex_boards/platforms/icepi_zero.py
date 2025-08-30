@@ -12,17 +12,21 @@ from litex.build.openfpgaloader import OpenFPGALoader
 
 _io_common = [
     # Clock
-    ("clk50", 0, Pins("G2"), IOStandard("LVCMOS33")),
+    ("clk50", 0, Pins("M2"), IOStandard("LVCMOS33")),
+    ("rst",   0, Pins("C4"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")), # Pull down?
+
 
     # Buttons
     ("user_btn", 0, Pins("C4"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")), # Pull down?
+    ("user_btn", 1, Pins("C5"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")), # Pull down?
 
     # Leds
-    ("user_led", 0, Pins("F16"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("E15"), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins("D14"), IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("E13"), IOStandard("LVCMOS33")),
+    ("user_led", 1, Pins("D14"), IOStandard("LVCMOS33")),
+    ("user_led", 2, Pins("E12"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("C13"), IOStandard("LVCMOS33")),
     ("user_led", 4, Pins("D13"), IOStandard("LVCMOS33")),
+
 
     # Serial
     ("serial", 0,
@@ -52,7 +56,7 @@ _io_common = [
 
     # GPIOs
     ("gpio", 0, 
-        Pins("T2 R2 R1 P1 N1 R3 N4 P3 P2 M1 L1 L2 J1 J2 G2 H2 G1 G3 K3 E1 F3 J3 E3 E4 H3 D4 F1 F2"), 
+        Pins("G3 K3 T2 R2 R1 E1 F3 G1 H2 J1 L2 G2 J3 E3 P1 N1 H3 R3 N4 E4 F1 F2 P2 M1 L1 J2 D4 P3"), 
         IOStandard("LVCMOS33")
     ),
 
@@ -60,13 +64,13 @@ _io_common = [
     ("usb", 0,
         Subsignal("d_p", Pins("F15")),
         Subsignal("d_n", Pins("E16")),
-        Subsignal("pullup", Pins("F16")),
+        Subsignal("pullup", Pins("G15 H14")),
         IOStandard("LVCMOS33")
     ),
     ("usb", 1,
         Subsignal("d_p", Pins("J16")),
         Subsignal("d_n", Pins("J15")),
-        Subsignal("pullup", Pins("G16")),
+        Subsignal("pullup", Pins("E14 E11")),
         IOStandard("LVCMOS33")
     ),
 
@@ -88,18 +92,18 @@ _io_common = [
 
     # SDCard
     ("spisdcard", 0,
-        Subsignal("clk",  Pins("N16")),
-        Subsignal("mosi", Pins("P15"), Misc("PULLMODE=UP")),
+        Subsignal("clk",  Pins("P15")),
+        Subsignal("mosi", Pins("N16"), Misc("PULLMODE=UP")),
         Subsignal("cs_n", Pins("M14"), Misc("PULLMODE=UP")),
         Subsignal("miso", Pins("P14"), Misc("PULLMODE=UP")),
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
     ("sdcard", 0,
-        Subsignal("clk",  Pins("N16")),
-        Subsignal("cmd",  Pins("P15"), Misc("PULLMODE=UP")),
+        Subsignal("clk",  Pins("P15")),
+        Subsignal("cmd",  Pins("N16"), Misc("PULLMODE=UP")),
         Subsignal("data", Pins("P14 R14 M15 M14"), Misc("PULLMODE=UP")),
-        Subsignal("cd", Pins("M16")),
+        Subsignal("cd", Pins("M16"), Misc("PULLMODE=UP")),
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
@@ -115,8 +119,8 @@ _io_common = [
         Subsignal("data2_p",  Pins("P16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
         #Subsignal("data2_n", Pins("R16"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
         Subsignal("cec",     Pins("R5"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        Subsignal("scl",     Pins("R3"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        Subsignal("sda",     Pins("R4"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+        Subsignal("scl",     Pins("T3"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+        Subsignal("sda",     Pins("T4"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
         Subsignal("hpd",     Pins("L14"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
         Subsignal("util",     Pins("P5"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
     ),
@@ -139,3 +143,4 @@ class Platform(LatticeECP5Platform):
     def do_finalize(self, fragment):
         LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+
