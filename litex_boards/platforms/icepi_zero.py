@@ -12,9 +12,8 @@ from litex.build.openfpgaloader import OpenFPGALoader
 
 _io_common = [
     # Clock
-    ("clk50", 0, Pins("M2"), IOStandard("LVCMOS33")),
+    ("clk50", 0, Pins("M1"), IOStandard("LVCMOS33")),
     ("rst",   0, Pins("C4"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")), # Pull down?
-
 
     # Buttons
     ("user_btn", 0, Pins("C4"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")), # Pull down?
@@ -26,7 +25,6 @@ _io_common = [
     ("user_led", 2, Pins("E12"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("C13"), IOStandard("LVCMOS33")),
     ("user_led", 4, Pins("D13"), IOStandard("LVCMOS33")),
-
 
     # Serial
     ("serial", 0,
@@ -56,7 +54,7 @@ _io_common = [
 
     # GPIOs
     ("gpio", 0, 
-        Pins("G3 K3 T2 R2 R1 E1 F3 G1 H2 J1 L2 G2 J3 E3 P1 N1 H3 R3 N4 E4 F1 F2 P2 M1 L1 J2 D4 P3"), 
+        Pins("G3 K3 T2 R2 R1 E1 F3 G1 H2 J1 L2 G2 J3 E3 P1 N1 H3 R3 N4 E4 F1 F2 P2 M2 L1 J2 D4 P3"), 
         IOStandard("LVCMOS33")
     ),
 
@@ -103,7 +101,6 @@ _io_common = [
         Subsignal("clk",  Pins("P15")),
         Subsignal("cmd",  Pins("N16"), Misc("PULLMODE=UP")),
         Subsignal("data", Pins("P14 R14 M15 M14"), Misc("PULLMODE=UP")),
-        Subsignal("cd", Pins("M16"), Misc("PULLMODE=UP")),
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),

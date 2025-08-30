@@ -28,7 +28,7 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_usb_pll=False, with_video_pll=False, sdram_rate="1:1"):
+    def __init__(self, platform, sys_clk_freq, with_usb_pll=False, with_video_pll=False, video_pll_type="video", sdram_rate="1:1"):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
         if sdram_rate == "1:2":
@@ -69,8 +69,13 @@ class _CRG(LiteXModule):
             video_pll.register_clkin(clk50, 50e6)
             self.cd_hdmi   = ClockDomain()
             self.cd_hdmi5x = ClockDomain()
-            video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
-            video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
+
+            if video_pll_type == "video":
+                video_pll.create_clkout(self.cd_hdmi,    25e6, margin=0)
+                video_pll.create_clkout(self.cd_hdmi5x, 125e6, margin=0)
+            if video_pll_type == "terminal":
+                video_pll.create_clkout(self.cd_hdmi,    40e6, margin=0)
+                video_pll.create_clkout(self.cd_hdmi5x, 200e6, margin=0)
 
         # SDRAM clock
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
@@ -92,7 +97,8 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
-        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, sdram_rate=sdram_rate)
+        video_pll_type = "video" if with_video_framebuffer else "terminal"
+        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, video_pll_type, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM since too large for iCE40.
@@ -120,7 +126,7 @@ class BaseSoC(SoCCore):
         if with_video_terminal or with_video_framebuffer:
             self.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
             if with_video_terminal:
-                self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
+                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
 
