@@ -155,6 +155,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── hseda_xc7a35t
     ├── icebreaker_bitsy
     ├── icebreaker
+    ├── icepi_zero
     ├── ice_v_wireless
     ├── isx_im1283
     ├── jungle_electronics_fireant
