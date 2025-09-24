@@ -141,6 +141,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── efinix_trion_t120_bga576_dev_kit
     ├── efinix_trion_t20_bga256_dev_kit
     ├── efinix_trion_t20_mipi_dev_kit
+    ├── efinix_tz170_j484_dev_kit
     ├── efinix_xyloni_dev_kit
     ├── ego1
     ├── enclustra_mercury_kx2
