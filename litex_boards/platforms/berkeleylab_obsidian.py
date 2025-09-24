@@ -188,12 +188,12 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    ("pmoda", r"M16 N17 R18 U16 M17 N18 P18 V17"),
-    ("pmodb", r"T18 U17 U15 V14 R17 T17 V16 U14"),
-    ("pmodc", r"M15 N16 P15 K18 N14 P16 K17 L18"),
-    ("pmodd", r"J16 K15 F15 J14 J15 M14 G15 L14"),
-    ("pmode", r"U10 U9 V9 V11 V12 U12 V13 U11"),
-    ("pmodf", r"T13 T12 R13 T14 T15 P14 R16 R15"),
+    ("pmoda", r"M16 N17 R18 U16 M17 N18 P18 V17"),  # J4
+    ("pmodb", r"T18 U17 U15 V14 R17 T17 V16 U14"),  # J5
+    ("pmodc", r"M15 N16 P15 K18 N14 P16 K17 L18"),  # J6
+    ("pmodd", r"J16 K15 F15 J14 J15 M14 G15 L14"),  # J7
+    ("pmode", r"U10 U9 V9 V11 V12 U12 V13 U11"),  # J14
+    ("pmodf", r"T13 T12 R13 T14 T15 P14 R16 R15"),  # J15
     # digital Arduino host pins
     ("arduino_d", r"G14 H16 A12 B12 C14 G17 G16 A15 C18 F18 C17 B15 B14 A14"),
     # Analog capable Arduino host pins connected to XADC
@@ -222,24 +222,24 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_period = 1e9 / 125e6
 
     def __init__(self, toolchain="vivado"):
-        # TODO verify part number
         Xilinx7SeriesPlatform.__init__(self, "xc7a35t-csg325", _io, _connectors, toolchain=toolchain)
-        self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = [
             (
-                "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit "
+                "write_cfgmem -force -format bin -interface spix1 -size 16 -loadbit "
                 + '"up 0x0 {build_name}.bit" -file {build_name}.bin'
             )
         ]
 
-        # from pin_map.csv: This is a frequency source, not a phase source, so having it enter on a non-CC pin is OK.
+        # clk20 is a frequency source, not a phase source, so having it enter on a non-CC pin is OK.
         self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk20_IBUF]")
         self.add_platform_command("set_property CONFIG_VOLTAGE 3.3 [current_design]")
         self.add_platform_command("set_property CFGBVS VCCO [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]")
         self.add_platform_command("set_property INTERNAL_VREF 0.75 [get_iobanks 34]")
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft2232.cfg")
+        return OpenOCD("openocd_xc7_ft2232.cfg", flash_proxy_basename="bscan_spi_xc7a35t.bit")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
