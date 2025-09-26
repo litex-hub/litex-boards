@@ -43,7 +43,7 @@ class _CRG(LiteXModule):
         self.specials += Instance("altera_agilex_config_reset_release_endpoint", o_conf_reset = ninit_done)
 
         # PLL
-        self.pll = pll = Agilex5PLL(speedgrade="-6S")
+        self.pll = pll = Agilex5PLL(platform, speedgrade="-6S")
         self.comb += pll.reset.eq(ninit_done | ~rst_n)
         pll.register_clkin(clk25, 25e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
