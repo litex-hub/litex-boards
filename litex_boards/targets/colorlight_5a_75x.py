@@ -124,6 +124,8 @@ class BaseSoC(SoCCore):
         with_etherbone   = False,
         eth_ip           = "192.168.1.50",
         eth_phy          = 0,
+        remote_ip        = None,
+        eth_dynamic_ip   = False,
         with_led_chaser  = True,
         use_internal_osc = False,
         sdram_rate       = "1:1",
@@ -183,10 +185,10 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 tx_delay   = 0e-9)
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, data_width=32)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, data_width=32)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet, data_width=32)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, data_width=32, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Leds -------------------------------------------------------------------------------------
         # Disable leds when serial is used.
