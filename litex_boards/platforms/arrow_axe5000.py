@@ -61,6 +61,37 @@ _io = [
         Subsignal("scl", Pins("AH25")),
         IOStandard("3.3-V LVCMOS"),
     ),
+
+    # MKR Form Factor Peripherals ------------------------------------------------------------------
+
+    # Serial
+    ("serial", 1,
+        Subsignal("rx", Pins("AH23")), # J2.8 (D13)
+        Subsignal("tx", Pins("AJ23")), # J2.9 (D14)
+        IOStandard("3.3-V LVCMOS"),
+    ),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("AK22")), # J2.7 (D12)
+        Subsignal("sda", Pins("AJ22")), # J2.6 (D11)
+        IOStandard("3.3-V LVCMOS"),
+    ),
+
+    # SPI
+    ("spi", 0,
+        Subsignal("clk",  Pins("AH18")), # J2.4 (D9)
+        Subsignal("cs_n", Pins("AH27")), # J1.6 (AIN4)
+        Subsignal("mosi", Pins("AH21")), # J2.3 (D8)
+        Subsignal("miso", Pins("AJ20")), # J2.5 (D10)
+        IOStandard("3.3-V LVCMOS"),
+    ),
+
+    # Interrupt
+    ("int", 0, Pins("AF27"), IOStandard("3.3-V LVCMOS")), # J1.7 (AIN5)
+
+    # PWM
+    ("pwm", 0, Pins("AF26"), IOStandard("3.3-V LVCMOS")), # J1.8 (AIN6)
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
