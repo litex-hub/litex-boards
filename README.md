@@ -211,6 +211,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── olimex_gatemate_a1_evb
     ├── opalkelly_xem8320
     ├── pano_logic_g2
+    ├── puzhi_pz_a7xxt_kfb
     ├── qmtech_10cl006
     ├── qmtech_5cefa2
     ├── qmtech_artix7_fbg484
