@@ -122,12 +122,11 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_hdmi:
-            self.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi", true_lvds=True)
             if with_video_terminal:
-                # self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
                 self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             if with_video_colorbars:
-                self.add_video_colorbars(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+                self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
