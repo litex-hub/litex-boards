@@ -45,6 +45,13 @@ _io = [
         IOStandard("3.3_V_LVTTL"),
     ),
 
+    ("emmc", 0,
+        Subsignal("data", Pins("J18 C15 D18 C18 F18 E18 B15 B16")),
+        Subsignal("cmd",  Pins("G19")),
+        Subsignal("clk",  Pins("F19")), #, Misc("SLEWRATE=1"), Misc("DRIVE_STRENGTH=16")
+        IOStandard("1.8_V_LVCMOS"),
+    ),
+
     # ETH.
     ("eth_clocks", 0,
         Subsignal("tx", Pins("C17")),

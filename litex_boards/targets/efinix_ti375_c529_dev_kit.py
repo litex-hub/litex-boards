@@ -595,6 +595,7 @@ def main():
     parser.add_target_argument("--spi-flash-number",    default=0,     type=int,    help="SPI Flash number.", choices=[0, 1])
     parser.add_target_argument("--spi-flash-rate",      default="1:2", type=str,    help="SPI Flash rate.",   choices=["1:1", "1:2"])
     parser.add_target_argument("--with-ohci",     action="store_true",       help="Enable USB OHCI.")
+    parser.add_target_argument("--with-emmc",     action="store_true",       help="Enable SDCard support (use eMMC).")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
@@ -619,6 +620,8 @@ def main():
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
+    if args.with_emmc:
+        soc.add_sdcard(name="mmc", sdcard_name="emmc")
 
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
