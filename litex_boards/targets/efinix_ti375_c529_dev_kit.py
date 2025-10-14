@@ -56,9 +56,10 @@ class _CRG(LiteXModule):
 
         # A pulse is necessary to do a reset.
         self.rst_pulse = Signal()
-        self.reset_timer = reset_timer = ClockDomainsRenamer("rst")(WaitTimer(25e-6*platform.default_clk_freq))
-        self.comb += self.rst_pulse.eq(self.rst ^ reset_timer.done)
-        self.comb += reset_timer.wait.eq(self.rst)
+        last_rst = Signal()
+
+        self.sync.rst += last_rst.eq(self.rst)
+        self.sync.rst += self.rst_pulse.eq(~last_rst & self.rst)
 
         # PLL.
         self.pll = pll = TITANIUMPLL(platform)
