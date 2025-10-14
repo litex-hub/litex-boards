@@ -238,6 +238,9 @@ class BaseSoC(SoCCore):
     def __init__(self,
             sys_clk_freq   = 100e6,
             cpu_clk_freq   = 100e6,
+            with_spi_flash = False,
+            spi_flash_number = 0,
+            spi_flash_rate = "1:1",
             with_ethernet  = False,
             with_etherbone = False,
             eth_phy        = "rgmii",
@@ -565,6 +568,20 @@ class BaseSoC(SoCCore):
                 axi_lite_bus = axi.AXILiteInterface(data_width=axi_bus.data_width, address_width=axi_bus.address_width)
                 self.submodules += axi.AXILite2AXI(axi_lite_bus, axi_bus)
                 self.bus.add_slave("main_ram", axi_lite_bus, soc_region)
+        
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import IS25WP512M
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+
+            self.add_spi_flash(mode="4x",
+                            clk_freq=112e6,
+                            number=spi_flash_number,
+                            module=IS25WP512M(Codes.READ_1_1_4_4B),
+                            with_master=True,
+                            extra_latency=0.5,
+                            rate=spi_flash_rate,
+            )
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -574,6 +591,9 @@ def main():
     parser.add_target_argument("--flash",         action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--cpu-clk-freq",  default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash",      action="store_true",        help="Enable SPI Flash.")
+    parser.add_target_argument("--spi-flash-number",    default=0,     type=int,    help="SPI Flash number.", choices=[0, 1])
+    parser.add_target_argument("--spi-flash-rate",      default="1:2", type=str,    help="SPI Flash rate.",   choices=["1:1", "1:2"])
     parser.add_target_argument("--with-ohci",     action="store_true",       help="Enable USB OHCI.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")

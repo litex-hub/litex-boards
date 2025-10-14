@@ -66,7 +66,38 @@ _io = [
         Misc("SLEWRATE=1"),
         Misc("DRIVE_STRENGTH=16")
      ),
-     
+
+    # SPIFlash
+    # both flashes are connected to the same clk pin, so only one can be used at a time.
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("A7")),
+        Subsignal("clk", Pins("G6")),
+        Subsignal("mosi", Pins("H4")),
+        Subsignal("miso", Pins("H5")),
+        IOStandard("1.8_V_LVCMOS")
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("A7")),
+        Subsignal("clk", Pins("G6")),
+        Subsignal("dq", Pins("H4 H5 G5 B7")),
+        IOStandard("1.8_V_LVCMOS")
+    ),
+
+    # SPIFlash
+    ("spiflash", 1,
+        Subsignal("cs_n", Pins("A2")),
+        Subsignal("clk", Pins("G6")),
+        Subsignal("mosi", Pins("D5")),
+        Subsignal("miso", Pins("D6")),
+        IOStandard("1.8_V_LVCMOS")
+    ),
+    ("spiflash4x", 1,
+        Subsignal("cs_n", Pins("L4")),
+        Subsignal("clk", Pins("G6")),
+        Subsignal("dq", Pins("D5 D6 E4 E5")),
+        IOStandard("1.8_V_LVCMOS")
+    ),
+
     # FAN.
     ("fan_speed_control", 0, Pins("T19"), IOStandard("3.3_V_LVCMOS")),
 
