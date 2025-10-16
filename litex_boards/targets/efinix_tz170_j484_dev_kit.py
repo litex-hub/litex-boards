@@ -219,7 +219,8 @@ class EfinixLPDDR4(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, platform, sys_clk_freq, cpu_clk_freq, with_spi_flash=False, spi_flash_number=0, spi_flash_rate="1:1", with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=100e6, cpu_clk_freq=175e6, with_spi_flash=False, spi_flash_number=0, spi_flash_rate="1:1", with_led_chaser=True, **kwargs):
+        platform = efinix_tz170_j484_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq)
@@ -285,8 +286,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    platform = efinix_tz170_j484_dev_kit.Platform()
-    parser = LiteXArgumentParser(platform=platform, description="LiteX SoC on Efinix Tz170 J484 Dev Kit.")
+    parser = LiteXArgumentParser(platform=efinix_tz170_j484_dev_kit.Platform, description="LiteX SoC on Efinix Tz170 J484 Dev Kit.")
     parser.add_target_argument("--flash",               action="store_true",        help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float,  help="System clock frequency.")
     parser.add_target_argument("--cpu-clk-freq",        default=175e6, type=float,  help="CPU clock frequency.")
@@ -300,7 +300,7 @@ def main():
     parser.add_target_argument("--with-led-chaser",     action="store_true",      help="Enable LED Chaser.")
     args = parser.parse_args()
 
-    soc = BaseSoC(platform, args.sys_clk_freq, args.cpu_clk_freq, args.with_spi_flash,
+    soc = BaseSoC(args.sys_clk_freq, args.cpu_clk_freq, args.with_spi_flash,
                   args.spi_flash_number, args.spi_flash_rate, args.with_led_chaser, **parser.soc_argdict)
 
     if args.with_spi_sdcard:
