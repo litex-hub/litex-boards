@@ -299,11 +299,10 @@ def sdcard_pmod_io(pmod):
             IOStandard("LVCMOS33"),
         ),
         ("sdcard", 0,
-            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("PULLUP True")),
-            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("clk",  Pins(f"{pmod}:3")),
+            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("SLEW=FAST"), Misc("PULLUP True")),
+            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("SLEW=FAST"), Misc("PULLUP True")),
+            Subsignal("clk",  Pins(f"{pmod}:3"), Misc("SLEW=FAST")),
             Subsignal("cd",   Pins(f"{pmod}:6")),
-            Misc("SLEW=FAST"), #NOTE: this and all Misc() is not supported by yosys+nextprn toolchain
             IOStandard("LVCMOS33"),
         ),
 ]
