@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxSpartan6Platform
-from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -17,6 +16,7 @@ _io = [
         Subsignal("n", Pins("K22")),
         IOStandard("LVDS_25")
     ),
+    ("clk27", 0, Pins("AB13"), IOStandard("LVCMOS25")),
     ("cpu_reset", 0, Pins("H8"), IOStandard("LVCMOS25")),
 
     # Leds
@@ -36,9 +36,62 @@ _io = [
     ("serial", 0,
         Subsignal("cts", Pins("F19")),
         Subsignal("rts", Pins("F18")),
-        Subsignal("tx",  Pins("B21")),
         Subsignal("rx",  Pins("H17")),
+        Subsignal("tx",  Pins("B21")),
         IOStandard("LVCMOS25")
+    ),
+
+    # DDR3 SDRAM
+    # MT41K64M16
+    ("ddram_clock", 0,
+        Subsignal("p", Pins("K4")),
+        Subsignal("n", Pins("K3")),
+        IOStandard("DIFF_SSTL15_II"), Misc("IN_TERM=NONE")
+    ),
+    ("ddram", 0,
+        Subsignal("cke", Pins("F2"), IOStandard("SSTL15_II")),
+        Subsignal("ras_n", Pins("M5"), IOStandard("SSTL15_II")),
+        Subsignal("cas_n", Pins("M4"), IOStandard("SSTL15_II")),
+        Subsignal("we_n", Pins("H2"), IOStandard("SSTL15_II")),
+        Subsignal("ba", Pins("J3 J1 H1"), IOStandard("SSTL15_II")),
+        Subsignal("a", Pins("K2 K1 K5 M6 H3 L4 M3 K6 G3 G1 J4 E1 F1 J6 H5"), IOStandard("SSTL15_II")),
+        Subsignal("dq", Pins(
+                    "R3 R1 P2 P1 L3 L1 M2 M1",
+                    "T2 T1 U3 U1 W3 W1 Y2 Y1"), IOStandard("SSTL15_II")),
+        Subsignal("dqs", Pins("N3 V2"), IOStandard("DIFF_SSTL15_II")),
+        Subsignal("dqs_n", Pins("N1 V1"), IOStandard("DIFF_SSTL15_II")),
+        Subsignal("dm", Pins("N4 P3"), IOStandard("SSTL15_II")),
+        Subsignal("odt", Pins("L6"), IOStandard("SSTL15_II")),
+        Subsignal("reset_n", Pins("E3"), IOStandard("LVCMOS15")),
+        Misc("SLEW=FAST"),
+        Misc("VCCAUX_IO=HIGH")
+    ),
+
+    # DVI
+    ("dvi", 0,
+        Subsignal("clk_p", Pins("C20")),
+        Subsignal("clk_n", Pins("C22")),
+        Subsignal("hsync", Pins("J16")),
+        Subsignal("vsync", Pins("B22")),
+        Subsignal("de", Pins("J17")),
+        Subsignal("gpio1", Pins("D22")),
+        Subsignal("reset", Pins("L15")),
+
+        Subsignal("d", Pins("K16 U19 T20 N16 P16 M17 M18 R15 R16 P17 P18 R17")),
+  
+        Subsignal("sda", Pins("AA4")),
+        Subsignal("scl", Pins("W13")),
+
+        IOStandard("LVCMOS25")
+    ),
+
+    # SPI Flash
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("AA3")),
+        Subsignal("clk",  Pins("Y20")),
+        Subsignal("dq",   Pins("AB20", "AA20", "R13", "T14")),
+        IOStandard("LVCMOS25"),
+        Misc("SLEW=FAST"),
     ),
 
     # GMII Ethernet
@@ -175,7 +228,7 @@ class Platform(XilinxSpartan6Platform):
         XilinxSpartan6Platform.__init__(self, "xc6slx45t-fgg484-3", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc6slx45.bit")
+        return iMPACT()
 
     def do_finalize(self, fragment):
         XilinxSpartan6Platform.do_finalize(self, fragment)
