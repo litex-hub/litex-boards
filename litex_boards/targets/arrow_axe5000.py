@@ -56,6 +56,10 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
         with_l2_cache   = False,
+        with_ethernet   = False,
+        with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
         with_led_chaser = True,
         **kwargs):
         platform = arrow_axe5000.Platform()
@@ -107,6 +111,39 @@ class BaseSoC(SoCCore):
             else:
                 self.comb += hyperram_bus.connect(self.hyperram.bus)
 
+        # Ethernet / Etherbone (Requires ziggybridge-mkr) ------------------------------------------
+
+        if with_ethernet or with_etherbone:
+            from litex.build.generic_platform import Pins, Subsignal, IOStandard
+            def eth_lan8720_rmii_pmod_io(pmod):
+                # Lan8720 RMII PHY "PMOD": To be used as a PMOD, MDIO should be disconnected and TX1 connected to PMOD8 IO.
+                return [
+                    ("eth_rmii_clocks", 0,
+                        Subsignal("ref_clk", Pins(f"j7_8:6")),
+                        IOStandard("3.3-V LVCMOS"),
+                    ),
+                    ("eth_rmii", 0,
+                        Subsignal("rx_data", Pins(f"j7_8:5 j7_8:1")),
+                        Subsignal("crs_dv",  Pins(f"j7_8:2")),
+                        Subsignal("tx_en",   Pins(f"j7_8:4")),
+                        Subsignal("tx_data", Pins(f"j7_8:0 j7_8:7")),
+                        IOStandard("3.3-V LVCMOS")
+                    ),
+                ]
+            platform.add_extension(eth_lan8720_rmii_pmod_io("pmod_d"))
+
+            from liteeth.phy.rmii import LiteEthPHYRMII
+            self.ethphy = LiteEthPHYRMII(
+                clock_pads = platform.request("eth_rmii_clocks"),
+                pads       = platform.request("eth_rmii"),
+                refclk_cd  = None
+            )
+
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             led_pads     = platform.request_all("user_led")
@@ -124,6 +161,12 @@ def main():
     parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-l2-cache", action="store_true",       help="Enable Main RAM L2 cache.")
 
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",       action="store_true",     help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone",      action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",        default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",     default="192.168.1.100", help="Remote IP address of TFTP server.")
+
     # Overrides defaults synth/conv tools.
     parser.set_defaults(synth_tool = "quartus_syn")
     parser.set_defaults(conv_tool  = "quartus_pfg")
@@ -132,8 +175,12 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq  = args.sys_clk_freq,
-        with_l2_cache = args.with_l2_cache,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_l2_cache  = args.with_l2_cache,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
         **parser.soc_argdict
     )
 
