@@ -281,7 +281,7 @@ class Platform(XilinxUSPPlatform):
         XilinxUSPPlatform.__init__(self, "xcau15p-ffvb676-2-i", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
-        return OpenFPGALoader(fpga_part="xcau15p", cable="digilent_hs2")
+        return OpenFPGALoader(fpga_part="xcau15p-ffvb676", cable="digilent_hs2")
 
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
