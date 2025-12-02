@@ -108,30 +108,30 @@ _connectors = [
         "CLK0_M2C_P": "H19",  # GPIOT_P_13_CLK16_P
         "CLK1_M2C_N": "C21",  # GPIOT_N_20_CLK23_N
         "CLK1_M2C_P": "C22",  # GPIOT_P_20_CLK23_P
-        "HA01_N_CC" : "F21",  # GPIOT_N_14_CLK17_N
-        "HA01_P_CC" : "G21",  # GPIOT_P_14_CLK17_P
-        "HA05_N"    : "H20",  # GPIOT_N_15_CLK18_N
-        "HA05_P"    : "G20",  # GPIOT_P_15_CLK18_P
-        "HA09_N"    : "G19",  # GPIOT_N_16_CLK19_N
-        "HA09_P"    : "F19",  # GPIOT_P_16_CLK19_P
-        "HA13_N"    : "G18",  # GPIOT_N_17_CLK20_N
-        "HA13_P"    : "H18",  # GPIOT_P_17_CLK20_P
-        "HA16_N"    : "E22",  # GPIOT_N_18_CLK21_N
-        "HA16_P"    : "D22",  # GPIOT_P_18_CLK21_P
+        "HA01_N_CC" : "G21",  # GPIOT_P_14_CLK17_P
+        "HA01_P_CC" : "F21",  # GPIOT_N_14_CLK17_N
+        "HA05_N"    : "G20",  # GPIOT_P_15_CLK18_P
+        "HA05_P"    : "H20",  # GPIOT_N_15_CLK18_N
+        "HA09_N"    : "F19",  # GPIOT_P_16_CLK19_P
+        "HA09_P"    : "G19",  # GPIOT_N_16_CLK19_N
+        "HA13_N"    : "H18",  # GPIOT_P_17_CLK20_P
+        "HA13_P"    : "G18",  # GPIOT_N_17_CLK20_N
+        "HA16_N"    : "D22",  # GPIOT_P_18_CLK21_P
+        "HA16_P"    : "E22",  # GPIOT_N_18_CLK21_N
         "HA20_N"    : "E21",  # GPIOT_N_19_CLK22_N
         "HA20_P"    : "E20",  # GPIOT_P_19_CLK22_P
         "HB03_N"    : "C4",   # GPIOB_N_17_CLK4_N
         "HB03_P"    : "D4",   # GPIOB_P_17_CLK4_P
         "HB05_N"    : "C6",   # GPIOB_N_22_CDI10
         "HB05_P"    : "D6",   # GPIOB_P_22_CDI11
-        "HB09_N"    : "A5",   # GPIOB_N_21_CDI8
-        "HB09_P"    : "A6",   # GPIOB_P_21_CDI9
-        "HB13_N"    : "C5",   # GPIOB_N_20_CDI7_CLK7_N, not connected
-        "HB13_P"    : "B5",   # GPIOB_P_20_CDI6_CLK7_P, not connected
-        "HB19_N"    : "F5",   # GPIOB_N_19_CDI4_CLK6_N, not connected
-        "HB19_P"    : "E5",   # GPIOB_P_19_CDI5_CLK6_P, not connected 
-        "HB21_N"    : "G5",   # GPIOB_N_18_CLK5_N
-        "HB21_P"    : "G6",   # GPIOB_P_18_CLK5_P
+        "HB09_N"    : "A6",   # GPIOB_P_21_CDI9
+        "HB09_P"    : "A5",   # GPIOB_N_21_CDI8
+        "HB13_N"    : "B5",   # GPIOB_P_20_CDI6_CLK7_P, not connected
+        "HB13_P"    : "C5",   # GPIOB_N_20_CDI7_CLK7_N, not connected
+        "HB19_N"    : "E5",   # GPIOB_P_19_CDI5_CLK6_P, not connected 
+        "HB19_P"    : "F5",   # GPIOB_N_19_CDI4_CLK6_N, not connected
+        "HB21_N"    : "G6",   # GPIOB_P_18_CLK5_P
+        "HB21_P"    : "G5",   # GPIOB_N_18_CLK5_N
         "LA00_N_CC" : "A13",  # GPIOR_N_16
         "LA00_P_CC" : "A14",  # GPIOR_P_16_PLLIN1
         "LA01_N_CC" : "A19",  # GPIOR_N_31
