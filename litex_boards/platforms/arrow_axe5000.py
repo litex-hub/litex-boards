@@ -153,6 +153,48 @@ _connectors = [
         #   NC   NC   NC  GND   NC   NC   NC   NC   NC   5V   (51-60).
        " ---- ---- ---- ---- ---- ---- ---- ---- ---- ----",
     ],
+
+    # ziggybridge-mkr (https://github.com/steieio/ziggybridge-mkr) ---------------------------------
+
+    # PMOD
+    ("j7_8",  "AE25 AF21 AH20 AG19 AF19 AG20 AK19 AJ19"),
+    ("j9_10", "AH27 AH21 AJ20 AH18 AH23 AJ23 AK22 AJ22"),
+
+    # mikroBUS Click (J11/J12)
+    ("mikrobus", {
+        # J11
+        "AN"   : "AF23",
+        "RST"  : "---",
+        "CS"   : "AH27",
+        "SCK"  : "AH18",
+        "MISO" : "AJ20",
+        "MOSI" : "AH21",
+        "3_3V" : "---",
+        "GND"  : "---",
+
+        # J12
+        "INT"  : "AF27",
+        "PWM"  : "AF26",
+        "RX"   : "AH23",
+        "TX"   : "AJ23",
+        "SCL"  : "AK22",
+        "SDA"  : "AJ22",
+        "5V"   : "---",
+        "GND"  : "---",
+    }),
+
+    # QWIIC / Stemma-QT
+    ("qwiic_j5", {
+        "TX"  : "AJ23",
+        "GND" : "---",
+        "RX"  : "AH23",
+    }),
+    ("qwiic_j6", {
+        "SCL"  : "AK22",
+        "SDA"  : "AJ22",
+        "3_3V" : "---",
+        "GND"  : "---",
+    }),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
