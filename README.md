@@ -237,6 +237,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── scarabhardware_minispartan6
     ├── seeedstudio_spartan_edge_accelerator
     ├── siglent_sds1104xe
+    ├── sipeed_slogic16u3
     ├── sipeed_tang_console
     ├── sipeed_tang_nano_20k
     ├── sipeed_tang_nano_4k
