@@ -198,6 +198,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── machdyne_vivaldi_ml1
     ├── micronova_mercury2
     ├── microphase_a7_lite
+    ├── microsoft_catapult_v3
     ├── mist
     ├── mlkpai_fs01_dr1v90m
     ├── mnt_rkx7
