@@ -28,9 +28,9 @@ _io = [
 
     # SPIFlash
     # N25Q064A
-    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash4x", 0,
         Subsignal("cs_n", Pins("P18")),
-        Subsignal("clk",  Pins("H13")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("R14 R15 P14 N14")),
         IOStandard("LVCMOS33")
     ),

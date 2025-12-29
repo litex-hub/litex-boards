@@ -57,8 +57,9 @@ _io = [
 
     # Not sure about this, but the documentation says 2X SPI
     # and these pins are the standard configuration pins
-    ("spiflash2x", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash2x", 0,
         Subsignal("cs_n", Pins("C23")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("B24 A25")),
         IOStandard("LVCMOS33")
     ),

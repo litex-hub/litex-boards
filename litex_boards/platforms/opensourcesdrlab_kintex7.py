@@ -143,14 +143,14 @@ _io = [
         Subsignal("tx_n",  Pins("H1 K1 M1 P1")),
     ),
 
-    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash4x", 0,
         Subsignal("cs_n", Pins("C23")),
-        Subsignal("clk",  Pins("C8")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("B24", "A25", "B22", "A22")),
         IOStandard("LVCMOS33")
     ),
 
-        # SFP
+    # SFP-0
     ("sfp", 0,
         Subsignal("txp", Pins("D2")),
         Subsignal("txn", Pins("D1")),
@@ -167,7 +167,7 @@ _io = [
     ),
     ("sfp_tx_disable_n", 0, Pins("H23"), IOStandard("LVCMOS33")),
 
-    # SFP
+    # SFP-1
     ("sfp", 1,
         Subsignal("txp", Pins("B2")),
         Subsignal("txn", Pins("B1")),
@@ -184,7 +184,7 @@ _io = [
     ),
     ("sfp_tx_disable_n", 1, Pins("H24"), IOStandard("LVCMOS33")),
 
-        # DDR3 SDRAM
+    # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "AF8 AB10 V9 Y7 AC9 W8 Y11 V8 AA8 AC11",

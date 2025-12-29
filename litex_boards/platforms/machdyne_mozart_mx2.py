@@ -102,7 +102,7 @@ _io_vx = [
     # MMOD
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("L12")),
-        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("J13 J14 K15 K16")),
         IOStandard("LVCMOS33")
     ),

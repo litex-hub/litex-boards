@@ -71,11 +71,11 @@ _io = [
     # FT2232 --> FPGA. To use the RTS signal, SW2 must be ON
     ("serial_rts", 0, Pins("B10"), IOStandard("LVCMOS33")),
     # SPI Boot Flash (S25FL128SAGMFI001)
-    # use STARTUPE2 primitive to access the clock pin
     (
         "spiflash",
         0,
         Subsignal("cs_n", Pins("L15")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("mosi", Pins("K16")),
         Subsignal("miso", Pins("L17")),
         IOStandard("LVCMOS33"),

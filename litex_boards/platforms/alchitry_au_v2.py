@@ -35,8 +35,9 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    ("spiflash", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash", 0,
         Subsignal("cs_n", Pins("L12")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("mosi", Pins("J13")),
         Subsignal("miso", Pins("J14")),
         Subsignal("wp",   Pins("K15")),
@@ -44,8 +45,9 @@ _io = [
         IOStandard("LVCMOS33")
     ),
     
-    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash4x", 0,
         Subsignal("cs_n", Pins("L12")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("J13", "J14", "K15", "K16")),
         IOStandard("LVCMOS33")
     ),

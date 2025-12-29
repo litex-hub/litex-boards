@@ -55,14 +55,15 @@ _io = [
         Misc("SLEW = FAST")
     ),
 
-    ("spiflash4x", 0,  # clock needs to be accessed through STARTUPE2
+    ("spiflash4x", 0,
         Subsignal("cs_n", Pins("C23")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("B24 A25 B22 A22")),
         IOStandard("LVCMOS33")
     ),
     ("spiflash8x", 0,
-        Subsignal("clk",  Pins("A14")),
         Subsignal("cs_n", Pins("B11")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("A13 A10 B10 B14 A15 B12 A12 B15")),
         IOStandard("LVCMOS33")
     ),

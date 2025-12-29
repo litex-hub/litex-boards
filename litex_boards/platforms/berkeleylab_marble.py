@@ -77,9 +77,10 @@ _io = [
         Subsignal("rst", Pins("B19"), IOStandard("LVCMOS25")),
     ),
     # QSPI Boot Flash
-    # access clock via STARTUPE2 primitive, wp_n may not be connected.
+    # wp_n may not be connected.
     ("spiflash", 0,
         Subsignal("cs_n", Pins("C23"), IOStandard("LVCMOS25")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("mosi", Pins("B24"), IOStandard("LVCMOS25")),
         Subsignal("miso", Pins("A25"), IOStandard("LVCMOS25")),
         Subsignal("wp_n", Pins("B22"), IOStandard("LVCMOS25")),
