@@ -45,6 +45,7 @@ class BaseSoC(SoCCore):
         # Disable CPU for now.
         kwargs["cpu_type"]             = None
         kwargs["integrated_sram_size"] = 0
+        kwargs["integrated_rom_size"]  = 0
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Runber", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
