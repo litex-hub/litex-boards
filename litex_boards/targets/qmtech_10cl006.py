@@ -80,7 +80,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         # Unfornunately not even SERV would fit the devices
-        kwargs["cpu_type"]  = "None"
+        kwargs["cpu_type"]  = None
         kwargs["integrated_sram_size"]  = 0
 
         # Interact with the sdram with uartbone by default
