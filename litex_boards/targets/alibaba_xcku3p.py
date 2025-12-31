@@ -6,6 +6,10 @@
 # Copyright (c) 2025 Derek Kozel <dkozel@bitstovolts.com
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Ex Use:
+# - python3 -m litex_boards.targets.alibaba_xcku3p --uart-name=jtag_uart --build --load
+# - litex_term jtag --jtag-config=openocd_xc7_ft232.cfg
+
 import os
 
 from migen import *
