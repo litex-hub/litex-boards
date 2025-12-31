@@ -162,7 +162,7 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk200"
     default_clk_period = 1e9/200e6
 
-    def __init__(self, variant="cle-215+", toolchain="vivado"):
+    def __init__(self, variant="cle-215+", toolchain="vivado", with_multiboot=True):
         device = {
             "cle-101":  "xc7a100t-fgg484-2",
             "cle-215":  "xc7a200t-fbg484-2",
@@ -187,18 +187,20 @@ class Platform(Xilinx7SeriesPlatform):
         self.toolchain.additional_commands = [
             # Non-Multiboot SPI-Flash bitstream generation.
             "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin",
-
-            # Multiboot SPI-Flash Operational bitstream generation.
-            "set_property BITSTREAM.CONFIG.TIMER_CFG 0x0001fbd0 [current_design]",
-            "set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]",
-            "write_bitstream -force {build_name}_operational.bit ",
-            "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_operational.bit\" -file {build_name}_operational.bin",
-
-            # Multiboot SPI-Flash Fallback bitstream generation.
-            "set_property BITSTREAM.CONFIG.NEXT_CONFIG_ADDR 0x00400000 [current_design]",
-            "write_bitstream -force {build_name}_fallback.bit ",
-            "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_fallback.bit\" -file {build_name}_fallback.bin"
         ]
+        if with_multiboot:
+            self.toolchain.additional_commands += [
+                # Multiboot SPI-Flash Operational bitstream generation.
+                "set_property BITSTREAM.CONFIG.TIMER_CFG 0x0001fbd0 [current_design]",
+                "set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]",
+                "write_bitstream -force {build_name}_operational.bit ",
+                "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_operational.bit\" -file {build_name}_operational.bin",
+
+                # Multiboot SPI-Flash Fallback bitstream generation.
+                "set_property BITSTREAM.CONFIG.NEXT_CONFIG_ADDR 0x00400000 [current_design]",
+                "write_bitstream -force {build_name}_fallback.bit ",
+                "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}_fallback.bit\" -file {build_name}_fallback.bin"
+            ]
 
     def detect_ftdi_chip(self):
         lsusb_log = subprocess.run(['lsusb'], capture_output=True, text=True)
