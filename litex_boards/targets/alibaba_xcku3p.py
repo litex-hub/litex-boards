@@ -7,8 +7,14 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Ex Use:
+# LiteX SoC with UART over JTAG:
 # - python3 -m litex_boards.targets.alibaba_xcku3p --uart-name=jtag_uart --build --load
 # - litex_term jtag --jtag-config=openocd_xc7_ft232.cfg
+#
+# LiteX/LitePCIe SoC:
+# - python3 -m litex_boards.targets.alibaba_xcku3p --with-pcie --build --load
+# - reboot computer
+# - lspci -> board should be seen as Memory controller: Xilinx Corporation Device 9034
 
 import os
 
@@ -63,7 +69,6 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            # Select default x4 PHY (usable subset of x8)
             self.pcie_phy = USPPCIEPHY(
                 platform,
                 platform.request("pcie_x4"),
@@ -71,6 +76,13 @@ class BaseSoC(SoCCore):
                 bar0_size  = 0x20000
             )
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
+
+            # Set manual locations to avoid Vivado to remap lanes.
+            platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~*pcie_usp_i/*GTYE4_CHANNEL_PRIM_INST}}]")
+            platform.toolchain.pre_placement_commands.append("set_property LOC GTYE4_CHANNEL_X0Y7 [get_cells -hierarchical -filter {{NAME=~*pcie_usp_i/*gtye4_channel_gen.gen_gtye4_channel_inst[3].GTYE4_CHANNEL_PRIM_INST}}]")
+            platform.toolchain.pre_placement_commands.append("set_property LOC GTYE4_CHANNEL_X0Y6 [get_cells -hierarchical -filter {{NAME=~*pcie_usp_i/*gtye4_channel_gen.gen_gtye4_channel_inst[2].GTYE4_CHANNEL_PRIM_INST}}]")
+            platform.toolchain.pre_placement_commands.append("set_property LOC GTYE4_CHANNEL_X0Y5 [get_cells -hierarchical -filter {{NAME=~*pcie_usp_i/*gtye4_channel_gen.gen_gtye4_channel_inst[1].GTYE4_CHANNEL_PRIM_INST}}]")
+            platform.toolchain.pre_placement_commands.append("set_property LOC GTYE4_CHANNEL_X0Y4 [get_cells -hierarchical -filter {{NAME=~*pcie_usp_i/*gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST}}]")
 
         # LEDs -------------------------------------------------------------------------------------
         if with_led_chaser:
