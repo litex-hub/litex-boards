@@ -3,12 +3,18 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2022 Goran Mahovlic <goran.mahovlic@gmail.com>
 # Copyright (c) 2021 Greg Davill <greg.davill@gmail.com>
+# Copyright (c) 2022 Goran Mahovlic <goran.mahovlic@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Build/Use:
 # ./radiona_ulx4m_ld_v3.py  --uart-name=uart --uart-baudrate=115200 --sdram-device MT41K64M16 --csr-csv=csr.csv --build
+
+# Note:
+# 1) Ethernet PHY oscillator is not populated. The solution is to uses a GPIO from RPI Header (pin 37).
+# 2) Ethernet is not working. No answer with mdio_dump command
+# 3) DDR3 DM IOs, for PCB complexity, are not in the required group. The solution mentioned in
+#    this issue must be used: https://github.com/enjoy-digital/litedram/issues/299
 
 import os
 import sys
@@ -36,8 +42,8 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_video_pll=True):
-        self.rst = Signal()
+    def __init__(self, platform, sys_clk_freq, with_video_pll=True, with_usb_pll=False):
+        self.rst        = Signal()
         self.cd_init    = ClockDomain()
         self.cd_por     = ClockDomain(reset_less=True)
         self.cd_sys     = ClockDomain()
@@ -82,7 +88,7 @@ class _CRG(LiteXModule):
                 i_STOP  = self.stop,
                 o_ECLKO = self.cd_sys2x.clk),
             Instance("CLKDIVF",
-                p_DIV     = "1.0",
+                p_DIV     = "2.0",
                 i_ALIGNWD = 0,
                 i_CLKI    = self.cd_sys2x.clk,
                 i_RST     = self.reset,
@@ -91,30 +97,47 @@ class _CRG(LiteXModule):
             AsyncResetSynchronizer(self.cd_sys2x,  ~pll.locked | self.reset),
         ]
 
+        if with_usb_pll:
+            self.cd_usb_12 = ClockDomain()
+            self.cd_usb_48 = ClockDomain()
+            usb_12         = Signal()
+            self.specials += Instance("OSCG",
+                p_DIV = 26, # ~12MHz
+                o_OSC = usb_12
+            )
+            self.usb_pll = usb_pll = ECP5PLL()
+            self.comb += usb_pll.reset.eq(~por_done | rst_n | self.rst)
+            usb_pll.register_clkin(usb_12, 12e6)
+            usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
+            usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
+
+        self.comb += platform.request("eth_phy_ref_clk").eq(clk25)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, revision="0.1", device="85F", toolchain="trellis", sys_clk_freq=int(100e6),
+    def __init__(self, revision="0.3", device="85F", toolchain="trellis", sys_clk_freq=int(75e6),
         sdram_device           = "MT41K512M16",
         with_ethernet          = False,
         with_etherbone         = False,
-        with_video_terminal    = True,
+        with_video_colorbars   = False,
+        with_video_terminal    = False,
         with_video_framebuffer = False,
-        eth_ip                 = "192.168.1.50",
+        local_ip               = "192.168.1.50",
+        remote_ip              = "",
         eth_dynamic_ip         = False,
         with_spi_flash         = False,
         with_led_chaser        = True,
         with_syzygy_gpio       = False,
         **kwargs)       :
-        platform = radiona_ulx4m_ld_v2.Platform(revision="0.1", device=device ,toolchain=toolchain)
+        platform = radiona_ulx4m_ld_v2.Platform(revision=revision, device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_video_pll = with_video_terminal or with_video_framebuffer
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll)
+        with_video_pll = with_video_terminal or with_video_framebuffer or with_video_colorbars
+        with_usb_pll   = kwargs["uart_name"] == "usb_acm"
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll, with_usb_pll)
 
         # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] in ["serial", "usb_acm"]:
-            kwargs["uart_name"] = "serial"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX4M-LD-V2", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
@@ -142,11 +165,13 @@ class BaseSoC(SoCCore):
         if with_ethernet or with_etherbone:
             self.submodules.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"))
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
+                pads       = self.platform.request("eth"),
+                rx_delay   = 0e-9, # KSZ9031RNX phy adds a 1.2ns RX delay
+            )
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+                self.add_etherbone(phy=self.ethphy, ip_address=local_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=local_ip, remote_ip=remote_ip, software_debug=False)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -155,8 +180,10 @@ class BaseSoC(SoCCore):
             self.add_spi_flash(mode="4x", module=IS25LP128(Codes.READ_1_1_4))
 
         # Video ------------------------------------------------------------------------------------
-        if with_video_terminal or with_video_framebuffer:
+        if with_video_terminal or with_video_framebuffer or with_video_colorbars:
             self.submodules.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")
+            if with_video_colorbars:
+                self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             if with_video_framebuffer:
@@ -168,7 +195,6 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
-
         # GPIOs ------------------------------------------------------------------------------------
         if with_syzygy_gpio:
             platform.add_extension(ulx4m_ld_v2.raw_syzygy_io("SYZYGY0"))
@@ -179,23 +205,38 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=radiona_ulx4m_ld_v2.Platform, description="LiteX SoC on ULX4M-LD-V2")
-    parser.add_argument("--sys-clk-freq",    default=100e6,          help="System clock frequency.")
-    parser.add_argument("--revision",        default="1.0",          help="Board Revision (1.0).")
+    parser.add_argument("--sys-clk-freq",    default=75e6,           help="System clock frequency.")
+    parser.add_argument("--revision",        default="0.3",          help="Board Revision (1.0).")
     parser.add_argument("--device",          default="85F",          help="ECP5 device (25F, 45F, 85F).")
+
+    # RAM.
     parser.add_argument("--sdram-device",    default="MT41K512M16",  help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
+
+    # Ethernet.
     ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    ethopts.add_argument("--with-ethernet",  action="store_true",     help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone", action="store_true",     help="Add EtherBone.")
+    parser.add_argument("--local-ip",        default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_argument("--eth-dynamic-ip",  action="store_true",     help="Enable dynamic Ethernet IP addresses setting.")
+
+    # SPI Flash.
     parser.add_argument("--with-spi-flash",  action="store_true",    help="Enable SPI Flash (MMAPed).")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    parser.add_argument("--with-syzygy-gpio",action="store_true", help="Enable GPIOs through SYZYGY Breakout on Port-A.")
+
+    # Connectors.
+    parser.add_argument("--with-syzygy-gpio", action="store_true", help="Enable GPIOs through SYZYGY Breakout on Port-A.")
+
+    # Video.
     viopts = parser.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video ColoBars (HDMI).")
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+
+    parser.set_defaults(uart_name="usb_acm")
+
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -205,20 +246,24 @@ def main():
         revision               = args.revision,
         device                 = args.device,
         sdram_device           = args.sdram_device,
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
+        sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        eth_ip                 = args.eth_ip,
+        local_ip               = args.local_ip,
+        remote_ip              = args.remote_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         with_spi_flash         = args.with_spi_flash,
+        with_video_colorbars   = args.with_video_colorbars,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_syzygy_gpio       = args.with_syzygy_gpio,
         **parser.soc_argdict)
+
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
+
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
