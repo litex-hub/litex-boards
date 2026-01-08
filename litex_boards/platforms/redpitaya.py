@@ -68,9 +68,9 @@ _io_14 = [
 
     ("adc", 0,
         Subsignal("data_a",
-            Pins("Y17 W16 Y16 W15 W14 Y14 W13 V12 V13 T14 T15 V15 T16 V16")),
+            Pins("Y17 W16 Y16 W15 W14 Y14 W13 V12 V13 T14 T15 V15 T16 V16"), Misc("IOB TRUE")),
         Subsignal("data_b",
-            Pins("R18 P16 P18 N17 R19 T20 T19 U20 V20 W20 W19 Y19 W18 Y18")),
+            Pins("R18 P16 P18 N17 R19 T20 T19 U20 V20 W20 W19 Y19 W18 Y18"), Misc("IOB TRUE")),
         Subsignal("cdcs", Pins("V18")),
         IOStandard("LVCMOS18"),
     ),
@@ -135,6 +135,54 @@ _connectors = [
     ("E1", "- - G17 G18 H16 H17 J18 H18 K17 K18 L14 L15 L16 L17 K16 J16 M14 M15 - - - - - - - -"),
 ]
 
+# PS7 config ---------------------------------------------------------------------------------------
+
+ps7_config = {
+    # Global
+    "PCW_PRESET_BANK0_VOLTAGE"           : "LVCMOS 3.3V",
+    "PCW_PRESET_BANK1_VOLTAGE"           : "LVCMOS 2.5V",
+
+    # Ref Clk
+    "PCW_CRYSTAL_PERIPHERAL_FREQMHZ"     : "33.333333",
+
+    # Core Frequency
+    "PCW_APU_PERIPHERAL_FREQMHZ"         : "666.666687",
+
+    # DDR3
+    "PCW_UIPARAM_DDR_BUS_WIDTH"          : "16 Bit",
+    "PCW_UIPARAM_DDR_MEMORY_TYPE"        : "DDR 3",
+    "PCW_UIPARAM_DDR_PARTNO"             : "MT41J256M16 RE-125",
+
+    # QSPI
+    "PCW_QSPI_PERIPHERAL_FREQMHZ"        : "125",
+    "PCW_QSPI_PERIPHERAL_ENABLE"         : "1",
+    "PCW_QSPI_QSPI_IO"                   : "MIO 1 .. 6",
+    "PCW_QSPI_GRP_SINGLE_SS_ENABLE"      : "1",
+    "PCW_QSPI_GRP_SS1_ENABLE"            : "0",
+    "PCW_SINGLE_QSPI_DATA_MODE"          : "x4",
+    "PCW_QSPI_GRP_IO1_ENABLE"            : "0",
+    "PCW_QSPI_GRP_FBCLK_ENABLE"          : "0",
+
+    # SPI1
+    "PCW_ACT_SPI_PERIPHERAL_FREQMHZ"     : "166.666672",
+    "PCW_SPI1_PERIPHERAL_ENABLE"         : 1,
+    "PCW_SPI1_SPI1_IO"                   : "MIO 10 .. 15",
+    "PCW_SPI1_GRP_SS0_ENABLE"            : 1,
+    "PCW_SPI1_GRP_SS0_IO"                : "MIO 13",
+    "PCW_SPI1_GRP_SS1_ENABLE"            : 0,
+    "PCW_SPI1_GRP_SS2_ENABLE"            : 0,
+
+    # USB0
+    "PCW_USB0_PERIPHERAL_FREQMHZ"        : "60",
+    "PCW_USB0_PERIPHERAL_ENABLE"         : "1",
+    "PCW_USB0_USB0_IO"                   : "MIO 28 .. 39",
+    "PCW_USB0_RESET_ENABLE"              : "1",
+    "PCW_USB0_RESET_IO"                  : "MIO 48",
+
+    "PCW_GPIO_MIO_GPIO_ENABLE"           : "1",
+    "PCW_GPIO_MIO_GPIO_IO"               : "MIO",
+}
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
@@ -154,6 +202,7 @@ class Platform(Xilinx7SeriesPlatform):
         self.default_clk_period = 1e9/self.default_clk_freq
 
         Xilinx7SeriesPlatform.__init__(self, device, _io,  _connectors, toolchain=toolchain)
+        self.ps7_config = ps7_config
         self.add_extension(extension)
         self.add_extension(_ps7_io)
         self.add_extension(_uart_io)
