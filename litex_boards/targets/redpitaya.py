@@ -62,17 +62,39 @@ class BaseSoC(SoCCore):
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs["integrated_sram_size"] = 0
             kwargs["with_uart"]            = False
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Zebboard", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Redpitaya", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
-            # Get and set the pre-generated .xci FIXME: change location? add it to the repository?
-            os.system("wget https://kmf2.trabucayre.com/redpitaya_ps7.txt")
-            os.makedirs("xci", exist_ok=True)
-            os.system("cp redpitaya_ps7.txt xci/redpitaya_ps7.xci")
-            self.cpu.set_ps7_xci("xci/redpitaya_ps7.xci")
+            self.cpu.set_ps7(name="Zynq",
+                config={
+                    **platform.ps7_config,
+                    "PCW_FPGA0_PERIPHERAL_FREQMHZ"     : sys_clk_freq / 1e6,
+                    "PCW_SDIO_PERIPHERAL_FREQMHZ"      : "125",
+                    "PCW_ACT_ENET0_PERIPHERAL_FREQMHZ" : "125.000000",
+                    "PCW_ENET0_RESET_ENABLE"           : "0",
+                })
 
-            self.bus.add_region("flash",  SoCRegion(origin=0xFC00_0000, size=0x4_0000, mode="rwx"))
+            self.bus.add_region("sram", SoCRegion(
+                origin = self.cpu.mem_map["sram"],
+                size   = 512 * MEGABYTE - self.cpu.mem_map["sram"])
+            )
+            self.bus.add_region("rom", SoCRegion(
+                origin = self.cpu.mem_map["rom"],
+                size   = 256 * MEGABYTE // 8,
+                linker = True)
+            )
+            self.constants["CONFIG_CLOCK_FREQUENCY"] = 666666687
+            self.bus.add_region("flash", SoCRegion(origin=0xFC00_0000, size=0x4_0000, mode="rwx"))
+
+            # Enable UART0.
+            self.cpu.add_uart(0, "MIO 14 .. 15")
+
+            # Enable SDIO.
+            self.cpu.add_sdio(0, "MIO 40 .. 45", None, None, None)
+
+            # Enable Ethernet.
+            self.cpu.add_ethernet(0, "MIO 16 .. 27", "MIO 52 .. 53")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -88,7 +110,12 @@ def main():
     parser = LiteXArgumentParser(platform=redpitaya.Platform, description="LiteX SoC on Zedboard.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--board",        default="redpitaya14",     help="Board type (redpitaya14 or redpitaya16).")
+    parser.set_defaults(cpu_type="zynq7000")
+    parser.set_defaults(no_uart=True)
     args = parser.parse_args()
+
+    if args.cpu_type == "zynq7000":
+        args.no_compile_software = True # otherwise fails
 
     soc = BaseSoC(
         board        = args.board,
