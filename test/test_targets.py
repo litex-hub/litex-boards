@@ -33,6 +33,7 @@ class TestTargets(unittest.TestCase):
         "adi_plutosdr",                      # Reason: No default clock.
         "newae_cw305",                       # Reason: No default clock.
         "sipeed_slogic16u3",                 # Reason: No default clock.
+        "modretro_chromatic",                # Reason: No yet tested.
     ]
     excluded_targets   = [
         "simple",                            # Reason: Generic target.
