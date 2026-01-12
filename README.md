@@ -216,6 +216,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── opalkelly_xem8320
     ├── opensourcesdrlab_kintex7
     ├── pano_logic_g2
+    ├── puzhi_p7_starlite
     ├── puzhi_pz_a7xxt_kfb
     ├── qmtech_10cl006
     ├── qmtech_5cefa2
