@@ -74,7 +74,13 @@ _io = [
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = []
+_connectors = [
+    ("pmoda", "G17 G19 N18 L18 H17 H19 J19 K18"),
+    # pin 15: XADC, pin 16: XADC, pin 24: VU
+    ("j1", "M3 L3 A16 K3 C15 H1 A15 B15 A14 J3 J1 K2 L1 L2 - - M1 N3 P3 M2 N1 N2 P1 -"),
+    # pin 25: GND
+    ("j2", "- R3 T3 R2 T1 T2 U1 W2 V2 W3 V3 W5 V4 U4 V5 W4 U5 U2 W6 U3 U7 W7 U8 V8")
+]
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -87,6 +93,17 @@ class Platform(Xilinx7SeriesPlatform):
             "a7-35": "xc7a35tcpg236-1"
         }[variant]
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
+        self.toolchain.additional_commands = [
+            (
+                "write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit "
+                + '"up 0x0 {build_name}.bit" -file {build_name}.bin'
+            )
+        ]
+        self.add_platform_command("set_property CONFIG_VOLTAGE 3.3 [current_design]")
+        self.add_platform_command("set_property CFGBVS VCCO [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]")
+        self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]")
+        self.add_platform_command("set_property INTERNAL_VREF 0.75 [get_iobanks 34]")
 
     def create_programmer(self):
         bscan_spi = "bscan_spi_xc7a15t.bit" if "xc7a15t" in self.device else "bscan_spi_xc7a35t.bit"
