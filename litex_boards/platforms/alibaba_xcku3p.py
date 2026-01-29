@@ -13,7 +13,8 @@
 # - https://gist.github.com/Chester-Gillon/765d6286b1c34c7dc26a7b4c4dd0c48c
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
+from litex.build.xilinx import XilinxUSPPlatform
+from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -150,7 +151,7 @@ class Platform(XilinxUSPPlatform):
         XilinxUSPPlatform.__init__(self, "xcku3p-ffvb676-2-e", _io, toolchain=toolchain)
 
     def create_programmer(self):
-        return VivadoProgrammer()
+        return OpenFPGALoader(cable="digilent_hs2", fpga_part="xcku3p-ffvb676")
 
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
