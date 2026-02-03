@@ -2,19 +2,19 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2025 Victor-zyy <gt7591665@gmail.com>
+# Copyright (c) 2026 Matt Reverzani <mrev@posteo.de>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     # Clk / Rst
-    ("clk50",    0, Pins("J19"), IOStandard("LVCMOS33")), #50MHz
+    ("clk50",     0, Pins("J19"), IOStandard("LVCMOS33")), #50MHz
     ("cpu_reset", 0, Pins("L18"), IOStandard("LVCMOS33")),
-
 
     # Leds
     ("user_led", 0, Pins("M18"),  IOStandard("LVCMOS33")), #green_led 1
@@ -24,7 +24,7 @@ _io = [
 
     # Buttons
     ("user_btn", 0, Pins("AA1"), IOStandard("LVCMOS33")), #KEY1
-    ("user_btn", 1, Pins("W1"), IOStandard("LVCMOS33")),  #KEY2
+    ("user_btn", 1, Pins("W1"),  IOStandard("LVCMOS33")), #KEY2
 
     # Serial
     ("serial", 0,
@@ -33,16 +33,14 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # SPIFlash
-    ("spiflash", 0,
-        Subsignal("cs_n", Pins("T19")),
-        Subsignal("clk",  Pins("L12")),
-        Subsignal("mosi", Pins("P22")),
-        Subsignal("miso", Pins("R22")),
-        Subsignal("wp",   Pins("P21")),
-        Subsignal("hold", Pins("R21")),
-        IOStandard("LVCMOS33"),
+    # I2C
+    ("i2c", 0,
+        Subsignal("sda", Pins("H22")),
+        Subsignal("scl", Pins("J22")),
+        IOStandard("LVCMOS33")
     ),
+
+    # SPIFlash
     ("spiflash4x", 0,   # dual mode 4 wire
         Subsignal("cs_n", Pins("L19")),
         Subsignal("clk",  Pins("L12")),
@@ -75,6 +73,40 @@ _io = [
         Subsignal("reset_n", Pins("F4"), IOStandard("SSTL15")),
         Misc("SLEW=FAST"),
     ),
+
+    # SDCard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("U7")),
+        Subsignal("cs_n", Pins("Y8")),
+        Subsignal("miso", Pins("W9")),
+        Subsignal("mosi", Pins("AA8")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("sdcard", 0,
+        Subsignal("clk",  Pins("U7")),
+        Subsignal("cmd",  Pins("AA8"), Misc("PULLUP=TRUE")),
+        Subsignal("data", Pins("W9 Y9 Y7 Y8"), Misc("PULLUP=TRUE")),
+        Misc("SLEW=FAST"),
+        Misc("DRIVE=8"),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # RGMII Ethernet (RTL8211F)
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("K17"), Misc("SLEW=FAST"), Misc("DRIVE=8")),
+        Subsignal("rx", Pins("K18")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("N22")),
+        Subsignal("mdio",    Pins("M20"), Misc("PULLUP=TRUE")),
+        Subsignal("mdc",     Pins("M22")),
+        Subsignal("rx_ctl",  Pins("K19")),
+        Subsignal("rx_data", Pins("L14 L16 M15 M16")),
+        Subsignal("tx_ctl",  Pins("N20"), Misc("SLEW=FAST"), Misc("DRIVE=8")),
+        Subsignal("tx_data", Pins("K16 L15 L13 M13"), Misc("SLEW=FAST"), Misc("DRIVE=8")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -91,12 +123,18 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self):
-        XilinxPlatform.__init__(self, "xc7a200t-fbg484-2", _io, _connectors, toolchain="vivado")
+    def __init__(self, variant="200t", programmer="vivado",toolchain="vivado"):
+        device = {
+            "35t"  : "xc7a35t-fgg484-2",
+            "100t" : "xc7a100t-fgg484-2",
+            "200t" : "xc7a200t-fbg484-2"
+        }[variant]
+        self.programmer = programmer
+        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain="vivado")
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = \
@@ -105,8 +143,19 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
 
     def create_programmer(self):
-        return VivadoProgrammer(flash_part="is25lp128f-spi-x1_x2_x4");
+        if self.programmer == "vivado":
+            return VivadoProgrammer(flash_part="is25lp128f-spi-x1_x2_x4")
+        elif self.programmer == "openocd":
+            if "xc7a35t" in self.device:
+                proxy = "bscan_spi_xc7a35t.bit"
+            elif "xc7a100t" in self.device:
+                proxy = "bscan_spi_xc7a100t.bit"
+            else:
+                proxy = "bscan_spi_xc7a200t.bit"
+            return OpenOCD("openocd_xc7_ft2232.cfg", proxy)
+        else:
+            raise ValueError(f"Unknown programmer: {self.programmer}")
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
