@@ -41,10 +41,17 @@ _io = [
     ),
 
     # SPIFlash
-    ("spiflash4x", 0,   # dual mode 4 wire
-        Subsignal("cs_n", Pins("L19")),
-        Subsignal("clk",  Pins("L12")),
-        Subsignal("dq",   Pins("P22 R22 P21 R21")),
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("T19")),
+        Subsignal("mosi", Pins("P22")),
+        Subsignal("miso", Pins("R22")),
+        Subsignal("wp",   Pins("P21"), Misc("PULLUP=TRUE")),
+        Subsignal("hold", Pins("R21"), Misc("PULLUP=TRUE")),
+        IOStandard("LVCMOS33")
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("T19")),
+        Subsignal("dq",   Pins("P22 R22 P21 R21"), Misc("PULLUP=TRUE")),
         IOStandard("LVCMOS33")
     ),
 
