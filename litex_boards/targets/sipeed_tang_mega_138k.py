@@ -146,7 +146,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
         with_ethernet          = True,
         with_etherbone         = False,
-        local_ip               = "192.168.1.50",
+        eth_ip                 = "192.168.1.50",
         remote_ip              = "",
         eth_dynamic_ip         = False,
         with_video_colorbars   = False,
@@ -227,14 +227,14 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"))
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy,
-                    ip_address  = local_ip,
+                    ip_address  = eth_ip,
                     with_ethmac = with_ethernet,
                     data_with   = 32
                 )
-            elif with_ethernet:
+            if with_ethernet:
                 self.add_ethernet(phy=self.ethphy,
                     dynamic_ip     = eth_dynamic_ip,
-                    local_ip       = local_ip,
+                    local_ip       = eth_ip,
                     remote_ip      = remote_ip,
                     data_width     = 32,
                     software_debug = False)
@@ -308,7 +308,7 @@ def main():
         with_pcie              = args.with_pcie,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        local_ip               = args.local_ip,
+        eth_ip                 = args.local_ip,
         remote_ip              = args.remote_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         **parser.soc_argdict

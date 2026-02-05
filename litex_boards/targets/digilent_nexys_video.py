@@ -72,6 +72,9 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=100e6,
         with_ethernet          = False,
+        eth_ip                 = "192.168.1.50",
+        remote_ip              = None,
+        eth_dynamic_ip         = False,
         with_led_chaser        = True,
         with_sata              = False, sata_gen="gen2",
         with_usb               = False,
@@ -107,7 +110,7 @@ class BaseSoC(SoCCore):
             self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            self.add_ethernet(phy=self.ethphy)
+            self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # SATA -------------------------------------------------------------------------------------
         if with_sata:

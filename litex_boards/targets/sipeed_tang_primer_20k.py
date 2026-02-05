@@ -167,7 +167,7 @@ class BaseSoC(SoCCore):
                     with_timing_constraints = False
                 )
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_timing_constraints=False, with_ethmac=with_ethernet)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:

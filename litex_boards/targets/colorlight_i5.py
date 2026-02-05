@@ -97,8 +97,9 @@ class BaseSoC(SoCCore):
     def __init__(self, board="i5", revision="7.0", toolchain="trellis", sys_clk_freq=60e6,
         with_ethernet          = False,
         with_etherbone         = False,
-        local_ip               = "",
+        eth_ip                 = "192.168.1.50",
         remote_ip              = "",
+        eth_dynamic_ip         = False,
         eth_phy                = 0,
         with_led_chaser        = True,
         use_internal_osc       = False,
@@ -153,17 +154,17 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 tx_delay = 0)
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
-        if local_ip:
-            local_ip = local_ip.split(".")
-            self.add_constant("LOCALIP1", int(local_ip[0]))
-            self.add_constant("LOCALIP2", int(local_ip[1]))
-            self.add_constant("LOCALIP3", int(local_ip[2]))
-            self.add_constant("LOCALIP4", int(local_ip[3]))
+        if eth_ip:
+            eth_ip = eth_ip.split(".")
+            self.add_constant("LOCALIP1", int(eth_ip[0]))
+            self.add_constant("LOCALIP2", int(eth_ip[1]))
+            self.add_constant("LOCALIP3", int(eth_ip[2]))
+            self.add_constant("LOCALIP4", int(eth_ip[3]))
 
         if remote_ip:
             remote_ip = remote_ip.split(".")
@@ -209,7 +210,7 @@ def main():
         sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        local_ip               = args.local_ip,
+        eth_ip                 = args.local_ip,
         remote_ip              = args.remote_ip,
         eth_phy                = args.eth_phy,
         use_internal_osc       = args.use_internal_osc,

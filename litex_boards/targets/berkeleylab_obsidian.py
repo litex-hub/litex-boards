@@ -87,6 +87,9 @@ class BaseSoC(SoCCore):
         sys_clk_freq=125e6,
         with_ethernet=False,
         with_etherbone=False,
+        eth_ip="192.168.1.50",
+        remote_ip=None,
+        eth_dynamic_ip=True,
         with_rts_reset=False,
         with_ddr3=False,
         with_bist=False,
@@ -137,11 +140,16 @@ class BaseSoC(SoCCore):
                 hw_reset_cycles=2000000,  # 10 ms
             )
 
-        if with_ethernet:
-            self.add_ethernet(phy=self.ethphy, dynamic_ip=True, software_debug=False)
-
         if with_etherbone:
-            self.add_etherbone(phy=self.ethphy, buffer_depth=255)
+            self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet, buffer_depth=255)
+        if with_ethernet:
+            self.add_ethernet(
+                phy=self.ethphy,
+                dynamic_ip=eth_dynamic_ip,
+                local_ip=eth_ip,
+                remote_ip=remote_ip,
+                software_debug=False,
+            )
 
         # SPI Flash
         # 4x mode is not possible on this board since WP and HOLD pins are not connected to the FPGA

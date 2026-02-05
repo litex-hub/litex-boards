@@ -106,7 +106,14 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         "usb_ohci":     0xc0000000,
     }}
-    def __init__(self, revision="v0", device="12F", sdram_device="MT41K128M16", sdram_rate="1:2", sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, with_ethernet=False, **kwargs):
+    def __init__(self, revision="v0", device="12F", sdram_device="MT41K128M16", sdram_rate="1:2", sys_clk_freq=int(40e6), toolchain="trellis",
+        with_led_chaser = True,
+        with_usb_host   = False,
+        with_ethernet   = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
+        **kwargs):
 
         platform = machdyne_kopflos.Platform(revision=revision, device=device ,toolchain=toolchain)
 
@@ -155,7 +162,7 @@ class BaseSoC(SoCCore):
                 pads = platform.request("eth"),
                 with_hw_init_reset=True,
                 refclk_cd=None)
-            self.add_ethernet(phy=self.ethphy)
+            self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

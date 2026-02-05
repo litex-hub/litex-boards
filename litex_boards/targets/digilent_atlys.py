@@ -152,6 +152,9 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=75e6,
         with_ethernet  = True,
         with_etherbone = False,
+        eth_ip         = "192.168.1.50",
+        remote_ip      = None,
+        eth_dynamic_ip = False,
         eth_phy        = 0,
         **kwargs):
         platform = digilent_atlys.Platform()
@@ -186,10 +189,10 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 clk_freq   = int(self.sys_clk_freq))
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
             self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
             self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
             self.platform.add_platform_command("""

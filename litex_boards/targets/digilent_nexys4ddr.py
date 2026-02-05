@@ -58,6 +58,7 @@ class BaseSoC(SoCCore):
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
         remote_ip              = None,
+        eth_dynamic_ip         = False,
         with_led_chaser        = True,
         with_video_terminal    = False,
         with_video_framebuffer = False,
@@ -90,7 +91,7 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             elif with_ethernet:
-                self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip)
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:

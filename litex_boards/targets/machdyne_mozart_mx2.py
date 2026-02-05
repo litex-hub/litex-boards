@@ -104,7 +104,14 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         "usb_ohci":     0xc0000000,
     }}
-    def __init__(self, revision="v0", variant="a7-35", toolchain="vivado", sys_clk_freq=int(75e6), with_usb_host=False, with_ethernet=False, with_xadc=False, **kwargs):
+    def __init__(self, revision="v0", variant="a7-35", toolchain="vivado", sys_clk_freq=int(75e6),
+        with_usb_host  = False,
+        with_ethernet  = False,
+        eth_ip         = "192.168.1.50",
+        remote_ip      = None,
+        eth_dynamic_ip = False,
+        with_xadc      = False,
+        **kwargs):
         platform = machdyne_mozart_mx2.Platform(revision=revision, variant=variant, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
@@ -153,7 +160,7 @@ class BaseSoC(SoCCore):
                 pads               = platform.request("eth"),
                 with_hw_init_reset = True,
                 refclk_cd          = "eth")
-            self.add_ethernet(phy=self.ethphy)
+            self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
 # Build --------------------------------------------------------------------------------------------
 

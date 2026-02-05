@@ -49,6 +49,8 @@ class BaseSoC(SoCCore):
         with_ethernet   = False,
         with_etherbone  = False,
         eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
         with_led_chaser = True,
         **kwargs):
         platform = pano_logic_g2.Platform(revision=revision)
@@ -69,10 +71,10 @@ class BaseSoC(SoCCore):
                 pads               = self.platform.request("eth"),
                 clk_freq           = sys_clk_freq,
                 with_hw_init_reset = False)
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

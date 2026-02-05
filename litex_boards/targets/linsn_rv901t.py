@@ -51,6 +51,9 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=75e6,
         with_ethernet   = False,
         with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
         eth_phy         = 0,
         with_led_chaser = True,
         **kwargs):
@@ -77,10 +80,16 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks", eth_phy),
                 pads       = self.platform.request("eth", eth_phy),
                 tx_delay   = 0e-9)
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, with_timing_constraints=False)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, with_timing_constraints=False)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet, with_timing_constraints=False)
+            if with_ethernet:
+                self.add_ethernet(
+                    phy=self.ethphy,
+                    dynamic_ip=eth_dynamic_ip,
+                    local_ip=eth_ip,
+                    remote_ip=remote_ip,
+                    with_timing_constraints=False,
+                )
             # Timing Constraints.
             platform.add_period_constraint(platform.lookup_request("eth_clocks", eth_phy).rx, 1e9/125e6)
             platform.add_false_path_constraints(self.crg.cd_sys.clk, platform.lookup_request("eth_clocks", eth_phy).rx)

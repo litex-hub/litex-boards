@@ -123,7 +123,7 @@ class BaseSoC(SoCCore):
         with_video_colorbars   = False,
         with_video_terminal    = False,
         with_video_framebuffer = False,
-        local_ip               = "192.168.1.50",
+        eth_ip                 = "192.168.1.50",
         remote_ip              = "",
         eth_dynamic_ip         = False,
         with_spi_flash         = False,
@@ -169,9 +169,9 @@ class BaseSoC(SoCCore):
                 rx_delay   = 0e-9, # KSZ9031RNX phy adds a 1.2ns RX delay
             )
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=local_ip, with_ethmac=with_ethernet)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=local_ip, remote_ip=remote_ip, software_debug=False)
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -249,7 +249,7 @@ def main():
         sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        local_ip               = args.local_ip,
+        eth_ip                 = args.local_ip,
         remote_ip              = args.remote_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         with_spi_flash         = args.with_spi_flash,

@@ -79,6 +79,9 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=80e6, toolchain="trellis",
         with_ethernet   = False,
         with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
         with_led_chaser = True,
         **kwargs):
         platform = fpc_iii.Platform(toolchain=toolchain)
@@ -112,10 +115,10 @@ class BaseSoC(SoCCore):
             self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

@@ -59,6 +59,9 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
         with_ethernet   = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
         eth_phy         = "rgmii",
         with_spi_flash  = False,
         with_led_chaser = True,
@@ -120,7 +123,7 @@ class BaseSoC(SoCCore):
                     data_pads    = self.platform.request("sfp", 0),
                     sys_clk_freq = self.clk_freq)
 
-            self.add_ethernet(phy=self.ethphy)
+            self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:

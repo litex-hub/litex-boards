@@ -72,6 +72,9 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6,
         with_ethernet   = False,
         with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = True,
         with_rts_reset  = False,
         with_led_chaser = True,
         with_i2c        = True,
@@ -122,15 +125,16 @@ class BaseSoC(SoCCore):
                 tx_delay   = 0
             )
 
+        if with_etherbone:
+            self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet, buffer_depth=255)
         if with_ethernet:
             self.add_ethernet(
                 phy            = self.ethphy,
-                dynamic_ip     = True,
+                dynamic_ip     = eth_dynamic_ip,
+                local_ip       = eth_ip,
+                remote_ip      = remote_ip,
                 software_debug = False
             )
-
-        if with_etherbone:
-            self.add_etherbone(phy=self.ethphy, buffer_depth=255)
 
         # System I2C (behind multiplexer) ----------------------------------------------------------
         if with_i2c:

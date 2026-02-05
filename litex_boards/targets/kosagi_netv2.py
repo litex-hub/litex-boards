@@ -66,6 +66,7 @@ class BaseSoC(SoCCore):
         with_ethernet   = False,
         eth_ip          = "192.168.1.50",
         remote_ip       = None,
+        eth_dynamic_ip  = False,
         with_led_chaser = True,
         **kwargs):
         platform = kosagi_netv2.Platform(variant=variant)
@@ -93,7 +94,7 @@ class BaseSoC(SoCCore):
             self.ethphy = LiteEthPHYRMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            self.add_ethernet(phy=self.ethphy, local_ip=eth_ip, remote_ip=remote_ip)
+            self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:

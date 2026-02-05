@@ -159,10 +159,10 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"),
                 refclk_cd  = None,
             )
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
-            if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:

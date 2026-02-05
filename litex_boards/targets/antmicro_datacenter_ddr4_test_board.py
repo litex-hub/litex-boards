@@ -81,6 +81,7 @@ class BaseSoC(SoCCore):
             with_ethernet          = False,
             with_etherbone         = False,
             eth_ip                 = "192.168.1.50",
+            remote_ip              = None,
             eth_reset_time         = "10e-3",
             eth_dynamic_ip         = False,
             with_hyperram          = False,
@@ -135,10 +136,10 @@ class BaseSoC(SoCCore):
                 rx_delay   = 0.8e-9,
                 hw_reset_cycles = math.ceil(float(eth_reset_time) * self.sys_clk_freq)
             )
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

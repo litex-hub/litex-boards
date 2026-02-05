@@ -74,7 +74,7 @@ class BaseSoC(SoCCore):
         vccio                  = "2.5V",
         with_ethernet          = False,
         with_etherbone         = False,
-        local_ip               = "192.168.1.50",
+        eth_ip                 = "192.168.1.50",
         remote_ip              = "",
         eth_dynamic_ip         = False,
         with_led_chaser        = True,
@@ -111,17 +111,17 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks", 0),
                 pads       = self.platform.request("eth", 0),
                 clk_freq   = self.clk_freq)
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
-        if local_ip:
-            local_ip = local_ip.split(".")
-            self.add_constant("LOCALIP1", int(local_ip[0]))
-            self.add_constant("LOCALIP2", int(local_ip[1]))
-            self.add_constant("LOCALIP3", int(local_ip[2]))
-            self.add_constant("LOCALIP4", int(local_ip[3]))
+        if eth_ip:
+            eth_ip = eth_ip.split(".")
+            self.add_constant("LOCALIP1", int(eth_ip[0]))
+            self.add_constant("LOCALIP2", int(eth_ip[1]))
+            self.add_constant("LOCALIP3", int(eth_ip[2]))
+            self.add_constant("LOCALIP4", int(eth_ip[3]))
 
         if remote_ip:
             remote_ip = remote_ip.split(".")
@@ -211,7 +211,7 @@ def main():
         vccio                  = args.vccio,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        local_ip               = args.local_ip,
+        eth_ip                 = args.local_ip,
         remote_ip              = args.remote_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         with_pcie              = args.with_pcie,

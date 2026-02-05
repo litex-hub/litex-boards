@@ -246,6 +246,7 @@ class BaseSoC(SoCCore):
             eth_phy        = "rgmii",
             eth_ip         = "192.168.1.50",
             remote_ip      = None,
+            eth_dynamic_ip = False,
             with_ohci      = False,
             **kwargs):
         platform = efinix_ti375_c529_dev_kit.Platform()
@@ -378,6 +379,7 @@ class BaseSoC(SoCCore):
             elif with_ethernet:
                 self.add_ethernet(
                     phy                     = self.ethphy,
+                    dynamic_ip              = eth_dynamic_ip,
                     local_ip                = eth_ip,
                     remote_ip               = remote_ip,
                     software_debug          = False,

@@ -63,6 +63,9 @@ class BaseSoC(SoCCore):
         with_spi_flash      = False,
         with_ethernet       = False,
         with_etherbone      = False,
+        eth_ip              = "192.168.1.50",
+        remote_ip           = None,
+        eth_dynamic_ip      = False,
         with_video_terminal = False,
         with_lcd            = False,
         with_ws2812         = False,
@@ -87,10 +90,10 @@ class BaseSoC(SoCCore):
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
                 rx_delay   = 0e-9)
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:

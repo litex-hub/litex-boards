@@ -49,8 +49,13 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=100e6, with_led_chaser=True, with_ethernet=False,
-                 **kwargs):
+    def __init__(self, sys_clk_freq=100e6,
+        with_led_chaser = True,
+        with_ethernet   = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
+        **kwargs):
         platform = numato_mimas_a7.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -76,7 +81,7 @@ class BaseSoC(SoCCore):
             self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            self.add_ethernet(phy=self.ethphy)
+            self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

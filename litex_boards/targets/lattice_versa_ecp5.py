@@ -79,6 +79,8 @@ class BaseSoC(SoCCore):
         with_etherbone  = False,
         with_led_chaser = True,
         eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
         eth_phy         = 0,
         **kwargs):
         platform = lattice_versa_ecp5.Platform(toolchain=toolchain, device=device)
@@ -109,10 +111,10 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth", eth_phy),
                 tx_delay   = 0e-9,
                 rx_delay   = 0e-9)
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

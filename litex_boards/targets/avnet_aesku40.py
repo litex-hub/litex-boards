@@ -62,6 +62,8 @@ class BaseSoC(SoCCore):
         with_ethernet   = False,
         with_etherbone  = False,
         eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
         with_led_chaser = True,
         with_pcie       = False,
         with_sata       = False,
@@ -89,7 +91,7 @@ class BaseSoC(SoCCore):
                         if item.name == "REFCLK_FREQUENCY":
                             item.value=200.00
                             
-            self.add_ethernet(phy=self.ethphy)
+            self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

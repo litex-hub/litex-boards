@@ -63,6 +63,7 @@ class BaseSoC(SoCCore):
         with_ethernet       = False,
         with_etherbone      = False,
         eth_ip              = "192.168.1.50",
+        remote_ip           = None,
         eth_dynamic_ip      = False,
         **kwargs):
         self.platform = platform = terasic_deca.Platform()
@@ -94,10 +95,10 @@ class BaseSoC(SoCCore):
             self.ethphy = LiteEthPHYMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:

@@ -54,6 +54,9 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
         with_ethernet   = False,
         with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = True,
         with_sdcard     = False,
         with_led_chaser = True,
         ethernet_phy    = 0,
@@ -108,7 +111,9 @@ class BaseSoC(SoCCore):
             self.add_ethernet(
                 phy        = self.ethphy,
                 phy_cd     = "ethphy_eth" if with_etherbone else "eth",
-                dynamic_ip = True,
+                dynamic_ip = eth_dynamic_ip,
+                local_ip   = eth_ip,
+                remote_ip  = remote_ip,
             )
         if with_etherbone:
             # Ethernet PHY

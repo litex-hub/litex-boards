@@ -112,6 +112,9 @@ class _CRGSDRAM(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=75e6, toolchain="trellis",
         with_ethernet          = False,
+        eth_ip                 = "192.168.1.50",
+        remote_ip              = None,
+        eth_dynamic_ip         = False,
         with_video_terminal    = False,
         with_video_framebuffer = False,
         with_led_chaser        = True,
@@ -144,7 +147,7 @@ class BaseSoC(SoCCore):
             self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"))
-            self.add_ethernet(phy=self.ethphy)
+            self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # HDMI -------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:

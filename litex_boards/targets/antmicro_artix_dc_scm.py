@@ -69,6 +69,7 @@ class BaseSoC(SoCCore):
         eth_dynamic_ip = False,
         eth_reset_time = "10e-3",
         eth_ip         = "192.168.1.120",
+        remote_ip      = None,
         **kwargs):
         platform = antmicro_artix_dc_scm.Platform(device=device, toolchain=toolchain)
 
@@ -97,10 +98,10 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"),
                 hw_reset_cycles = math.ceil(float(eth_reset_time) * self.sys_clk_freq)
             )
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
             platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets main_ethphy_eth_rx_clk_ibuf]")
 
