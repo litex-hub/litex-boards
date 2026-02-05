@@ -171,7 +171,7 @@ def main():
         with_etherbone = args.with_etherbone,
         eth_port       = args.eth_port,
         eth_ip         = args.eth_ip,
-        remote_ip              = args.remote_ip,
+        remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict

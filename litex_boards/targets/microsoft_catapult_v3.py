@@ -44,7 +44,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
-        with_led_chaser     = True,
+        with_led_chaser = True,
         **kwargs):
         self.platform = platform = microsoft_catapult_v3.Platform()
 
@@ -84,8 +84,8 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq        = args.sys_clk_freq,
-        with_led_chaser     = args.with_led_chaser,
+        sys_clk_freq    = args.sys_clk_freq,
+        with_led_chaser = args.with_led_chaser,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

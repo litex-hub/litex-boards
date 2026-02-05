@@ -158,14 +158,14 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        toolchain     = args.toolchain,
-        device        = args.device,
-        sys_clk_freq  = args.sys_clk_freq,
-        sdram_device  = args.sdram_device,
-        with_ethernet = args.with_ethernet,
-        eth_ip                 = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        remote_ip              = args.remote_ip,
+        toolchain      = args.toolchain,
+        device         = args.device,
+        sys_clk_freq   = args.sys_clk_freq,
+        sdram_device   = args.sdram_device,
+        with_ethernet  = args.with_ethernet,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        remote_ip      = args.remote_ip,
         **parser.soc_argdict
     )
     if args.with_sdcard:

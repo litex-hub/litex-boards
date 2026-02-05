@@ -106,8 +106,8 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq           = args.sys_clk_freq,
-        sdram_rate             = args.sdram_rate,
+        sys_clk_freq = args.sys_clk_freq,
+        sdram_rate   = args.sdram_rate,
         **parser.soc_argdict
     )
 

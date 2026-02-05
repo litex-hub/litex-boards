@@ -61,8 +61,8 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(100e6), 
-        with_led_chaser     = True,
-        with_spi_flash      = False,
+        with_led_chaser = True,
+        with_spi_flash  = False,
         **kwargs):
         platform = microphase_a7_lite.Platform()
         # CRG --------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sys_clk_freq = int(float(args.sys_clk_freq)),
         **soc_core_argdict(args)
     )
 

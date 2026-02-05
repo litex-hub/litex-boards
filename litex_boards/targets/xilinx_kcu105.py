@@ -174,12 +174,12 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        remote_ip              = args.remote_ip,
+        remote_ip      = args.remote_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
         with_pcie      = args.with_pcie,
         with_sata      = args.with_sata,
         **parser.soc_argdict
-	)
+    )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

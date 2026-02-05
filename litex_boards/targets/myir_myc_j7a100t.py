@@ -75,7 +75,7 @@ class BaseSoC(SoCCore):
         remote_ip       = None,
         eth_dynamic_ip  = False,
         with_led_chaser = True,
-        with_sdram_256 = False,
+        with_sdram_256  = False,
         **kwargs):
         platform = myir_myc_j7a100t.Platform(toolchain=toolchain)
 
@@ -144,14 +144,14 @@ def main():
     #assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
-        toolchain              = args.toolchain,
-        sys_clk_freq           = args.sys_clk_freq,
-        with_ethernet          = args.with_ethernet,
-        with_etherbone         = args.with_etherbone,
-        eth_ip                 = args.eth_ip,
-        remote_ip              = args.remote_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        with_sdram_256         = args.with_sdram_256,
+        toolchain      = args.toolchain,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        with_sdram_256 = args.with_sdram_256,
         **parser.soc_argdict
     )
 

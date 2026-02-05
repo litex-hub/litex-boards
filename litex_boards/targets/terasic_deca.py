@@ -150,7 +150,7 @@ def main():
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         eth_ip              = args.eth_ip,
-        remote_ip              = args.remote_ip,
+        remote_ip           = args.remote_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
         with_video_terminal = args.with_video_terminal,
         with_spi_sdcard     = args.with_spi_sdcard,

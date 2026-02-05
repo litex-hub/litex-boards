@@ -124,11 +124,11 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        toolchain              = args.toolchain,
-        sys_clk_freq           = int(float(args.sys_clk_freq)),
-        with_spi_flash         = args.with_spi_flash,
-        with_pcie              = args.with_pcie,
-        with_spi_sdcard        = args.with_spi_sdcard,
+        toolchain       = args.toolchain,
+        sys_clk_freq    = int(float(args.sys_clk_freq)),
+        with_spi_flash  = args.with_spi_flash,
+        with_pcie       = args.with_pcie,
+        with_spi_sdcard = args.with_spi_sdcard,
         **soc_core_argdict(args)
     )
 

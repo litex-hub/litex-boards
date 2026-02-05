@@ -72,12 +72,12 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="gowin", sys_clk_freq=50e6,
-        with_spi_flash      = False,
-        with_led_chaser     = True,
-        with_buttons        = True,
-        with_sdram          = False,
-        sdram_model         = "sipeed",
-        sdram_rate          = "1:2",
+        with_spi_flash  = False,
+        with_led_chaser = True,
+        with_buttons    = True,
+        with_sdram      = False,
+        sdram_model     = "sipeed",
+        sdram_rate      = "1:2",
         **kwargs):
 
         platform = sipeed_tang_primer_25k.Platform(toolchain=toolchain)

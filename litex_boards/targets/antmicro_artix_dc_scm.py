@@ -140,16 +140,16 @@ def main():
     assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
-        toolchain              = args.toolchain,
-        device                 = args.device,
-        sys_clk_freq           = args.sys_clk_freq,
-        with_pcie              = args.with_pcie,
-        with_ethernet          = args.with_ethernet,
-        with_etherbone         = args.with_etherbone,
-        eth_ip                 = args.eth_ip,
-        remote_ip              = args.remote_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        eth_reset_time         = args.eth_reset_time,
+        toolchain      = args.toolchain,
+        device         = args.device,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_pcie      = args.with_pcie,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        eth_reset_time = args.eth_reset_time,
         **parser.soc_argdict
     )
 

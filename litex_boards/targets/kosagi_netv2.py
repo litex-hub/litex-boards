@@ -128,13 +128,13 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        variant       = args.variant,
-        sys_clk_freq  = args.sys_clk_freq,
-        with_ethernet = args.with_ethernet,
-        eth_ip        = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        remote_ip     = args.remote_ip,
-        with_pcie     = args.with_pcie,
+        variant        = args.variant,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_ethernet  = args.with_ethernet,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        remote_ip      = args.remote_ip,
+        with_pcie      = args.with_pcie,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:

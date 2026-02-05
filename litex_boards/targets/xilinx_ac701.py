@@ -162,9 +162,9 @@ def main():
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
-        eth_ip                 = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        remote_ip              = args.remote_ip,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        remote_ip      = args.remote_ip,
         eth_phy        = args.eth_phy,
         with_spi_flash = args.with_spi_flash,
         with_pcie      = args.with_pcie,

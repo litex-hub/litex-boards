@@ -67,17 +67,17 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6,
-                ddram_channel          = 0,
-                with_led_chaser        = True,
-                with_ethernet          = False,
-                with_etherbone         = False,
-                ethernet_port          = "qsfp0_sfp0",
-                etherbone_port         = "qsfp0_sfp0", 
-                eth_ip                 = "192.168.1.50",
-                eth_dynamic_ip         = True,
-                remote_ip              = None,
-                etherbone_ip           = "192.168.1.50",
-                with_pcie              = False,
+                ddram_channel   = 0,
+                with_led_chaser = True,
+                with_ethernet   = False,
+                with_etherbone  = False,
+                ethernet_port   = "qsfp0_sfp0",
+                etherbone_port  = "qsfp0_sfp0", 
+                eth_ip          = "192.168.1.50",
+                eth_dynamic_ip  = True,
+                remote_ip       = None,
+                etherbone_ip    = "192.168.1.50",
+                with_pcie       = False,
                 **kwargs):
         platform = alibaba_vu13p.Platform()
 
@@ -196,17 +196,17 @@ def main():
             parser.error("Ethernet and Etherbone SFP ports must be different.")
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        ddram_channel = args.ddram_channel,
-        with_ethernet = args.with_ethernet,
+        sys_clk_freq   = args.sys_clk_freq,
+        ddram_channel  = args.ddram_channel,
+        with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         ethernet_port  = args.ethernet_port,
-        etherbone_port  = args.etherbone_port,
+        etherbone_port = args.etherbone_port,
         eth_ip         = args.ethernet_ip,
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
-        etherbone_ip  = args.etherbone_ip,
-        with_pcie    = args.with_pcie,
+        etherbone_ip   = args.etherbone_ip,
+        with_pcie      = args.with_pcie,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

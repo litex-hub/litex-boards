@@ -51,7 +51,7 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
   def __init__(self,
     bios_flash_offset,
-    sys_clk_freq=50e6,
+    sys_clk_freq    = 50e6,
     with_led_chaser = True,
     **kwargs):
         # Create our platform (fpga interface)

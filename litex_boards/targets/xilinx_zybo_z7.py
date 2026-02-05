@@ -169,8 +169,8 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
-        variant = args.variant,
-        with_ps7 = args.with_ps7,
+        variant      = args.variant,
+        with_ps7     = args.with_ps7,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))

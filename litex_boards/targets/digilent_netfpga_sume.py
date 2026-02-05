@@ -131,13 +131,13 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq           = args.sys_clk_freq,
-        with_ethernet          = args.with_ethernet,
-        eth_ip                 = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        remote_ip              = args.remote_ip,
-        with_etherbone         = args.with_etherbone,
-        with_i2c               = args.with_i2c,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_ethernet  = args.with_ethernet,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        remote_ip      = args.remote_ip,
+        with_etherbone = args.with_etherbone,
+        with_i2c       = args.with_i2c,
         **parser.soc_argdict
     )
     

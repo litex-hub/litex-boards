@@ -159,9 +159,9 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = args.sys_clk_freq,
-        with_etherbone = args.with_etherbone,
-        eth_ip         = args.eth_ip,
+        sys_clk_freq           = args.sys_clk_freq,
+        with_etherbone         = args.with_etherbone,
+        eth_ip                 = args.eth_ip,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict

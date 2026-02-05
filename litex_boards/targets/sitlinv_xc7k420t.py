@@ -148,10 +148,10 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = args.sys_clk_freq,
-        io_voltage     = args.io_voltage,
-        with_pcie      = args.with_pcie,
-        with_sata      = args.with_sata,
+        sys_clk_freq = args.sys_clk_freq,
+        io_voltage   = args.io_voltage,
+        with_pcie    = args.with_pcie,
+        with_sata    = args.with_sata,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

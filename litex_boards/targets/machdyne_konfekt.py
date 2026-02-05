@@ -178,10 +178,10 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = int(float(args.sys_clk_freq)),
-        revision = args.revision,
-        device = args.device,
-        sdram_device = args.sdram_device,
+        sys_clk_freq  = int(float(args.sys_clk_freq)),
+        revision      = args.revision,
+        device        = args.device,
+        sdram_device  = args.sdram_device,
         with_usb_host = args.with_usb_host,
         **parser.soc_argdict)
 

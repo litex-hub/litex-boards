@@ -116,9 +116,9 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        device       = args.device,
-        toolchain    = args.toolchain,
+        sys_clk_freq   = args.sys_clk_freq,
+        device         = args.device,
+        toolchain      = args.toolchain,
         with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict
     )

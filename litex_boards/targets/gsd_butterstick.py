@@ -186,7 +186,7 @@ def main():
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
         eth_ip           = args.eth_ip,
-        remote_ip              = args.remote_ip,
+        remote_ip        = args.remote_ip,
         eth_dynamic_ip   = args.eth_dynamic_ip,
         with_spi_flash   = args.with_spi_flash,
         with_syzygy_gpio = args.with_syzygy_gpio,

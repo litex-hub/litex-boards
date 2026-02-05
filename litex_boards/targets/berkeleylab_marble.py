@@ -166,9 +166,9 @@ def main():
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
-        eth_ip                 = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        remote_ip              = args.remote_ip,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        remote_ip      = args.remote_ip,
         with_etherbone = args.with_etherbone,
         with_bist      = args.with_bist,
         spd_dump       = args.spd_dump,

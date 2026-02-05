@@ -164,10 +164,10 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=54e6,
-        with_led_chaser     = True,
-        with_video_colorbars = False,
+        with_led_chaser        = True,
+        with_video_colorbars   = False,
         with_video_framebuffer = False,
-        with_video_terminal = False,
+        with_video_terminal    = False,
         **kwargs):
         platform = xilinx_sp605.Platform()
 
@@ -240,10 +240,10 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq            = args.sys_clk_freq,
-        with_video_colorbars    = args.with_video_colorbars,
-        with_video_terminal     = args.with_video_terminal,
-        with_video_framebuffer  = args.with_video_framebuffer,
+        sys_clk_freq           = args.sys_clk_freq,
+        with_video_colorbars   = args.with_video_colorbars,
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
     )
 

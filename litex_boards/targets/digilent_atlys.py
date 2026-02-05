@@ -223,9 +223,9 @@ def main():
 
     soc = BaseSoC(
         with_ethernet  = args.with_ethernet,
-        eth_ip                 = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        remote_ip              = args.remote_ip,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        remote_ip      = args.remote_ip,
         with_etherbone = args.with_etherbone,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)

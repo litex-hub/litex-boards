@@ -617,7 +617,7 @@ def main():
         with_etherbone = args.with_etherbone,
         eth_phy        = args.eth_phy,
         eth_ip         = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         **parser.soc_argdict)
     if args.with_spi_sdcard:

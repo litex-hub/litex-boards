@@ -191,16 +191,16 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        toolchain    = args.toolchain,
-        revision     = args.revision,
-        device       = args.device,
-        sys_clk_freq = int(float(args.sys_clk_freq)),
-        sdram_device = args.sdram_device,
-        with_usb_host = args.with_usb_host,
-        with_ethernet = args.with_ethernet,
-        eth_ip                 = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        remote_ip              = args.remote_ip,
+        toolchain      = args.toolchain,
+        revision       = args.revision,
+        device         = args.device,
+        sys_clk_freq   = int(float(args.sys_clk_freq)),
+        sdram_device   = args.sdram_device,
+        with_usb_host  = args.with_usb_host,
+        with_ethernet  = args.with_ethernet,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        remote_ip      = args.remote_ip,
         **parser.soc_argdict)
 
     if args.with_sdcard:

@@ -84,17 +84,17 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(
         self,
-        sys_clk_freq=125e6,
-        with_ethernet=False,
-        with_etherbone=False,
-        eth_ip="192.168.1.50",
-        remote_ip=None,
-        eth_dynamic_ip=True,
-        with_rts_reset=False,
-        with_ddr3=False,
-        with_bist=False,
-        with_led_chaser=False,
-        with_spi_flash=False,
+        sys_clk_freq    = 125e6,
+        with_ethernet   = False,
+        with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = True,
+        with_rts_reset  = False,
+        with_ddr3       = False,
+        with_bist       = False,
+        with_led_chaser = False,
+        with_spi_flash  = False,
         **kwargs,
     ):
         self.n_serdes = 0
@@ -245,15 +245,15 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq=args.sys_clk_freq,
-        with_ethernet=args.with_ethernet,
-        eth_ip                 = args.eth_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        remote_ip              = args.remote_ip,
-        with_etherbone=args.with_etherbone,
-        with_rts_reset=args.with_rts_reset,
-        with_ddr3=args.with_ddr3,
-        with_bist=args.with_bist,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_ethernet  = args.with_ethernet,
+        eth_ip         = args.eth_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        remote_ip      = args.remote_ip,
+        with_etherbone = args.with_etherbone,
+        with_rts_reset = args.with_rts_reset,
+        with_ddr3      = args.with_ddr3,
+        with_bist      = args.with_bist,
         **parser.soc_argdict,
     )
     builder = Builder(soc, **parser.builder_argdict)

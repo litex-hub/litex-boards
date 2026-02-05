@@ -123,8 +123,8 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = args.sys_clk_freq,
-        with_pcie      = args.with_pcie,
+        sys_clk_freq = args.sys_clk_freq,
+        with_pcie    = args.with_pcie,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

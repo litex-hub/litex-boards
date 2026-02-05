@@ -67,9 +67,9 @@ class _CRG(Module):
 
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=int(100e6),
-                 with_ethernet=False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
-                 local_ip="", remote_ip="",
-                 with_led_chaser=True, with_video_terminal=False, with_video_framebuffer=False, with_video_colorbars=False,
+                 with_ethernet   = False, with_etherbone=False, eth_ip="192.168.1.50", eth_dynamic_ip=False,
+                 local_ip        = "", remote_ip="",
+                 with_led_chaser = True, with_video_terminal=False, with_video_framebuffer=False, with_video_colorbars=False,
                  with_spi_flash=False, **kwargs):
         platform = qmtech_kintex7_devboard.Platform(toolchain=toolchain)
 
@@ -193,7 +193,7 @@ def main():
         with_spi_flash         = args.with_spi_flash,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        with_video_colorbars = args.with_video_colorbars,
+        with_video_colorbars   = args.with_video_colorbars,
         **soc_core_argdict(args)
     )
 

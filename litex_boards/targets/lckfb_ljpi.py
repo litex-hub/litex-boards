@@ -99,10 +99,10 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="gowin", sys_clk_freq=50e6,
-        with_spi_flash      = False,
-        with_led_chaser     = True,
-        with_buttons        = True,
-        with_video_terminal = False,
+        with_spi_flash       = False,
+        with_led_chaser      = True,
+        with_buttons         = True,
+        with_video_terminal  = False,
         with_video_colorbars = False,
         **kwargs):
 
