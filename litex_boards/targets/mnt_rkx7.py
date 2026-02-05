@@ -129,7 +129,13 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip, software_debug=False)
+                self.add_ethernet(
+                    phy=self.ethphy,
+                    dynamic_ip=eth_dynamic_ip,
+                    local_ip=eth_ip if not eth_dynamic_ip else None,
+                    remote_ip=remote_ip,
+                    software_debug=False,
+                )
 
         # GPIO -------------------------------------------------------------------------------------
         # Controllable as faux "leds"
