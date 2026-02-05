@@ -230,6 +230,8 @@ def main():
     ethopts.add_argument("--with-ethernet",           action="store_true",    help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",          action="store_true",    help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",            default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-phy",           default=0, type=int,    help="Ethernet PHY (0 or 1).")
     parser.add_target_argument("--use-internal-osc",  action="store_true",    help="Use internal oscillator.")
     parser.add_target_argument("--sdram-rate",        default="1:1",          help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
@@ -242,6 +244,8 @@ def main():
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
         eth_ip           = args.eth_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
+        remote_ip              = args.remote_ip,
         eth_phy          = args.eth_phy,
         use_internal_osc = args.use_internal_osc,
         sdram_rate       = args.sdram_rate,

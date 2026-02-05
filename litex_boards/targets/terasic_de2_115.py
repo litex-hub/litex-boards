@@ -138,6 +138,9 @@ def main():
     parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SD card support.")
     parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone",  action="store_true",      help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--etherbone-ip",    default="192.168.48.100", help="Etherbone IP address.")
     parser.add_target_argument("--etherbone-phy",   default=1, type=int,      help="Etherbone PHY (0 or 1).")
     parser.add_target_argument("--ethernet-phy",    default=0, type=int,      help="Ethernet  PHY (0 or 1).")
@@ -147,6 +150,9 @@ def main():
         sys_clk_freq    = args.sys_clk_freq,
         with_sdcard     = args.with_sdcard,
         with_ethernet   = args.with_ethernet,
+        eth_ip                 = args.eth_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
+        remote_ip              = args.remote_ip,
         with_etherbone  = args.with_etherbone,
         with_led_chaser = args.with_led_chaser,
         etherbone_ip    = args.etherbone_ip,

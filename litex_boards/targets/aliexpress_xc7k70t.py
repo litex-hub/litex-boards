@@ -132,6 +132,9 @@ def main():
     parser.add_target_argument("--sys-clk-freq",    default=90e6, type=float,  help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",      default="1:1",             help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
     parser.add_argument("--with-ethernet",          action="store_true",       help="Enable ethernet")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_argument("--with-pcie",              action="store_true",       help="Enable PCIe")
     parser.add_argument("--with-hdmi",              action="store_true",       help="Enable HDMI")
     viopts = parser.target_group.add_mutually_exclusive_group()
@@ -146,6 +149,9 @@ def main():
         sys_clk_freq           = args.sys_clk_freq,
         sdram_rate             = args.sdram_rate,
         with_ethernet          = args.with_ethernet,
+        eth_ip                 = args.eth_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
+        remote_ip              = args.remote_ip,
         with_pcie              = args.with_pcie,
         with_hdmi              = args.with_hdmi,
         with_video_terminal    = args.with_video_terminal,

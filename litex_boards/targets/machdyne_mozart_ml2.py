@@ -193,6 +193,9 @@ def main():
     parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
     parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
     parser.add_argument("--with-ethernet",   action="store_true",  help="Enable ethernet support.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
     parser.add_argument("--sdram-device",    default="MT41K256M16", help="SDRAM device.")
 
@@ -205,6 +208,9 @@ def main():
         sys_clk_freq = int(float(args.sys_clk_freq)),
         with_usb_host = args.with_usb_host,
         with_ethernet = args.with_ethernet,
+        eth_ip                 = args.eth_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
+        remote_ip              = args.remote_ip,
         sdram_device  = args.sdram_device,
         **parser.soc_argdict)
 

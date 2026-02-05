@@ -150,6 +150,9 @@ def main():
     parser = LiteXArgumentParser(platform=xilinx_ac701.Platform, description="LiteX SoC on AC701.")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float,  help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true",        help="Enable Ethernet support.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--eth-phy",        default="rgmii",            help="Select Ethernet PHY (rgmii or 1000basex).")
     parser.add_target_argument("--with-spi-flash", action="store_true",        help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-pcie",      action="store_true",        help="Enable PCIe support.")
@@ -159,6 +162,9 @@ def main():
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
+        eth_ip                 = args.eth_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
+        remote_ip              = args.remote_ip,
         eth_phy        = args.eth_phy,
         with_spi_flash = args.with_spi_flash,
         with_pcie      = args.with_pcie,

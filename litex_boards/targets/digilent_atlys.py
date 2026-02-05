@@ -215,11 +215,17 @@ def main():
     parser = LiteXArgumentParser(platform=digilent_atlys.Platform, description="LiteX SoC on Atlys.")
     parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
         with_ethernet  = args.with_ethernet,
+        eth_ip                 = args.eth_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
+        remote_ip              = args.remote_ip,
         with_etherbone = args.with_etherbone,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
