@@ -84,9 +84,9 @@ _io = [
     # SDCard
     ("spisdcard", 0,
         Subsignal("clk",  Pins("U7")),
-        Subsignal("cs_n", Pins("Y8")),
-        Subsignal("miso", Pins("W9")),
-        Subsignal("mosi", Pins("AA8")),
+        Subsignal("cs_n", Pins("Y8"), Misc("PULLUP=TRUE")),
+        Subsignal("miso", Pins("W9"), Misc("PULLUP=TRUE")),
+        Subsignal("mosi", Pins("AA8"), Misc("PULLUP=TRUE")),
         IOStandard("LVCMOS33"),
     ),
     ("sdcard", 0,
