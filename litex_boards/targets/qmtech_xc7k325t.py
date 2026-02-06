@@ -111,19 +111,7 @@ class BaseSoC(SoCCore):
             #self.platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets eth_clocks_tx_IBUF]")
             self.add_constant("TARGET_BIOS_INIT", 1)
 
-        if local_ip:
-            local_ip = local_ip.split(".")
-            self.add_constant("LOCALIP1", int(local_ip[0]))
-            self.add_constant("LOCALIP2", int(local_ip[1]))
-            self.add_constant("LOCALIP3", int(local_ip[2]))
-            self.add_constant("LOCALIP4", int(local_ip[3]))
 
-        if remote_ip:
-            remote_ip = remote_ip.split(".")
-            self.add_constant("REMOTEIP1", int(remote_ip[0]))
-            self.add_constant("REMOTEIP2", int(remote_ip[1]))
-            self.add_constant("REMOTEIP3", int(remote_ip[2]))
-            self.add_constant("REMOTEIP4", int(remote_ip[3]))
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:

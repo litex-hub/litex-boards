@@ -116,19 +116,7 @@ class BaseSoC(SoCCore):
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
-        if eth_ip:
-            eth_ip = eth_ip.split(".")
-            self.add_constant("LOCALIP1", int(eth_ip[0]))
-            self.add_constant("LOCALIP2", int(eth_ip[1]))
-            self.add_constant("LOCALIP3", int(eth_ip[2]))
-            self.add_constant("LOCALIP4", int(eth_ip[3]))
 
-        if remote_ip:
-            remote_ip = remote_ip.split(".")
-            self.add_constant("REMOTEIP1", int(remote_ip[0]))
-            self.add_constant("REMOTEIP2", int(remote_ip[1]))
-            self.add_constant("REMOTEIP3", int(remote_ip[2]))
-            self.add_constant("REMOTEIP4", int(remote_ip[3]))
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
