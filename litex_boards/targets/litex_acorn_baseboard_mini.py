@@ -134,7 +134,6 @@ class BaseSoC(SoCCore):
             platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y7 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtp_channel.gtpe2_channel_i}}]")
 
         # PCIe / Ethernet / SATA / Shared-QPLL -----------------------------------------------------
-
         if not with_pcie:
             # Ethernet QPLL Settings.
             qpll_eth_settings = QPLLSettings(

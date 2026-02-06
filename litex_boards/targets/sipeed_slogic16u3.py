@@ -28,6 +28,7 @@ def osca_div(sys_clk_freq, fosc_hz=207.32e6):
             div -= 2
     return div
 
+
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         self.cd_sys = ClockDomain()

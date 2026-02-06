@@ -90,7 +90,7 @@ class BaseSoC(SoCCore):
                 module        = W9812G6JB(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 1 * KILOBYTE)
             )
-        
+
         # HDMI Options -----------------------------------------------------------------------------
         if with_hdmi and (with_video_colorbars or with_video_framebuffer or with_video_terminal):
             self.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")

@@ -25,7 +25,6 @@ from litedram.phy import ECP5DDRPHY
 from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.bitbang import I2CMaster
 
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -78,7 +77,6 @@ class _CRG(LiteXModule):
         #pll.create_clkout(self.cd_hdmi, 160e6) # for terminal "1920x1080@60Hz"
         #pll.create_clkout(self.cd_hdmi, 80e6) # for terminal "1920x1080@30Hz"
         pll.create_clkout(self.cd_hdmi, 40e6) # for terminal "800x600@60Hz"
-
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -161,7 +159,7 @@ class BaseSoC(SoCCore):
             if with_video_framebuffer:
                 #self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
-                
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(

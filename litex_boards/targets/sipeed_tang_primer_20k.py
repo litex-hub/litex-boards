@@ -80,7 +80,7 @@ class _CRG(LiteXModule):
             self.comb += self.cd_init.rst.eq(pll.reset)
         else:
             pll.create_clkout(self.cd_sys, sys_clk_freq)
-        
+
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.rst | self.reset)
 
         # Video PLL
@@ -199,7 +199,6 @@ class BaseSoC(SoCCore):
         # Buttons ----------------------------------------------------------------------------------
         if with_buttons:
             self.buttons = GPIOIn(pads=~platform.request_all("btn_n"))
-
 
 # Build --------------------------------------------------------------------------------------------
 

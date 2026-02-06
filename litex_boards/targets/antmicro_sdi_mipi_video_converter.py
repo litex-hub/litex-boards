@@ -51,7 +51,6 @@ class _CRG(LiteXModule):
         sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked | ~por_done)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -71,7 +70,6 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore -----------------------------------------_----------------------------------------
-
         # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
         kwargs["integrated_sram_size"] = 0
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Antmicro SDI MIPI Video Converter Board", **kwargs)
@@ -90,7 +88,6 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
-
 
 def main():
     from litex.build.parser import LiteXArgumentParser
@@ -124,7 +121,6 @@ def main():
 
             if args.programmer == "radiant":
                 os.system("sudo modprobe ftdi_sio")
-
 
 if __name__ == "__main__":
     main()

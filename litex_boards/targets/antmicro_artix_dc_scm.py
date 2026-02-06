@@ -6,7 +6,6 @@
 # Copyright (c) 2022 IBM Corp.
 # SPDX-License-Identifier: BSD-2-Clause
 
-
 import os
 import math
 

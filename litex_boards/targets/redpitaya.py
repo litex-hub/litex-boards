@@ -25,7 +25,6 @@ from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, use_ps7_clk=False):
         self.rst    = Signal()
@@ -45,7 +44,6 @@ class _CRG(LiteXModule):
             platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
 # BaseSoC ------------------------------------------------------------------------------------------
-
 
 class BaseSoC(SoCCore):
     def __init__(self, board, sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
@@ -103,7 +101,6 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
-
 
 def main():
     from litex.build.parser import LiteXArgumentParser

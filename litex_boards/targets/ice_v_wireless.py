@@ -33,6 +33,7 @@ from litex.soc.cores.led import LedChaser
 from litespi.spi_nor_flash_module import SpiNorFlashModule
 from litespi.opcodes import SpiNorFlashOpCodes as Codes
 
+
 class PSRAM(SpiNorFlashModule):
 
     manufacturer_id = 0x000d
@@ -50,7 +51,6 @@ class PSRAM(SpiNorFlashModule):
         Codes.PP_1_1_1,
     ]
     dummy_bits = 8
-
 
 # CRG ----------------------------------------------------------------------------------------------
 

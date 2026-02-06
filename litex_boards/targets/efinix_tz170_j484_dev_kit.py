@@ -58,6 +58,7 @@ class _CRG(LiteXModule):
 
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_sys.clk)
 
+
 class _CRG_DDR(LiteXModule):
     def __init__(self, platform):
         clk33 = platform.request("clk33")
@@ -72,6 +73,7 @@ class _CRG_DDR(LiteXModule):
         # this range, you should dedicate one unused clock for CLKOUT0.
         pll.create_clkout(None,         freq)
         pll.create_clkout(None,         600e6, nclkout=4, margin=1e-02) # LPDDR4 ctrl
+
 
 class EfinixLPDDR4(LiteXModule):
     def __init__(self, soc, axi_clk, own_crg=True):
@@ -195,7 +197,7 @@ class EfinixLPDDR4(LiteXModule):
             io.awcobuf.eq(0),
             io.resetn.eq(~ResetSignal()),
         ]
-            
+
         cfgs = [(f"cfg", 0,
             Subsignal("start",  Pins(1)),
             Subsignal("reset",  Pins(1)),
@@ -225,12 +227,10 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq)
 
-
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Tz170 J484 Dev Kit", **kwargs)
         if hasattr(self.cpu, "cpu_clk"):
             self.comb += self.cpu.cpu_clk.eq(self.crg.cd_cpu.clk)
-
 
         # LPDDR4 SDRAM -----------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -259,7 +259,7 @@ class BaseSoC(SoCCore):
                 axi_lite_bus = axi.AXILiteInterface(data_width=axi_bus.data_width, address_width=axi_bus.address_width)
                 self.submodules += axi.AXILite2AXI(axi_lite_bus, axi_bus)
                 self.bus.add_slave("main_ram", axi_lite_bus, soc_region)
-        
+
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MX25U25645G
@@ -280,7 +280,6 @@ class BaseSoC(SoCCore):
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
-
 
 # Build --------------------------------------------------------------------------------------------
 

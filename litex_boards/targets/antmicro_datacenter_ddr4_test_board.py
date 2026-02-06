@@ -73,7 +73,6 @@ class _CRG(LiteXModule):
             video_pll.create_clkout(self.cd_hdmi,   40e6)
             video_pll.create_clkout(self.cd_hdmi5x, 5*40e6)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -171,7 +170,6 @@ class BaseSoC(SoCCore):
             self.sdram.controller.settings.timing))
         f.close()
 
-
 # Build --------------------------------------------------------------------------------------------
 
 class LiteDRAMSettingsEncoder(json.JSONEncoder):
@@ -185,6 +183,7 @@ class LiteDRAMSettingsEncoder(json.JSONEncoder):
             return o.value
         print('o', end=' = '); __import__('pprint').pprint(o)
         return super().default(o)
+
 
 def main():
     from litex.build.parser import LiteXArgumentParser

@@ -89,7 +89,6 @@ class _CRG(LiteXModule):
         #pll.create_clkout(self.cd_dvo, 148.35e6)       # 1920x1080@60
         #pll.create_clkout(self.cd_dvo, 148.2e6)        # 1920x1200@60
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):

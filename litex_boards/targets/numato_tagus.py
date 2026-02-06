@@ -25,7 +25,6 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT41J128M16
 from litedram.phy import s7ddrphy
 
-
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.software import generate_litepcie_software
 

@@ -48,7 +48,6 @@ class _CRG(LiteXModule):
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
-
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="vivado", sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
         platform = digilent_zedboard.Platform(toolchain)
@@ -139,9 +138,7 @@ class BaseSoC(SoCCore):
 #endif
 ''')
 
-
 # Build --------------------------------------------------------------------------------------------
-
 
 def main():
     from litex.build.parser import LiteXArgumentParser
@@ -166,7 +163,6 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
-
 
 if __name__ == "__main__":
     main()

@@ -89,6 +89,7 @@ class AsyncSRAM(LiteXModule):
         ]
         ########################
 
+
 def addAsyncSram(soc, platform, name, origin, size):
     ram_bus = wishbone.Interface(data_width=soc.bus.data_width)
     ram     = AsyncSRAM(platform,size)
@@ -151,4 +152,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -23,7 +23,6 @@ from litex.soc.cores.clock    import Agilex5PLL
 from litex.soc.cores.hyperbus import HyperRAM
 from litex.soc.cores.led      import LedChaser
 
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -113,7 +112,6 @@ class BaseSoC(SoCCore):
                 self.comb += hyperram_bus.connect(self.hyperram.bus)
 
         # Ethernet / Etherbone (Requires ziggybridge-mkr) ------------------------------------------
-
         if with_ethernet or with_etherbone:
             from litex.build.generic_platform import Pins, Subsignal, IOStandard
             def eth_lan8720_rmii_pmod_io(pmod):

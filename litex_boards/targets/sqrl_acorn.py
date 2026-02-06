@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Build/Use ----------------------------------------------------------------------------------------
+
 # Build/Load bitstream:
 # ./sqrl_acorn.py --uart-name=crossover --with-pcie --build --driver --load (or --flash)
 #

@@ -54,7 +54,6 @@ class _CRG(LiteXModule):
         sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked | ~por_done )
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -99,7 +98,6 @@ class BaseSoC(SoCCore):
             from litespi.modules import MX25L12833F
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="4x", clk_freq=100_000, module=MX25L12833F(Codes.READ_4_4_4), with_master=True)
-
 
 # Build --------------------------------------------------------------------------------------------
 

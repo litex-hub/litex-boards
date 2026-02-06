@@ -37,7 +37,6 @@ from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, use_psu_clk=False):
         self.rst    = Signal()
@@ -63,7 +62,6 @@ class _CRG(LiteXModule):
             platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
 
 # BaseSoC ------------------------------------------------------------------------------------------
-
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=25e6, with_led_chaser=True, **kwargs):
@@ -157,7 +155,6 @@ class BaseSoC(SoCCore):
 #endif
 ''')
 
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -183,7 +180,6 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer(args.cable)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
-
 
 if __name__ == "__main__":
     main()

@@ -26,7 +26,6 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
-
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, use_ps7_clk=False, with_eth=False):
         self.rst    = Signal()
@@ -64,9 +63,7 @@ class _CRG(LiteXModule):
             # IdelayCtrl.
             self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
-
 
 class BaseSoC(SoCCore):
     def __init__(self, variant="xc7z020", toolchain="vivado", sys_clk_freq=100e6,
@@ -184,9 +181,7 @@ class BaseSoC(SoCCore):
 #endif
 ''')
 
-
 # Build --------------------------------------------------------------------------------------------
-
 
 def main():
     from litex.build.parser import LiteXArgumentParser

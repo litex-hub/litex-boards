@@ -144,6 +144,7 @@ class BaseSoC(SoCCore):
             )
 
 # Build --------------------------------------------------------------------------------------------
+
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_zc706.Platform, description="LiteX SoC on ZC706.")

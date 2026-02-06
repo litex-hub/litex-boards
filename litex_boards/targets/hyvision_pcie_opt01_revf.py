@@ -13,6 +13,7 @@
 #
 # | Pins |  1  |  2  |  3  |  4  |  5  |  6  |
 # |------|-----|-----|-----|-----|-----|-----|
+
 # | Pins | TMS | TDI | TDO | TCK | GND | VCC |
 
 from migen import *
@@ -129,6 +130,7 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
+
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=hyvision_pcie_opt01_revf.Platform, description="LiteX SoC on HyVision PCIe OPT01 refv.")

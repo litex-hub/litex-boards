@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Build/Use ----------------------------------------------------------------------------------------
+
 # Build/Load bitstream:
 # ./ocp_tap_timecard.py --uart-name=crossover --with-pcie --with-smas --build --driver --load (or --flash)
 #

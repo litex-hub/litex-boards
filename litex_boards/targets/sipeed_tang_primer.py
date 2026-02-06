@@ -20,7 +20,6 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -82,7 +81,6 @@ def main():
     if args.flash:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="flash", ext=".bin")) # FIXME
-
 
 if __name__ == "__main__":
     main()

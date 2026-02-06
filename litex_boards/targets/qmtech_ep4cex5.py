@@ -85,7 +85,6 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = qmtech_ep4cex5.Platform(variant=variant, with_daughterboard=with_daughterboard)
 
-
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq,
             with_ethernet = with_ethernet or with_etherbone,

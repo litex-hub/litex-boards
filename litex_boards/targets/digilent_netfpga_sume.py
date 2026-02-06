@@ -38,7 +38,7 @@ class _CRG(LiteXModule):
         self.cd_sys4x     = ClockDomain()
         self.cd_idelay = ClockDomain()
         self.cd_sfp   = ClockDomain()
-   
+
         self.pll = pll = S7PLL(speedgrade = -2)
         self.comb += pll.reset.eq(platform.request("cpu_reset_n") | self.rst)
         pll.register_clkin(platform.request("clk200"), 200e6)
@@ -46,7 +46,7 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_idelay,    200e6)
         pll.create_clkout(self.cd_sfp,    200e6)
-        
+
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
@@ -84,7 +84,7 @@ class BaseSoC(SoCCore):
                 size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192),
             )
-            
+
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.ethphy = V7_1000BASEX(
@@ -100,13 +100,13 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
         if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
-                
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
-                
+
         # I2C Bus ----------------------------------------------------------------------------------
         if with_i2c:
             self.i2c = I2CMaster(platform.request("i2c"))
@@ -127,7 +127,7 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support.")
-    
+
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -140,12 +140,12 @@ def main():
         with_i2c       = args.with_i2c,
         **parser.soc_argdict
     )
-    
+
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
-        
+
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

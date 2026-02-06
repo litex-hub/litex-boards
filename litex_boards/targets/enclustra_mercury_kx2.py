@@ -42,7 +42,6 @@ class _CRG(LiteXModule):
 
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):

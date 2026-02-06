@@ -112,8 +112,6 @@ class BaseSoC(SoCCore):
             #self.platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets eth_clocks_tx_IBUF]")
             self.add_constant("TARGET_BIOS_INIT", 1)
 
-
-
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MT25QL128
@@ -135,7 +133,7 @@ class BaseSoC(SoCCore):
             self.submodules.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
-        
+
         if kwargs["uart_name"] == "serial":
             kwargs["uart_name"] = "jtag_serial"
 

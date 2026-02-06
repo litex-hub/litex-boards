@@ -106,6 +106,5 @@ def main():
     if args.build:
         builder.build(**parser.toolchain_argdict)
 
-
 if __name__ == "__main__":
     main()

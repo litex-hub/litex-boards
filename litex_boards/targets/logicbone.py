@@ -135,7 +135,6 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"))
             self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
-
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(

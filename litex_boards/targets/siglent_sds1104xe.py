@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Build/Use ----------------------------------------------------------------------------------------
+
 # Build/Load bitstream:
 # ./siglent_sds1104xe.py --with-etherbone --uart-name=crossover --csr-csv=csr.csv --build --load
 #
@@ -19,6 +20,7 @@
 #
 #
 # With Jtagbone ------------------------------------------------------------------------------------
+
 # Build/Load bitstream:
 # ./siglent_sds1104xe.py --with-jtagbone --uart-name=crossover --csr-csv=csr.csv --build --load
 #

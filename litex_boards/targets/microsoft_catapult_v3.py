@@ -39,7 +39,6 @@ class _CRG(LiteXModule):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
         self.comb += ResetSignal("sys").eq(~por_done | self.rst)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):

@@ -34,7 +34,7 @@ class _CRG(LiteXModule):
         pll.register_clkin(platform.request("clk50"), 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
-        
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -48,7 +48,7 @@ class BaseSoC(SoCCore):
         #if kwargs["uart_name"] == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
         kwargs["uart_name"] = "serial"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AX7010", **kwargs)
-        
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(

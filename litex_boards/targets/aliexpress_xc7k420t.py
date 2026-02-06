@@ -64,6 +64,7 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------  
+
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=aliexpress_xc7k420t.Platform, description="LiteX SoC on AliExpress u420t.")

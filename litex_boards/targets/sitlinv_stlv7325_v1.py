@@ -116,8 +116,6 @@ class BaseSoC(SoCCore):
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
-
-
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
             self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),

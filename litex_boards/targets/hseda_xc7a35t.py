@@ -23,7 +23,6 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
 
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):

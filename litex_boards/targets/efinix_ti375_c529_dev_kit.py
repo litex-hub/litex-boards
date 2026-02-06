@@ -74,7 +74,6 @@ class _CRG(LiteXModule):
         pll.create_clkout(None,               800e6) # LPDDR4 ctrl
         pll.create_clkout(self.cd_video,       40e6)
 
-        
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_usb.clk)
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_sys.clk)
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_video.clk)
@@ -207,7 +206,7 @@ class EfinixLPDDR4(LiteXModule):
             io.awcobuf.eq(0),
             io.resetn.eq(~ResetSignal()),
         ]
-            
+
         cfgs = [(f"cfg", 0,
             Subsignal("start",  Pins(1)),
             Subsignal("reset",  Pins(1)),
@@ -253,7 +252,6 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq)
-
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Ti375 C529 Dev Kit", **kwargs)
@@ -475,7 +473,7 @@ class BaseSoC(SoCCore):
                  Misc("SLEWRATE=1"), Misc("DRIVE_STRENGTH=8")
                  )
             ]
-            
+
             self.platform.add_extension(_debug_io)
             debug_io = platform.request("debug_io")
 
@@ -542,7 +540,6 @@ class BaseSoC(SoCCore):
             # self.specials += DDROutput(i1=Signal(reset=1), i2=Signal(reset=0), o=debug_io.p4, clk=self.cd_eth_rx.clk)
             # self.specials += DDROutput(i1=self.cpu.eth_rx_ctl[0], i2=self.cpu.eth_rx_ctl[1], o=debug_io.p5, clk=self.cd_eth_rx.clk)
 
-
         # LPDDR4 SDRAM -----------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
             if hasattr(self.cpu, "add_memory_buses") and hasattr(self.cpu, "cpu_clk"):
@@ -570,7 +567,7 @@ class BaseSoC(SoCCore):
                 axi_lite_bus = axi.AXILiteInterface(data_width=axi_bus.data_width, address_width=axi_bus.address_width)
                 self.submodules += axi.AXILite2AXI(axi_lite_bus, axi_bus)
                 self.bus.add_slave("main_ram", axi_lite_bus, soc_region)
-        
+
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import IS25WP512M

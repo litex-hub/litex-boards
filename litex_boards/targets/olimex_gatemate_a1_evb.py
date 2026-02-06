@@ -23,7 +23,6 @@ from litex.build.generic_platform import Pins
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import VideoVGAPHY
 
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):

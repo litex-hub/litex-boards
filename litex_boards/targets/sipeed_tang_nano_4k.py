@@ -40,7 +40,6 @@ class _CRG(LiteXModule):
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
-
         # Video PLL
         if with_video_pll:
             self.video_pll = video_pll = GW1NPLL(devicename=platform.devicename, device=platform.device)

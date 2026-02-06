@@ -57,7 +57,6 @@ class _CRG(LiteXModule):
         sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):

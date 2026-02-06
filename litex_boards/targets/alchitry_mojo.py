@@ -128,7 +128,7 @@ class BaseSoC(SoCCore):
                 module        = MT48LC32M8(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 1 * KILOBYTE)
             )
-        
+
         # HDMI Options -----------------------------------------------------------------------------
         if with_hdmi_shield and (with_video_colorbars or with_video_framebuffer or with_video_terminal):
             self.videophy = VideoS6HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")

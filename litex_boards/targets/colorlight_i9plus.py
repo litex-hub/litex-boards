@@ -20,7 +20,6 @@
 # However, is provides PMOD-compatible headers and the ethernet IOs are compatible.
 # See https://github.com/wuxx/Colorlight-FPGA-Projects#ext-board for more infos.
 
-
 from migen import *
 
 from litex.gen import *
@@ -71,7 +70,6 @@ class _CRG(LiteXModule):
 
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -115,7 +113,6 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
-
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.ethphy = LiteEthPHYRGMII(
@@ -139,7 +136,6 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq,
             )
-
 
 # Build --------------------------------------------------------------------------------------------
 

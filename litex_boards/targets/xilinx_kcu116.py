@@ -155,7 +155,6 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------
 
-
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_kcu116.Platform, description="LiteX SoC on KCU116.")
@@ -192,7 +191,6 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
-
 
 if __name__ == "__main__":
     main()

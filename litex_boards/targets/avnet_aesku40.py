@@ -90,7 +90,7 @@ class BaseSoC(SoCCore):
                     for item in special.items:
                         if item.name == "REFCLK_FREQUENCY":
                             item.value=200.00
-                            
+
             self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
@@ -105,7 +105,6 @@ class BaseSoC(SoCCore):
                 size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
-
 
 # Build --------------------------------------------------------------------------------------------
 

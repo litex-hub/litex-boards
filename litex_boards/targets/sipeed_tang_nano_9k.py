@@ -120,7 +120,6 @@ class BaseSoC(SoCCore):
             self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Free up BRAMs.
 
-
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(

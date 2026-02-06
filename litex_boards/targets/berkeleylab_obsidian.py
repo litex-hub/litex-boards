@@ -37,10 +37,11 @@ from liteiclink.serdes.gtp_7series import GTPQuadPLL, GTP
 from litex_boards.platforms import berkeleylab_obsidian
 from litex_boards.platforms.berkeleylab_obsidian import raw_pmod_io
 
-
 # ---------------------------
+
 #  Clock and reset generator
 # ---------------------------
+
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, resets=[]):
         self.rst = Signal()
@@ -77,10 +78,11 @@ class _CRG(LiteXModule):
 
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
-
 # ---------------------------
+
 #  BaseSoC
 # ---------------------------
+
 class BaseSoC(SoCCore):
     def __init__(
         self,
@@ -222,10 +224,11 @@ class BaseSoC(SoCCore):
 
         return serdes
 
-
 # ---------------------------
+
 #  CLI examples
 # ---------------------------
+
 def main():
     from litex.build.parser import LiteXArgumentParser
 
@@ -263,7 +266,6 @@ def main():
     if args.load:
         prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
-
 
 if __name__ == "__main__":
     main()

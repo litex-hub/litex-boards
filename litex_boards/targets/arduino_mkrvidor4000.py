@@ -44,7 +44,6 @@ class _CRG(LiteXModule):
         # SDRAM clock
         self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):

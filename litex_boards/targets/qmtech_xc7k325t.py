@@ -111,8 +111,6 @@ class BaseSoC(SoCCore):
             #self.platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets eth_clocks_tx_IBUF]")
             self.add_constant("TARGET_BIOS_INIT", 1)
 
-
-
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MT25QL128

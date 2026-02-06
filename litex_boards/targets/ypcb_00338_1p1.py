@@ -107,7 +107,6 @@ class BaseSoC(SoCCore):
             platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y17 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[6].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
             platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y16 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[7].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
 
-
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(platform.request_all("user_led"), sys_clk_freq)

@@ -51,7 +51,6 @@ class _CRG(LiteXModule):
         self.specials += AsyncResetSynchronizer(self.cd_por, ~rst_n)
         self.specials += AsyncResetSynchronizer(self.cd_sys, (por_counter != 0) | self.rst)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):

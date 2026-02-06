@@ -163,7 +163,6 @@ class BaseSoC(SoCCore):
         if with_buttons:
             self.buttons = GPIOIn(pads=~platform.request_all("btn_n"))
 
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():

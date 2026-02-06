@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Load bit/bios ------------------------------------------------------------------------------------
+
 #
 # 1/ tcl script:
 # connect
@@ -46,7 +47,6 @@ from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, use_ps7_clk=False):
         self.rst    = Signal()
@@ -70,7 +70,6 @@ class _CRG(LiteXModule):
             platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
 
 # BaseSoC ------------------------------------------------------------------------------------------
-
 
 class BaseSoC(SoCCore):
     def __init__(self, variant="z7-20", toolchain="vivado", sys_clk_freq=125e6,
@@ -164,9 +163,7 @@ class BaseSoC(SoCCore):
 #endif
 ''')
 
-
 # Build --------------------------------------------------------------------------------------------
-
 
 def main():
     from litex.build.parser import LiteXArgumentParser

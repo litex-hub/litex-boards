@@ -23,6 +23,7 @@ from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
+
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, toolchain, use_ps7_clk=False, with_video_pll=False):
         self.rst       = Signal()

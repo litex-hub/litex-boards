@@ -14,7 +14,6 @@ from litex.gen import *
 
 from litex_boards.platforms import mnt_rkx7
 
-
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *

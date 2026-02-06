@@ -89,6 +89,7 @@ class AsyncSRAM(LiteXModule):
         ]
         ########################
 
+
 def addAsyncSram(soc, platform, name, origin, size):
     ram_bus = wishbone.Interface(data_width=soc.bus.data_width)
     ram     = AsyncSRAM(platform,size)
@@ -142,7 +143,6 @@ def main():
     parser.add_target_argument("--variant",        default="a7-35",          help="Board variant (a7-35 or a7-100).")
     parser.add_target_argument("--sys-clk-freq",   default=48e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
-
 
     args = parser.parse_args()
 

@@ -119,7 +119,7 @@ class BaseSoC(SoCCore):
             qsfp_id = int(match.group(1))
             sfp_lane = int(match.group(2))
             return (qsfp_id, sfp_lane)
-        
+
         qsfp_in_use = [False, False]
 
         if with_ethernet:
@@ -139,7 +139,6 @@ class BaseSoC(SoCCore):
                 refclk_from_fabric = True)
             self.add_etherbone(phy=self.bonephy, ip_address=etherbone_ip)
             qsfp_in_use[qsfp_id] = True
-
 
         for qsfp_id, in_use in enumerate(qsfp_in_use):
             if in_use:

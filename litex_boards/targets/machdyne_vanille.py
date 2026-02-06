@@ -111,7 +111,6 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
-
         kwargs['uart_name'] = "stub"
 
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Vanille", **kwargs)

@@ -87,7 +87,6 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------
 
-
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_xyloni_dev_kit.Platform, description="LiteX SoC on Efinix Xyloni Dev Kit.")

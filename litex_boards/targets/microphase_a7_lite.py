@@ -36,7 +36,6 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x_dqs = ClockDomain()
         self.clock_domains.cd_idelay    = ClockDomain()
 
-
         # # #
         self.stop   = Signal();
         self.reset  = Signal();
@@ -126,7 +125,6 @@ def main():
     if args.flash:
         prog = soc.platform.create_programmer()
         prog.flash(0, builder.get_bitstream_filename(mode="flash"))
-
 
 if __name__ == "__main__":
     main()

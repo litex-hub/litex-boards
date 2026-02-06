@@ -8,6 +8,7 @@
 
 # Build/Use
 # ---------
+
 # 1) Update CH552 firmware: https://qiita.com/ciniml/items/05ac7fd2515ceed3f88d
 # 2) Build/Load design: ./sipeed_tang_nano.py --csr-csv=csr.csv --build --load
 # 3) Patch litex_server (CH552 firmware seems to require receiving a few bytes before

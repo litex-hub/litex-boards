@@ -119,7 +119,6 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Noir", **kwargs)
 
         # DDR3L ----------------------------------------------------------------------------------
-
         if not self.integrated_main_ram_size:
             available_sdram_modules = {
                 "MT41K64M16":  MT41K64M16,

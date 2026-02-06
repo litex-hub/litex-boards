@@ -64,7 +64,7 @@ class BaseSoC(SoCCore):
             linker=True
         ))
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)
-        
+
         # CRG
         self.crg = _CRG(platform, sys_clk_freq)
 

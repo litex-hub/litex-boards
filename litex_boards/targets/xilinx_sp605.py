@@ -74,7 +74,6 @@ class VideoCH7301phy(LiteXModule):
         for i in range(12):
             self.specials += DDROutput(i1=dvi_data_a_delay[i], i2=dvi_data_b_delay[i], o=pads.d[i], clk=ClockSignal(clock_domain))
 
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -158,7 +157,6 @@ class _CRG(LiteXModule):
         self.pll2 = pll2 = S6PLL(speedgrade=-3)
         pll2.register_clkin(clk27, XTAL_VAL)
         pll2.create_clkout(self.cd_dvi, 148.5e6, with_reset=False)
-
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

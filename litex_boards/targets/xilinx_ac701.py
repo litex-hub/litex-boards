@@ -145,6 +145,7 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
+
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_ac701.Platform, description="LiteX SoC on AC701.")

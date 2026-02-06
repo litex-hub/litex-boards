@@ -102,7 +102,6 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------
 
-
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=jungle_electronics_fireant.Platform, description="LiteX SoC on Jungle Electronics FireAnt.")

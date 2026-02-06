@@ -27,6 +27,7 @@ from litex.soc.cores.video import VideoDVIPHY
 from litex.soc.cores.bitbang import I2CMaster
 
 # CRG ----------------------------------------------------------------------------------------------
+
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_video_pll=False):
         self.rst          = Signal()
@@ -52,11 +53,12 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_idelay,    200e6)
         pll.create_clkout(self.cd_hdmi,      148.5e6, margin=2e-2)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
-        
+
         # IDELAY Ctrl.
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
+
 class BaseSoC(SoCCore):
     def __init__(self,
                  sys_clk_freq           = int(200e6),
@@ -134,6 +136,7 @@ class BaseSoC(SoCCore):
                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
+
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alinx_ax7203.Platform, description="LiteX SoC on ALINX AX7203.")

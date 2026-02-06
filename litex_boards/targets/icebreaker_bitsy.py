@@ -92,7 +92,6 @@ class _CRG(LiteXModule):
             self.specials += AsyncResetSynchronizer(self.cd_sys, ~por_done | ~pll.locked)
             platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):

@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Build/Use ----------------------------------------------------------------------------------------
+
 # Build/Flash bitstream:
 # ./fairwaves_xtrx.py --uart-name=crossover --with-pcie --build --driver --flash
 #
@@ -94,7 +95,6 @@ class BaseSoC(SoCCore):
             from litex.soc.cores.spi_flash import S7SPIFlash
             self.flash_cs_n = GPIOOut(platform.request("flash_cs_n"))
             self.flash      = S7SPIFlash(platform.request("flash"), sys_clk_freq, 25e6)
-
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

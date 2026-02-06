@@ -50,7 +50,7 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk100, sys_clk_freq)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
-      
+
         if with_video_pll:
             self.video_pll = video_pll = S7PLL(speedgrade=-1)
             video_pll.reset.eq(~rst_n | self.rst)
@@ -61,7 +61,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    
+
     def __init__(self, sys_clk_freq=100e6,
         with_led_chaser     = True,
         with_video_terminal = True,
@@ -88,7 +88,7 @@ class BaseSoC(SoCCore):
             self.videophy = VideoHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
             self.add_video_colorbars(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") #Fixme Not enough BRAM
-        
+
         # Neopixel ---------------------------------------------------------------------------------
         # To test Nexpixel with LiteX BIOS:
         # - mem_list (to get ws2812_base).

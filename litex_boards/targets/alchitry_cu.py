@@ -27,7 +27,7 @@ class _CRG(LiteXModule):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
         self.cd_por = ClockDomain()
-    
+
         # Clk/Rst
         clk100  = platform.request("clk100")
         rst_n   = platform.request("cpu_reset")
@@ -115,7 +115,6 @@ def main():
 
     if args.flash:
         flash(builder.output_dir, soc.build_name, args.bios_flash_offset)
-
 
 if __name__ == "__main__":
     main()

@@ -32,7 +32,6 @@ from litedram.phy import s7ddrphy
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from litepcie.phy.s7pciephy import S7PCIEPHY
 
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):

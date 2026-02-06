@@ -57,7 +57,6 @@ class _CRG(LiteXModule):
         self.cd_usb       = ClockDomain()
         self.cd_usb_48    = ClockDomain()
 
-
         self.stop         = Signal()
         self.reset        = Signal()
 

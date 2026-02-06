@@ -90,7 +90,6 @@ class BaseSoC(SoCCore):
             )
 
         # Video ------------------------------------------------------------------------------------
-
         if with_video_colorbars or with_video_framebuffer or with_video_terminal:
 
             from litex.soc.interconnect import stream

@@ -88,7 +88,6 @@ class BaseSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------
 
-
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_t8f81_dev_kit.Platform, description="LiteX SoC on Efinix T8F81C Dev Kit.")

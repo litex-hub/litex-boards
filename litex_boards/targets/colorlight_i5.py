@@ -159,8 +159,6 @@ class BaseSoC(SoCCore):
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
-
-
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
             self.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain="hdmi")

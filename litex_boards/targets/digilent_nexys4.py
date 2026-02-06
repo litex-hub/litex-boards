@@ -27,7 +27,6 @@ from litex.soc.integration.soc import colorer
 from litex.soc.cores.video import VideoVGAPHY
 from liteeth.phy.rmii import LiteEthPHYRMII
 
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -55,6 +54,7 @@ class _CRG(LiteXModule):
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # CellularRAM (https://media.digikey.com/PDF/Data%20Sheets/Micron%20Technology%20Inc%20PDFs/MT45W8MW16BGX.pdf)
+
 
 class CellularRAM(LiteXModule):
     def __init__(self, soc, platform):
@@ -150,6 +150,7 @@ class CellularRAM(LiteXModule):
         )
         ########################
 
+
 def addCellularRAM(soc, platform, name, origin):
     size = 16 * MEGABYTE
     ram_bus = wishbone.Interface(data_width=soc.bus.data_width)
@@ -161,7 +162,6 @@ def addCellularRAM(soc, platform, name, origin):
         colorer("added", color="green"),
         soc.bus.regions[name]))
     setattr(soc.submodules, name, ram)
-
 
 # BaseSoC ------------------------------------------------------------------------------------------
 

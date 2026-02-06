@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Build/Use ----------------------------------------------------------------------------------------
+
 #
 # 1) SoC with regular UART and optional Ethernet connected to the CPU:
 # Connect a USB/UART to J19: TX of the FPGA is DATA_LED-, RX of the FPGA is KEY+.
@@ -42,7 +43,6 @@
 #
 # Note you can also use the i5a-907 board:
 # ./colorlight_5a_75x.py --board=i5a-907 --revision=7.0 --build
-
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -216,7 +216,6 @@ class BaseSoC(SoCCore):
             from litespi.opcodes import SpiNorFlashOpCodes
             self.mem_map["spiflash"] = 0x20000000
             self.add_spi_flash(mode="1x", module=SpiFlashModule(SpiNorFlashOpCodes.READ_1_1_1), with_master=False)
-
 
 # Build --------------------------------------------------------------------------------------------
 
