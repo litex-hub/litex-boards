@@ -66,7 +66,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="200t", programmer="vivado", toolchain="vivado", sys_clk_freq=int(100e6), speedgrade=-1,
+    def __init__(self, variant="200t", toolchain="vivado", sys_clk_freq=int(100e6), speedgrade=-1,
         with_xadc       = False,
         with_dna        = False,
         with_ethernet   = False,
@@ -77,7 +77,7 @@ class BaseSoC(SoCCore):
         with_sdcard     = False,
         with_spi_sdcard = False,
         **kwargs):
-        platform = microphase_a7_lite.Platform(variant=variant, programmer=programmer, toolchain=toolchain)
+        platform = microphase_a7_lite.Platform(variant=variant, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         with_dram = (kwargs.get("integrated_main_ram_size", 0) == 0)
@@ -165,7 +165,6 @@ def main():
     parser.add_target_argument("--with-buttons",   action="store_true",       help="Enable User Buttons.")
     parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
     parser.add_target_argument("--with-i2c",       action="store_true",       help="Enable I2C.")
-    parser.add_target_argument("--programmer",     default="vivado",          help="Programmer (vivado or openocd).")
     parser.add_target_argument("--with-sdcard",    action="store_true",       help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash.")
     parser.add_target_argument("--with-spi-sdcard",action="store_true",       help="Enable SPI-mode SDCard support.")
@@ -181,7 +180,6 @@ def main():
         with_buttons   = args.with_buttons,
         with_ethernet  = args.with_ethernet,
         with_i2c       = args.with_i2c,
-        programmer     = args.programmer,
         with_sdcard    = args.with_sdcard,
         with_spi_flash = args.with_spi_flash,
         with_spi_sdcard= args.with_spi_sdcard,

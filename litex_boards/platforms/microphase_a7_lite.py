@@ -134,13 +134,12 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self, variant="200t", programmer="vivado",toolchain="vivado"):
+    def __init__(self, variant="200t",toolchain="vivado"):
         device = {
             "35t"  : "xc7a35t-fgg484-2",
             "100t" : "xc7a100t-fgg484-2",
             "200t" : "xc7a200t-fbg484-2"
         }[variant]
-        self.programmer = programmer
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain="vivado")
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
@@ -150,18 +149,7 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
 
     def create_programmer(self):
-        if self.programmer == "vivado":
-            return VivadoProgrammer(flash_part="is25lp128f-spi-x1_x2_x4")
-        elif self.programmer == "openocd":
-            if "xc7a35t" in self.device:
-                proxy = "bscan_spi_xc7a35t.bit"
-            elif "xc7a100t" in self.device:
-                proxy = "bscan_spi_xc7a100t.bit"
-            else:
-                proxy = "bscan_spi_xc7a200t.bit"
-            return OpenOCD("openocd_xc7_ft2232.cfg", proxy)
-        else:
-            raise ValueError(f"Unknown programmer: {self.programmer}")
+        return VivadoProgrammer(flash_part="is25lp128f-spi-x1_x2_x4")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
