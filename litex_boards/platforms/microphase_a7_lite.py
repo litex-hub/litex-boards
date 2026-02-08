@@ -7,7 +7,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
-from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
