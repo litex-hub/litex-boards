@@ -70,6 +70,10 @@ class BaseSoC(SoCCore):
         with_xadc       = False,
         with_dna        = False,
         with_ethernet   = False,
+        with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
         with_led_chaser = True,
         with_spi_flash  = False,
         with_i2c        = False,
@@ -107,15 +111,20 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
-        # Ethernet ---------------------------------------------------------------------------------
-        if with_ethernet:
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
             self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
-                tx_delay   = 2e-9,
-                rx_delay   = 2e-9,
+                tx_delay   = 0e-9,
+                rx_delay   = 0e-9,
+                phy_addr   = 1,
                 iodelay_clk_freq = 200e6)
-            self.add_ethernet(phy=self.ethphy)
+            self.comb += self.platform.request("eth_rst_n").eq(1)
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            elif with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -161,6 +170,10 @@ def main():
     parser.add_target_argument("--with-dna",       action="store_true",       help="Enable 7-Series DNA.")
     parser.add_target_argument("--with-buttons",   action="store_true",       help="Enable User Buttons.")
     parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--with-i2c",       action="store_true",       help="Enable I2C.")
     parser.add_target_argument("--with-sdcard",    action="store_true",       help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash.")
@@ -176,6 +189,10 @@ def main():
         with_dna       = args.with_dna,
         with_buttons   = args.with_buttons,
         with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
         with_i2c       = args.with_i2c,
         with_sdcard    = args.with_sdcard,
         with_spi_flash = args.with_spi_flash,
