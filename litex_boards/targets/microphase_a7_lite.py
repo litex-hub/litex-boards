@@ -86,9 +86,6 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Microphase A7-Lite", **kwargs)
 
-        # UART Polling
-        self.add_constant("UART_POLLING")
-
         # XADC -------------------------------------------------------------------------------------
         if with_xadc:
             self.xadc = XADC()
