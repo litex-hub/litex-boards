@@ -118,9 +118,8 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"),
                 tx_delay   = 0e-9,
                 rx_delay   = 0e-9,
-                phy_addr   = 1,
                 iodelay_clk_freq = 200e6)
-            self.comb += self.platform.request("eth_rst_n").eq(1)
+            self.ethphy.address = 1
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             elif with_ethernet:
@@ -175,9 +174,9 @@ def main():
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
     parser.add_target_argument("--with-i2c",       action="store_true",       help="Enable I2C.")
+    parser.add_target_argument("--with-spi-sdcard",action="store_true",       help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-sdcard",    action="store_true",       help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash.")
-    parser.add_target_argument("--with-spi-sdcard",action="store_true",       help="Enable SPI-mode SDCard support.")
     args = parser.parse_args()
 
     soc = BaseSoC(
