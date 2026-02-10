@@ -35,14 +35,12 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, speedgrade=-1, with_dram=True):
-        self.rst    = Signal()
-        self.cd_sys = ClockDomain()
+        self.rst          = Signal()
+        self.cd_sys       = ClockDomain()
         if with_dram:
             self.cd_sys4x     = ClockDomain()
             self.cd_sys4x_dqs = ClockDomain()
-            self.cd_idelay    = ClockDomain()
-
-        # # #
+        self.cd_idelay    = ClockDomain()
 
         # Clk/Rst.
         clk50  = platform.request("clk50")
@@ -57,11 +55,10 @@ class _CRG(LiteXModule):
         if with_dram:
             pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
             pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
-            pll.create_clkout(self.cd_idelay,    200e6)
+        pll.create_clkout(self.cd_idelay,    200e6)
 
         # IdelayCtrl.
-        if with_dram:
-            self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+        self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -116,8 +113,8 @@ class BaseSoC(SoCCore):
             self.ethphy = LiteEthPHYRGMII(
                 clock_pads = self.platform.request("eth_clocks"),
                 pads       = self.platform.request("eth"),
-                tx_delay   = 0e-9,
-                rx_delay   = 0e-9,
+                tx_delay   = 2e-9,
+                rx_delay   = 2e-9,
                 iodelay_clk_freq = 200e6)
             self.ethphy.address = 1
             if with_etherbone:
