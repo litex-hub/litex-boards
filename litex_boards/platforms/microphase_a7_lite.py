@@ -108,7 +108,7 @@ _io = [
         Subsignal("mdio",    Pins("M20"), Misc("PULLUP=TRUE")),
         Subsignal("mdc",     Pins("M22")),
         Subsignal("rx_ctl",  Pins("K19")),
-        Subsignal("rx_data", Pins("L14 L16 M15 M16")),
+        Subsignal("rx_data", Pins("L14 M15 L16 M16")),
         Subsignal("tx_ctl",  Pins("N20"), Misc("SLEW=FAST"), Misc("DRIVE=8")),
         Subsignal("tx_data", Pins("K16 L15 L13 M13"), Misc("SLEW=FAST"), Misc("DRIVE=8")),
         IOStandard("LVCMOS33")
