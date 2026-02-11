@@ -111,11 +111,9 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"),
                 tx_delay   = 2e-9,
                 rx_delay   = 2e-9,
-                iodelay_clk_freq = 200e6)
+                iodelay_clk_freq = 200e6,
+                hw_reset_cycles = int(50e-3 * sys_clk_freq))
             self.add_ethernet(phy=self.ethphy)
-            eth_rst_n = platform.request("eth_rst_n", loose=True)
-            if eth_rst_n is not None:
-                self.comb += eth_rst_n.eq(~self.crg.cd_sys.rst)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
