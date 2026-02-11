@@ -116,7 +116,6 @@ class BaseSoC(SoCCore):
                 tx_delay   = 2e-9,
                 rx_delay   = 2e-9,
                 iodelay_clk_freq = 200e6)
-            self.ethphy.address = 1
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             elif with_ethernet:
