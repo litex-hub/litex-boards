@@ -37,9 +37,8 @@ class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, speedgrade=-1, with_dram=True):
         self.rst          = Signal()
         self.cd_sys       = ClockDomain()
-        if with_dram:
-            self.cd_sys4x     = ClockDomain()
-            self.cd_sys4x_dqs = ClockDomain()
+        self.cd_sys4x     = ClockDomain()
+        self.cd_sys4x_dqs = ClockDomain()
         self.cd_idelay    = ClockDomain()
 
         # Clk/Rst.
@@ -52,9 +51,8 @@ class _CRG(LiteXModule):
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
-        if with_dram:
-            pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
-            pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
+        pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
         pll.create_clkout(self.cd_idelay,    200e6)
 
         # IdelayCtrl.
