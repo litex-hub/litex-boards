@@ -61,7 +61,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="200t", toolchain="vivado", sys_clk_freq=int(100e6), speedgrade=-1,
+    def __init__(self, variant="200t", toolchain="vivado", sys_clk_freq=int(100e6), speedgrade=-2,
         with_xadc       = False,
         with_dna        = False,
         with_ethernet   = False,
