@@ -19,8 +19,6 @@ _io = [
     ("user_led", 0, Pins("M18"),  IOStandard("LVCMOS33")), #green_led 1
     ("user_led", 1, Pins("N18"),  IOStandard("LVCMOS33")), #green_led 2
 
-    # Switches
-
     # Buttons
     ("user_btn", 0, Pins("AA1"), IOStandard("LVCMOS33")), #KEY1
     ("user_btn", 1, Pins("W1"),  IOStandard("LVCMOS33")), #KEY2
