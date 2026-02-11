@@ -97,7 +97,7 @@ _io = [
 
     # RGMII Ethernet (RTL8211E)
     ("eth_clocks", 0,
-        Subsignal("tx", Pins("K17"), Misc("SLEW=FAST"), Misc("DRIVE=8")),
+        Subsignal("tx", Pins("K17")),
         Subsignal("rx", Pins("K18")),
         IOStandard("LVCMOS33")
     ),
@@ -107,8 +107,8 @@ _io = [
         Subsignal("mdc",     Pins("M22")),
         Subsignal("rx_ctl",  Pins("K19")),
         Subsignal("rx_data", Pins("L14 M15 L16 M16")),
-        Subsignal("tx_ctl",  Pins("N20"), Misc("SLEW=FAST"), Misc("DRIVE=8")),
-        Subsignal("tx_data", Pins("K16 L15 L13 M13"), Misc("SLEW=FAST"), Misc("DRIVE=8")),
+        Subsignal("tx_ctl",  Pins("N20")),
+        Subsignal("tx_data", Pins("K16 L15 L13 M13")),
         IOStandard("LVCMOS33")
     ),
 ]
