@@ -133,13 +133,13 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self, variant="200t",toolchain="vivado"):
+    def __init__(self, variant="200t", toolchain="vivado"):
         device = {
             "35t"  : "xc7a35t-fgg484-2",
             "100t" : "xc7a100t-fgg484-2",
             "200t" : "xc7a200t-fbg484-2"
         }[variant]
-        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain="vivado")
+        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = \
@@ -153,3 +153,6 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+        eth_clocks = self.lookup_request("eth_clocks", loose=True)
+        if eth_clocks is not None:
+            self.add_period_constraint(eth_clocks.rx, 1e9/125e6)
