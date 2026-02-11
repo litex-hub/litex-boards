@@ -173,7 +173,6 @@ def main():
         with_dna       = args.with_dna,
         with_buttons   = args.with_buttons,
         with_ethernet  = args.with_ethernet,
-        with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
