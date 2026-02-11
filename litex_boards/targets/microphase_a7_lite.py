@@ -114,6 +114,7 @@ class BaseSoC(SoCCore):
                 iodelay_clk_freq = 200e6,
                 hw_reset_cycles = int(50e-3 * sys_clk_freq))
             self.add_ethernet(phy=self.ethphy)
+            self.ethphy.address = 1
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
