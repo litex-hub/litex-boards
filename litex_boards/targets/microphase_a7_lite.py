@@ -111,8 +111,7 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"),
                 tx_delay   = 2e-9,
                 rx_delay   = 2e-9,
-                iodelay_clk_freq = 200e6,
-                hw_reset_cycles = int(50e-3 * sys_clk_freq))
+                iodelay_clk_freq = 200e6)
             self.add_ethernet(phy=self.ethphy)
 
         # SPI Flash --------------------------------------------------------------------------------
