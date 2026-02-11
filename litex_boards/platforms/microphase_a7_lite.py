@@ -97,7 +97,7 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # RGMII Ethernet (RTL8211F)
+    # RGMII Ethernet (RTL8211E)
     ("eth_clocks", 0,
         Subsignal("tx", Pins("K17"), Misc("SLEW=FAST"), Misc("DRIVE=8")),
         Subsignal("rx", Pins("K18")),
