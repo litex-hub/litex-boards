@@ -44,13 +44,13 @@ _io = [
         Subsignal("cs_n", Pins("T19")),
         Subsignal("mosi", Pins("P22")),
         Subsignal("miso", Pins("R22")),
-        Subsignal("wp",   Pins("P21"), Misc("PULLUP=TRUE")),
-        Subsignal("hold", Pins("R21"), Misc("PULLUP=TRUE")),
+        Subsignal("wp",   Pins("P21")),
+        Subsignal("hold", Pins("R21")),
         IOStandard("LVCMOS33")
     ),
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("T19")),
-        Subsignal("dq",   Pins("P22 R22 P21 R21"), Misc("PULLUP=TRUE")),
+        Subsignal("dq",   Pins("P22 R22 P21 R21")),
         IOStandard("LVCMOS33")
     ),
 
