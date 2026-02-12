@@ -97,14 +97,15 @@ class BaseSoC(SoCCore):
                 data_width = 128,
                 bar0_size  = 0x20000
             )
+            self.pcie_phy.update_config({
+                "mode_selection"   : "Advanced",
+                "en_gt_selection"  : "true",
+                "select_quad"      : "GTY_Quad_225",
+                "pcie_blk_locn"    : "X0Y0",
+                "gen_x0y0"         : "true",
+                "gen_x1y0"         : "false",
+            })
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
-
-            # Set manual locations to avoid Vivado to remap lanes.
-            platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~pcie_usp/*GTYE4_CHANNEL_PRIM_INST}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTYE4_CHANNEL_X0Y7 [get_cells -hierarchical -filter {{NAME=~pcie_usp/*gtye4_channel_gen.gen_gtye4_channel_inst[3].GTYE4_CHANNEL_PRIM_INST}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTYE4_CHANNEL_X0Y6 [get_cells -hierarchical -filter {{NAME=~pcie_usp/*gtye4_channel_gen.gen_gtye4_channel_inst[2].GTYE4_CHANNEL_PRIM_INST}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTYE4_CHANNEL_X0Y5 [get_cells -hierarchical -filter {{NAME=~pcie_usp/*gtye4_channel_gen.gen_gtye4_channel_inst[1].GTYE4_CHANNEL_PRIM_INST}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTYE4_CHANNEL_X0Y4 [get_cells -hierarchical -filter {{NAME=~pcie_usp/*gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST}}]")
 
         # LEDs -------------------------------------------------------------------------------------
         if with_led_chaser:
