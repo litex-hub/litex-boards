@@ -96,15 +96,15 @@ class BaseSoC(SoCCore):
                 self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x2"),
                     data_width = 64,
                     bar0_size  = 0x20000)
-                platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~*gtp_channel.gtpe2_channel_i}}]")
+                platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtp_channel.gtpe2_channel_i}}]")
                 platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y5 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}}]")
                 platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y6 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[1].gt_wrapper_i/gtp_channel.gtpe2_channel_i}}]")
             else:
                 self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"),
                     data_width = 64,
                     bar0_size  = 0x20000)
-                platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~*gtp_channel.gtpe2_channel_i}}]")
-                platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y5 [get_cells -hierarchical -filter {{NAME=~*gtp_channel.gtpe2_channel_i}}]")
+                platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtp_channel.gtpe2_channel_i}}]")
+                platform.toolchain.pre_placement_commands.append("set_property LOC GTPE2_CHANNEL_X0Y5 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtp_channel.gtpe2_channel_i}}]")
 
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
