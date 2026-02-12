@@ -34,7 +34,7 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, speedgrade=-1, with_dram=True):
+    def __init__(self, platform, sys_clk_freq, speedgrade=-2, with_dram=True):
         self.rst          = Signal()
         self.cd_sys       = ClockDomain()
         self.cd_sys4x     = ClockDomain()
@@ -151,7 +151,7 @@ def main():
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="200t",            help="Board variant (35t, 100t or 200t).")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--speedgrade",     default=-1, type=int,      help="FPGA speedgrade (-1 or -2).")
+    parser.add_target_argument("--speedgrade",     default=-2, type=int,      help="FPGA speedgrade (-1 or -2).")
     parser.add_target_argument("--with-xadc",      action="store_true",       help="Enable 7-Series XADC.")
     parser.add_target_argument("--with-dna",       action="store_true",       help="Enable 7-Series DNA.")
     parser.add_target_argument("--with-buttons",   action="store_true",       help="Enable User Buttons.")
