@@ -41,14 +41,15 @@ _io = [
     ("spiflash", 0,
         Subsignal("cs_n", Pins("T19")),
         Subsignal("mosi", Pins("P22")),
-        Subsignal("miso", Pins("R22")),
+        Subsignal("miso", Pins("R22"), Misc("PULLUP=TRUE")),
         Subsignal("wp",   Pins("P21")),
         Subsignal("hold", Pins("R21")),
         IOStandard("LVCMOS33")
     ),
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("T19")),
-        Subsignal("dq",   Pins("P22 R22 P21 R21")),
+        Subsignal("dq",   Pins("P22 R22 P21 R21"), Misc("PULLUP=TRUE")),
+        Misc("SLEW=FAST"),
         IOStandard("LVCMOS33")
     ),
 
@@ -97,7 +98,7 @@ _io = [
 
     # RGMII Ethernet (RTL8211E)
     ("eth_clocks", 0,
-        Subsignal("tx", Pins("K17"), Misc("SLEW=FAST"), Misc("DRIVE=12")),
+        Subsignal("tx", Pins("K17"), Misc("SLEW=FAST")),
         Subsignal("rx", Pins("K18")),
         IOStandard("LVCMOS33")
     ),
@@ -107,8 +108,8 @@ _io = [
         Subsignal("mdc",     Pins("M22")),
         Subsignal("rx_ctl",  Pins("K19")),
         Subsignal("rx_data", Pins("L14 M15 L16 M16")),
-        Subsignal("tx_ctl",  Pins("N20"), Misc("SLEW=FAST"), Misc("DRIVE=12")),
-        Subsignal("tx_data", Pins("K16 L15 L13 M13"), Misc("SLEW=FAST"), Misc("DRIVE=12")),
+        Subsignal("tx_ctl",  Pins("N20"), Misc("SLEW=FAST")),
+        Subsignal("tx_data", Pins("K16 L15 L13 M13"), Misc("SLEW=FAST")),
         IOStandard("LVCMOS33")
     ),
 ]
