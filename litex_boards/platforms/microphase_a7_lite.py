@@ -50,7 +50,6 @@ _io = [
         Subsignal("cs_n", Pins("T19")),
         Subsignal("dq",   Pins("P22 R22 P21 R21"), Misc("PULLUP=TRUE")),
         Misc("SLEW=FAST"),
-        Misc("DRIVE=16"),
         IOStandard("LVCMOS33")
     ),
 
