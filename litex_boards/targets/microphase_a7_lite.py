@@ -116,9 +116,7 @@ class BaseSoC(SoCCore):
         if with_spi_flash:
             from litespi.modules import IS25LP128
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
-            flash_module = IS25LP128(Codes.READ_1_1_4)
-            flash_module.dummy_bits = 8
-            self.add_spi_flash(mode="4x", module=flash_module, with_master=True)
+            self.add_spi_flash(mode="4x", module=IS25LP128(Codes.READ_1_1_4), with_master=True)
 
         # System I2C -------------------------------------------------------------------------------
         if with_i2c:
