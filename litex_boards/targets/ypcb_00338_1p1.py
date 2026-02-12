@@ -95,17 +95,18 @@ class BaseSoC(SoCCore):
             self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x8"),
                 data_width = 128,
                 bar0_size  = 0x20000)
+            self.pcie_phy.update_config({"PCIe_Blk_Locn": "X0Y0"})
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
-            platform.toolchain.pre_placement_commands.append("reset_property LOC [get_cells -hierarchical -filter {{NAME=~pcie_s7/*gtx_channel.gtxe2_channel_i}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y23 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y22 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[1].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y21 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[2].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y20 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[3].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
-
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y19 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[4].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y18 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[5].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y17 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[6].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
-            platform.toolchain.pre_placement_commands.append("set_property LOC GTXE2_CHANNEL_X0Y16 [get_cells -hierarchical -filter {{NAME=~pcie_s7/*pipe_lane[7].gt_wrapper_i/gtx_channel.gtxe2_channel_i}}]")
+            self.pcie_phy.add_gt_loc_constraints(locs=[
+                "GTXE2_CHANNEL_X0Y23",
+                "GTXE2_CHANNEL_X0Y22",
+                "GTXE2_CHANNEL_X0Y21",
+                "GTXE2_CHANNEL_X0Y20",
+                "GTXE2_CHANNEL_X0Y19",
+                "GTXE2_CHANNEL_X0Y18",
+                "GTXE2_CHANNEL_X0Y17",
+                "GTXE2_CHANNEL_X0Y16",
+            ], gt_type="gtx")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
