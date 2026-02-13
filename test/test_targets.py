@@ -8,6 +8,8 @@
 import subprocess
 import unittest
 import os
+import shutil
+import sys
 
 from migen import *
 
@@ -64,14 +66,16 @@ class TestTargets(unittest.TestCase):
         # Test platforms with simple design.
         for name in platforms:
             with self.subTest(platform=name):
-                os.system("rm -rf build")
-                cmd = """\
-python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
-    --build            \
-    --no-compile       \
-    --uart-name="stub" \
-""".format(name)
-                subprocess.check_call(cmd, shell=True)
+                shutil.rmtree("build", ignore_errors=True)
+                cmd = [
+                    sys.executable,
+                    "-m", "litex_boards.targets.simple",
+                    f"litex_boards.platforms.{name}",
+                    "--build",
+                    "--no-compile",
+                    "--uart-name=stub",
+                ]
+                subprocess.check_call(cmd)
 
     # Build default configuration for all targets.
     def test_targets(self):
@@ -86,12 +90,13 @@ python3 -m litex_boards.targets.simple litex_boards.platforms.{} \
         # Test targets.
         for name in targets:
             with self.subTest(target=name):
-                os.system("rm -rf build")
-                cmd = """\
-python3 -m litex_boards.targets.{} \
-    --cpu-type=vexriscv     \
-    --cpu-variant=minimal   \
-    --build                 \
-    --no-compile            \
-""".format(name)
-                subprocess.check_call(cmd, shell=True)
+                shutil.rmtree("build", ignore_errors=True)
+                cmd = [
+                    sys.executable,
+                    "-m", f"litex_boards.targets.{name}",
+                    "--cpu-type=vexriscv",
+                    "--cpu-variant=minimal",
+                    "--build",
+                    "--no-compile",
+                ]
+                subprocess.check_call(cmd)
