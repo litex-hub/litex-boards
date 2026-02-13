@@ -98,11 +98,15 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── alchitry_cu
     ├── alchitry_mojo
     ├── alchitry_pt_v2
+    ├── alibaba_vu13p
+    ├── alibaba_xcku3p
+    ├── alientek_davincipro
     ├── aliexpress_xc7k420t
     ├── aliexpress_xc7k70t
     ├── alinx_ax7010
     ├── alinx_ax7020
     ├── alinx_ax7203
+    ├── alinx_axau15
     ├── alinx_axu2cga
     ├── analog_pocket
     ├── antmicro_artix_dc_scm
@@ -111,15 +115,15 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── antmicro_sdi_mipi_video_converter
     ├── arduino_mkrvidor4000
     ├── arrow_axe5000
-    ├── avalanche
     ├── avnet_aesku40
-    ├── berkeleylab_marblemini
     ├── berkeleylab_marble
+    ├── berkeleylab_obsidian
+    ├── bochenjingxin_kintex7_basec
     ├── camlink_4k
     ├── colognechip_gatemate_evb
-    ├── colorlight_5a_75b
-    ├── colorlight_5a_75e
+    ├── colorlight_5a_75x
     ├── colorlight_i5
+    ├── colorlight_i9plus
     ├── decklink_intensity_pro_4k
     ├── decklink_mini_4k
     ├── decklink_quad_hdmi_recorder
@@ -131,14 +135,14 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── digilent_cmod_a7
     ├── digilent_genesys2
     ├── digilent_netfpga_sume
-    ├── digilent_nexys4ddr
     ├── digilent_nexys4
+    ├── digilent_nexys4ddr
     ├── digilent_nexys_video
     ├── digilent_pynq_z1
     ├── digilent_zedboard
-    ├── digilent_zybo_z7
     ├── ebaz4205
     ├── efinix_t8f81_dev_kit
+    ├── efinix_ti375_c529_dev_kit
     ├── efinix_titanium_ti60_f225_dev_kit
     ├── efinix_trion_t120_bga576_dev_kit
     ├── efinix_trion_t20_bga256_dev_kit
@@ -146,8 +150,10 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── efinix_tz170_j484_dev_kit
     ├── efinix_xyloni_dev_kit
     ├── ego1
+    ├── embedfire_rise_pro
     ├── enclustra_mercury_kx2
     ├── enclustra_mercury_xu5
+    ├── enclustra_mercury_xu8_pe3
     ├── fairwaves_xtrx
     ├── fpc_iii
     ├── fpgawars_alhambra2
@@ -156,33 +162,34 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── gsd_orangecrab
     ├── hackaday_hadbadge
     ├── hseda_xc7a35t
-    ├── icebreaker_bitsy
-    ├── icebreaker
-    ├── icepi_zero
+    ├── hyvision_pcie_opt01_revf
     ├── ice_v_wireless
+    ├── icebreaker
+    ├── icebreaker_bitsy
+    ├── icepi_zero
+    ├── intergalaktik_ulx5m_gs
     ├── isx_im1283
     ├── jungle_electronics_fireant
-    ├── kosagi_fomu_evt
-    ├── kosagi_fomu_hacker
-    ├── kosagi_fomu_pvt
+    ├── kosagi_fomu
     ├── kosagi_netv2
     ├── krtkl_snickerdoodle
     ├── lambdaconcept_ecpix5
-    ├── lambdaconcept_pcie_screamer_m2
-    ├── lambdaconcept_pcie_screamer
     ├── lattice_certuspro_nx_evn
+    ├── lattice_certuspro_nx_versa
     ├── lattice_certuspro_nx_vvml
     ├── lattice_crosslink_nx_evn
     ├── lattice_crosslink_nx_vip
     ├── lattice_ecp5_evn
     ├── lattice_ecp5_vip
     ├── lattice_ice40up5k_evn
-    ├── lattice_machxo3
     ├── lattice_versa_ecp5
+    ├── lckfb_ljpi
     ├── limesdr_mini_v2
     ├── linsn_rv901t
     ├── litex_acorn_baseboard
+    ├── litex_acorn_baseboard_mini
     ├── logicbone
+    ├── machdyne_kolsch
     ├── machdyne_konfekt
     ├── machdyne_kopflos
     ├── machdyne_krote
@@ -202,8 +209,8 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── mist
     ├── mlkpai_fs01_dr1v90m
     ├── mnt_rkx7
-    ├── muselab_icesugar_pro
     ├── muselab_icesugar
+    ├── muselab_icesugar_pro
     ├── myir_myc_j7a100t
     ├── myminieye_runber
     ├── newae_cw305
@@ -220,14 +227,17 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── puzhi_pz_a7xxt_kfb
     ├── qmtech_10cl006
     ├── qmtech_5cefa2
+    ├── qmtech_5cefa5
     ├── qmtech_artix7_fbg484
     ├── qmtech_artix7_fgg676
+    ├── qmtech_cyclone10_starterkit
     ├── qmtech_ep4ce15_starter_kit
     ├── qmtech_ep4cex5
     ├── qmtech_ep4cgx150
     ├── qmtech_kintex7_devboard
     ├── qmtech_wukong
     ├── qmtech_xc7a35t
+    ├── qmtech_xc7k325t
     ├── quicklogic_quickfeather
     ├── qwertyembedded_beaglewire
     ├── radiona_ulx3s
@@ -240,19 +250,22 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── scarabhardware_minispartan6
     ├── seeedstudio_spartan_edge_accelerator
     ├── siglent_sds1104xe
+    ├── signaloid_c0_microsd
+    ├── simple
     ├── sipeed_slogic16u3
     ├── sipeed_tang_console
+    ├── sipeed_tang_mega_138k
+    ├── sipeed_tang_mega_138k_pro
+    ├── sipeed_tang_nano
     ├── sipeed_tang_nano_20k
     ├── sipeed_tang_nano_4k
     ├── sipeed_tang_nano_9k
-    ├── sipeed_tang_nano
-    ├── sipeed_tang_mega_138k
-    ├── sipeed_tang_mega_138k_pro
+    ├── sipeed_tang_primer
     ├── sipeed_tang_primer_20k
     ├── sipeed_tang_primer_25k
-    ├── sipeed_tang_primer
     ├── sitlinv_a_e115fb
-    ├── sitlinv_stlv7325
+    ├── sitlinv_stlv7325_v1
+    ├── sitlinv_stlv7325_v2
     ├── sitlinv_xc7k420t
     ├── sqrl_acorn
     ├── sqrl_fk33
@@ -270,6 +283,7 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── trenz_cyc1000
     ├── trenz_max1000
     ├── trenz_te0725
+    ├── trenz_te0890
     ├── trenz_tec0117
     ├── tul_pynq_z2
     ├── xilinx_ac701
@@ -283,10 +297,12 @@ Some of the suported boards, see yours? Give LiteX-Boards a try!
     ├── xilinx_sp605
     ├── xilinx_vc707
     ├── xilinx_vcu118
+    ├── xilinx_vcu128
     ├── xilinx_zc706
     ├── xilinx_zcu102
     ├── xilinx_zcu104
     ├── xilinx_zcu106
     ├── xilinx_zcu216
+    ├── xilinx_zybo_z7
     ├── ypcb_00338_1p1
     └── ztex213

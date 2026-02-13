@@ -36,6 +36,10 @@ jobs:
       - name: Install Project
         run: python3 setup.py develop --user
 
+      # Validate README board list is in sync with targets.
+      - name: Check README Board List
+        run: python3 .github/scripts/sync_readme_boards_list.py --check
+
       # Test
       - name: Run Tests
         run: python3 -m pytest -v
