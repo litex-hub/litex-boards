@@ -28,7 +28,7 @@ This repository contains the platforms/targets currently supported by LiteX:
 - The platform provides the definition of the board: IOs, constraints, clocks, components + methods to load and flash the bitstream to it.
 - The target provides a LiteX base design for the board that allows you to create a SoC (with or without a CPU) and integrate easily all the base components of your board: Ethernet, DRAM, PCIe, SPIFlash, SDCard, Leds, GPIOs, etc...
 
-The targets can be used as a base to build more complex or custom SoCs. They are are for example directly reused by the [Linux-on-LiteX-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) project that is just using a specific configuration (Linux-capable CPU, additional peripherals). Basing your design on provided targets allows to to reduce code duplication between very various projects.
+The targets can be used as a base to build more complex or custom SoCs. They are for example directly reused by the [Linux-on-LiteX-VexRiscv](https://github.com/litex-hub/linux-on-litex-vexriscv) project that is just using a specific configuration (Linux-capable CPU, additional peripherals). Basing your design on provided targets helps reduce code duplication between various projects.
 
 First make sure to install LiteX correctly by following the [installation guide](https://github.com/enjoy-digital/litex/wiki/Installation) and have a look at the [LiteX's wiki](https://github.com/enjoy-digital/litex/wiki) for [tutorials](https://github.com/enjoy-digital/litex/wiki/Tutorials-Resources),  [examples of projects](https://github.com/enjoy-digital/litex/wiki/Projects) and more information to use/build FPGA designs with it.
 
@@ -43,7 +43,7 @@ You can then open a terminal on the main UART of the board and interact with the
 **Build/Compilation behavior:**
 - python3 -m litex_boards.targets.board : Test LiteX/Migen syntax but does not generate anything.
 - Add `--build` to generate the SoC/Software headers and run the Software/Gateware compilation.
-- Add `--no-compile` to disable the Softwate/Gateware compilation.
+- Add `--no-compile` to disable the Software/Gateware compilation.
 - Add `--no-compile-software` to disable the Software compilation.
 - Add `--no-compile-gateware` to disable the Gateware compilation.
 
@@ -59,7 +59,7 @@ But this is just the starting point to create your own hardware! You can then:
 - Integrate external cores/CPU to create your own design.
 - etc...
 
-Please use `python3 -m litex_boards.targets.<board> --help` to see the pre-built various possibilities.
+Please use `python3 -m litex_boards.targets.<board> --help` to see the various pre-built possibilities.
 
 Hoping you will find this useful and enjoy it, please contribute back if you make improvements that could be useful to others or find issues!
 
@@ -84,7 +84,7 @@ Most of the peripherals present are generally supported: DRAM, UART, Ethernet, S
 </p>
 <figcaption>
 <p align="center">
-Some of the suported boards, see yours? Give LiteX-Boards a try!
+Some of the supported boards, see yours? Give LiteX-Boards a try!
 </p>
 </figcaption>
 </figure>

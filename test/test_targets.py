@@ -19,7 +19,7 @@ class TestTargets(unittest.TestCase):
     excluded_platforms = [
         "qmtech_daughterboard",              # Reason: Not a real platform.
         "qmtech_rp2040_daughterboard",       # Reason: Not a real platform.
-        "enclustra_st1",                     # Readon: Not a real platform.
+        "enclustra_st1",                     # Reason: Not a real platform.
         "quicklogic_quickfeather",           # Reason: No default clock.
         "colognechip_gatemate_evb",          # Reason: Toolchain not yet mainlined.
         "efinix_ti375_c529_dev_kit",         # Reason: Require Efinity toolchain.
@@ -35,7 +35,7 @@ class TestTargets(unittest.TestCase):
         "adi_plutosdr",                      # Reason: No default clock.
         "newae_cw305",                       # Reason: No default clock.
         "sipeed_slogic16u3",                 # Reason: No default clock.
-        "modretro_chromatic",                # Reason: No yet tested.
+        "modretro_chromatic",                # Reason: Not yet tested.
     ]
     excluded_targets   = [
         "simple",                            # Reason: Generic target.
