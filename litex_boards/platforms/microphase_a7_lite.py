@@ -27,14 +27,14 @@ _io = [
     ("serial", 0,
         Subsignal("tx", Pins("V2")), # connect UART-RX
         Subsignal("rx", Pins("U2")), # connect UART-TX
-        IOStandard("LVCMOS33")
+        IOStandard("LVCMOS33"),
     ),
 
     # I2C
     ("i2c", 0,
         Subsignal("sda", Pins("H22")),
         Subsignal("scl", Pins("J22")),
-        IOStandard("LVCMOS33")
+        IOStandard("LVCMOS33"),
     ),
 
     # SPIFlash
@@ -44,19 +44,21 @@ _io = [
         Subsignal("miso", Pins("R22"), Misc("PULLUP=TRUE")),
         Subsignal("wp",   Pins("P21")),
         Subsignal("hold", Pins("R21")),
-        IOStandard("LVCMOS33")
+        Misc("DRIVE=8"),
+        IOStandard("LVCMOS33"),
     ),
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("T19")),
         Subsignal("dq",   Pins("P22 R22 P21 R21"), Misc("PULLUP=TRUE")),
-        IOStandard("LVCMOS33")
+        Misc("DRIVE=8"),
+        IOStandard("LVCMOS33"),
     ),
 
     # DDR3 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
             "P1 M6 K3 K4 M5 J6 N2 K6",
-            "P2 L1 M2 P6 L4 L5 N5"), #256Mbyte 4Gbits DDR3
+            "P2 L1 M2 P6 L4 L5 N5"), #512Mbyte 4Gbits DDR3
             IOStandard("SSTL15")),
         Subsignal("ba",    Pins("J4 R1 M1"), IOStandard("SSTL15")),
         Subsignal("ras_n", Pins("M3"), IOStandard("SSTL15")),
@@ -82,13 +84,15 @@ _io = [
     ("spisdcard", 0,
         Subsignal("clk",  Pins("U7")),
         Subsignal("cs_n", Pins("Y8"), Misc("PULLUP=TRUE")),
-        Subsignal("miso", Pins("W9"), Misc("PULLUP=TRUE")),
+        Subsignal("miso", Pins("W9")),
         Subsignal("mosi", Pins("AA8"), Misc("PULLUP=TRUE")),
+        Misc("SLEW=FAST"),
+        Misc("DRIVE=8"),
         IOStandard("LVCMOS33"),
     ),
     ("sdcard", 0,
         Subsignal("clk",  Pins("U7")),
-        Subsignal("cmd",  Pins("AA8"), Misc("PULLUP=TRUE")),
+        Subsignal("cmd",  Pins("AA8")),
         Subsignal("data", Pins("W9 Y9 Y7 Y8"), Misc("PULLUP=TRUE")),
         Misc("SLEW=FAST"),
         Misc("DRIVE=8"),
@@ -97,9 +101,9 @@ _io = [
 
     # RGMII Ethernet (RTL8211E)
     ("eth_clocks", 0,
-        Subsignal("tx", Pins("K17"), Misc("SLEW=FAST"), Misc("DRIVE=12")),
+        Subsignal("tx", Pins("K17"), Misc("SLEW=FAST")),
         Subsignal("rx", Pins("K18")),
-        IOStandard("LVCMOS33")
+        IOStandard("LVCMOS33"),
     ),
     ("eth", 0,
         Subsignal("rst_n",   Pins("N22")),
@@ -107,9 +111,9 @@ _io = [
         Subsignal("mdc",     Pins("M22")),
         Subsignal("rx_ctl",  Pins("K19")),
         Subsignal("rx_data", Pins("L14 M15 L16 M16")),
-        Subsignal("tx_ctl",  Pins("N20"), Misc("SLEW=FAST"), Misc("DRIVE=12")),
-        Subsignal("tx_data", Pins("K16 L15 L13 M13"), Misc("SLEW=FAST"), Misc("DRIVE=12")),
-        IOStandard("LVCMOS33")
+        Subsignal("tx_ctl",  Pins("N20"), Misc("SLEW=FAST")),
+        Subsignal("tx_data", Pins("K16 L15 L13 M13"), Misc("SLEW=FAST")),
+        IOStandard("LVCMOS33"),
     ),
 ]
 
