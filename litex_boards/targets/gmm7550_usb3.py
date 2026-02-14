@@ -88,7 +88,6 @@ p4 = [
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.rst    = Signal()
         usr_rst_n   = Signal()
         btn_rst_n   = Signal()
         self.cd_sys = ClockDomain()
@@ -103,7 +102,7 @@ class _CRG(LiteXModule):
 
         # PLL
         self.pll = pll = GateMatePLL(perf_mode="speed")
-        self.comb += pll.reset.eq(~usr_rst_n)
+        self.comb += pll.reset.eq(~usr_rst_n | ~btn_rst_n)
 
         pll.register_clkin(ref_clk, 1e9/platform.default_clk_period)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
