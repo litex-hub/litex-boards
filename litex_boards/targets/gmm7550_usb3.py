@@ -25,14 +25,13 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.soc import SoCRegion
 
-from litex.build.generic_platform import Pins
+from litex.build.generic_platform import Pins, Subsignal
 
 from litex.soc.cores.led import LedChaser
 
 # USB 3 Adapter board IOs -------------------------------------------------------
 
 # P4/J4 (South IO)
-
 p4 = [
     # LEDs (green)
     ("user_led_n", 0, Pins("P4:5" )), # D10
@@ -44,45 +43,45 @@ p4 = [
     ("btn_n", 0, Pins("P4:3")), # SW2, A
     ("btn_n", 1, Pins("P4:4")), # SW3, B
 
-    # # USB-C Power Delivery Controller (OnSemi FUSB303B)
-    # ("pd", 0,
-    #  Subsignal("en_n", Pins("IO_SB_B5")),
-    #  Subsignal("scl",  Pins("IO_SB_A6")),
-    #  Subsignal("sda",  Pins("IO_SB_A2")),
-    #  Subsignal("alert_n",  Pins("IO_SB_B1")),
-    #  # Power Delivery Switch control
-    #  Subsignal("pd_src_en", Pins("IO_SB_B7")),
-    #  Subsignal("pd_disc",   Pins("IO_SB_B8")),
-    #  ),
+    # USB-C Power Delivery Controller (OnSemi FUSB303B)
+    ("pd", 0,
+     Subsignal("en_n", Pins("P4:15")),
+     Subsignal("scl",  Pins("P4:11")),
+     Subsignal("sda",  Pins("P4:12")),
+     Subsignal("alert_n",  Pins("P4:16")),
+     # Power Delivery Switch control
+     Subsignal("pd_src_en", Pins("P4:21")),
+     Subsignal("pd_disc",   Pins("P4:22")),
+     ),
 
-    # # USB 1.1 (STmicro STUSB303E transceiver)
-    # ("usb1", 0,
-    #  Subsignal("vp",     Pins("IO_SA_B3")),
-    #  Subsignal("vm",     Pins("IO_SA_A3")),
-    #  Subsignal("rcv",    Pins("IO_SA_A2")),
-    #  Subsignal("busdet", Pins("IO_SA_B1")),
-    #  Subsignal("oe_n",   Pins("IO_SA_A1")),
-    #  Subsignal("con",    Pins("IO_SA_B0")),
-    #  Subsignal("sus",    Pins("IO_SA_A0")),
-    #  ),
+    # USB 1.1 (STmicro STUSB303E transceiver)
+    ("usb1", 0,
+     Subsignal("vp",     Pins("P4:50")),
+     Subsignal("vm",     Pins("P4:52")),
+     Subsignal("rcv",    Pins("P4:51")),
+     Subsignal("busdet", Pins("P4:55")),
+     Subsignal("oe_n",   Pins("P4:57")),
+     Subsignal("con",    Pins("P4:56")),
+     Subsignal("sus",    Pins("P4:58")),
+     ),
 
-    # # USB 2.0 (ULPI, Microchip USB3340 PHY)
-    # ("ulpi", 0,
-    #  Subsignal("clk",   Pins("IO_SB_A7")), # CLK 1, 60 MHz
-    #  Subsignal("stp",   Pins("IO_SA_B8")),
-    #  Subsignal("dir",   Pins("IO_SA_A8")),
-    #  Subsignal("nxt",   Pins("IO_SA_B6")),
-    #  Subsignal("rst_n", Pins("IO_SB_A0")),
-    #  Subsignal("data",  Pins("IO_SA_A6", # 0
-    #                          "IO_SA_B4", # 1
-    #                          "IO_SA_A4", # 2
-    #                          "IO_SA_B2", # 3
-    #                          "IO_SA_B7", # 4
-    #                          "IO_SA_A7", # 5
-    #                          "IO_SA_B5", # 6
-    #                          "IO_SA_A5", # 7
-    #                          )),
-    #  ),
+    # USB 2.0 (ULPI, Microchip USB3340 PHY)
+    ("ulpi", 0,
+     Subsignal("clk",   Pins("P4:23")), # CLK 1, 60 MHz
+     Subsignal("stp",   Pins("P4:28")),
+     Subsignal("dir",   Pins("P4:30")),
+     Subsignal("nxt",   Pins("P4:37")),
+     Subsignal("rst_n", Pins("P4:24")),
+     Subsignal("data",  Pins("P4:39", # 0
+                             "P4:43", # 1
+                             "P4:45", # 2
+                             "P4:49", # 3
+                             "P4:38", # 4
+                             "P4:40", # 5
+                             "P4:44", # 6
+                             "P4:46", # 7
+                             )),
+     ),
 ]
 
 # Clock/Reset Generator ---------------------------------------------------------
