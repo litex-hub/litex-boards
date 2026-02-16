@@ -84,6 +84,37 @@ p4 = [
      ),
 ]
 
+# Memory Module (SRAM and SPI) on P2 (North) ------------------------------------
+
+p2 = [
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("P2:3")),
+        Subsignal("clk",  Pins("P2:6")),
+        Subsignal("mosi", Pins("P2:11")), # D0
+        Subsignal("miso", Pins("P2:5")),  # D1
+        Subsignal("wp",   Pins("P2:9")),  # D2
+        Subsignal("hold", Pins("P2:4")),  # D3
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("P2:3")),
+        Subsignal("clk",  Pins("P2:6")),
+        Subsignal("dq",   Pins("P2:11 P2:5 P2:9 P2:4")),
+    ),
+
+    ("async_sram", 0,
+        Subsignal("ce", Pins("P2:24")),
+        Subsignal("oe", Pins("P2:27")),
+        Subsignal("we", Pins("P2:44")),
+        Subsignal("adr", Pins("P2:10 P2:12 P2:16 P2:18", # A0, A1, A2, A3
+                              "P2:22 P2:46 P2:50 P2:52", # A4, A5, A6, A7
+                              "P2:56 P2:58 P2:57 P2:55", # A8, A9, A10, A11
+                              "P2:51 P2:49 P2:45 P2:23", # A12, A13, A14, A15
+                              "P2:21 P2:17 P2:15")),
+        Subsignal("dat", Pins("P2:28 P2:30 P2:38 P2:40",   # D0, D1, D1, D3
+                              "P2:43 P2:39 P2:37 P2:29")), # D4, D5, D6, D7
+     ),
+]
+
 # Clock/Reset Generator ---------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -109,6 +140,54 @@ class _CRG(LiteXModule):
 
         platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
+# AsyncSRAM ------------------------------------------------------------------------------------------
+
+class AsyncSRAM(LiteXModule):
+
+    def __init__(self, platform, clk, rst, wb, size, pins):
+        self.bus = wb
+        self.data_width = 32
+        self.size = size
+        self.specials += Instance("issiram",
+                                  i_clk = clk,
+                                  i_rst = rst,
+                                  i_wbs_stb_i = self.bus.stb,
+                                  i_wbs_cyc_i = self.bus.cyc,
+                                  i_wbs_adr_i = self.bus.adr,
+                                  i_wbs_we_i  = self.bus.we,
+                                  i_wbs_sel_i = self.bus.sel,
+                                  i_wbs_dat_i = self.bus.dat_w,
+                                  o_wbs_ack_o = self.bus.ack,
+                                  o_wbs_dat_o = self.bus.dat_r,
+                                  o_mem_ce_n = pins['ce'],
+                                  o_mem_oe_n = pins['oe'],
+                                  o_mem_we_n = pins['we'],
+                                  o_mem_adr = pins['adr'],
+                                  io_mem_dat = pins['dat']
+                                  )
+        platform.add_source("issiram.v")
+
+def add_async_ram(soc, platform, name, origin, size):
+    ram_bus = wishbone.Interface(data_width=soc.bus.data_width)
+    clk     = ClockSignal()
+    rst     = ResetSignal()
+
+    async_sram = platform.request("async_sram")
+    ram     = AsyncSRAM(platform, clk, rst, ram_bus, 512 * 1024,
+                        {'ce' : async_sram.ce,
+                         'oe' : async_sram.oe,
+                         'we' : async_sram.we,
+                         'adr': async_sram.adr,
+                         'dat': async_sram.dat})
+
+    soc.bus.add_slave(name, ram.bus, SoCRegion(origin=origin, size=size, mode="rwx"))
+    soc.check_if_exists(name)
+    soc.logger.info("AsyncSRAM {} {} {}.".format(
+        colorer(name),
+        colorer("added", color="green"),
+        soc.bus.regions[name]))
+    setattr(soc.submodules, name, ram)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -116,10 +195,14 @@ class BaseSoC(SoCCore):
         with_l2_cache   = False,
         with_led_chaser = True,
         with_spi_flash  = False,
+        with_async_ram  = False,
         **kwargs):
         platform = gmm7550.Platform(toolchain)
 
         platform.add_extension(p4)
+
+        if with_spi_flash or with_async_ram:
+            platform.add_extension(p2)
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -133,12 +216,18 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Asynchronous SRAM ------------------------------------------------------------------------
+        if with_async_ram:
+            add_async_ram(self, platform, "main_ram", 0x40000000, 512 * KILOBYTE)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=gmm7550.Platform, description="LiteX SoC on GMM-7550 and USB 3 Adapter")
     parser.add_target_argument("--sys-clk-freq",   default=25e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash")
+    parser.add_target_argument("--with-async-ram", action="store_true", help="Enable Asynchronous SRAM")
 
     parser.set_defaults(cpu_type = "vexriscv", cpu_variant = "lite")
 
@@ -147,7 +236,8 @@ def main():
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
         toolchain      = "peppercorn", # args.toolchain,
-        #with_spi_flash = args.with_spi_flash,
+        with_spi_flash = args.with_spi_flash,
+        with_async_ram = args.with_async_ram,
         **parser.soc_argdict)
 
     builder = Builder(soc, **parser.builder_argdict)
