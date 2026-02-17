@@ -159,11 +159,11 @@ class AsyncSRAM(LiteXModule):
                                   i_wbs_dat_i = self.bus.dat_w,
                                   o_wbs_ack_o = self.bus.ack,
                                   o_wbs_dat_o = self.bus.dat_r,
-                                  o_mem_ce_n = pins['ce'],
-                                  o_mem_oe_n = pins['oe'],
-                                  o_mem_we_n = pins['we'],
-                                  o_mem_adr = pins['adr'],
-                                  io_mem_dat = pins['dat']
+                                  o_mem_ce_n = pins.ce,
+                                  o_mem_oe_n = pins.oe,
+                                  o_mem_we_n = pins.we,
+                                  o_mem_adr  = pins.adr,
+                                  io_mem_dat = pins.dat,
                                   )
         hdl_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                "gmm7550")
@@ -173,14 +173,8 @@ def add_async_ram(soc, platform, name, origin, size):
     ram_bus = wishbone.Interface(data_width=soc.bus.data_width)
     clk     = ClockSignal()
     rst     = ResetSignal()
-
-    async_sram = platform.request("async_sram")
     ram     = AsyncSRAM(platform, clk, rst, ram_bus, 512 * 1024,
-                        {'ce' : async_sram.ce,
-                         'oe' : async_sram.oe,
-                         'we' : async_sram.we,
-                         'adr': async_sram.adr,
-                         'dat': async_sram.dat})
+                        platform.request("async_sram"))
 
     soc.bus.add_slave(name, ram.bus, SoCRegion(origin=origin, size=size, mode="rwx"))
     soc.check_if_exists(name)
