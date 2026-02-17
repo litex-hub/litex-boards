@@ -30,7 +30,7 @@ from litex.build.io import DDROutput
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2", with_ddr3=False, with_video_pll=False):
+    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2", with_ddr3=False, with_video_pll=False, without_pll=False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
         self.cd_por = ClockDomain()
@@ -60,21 +60,27 @@ class _CRG(LiteXModule):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         # PLL
-        self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
-        self.comb += pll.reset.eq(~por_done | rst)
-        pll.register_clkin(clk50, 50e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=not with_ddr3)
+        if without_pll:
+            assert sys_clk_freq == 50e6
+            assert not with_sdram and not with_ddr3
+            self.comb += self.cd_sys.clk.eq(clk50)
+            self.comb += self.cd_sys.rst.eq(~por_done | ~rst)
+        else:
+            self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
+            self.comb += pll.reset.eq(~por_done | rst)
+            pll.register_clkin(clk50, 50e6)
+            pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=not with_ddr3)
 
-        # SDRAM clock
-        if with_sdram:
-            if sdram_rate == "1:2":
-                pll.create_clkout(self.cd_sys2x,    2*sys_clk_freq)
-                pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180)
-                sdram_clk = ClockSignal("sys2x_ps")
-            else:
-                pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
-                sdram_clk = ClockSignal("sys_ps")
-            self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
+            # SDRAM clock
+            if with_sdram:
+                if sdram_rate == "1:2":
+                    pll.create_clkout(self.cd_sys2x,    2*sys_clk_freq)
+                    pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=180)
+                    sdram_clk = ClockSignal("sys2x_ps")
+                else:
+                    pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+                    sdram_clk = ClockSignal("sys_ps")
+                self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
 
         # DDR3 clock
         if with_ddr3:
@@ -106,7 +112,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="gowin", sys_clk_freq=50e6,
+    def __init__(self, toolchain="gowin", device="GW5AT-60B", sys_clk_freq=50e6,
         with_video_terminal = False,
         with_ddr3           = False,
         with_sdram          = False,
@@ -117,8 +123,9 @@ class BaseSoC(SoCCore):
         with_spi_sdcard     = False,
         with_led_chaser     = True,
         with_buttons        = True,
+        without_pll         = False,
         **kwargs):
-        platform = sipeed_tang_console.Platform(toolchain=toolchain)
+        platform = sipeed_tang_console.Platform(toolchain=toolchain, device=device)
 
         assert not with_sdram or (sdram_model in ["sipeed", "mister"])
 
@@ -134,6 +141,7 @@ class BaseSoC(SoCCore):
             sdram_rate     = sdram_rate,
             with_ddr3      = with_ddr3,
             with_video_pll = with_video_terminal,
+            without_pll    = without_pll,
         )
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Console", **kwargs)
@@ -204,11 +212,14 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_console.Platform, description="LiteX SoC on Tang Console.")
     parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--device",          default="GW5AT-60B", type=str, help="Device, GW5AT-60B or GW5AST-138C")
     parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-sdram",      action="store_true",      help="Enable optional SDRAM module.")
+    parser.add_target_argument("--without-pll",     action="store_true",      help="Disable use of PLL.")
+
     parser.add_target_argument("--sdram-model",     default="sipeed",         help="SDRAM module model.",
         choices=[
             "sipeed",
@@ -220,6 +231,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
+        device              = args.device,
         with_video_terminal = args.with_video_terminal,
         with_ddr3           = args.with_ddr3,
         with_sdram          = args.with_sdram,
@@ -227,6 +239,8 @@ def main():
         with_spi_flash      = args.with_spi_flash,
         with_sdcard         = args.with_sdcard,
         with_spi_sdcard     = args.with_spi_sdcard,
+        without_pll         = args.without_pll,
+        toolchain           = args.toolchain,
         **parser.soc_argdict
     )
 
