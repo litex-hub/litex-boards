@@ -165,7 +165,9 @@ class AsyncSRAM(LiteXModule):
                                   o_mem_adr = pins['adr'],
                                   io_mem_dat = pins['dat']
                                   )
-        platform.add_source("issiram.v")
+        hdl_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                               "gmm7550")
+        platform.add_source(os.path.join(hdl_dir, "issiram.v"))
 
 def add_async_ram(soc, platform, name, origin, size):
     ram_bus = wishbone.Interface(data_width=soc.bus.data_width)
