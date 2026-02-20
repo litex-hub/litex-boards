@@ -134,7 +134,7 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_video_pll = with_video_terminal or with_video_framebuffer or with_video_colorbars
-        with_usb_pll   = kwargs["uart_name"] == "usb_acm"
+        with_usb_pll   = kwargs["uart_name"] in ["usb_acm", "luna_acm"]
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll, with_usb_pll)
 
         # SoCCore ----------------------------------------------------------------------------------
