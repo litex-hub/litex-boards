@@ -15,77 +15,78 @@ from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
-_io = [
-    # Clk / Rst.
-    ("clk50",  0, Pins("V22"), IOStandard("LVCMOS33")),
-    ("rst",    0, Pins("AA13"),  IOStandard("LVCMOS15")), #EX_KEY.0
+def _get_io(device):
+    return [
+        # Clk / Rst.
+        ("clk50",  0, Pins("V22"), IOStandard("LVCMOS33")),
+        ("rst",    0, Pins("AA13"),  IOStandard("LVCMOS33" if device == "GW5AST-138C" else "LVCMOS15")), #EX_KEY.0
 
-    # Serial.
-    ("serial", 0,
-        Subsignal("rx", Pins("V14")),
-        Subsignal("tx", Pins("U15")),
-        IOStandard("LVCMOS33")
-    ),
-
-    # Leds
-    ("led", 0,  Pins("G11"), IOStandard("LVCMOS33")), # Done.
-    ("led", 1,  Pins("U12"), IOStandard("LVCMOS33")), # Ready.
-
-    # SPIFlash.
-    ("spiflash", 0,
-        Subsignal("cs_n", Pins("T19")),
-        Subsignal("clk",  Pins("L12")),
-        Subsignal("miso", Pins("R22")),
-        Subsignal("mosi", Pins("P22")),
-        Subsignal("wp",   Pins("P21")),
-        Subsignal("hold", Pins("R21")),
-        IOStandard("LVCMOS33"),
-    ),
-    ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("T19")),
-        Subsignal("clk",  Pins("L12")),
-        Subsignal("dq",   Pins("P22 R22 P21 R21")),
-        IOStandard("LVCMOS33"),
-    ),
-
-    # PCI Express
-    ("pcie_clkreq_n", 0, Pins("AA14"), IOStandard("LVCMOS33")),
-    ("pcie", 0,
-        Subsignal("rst_n",  Pins("W11"),  IOStandard("LVCMOS15")),
-        Subsignal("wake_n", Pins("T14"),  IOStandard("LVCMOS33")),
-    ),
-
-    # DDR3 SDRAM MY41J128M16JT-125
-    # FIXME: Tang Mega 60k: One chip, 138k: Two chips.
-    ("ddram", 0,
-        Subsignal("a", Pins(
-            "M1 K2 G2 J4 J2 H2 G3 J1",
-            "J5 H5 L1 H3 K4 K1"),      # D1(A14) R1(A15): Unused
-            IOStandard("SSTL15"),
-            Misc("DRIVE=12"),
+        # Serial.
+        ("serial", 0,
+            Subsignal("rx", Pins("V14")),
+            Subsignal("tx", Pins("U15")),
+            IOStandard("LVCMOS33")
         ),
-        Subsignal("ba",      Pins("P5 P2 M6"), IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("ras_n",   Pins("L5"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("cas_n",   Pins("L4"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("we_n",    Pins("M5"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("cs_n",    Pins("P4"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("dm",      Pins("AA4 V7"),   IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("dq",      Pins(
-            " Y4 AB3 AA5 V4 AA1 AB2 AB5 AB1",
-            "AA8  Y8 AB7 Y7 AB8  W9 AB6  Y9"),
-            IOStandard("SSTL15"),
-            Misc("DRIVE=12"),
+
+        # Leds
+        ("led", 0,  Pins("G11"), IOStandard("LVCMOS33")), # Done.
+        ("led", 1,  Pins("U12"), IOStandard("LVCMOS33")), # Ready.
+
+        # SPIFlash.
+        ("spiflash", 0,
+            Subsignal("cs_n", Pins("T19")),
+            Subsignal("clk",  Pins("L12")),
+            Subsignal("miso", Pins("R22")),
+            Subsignal("mosi", Pins("P22")),
+            Subsignal("wp",   Pins("P21")),
+            Subsignal("hold", Pins("R21")),
+            IOStandard("LVCMOS33"),
         ),
-        Subsignal("dqs_p",   Pins("Y3 V9"),    IOStandard("SSTL15D"), Misc("DRIVE=8")),
-        Subsignal("dqs_n",   Pins("AA3 V8"),   IOStandard("SSTL15D"), Misc("DRIVE=8")),
-        Subsignal("clk_p",   Pins("L3"),       IOStandard("SSTL15D"), Misc("DRIVE=8")),
-        Subsignal("clk_n",   Pins("K3"),       IOStandard("SSTL15D"), Misc("DRIVE=8")),
-        Subsignal("cke",     Pins("K6"),       IOStandard("SSTL15"),  Misc("DRIVE=4")),
-        Subsignal("odt",     Pins("M2"),       IOStandard("SSTL15"),  Misc("DRIVE=12")),
-        Subsignal("reset_n", Pins("L6"),       IOStandard("SSTL15"),  Misc("DRIVE=12")),
-        Misc("PULL_MODE=NONE BANK_VCCIO=1.5"),
-    ),
-]
+        ("spiflash4x", 0,
+            Subsignal("cs_n", Pins("T19")),
+            Subsignal("clk",  Pins("L12")),
+            Subsignal("dq",   Pins("P22 R22 P21 R21")),
+            IOStandard("LVCMOS33"),
+        ),
+
+        # PCI Express
+        ("pcie_clkreq_n", 0, Pins("AA14"), IOStandard("LVCMOS33")),
+        ("pcie", 0,
+            Subsignal("rst_n",  Pins("W11"),  IOStandard("LVCMOS15")),
+            Subsignal("wake_n", Pins("T14"),  IOStandard("LVCMOS33")),
+        ),
+
+        # DDR3 SDRAM MY41J128M16JT-125
+        # FIXME: Tang Mega 60k: One chip, 138k: Two chips.
+        ("ddram", 0,
+            Subsignal("a", Pins(
+                "M1 K2 G2 J4 J2 H2 G3 J1",
+                "J5 H5 L1 H3 K4 K1"),      # D1(A14) R1(A15): Unused
+                IOStandard("SSTL15"),
+                Misc("DRIVE=12"),
+            ),
+            Subsignal("ba",      Pins("P5 P2 M6"), IOStandard("SSTL15"), Misc("DRIVE=12")),
+            Subsignal("ras_n",   Pins("L5"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
+            Subsignal("cas_n",   Pins("L4"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
+            Subsignal("we_n",    Pins("M5"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
+            Subsignal("cs_n",    Pins("P4"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
+            Subsignal("dm",      Pins("AA4 V7"),   IOStandard("SSTL15"), Misc("DRIVE=12")),
+            Subsignal("dq",      Pins(
+                " Y4 AB3 AA5 V4 AA1 AB2 AB5 AB1",
+                "AA8  Y8 AB7 Y7 AB8  W9 AB6  Y9"),
+                IOStandard("SSTL15"),
+                Misc("DRIVE=12"),
+            ),
+            Subsignal("dqs_p",   Pins("Y3 V9"),    IOStandard("SSTL15D"), Misc("DRIVE=8")),
+            Subsignal("dqs_n",   Pins("AA3 V8"),   IOStandard("SSTL15D"), Misc("DRIVE=8")),
+            Subsignal("clk_p",   Pins("L3"),       IOStandard("SSTL15D"), Misc("DRIVE=8")),
+            Subsignal("clk_n",   Pins("K3"),       IOStandard("SSTL15D"), Misc("DRIVE=8")),
+            Subsignal("cke",     Pins("K6"),       IOStandard("SSTL15"),  Misc("DRIVE=4")),
+            Subsignal("odt",     Pins("M2"),       IOStandard("SSTL15"),  Misc("DRIVE=12")),
+            Subsignal("reset_n", Pins("L6"),       IOStandard("SSTL15"),  Misc("DRIVE=12")),
+            Misc("PULL_MODE=NONE BANK_VCCIO=1.5"),
+        ),
+    ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
@@ -310,8 +311,14 @@ class Platform(GowinPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
-    def __init__(self, dock="standard", toolchain="gowin"):
-        GowinPlatform.__init__(self, "GW5AT-LV60PG484AC1/I0", _io, _connectors, toolchain=toolchain, devicename="GW5AT-60B")
+    def __init__(self, dock="standard", toolchain="gowin", device="GW5AT-60B"):
+        assert device in ["GW5AT-60B", "GW5AST-138C"]
+        device_map = {
+            "GW5AT-60B": "GW5AT-LV60PG484AC1/I0",
+            "GW5AST-138C": "GW5AST-LV138PG484AC1/I0",
+        }
+        # TODO: different (32-bit total) DDR3 on GW5AST-138C
+        GowinPlatform.__init__(self, device_map[device], _get_io(device), _connectors, toolchain=toolchain, devicename=device)
         self.add_extension(_dock_io)
         self.add_connector(_dock_connectors)
 
