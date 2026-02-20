@@ -39,13 +39,13 @@ class _CRG(LiteXModule):
         self.cd_idelay = ClockDomain()
 
         # Clk/Rst.
-        clk50 = platform.request("clk50")
+        clk200 = platform.request("clk200")
         rst_n = platform.request("rst_n")
 
         # PLL.
         self.pll = pll = S7MMCM(speedgrade=-2)
         self.comb += pll.reset.eq(~rst_n | self.rst)
-        pll.register_clkin(clk50, 50e6)
+        pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
         pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=135)
@@ -108,6 +108,7 @@ class BaseSoC(SoCCore):
                 "GTXE2_CHANNEL_X0Y16",
             ], gt_type="gtx")
 
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(platform.request_all("user_led"), sys_clk_freq)
@@ -123,8 +124,8 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        with_pcie    = args.with_pcie,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_pcie      = args.with_pcie,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

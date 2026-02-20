@@ -27,6 +27,14 @@ _io = [
     # Clk / Rst.
     ("clk50", 0, Pins("AA28"), IOStandard("LVCMOS18")),
     ("rst_n", 0, Pins("R28"),  IOStandard("LVCMOS18")),
+    ("clk200", 0,
+        Subsignal("p", Pins("AH27"), IOStandard("LVDS_25")),
+        Subsignal("n", Pins("AH28"), IOStandard("LVDS_25")),
+    ),
+    ("clk200_1", 0,
+        Subsignal("p", Pins("G25"), IOStandard("LVDS_25")),
+        Subsignal("n", Pins("G26"), IOStandard("LVDS_25")),
+    ),
 
     # Leds.
     ("user_led", 0, Pins("P30"), IOStandard("LVCMOS18")), # Red.
@@ -182,8 +190,8 @@ _connectors = []
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
-    default_clk_name   = "clk50"
-    default_clk_period = 1e9/50e6
+    default_clk_name   = "clk200"
+    default_clk_period = 1e9/200e6
 
     def __init__(self, toolchain="vivado"):
         device = "xc7k480t-ffg1156-2"
