@@ -28,6 +28,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.build.generic_platform import Pins, Subsignal
 
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOOut
 
 # USB 3 Adapter board IOs -------------------------------------------------------
 
@@ -211,6 +212,12 @@ class BaseSoC(SoCCore):
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
+
+        led_red_n = platform.request("led_red_n")
+        led_green = platform.request("led_green")
+        gpo = Signal(2)
+        self.gpio = GPIOOut(gpo)
+        self.comb += [led_red_n.eq(~gpo[0]), led_green.eq(gpo[1])]
 
         # Asynchronous SRAM ------------------------------------------------------------------------
         if with_async_ram:
