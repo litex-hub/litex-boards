@@ -42,6 +42,14 @@ _io = [
     # Status LEDs on the USB 3 Adapter board
     ("led_red_n", 0,  Pins("IO_WA_A2")), # CFG_FAILED_N, P5/J5 pin 35
     ("led_green", 0,  Pins("IO_WA_B2")), # CFG_DONE,     P5/J5 pin 36
+
+    # JTAG
+    ("jtag", 0,
+     Subsignal("tck", Pins("IO_WA_A5")),
+     Subsignal("tms", Pins("IO_WA_B4")),
+     Subsignal("tdi", Pins("IO_WA_A4")),
+     Subsignal("tdo", Pins("IO_WA_B3")),
+     ),
 ]
 
 # GMM-7550 Module Connectors
