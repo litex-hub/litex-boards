@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 # Build/Use:
-# ./ypcb_00338_1p1_target.py --uart-name=jtag_uart --with-pcie --build --load
+# ./ypcb_00338_1p1.py --uart-name=jtag_uart --with-pcie --build --load
 # litex_term jtag --jtag-config=openocd_xc7_ft232.cfg
 
 import os
