@@ -147,7 +147,7 @@ class BaseSoC(SoCCore):
         with_rst     = kwargs["uart_name"] not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
         if board == "i5a-907":
             with_rst = True
-        with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
+        with_usb_pll = kwargs.get("uart_name", None) in ["usb_acm", "luna_acm"]
         self.crg = _CRG(platform, sys_clk_freq,
             use_internal_osc = use_internal_osc,
             with_usb_pll     = with_usb_pll,

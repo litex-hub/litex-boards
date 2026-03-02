@@ -112,7 +112,7 @@ class BaseSoC(SoCCore):
         platform = colorlight_i5.Platform(board=board, revision=revision, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
+        with_usb_pll   = kwargs.get("uart_name", None) in ["usb_acm", "luna_acm"]
         with_video_pll = with_video_terminal or with_video_framebuffer
         self.crg = _CRG(platform, sys_clk_freq,
             use_internal_osc = use_internal_osc,
