@@ -106,9 +106,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         # Defaults to USB ACM through LUNA.
-        # Keep backward-compatible default while allowing explicit --uart-name=luna_acm.
-        if kwargs.get("uart_name") != "luna_acm":
-            kwargs["uart_name"] = "usb_acm"
+        kwargs["uart_name"] = "usb_acm"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Logicbone", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------

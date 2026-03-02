@@ -128,7 +128,7 @@ class BaseSoC(SoCCore):
         platform = radiona_ulx4m_ls_v2.Platform(revision="0.1", device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll = kwargs["uart_name"] in ["usb_acm", "luna_acm"]
+        with_usb_pll = kwargs["uart_name"] in ["usb_acm"]
         with_video_pll = with_video_terminal or with_video_framebuffer
         self.submodules.crg = _CRG(platform, sys_clk_freq,
             with_video_pll = with_video_pll,

@@ -121,7 +121,7 @@ class BaseSoC(SoCCore):
         platform = ice_v_wireless.Platform(revision=revision)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_uart = kwargs["uart_name"] in ["usb_acm", "luna_acm"]
+        with_usb_uart = kwargs["uart_name"] == "usb_acm"
         if with_usb_uart:
             sys_clk_freq = 48e6
         self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_uart)

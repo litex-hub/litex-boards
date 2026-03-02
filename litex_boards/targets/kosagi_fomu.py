@@ -77,9 +77,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         # Defaults to USB ACM through LUNA.
-        # Keep backward-compatible default while allowing explicit --uart-name=luna_acm.
-        if kwargs.get("uart_name") != "luna_acm":
-            kwargs["uart_name"] = "usb_acm"
+        kwargs["uart_name"] = "usb_acm"
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
         kwargs["integrated_sram_size"] = 0
         kwargs["integrated_rom_size"]  = 0
