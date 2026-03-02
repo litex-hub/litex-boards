@@ -105,7 +105,7 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=True)
 
         # SoCCore ----------------------------------------------------------------------------------
-        # Defaults to USB ACM through ValentyUSB.
+        # Defaults to USB ACM through LUNA.
         # Keep backward-compatible default while allowing explicit --uart-name=luna_acm.
         if kwargs.get("uart_name") != "luna_acm":
             kwargs["uart_name"] = "usb_acm"
