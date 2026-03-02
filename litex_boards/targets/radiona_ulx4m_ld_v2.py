@@ -206,33 +206,35 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=radiona_ulx4m_ld_v2.Platform, description="LiteX SoC on ULX4M-LD-V2")
-    parser.add_argument("--sys-clk-freq",    default=75e6,           help="System clock frequency.")
-    parser.add_argument("--revision",        default="0.3",          help="Board Revision (1.0).")
-    parser.add_argument("--device",          default="85F",          help="ECP5 device (25F, 45F, 85F).")
+    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",     default="0.3",             help="Board revision (0.3).")
+    parser.add_target_argument("--device",       default="85F",             help="ECP5 device (25F, 45F, or 85F).")
 
     # RAM.
-    parser.add_argument("--sdram-device",    default="MT41K512M16",  help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
+    parser.add_target_argument("--sdram-device", default="MT41K512M16",
+        help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16, or MT41K512M16).")
 
     # Ethernet.
-    ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",     help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone", action="store_true",     help="Add EtherBone.")
-    parser.add_argument("--local-ip",        default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_argument("--eth-dynamic-ip",  action="store_true",     help="Enable dynamic Ethernet IP addresses setting.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Add Ethernet.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Add Etherbone.")
+    parser.add_target_argument("--local-ip",       default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
 
     # SPI Flash.
-    parser.add_argument("--with-spi-flash",  action="store_true",    help="Enable SPI Flash (MMAPed).")
-    sdopts = parser.add_mutually_exclusive_group()
+    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable memory-mapped SPI flash.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 
     # Connectors.
-    parser.add_argument("--with-syzygy-gpio", action="store_true", help="Enable GPIOs through SYZYGY Breakout on Port-A.")
+    parser.add_target_argument("--with-syzygy-gpio", action="store_true",
+        help="Enable GPIOs through the SYZYGY breakout on Port A.")
 
     # Video.
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video ColoBars (HDMI).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable video color bars (HDMI).")
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
 
