@@ -179,7 +179,7 @@ def main():
     soc = BaseSoC(
         bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = args.sys_clk_freq,
-		revision          = args.revision,
+        revision          = args.revision,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
