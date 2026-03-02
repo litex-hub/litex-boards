@@ -144,10 +144,11 @@ class BaseSoC(SoCCore):
             assert use_internal_osc, "You cannot use the 25MHz clock as system clock since it is provided by the Ethernet PHY and will stop during PHY reset."
 
         # CRG --------------------------------------------------------------------------------------
-        with_rst     = kwargs["uart_name"] not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
+        uart_name = kwargs.get("uart_name", "serial")
+        with_rst     = uart_name not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
         if board == "i5a-907":
             with_rst = True
-        with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
+        with_usb_pll = uart_name == "usb_acm"
         self.crg = _CRG(platform, sys_clk_freq,
             use_internal_osc = use_internal_osc,
             with_usb_pll     = with_usb_pll,

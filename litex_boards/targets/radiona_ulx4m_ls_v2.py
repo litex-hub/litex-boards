@@ -128,7 +128,8 @@ class BaseSoC(SoCCore):
         platform = radiona_ulx4m_ls_v2.Platform(revision="0.1", device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll = kwargs["uart_name"] in ["usb_acm"]
+        uart_name = kwargs.get("uart_name", "serial")
+        with_usb_pll = uart_name == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
         self.submodules.crg = _CRG(platform, sys_clk_freq,
             with_video_pll = with_video_pll,
@@ -138,7 +139,7 @@ class BaseSoC(SoCCore):
         )
 
         # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] in ["serial", "usb_acm"]:
+        if uart_name in ["serial", "usb_acm"]:
             kwargs["uart_name"] = "serial"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX4M-LS-V2", **kwargs)
 

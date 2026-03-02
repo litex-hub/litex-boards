@@ -133,8 +133,9 @@ class BaseSoC(SoCCore):
         platform = radiona_ulx4m_ld_v2.Platform(revision=revision, device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
+        uart_name      = kwargs.get("uart_name", "serial")
         with_video_pll = with_video_terminal or with_video_framebuffer or with_video_colorbars
-        with_usb_pll   = kwargs["uart_name"] in ["usb_acm"]
+        with_usb_pll   = uart_name == "usb_acm"
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll, with_usb_pll)
 
         # SoCCore ----------------------------------------------------------------------------------
