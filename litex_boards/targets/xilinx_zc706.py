@@ -92,7 +92,8 @@ class BaseSoC(SoCCore):
         platform = xilinx_zc706.Platform()
 
         # When nor jtagbone, nor etherbone are set forces jtagbone.
-        kwargs["uart_name"]     = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "crossover"
         if not (kwargs["with_jtagbone"] or with_etherbone):
             kwargs["with_jtagbone"] = True
 

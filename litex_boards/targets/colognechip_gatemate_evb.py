@@ -62,7 +62,8 @@ class BaseSoC(SoCCore):
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
         platform.add_extension(colognechip_gatemate_evb.usb_pmod_io("PMODB"))
-        kwargs["uart_name"] = "usb_uart"
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "usb_uart"
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)

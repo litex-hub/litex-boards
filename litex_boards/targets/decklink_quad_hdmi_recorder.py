@@ -69,7 +69,8 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"]    = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "crossover"
         kwargs["with_jtabone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Blackmagic Decklink Quad HDMI Recorder", **kwargs)
 

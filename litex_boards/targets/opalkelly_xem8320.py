@@ -76,7 +76,8 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_framebuffer)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "jtag_uart"
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on XEM8320", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
