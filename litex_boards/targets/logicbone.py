@@ -101,12 +101,16 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = logicbone.Platform(revision=revision, device=device ,toolchain=toolchain)
 
+        # Default to USB ACM through LUNA, but allow explicit override.
+        uart_name = kwargs.get("uart_name", "serial")
+        if uart_name == "serial":
+            uart_name = "usb_acm"
+        kwargs["uart_name"] = uart_name
+
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=True)
+        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=(uart_name == "usb_acm"))
 
         # SoCCore ----------------------------------------------------------------------------------
-        # Defaults to USB ACM through LUNA.
-        kwargs["uart_name"] = "usb_acm"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Logicbone", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------

@@ -72,12 +72,16 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = kosagi_fomu_pvt.Platform()
 
+        # Default to USB ACM through LUNA, but allow explicit override.
+        uart_name = kwargs.get("uart_name", "serial")
+        if uart_name == "serial":
+            uart_name = "usb_acm"
+        kwargs["uart_name"] = uart_name
+
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        # Defaults to USB ACM through LUNA.
-        kwargs["uart_name"] = "usb_acm"
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
         kwargs["integrated_sram_size"] = 0
         kwargs["integrated_rom_size"]  = 0
