@@ -101,7 +101,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=hseda_xc7a35t.Platform, description="LiteX SoC on HSEDA XC7A35T.")
-    parser.add_target_argument("--flash",          action="store_true",      help="Write FPGA bitstream into spi flash.")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream to SPI flash.")
     parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-sdcard",    action="store_true",      help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash support.")

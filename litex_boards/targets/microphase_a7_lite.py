@@ -100,7 +100,7 @@ def main():
     target_group = parser.add_argument_group(title="Target options")
     parser.add_target_argument("--flash",               action="store_true",        help="Flash bitstream.")
     target_group.add_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    target_group.add_argument("--build",        action="store_true",       help="Build design.")
+    target_group.add_argument("--build",        action="store_true",       help="Build bitstream.")
     target_group.add_argument("--load",         action="store_true",       help="Load bitstream.")
     target_group.add_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     builder_args(parser)

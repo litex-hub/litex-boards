@@ -136,7 +136,7 @@ def flash(build_dir, build_name, bios_flash_offset):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=signaloid_c0_microsd.Platform, description="LiteX SoC on Signaloid C0-microSD.")
-    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream and BIOS.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream and BIOS.")
     parser.add_target_argument("--sys-clk-freq",      default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x200000",       help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--add_uart",          action="store_true",      help="Enable UART (shared pins with clk/SD interface.")

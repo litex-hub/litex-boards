@@ -48,7 +48,7 @@ def main():
     parser = LiteXArgumentParser(description="Generic LiteX SoC")
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("platform",                             help="Module name of the platform to build for.")
-    target_group.add_argument("--build",     action="store_true", help="Build design.")
+    target_group.add_argument("--build",     action="store_true", help="Build bitstream.")
     target_group.add_argument("--load",      action="store_true", help="Load bitstream.")
     target_group.add_argument("--toolchain", default=None,        help="FPGA toolchain.")
     builder_args(parser)

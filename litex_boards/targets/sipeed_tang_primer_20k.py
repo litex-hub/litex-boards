@@ -206,7 +206,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_primer_20k.Platform, description="LiteX SoC on Tang Primer 20K.")
     parser.add_target_argument("--dock",         default="standard",       help="Dock version (standard (default) or lite.")
-    parser.add_target_argument("--flash",        action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")

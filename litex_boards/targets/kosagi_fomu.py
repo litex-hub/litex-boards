@@ -164,7 +164,7 @@ def main():
     parser = LiteXArgumentParser(platform=kosagi_fomu_pvt.Platform, description="LiteX SoC on Fomu.")
     parser.add_target_argument("--sys-clk-freq",      default=12e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x20000",        help="BIOS offset in SPI Flash.")
-    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream.")
     args = parser.parse_args()
 
     dfu_flash_offset = 0x40000

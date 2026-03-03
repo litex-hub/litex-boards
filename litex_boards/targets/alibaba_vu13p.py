@@ -176,7 +176,7 @@ def main():
             sfp_list.append("qsfp{}_{}".format(qsfp, sfp))
 
     parser = LiteXArgumentParser(platform=alibaba_vu13p.Platform, description="LiteX SoC on Alibaba VU13P.")
-    parser.add_target_argument("--flash",          action="store_true",                    help="Write FPGA bitstream into spi flash.")
+    parser.add_target_argument("--flash",          action="store_true",                    help="Flash bitstream to SPI flash.")
     parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float,              help="System clock frequency.")
     parser.add_target_argument("--ddram-channel",  default=0, type=int, choices=range(4),  help="DDRAM channel.")
     parser.add_target_argument("--with-ethernet",  action="store_true",                    help="Enable Ethernet support.")

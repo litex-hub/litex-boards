@@ -105,7 +105,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=jungle_electronics_fireant.Platform, description="LiteX SoC on Jungle Electronics FireAnt.")
-    parser.add_target_argument("--flash",             action="store_true",          help="Flash Bitstream.")
+    parser.add_target_argument("--flash",             action="store_true",          help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",      default=33.333e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x40000",            help="BIOS offset in SPI Flash.")
     args = parser.parse_args()

@@ -203,7 +203,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_console.Platform, description="LiteX SoC on Tang Console.")
-    parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--flash",           action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")

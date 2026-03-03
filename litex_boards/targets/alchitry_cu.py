@@ -98,7 +98,7 @@ def flash(build_dir, build_name, bios_flash_offset):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alchitry_cu.Platform, description="LiteX SoC on Alchitry Cu")
-    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream and BIOS.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream and BIOS.")
     parser.add_target_argument("--bios-flash-offset", default="0x040000",       help="BIOS offset in SPI Flash (default: 0x40000)")
     parser.add_target_argument("--sys-clk-freq",      default=50e6, type=float, help="System clock frequency (default: 50MHz)")
     parser.add_target_argument("--with-led-chaser",   action="store_true",      help="Enable LED Chaser.")

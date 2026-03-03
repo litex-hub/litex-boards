@@ -80,7 +80,7 @@ def main():
     parser = LiteXArgumentParser(platform=fpgawars_alhambra2.Platform, description="LiteX SoC on Lattice iCE40UP5k EVN breakout board.")
     parser.add_target_argument("--sys-clk-freq",      default=12e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x50000",        help="BIOS offset in SPI flash.")
-    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream.")
     args = parser.parse_args()
 
     soc = BaseSoC(

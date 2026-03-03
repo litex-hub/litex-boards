@@ -168,7 +168,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lckfb_ljpi.Platform, description="LiteX SoC on LCKFB LJPI.")
-    parser.add_target_argument("--flash",          action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     viopts = parser.target_group.add_mutually_exclusive_group()
