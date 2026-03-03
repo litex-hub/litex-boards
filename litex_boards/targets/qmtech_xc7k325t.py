@@ -71,7 +71,6 @@ class BaseSoC(SoCCore):
         platform = qmtech_xc7k325t.Platform(toolchain=toolchain, with_daughterboard=with_daughterboard)
 
         # SoCCore ----------------------------------------------------------------------------------
-        print(f"{str(kwargs)}")
         if (kwargs["uart_name"] == "serial") and (not with_daughterboard):
             if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "gpio_serial"
 

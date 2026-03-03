@@ -72,7 +72,6 @@ class BaseSoC(SoCCore):
         platform = qmtech_kintex7_devboard.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
-        print(f"{str(kwargs)}")
         if (kwargs["uart_name"] == "serial"):
             if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "JP5_serial"
 
