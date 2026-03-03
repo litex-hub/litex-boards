@@ -81,7 +81,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=enclustra_mercury_kx2.Platform, description="LiteX SoC on Enclustra Mercury+ KX2.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    parser.add_argument("--with-st1-baseboard",  action="store_true", help="add enclustra ST1 baseboard")
+    parser.add_target_argument("--with-st1-baseboard",  action="store_true", help="add enclustra ST1 baseboard")
     args = parser.parse_args()
 
     soc = BaseSoC(

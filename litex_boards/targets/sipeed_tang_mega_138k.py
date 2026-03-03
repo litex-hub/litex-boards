@@ -278,7 +278,7 @@ def main():
     ])
 
     # Video.
-    viopts = parser.add_mutually_exclusive_group()
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-colorbars",   action="store_true",      help="Enable Video ColoBars (HDMI).")
     viopts.add_argument("--with-video-terminal",    action="store_true",      help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true",      help="Enable Video Framebuffer (HDMI).")

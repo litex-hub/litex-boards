@@ -192,18 +192,18 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_mozart_mx1.Platform, description="LiteX SoC on Mozart MX1.")
-    parser.add_argument("--sys-clk-freq",    default=80e6,         help="System clock frequency.")
-    parser.add_argument("--revision",        default="v0",         help="Board Revision (v0).")
-    parser.add_argument("--device",          default="45F",        help="ECP5 device (12F, 25F, 45F or 85F).")
-    parser.add_argument("--cable",           default="usb-blaster", help="Specify an openFPGALoader cable.")
-    parser.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
-    parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
-    parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
-    parser.add_argument("--with-ethernet",   action="store_true",  help="Enable ethernet support.")
+    parser.add_target_argument("--sys-clk-freq",    default=80e6,         help="System clock frequency.")
+    parser.add_target_argument("--revision",        default="v0",         help="Board Revision (v0).")
+    parser.add_target_argument("--device",          default="45F",        help="ECP5 device (12F, 25F, 45F or 85F).")
+    parser.add_target_argument("--cable",           default="usb-blaster", help="Specify an openFPGALoader cable.")
+    parser.add_target_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
+    parser.add_target_argument("--with-ethernet",   action="store_true",  help="Enable ethernet support.")
     parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
+    parser.add_target_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
 
     args = parser.parse_args()
 
