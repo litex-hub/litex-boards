@@ -240,16 +240,16 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_mega_138k_pro.Platform, description="LiteX SoC on Tang Mega 138K Pro.")
-    parser.add_target_argument("--flash",        action="store_true",      help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-sdram",   action="store_true",      help="Enable optional SDRAM module.")
-    parser.add_target_argument("--sdram-model",     default="sipeed",         help="SDRAM module model.",
+    parser.add_target_argument("--flash",               action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-sdram",          action="store_true",      help="Enable optional SDRAM module.")
+    parser.add_target_argument("--sdram-model",         default="sipeed",         help="SDRAM module model.",
         choices=[
             "sipeed",
             "mister"
     ])
-    parser.add_target_argument("--with-ddr3",           action="store_true", help="Enable optional DDR3 module.")
-    parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-ddr3",           action="store_true",      help="Enable optional DDR3 module.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
