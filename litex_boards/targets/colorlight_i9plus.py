@@ -141,7 +141,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=colorlight_i9plus.Platform, description="LiteX SoC on Arty A7.")
+    parser = LiteXArgumentParser(platform=colorlight_i9plus.Platform, description="LiteX SoC on Colorlight i9+.")
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-dna",       action="store_true",       help="Enable 7-Series DNA.")

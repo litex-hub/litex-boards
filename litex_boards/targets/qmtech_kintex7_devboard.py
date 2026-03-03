@@ -139,7 +139,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=qmtech_kintex7_devboard.Platform, description="LiteX SoC on QMTech XC7K325T")
+    parser = LiteXArgumentParser(platform=qmtech_kintex7_devboard.Platform, description="LiteX SoC on QMTech Kintex-7 Devboard.")
     parser.add_target_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     parser.add_target_argument("--build",        action="store_true",       help="Build bitstream.")
     parser.add_target_argument("--load",         action="store_true",       help="Load bitstream.")
