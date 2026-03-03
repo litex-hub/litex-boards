@@ -199,7 +199,7 @@ def main():
 
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
     if args.build:
-	    builder.build(**builder_kwargs)
+        builder.build(**builder_kwargs)
 
     if args.load:
         prog = soc.platform.create_programmer()

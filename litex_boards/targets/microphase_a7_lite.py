@@ -59,7 +59,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), 
+    def __init__(self, sys_clk_freq=int(100e6),
         with_led_chaser = True,
         with_spi_flash  = False,
         **kwargs):

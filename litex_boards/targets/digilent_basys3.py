@@ -60,7 +60,7 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
-# Build --------------------------------------------------------------------------------------------  
+# Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser

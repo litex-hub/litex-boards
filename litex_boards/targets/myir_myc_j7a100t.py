@@ -6,7 +6,7 @@
 # Copyright (c) 2025 Samuele Baisi <samuele.baisi@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# Notes: 
+# Notes:
 # - default clock set to 100MHz, above that timings start to crap out
 
 from migen import *

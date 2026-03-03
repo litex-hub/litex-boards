@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
                 with_ethernet   = False,
                 with_etherbone  = False,
                 ethernet_port   = "qsfp0_sfp0",
-                etherbone_port  = "qsfp0_sfp0", 
+                etherbone_port  = "qsfp0_sfp0",
                 eth_ip          = "192.168.1.50",
                 eth_dynamic_ip  = True,
                 remote_ip       = None,

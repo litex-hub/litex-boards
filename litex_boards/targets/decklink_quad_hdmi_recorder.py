@@ -118,7 +118,7 @@ def main():
         sys_clk_freq = args.sys_clk_freq,
         with_pcie    = args.with_pcie,
         **parser.soc_argdict
-	)
+    )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

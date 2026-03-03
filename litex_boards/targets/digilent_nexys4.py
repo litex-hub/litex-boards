@@ -112,7 +112,7 @@ class CellularRAM(LiteXModule):
         fsm.act("IDLE",
             If(self.bus.stb & self.bus.cyc,
 
-                NextValue(lb,~self.bus.sel[0]), 
+                NextValue(lb,~self.bus.sel[0]),
                 NextValue(ub,~self.bus.sel[1]),
 
                 NextValue(self.delaycounter,0),

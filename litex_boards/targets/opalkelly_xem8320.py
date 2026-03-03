@@ -145,7 +145,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
-	)
+    )
 
     soc.platform.add_extension(opalkelly_xem8320._sdcard_pmod_io)
     soc.add_spi_sdcard()

@@ -144,7 +144,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = sdram_module(sys_clk_freq, "1:2"),
-                l2_cache_size = kwargs.get("l2_size", 8192) 
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # USB Host ---------------------------------------------------------------------------------

@@ -14,7 +14,7 @@
 #
 # TODO:
 # - add support for QQSPI PSRAM (32MB) pmod
-# - add support for SD card pmod 
+# - add support for SD card pmod
 #
 
 import os

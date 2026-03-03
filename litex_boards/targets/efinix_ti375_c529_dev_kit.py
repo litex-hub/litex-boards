@@ -457,7 +457,7 @@ class BaseSoC(SoCCore):
             self.specials += SDRTristate(io=video_sync.vsync, o=Signal(reset=0b0), oe=self.cpu.video_vsync, i=Signal(), clk=clk_video)
             self.specials += SDRTristate(io=video_sync.hsync, o=Signal(reset=0b0), oe=self.cpu.video_hsync, i=Signal(), clk=clk_video)
 
- 		# Debug pins -----------------------------------------------------------------------------
+        # Debug pins -----------------------------------------------------------------------------
         if hasattr(self.cpu, "tracer_payload"):
             _debug_io = [
                 ("debug_io", 0,

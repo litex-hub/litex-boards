@@ -63,8 +63,8 @@ class AsyncSRAM(LiteXModule):
         chip_ena = self.bus.cyc & self.bus.stb & self.bus.sel[0]
         write_ena = (chip_ena & self.bus.we)
         ########################
-        # external write enable, 
-        # external chip enable, 
+        # external write enable,
+        # external chip enable,
         # internal tristate write enable
         ########################
         self.comb += [

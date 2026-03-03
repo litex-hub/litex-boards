@@ -127,7 +127,7 @@ class BaseSoC(SoCCore):
                 (0x0009, 0x01),
                 (0x0005, 0x04)
             ])
-            self.add_video_colorbars(phy=self.videophy, timings="1920x1080@60Hz", clock_domain="hdmi")            
+            self.add_video_colorbars(phy=self.videophy, timings="1920x1080@60Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:

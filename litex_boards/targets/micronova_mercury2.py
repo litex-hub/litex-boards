@@ -64,8 +64,8 @@ class AsyncSRAM(LiteXModule):
         chip_ena = self.bus.cyc & self.bus.stb & self.bus.sel[0]
         write_ena = (chip_ena & self.bus.we)
         ########################
-        # external write enable, 
-        # external chip enable, 
+        # external write enable,
+        # external chip enable,
         # internal tristate write enable
         ########################
         self.comb += [
@@ -104,7 +104,7 @@ def addAsyncSram(soc, platform, name, origin, size):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, 
+    def __init__(self,
         variant         = "a7-35",
         toolchain       = "vivado",
         sys_clk_freq    = 100e6,

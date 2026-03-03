@@ -2,7 +2,7 @@
 
 #
 # This file is part of LiteX-Boards.
-# 
+#
 # Copyright (c) 2025 Victor Vimbert-Guerlais <victor.vimbertguerlais@gmail.com>
 # Modified from the Alchitry Au v1 version by Nathaniel Lewis <github@nrlewis.dev>
 # SPDX-License-Identifier: BSD-2-Clause
@@ -20,7 +20,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT41K128M16 
+from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
 
 # CRG ----------------------------------------------------------------------------------------------

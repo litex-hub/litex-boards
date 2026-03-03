@@ -128,7 +128,7 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         **parser.soc_argdict
-	)
+    )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

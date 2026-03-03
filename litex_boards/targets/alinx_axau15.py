@@ -160,7 +160,7 @@ def main():
         pcie_speed     = args.pcie_speed,
         with_sdcard    = args.with_sdcard,
         **parser.soc_argdict
-	)
+    )
 
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

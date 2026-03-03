@@ -2,7 +2,7 @@
 
 #
 # This file is part of LiteX-Boards.
-# 
+#
 # Copyright (c) 2025 Victor Vimbert-Guerlais <victor.vimbertguerlais@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 

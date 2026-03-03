@@ -4,7 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2019-2024 Florent Kermarrec <florent@enjoy-digital.fr>
-# Copyright (c) 2024 Gustavo Bastos <gustavocerq7gmail.com> 
+# Copyright (c) 2024 Gustavo Bastos <gustavocerq7gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
@@ -92,7 +92,7 @@ class BaseSoC(SoCCore):
                 data_pads          = self.platform.request("sfp"),
                 sys_clk_freq       = sys_clk_freq,
                 with_csr           = True
-            )                    
+            )
             self.comb += self.platform.request("sfp_tx_disable_n").eq(1)
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks UCIO-1]")
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-44]")
