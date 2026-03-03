@@ -3,7 +3,37 @@ name: ci
 on: [push, pull_request]
 
 jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: "setup.py"
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install setuptools pytest
+
+      - name: Check README Board List
+        run: python3 .github/scripts/sync_readme_boards_list.py --check
+
+      - name: Check Target Parser Style
+        run: python3 .github/scripts/check_target_parser_style.py
+
+      - name: Check Target Parser Alignment
+        run: python3 .github/scripts/check_target_parser_alignment.py
+
+      - name: Run Fast Lint Tests
+        run: python3 -m pytest -q test/test_parser_style.py test/test_parser_alignment.py test/test_targets_parser_api.py
+
   build:
+    needs: lint
     runs-on: ubuntu-22.04
     steps:
       # Checkout Repository
@@ -39,6 +69,14 @@ jobs:
       # Validate README board list is in sync with targets.
       - name: Check README Board List
         run: python3 .github/scripts/sync_readme_boards_list.py --check
+
+      # Validate parser style in targets.
+      - name: Check Target Parser Style
+        run: python3 .github/scripts/check_target_parser_style.py
+
+      # Validate parser argument alignment in targets.
+      - name: Check Target Parser Alignment
+        run: python3 .github/scripts/check_target_parser_alignment.py
 
       # Test
       - name: Run Tests

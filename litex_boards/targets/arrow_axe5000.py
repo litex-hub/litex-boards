@@ -161,11 +161,11 @@ def main():
     parser.add_target_argument("--with-l2-cache", action="store_true",       help="Enable Main RAM L2 cache.")
 
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",       action="store_true",     help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",      action="store_true",     help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",        default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",     default="192.168.1.100", help="Remote IP address of TFTP server.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
 
     # Overrides defaults synth/conv tools.
     parser.set_defaults(synth_tool = "quartus_syn")

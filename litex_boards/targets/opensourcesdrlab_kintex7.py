@@ -8,8 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import opensourcesdrlab_kintex7
@@ -61,7 +59,7 @@ class BaseSoC(SoCCore):
         platform = opensourcesdrlab_kintex7.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "serial"
+        if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "serial"
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "Open Source SDR LAB XC7K325T",
             **kwargs)
@@ -104,16 +102,16 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTech XC7K325T")
-    parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    parser.add_argument("--build",               action="store_true",              help="Build bitstream.")
-    parser.add_argument("--load",                action="store_true",              help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
-    ethopts = parser.add_mutually_exclusive_group()
-    parser.add_argument("--with-pcie",           action="store_true",              help="Enable PCIe support.")
-    sdopts = parser.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
-    parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=opensourcesdrlab_kintex7.Platform, description="LiteX SoC on Open Source SDR Lab Kintex-7.")
+    parser.add_target_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
+    parser.add_target_argument("--build",        action="store_true",       help="Build bitstream.")
+    parser.add_target_argument("--load",         action="store_true",       help="Load bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+
+    parser.add_target_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-spi-flash",  action="store_true", help="Enable memory-mapped SPI flash.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -135,11 +133,11 @@ def main():
 
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
     if args.build:
-	    builder.build(**builder_kwargs)
+        builder.build(**builder_kwargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.get_build_name() + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

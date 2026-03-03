@@ -72,12 +72,16 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = kosagi_fomu_pvt.Platform()
 
+        # Default to USB ACM through LUNA, but allow explicit override.
+        uart_name = kwargs.get("uart_name", "serial")
+        if uart_name == "serial":
+            uart_name = "usb_acm"
+        kwargs["uart_name"] = uart_name
+
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        # Defaults to USB ACM through ValentyUSB.
-        kwargs["uart_name"] = "usb_acm"
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
         kwargs["integrated_sram_size"] = 0
         kwargs["integrated_rom_size"]  = 0
@@ -160,7 +164,7 @@ def main():
     parser = LiteXArgumentParser(platform=kosagi_fomu_pvt.Platform, description="LiteX SoC on Fomu.")
     parser.add_target_argument("--sys-clk-freq",      default=12e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x20000",        help="BIOS offset in SPI Flash.")
-    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream.")
     args = parser.parse_args()
 
     dfu_flash_offset = 0x40000

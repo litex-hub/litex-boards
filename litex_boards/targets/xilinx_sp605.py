@@ -138,12 +138,12 @@ class _CRG(LiteXModule):
 
         # sdram_half
         self.specials += Instance("BUFG",
-                                  i_I=self.unbuf_sdram_half_a.clk, 
+                                  i_I=self.unbuf_sdram_half_a.clk,
                                   o_O=self.cd_sdram_half.clk
                                   )
         clk_sdram_half_shifted = Signal()
-        self.specials += Instance("BUFG", 
-                                  i_I=self.unbuf_sdram_half_b.clk, 
+        self.specials += Instance("BUFG",
+                                  i_I=self.unbuf_sdram_half_b.clk,
                                   o_O=clk_sdram_half_shifted
                                   )
 
@@ -180,7 +180,7 @@ class BaseSoC(SoCCore):
             pads                = platform.request("ddram"),
             rd_bitslip          = 0,
             wr_bitslip          = 4,
-            dqs_ddr_alignment   = "C0" 
+            dqs_ddr_alignment   = "C0"
         )
 
         self.comb += [
@@ -206,17 +206,17 @@ class BaseSoC(SoCCore):
             self.videoi2c = I2CMaster(pads)
 
             self.videoi2c.add_init(addr=0x76, init=[
-                (0x49, 0xC0), 
-                (0x21, 0x09), 
+                (0x49, 0xC0),
+                (0x21, 0x09),
 
                 # if under 65 Mhz
-                # (0x33, 0x08), 
-                # (0x34, 0x16), 
+                # (0x33, 0x08),
+                # (0x34, 0x16),
                 # (0x36, 0x60)
 
                 # 65 Mhz and above
-                (0x33, 0x06), 
-                (0x34, 0x26), 
+                (0x33, 0x06),
+                (0x34, 0x26),
                 (0x36, 0xA0)
             ])
             if with_video_colorbars:
@@ -230,11 +230,11 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=xilinx_sp605.Platform, description="LiteX SoC on Papilio Pro.")
-    parser.add_target_argument("--sys-clk-freq",        default=54e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-video-terminal",    action="store_true",       help="Enable Video Terminal (DVI).")
-    parser.add_target_argument("--with-video-framebuffer", action="store_true",       help="Enable Video Framebuffer (DVI).")
-    parser.add_target_argument("--with-video-colorbars",   action="store_true",       help="Enable Video Colorbars (DVI).")
+    parser = LiteXArgumentParser(platform=xilinx_sp605.Platform, description="LiteX SoC on SP605.")
+    parser.add_target_argument("--sys-clk-freq",           default=54e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-video-terminal",    action="store_true",      help="Enable Video Terminal (DVI).")
+    parser.add_target_argument("--with-video-framebuffer", action="store_true",      help="Enable Video Framebuffer (DVI).")
+    parser.add_target_argument("--with-video-colorbars",   action="store_true",      help="Enable Video Colorbars (DVI).")
     args = parser.parse_args()
 
     soc = BaseSoC(

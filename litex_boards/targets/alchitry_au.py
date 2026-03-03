@@ -92,10 +92,10 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alchitry_au.Platform, description="LiteX SoC on Alchitry Au(+).")
-    parser.add_target_argument("--flash",           action="store_true",          help="Flash bitstream.")
-    parser.add_target_argument("--variant",         default="au",                 help="Board variant (au or au+).")
-    parser.add_target_argument("--sys-clk-freq",    default=83.333e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash",  action="store_true",          help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--flash",          action="store_true",          help="Flash bitstream.")
+    parser.add_target_argument("--variant",        default="au",                 help="Board variant (au or au+).")
+    parser.add_target_argument("--sys-clk-freq",   default=83.333e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",          help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(

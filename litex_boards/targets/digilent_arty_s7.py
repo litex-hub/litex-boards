@@ -92,7 +92,7 @@ def main():
     parser = LiteXArgumentParser(platform=digilent_arty_s7.Platform, description="LiteX SoC on Arty S7.")
     parser.add_target_argument("--variant",        default="s7-50",           help="Board variant (s7-50 or s7-25).")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(

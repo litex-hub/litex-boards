@@ -2,7 +2,7 @@
 
 #
 # This file is part of LiteX-Boards.
-# 
+#
 # Copyright (c) 2025 Victor Vimbert-Guerlais <victor.vimbertguerlais@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -92,10 +92,10 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alchitry_pt_v2.Platform, description="LiteX SoC on Alchitry Pt v2.")
-    parser.add_target_argument("--flash",           action="store_true",          help="Flash bitstream.")
-    parser.add_target_argument("--variant",         default="pt_v2",                 help="Board variant (only pt_v2 for now).")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash",  action="store_true",          help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--variant",        default="pt_v2",           help="Board variant (only pt_v2 for now).")
+    parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(

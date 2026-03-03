@@ -63,7 +63,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=bochenjingxin_kintex7_basec.Platform, description="LiteX SoC on Kintex-7 Base C.")
-    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock frequency.")
 
     args = parser.parse_args()
 

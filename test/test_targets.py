@@ -96,6 +96,7 @@ class TestTargets(unittest.TestCase):
                     "-m", f"litex_boards.targets.{name}",
                     "--cpu-type=vexriscv",
                     "--cpu-variant=minimal",
+                    "--uart-name=stub",
                     "--build",
                     "--no-compile",
                 ]

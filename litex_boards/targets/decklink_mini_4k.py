@@ -86,7 +86,8 @@ class BaseSoC(SoCMini):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "jtag_uart"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Blackmagic Decklink Mini 4K", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
@@ -155,10 +156,10 @@ class BaseSoC(SoCMini):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=decklink_mini_4k.Platform, description="LiteX SoC Blackmagic Decklink Mini 4K.")
-    parser.add_target_argument("--sys-clk-freq", default=148.5e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=148.5e6, type=float, help="System clock frequency.")
     pcieopts = parser.target_group.add_mutually_exclusive_group()
     pcieopts.add_argument("--with-pcie",   action="store_true", help="Enable PCIe support.")
-    parser.add_target_argument("--driver", action="store_true", help="Generate PCIe driver.")
+    parser.add_target_argument("--driver",              action="store_true",        help="Generate PCIe driver.")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")

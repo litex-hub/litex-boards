@@ -134,15 +134,15 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_primer_25k.Platform, description="LiteX SoC on Tang Primer 25K.")
-    parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable SPI Flash (MMAPed).")
-    parser.add_target_argument("--with-sdram",      action="store_true",      help="Enable optional SDRAM module.")
-    parser.add_target_argument("--sdram-model",     default="sipeed",         help="SDRAM module model.",
+    parser.add_target_argument("--flash",            action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",     default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash",   action="store_true",      help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-sdram",       action="store_true",      help="Enable optional SDRAM module.")
+    parser.add_target_argument("--sdram-model",      default="sipeed",
         choices=[
             "sipeed",
             "mister"
-    ])
+    ], help="SDRAM module model.")
     args = parser.parse_args()
 
     soc = BaseSoC(

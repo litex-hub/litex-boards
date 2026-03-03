@@ -14,11 +14,11 @@
 # targets -set -filter {name =~ "ARM*#0"}
 # rst
 # stop
-# 
+#
 # source build/digilent_arty_z7/gateware/digilent_arty_z7.srcs/sources_1/ip/Zynq/ps7_init.tcl
 # ps7_init
 # ps7_post_config
-# 
+#
 # dow build/digilent_arty_z7/software/bios/bios.elf
 # fpga build/digilent_arty_z7/gateware/digilent_arty_z7.bit
 # con

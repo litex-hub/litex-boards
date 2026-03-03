@@ -57,7 +57,7 @@ class BaseSoC(SoCCore):
         if kwargs.get("cpu_type", None) != "zynq7000":
             from litex_boards.platforms.digilent_arty import usb_pmod_io
             platform.add_extension(usb_pmod_io("pmodb"))
-            kwargs["uart_name"] = "usb_uart"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart"
         else:
             kwargs["no_uart"] = True
 
@@ -143,7 +143,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_zedboard.Platform, description="LiteX SoC on Zedboard.")
-    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
     parser.set_defaults(cpu_type="zynq7000")
     args = parser.parse_args()
 

@@ -128,7 +128,8 @@ class BaseSoC(SoCCore):
         platform = radiona_ulx4m_ls_v2.Platform(revision="0.1", device=device ,toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll = kwargs["uart_name"] in ["usb_acm"]
+        uart_name = kwargs.get("uart_name", "serial")
+        with_usb_pll = uart_name == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
         self.submodules.crg = _CRG(platform, sys_clk_freq,
             with_video_pll = with_video_pll,
@@ -138,8 +139,8 @@ class BaseSoC(SoCCore):
         )
 
         # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] in ["serial", "usb_acm"]:
-            kwargs["uart_name"] = "serial"
+        if uart_name in ["serial", "usb_acm"]:
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "serial"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX4M-LS-V2", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
@@ -189,30 +190,30 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=radiona_ulx4m_ls_v2.Platform, description="LiteX SoC on ULX4M-LS-V2")
-    parser.add_argument("--sys-clk-freq",    default=50e6,           help="System clock frequency.")
-    parser.add_argument("--revision",        default="1.0",          help="Board Revision (1.0).")
-    parser.add_argument("--device",          default="12F",          help="ECP5 device (25F, 45F, 85F).")
+    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",     default="1.0",            help="Board revision (1.0).")
+    parser.add_target_argument("--device",       default="12F",            help="ECP5 device (12F, 25F, 45F, or 85F).")
 
     # SDRAM.
-    parser.add_argument("--sdram-device",    default="IS42S16160",   help="SDRAM device (IS42S16320).")
-    parser.add_argument("--sdram-rate",      default="1:1",          help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--sdram-device", default="IS42S16160", help="SDRAM device (IS42S16320).")
+    parser.add_target_argument("--sdram-rate",   default="1:1",        help="SDRAM rate (1:1 full rate or 1:2 half rate).")
 
     # Ethernet.
-    ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",     help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone", action="store_true",     help="Add EtherBone.")
-    parser.add_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_argument("--eth-dynamic-ip",  action="store_true",     help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_argument("--with-spi-flash",  action="store_true",     help="Enable SPI Flash (MMAPed).")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",     help="Enable memory-mapped SPI flash.")
 
     # SDCard.
-    sdopts = parser.add_mutually_exclusive_group()
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 
     # Video.
-    viopts = parser.add_mutually_exclusive_group()
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     args = parser.parse_args()

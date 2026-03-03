@@ -112,7 +112,8 @@ class BaseSoC(SoCCore):
         platform = colorlight_i5.Platform(board=board, revision=revision, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
+        uart_name      = kwargs.get("uart_name", "serial")
+        with_usb_pll   = uart_name == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
         self.crg = _CRG(platform, sys_clk_freq,
             use_internal_osc = use_internal_osc,
@@ -172,18 +173,18 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=colorlight_i5.Platform, description="LiteX SoC on Colorlight I5.")
-    parser.add_target_argument("--board",            default="i5",             help="Board type (i5).")
-    parser.add_target_argument("--revision",         default="7.0",            help="Board revision (7.0).")
-    parser.add_target_argument("--sys-clk-freq",     default=60e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--board",        default="i5",             help="Board type (i5).")
+    parser.add_target_argument("--revision",     default="7.0",            help="Board revision (7.0).")
+    parser.add_target_argument("--sys-clk-freq", default=60e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",  action="store_true",      help="Enable Etherbone support.")
-    parser.add_target_argument("--remote-ip", default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--local-ip",  default="192.168.1.50",   help="Local IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-ip", "--local-ip", dest="eth_ip", default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",  action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",      action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     parser.add_target_argument("--eth-phy",          default=0, type=int, help="Ethernet PHY (0 or 1).")
     parser.add_target_argument("--use-internal-osc", action="store_true", help="Use internal oscillator.")
     parser.add_target_argument("--sdram-rate",       default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
@@ -197,7 +198,7 @@ def main():
         sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        eth_ip                 = args.local_ip,
+        eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         remote_ip              = args.remote_ip,
         eth_phy                = args.eth_phy,

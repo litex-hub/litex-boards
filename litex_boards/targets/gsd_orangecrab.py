@@ -153,13 +153,17 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = gsd_orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
 
+        # Default to USB ACM through LUNA, but allow explicit override.
+        uart_name = kwargs.get("uart_name", "serial")
+        if uart_name == "serial":
+            uart_name = "usb_acm"
+        kwargs["uart_name"] = uart_name
+
         # CRG --------------------------------------------------------------------------------------
         crg_cls      = _CRGSDRAM if kwargs.get("integrated_main_ram_size", 0) == 0 else _CRG
-        self.crg = crg_cls(platform, sys_clk_freq, with_usb_pll=True, with_dfu_rst=with_dfu_rst)
+        self.crg = crg_cls(platform, sys_clk_freq, with_usb_pll=(uart_name == "usb_acm"), with_dfu_rst=with_dfu_rst)
 
         # SoCCore ----------------------------------------------------------------------------------
-        # Defaults to USB ACM through ValentyUSB.
-        kwargs["uart_name"] = "usb_acm"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on OrangeCrab", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------

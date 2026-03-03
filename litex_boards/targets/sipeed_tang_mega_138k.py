@@ -265,33 +265,33 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_mega_138k.Platform, description="LiteX SoC on Tang Mega 138K.")
-    parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
 
     # Memory.
-    parser.add_target_argument("--with-ddr3",       action="store_true",      help="Enable optional DDR3 module.")
-    parser.add_target_argument("--with-sdram",      action="store_true",      help="Enable optional SDRAM module.")
-    parser.add_target_argument("--sdram-model",     default="sipeed",         help="SDRAM module model.",
+    parser.add_target_argument("--with-ddr3",      action="store_true", help="Enable optional DDR3 module.")
+    parser.add_target_argument("--with-sdram",     action="store_true", help="Enable optional SDRAM module.")
+    parser.add_target_argument("--sdram-model",    default="sipeed",
         choices=[
             "sipeed",
             "mister"
-    ])
+    ], help="SDRAM module model.")
 
     # Video.
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-colorbars",   action="store_true",      help="Enable Video ColoBars (HDMI).")
-    viopts.add_argument("--with-video-terminal",    action="store_true",      help="Enable Video Terminal (HDMI).")
-    viopts.add_argument("--with-video-framebuffer", action="store_true",      help="Enable Video Framebuffer (HDMI).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video ColoBars (HDMI).")
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
 
     # Ethernet.
-    parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone",  action="store_true",      help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--local-ip",        default="192.168.1.50",   help="Local IP address.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",     help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-ip", "--local-ip", dest="eth_ip", default="192.168.1.50", help="Ethernet/Etherbone IP address.")
 
     # PCIe.
-    parser.add_target_argument("--with-pcie",       action="store_true",      help="Enable PCIe support.")
+    parser.add_target_argument("--with-pcie",           action="store_true",        help="Enable PCIe support.")
 
     args = parser.parse_args()
 
@@ -308,7 +308,7 @@ def main():
         with_pcie              = args.with_pcie,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        eth_ip                 = args.local_ip,
+        eth_ip                 = args.eth_ip,
         remote_ip              = args.remote_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         **parser.soc_argdict

@@ -141,19 +141,19 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=colorlight_i9plus.Platform, description="LiteX SoC on Arty A7.")
+    parser = LiteXArgumentParser(platform=colorlight_i9plus.Platform, description="LiteX SoC on Colorlight i9+.")
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-dna",       action="store_true",       help="Enable 7-Series DNA.")
     parser.add_target_argument("--with-pmod-uart", action="store_true",       help="Enable uart on P2 (top) PMOD")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",        action="store_true",       help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",       action="store_true",       help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-port",       default=0, type=int,       help="Ethernet port to use (0/1)")
-    parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-port",       default=0, type=int,     help="Ethernet port to use (0/1)")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",     help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)

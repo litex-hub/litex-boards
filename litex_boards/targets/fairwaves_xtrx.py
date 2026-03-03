@@ -74,7 +74,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "crossover"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Fairwaves XTRX", **kwargs)
 
         # PCIe -------------------------------------------------------------------------------------
@@ -107,10 +107,10 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=fairwaves_xtrx.Platform, description="LiteX SoC on Fairwaves XTRX.")
-    parser.add_target_argument("--flash",           action="store_true",       help="Flash bitstream.")
-    parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",       action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--driver",          action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(

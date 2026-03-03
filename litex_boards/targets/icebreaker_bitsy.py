@@ -99,10 +99,11 @@ class BaseSoC(SoCCore):
         platform = icebreaker_bitsy.Platform(revision=revision)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_acm = kwargs["uart_name"] == "usb_acm"
-        if with_usb_acm:
+        uart_name = kwargs.get("uart_name", "serial")
+        with_usb_uart = uart_name == "usb_acm"
+        if with_usb_uart:
             sys_clk_freq = 48e6
-        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_acm)
+        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_uart)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
@@ -159,7 +160,7 @@ def main():
     soc = BaseSoC(
         bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = args.sys_clk_freq,
-		revision          = args.revision,
+        revision          = args.revision,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

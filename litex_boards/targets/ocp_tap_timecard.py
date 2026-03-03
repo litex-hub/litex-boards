@@ -87,7 +87,8 @@ class BaseSoC(SoCCore):
         self.crg = CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on OCP-TAP TimeCard", **kwargs)
 
         # XADC -------------------------------------------------------------------------------------
@@ -197,9 +198,9 @@ def main():
     parser = LiteXArgumentParser(platform=ocp_tap_timecard.Platform, description="LiteX SoC on OCP-TAP TimeCard.")
     parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
-    parser.add_target_argument("--with-smas",    action="store_true", help="Enable SMAs support.")
-    parser.add_target_argument("--driver",       action="store_true", help="Generate PCIe driver.")
+    parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--with-smas",    action="store_true",       help="Enable SMAs support.")
+    parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(

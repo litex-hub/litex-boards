@@ -85,7 +85,8 @@ class BaseSoC(SoCCore):
         kwargs["integrated_rom_size"]  = 0
 
         # Interact with the sdram with uartbone by default
-        kwargs["uart_name"] = "uartbone"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "uartbone"
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTECH 10CL006" + (" + Daughterboard" if with_daughterboard else ""),
             **kwargs
@@ -112,13 +113,13 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_10cl006.Platform, description="LiteX SoC on QMTECH 10CL006.")
-    parser.add_target_argument("--sys-clk-freq",        default=50e6,  type=float, help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",          default="1:2",             help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    parser.add_target_argument("--with-daughterboard",  action="store_true",       help="Board plugged into the QMTech daughterboard.")
+    parser.add_target_argument("--sys-clk-freq",       default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",         default="1:2",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-daughterboard", action="store_true",      help="Board plugged into the QMTech daughterboard.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-spi-flash",  action="store_true", help="Enable SPI Flash (MMAPed).")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-flash",      action="store_true",        help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -9,8 +9,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import qmtech_kintex7_devboard
@@ -74,9 +72,8 @@ class BaseSoC(SoCCore):
         platform = qmtech_kintex7_devboard.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
-        print(f"{str(kwargs)}")
         if (kwargs["uart_name"] == "serial"):
-            kwargs["uart_name"] = "JP5_serial"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "JP5_serial"
 
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTech Kintex 7 Development board",
@@ -135,33 +132,34 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
         if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "jtag_serial"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_serial"
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTech XC7K325T")
-    parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    parser.add_argument("--build",               action="store_true",              help="Build bitstream.")
-    parser.add_argument("--load",                action="store_true",              help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
-    ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",     action="store_true",              help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",              default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    parser.add_argument("--eth-dynamic-ip",      action="store_true",              help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_argument("--remote-ip",           default="192.168.1.100",
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=qmtech_kintex7_devboard.Platform, description="LiteX SoC on QMTech Kintex-7 Devboard.")
+    parser.add_target_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
+    parser.add_target_argument("--build",        action="store_true",       help="Build bitstream.")
+    parser.add_target_argument("--load",         action="store_true",       help="Load bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",              help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",           default="192.168.1.100",
    help="Remote IP address of TFTP server.")
-    parser.add_argument("--local-ip",            default="192.168.1.50",
+    parser.add_target_argument("--local-ip",            default="192.168.1.50",
    help="Local IP address.")
-    sdopts = parser.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",         action="store_true",              help="Enable SDCard support.")
-    parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
-    viopts = parser.add_mutually_exclusive_group()
+    sdopts = parser.target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-flash",      action="store_true",        help="Enable memory-mapped SPI flash.")
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
-    viopts.add_argument("--with-video-colorbars", action="store_true", help="Enable Video Colorbars (VGA).")
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (VGA).")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
@@ -199,11 +197,11 @@ def main():
 
     builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
     if args.build:
-	    builder.build(**builder_kwargs)
+        builder.build(**builder_kwargs)
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.gateware_dir, soc.build_name + ".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

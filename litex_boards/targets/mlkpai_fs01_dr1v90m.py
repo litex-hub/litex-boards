@@ -58,7 +58,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=mlkpai_fs01_dr1v90m.Platform, description="LiteX SoC on MLKPAI FS01 DR1V90M.")
-    parser.add_target_argument("--sys-clk-freq", default=25e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=25e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
                 with_ethernet   = False,
                 with_etherbone  = False,
                 ethernet_port   = "qsfp0_sfp0",
-                etherbone_port  = "qsfp0_sfp0", 
+                etherbone_port  = "qsfp0_sfp0",
                 eth_ip          = "192.168.1.50",
                 eth_dynamic_ip  = True,
                 remote_ip       = None,
@@ -84,7 +84,8 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, ddram_channel)
 
-        kwargs["uart_name"]     = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         kwargs["with_jtagbone"] = True
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -175,19 +176,19 @@ def main():
             sfp_list.append("qsfp{}_{}".format(qsfp, sfp))
 
     parser = LiteXArgumentParser(platform=alibaba_vu13p.Platform, description="LiteX SoC on Alibaba VU13P.")
-    parser.add_target_argument("--flash",          action="store_true",       help="Write FPGA bitstream into spi flash.")
-    parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--ddram-channel",  default=0, type=int, choices=range(4), help="DDRAM channel.")
-    parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
+    parser.add_target_argument("--flash",          action="store_true",                    help="Flash bitstream to SPI flash.")
+    parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float,              help="System clock frequency.")
+    parser.add_target_argument("--ddram-channel",  default=0, type=int, choices=range(4),  help="DDRAM channel.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",                    help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",                    help="Enable Etherbone support.")
     parser.add_target_argument("--ethernet-port",  default="qsfp0_sfp0", choices=sfp_list, help="Ethernet SFP port.")
     parser.add_target_argument("--etherbone-port", default="qsfp0_sfp0", choices=sfp_list, help="Etherbone SFP port.")
-    parser.add_target_argument("--ethernet-ip",    default="192.168.1.50",    help="Ethernet IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--etherbone-ip",   default="192.168.1.50",    help="Ethernet IP address.")
-    parser.add_target_argument("--with-pcie",      action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--driver",         action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--ethernet-ip",    default="192.168.1.50",                 help="Ethernet IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",                help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",                    help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--etherbone-ip",   default="192.168.1.50",                 help="Ethernet IP address.")
+    parser.add_target_argument("--with-pcie",      action="store_true",                    help="Enable PCIe support.")
+    parser.add_target_argument("--driver",         action="store_true",                    help="Generate PCIe driver.")
     args = parser.parse_args()
 
     if args.with_ethernet and args.with_etherbone:

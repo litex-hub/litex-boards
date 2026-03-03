@@ -121,8 +121,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_vcu128.Platform, description="LiteX SoC on VCU128.")
-    parser.add_target_argument("--sys-clk-freq",  default=125e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-hbm",      action="store_true",       help="Use HBM2.")
+    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-hbm",     action="store_true",       help="Use HBM2.")
     args = parser.parse_args()
 
     soc = BaseSoC(

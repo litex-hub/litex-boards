@@ -71,7 +71,8 @@ class BaseSoC(SoCCore):
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
         platform.add_extension(efinix_trion_t120_bga576_dev_kit.usb_pmod_io("pmod_e"))
-        kwargs["uart_name"] = "usb_uart"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart"
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -386,15 +387,15 @@ def main():
     parser = LiteXArgumentParser(platform=efinix_trion_t120_bga576_dev_kit.Platform, description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",       action="store_true",     help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",      action="store_true",     help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",        default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",     default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-rgmii-phy", action="store_true",     help="Uses onboard RGMII Phy instead of RMII PMOD.")
-    parser.add_target_argument("--eth-phy",       default=0, type=int,     help="Ethernet PHY: 0 (default) or 1. (Only available with --eth-rgmii-phy")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-rgmii-phy",  action="store_true",     help="Uses onboard RGMII Phy instead of RMII PMOD.")
+    parser.add_target_argument("--eth-phy",        default=0, type=int,     help="Ethernet PHY: 0 (default) or 1. (Only available with --eth-rgmii-phy")
     args = parser.parse_args()
 
     soc = BaseSoC(

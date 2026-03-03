@@ -101,12 +101,16 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = logicbone.Platform(revision=revision, device=device ,toolchain=toolchain)
 
+        # Default to USB ACM through LUNA, but allow explicit override.
+        uart_name = kwargs.get("uart_name", "serial")
+        if uart_name == "serial":
+            uart_name = "usb_acm"
+        kwargs["uart_name"] = uart_name
+
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=True)
+        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=(uart_name == "usb_acm"))
 
         # SoCCore ----------------------------------------------------------------------------------
-        # Defaults to USB ACM through ValentyUSB.
-        kwargs["uart_name"] = "usb_acm"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Logicbone", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
@@ -150,9 +154,9 @@ def main():
     parser.add_target_argument("--device",         default="45F",            help="FPGA device (45F or 85F).")
     parser.add_target_argument("--sdram-device",   default="MT41K512M16",    help="SDRAM device (MT41K512M16).")
     parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--with-sdcard",    action="store_true",      help="Enable SDCard support.")
     args = parser.parse_args()
 

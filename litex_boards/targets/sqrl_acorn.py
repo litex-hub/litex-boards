@@ -174,9 +174,9 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sqrl_acorn.Platform, description="LiteX SoC on Acorn CLE-101/215(+).")
-    parser.add_target_argument("--flash",           action="store_true",       help="Flash bitstream.")
-    parser.add_target_argument("--variant",         default="cle-215+",        help="Board variant (cle-215+, cle-215 or cle-101).")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--variant",      default="cle-215+",        help="Board variant (cle-215+, cle-215 or cle-101).")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     pcieopts = parser.target_group.add_mutually_exclusive_group()
     pcieopts.add_argument("--with-pcie",            action="store_true", help="Enable PCIe support.")
     parser.add_target_argument("--driver",          action="store_true", help="Generate PCIe driver.")

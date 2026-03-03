@@ -56,7 +56,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "usb_uart"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart"
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs["integrated_sram_size"] = 0
             kwargs["with_uart"]            = False
@@ -104,7 +104,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=redpitaya.Platform, description="LiteX SoC on Zedboard.")
+    parser = LiteXArgumentParser(platform=redpitaya.Platform, description="LiteX SoC on Red Pitaya.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--board",        default="redpitaya14",     help="Board type (redpitaya14 or redpitaya16).")
     parser.set_defaults(cpu_type="zynq7000")

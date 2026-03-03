@@ -61,10 +61,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="200t", toolchain="vivado", sys_clk_freq=int(100e6), speedgrade=-2,
-        with_xadc       = False,
-        with_dna        = False,
-        with_ethernet   = False,
+    def __init__(self, sys_clk_freq=int(100e6),
         with_led_chaser = True,
         with_spi_flash  = False,
         with_i2c        = False,
@@ -146,20 +143,17 @@ class BaseSoC(SoCCore):
 # Build -------------------------------------------------------------------------------------------- 
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=microphase_a7_lite.Platform, description="LiteX SoC on Microphase A7-Lite")
-    parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
-    parser.add_target_argument("--variant",        default="200t",            help="Board variant (35t, 100t or 200t).")
-    parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--speedgrade",     default=-2, type=int,      help="FPGA speedgrade (-1 or -2).")
-    parser.add_target_argument("--with-xadc",      action="store_true",       help="Enable 7-Series XADC.")
-    parser.add_target_argument("--with-dna",       action="store_true",       help="Enable 7-Series DNA.")
-    parser.add_target_argument("--with-buttons",   action="store_true",       help="Enable User Buttons.")
-    parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
-    parser.add_target_argument("--with-i2c",       action="store_true",       help="Enable I2C.")
-    parser.add_target_argument("--with-spi-sdcard",action="store_true",       help="Enable SPI-mode SDCard support.")
-    parser.add_target_argument("--with-sdcard",    action="store_true",       help="Enable SDCard support.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash.")
+    from litex.soc.integration.soc import LiteXSoCArgumentParser
+    parser = LiteXSoCArgumentParser(description="LiteX SoC on microphase_a7_lite(200T)")
+    target_group = parser.add_argument_group(title="Target options")
+    parser.add_target_argument("--flash",               action="store_true",        help="Flash bitstream.")
+    target_group.add_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
+    target_group.add_argument("--build",        action="store_true",       help="Build bitstream.")
+    target_group.add_argument("--load",         action="store_true",       help="Load bitstream.")
+    target_group.add_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    builder_args(parser)
+    soc_core_args(parser)
+    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
