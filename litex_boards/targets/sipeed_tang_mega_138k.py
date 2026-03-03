@@ -288,7 +288,7 @@ def main():
     parser.add_target_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--local-ip",       default="192.168.1.50",  help="Local IP address.")
+    parser.add_target_argument("--eth-ip", "--local-ip", dest="eth_ip", default="192.168.1.50", help="Ethernet/Etherbone IP address.")
 
     # PCIe.
     parser.add_target_argument("--with-pcie",           action="store_true",        help="Enable PCIe support.")
@@ -308,7 +308,7 @@ def main():
         with_pcie              = args.with_pcie,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        eth_ip                 = args.local_ip,
+        eth_ip                 = args.eth_ip,
         remote_ip              = args.remote_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         **parser.soc_argdict
