@@ -12,7 +12,6 @@ import os
 from migen import *
 
 from litex_boards.platforms import qmtech_kintex7_devboard
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -138,10 +137,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(description="LiteX SoC on QMTech Kintex-7 Devboard.")
-    parser.add_target_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    parser.add_target_argument("--build",        action="store_true",       help="Build bitstream.")
-    parser.add_target_argument("--load",         action="store_true",       help="Load bitstream.")
+    parser = LiteXArgumentParser(platform=qmtech_kintex7_devboard.Platform, description="LiteX SoC on QMTech Kintex-7 Devboard.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
@@ -160,9 +156,6 @@ def main():
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
     viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (VGA).")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -178,7 +171,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_video_colorbars   = args.with_video_colorbars,
-        **soc_core_argdict(args)
+        **parser.soc_argdict
     )
 
     if args.with_spi_sdcard:
@@ -186,7 +179,7 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
     if args.with_ethernet or args.with_etherbone:
         os.makedirs(os.path.join(builder.software_dir, "include/generated"),
                     exist_ok=True)
@@ -195,9 +188,8 @@ def main():
             "// Force 100Base-T speed\n"
             "#define TARGET_ETHPHY_INIT_FUNC() mdio_write(0, 0, 0x2100)")
 
-    builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
     if args.build:
-        builder.build(**builder_kwargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()

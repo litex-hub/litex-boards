@@ -11,7 +11,6 @@ import os
 from migen import *
 
 from litex_boards.platforms import opensourcesdrlab_kintex7
-from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -103,18 +102,12 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(description="LiteX SoC on Open Source SDR Lab Kintex-7.")
-    parser.add_target_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    parser.add_target_argument("--build",        action="store_true",       help="Build bitstream.")
-    parser.add_target_argument("--load",         action="store_true",       help="Load bitstream.")
+    parser = LiteXArgumentParser(platform=opensourcesdrlab_kintex7.Platform, description="LiteX SoC on Open Source SDR Lab Kintex-7.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
 
     parser.add_target_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-spi-flash",  action="store_true", help="Enable memory-mapped SPI flash.")
-    builder_args(parser)
-    soc_core_args(parser)
-    vivado_build_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -123,17 +116,16 @@ def main():
         with_spi_flash  = args.with_spi_flash,
         with_pcie       = args.with_pcie,
         with_spi_sdcard = args.with_spi_sdcard,
-        **soc_core_argdict(args)
+        **parser.soc_argdict
     )
 
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
 
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, **parser.builder_argdict)
 
-    builder_kwargs = vivado_build_argdict(args) if args.toolchain == "vivado" else {}
     if args.build:
-        builder.build(**builder_kwargs)
+        builder.build(**parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()
