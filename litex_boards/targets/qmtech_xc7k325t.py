@@ -75,7 +75,7 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         print(f"{str(kwargs)}")
         if (kwargs["uart_name"] == "serial") and (not with_daughterboard):
-            kwargs["uart_name"] = "gpio_serial"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "gpio_serial"
 
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTech XC7K325T" + (" + Daughterboard" if with_daughterboard else ""),
@@ -141,7 +141,7 @@ class BaseSoC(SoCCore):
                     sys_clk_freq = sys_clk_freq)
 
         if not with_daughterboard and kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "jtag_serial"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_serial"
 
 # Build --------------------------------------------------------------------------------------------
 

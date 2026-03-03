@@ -53,7 +53,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs["integrated_sram_size"] = 0x0
             kwargs["with_uart"] = False

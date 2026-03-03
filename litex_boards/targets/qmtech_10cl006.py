@@ -86,7 +86,7 @@ class BaseSoC(SoCCore):
 
         # Interact with the sdram with uartbone by default
         if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "uartbone"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "uartbone"
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTECH 10CL006" + (" + Daughterboard" if with_daughterboard else ""),
             **kwargs

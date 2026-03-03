@@ -93,7 +93,7 @@ class BaseSoC(SoCCore):
 
         # When nor jtagbone, nor etherbone are set forces jtagbone.
         if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "crossover"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         if not (kwargs["with_jtagbone"] or with_etherbone):
             kwargs["with_jtagbone"] = True
 

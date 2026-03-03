@@ -65,7 +65,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "crossover"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         kwargs["with_jtagbone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Pluto SDR", **kwargs)
 

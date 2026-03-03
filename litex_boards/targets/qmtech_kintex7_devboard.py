@@ -76,7 +76,7 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         print(f"{str(kwargs)}")
         if (kwargs["uart_name"] == "serial"):
-            kwargs["uart_name"] = "JP5_serial"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "JP5_serial"
 
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTech Kintex 7 Development board",
@@ -135,7 +135,7 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
         if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "jtag_serial"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_serial"
 
 # Build --------------------------------------------------------------------------------------------
 

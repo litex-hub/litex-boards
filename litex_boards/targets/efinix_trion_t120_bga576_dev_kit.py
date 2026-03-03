@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
         # USBUART PMOD as Serial--------------------------------------------------------------------
         platform.add_extension(efinix_trion_t120_bga576_dev_kit.usb_pmod_io("pmod_e"))
         if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "usb_uart"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart"
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)

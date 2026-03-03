@@ -76,11 +76,11 @@ class BaseSoC(SoCCore):
         real_uart_name = kwargs["uart_name"]
         if real_uart_name == "serial":
             if kwargs["with_jtagbone"]:
-                kwargs["uart_name"] = "crossover"
+                if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
             else:
-                kwargs["uart_name"] = "jtag_uart"
+                if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart"
         if kwargs["with_uartbone"]:
-            kwargs["uart_name"] = "crossover"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Terasic DECA", **kwargs)
 
         # Ethernet ---------------------------------------------------------------------------------

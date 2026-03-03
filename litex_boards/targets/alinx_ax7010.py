@@ -46,7 +46,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         #if kwargs["uart_name"] == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
-        kwargs["uart_name"] = "serial"
+        if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "serial"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AX7010", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------

@@ -71,7 +71,7 @@ class BaseSoC(SoCMini):
 
         # SoCMini ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "crossover"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         kwargs["uart_baudrate"] = 1e6 # CH552 firmware does not support traditional baudrates.
         kwargs["with_uartbone"] = True
         SoCMini.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano", **kwargs)

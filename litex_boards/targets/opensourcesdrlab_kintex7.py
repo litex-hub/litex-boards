@@ -61,7 +61,7 @@ class BaseSoC(SoCCore):
         platform = opensourcesdrlab_kintex7.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "serial"
+        if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "serial"
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "Open Source SDR LAB XC7K325T",
             **kwargs)

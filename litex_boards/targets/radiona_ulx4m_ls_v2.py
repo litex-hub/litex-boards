@@ -140,7 +140,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if uart_name in ["serial", "usb_acm"]:
-            kwargs["uart_name"] = "serial"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "serial"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX4M-LS-V2", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------

@@ -74,7 +74,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG UART.
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG UART.
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alibaba Cloud KU3P Board", **kwargs)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
