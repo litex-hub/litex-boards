@@ -40,6 +40,10 @@ jobs:
       - name: Check README Board List
         run: python3 .github/scripts/sync_readme_boards_list.py --check
 
+      # Validate parser style in targets.
+      - name: Check Target Parser Style
+        run: python3 .github/scripts/check_target_parser_style.py
+
       # Test
       - name: Run Tests
         run: python3 -m pytest -v
