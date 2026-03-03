@@ -8,8 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import argparse
-
 from migen import *
 
 from litex_boards.platforms import opensourcesdrlab_kintex7
@@ -104,7 +102,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on QMTech XC7K325T")
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=opensourcesdrlab_kintex7.Platform, description="LiteX SoC on QMTech XC7K325T")
     parser.add_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     parser.add_argument("--build",        action="store_true",       help="Build bitstream.")
     parser.add_argument("--load",         action="store_true",       help="Load bitstream.")
