@@ -138,11 +138,11 @@ def main():
     parser.add_target_argument("--sys-clk-freq",     default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash",   action="store_true",      help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-sdram",       action="store_true",      help="Enable optional SDRAM module.")
-    parser.add_target_argument("--sdram-model",      default="sipeed",         help="SDRAM module model.",
+    parser.add_target_argument("--sdram-model",      default="sipeed",
         choices=[
             "sipeed",
             "mister"
-    ])
+    ], help="SDRAM module model.")
     args = parser.parse_args()
 
     soc = BaseSoC(

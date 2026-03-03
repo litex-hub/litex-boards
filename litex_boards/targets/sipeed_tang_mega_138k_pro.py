@@ -243,11 +243,11 @@ def main():
     parser.add_target_argument("--flash",               action="store_true",      help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-sdram",          action="store_true",      help="Enable optional SDRAM module.")
-    parser.add_target_argument("--sdram-model",         default="sipeed",         help="SDRAM module model.",
+    parser.add_target_argument("--sdram-model",         default="sipeed",
         choices=[
             "sipeed",
             "mister"
-    ])
+    ], help="SDRAM module model.")
     parser.add_target_argument("--with-ddr3",           action="store_true",      help="Enable optional DDR3 module.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()

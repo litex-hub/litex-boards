@@ -271,11 +271,11 @@ def main():
     # Memory.
     parser.add_target_argument("--with-ddr3",      action="store_true", help="Enable optional DDR3 module.")
     parser.add_target_argument("--with-sdram",     action="store_true", help="Enable optional SDRAM module.")
-    parser.add_target_argument("--sdram-model",    default="sipeed",    help="SDRAM module model.",
+    parser.add_target_argument("--sdram-model",    default="sipeed",
         choices=[
             "sipeed",
             "mister"
-    ])
+    ], help="SDRAM module model.")
 
     # Video.
     viopts = parser.target_group.add_mutually_exclusive_group()
