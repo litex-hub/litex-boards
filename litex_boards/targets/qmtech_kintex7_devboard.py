@@ -140,24 +140,24 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_kintex7_devboard.Platform, description="LiteX SoC on QMTech XC7K325T")
-    parser.add_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
-    parser.add_argument("--build",        action="store_true",       help="Build bitstream.")
-    parser.add_argument("--load",         action="store_true",       help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    ethopts = parser.add_mutually_exclusive_group()
+    parser.add_target_argument("--toolchain",    default="vivado",          help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
+    parser.add_target_argument("--build",        action="store_true",       help="Build bitstream.")
+    parser.add_target_argument("--load",         action="store_true",       help="Load bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    parser.add_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
-    parser.add_argument("--eth-dynamic-ip", action="store_true",              help="Enable dynamic Ethernet IP assignment.")
-    parser.add_argument("--remote-ip",           default="192.168.1.100",
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50", type=str, help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",              help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",           default="192.168.1.100",
    help="Remote IP address of TFTP server.")
-    parser.add_argument("--local-ip",            default="192.168.1.50",
+    parser.add_target_argument("--local-ip",            default="192.168.1.50",
    help="Local IP address.")
-    sdopts = parser.add_mutually_exclusive_group()
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    parser.add_argument("--with-spi-flash",      action="store_true",        help="Enable memory-mapped SPI flash.")
-    viopts = parser.add_mutually_exclusive_group()
+    parser.add_target_argument("--with-spi-flash",      action="store_true",        help="Enable memory-mapped SPI flash.")
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
     viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (VGA).")
