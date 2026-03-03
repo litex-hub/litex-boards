@@ -207,8 +207,8 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=radiona_ulx4m_ld_v2.Platform, description="LiteX SoC on ULX4M-LD-V2")
     parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--revision",     default="0.3",             help="Board revision (0.3).")
-    parser.add_target_argument("--device",       default="85F",             help="ECP5 device (25F, 45F, or 85F).")
+    parser.add_target_argument("--revision",     default="0.3",            help="Board revision (0.3).")
+    parser.add_target_argument("--device",       default="85F",            help="ECP5 device (25F, 45F, or 85F).")
 
     # RAM.
     parser.add_target_argument("--sdram-device", default="MT41K512M16",
@@ -223,7 +223,7 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
 
     # SPI Flash.
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-spi-flash",      action="store_true",        help="Enable memory-mapped SPI flash.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")

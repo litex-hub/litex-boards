@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=arduino_mkrvidor4000.Platform, description="LiteX SoC on MKR Vidor 4000.")
-    parser.add_target_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=48e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

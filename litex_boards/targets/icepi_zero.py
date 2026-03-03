@@ -142,15 +142,15 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=icepi_zero.Platform, description="LiteX SoC on Icepi Zero.")
-    parser.add_target_argument("--device",            default="LFE5U-25F",      help="FPGA device (LFE5U-25F).")
-    parser.add_target_argument("--sdram-module",      default="W9825G6KH6",      help="SDRAM module (W9825G6KH6).")
-    parser.add_target_argument("--sdram-rate", default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable memory-mapped SPI flash.")
-    parser.add_target_argument("--sys-clk-freq",      default=50e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--device",         default="LFE5U-25F",      help="FPGA device (LFE5U-25F).")
+    parser.add_target_argument("--sdram-module",   default="W9825G6KH6",     help="SDRAM module (W9825G6KH6).")
+    parser.add_target_argument("--sdram-rate",     default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
 
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",   action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",       action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")

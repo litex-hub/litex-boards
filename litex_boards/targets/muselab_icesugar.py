@@ -108,9 +108,9 @@ def flash(bios_flash_offset):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=muselab_icesugar.Platform, description="LiteX SoC on iCEBreaker.")
-    parser.add_target_argument("--flash",             action="store_true",       help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",      default=24e6,  type=float, help="System clock frequency.")
-    parser.add_target_argument("--bios-flash-offset", default="0x40000",         help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--sys-clk-freq",      default=24e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--bios-flash-offset", default="0x40000",        help="BIOS offset in SPI Flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(

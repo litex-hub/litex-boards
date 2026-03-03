@@ -79,7 +79,7 @@ def main():
     parser = LiteXArgumentParser(platform=microsoft_catapult_v3.Platform, description="LiteX SoC on Microsoft Catapult v3 SmartNIC.")
     parser.add_target_argument("--variant",         default="pcie",                    help="Board variant (pcie or ocp).")
     parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float,         help="System clock frequency.")
-    parser.add_target_argument("--with-led-chaser", default=True, action="store_true", help="Enable LED Chaser.")
+    parser.add_target_argument("--with-led-chaser", action="store_true", default=True, help="Enable LED Chaser.")
     args = parser.parse_args()
 
     soc = BaseSoC(

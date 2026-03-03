@@ -166,14 +166,14 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_konfekt.Platform, description="LiteX SoC on Konfekt")
-    parser.add_target_argument("--sys-clk-freq",    default=40e6,         type=float, help="System clock frequency.")
-    parser.add_target_argument("--revision",        default="v0",         help="Board Revision (v0).")
-    parser.add_target_argument("--device",          default="12F",        help="ECP5 device (12F, 25F, 45F or 85F).")
-    parser.add_target_argument("--cable",           default="dirtyJtag",  help="OpenFPGALoader cable type.")
-    parser.add_target_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
-    parser.add_target_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
-    parser.add_target_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
-    parser.add_target_argument("--sdram-device",    default="W9825G6KH6", help="SDRAM device (W9825G6KH6 or IS42S16320).")
+    parser.add_target_argument("--sys-clk-freq",    default=40e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",        default="v0",             help="Board Revision (v0).")
+    parser.add_target_argument("--device",          default="12F",            help="ECP5 device (12F, 25F, 45F or 85F).")
+    parser.add_target_argument("--cable",           default="dirtyJtag",      help="OpenFPGALoader cable type.")
+    parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
+    parser.add_target_argument("--sdram-device",    default="W9825G6KH6",     help="SDRAM device (W9825G6KH6 or IS42S16320).")
 
     args = parser.parse_args()
 

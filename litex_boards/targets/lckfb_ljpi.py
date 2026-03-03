@@ -170,11 +170,11 @@ def main():
     parser = LiteXArgumentParser(platform=lckfb_ljpi.Platform, description="LiteX SoC on LCKFB LJPI.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     viopts = parser.target_group.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",   action="store_true", help="Enable Video Terminal (HDMI).")
-    viopts.add_argument("--with-video-colorbars",  action="store_true", help="Enable Video Colorbars (HDMI).")
-    parser.add_target_argument("--prog-kit",       default="gpwin", help="Programmer select from Gowin/openFPGALoader.")
+    viopts.add_argument("--with-video-terminal",  action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-colorbars", action="store_true", help="Enable Video Colorbars (HDMI).")
+    parser.add_target_argument("--prog-kit",            default="gpwin",            help="Programmer select from Gowin/openFPGALoader.")
 
     args = parser.parse_args()
 

@@ -176,14 +176,14 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_schoko.Platform, description="LiteX SoC on Schoko.")
-    parser.add_target_argument("--flash",           action="store_true",       help="Flash bitstream to MMOD.")
-    parser.add_target_argument("--sys-clk-freq",    default=40e6,  type=float, help="System clock frequency.")
-    parser.add_target_argument("--revision",        default="v1",              help="Board Revision (v1, v2).")
-    parser.add_target_argument("--device",          default="45F",             help="ECP5 device (25F, 45F or 85F).")
-    parser.add_target_argument("--cable",           default="usb-blaster",     help="Specify an openFPGALoader cable.")
-    parser.add_target_argument("--with-sdcard",     action="store_true",       help="Enable SDCard support.")
-    parser.add_target_argument("--with-spi-sdcard", action="store_true",       help="Enable SPI-mode SDCard support.")
-    parser.add_target_argument("--with-usb-host",   action="store_true",       help="Enable USB host support.")
+    parser.add_target_argument("--flash",           action="store_true",      help="Flash bitstream to MMOD.")
+    parser.add_target_argument("--sys-clk-freq",    default=40e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",        default="v1",             help="Board Revision (v1, v2).")
+    parser.add_target_argument("--device",          default="45F",            help="ECP5 device (25F, 45F or 85F).")
+    parser.add_target_argument("--cable",           default="usb-blaster",    help="Specify an openFPGALoader cable.")
+    parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
     args = parser.parse_args()
 
     soc = BaseSoC(

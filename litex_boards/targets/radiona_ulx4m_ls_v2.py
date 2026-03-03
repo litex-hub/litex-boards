@@ -191,8 +191,8 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=radiona_ulx4m_ls_v2.Platform, description="LiteX SoC on ULX4M-LS-V2")
     parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--revision",     default="1.0",             help="Board revision (1.0).")
-    parser.add_target_argument("--device",       default="12F",             help="ECP5 device (12F, 25F, 45F, or 85F).")
+    parser.add_target_argument("--revision",     default="1.0",            help="Board revision (1.0).")
+    parser.add_target_argument("--device",       default="12F",            help="ECP5 device (12F, 25F, 45F, or 85F).")
 
     # SDRAM.
     parser.add_target_argument("--sdram-device", default="IS42S16160", help="SDRAM device (IS42S16320).")

@@ -123,7 +123,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=opalkelly_xem8320.Platform, description="LiteX SoC on XEM8320.")
-    parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock frequency.")
     #ethopts = parser.target_group.add_mutually_exclusive_group()
     #ethopts.add_argument("--with-ethernet",        action="store_true",    help="Enable Ethernet support.")
     #ethopts.add_argument("--with-etherbone",       action="store_true",    help="Enable Etherbone support.")

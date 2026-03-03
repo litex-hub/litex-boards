@@ -140,11 +140,11 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alinx_ax7203.Platform, description="LiteX SoC on ALINX AX7203.")
-    parser.add_target_argument("--flash",                  action="store_true",          help="Flash bitstream.")
-    parser.add_target_argument("--sys-clk-freq",           default=50e6, type=float,     help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",              action="store_true",          help="Enable PCIe support.")
-    parser.add_target_argument("--driver",                 action="store_true",          help="Generate drivers.")
-    parser.add_target_argument("--with-video-framebuffer", action="store_true",          help="Enable Video Framebuffer (HDMI).")
+    parser.add_target_argument("--flash",                  action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",           default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",              action="store_true",      help="Enable PCIe support.")
+    parser.add_target_argument("--driver",                 action="store_true",      help="Generate drivers.")
+    parser.add_target_argument("--with-video-framebuffer", action="store_true",      help="Enable Video Framebuffer (HDMI).")
 
     args = parser.parse_args()
 

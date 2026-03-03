@@ -129,18 +129,18 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=aliexpress_xc7k70t.Platform, description="LiteX SoC on AliExpress XC7K70T PCIe board.")
-    parser.add_target_argument("--sys-clk-freq",    default=90e6, type=float,  help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",      default="1:1",             help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
-    parser.add_target_argument("--with-ethernet",          action="store_true",       help="Enable Ethernet")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--sys-clk-freq",   default=90e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",     default="1:1",            help="SDRAM Rate: (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP assignment.")
-    parser.add_target_argument("--with-pcie",              action="store_true",       help="Enable PCIe")
-    parser.add_target_argument("--with-hdmi",              action="store_true",       help="Enable HDMI")
+    parser.add_target_argument("--with-pcie",      action="store_true",      help="Enable PCIe")
+    parser.add_target_argument("--with-hdmi",      action="store_true",      help="Enable HDMI")
     viopts = parser.target_group.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true",       help="Enable Video Terminal (HDMI).")
-    viopts.add_argument("--with-video-framebuffer", action="store_true",       help="Enable Video Framebuffer (HDMI).")
-    viopts.add_argument("--with-video-colorbars",   action="store_true",       help="Enable Video Colorbars (HDMI).")
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (HDMI).")
     args = parser.parse_args()
 
     # Note: baudrate is fixed because regardless of USB->TTL baud, the AVR <-> FPGA baudrate is

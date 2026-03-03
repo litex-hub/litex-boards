@@ -231,10 +231,10 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_sp605.Platform, description="LiteX SoC on Papilio Pro.")
-    parser.add_target_argument("--sys-clk-freq",        default=54e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-video-terminal",    action="store_true",       help="Enable Video Terminal (DVI).")
-    parser.add_target_argument("--with-video-framebuffer", action="store_true",       help="Enable Video Framebuffer (DVI).")
-    parser.add_target_argument("--with-video-colorbars",   action="store_true",       help="Enable Video Colorbars (DVI).")
+    parser.add_target_argument("--sys-clk-freq",           default=54e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-video-terminal",    action="store_true",      help="Enable Video Terminal (DVI).")
+    parser.add_target_argument("--with-video-framebuffer", action="store_true",      help="Enable Video Framebuffer (DVI).")
+    parser.add_target_argument("--with-video-colorbars",   action="store_true",      help="Enable Video Colorbars (DVI).")
     args = parser.parse_args()
 
     soc = BaseSoC(

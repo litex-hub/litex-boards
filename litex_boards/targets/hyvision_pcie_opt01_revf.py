@@ -134,19 +134,19 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=hyvision_pcie_opt01_revf.Platform, description="LiteX SoC on HyVision PCIe OPT01 refv.")
-    parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
 
     # PCIe parameters.
-    parser.add_target_argument("--with-pcie",      action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--driver",         action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--with-pcie", action="store_true", help="Enable PCIe support.")
+    parser.add_target_argument("--driver",    action="store_true", help="Generate PCIe driver.")
 
     # Ethernet parameters.
-    parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-sfp",               default=0, type=int,       help="Ethernet SFP.", choices=[0, 1])
-    parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",                 help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",                 help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-sfp",        default=0, type=int, choices=[0, 1], help="Ethernet SFP.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",              help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",             help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",                 help="Enable dynamic Ethernet IP assignment.")
 
     parser.set_defaults(uart_name="jtag_uart")
     args = parser.parse_args()

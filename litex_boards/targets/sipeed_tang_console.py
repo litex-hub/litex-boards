@@ -214,8 +214,8 @@ def main():
             "sipeed",
             "mister"
     ])
-    parser.add_target_argument("--with-ddr3",       action="store_true",      help="Enable optional DDR3 module.")
-    parser.add_target_argument("--with-video-terminal", action="store_true",  help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-ddr3",           action="store_true", help="Enable optional DDR3 module.")
+    parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
     args = parser.parse_args()
 
     soc = BaseSoC(
