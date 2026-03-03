@@ -192,7 +192,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_mozart_mx1.Platform, description="LiteX SoC on Mozart MX1.")
-    parser.add_target_argument("--sys-clk-freq",    default=80e6,         help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",    default=80e6,         type=float, help="System clock frequency.")
     parser.add_target_argument("--revision",        default="v0",         help="Board Revision (v0).")
     parser.add_target_argument("--device",          default="45F",        help="ECP5 device (12F, 25F, 45F or 85F).")
     parser.add_target_argument("--cable",           default="usb-blaster", help="Specify an openFPGALoader cable.")

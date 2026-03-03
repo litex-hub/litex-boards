@@ -153,7 +153,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=muselab_icesugar_pro.Platform, description="LiteX SoC on Colorlight i5.")
-    parser.add_target_argument("--sys-clk-freq", default=50e6, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",         action="store_true",  help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",             action="store_true",  help="Enable SDCard support.")

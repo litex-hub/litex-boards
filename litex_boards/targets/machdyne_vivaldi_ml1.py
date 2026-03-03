@@ -181,7 +181,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_vivaldi_ml1.Platform, description="LiteX SoC on Vivaldi ML1")
-    parser.add_target_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",    default=48e6,         type=float, help="System clock frequency.")
     parser.add_target_argument("--revision",        default="v2",         help="Board Revision (v0, v1, v2).")
     parser.add_target_argument("--device",          default="45F",        help="ECP5 device (12F, 25F, 45F or 85F).")
     parser.add_target_argument("--cable",           default="dirtyJtag",  help="Specify an openFPGALoader cable.")

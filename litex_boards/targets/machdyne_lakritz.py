@@ -169,7 +169,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_lakritz.Platform, description="LiteX SoC on Lakritz")
-    parser.add_target_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",    default=48e6,         type=float, help="System clock frequency.")
     parser.add_target_argument("--revision",        default="v0",         help="Board Revision (v0).")
     parser.add_target_argument("--device",          default="25F",        help="ECP5 device (12F, 25F, 45F or 85F).")
     parser.add_target_argument("--cable",           default="dirtyJtag",  help="Specify an openFPGALoader cable.")

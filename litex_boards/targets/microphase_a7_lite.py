@@ -102,7 +102,7 @@ def main():
     target_group.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     target_group.add_argument("--build",               action="store_true",              help="Build design.")
     target_group.add_argument("--load",                action="store_true",              help="Load bitstream.")
-    target_group.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
+    target_group.add_argument("--sys-clk-freq",        default=100e6,                    type=float, help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)

@@ -166,7 +166,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_mozart_mx2.Platform, description="LiteX SoC on Mozart MX2.")
-    parser.add_target_argument("--sys-clk-freq",    default=75e6,          help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",    default=75e6,          type=float, help="System clock frequency.")
     parser.add_target_argument("--revision",        default="v0",          help="Board Revision (v0).")
     parser.add_target_argument("--with-sdcard",     action="store_true",   help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",   help="Enable SPI-mode SDCard support.")

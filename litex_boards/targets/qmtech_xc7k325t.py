@@ -150,7 +150,7 @@ def main():
     parser.add_argument("--toolchain",           default="vivado",                 help="FPGA toolchain (vivado, symbiflow or yosys+nextpnr).")
     parser.add_argument("--build",               action="store_true",              help="Build bitstream.")
     parser.add_argument("--load",                action="store_true",              help="Load bitstream.")
-    parser.add_argument("--sys-clk-freq",        default=100e6,                    help="System clock frequency.")
+    parser.add_argument("--sys-clk-freq",        default=100e6,                    type=float, help="System clock frequency.")
     parser.add_argument("--with-daughterboard",  action="store_true",              help="Board plugged into the QMTech daughterboard.")
     ethopts = parser.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",      action="store_true",              help="Enable Ethernet support.")
