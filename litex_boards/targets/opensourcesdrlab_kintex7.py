@@ -113,7 +113,7 @@ def main():
     parser.add_argument("--with-pcie",           action="store_true",              help="Enable PCIe support.")
     sdopts = parser.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",     action="store_true",              help="Enable SPI-mode SDCard support.")
-    parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable SPI Flash (MMAPed).")
+    parser.add_argument("--with-spi-flash",      action="store_true",              help="Enable memory-mapped SPI flash.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)

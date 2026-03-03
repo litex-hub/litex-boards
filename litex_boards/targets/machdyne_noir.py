@@ -173,7 +173,7 @@ def main():
     parser.add_target_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
-    parser.add_target_argument("--with-ethernet",   action="store_true",  help="Enable ethernet support.")
+    parser.add_target_argument("--with-ethernet",   action="store_true",  help="Enable Ethernet support.")
     parser.add_target_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
     parser.add_target_argument("--sdram-device",    default="MT41K128M16", help="SDRAM device.")
 

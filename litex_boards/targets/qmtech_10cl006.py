@@ -119,7 +119,7 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-spi-flash",  action="store_true", help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash",  action="store_true", help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(

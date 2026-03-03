@@ -110,7 +110,7 @@ def main():
     parser.add_target_argument("--programmer",    default="radiant",          help="Programmer (radiant or ecpprog or openocd).")
     parser.add_target_argument("--address",       default=0x0,                help="Flash address to program bitstream at.")
     parser.add_target_argument("--prog-target",   default="direct",           help="Programming Target (direct or flash).")
-    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(

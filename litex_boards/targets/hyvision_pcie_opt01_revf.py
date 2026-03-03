@@ -146,7 +146,7 @@ def main():
     parser.add_target_argument("--eth-sfp",               default=0, type=int,       help="Ethernet SFP.", choices=[0, 1])
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
 
     parser.set_defaults(uart_name="jtag_uart")
     args = parser.parse_args()

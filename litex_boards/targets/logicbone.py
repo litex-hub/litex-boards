@@ -156,7 +156,7 @@ def main():
     parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")
     parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--with-sdcard",    action="store_true",      help="Enable SDCard support.")
     args = parser.parse_args()
 

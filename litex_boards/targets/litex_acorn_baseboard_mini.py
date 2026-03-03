@@ -246,7 +246,7 @@ def main():
     parser.add_target_argument("--with-etherbone", action="store_true",          help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",       help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",      help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",          help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",          help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--with-sata",      action="store_true",          help="Enable SATA support (over FMCRAID).")
     parser.add_target_argument("--sata-gen",       default="2",                  help="SATA Gen.", choices=["1", "2"])
     args = parser.parse_args()

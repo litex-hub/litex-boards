@@ -185,7 +185,7 @@ def main():
     parser.add_target_argument("--etherbone-port", default="qsfp0_sfp0", choices=sfp_list, help="Etherbone SFP port.")
     parser.add_target_argument("--ethernet-ip",    default="192.168.1.50",    help="Ethernet IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--etherbone-ip",   default="192.168.1.50",    help="Ethernet IP address.")
     parser.add_target_argument("--with-pcie",      action="store_true",       help="Enable PCIe support.")
     parser.add_target_argument("--driver",         action="store_true",       help="Generate PCIe driver.")
