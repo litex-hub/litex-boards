@@ -44,6 +44,10 @@ jobs:
       - name: Check Target Parser Style
         run: python3 .github/scripts/check_target_parser_style.py
 
+      # Validate parser argument alignment in targets.
+      - name: Check Target Parser Alignment
+        run: python3 .github/scripts/check_target_parser_alignment.py
+
       # Test
       - name: Run Tests
         run: python3 -m pytest -v
