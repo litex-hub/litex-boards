@@ -108,9 +108,10 @@ def main():
     parser.add_target_argument("--build",        action="store_true",       help="Build bitstream.")
     parser.add_target_argument("--load",         action="store_true",       help="Load bitstream.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",           action="store_true",        help="Enable PCIe support.")
-    parser.add_target_argument("--with-spi-sdcard",     action="store_true",        help="Enable SPI-mode SDCard support.")
-    parser.add_target_argument("--with-spi-flash",      action="store_true",        help="Enable memory-mapped SPI flash.")
+
+    parser.add_target_argument("--with-pcie",       action="store_true", help="Enable PCIe support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-spi-flash",  action="store_true", help="Enable memory-mapped SPI flash.")
     builder_args(parser)
     soc_core_args(parser)
     vivado_build_args(parser)
