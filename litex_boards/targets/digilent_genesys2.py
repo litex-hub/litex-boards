@@ -12,10 +12,12 @@ from litex.gen import *
 
 from litex_boards.platforms import digilent_genesys2
 
+from litex.build.io import DifferentialInput
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT41J256M16
@@ -26,17 +28,26 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
         self.rst       = Signal()
         self.cd_sys    = ClockDomain()
         self.cd_sys4x  = ClockDomain()
         self.cd_idelay = ClockDomain()
 
+        self.cd_hdmi   = ClockDomain()
+        self.cd_hdmi5x = ClockDomain()
+
         # # #
 
+        clk200_pad = platform.request("clk200")
+        rst_n      = platform.request("cpu_reset_n")
+        clk200     = Signal()
+
+        self.specials += DifferentialInput(clk200_pad.p, clk200_pad.n, clk200)
+
         self.pll = pll = S7MMCM(speedgrade=-2)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
-        pll.register_clkin(platform.request("clk200"), 200e6)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
+        pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,  4*sys_clk_freq)
         pll.create_clkout(self.cd_idelay, 200e6)
@@ -44,22 +55,33 @@ class _CRG(LiteXModule):
 
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
+        # Video PLL.
+        if with_video_pll:
+            self.video_pll = video_pll = S7MMCM(speedgrade=-2)
+            video_pll.reset.eq(~rst_n | self.rst)
+            video_pll.register_clkin(clk200, 200e6)
+            video_pll.create_clkout(self.cd_hdmi,   40e6)
+            video_pll.create_clkout(self.cd_hdmi5x, 5*40e6)
+
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6, toolchain="vivado",
-        with_ethernet   = False,
-        with_etherbone  = False,
-        eth_ip          = "192.168.1.50",
-        remote_ip       = None,
-        eth_dynamic_ip  = False,
-        with_led_chaser = True,
-        with_can        = False,
+        with_ethernet          = False,
+        with_etherbone         = False,
+        eth_ip                 = "192.168.1.50",
+        remote_ip              = None,
+        eth_dynamic_ip         = False,
+        with_led_chaser        = True,
+        with_can               = False,
+        with_video_terminal    = False,
+        with_video_framebuffer = False,
         **kwargs):
         platform = digilent_genesys2.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, with_video_terminal or with_video_framebuffer)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Genesys2", **kwargs)
@@ -85,6 +107,14 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal or with_video_framebuffer:
+            self.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            if with_video_terminal:
+                self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+            if with_video_framebuffer:
+                self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -117,17 +147,22 @@ def main():
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     parser.add_target_argument("--with-can",            action="store_true",        help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'.")
+    viopts = parser.target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = args.sys_clk_freq,
-        toolchain      = args.toolchain,
-        with_ethernet  = args.with_ethernet,
-        eth_ip         = args.eth_ip,
-        eth_dynamic_ip = args.eth_dynamic_ip,
-        remote_ip      = args.remote_ip,
-        with_etherbone = args.with_etherbone,
-        with_can       = args.with_can,
+        sys_clk_freq           = args.sys_clk_freq,
+        toolchain              = args.toolchain,
+        with_ethernet          = args.with_ethernet,
+        eth_ip                 = args.eth_ip,
+        eth_dynamic_ip         = args.eth_dynamic_ip,
+        remote_ip              = args.remote_ip,
+        with_etherbone         = args.with_etherbone,
+        with_can               = args.with_can,
+        with_video_terminal    = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
     )
 

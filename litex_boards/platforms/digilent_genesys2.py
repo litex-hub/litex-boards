@@ -135,6 +135,22 @@ _io = [
         Subsignal("tx_ctl",  Pins(" AK14"), IOStandard("LVCMOS15")),
         Subsignal("tx_data", Pins("AJ12 AK11 AJ11 AK10"), IOStandard("LVCMOS15")),
     ),
+
+    # HDMI Out
+    ("hdmi_out", 0,
+        Subsignal("clk_p",   Pins("AA20"), IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("AB20"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("AC20"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("AC21"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("AA22"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("AA23"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("AB24"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("AC25"), IOStandard("TMDS_33")),
+        Subsignal("scl",     Pins("AF27"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("AF26"), IOStandard("LVCMOS33")),
+        Subsignal("cec",     Pins("Y24"),  IOStandard("LVCMOS33")),
+        Subsignal("hdp",     Pins("AG29"), IOStandard("LVCMOS33")), 
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
