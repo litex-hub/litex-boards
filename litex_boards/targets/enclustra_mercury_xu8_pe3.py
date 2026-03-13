@@ -62,7 +62,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=2006, with_pcie=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=2006, with_pcie=False, pcie_lanes=4, with_led_chaser=True, **kwargs):
         platform = enclustra_mercury_xu8_pe3.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -76,9 +76,9 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = USPPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 speed      = "gen3",
-                data_width = 128,
+                data_width = {4: 128, 8: 256}[pcie_lanes],
                 bar0_size  = 0x20000,
             )
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
@@ -108,14 +108,16 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=enclustra_mercury_xu8_pe3.Platform, description="LiteX SoC on Enclustra Mercury+ XU8/PE3.")
-    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",    action="store_true",        help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",   default=4, type=int,        help="PCIe lane count.", choices=[4, 8])
+    parser.add_target_argument("--driver",       action="store_true",        help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
          sys_clk_freq = args.sys_clk_freq,
          with_pcie    = args.with_pcie,
+         pcie_lanes   = args.pcie_lanes,
          **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

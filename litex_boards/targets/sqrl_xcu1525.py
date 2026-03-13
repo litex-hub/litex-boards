@@ -61,6 +61,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6, ddram_channel=0,
         with_led_chaser = True,
         with_pcie       = False,
+        pcie_lanes      = 4,
         with_sata       = False,
         **kwargs):
         platform = sqrl_xcu1525.Platform()
@@ -89,8 +90,8 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
-                data_width = 128,
+            self.pcie_phy = USPPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
+                data_width = {2: 64, 4: 128, 8: 256, 16: 512}[pcie_lanes],
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
@@ -139,16 +140,18 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sqrl_xcu1525.Platform, description="LiteX SoC on XCU1525.")
     parser.add_target_argument("--sys-clk-freq",  default=125e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--ddram-channel", default="0",               help="DDRAM channel (0, 1, 2 or 3).")
-    parser.add_target_argument("--with-pcie",     action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--driver",        action="store_true",       help="Generate PCIe driver.")
-    parser.add_target_argument("--with-sata",     action="store_true",       help="Enable SATA support (over SFP2SATA).")
+    parser.add_target_argument("--ddram-channel", default="0",                help="DDRAM channel (0, 1, 2 or 3).")
+    parser.add_target_argument("--with-pcie",     action="store_true",        help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",    default=4, type=int,        help="PCIe lane count.", choices=[2, 4, 8, 16])
+    parser.add_target_argument("--driver",        action="store_true",        help="Generate PCIe driver.")
+    parser.add_target_argument("--with-sata",     action="store_true",        help="Enable SATA support (over SFP2SATA).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq  = args.sys_clk_freq,
         ddram_channel = int(args.ddram_channel, 0),
         with_pcie     = args.with_pcie,
+        pcie_lanes    = args.pcie_lanes,
         with_sata     = args.with_sata,
         **parser.soc_argdict
     )

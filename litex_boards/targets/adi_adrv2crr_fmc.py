@@ -64,6 +64,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=150e6, ddram_channel=0,
         with_led_chaser = True,
         with_pcie       = False,
+        pcie_lanes      = 8,
         **kwargs):
         platform = adi_adrv2crr_fmc.Platform()
 
@@ -93,9 +94,9 @@ class BaseSoC(SoCCore):
         if with_pcie:
             assert self.csr_data_width == 32
 
-            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x8"),
+            self.pcie_phy = USPPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 speed = "gen3",
-                data_width = 256,
+                data_width = {4: 128, 8: 256}[pcie_lanes],
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
@@ -124,14 +125,16 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=adi_adrv2crr_fmc.Platform, description="LiteX SoC on ADI ADRV2CRR-FMC.")
-    parser.add_target_argument("--sys-clk-freq", default=150e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--sys-clk-freq", default=150e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",    action="store_true",        help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",   default=8, type=int,        help="PCIe lane count.", choices=[4, 8])
+    parser.add_target_argument("--driver",       action="store_true",        help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
         with_pcie    = args.with_pcie,
+        pcie_lanes   = args.pcie_lanes,
         **parser.soc_argdict
     )
 

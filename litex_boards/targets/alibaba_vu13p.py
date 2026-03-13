@@ -78,6 +78,7 @@ class BaseSoC(SoCCore):
                 remote_ip       = None,
                 etherbone_ip    = "192.168.1.50",
                 with_pcie       = False,
+                pcie_lanes      = 4,
                 **kwargs):
         platform = alibaba_vu13p.Platform()
 
@@ -109,8 +110,8 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.pcie_phy = USPPCIEPHY(platform, platform.request("pcie_x4"),
-                data_width = 128,
+            self.pcie_phy = USPPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
+                data_width = {4: 128, 8: 256, 16: 512}[pcie_lanes],
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
@@ -176,19 +177,20 @@ def main():
             sfp_list.append("qsfp{}_{}".format(qsfp, sfp))
 
     parser = LiteXArgumentParser(platform=alibaba_vu13p.Platform, description="LiteX SoC on Alibaba VU13P.")
-    parser.add_target_argument("--flash",          action="store_true",                    help="Flash bitstream to SPI flash.")
-    parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float,              help="System clock frequency.")
-    parser.add_target_argument("--ddram-channel",  default=0, type=int, choices=range(4),  help="DDRAM channel.")
-    parser.add_target_argument("--with-ethernet",  action="store_true",                    help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone", action="store_true",                    help="Enable Etherbone support.")
-    parser.add_target_argument("--ethernet-port",  default="qsfp0_sfp0", choices=sfp_list, help="Ethernet SFP port.")
-    parser.add_target_argument("--etherbone-port", default="qsfp0_sfp0", choices=sfp_list, help="Etherbone SFP port.")
-    parser.add_target_argument("--ethernet-ip",    default="192.168.1.50",                 help="Ethernet IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",                help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",                    help="Enable dynamic Ethernet IP assignment.")
-    parser.add_target_argument("--etherbone-ip",   default="192.168.1.50",                 help="Ethernet IP address.")
-    parser.add_target_argument("--with-pcie",      action="store_true",                    help="Enable PCIe support.")
-    parser.add_target_argument("--driver",         action="store_true",                    help="Generate PCIe driver.")
+    parser.add_target_argument("--flash",          action="store_true",         help="Flash bitstream to SPI flash.")
+    parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float,   help="System clock frequency.")
+    parser.add_target_argument("--ddram-channel",  default=0, type=int,         help="DDRAM channel.", choices=range(4))
+    parser.add_target_argument("--with-ethernet",  action="store_true",         help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",         help="Enable Etherbone support.")
+    parser.add_target_argument("--ethernet-port",  default="qsfp0_sfp0",        help="Ethernet SFP port.", choices=sfp_list)
+    parser.add_target_argument("--etherbone-port", default="qsfp0_sfp0",        help="Etherbone SFP port.", choices=sfp_list)
+    parser.add_target_argument("--ethernet-ip",    default="192.168.1.50",      help="Ethernet IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",     help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",         help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--etherbone-ip",   default="192.168.1.50",      help="Ethernet IP address.")
+    parser.add_target_argument("--with-pcie",      action="store_true",         help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",     default=4, type=int,         help="PCIe lane count.", choices=[4, 8, 16])
+    parser.add_target_argument("--driver",         action="store_true",         help="Generate PCIe driver.")
     args = parser.parse_args()
 
     if args.with_ethernet and args.with_etherbone:
@@ -207,6 +209,7 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         etherbone_ip   = args.etherbone_ip,
         with_pcie      = args.with_pcie,
+        pcie_lanes     = args.pcie_lanes,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
