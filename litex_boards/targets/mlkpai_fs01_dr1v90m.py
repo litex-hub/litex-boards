@@ -49,7 +49,7 @@ class BaseSoC(SoCCore):
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
-                pads         = platform.request_all("user_led"),
+                pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq,
                 polarity     = 1)
 

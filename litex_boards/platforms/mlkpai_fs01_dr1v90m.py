@@ -21,14 +21,14 @@ _io = [
     ("clk25",  0, Pins("L18"), IOStandard("LVCMOS33")),
 
     # Leds
-    ("user_led", 0, Pins("L21"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("L22"), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins("M21"), IOStandard("LVCMOS33")),
-    ("user_led", 3, Pins("M22"), IOStandard("LVCMOS33")),
-    ("user_led", 4, Pins("N22"), IOStandard("LVCMOS33")),
-    ("user_led", 5, Pins("P20"), IOStandard("LVCMOS33")),
-    ("user_led", 6, Pins("P22"), IOStandard("LVCMOS33")),
-    ("user_led", 7, Pins("P21"), IOStandard("LVCMOS33")),
+    ("user_led_n", 0, Pins("L21"), IOStandard("LVCMOS33")),
+    ("user_led_n", 1, Pins("L22"), IOStandard("LVCMOS33")),
+    ("user_led_n", 2, Pins("M21"), IOStandard("LVCMOS33")),
+    ("user_led_n", 3, Pins("M22"), IOStandard("LVCMOS33")),
+    ("user_led_n", 4, Pins("N22"), IOStandard("LVCMOS33")),
+    ("user_led_n", 5, Pins("P20"), IOStandard("LVCMOS33")),
+    ("user_led_n", 6, Pins("P22"), IOStandard("LVCMOS33")),
+    ("user_led_n", 7, Pins("P21"), IOStandard("LVCMOS33")),
 
     # Buttons.
     ("user_btn_n", 0, Pins("U22"),  IOStandard("LVCMOS18")),
