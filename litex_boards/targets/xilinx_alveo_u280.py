@@ -166,7 +166,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",    default=150e6, type=float, help="System clock frequency.") # HBM2 with 250MHz, DDR4 with 150MHz (1:4)
     parser.add_target_argument("--ddram-channel",   default="0",                help="DDRAM channel (0, 1, 2 or 3).") # also selects clk 0 or 1
     parser.add_target_argument("--with-pcie",       action="store_true",        help="Enable PCIe support.")
-    parser.add_target_argument("--pcie-lanes",      default=4, type=int,        help="PCIe lane count.", choices=[4, 16])
+    parser.add_target_argument("--pcie-lanes",      default=4, type=int,        choices=[4, 16], help="PCIe lane count.")
     parser.add_target_argument("--driver",          action="store_true",        help="Generate PCIe driver.")
     parser.add_target_argument("--with-hbm",        action="store_true",        help="Use HBM2.")
     parser.add_target_argument("--with-analyzer",   action="store_true",        help="Enable Analyzer.")

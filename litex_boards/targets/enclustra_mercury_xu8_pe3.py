@@ -110,7 +110,7 @@ def main():
     parser = LiteXArgumentParser(platform=enclustra_mercury_xu8_pe3.Platform, description="LiteX SoC on Enclustra Mercury+ XU8/PE3.")
     parser.add_target_argument("--sys-clk-freq", default=125e6, type=float,  help="System clock frequency.")
     parser.add_target_argument("--with-pcie",    action="store_true",        help="Enable PCIe support.")
-    parser.add_target_argument("--pcie-lanes",   default=4, type=int,        help="PCIe lane count.", choices=[4, 8])
+    parser.add_target_argument("--pcie-lanes",   default=4, type=int,        choices=[4, 8], help="PCIe lane count.")
     parser.add_target_argument("--driver",       action="store_true",        help="Generate PCIe driver.")
     args = parser.parse_args()
 

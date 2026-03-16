@@ -142,7 +142,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",  default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--ddram-channel", default="0",                help="DDRAM channel (0, 1, 2 or 3).")
     parser.add_target_argument("--with-pcie",     action="store_true",        help="Enable PCIe support.")
-    parser.add_target_argument("--pcie-lanes",    default=4, type=int,        help="PCIe lane count.", choices=[2, 4, 8, 16])
+    parser.add_target_argument("--pcie-lanes",    default=4, type=int,        choices=[2, 4, 8, 16], help="PCIe lane count.")
     parser.add_target_argument("--driver",        action="store_true",        help="Generate PCIe driver.")
     parser.add_target_argument("--with-sata",     action="store_true",        help="Enable SATA support (over SFP2SATA).")
     args = parser.parse_args()
