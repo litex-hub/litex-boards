@@ -28,9 +28,6 @@ from litex.soc.cores.ram.xilinx_usp_hbm2 import USPHBM2
 from litex.soc.cores.led import LedChaser
 
 from litepcie.phy.usppciephy import USPHBMPCIEPHY
-from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
-from litepcie.frontend.dma import LitePCIeDMA
-from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -100,36 +97,10 @@ class BaseSoC(SoCCore):
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
             assert self.csr_data_width == 32
-            # PHY
             self.pcie_phy = USPHBMPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 data_width = {4: 128, 8: 256, 16: 512}[pcie_lanes],
                 bar0_size  = 0x20000)
-
-            # Endpoint
-            self.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, max_pending_requests=8)
-
-            # Wishbone bridge
-            self.pcie_bridge = LitePCIeWishboneBridge(self.pcie_endpoint,
-                base_address = self.mem_map["csr"])
-            self.bus.add_master(master=self.pcie_bridge.wishbone)
-
-            # DMA0
-            self.pcie_dma0 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint,
-                with_buffering = True, buffering_depth=1024,
-                with_loopback  = True)
-
-            self.add_constant("DMA_CHANNELS", 1)
-
-            # MSI
-            self.pcie_msi = LitePCIeMSI()
-            self.comb += self.pcie_msi.source.connect(self.pcie_phy.msi)
-            self.interrupts = {
-                "PCIE_DMA0_WRITER":    self.pcie_dma0.writer.irq,
-                "PCIE_DMA0_READER":    self.pcie_dma0.reader.irq,
-            }
-            for i, (k, v) in enumerate(sorted(self.interrupts.items())):
-                self.comb += self.pcie_msi.irqs[i].eq(v)
-                self.add_constant(k + "_INTERRUPT", i)
+            self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
