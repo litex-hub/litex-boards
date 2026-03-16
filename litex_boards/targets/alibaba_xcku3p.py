@@ -66,6 +66,7 @@ class BaseSoC(SoCCore):
         eth_dynamic_ip  = False,
         with_led_chaser = True,
         with_pcie       = False,
+        pcie_lanes      = 4,
         **kwargs):
         platform = alibaba_xcku3p.Platform()
 
@@ -93,8 +94,9 @@ class BaseSoC(SoCCore):
         if with_pcie:
             self.pcie_phy = USPPCIEPHY(
                 platform,
-                platform.request("pcie_x4"),
-                data_width = 128,
+                platform.request(f"pcie_x{pcie_lanes}"),
+                speed      = "gen3",
+                data_width = {4: 128, 8: 256}[pcie_lanes],
                 bar0_size  = 0x20000
             )
             self.pcie_phy.update_config({
@@ -127,6 +129,7 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",                 help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default=None,                        help="Remote IP address of TFTP server.")
     parser.add_target_argument("--with-pcie",      action="store_true",                 help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",     default=4, type=int,                 choices=[4, 8], help="PCIe lane count.")
     parser.add_target_argument("--driver",         action="store_true",                 help="Generate PCIe driver.")
     args = parser.parse_args()
 
@@ -139,6 +142,7 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         with_pcie      = args.with_pcie,
+        pcie_lanes     = args.pcie_lanes,
         **parser.soc_argdict
     )
 
