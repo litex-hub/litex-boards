@@ -94,16 +94,32 @@ class BaseSoC(SoCCore):
                 cpu_cls = cpu.CPUS["zynq7000"]
                 zynq    = cpu_cls(self.platform, "standard") # zynq7000 has no variants
                 zynq.set_ps7(name="ps", config = platform.ps7_config)
-                axi_gp_slave0   = zynq.add_axi_gp_slave(clock_domain = self.crg.cd_sys.name)
-                self.submodules += zynq
+                axi_S_GP0   = zynq.add_axi_gp_slave(clock_domain = self.crg.cd_sys.name)
+                axi_S_GP1   = zynq.add_axi_gp_slave(clock_domain = self.crg.cd_sys.name)
+                axi_ddr = axi.AXIInterface(axi_S_GP0.data_width, axi_S_GP0.address_width, axi_S_GP0.id_width)
+                map_fct_ddr = lambda sig : sig - 0x4000_0000 + 0x0008_0000
+                self.comb += axi_ddr.connect_mapped(axi_S_GP0, map_fct_ddr)
                 self.bus.add_slave(
-                    name="ps",slave=axi_gp_slave0,
+                    name="main_ram",slave=axi_ddr,
                     region=SoCRegion(
-                        origin=0x2000_0000,
+                        origin=0x4000_0000,
                         size=0x2000_0000,
                         mode="rwx"
                     )
                 )
+                axi_io = axi.AXIInterface(axi_S_GP1.data_width, axi_S_GP1.address_width, axi_S_GP1.id_width)
+                map_fct_io = lambda sig : sig - 0x6000_0000 + 0xE000_0000
+                self.comb += axi_io.connect_mapped(axi_S_GP1, map_fct_io)
+                self.bus.add_slave(
+                    name="ps_io",slave=axi_io,
+                    region=SoCRegion(
+                        origin=0x6000_0000,
+                        size=0x0030_0000,
+                        mode="rw",
+                        linker=False
+                    )
+                )
+                self.submodules += zynq
             else:
                 #TODO: make config for zybo-z7-10
                 raise NotImplementedError
