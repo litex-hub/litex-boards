@@ -37,7 +37,7 @@ class _CRG(LiteXModule):
         # # #
 
         clk40 = platform.request("clk40")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         self.comb += self.cd_rst.clk.eq(clk40)
 
@@ -296,7 +296,7 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
             # DRAM Rst.
             # ---------
             dram_pll_rst_n = platform.add_iface_io("dram_pll_rst_n")
-            self.comb += dram_pll_rst_n.eq(platform.request("user_btn", 1))
+            self.comb += dram_pll_rst_n.eq(platform.request("user_btn_n", 1))
 
             # DRAM AXI-Ports.
             # --------------

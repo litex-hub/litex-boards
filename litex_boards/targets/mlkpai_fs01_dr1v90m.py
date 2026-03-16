@@ -29,7 +29,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst.
         clk25 = platform.request("clk25")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         self.comb += self.cd_sys.clk.eq(clk25)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n | self.rst)

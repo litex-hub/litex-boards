@@ -15,7 +15,7 @@ _io = [
     # Clk / Rst
     ("clk12", 0, Pins("G21"),  IOStandard("3.3-V LVTTL")),
     ("clk25", 0, Pins("AA12"), IOStandard("3.3-V LVTTL")),
-    ("cpu_reset", 0, Pins("V15"), IOStandard("3.3-V LVTTL")),
+    ("cpu_reset_n", 0, Pins("V15"), IOStandard("3.3-V LVTTL")),
 
     # Leds
     ("user_led", 0, Pins("C18"), IOStandard("3.3-V LVTTL")),

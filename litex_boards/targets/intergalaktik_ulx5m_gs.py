@@ -35,7 +35,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst
         clk25    = platform.request("clk25")
-        self.rst = ~platform.request("user_btn", 0)
+        self.rst = ~platform.request("user_btn_n", 0)
 
         self.specials += Instance("CC_USR_RSTN", o_USR_RSTN = rst_n)
 

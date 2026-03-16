@@ -22,9 +22,9 @@ _io = [
 
     # 7.2. General Purpose Push Buttons - all logic zero when pressed
     ("programn", 0, Pins("G4"), IOStandard("LVCMOS18")), # SW2
-    ("user_btn", 0, Pins("J5"), IOStandard("LVCMOS18")), # SW1
-    ("user_btn", 1, Pins("J2"), IOStandard("LVCMOS18")), # SW4
-    ("user_btn", 2, Pins("J3"), IOStandard("LVCMOS18")), # SW5
+    ("user_btn_n", 0, Pins("J5"), IOStandard("LVCMOS18")), # SW1
+    ("user_btn_n", 1, Pins("J2"), IOStandard("LVCMOS18")), # SW4
+    ("user_btn_n", 2, Pins("J3"), IOStandard("LVCMOS18")), # SW5
 
     # 7.1. DIP Switch
     ("user_dip_btn", 0, Pins("K8"), IOStandard("LVCMOS18")),

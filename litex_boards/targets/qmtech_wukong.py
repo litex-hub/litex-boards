@@ -42,7 +42,7 @@ class _CRG(LiteXModule):
 
         # Clk/Rst.
         clk50 = platform.request("clk50")
-        rst_n = platform.request("cpu_reset")
+        rst_n = platform.request("cpu_reset_n")
 
         # Main PLL.
         self.pll = pll = S7MMCM(speedgrade=speed_grade)

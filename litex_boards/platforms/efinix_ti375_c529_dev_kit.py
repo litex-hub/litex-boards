@@ -25,7 +25,7 @@ _io = [
     ),
 
     # Buttons.
-    ("user_btn", 0, Pins("U19"), IOStandard("3.3_V_LVCMOS")),
+    ("user_btn_n", 0, Pins("U19"), IOStandard("3.3_V_LVCMOS")),
 
     # DRAM.
     ("dram_pll_refclk", 0, Pins("XXX"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),

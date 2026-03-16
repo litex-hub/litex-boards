@@ -12,7 +12,7 @@ from litex.build.xilinx import Xilinx7SeriesPlatform
 _io = [
     # Clk / Rst
     ("clk50",       0, Pins("G22"), IOStandard("LVCMOS33")),
-    ("cpu_reset",   0, Pins("D26"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("D26"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("A23"), IOStandard("LVCMOS33")),

@@ -52,7 +52,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst.
         clk24 = platform.request("clk24")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         # PLL.
         self.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)

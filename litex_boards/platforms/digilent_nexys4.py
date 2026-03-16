@@ -14,7 +14,7 @@ from litex.build.openocd import OpenOCD
 _io = [
     # Clk / Rst
     ("clk100",    0, Pins("E3"),  IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("C12"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("C12"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led",  0, Pins("T8"), IOStandard("LVCMOS33")),

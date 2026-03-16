@@ -42,7 +42,7 @@ class _CRG(LiteXModule):
 
         # PLL
         self.pll = pll = Cyclone10LPPLL(speedgrade="-A7")
-        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
+        self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)

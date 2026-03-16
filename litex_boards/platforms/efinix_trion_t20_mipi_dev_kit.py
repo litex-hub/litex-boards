@@ -20,8 +20,8 @@ _io = [
     ("user_led", 1, Pins("F2"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 
     # Buttons
-    ("user_btn", 0, Pins("F1"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
-    ("user_btn", 1, Pins("G2"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("user_btn_n", 0, Pins("F1"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("user_btn_n", 1, Pins("G2"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 
     # Serial
     ("serial", 0,

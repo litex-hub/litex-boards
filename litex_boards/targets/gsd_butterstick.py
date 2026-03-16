@@ -48,7 +48,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst
         clk30 = platform.request("clk30")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         # Power on reset
         por_count = Signal(16, reset=2**16-1)

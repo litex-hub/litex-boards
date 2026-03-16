@@ -36,7 +36,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst
         self.clk125 = platform.request("clk125")
-        self.rst_n  = platform.request("user_btn", 0)
+        self.rst_n  = platform.request("user_btn_n", 0)
 
         # Clocking
         self.hf_clk = NXOSCA(platform)

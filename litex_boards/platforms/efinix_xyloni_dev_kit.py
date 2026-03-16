@@ -15,8 +15,8 @@ _io = [
     ("clk33", 0, Pins("C3"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),  # net PLL_IN
 
     # Buttons
-    ("user_btn", 0, Pins("C5"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
-    ("user_btn", 1, Pins("C9"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn_n", 0, Pins("C5"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn_n", 1, Pins("C9"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
 
     # Leds
     ("user_led", 0, Pins("B3"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),

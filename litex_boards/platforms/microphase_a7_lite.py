@@ -13,7 +13,7 @@ from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 _io = [
     # Clk / Rst
     ("clk50",     0, Pins("J19"), IOStandard("LVCMOS33")), #50MHz
-    ("cpu_reset", 0, Pins("L18"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("L18"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("M18"),  IOStandard("LVCMOS33")), #green_led 1

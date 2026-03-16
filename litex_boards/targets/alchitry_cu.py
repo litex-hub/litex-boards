@@ -30,7 +30,7 @@ class _CRG(LiteXModule):
 
         # Clk/Rst
         clk100  = platform.request("clk100")
-        rst_n   = platform.request("cpu_reset")
+        rst_n   = platform.request("cpu_reset_n")
 
         # Power On Reset
         por_count = Signal(16, reset=2**16-1)

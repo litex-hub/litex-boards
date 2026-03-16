@@ -12,7 +12,7 @@ from litex.build.xilinx import XilinxSpartan6Platform
 _io = [
     # Clk/Rst
     ("clk100",    0, Pins("L15"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("T15"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("T15"), IOStandard("LVCMOS33")),
 
     # Serial
     ("serial", 0,

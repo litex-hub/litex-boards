@@ -20,7 +20,7 @@ from litex.build.lattice.programmer import IceStormProgrammer
 _io = [
     # Clk / Rst
     ("clk100", 0, Pins("P7"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("P8"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("P8"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("J11"), IOStandard("LVCMOS33")),
@@ -75,4 +75,3 @@ class Platform(LatticeiCE40Platform):
     def do_finalize(self, fragment):
         LatticeiCE40Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
-

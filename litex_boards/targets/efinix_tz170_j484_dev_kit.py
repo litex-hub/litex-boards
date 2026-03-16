@@ -35,7 +35,7 @@ class _CRG(LiteXModule):
 
         # Clk/Rst.
         default_clk = platform.request(platform.default_clk_name)
-        rst_n  = platform.request("user_btn", 0)
+        rst_n  = platform.request("user_btn_n", 0)
 
         self.comb += self.cd_rst.clk.eq(default_clk)
 

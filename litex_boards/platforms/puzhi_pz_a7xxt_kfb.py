@@ -26,7 +26,7 @@ _io = [
         Subsignal("p", Pins("F10")),
         Subsignal("n", Pins("E10"))
     ),
-    ("cpu_reset", 0, Pins("R14"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("R14"), IOStandard("LVCMOS33")),
 
     # Leds - active high
     ("user_led", 0, Pins("P15"),  IOStandard("LVCMOS33")),

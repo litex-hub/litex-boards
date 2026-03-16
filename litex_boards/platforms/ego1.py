@@ -14,7 +14,7 @@ from litex.build.openocd import OpenOCD
 _io = [
     # Clk / Rst
     ("clk100",    0, Pins("P17"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("P15"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("P15"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led",  0, Pins("K3"), IOStandard("LVCMOS33")),
@@ -157,4 +157,3 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
-

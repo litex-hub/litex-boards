@@ -54,10 +54,10 @@ _io = [
     ),
 
     # Buttons
-    ("user_btn", 0, Pins("K13"), IOStandard("1.8_V_LVCMOS")),
-    ("user_btn", 1, Pins("J13"), IOStandard("1.8_V_LVCMOS")),
-    ("user_btn", 2, Pins("C5"),  IOStandard("1.8_V_LVCMOS")),
-    ("user_btn", 3, Pins("R13"), IOStandard("1.8_V_LVCMOS")),
+    ("user_btn_n", 0, Pins("K13"), IOStandard("1.8_V_LVCMOS")),
+    ("user_btn_n", 1, Pins("J13"), IOStandard("1.8_V_LVCMOS")),
+    ("user_btn_n", 2, Pins("C5"),  IOStandard("1.8_V_LVCMOS")),
+    ("user_btn_n", 3, Pins("R13"), IOStandard("1.8_V_LVCMOS")),
 
     # Switches
     ("user_sw", 0, Pins("F3"), IOStandard("1.8_V_LVCMOS")),

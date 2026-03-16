@@ -22,11 +22,11 @@ _io = [
     ("user_led", 7, Pins("E25"), IOStandard("LVCMOS33")),
 
 
-    ("user_btn", 0, Pins("D26"), IOStandard("LVCMOS33")),
-    ("user_btn", 1, Pins("J26"), IOStandard("LVCMOS33")),
-    ("user_btn", 2, Pins("E26"), IOStandard("LVCMOS33")),
-    ("user_btn", 3, Pins("G26"), IOStandard("LVCMOS33")),
-    ("user_btn", 4, Pins("H26"), IOStandard("LVCMOS33")),
+    ("user_btn_n", 0, Pins("D26"), IOStandard("LVCMOS33")),
+    ("user_btn_n", 1, Pins("J26"), IOStandard("LVCMOS33")),
+    ("user_btn_n", 2, Pins("E26"), IOStandard("LVCMOS33")),
+    ("user_btn_n", 3, Pins("G26"), IOStandard("LVCMOS33")),
+    ("user_btn_n", 4, Pins("H26"), IOStandard("LVCMOS33")),
 
 
     ("serial", 0,

@@ -26,9 +26,9 @@ _io = [
     ("user_led_n", 7, Pins("IO_SB_B3")),
 
     # Button
-    ("user_btn", 0, Pins("IO_EA_B4")),
-    ("user_btn", 1, Pins("IO_EA_A4")),
-    ("user_btn", 2, Pins("IO_EA_B3")),
+    ("user_btn_n", 0, Pins("IO_EA_B4")),
+    ("user_btn_n", 1, Pins("IO_EA_A4")),
+    ("user_btn_n", 2, Pins("IO_EA_B3")),
 
     # Serial.
     ("serial", 0,

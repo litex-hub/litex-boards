@@ -30,7 +30,7 @@ _io = [
     ("user_led", 2, Pins("P13"), IOStandard("LVCMOS33")), # B
 
     # Buttons.
-    ("user_btn", 0, Pins("K16"),  IOStandard("LVCMOS33")), # USER_KEY
+    ("user_btn_n", 0, Pins("K16"),  IOStandard("LVCMOS33")), # USER_KEY
 
     # Serial
     ("serial", 0,

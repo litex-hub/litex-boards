@@ -25,8 +25,8 @@ _io = [
     ("user_led", 3, Pins("A9"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=1")),
 
     # Buttons
-    ("user_btn", 0, Pins("J9"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
-    ("user_btn", 1, Pins("J8"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn_n", 0, Pins("J9"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn_n", 1, Pins("J8"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
 
     # SPIFlash
     ("spiflash", 0,

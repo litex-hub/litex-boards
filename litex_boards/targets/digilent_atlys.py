@@ -102,7 +102,7 @@ class _CRG(LiteXModule):
         )
 
         # Power on reset
-        reset = ~platform.request("cpu_reset") | self.reset
+        reset = ~platform.request("cpu_reset_n") | self.reset
         self.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))

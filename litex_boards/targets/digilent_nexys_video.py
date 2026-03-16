@@ -41,7 +41,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst.
         clk100 = platform.request("clk100")
-        rst_n  = platform.request("cpu_reset")
+        rst_n  = platform.request("cpu_reset_n")
 
         # PLL.
         if toolchain == "vivado":

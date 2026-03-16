@@ -56,8 +56,8 @@ _io = [
     ),
 
     # Buttons.
-    ("user_btn", 0, Pins("D2"), Misc("WEAK_PULLUP")), # SW3
-    ("user_btn", 1, Pins("E4"), Misc("WEAK_PULLUP")), # SW4
+    ("user_btn_n", 0, Pins("D2"), Misc("WEAK_PULLUP")), # SW3
+    ("user_btn_n", 1, Pins("E4"), Misc("WEAK_PULLUP")), # SW4
 
     # SDCard.
     ("spisdcard", 0,

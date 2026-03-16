@@ -39,7 +39,7 @@ _io = [
     ("user_sw", 1, Pins("A13"), IOStandard("1.3-V LVCMOS")),
 
     # Buttons
-    ("user_btn", 0, Pins("A12"), IOStandard("1.3-V LVCMOS"), Misc("WEAK_PULL_UP_RESISTOR ON")),
+    ("user_btn_n", 0, Pins("A12"), IOStandard("1.3-V LVCMOS"), Misc("WEAK_PULL_UP_RESISTOR ON")),
 
     # HyperRAM
     ("hyperram", 0,

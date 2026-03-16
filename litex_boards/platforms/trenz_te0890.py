@@ -14,7 +14,7 @@ from litex.build.openfpgaloader import OpenFPGALoader
 _io = [
     # Clk / Rst
     ("clk100",    0, Pins("L5"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("B10"),  IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("B10"),  IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led",  0, Pins("D14"), IOStandard("LVCMOS33")),
