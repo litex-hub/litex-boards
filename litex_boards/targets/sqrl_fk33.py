@@ -61,6 +61,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6,
         with_led_chaser = True,
         with_pcie       = False,
+        pcie_lanes      = 4,
         with_hbm        = False,
         **kwargs):
         platform = sqrl_fk33.Platform()
@@ -100,8 +101,8 @@ class BaseSoC(SoCCore):
         if with_pcie:
             assert self.csr_data_width == 32
             # PHY
-            self.pcie_phy = USPHBMPCIEPHY(platform, platform.request("pcie_x4"),
-                data_width = 128,
+            self.pcie_phy = USPHBMPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
+                data_width = {4: 128, 8: 256, 16: 512}[pcie_lanes],
                 bar0_size  = 0x20000)
 
             # Endpoint
@@ -143,6 +144,7 @@ def main():
     parser = LiteXArgumentParser(platform=sqrl_fk33.Platform, description="LiteX SoC on FK33.")
     parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",   default=4, type=int,       choices=[4, 8, 16], help="PCIe lane count.")
     parser.add_target_argument("--with-hbm",     action="store_true",       help="Use HBM2.")
     parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
     args = parser.parse_args()
@@ -150,6 +152,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
         with_pcie    = args.with_pcie,
+        pcie_lanes   = args.pcie_lanes,
         with_hbm     = args.with_hbm,
         **parser.soc_argdict
     )

@@ -69,6 +69,7 @@ class BaseSoC(SoCCore):
         io_voltage      = "3.3V",
         with_led_chaser = True,
         with_pcie       = False,
+        pcie_lanes      = 4,
         with_sata       = False,
         **kwargs):
         platform = sitlinv_xc7k420t.Platform(io_voltage)
@@ -98,7 +99,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = S7PCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
@@ -143,6 +144,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--io-voltage",   default="3.3V",            help="IO voltage chosen by Jumper J3. Can be: '3.3V' or '2.5V'.")
     parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",   default=4, type=int,       choices=[4, 8], help="PCIe lane count.")
     parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
     parser.add_target_argument("--with-sata",    action="store_true",       help="Enable SATA support.")
     args = parser.parse_args()
@@ -151,6 +153,7 @@ def main():
         sys_clk_freq = args.sys_clk_freq,
         io_voltage   = args.io_voltage,
         with_pcie    = args.with_pcie,
+        pcie_lanes   = args.pcie_lanes,
         with_sata    = args.with_sata,
         **parser.soc_argdict
     )

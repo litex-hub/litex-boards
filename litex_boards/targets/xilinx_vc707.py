@@ -48,7 +48,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, with_pcie=False, pcie_lanes=4, **kwargs):
         platform = xilinx_vc707.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = S7PCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
@@ -89,12 +89,14 @@ def main():
     parser = LiteXArgumentParser(platform=xilinx_vc707.Platform, description="LiteX SoC on VC707.")
     parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",   default=4, type=int,       choices=[4, 8], help="PCIe lane count.")
     parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
-        with_pcie_   = args.with_pcie,
+        with_pcie    = args.with_pcie,
+        pcie_lanes   = args.pcie_lanes,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
