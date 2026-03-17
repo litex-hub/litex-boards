@@ -106,12 +106,18 @@ class BaseSoC(SoCCore):
             hyperram_pads = HyperRAMPads(0)
             self.comb += ck[0].eq(hyperram_pads.clk)
             self.comb += ck_n[0].eq(~hyperram_pads.clk)
-            # FIXME: Issue with upstream HyperRAM core, so use old one. Need to investigate.
+            # FIXME: Issue with upstream HyperRAM core, so use old one when available.
+            HyperRAMCore = HyperRAM
             if not os.path.exists("hyperbus.py"):
                 os.system("wget https://github.com/litex-hub/litex-boards/files/8831568/hyperbus.py.txt")
-                os.system("mv hyperbus.py.txt hyperbus.py")
-            from hyperbus import HyperRAM
-            self.hyperram = HyperRAM(hyperram_pads)
+                if os.path.exists("hyperbus.py.txt"):
+                    os.system("mv hyperbus.py.txt hyperbus.py")
+            if os.path.exists("hyperbus.py"):
+                try:
+                    from hyperbus import HyperRAM as HyperRAMCore
+                except ImportError:
+                    pass
+            self.hyperram = HyperRAMCore(hyperram_pads)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4 * MEGABYTE, mode="rwx"))
 
         # Video ------------------------------------------------------------------------------------
