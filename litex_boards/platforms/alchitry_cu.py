@@ -6,8 +6,8 @@
 
 # The Alchitry Cu is FPGA Development board
 # by SparkFun - https://www.sparkfun.com/products/16526.
-# 
-# It has a Lattice ICE40HX8K-CB132IC and can be programmed 
+#
+# It has a Lattice ICE40HX8K-CB132IC and can be programmed
 # with the Icestorm toolchain
 # Schematic - https://cdn.sparkfun.com/assets/2/6/e/5/e/alchitry_cu_sch_update.pdf
 

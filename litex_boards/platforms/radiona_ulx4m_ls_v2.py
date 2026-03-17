@@ -101,7 +101,7 @@ _io = [
         Subsignal("data", Pins("B15 R16 E14 P2"), Misc("PULLMODE=UP")),
         IOStandard("LVCMOS33"), Misc("SLEW=FAST")
     ),
-    
+
     # RMII Ethernet (LAN8720A).
     ("eth_clocks", 0,
         Subsignal("ref_clk", Pins("H2")),

@@ -98,13 +98,13 @@ _io = [
         Subsignal("clk", Pins("E25")),
         Subsignal("hsync_n", Pins("D25")),
         Subsignal("vsync_n", Pins("A25")),
-        
+
         Subsignal("de", Pins("C25")),
 
         Subsignal("r", Pins("AE27 AD27 AB29 AB30 AB28 AB27 AC26 Y27 D24 W28 F25 F17")),
         Subsignal("g", Pins("AD26 T26 R26 A24 T32 AC30 AB31 V32 W32 Y26 W30 T30")),
         Subsignal("b", Pins("T31 R32 Y32 W31 T29 U28 V27 V26 AC31 AB32 AC32 AD32")),
-  
+
         Subsignal("sda", Pins("AJ1")),
         Subsignal("scl", Pins("AG1")),
 

@@ -20,7 +20,7 @@ _io = [
 
     # Switches
     ("sw2", 0, Pins("U26"), IOStandard("LVCMOS33")), # cpu_reset
-    ("sw3", 0, Pins("V26"), IOStandard("LVCMOS33")), 
+    ("sw3", 0, Pins("V26"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("R26"), IOStandard("LVCMOS33")),
@@ -78,7 +78,7 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
-#    ("csi", 0,  
+#    ("csi", 0,
 #        Subsignal("csi", Pins("")),
 #        IOStandard("LVCMOS33")
 #    ),
@@ -115,7 +115,7 @@ _connectors = [
       1: "C16", 7: "B16",
       2: "A17", 8: "B17",
       3: "A18", 9: "A19",
-      4: "A20", 10: "B20", 
+      4: "A20", 10: "B20",
     }),
     # PMOD_2
     ("J12", {

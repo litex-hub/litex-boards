@@ -2,7 +2,7 @@
 
 #
 # This file is part of LiteX-Boards.
-# 
+#
 # Copyright (c) 2025 Victor Vimbert-Guerlais <victor.vimbertguerlais@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -43,7 +43,7 @@ _io = [
         Subsignal("hold", Pins("R21")),
         IOStandard("LVCMOS33")
     ),
-    
+
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("T19")),
         #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.

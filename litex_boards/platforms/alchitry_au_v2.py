@@ -2,7 +2,7 @@
 
 #
 # This file is part of LiteX-Boards.
-# 
+#
 # Copyright (c) 2025 Victor Vimbert-Guerlais <victor.vimbertguerlais@gmail.com>
 # Modified from the Alchitry Au v1 version by Nathaniel Lewis <github@nrlewis.dev>
 # SPDX-License-Identifier: BSD-2-Clause
@@ -44,7 +44,7 @@ _io = [
         Subsignal("hold", Pins("K16")),
         IOStandard("LVCMOS33")
     ),
-    
+
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("L12")),
         #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.

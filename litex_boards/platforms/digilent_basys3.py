@@ -137,7 +137,7 @@ class Platform(Xilinx7SeriesPlatform):
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a35t.bit")
-    
+
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)

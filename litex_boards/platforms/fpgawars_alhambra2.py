@@ -27,13 +27,13 @@ _io = [
     ("sw2", 0, Pins("33"), IOStandard("LVCMOS33")),
 
     # Serial
-    ("serial", 0, 
+    ("serial", 0,
         Subsignal("rx", Pins("62"), IOStandard("LVCMOS33")),
         Subsignal("tx", Pins("61"), IOStandard("LVCMOS33")),
     ),
     # SPI
     (
-        "spiflash", 0, 
+        "spiflash", 0,
         Subsignal("cs_n", Pins("71")),
         Subsignal("clk", Pins("70")),
         Subsignal("mosi", Pins("67")),

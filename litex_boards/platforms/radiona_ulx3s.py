@@ -194,7 +194,7 @@ _io_2_0 = [
         #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
     ),
     # Wifi power
-    ("wifi_gpio0", 0, Pins("F1"), IOStandard("LVCMOS33")),    
+    ("wifi_gpio0", 0, Pins("F1"), IOStandard("LVCMOS33")),
 ]
 
 # Platform -----------------------------------------------------------------------------------------

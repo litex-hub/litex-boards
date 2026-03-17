@@ -105,7 +105,7 @@ class Platform(GowinPlatform):
     def create_programmer(self, kit="openfpgaloader"):
         if kit == "gowin":
             return GowinProgrammer(self.devicename)
-        else: 
+        else:
             return OpenFPGALoader(cable="ft2232")
 
     def do_finalize(self, fragment):

@@ -54,7 +54,7 @@ _io = [
     # HDMI Out
     ("hdmi", 0,
         Subsignal("r",    Pins("V14 H14 J14 K13 K14 L13 L19 L20")),
-        Subsignal("g",    Pins("K17 J17 L16 K16 L14 L15 M15 M16")), 
+        Subsignal("g",    Pins("K17 J17 L16 K16 L14 L15 M15 M16")),
         Subsignal("b",    Pins("L18 M18 N18 N19 M20 N20 L21 M21")),
         Subsignal("de",        Pins("V13")),
         Subsignal("clk",       Pins("M13")),
@@ -73,7 +73,7 @@ _io = [
         Subsignal("cas_n", Pins("W4"), IOStandard("SSTL15")),
         Subsignal("we_n",  Pins("AA1"), IOStandard("SSTL15")),
         Subsignal("dm",    Pins("D2 G2 M2 M5"), IOStandard("SSTL15")),
-        Subsignal("dq",    Pins("C2 G1 A1 F3 B2 F1 B1 E2", 
+        Subsignal("dq",    Pins("C2 G1 A1 F3 B2 F1 B1 E2",
                                 "H3 G3 H2 H5 J1 J5 K1 H4",
                                 "L4 M3 L3 J6 K3 K6 J4 L5",
                                 "P1 N4 R1 N2 M6 N5 P6 P2"),

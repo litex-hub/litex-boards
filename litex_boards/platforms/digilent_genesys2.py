@@ -149,7 +149,7 @@ _io = [
         Subsignal("scl",     Pins("AF27"), IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("AF26"), IOStandard("LVCMOS33")),
         Subsignal("cec",     Pins("Y24"),  IOStandard("LVCMOS33")),
-        Subsignal("hdp",     Pins("AG29"), IOStandard("LVCMOS33")), 
+        Subsignal("hdp",     Pins("AG29"), IOStandard("LVCMOS33")),
     ),
 ]
 

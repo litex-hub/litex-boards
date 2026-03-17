@@ -15,7 +15,7 @@ _io = [
         Subsignal("b", Pins("39")),
         IOStandard("LVCMOS33")
     ),
-    
+
     # Buttons
     ("user_sw", 0, Pins("23"), IOStandard("LVCMOS33")),
     ("user_sw", 1, Pins("25"), IOStandard("LVCMOS33")),
@@ -99,7 +99,7 @@ _connectors = [
     # 19, 20- user_sw3, GND
     #        3   5   7   8   9  10  11  12  13  14     15      16  17  19
     ("J2", "23  25  26  36  27  42  32  38  31  28     37      35  34  43"),
-    # Silk:37A 36B 39A 48B 38B 51A 43A 50B 42B 41A 45A_G1 ICE_CLK 44B 49A 
+    # Silk:37A 36B 39A 48B 38B 51A 43A 50B 42B 41A 45A_G1 ICE_CLK 44B 49A
     # index: 0   1   2   3   4  5    6   7   8   9     10      11  12  13
 
     # Bank2: 4 3 48 45 47 44 46 2

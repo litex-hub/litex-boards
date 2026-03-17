@@ -24,11 +24,11 @@ _io = [
     ("user_led", 7, Pins("G14"), IOStandard("LVCMOS33")),
     ("user_led", 8, Pins("L14"), IOStandard("LVCMOS33")),
     ("user_led", 9, Pins("M15"), IOStandard("LVCMOS33")),
-  
+
     # Switches
     ("user_sw", 0, Pins("M20"), IOStandard("LVCMOS33")),
     ("user_sw", 1, Pins("M19"), IOStandard("LVCMOS33")),
-    
+
     # Buttons
     ("user_btn", 0, Pins("D19"), IOStandard("LVCMOS33")),
     ("user_btn", 1, Pins("D20"), IOStandard("LVCMOS33")),
@@ -67,7 +67,7 @@ _io = [
     ("ck_mosi", 0, Pins("T12"), IOStandard("LVCMOS33")),
     ("ck_sck",  0, Pins("H15"), IOStandard("LVCMOS33")),
     ("ck_ss",   0, Pins("F16"), IOStandard("LVCMOS33")),
-    
+
     # Chipkit I2C
     ("ck_scl", 0, Pins("P16"), IOStandard("LVCMOS33")),
     ("ck_sda", 0, Pins("P15"), IOStandard("LVCMOS33")),
@@ -76,7 +76,7 @@ _io = [
     ("crypto_sda", 0, Pins("J15"), IOStandard("LVCMOS33")),
 ]
 
-_ps7_io = [    
+_ps7_io = [
     # PS7
     ("ps7_clk",   0, Pins("E7")),
     ("ps7_porb",  0, Pins("C7")),

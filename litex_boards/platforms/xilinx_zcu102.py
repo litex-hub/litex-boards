@@ -293,7 +293,7 @@ _connectors = [
         "LA32_N"          : "T11",
         "LA32_P"          : "U11",
         "LA33_N"          : "V11",
-        "LA33_P"          : "V12",        
+        "LA33_P"          : "V12",
     }),
     ("FMC_HPC1", {
         "CLK0_M2C_N"      : "AF7",

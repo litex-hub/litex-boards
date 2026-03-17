@@ -53,8 +53,8 @@ _io_common = [
     ),
 
     # GPIOs
-    ("gpio", 0, 
-        Pins("G3 K3 T2 R2 R1 E1 F3 G1 H2 J1 L2 G2 J3 E3 P1 N1 H3 R3 N4 E4 F1 F2 P2 M2 L1 J2 D4 P3"), 
+    ("gpio", 0,
+        Pins("G3 K3 T2 R2 R1 E1 F3 G1 H2 J1 L2 G2 J3 E3 P1 N1 H3 R3 N4 E4 F1 F2 P2 M2 L1 J2 D4 P3"),
         IOStandard("LVCMOS33")
     ),
 

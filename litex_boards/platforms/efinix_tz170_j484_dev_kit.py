@@ -83,7 +83,7 @@ _io = [
     ("user_led", 5, Pins("B2")), # LED7
 ]
 
-    
+
 
 # Bank voltage ---------------------------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ _connectors = [
         "HB09_P"    : "A5",   # GPIOB_N_21_CDI8
         "HB13_N"    : "B5",   # GPIOB_P_20_CDI6_CLK7_P, not connected
         "HB13_P"    : "C5",   # GPIOB_N_20_CDI7_CLK7_N, not connected
-        "HB19_N"    : "E5",   # GPIOB_P_19_CDI5_CLK6_P, not connected 
+        "HB19_N"    : "E5",   # GPIOB_P_19_CDI5_CLK6_P, not connected
         "HB19_P"    : "F5",   # GPIOB_N_19_CDI4_CLK6_N, not connected
         "HB21_N"    : "G6",   # GPIOB_P_18_CLK5_P
         "HB21_P"    : "G5",   # GPIOB_N_18_CLK5_N

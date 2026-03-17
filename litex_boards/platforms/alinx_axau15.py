@@ -55,9 +55,9 @@ _io = [
             IOStandard("SSTL12_DCI")),
         Subsignal("ba",      Pins("J26 G22"), IOStandard("SSTL12_DCI")),
         Subsignal("bg",      Pins("L22"), IOStandard("SSTL12_DCI")),
-        Subsignal("ras_n",   Pins("H21"), IOStandard("SSTL12_DCI")), 
-        Subsignal("cas_n",   Pins("H22"), IOStandard("SSTL12_DCI")), 
-        Subsignal("we_n",    Pins("K26"), IOStandard("SSTL12_DCI")), 
+        Subsignal("ras_n",   Pins("H21"), IOStandard("SSTL12_DCI")),
+        Subsignal("cas_n",   Pins("H22"), IOStandard("SSTL12_DCI")),
+        Subsignal("we_n",    Pins("K26"), IOStandard("SSTL12_DCI")),
         Subsignal("cs_n",    Pins("H23"), IOStandard("SSTL12_DCI")),
         Subsignal("act_n",   Pins("K25"), IOStandard("SSTL12_DCI")),
         #Subsignal("par",      Pins("L24"), IOStandard("SSTL12_DCI")),
@@ -88,7 +88,7 @@ _io = [
     # SPIFlash.
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("AA12")),
-        Subsignal("clk",  Pins("Y11")), 
+        Subsignal("clk",  Pins("Y11")),
         Subsignal("dq",   Pins("AD11 AC12 AC11 AE11")),
         IOStandard("LVCMOS18")
     ),

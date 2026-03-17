@@ -78,7 +78,7 @@ _io = [
         Subsignal("reset", Pins("L15")),
 
         Subsignal("d", Pins("K16 U19 T20 N16 P16 M17 M18 R15 R16 P17 P18 R17")),
-  
+
         Subsignal("sda", Pins("AA4")),
         Subsignal("scl", Pins("W13")),
 

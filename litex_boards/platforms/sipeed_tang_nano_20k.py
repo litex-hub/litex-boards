@@ -46,7 +46,7 @@ _io = [
         Subsignal("clk",  Pins("83")),
         IOStandard("LVCMOS33"),
     ),
-    
+
     ("hdmi", 0,
         Subsignal("clk_p", Pins("33")),
         Subsignal("clk_n", Pins("34")),

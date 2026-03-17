@@ -36,10 +36,10 @@ _io = [
         Subsignal("data1_n", Pins("D2"),IOStandard("LVCMOS33")),
         Subsignal("data2_p", Pins("D1"),IOStandard("LVCMOS33")),
         Subsignal("data2_n", Pins("C1"),IOStandard("LVCMOS33")),
-        Subsignal("scl",     Pins("F3"),IOStandard("LVCMOS33")),   
-        Subsignal("sda",     Pins("F2"),IOStandard("LVCMOS33")),  
+        Subsignal("scl",     Pins("F3"),IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("F2"),IOStandard("LVCMOS33")),
         Subsignal("hpd",     Pins("D4"),IOStandard("LVCMOS33")),
-        Subsignal("cec",     Pins("E4"),IOStandard("LVCMOS33"))  
+        Subsignal("cec",     Pins("E4"),IOStandard("LVCMOS33"))
     ),
 
     # MIPI (Untested)
@@ -67,7 +67,7 @@ _connectors = [
         "j10_9"   : "E11",
         }
     ),
-    
+
     ("digital_d2",{
         "d2_0"    : "A10",
         "d2_1"    : "B6",

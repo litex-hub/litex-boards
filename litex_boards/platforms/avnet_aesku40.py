@@ -43,7 +43,7 @@ _io = [
         Subsignal("tx_data", Pins("H8 H9 J9 J10")),
         IOStandard("LVCMOS18")
     ),
-    
+
     # DDR4 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
@@ -86,7 +86,7 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
- 
+
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
