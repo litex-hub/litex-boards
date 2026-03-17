@@ -55,7 +55,7 @@ p4 = [
      Subsignal("pd_disc",   Pins("P4:22")),
      ),
 
-    # USB 1.1 (STmicro STUSB303E transceiver)
+    # USB 1.1 (STmicro STUSB03E transceiver)
     ("usb1", 0,
      Subsignal("vp",     Pins("P4:50")),
      Subsignal("vm",     Pins("P4:52")),
