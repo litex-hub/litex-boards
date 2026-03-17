@@ -38,7 +38,7 @@ _io = [
     ("user_btn", 2, Pins("L20"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("L19"), IOStandard("LVCMOS33")),
 
-	# SPI
+    # SPI
     ("spi", 0,
         Subsignal("clk",  Pins("H15")),
         Subsignal("cs_n", Pins("F16")),
@@ -47,14 +47,14 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-	# I2C
+    # I2C
     ("i2c", 0,
         Subsignal("scl",  Pins("P16")),
         Subsignal("sda",  Pins("P15")),
         IOStandard("LVCMOS33"),
     ),
 
-	# Audio
+    # Audio
     ("audio", 0,
         Subsignal("pwm", Pins("R18")), # FIXME
         Subsignal("sd", Pins("T17")), # FIXME
@@ -130,10 +130,10 @@ _connectors = [
     ("pmoda", "Y18 Y19 Y16 Y17 U18 U19 W18 W19"),
     ("pmodb", "W14 Y14 T11 T10 V16 W16 V12 W13"),
     ("ck_io", {
-		"ck_ioa"  : "Y13",
+        "ck_ioa"  : "Y13",
 
         # Outer Digital Header
-		"ck_io0"  : "T14",
+        "ck_io0"  : "T14",
         "ck_io1"  : "U12",
         "ck_io2"  : "U13",
         "ck_io3"  : "V13",
@@ -148,7 +148,7 @@ _connectors = [
         "ck_io12" : "P18",
         "ck_io13" : "N17",
 
-		# Inner Digital Header
+        # Inner Digital Header
         # Only for Arty Z7 20
         "ck_io26" : "U5",
         "ck_io27" : "V5",
@@ -183,7 +183,7 @@ _connectors = [
         "ck_a9"  : "B20",
         "ck_a10" : "B19",
         "ck_a11" : "A20",
-	}),
+    }),
     ("XADC", {
         # Outer Analog Header
         "vaux1_p"  : "E17",

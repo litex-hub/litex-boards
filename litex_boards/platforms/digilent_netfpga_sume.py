@@ -1,4 +1,4 @@
-#"
+#
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2019-2024 Florent Kermarrec <florent@enjoy-digital.fr>
@@ -13,23 +13,23 @@ from litex.build.openocd import OpenOCD
 
 _io = [
     # Clk / Rst
-    ("clk200", 0, 
-    	Subsignal("p", Pins("H19"),IOStandard("DIFF_SSTL15")),
-    	Subsignal("n", Pins("G18"),IOStandard("DIFF_SSTL15")),
-    	Misc("SLEW=FAST"),
-    	Misc("VCCAUX_IO=NORMAL")
+    ("clk200", 0,
+        Subsignal("p", Pins("H19"), IOStandard("DIFF_SSTL15")),
+        Subsignal("n", Pins("G18"), IOStandard("DIFF_SSTL15")),
+        Misc("SLEW=FAST"),
+        Misc("VCCAUX_IO=NORMAL")
     ),
-    
+
     ("clk233", 0,
         Subsignal("p", Pins("E34"), IOStandard("DIFF_SSTL15")),
         Subsignal("n", Pins("E35"), IOStandard("DIFF_SSTL15")),
         Misc("SLEW=FAST"),
         Misc("VCCAUX_IO=NORMAL")
     ),
-    	
-    # CPU Reset	
+
+    # CPU Reset
     ("cpu_reset_n", 0, Pins("AR13"), IOStandard("LVCMOS15"), Misc("VCCAUX_IO=NORMAL")),
-    
+
     # Leds
     ("user_led",  0, Pins("AR22"), IOStandard("LVCMOS15"), Misc("VCCAUX_IO=NORMAL")),
     ("user_led",  1, Pins("AR23"), IOStandard("LVCMOS15"), Misc("VCCAUX_IO=NORMAL")),
@@ -42,8 +42,8 @@ _io = [
     ("serial", 0,
         Subsignal("rx", Pins("AY19")),
         Subsignal("tx", Pins("BA19")),
-        Subsignal("rts",Pins("BB16")),
-        Subsignal("cts",Pins("BA16")), 
+        Subsignal("rts", Pins("BB16")),
+        Subsignal("cts", Pins("BA16")),
         IOStandard("LVCMOS15"),
         Misc("VCCAUX_IO=NORMAL")
     ),
@@ -80,7 +80,7 @@ _io = [
         Misc("SLEW=FAST"),
         Misc("VCCAUX_IO=NORMAL"),
     ),
-    
+
     ("ddram", 1,
         Subsignal("a", Pins(
             "G17 J20 H18 D21 D18 C21 J17 E17",
@@ -112,7 +112,7 @@ _io = [
         Misc("SLEW=FAST"),
         Misc("VCCAUX_IO=NORMAL")
     ),
-    
+
     # SDCard
     ("spisdcard", 0,
         Subsignal("rst",  Pins("BB12"), IOStandard("LVCMOS15"), Misc("VCCAUX_IO=NORMAL")),
@@ -123,7 +123,7 @@ _io = [
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS18"),
     ),
-    
+
     ("sdcard", 0,
         Subsignal("rst",  Pins("BB12"), IOStandard("LVCMOS15"), Misc("VCCAUX_IO=NORMAL")),
         Subsignal("data", Pins("AY29 AM28 AL25 AL26")),
@@ -133,47 +133,47 @@ _io = [
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS18"),
     ),
-    
+
     # I2C
     ("i2c", 0,
-    	Subsignal("scl", Pins("AK24"), IOStandard("LVCMOS18")),
-    	Subsignal("sda", Pins("AK25"), IOStandard("LVCMOS18")),
-    	Misc("VCCAUX_IO=NORMAL")
+        Subsignal("scl", Pins("AK24"), IOStandard("LVCMOS18")),
+        Subsignal("sda", Pins("AK25"), IOStandard("LVCMOS18")),
+        Misc("VCCAUX_IO=NORMAL")
     ),
-    
+
     # SFP - Ethernet
     ("sfp_clk", 0,
-    	Subsignal("p", Pins("AW32"), IOStandard("LVDS")), #
-    	Subsignal("n", Pins("AW33"), IOStandard("LVDS"))
+        Subsignal("p", Pins("AW32"), IOStandard("LVDS")), #
+        Subsignal("n", Pins("AW33"), IOStandard("LVDS"))
     ),
-    
+
     ("sfp", 0,
-    	Subsignal("txp", Pins("A6")),
-    	Subsignal("txn", Pins("A5")),
-    	Subsignal("rxn", Pins("B3")),
-    	Subsignal("rxp", Pins("B4"))
+        Subsignal("txp", Pins("A6")),
+        Subsignal("txn", Pins("A5")),
+        Subsignal("rxn", Pins("B3")),
+        Subsignal("rxp", Pins("B4"))
     ),
-    
+
     ("sfp", 1,
-    	Subsignal("txp", Pins("B8")),
-    	Subsignal("txn", Pins("B7")),
-    	Subsignal("rxn", Pins("C1")),
-    	Subsignal("rxp", Pins("C2"))
+        Subsignal("txp", Pins("B8")),
+        Subsignal("txn", Pins("B7")),
+        Subsignal("rxn", Pins("C1")),
+        Subsignal("rxp", Pins("C2"))
     ),
-    
-    
+
+
     ("sfp", 2,
-    	Subsignal("txp", Pins("C6")),
-    	Subsignal("txn", Pins("C5")),
-    	Subsignal("rxn", Pins("D3")),
-    	Subsignal("rxp", Pins("D4"))
+        Subsignal("txp", Pins("C6")),
+        Subsignal("txn", Pins("C5")),
+        Subsignal("rxn", Pins("D3")),
+        Subsignal("rxp", Pins("D4"))
     ),
-    
+
     ("sfp", 3,
-    	Subsignal("txp", Pins("D8")),
-    	Subsignal("txn", Pins("D7")),
-    	Subsignal("rxn", Pins("E1")),
-    	Subsignal("rxp", Pins("E2"))
+        Subsignal("txp", Pins("D8")),
+        Subsignal("txn", Pins("D7")),
+        Subsignal("rxn", Pins("E1")),
+        Subsignal("rxp", Pins("E2"))
     ),
 
     ("sfp_tx_disable_n", 0, Pins("M18"), IOStandard("LVCMOS15")),
@@ -182,7 +182,7 @@ _io = [
     ("sfp_rs", Pins("N19 P18"), IOStandard("LVCMOS15")),
     ("sfp_rx_los", Pins("L17"), IOStandard("LVCMOS15")),
     ("sfp_tx_fault_n", Pins("M19"), IOStandard("LVCMOS15")),
-    
+
     ("sfp_tx_disable_n", 1, Pins("B31"), IOStandard("LVCMOS15")),
     ("sfp_led", 1, Pins("AL22 BA20"), IOStandard("LVCMOS15")),
     ("sfp_mod_detect", 1, Pins("AL19"), IOStandard("LVCMOS15")),
@@ -190,7 +190,7 @@ _io = [
     ("sfp_rx_los", 1, Pins("L20"), IOStandard("LVCMOS15")),
     ("sfp_tx_disable", 1, Pins("B31"), IOStandard("LVCMOS15")),
     ("sfp_tx_fault", 1, Pins("C26"), IOStandard("LVCMOS15")),
-    	
+
     ("sfp_tx_disable_n", 2, Pins("J38"), IOStandard("LVCMOS15")),
     ("sfp_led", 2, Pins("AY18 AY17"), IOStandard("LVCMOS15")),
     ("sfp_mod_detect", 2, Pins("J37"), IOStandard("LVCMOS15")),
@@ -198,7 +198,7 @@ _io = [
     ("sfp_rx_los", 2, Pins("G37"), IOStandard("LVCMOS15")),
     ("sfp_tx_disable", 2, Pins("J38"), IOStandard("LVCMOS15")),
     ("sfp_tx_fault", 2, Pins("E39"), IOStandard("LVCMOS15")),
-    	
+
     ("sfp_tx_disable_n", 3, Pins("L21"), IOStandard("LVCMOS15")),
     ("sfp_led", 3, Pins("P31 K32"), IOStandard("LVCMOS15")),
     ("sfp_mod_detect", 3, Pins("H36"), IOStandard("LVCMOS15")),
@@ -221,7 +221,7 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_platform_command("set_property CFGBVS GND [current_design]")
         self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")
         self.add_platform_command("set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]")
-                
+
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 36]")
@@ -235,3 +235,4 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200",             loose=True), 1e9/200e6)
+

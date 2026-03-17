@@ -43,7 +43,7 @@ _io = [
     ),
 
     # RST for RTC DS1302
-	("gpio", 0, Pins("P13"), IOStandard("LVCMOS33")),
+    ("gpio", 0, Pins("P13"), IOStandard("LVCMOS33")),
 
     # SD-Card.
     ("sdcard", 0,
