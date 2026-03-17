@@ -37,8 +37,8 @@ class _CRG(LiteXModule):
 
         self.pll = pll = S7PLL(speedgrade=-1)
         try:
-            reset_button = platform.request("cpu_reset")
-            self.comb += pll.reset.eq(~reset_button | self.rst)
+            rst = platform.request("cpu_reset")
+            self.comb += pll.reset.eq(~rst | self.rst)
         except:
             self.comb += pll.reset.eq(self.rst)
 

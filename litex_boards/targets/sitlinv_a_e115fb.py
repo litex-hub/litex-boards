@@ -51,8 +51,8 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            ledn = platform.request_all("user_led_n")
-            self.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
+            leds_n = platform.request_all("user_led_n")
+            self.leds = LedChaser(pads=leds_n, sys_clk_freq=sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 

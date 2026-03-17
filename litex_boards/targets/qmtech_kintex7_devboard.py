@@ -43,8 +43,8 @@ class _CRG(Module):
         # # #
 
         self.submodules.pll = pll = S7PLL(speedgrade=-1)
-        reset_button = platform.request("cpu_reset")
-        self.comb += pll.reset.eq(~reset_button | self.rst)
+        rst = platform.request("cpu_reset")
+        self.comb += pll.reset.eq(~rst | self.rst)
 
         pll.register_clkin(platform.request("clk50"), 50e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)

@@ -43,11 +43,11 @@ class _CRG(LiteXModule):
 
         # Clk/Rst.
         clk50 = platform.request("clk50")
-        rst    = ~platform.request("cpu_reset_n") if with_rst else 0
+        rst_n  = platform.request("cpu_reset_n") if with_rst else 1
 
         # PLL.
         self.pll = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(rst | self.rst)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.

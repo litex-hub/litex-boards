@@ -43,14 +43,14 @@ class _CRG(LiteXModule):
 
         # Clk/Rst
         clk200 = platform.request("clk200")
-        rst    = ~platform.request("cpu_reset_n")
+        rst_n  = platform.request("cpu_reset_n")
 
         # PLL
         if toolchain == "vivado":
             self.pll = pll = S7MMCM(speedgrade=-2)
         else:
             self.pll = pll = S7PLL(speedgrade=-2)
-        self.comb += pll.reset.eq(rst | self.rst)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk200,           200e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)

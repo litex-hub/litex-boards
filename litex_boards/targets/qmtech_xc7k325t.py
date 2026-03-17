@@ -42,8 +42,8 @@ class _CRG(Module):
         # # #
 
         self.submodules.pll = pll = S7PLL(speedgrade=-1)
-        reset_button = platform.request("user_btn_n", 0)
-        self.comb += pll.reset.eq(~reset_button | self.rst)
+        rst_n = platform.request("user_btn_n", 0)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
 
         pll.register_clkin(platform.request("clk50"), 50e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
