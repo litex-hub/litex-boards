@@ -15,7 +15,6 @@
 import os
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -39,7 +38,6 @@ from litepcie.software import generate_litepcie_software
 from litedram.common import *
 from litedram.frontend.axi import *
 
-from litescope import LiteScopeAnalyzer
 
 # CRG ----------------------------------------------------------------------------------------------
 

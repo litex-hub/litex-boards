@@ -7,12 +7,10 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
-from litex.gen.genlib.misc import WaitTimer
 
-from litex.build.io import DDROutput, DDRInput, SDROutput, SDRTristate
+from litex.build.io import DDROutput, DDRInput, SDRTristate
 from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 
 from litex_boards.platforms import efinix_ti375_c529_dev_kit
@@ -24,7 +22,6 @@ from litex.soc.integration.builder import *
 from litex.soc.interconnect import axi
 
 from litex.soc.cores.clock.efinix import *
-from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
 from litex.soc.cores.pwm import PWM
 

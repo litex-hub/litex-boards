@@ -6,7 +6,6 @@
 # Copyright (c) 2021 Michael Welling <mwelling@ieee.org>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -22,7 +21,6 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.uart import UARTWishboneBridge
 
 from litedram.phy import GENSDRPHY
 from litedram.modules import MT48LC32M8

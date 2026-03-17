@@ -10,7 +10,6 @@ from migen import *
 
 from litex.gen import *
 
-from litex.build.io import CRG
 
 from litex_boards.platforms import micronova_mercury2
 

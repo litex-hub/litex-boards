@@ -18,7 +18,6 @@ from litex_boards.platforms import rcs_arctic_tern_bmc_card
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.integration.soc import SoCRegion
 
 from litedram.modules import MT41J256M16
 from litedram.phy import ECP5DDRPHY

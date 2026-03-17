@@ -16,7 +16,6 @@ from litex_boards.platforms import lattice_crosslink_nx_evn
 
 from litex.soc.cores.ram import NXLRAM
 from litex.soc.cores.clock import NXPLL
-from litex.build.io import CRG
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *

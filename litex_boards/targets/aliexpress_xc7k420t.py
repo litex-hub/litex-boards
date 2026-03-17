@@ -53,7 +53,6 @@ class BaseSoC(SoCCore):
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
-            from litespi.modules import N25Q256
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="4x", module=W25Q256(Codes.READ_1_1_4))
 

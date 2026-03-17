@@ -19,7 +19,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import AS4C4M16
-from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
+from litedram.phy import GENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 

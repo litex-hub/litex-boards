@@ -24,7 +24,6 @@ from liteeth.phy.rmii import LiteEthPHYRMII
 
 from litex_boards.platforms import sipeed_tang_primer_20k
 
-from litedram.common import PHYPadsReducer
 from litedram.modules import MT41K64M16
 from litedram.phy import GW2DDRPHY
 

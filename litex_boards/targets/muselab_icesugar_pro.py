@@ -25,7 +25,6 @@ from litex.soc.interconnect.csr import *
 from litedram.modules import IS42S16160
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
-from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 

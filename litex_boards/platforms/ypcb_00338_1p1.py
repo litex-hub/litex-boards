@@ -18,7 +18,7 @@
 # - Three user LEDs.
 
 from litex.build.generic_platform import *
-from litex.build.xilinx         import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------

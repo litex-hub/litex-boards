@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -16,7 +15,6 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import mist
 
 from litex.soc.cores.clock import CycloneIVPLL
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY

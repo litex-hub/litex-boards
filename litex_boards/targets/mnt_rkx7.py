@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.fhdl.specials import Tristate
 
 from litex.gen import *
 

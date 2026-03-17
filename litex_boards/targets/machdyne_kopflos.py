@@ -9,9 +9,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-import os
-import sys
-import json
 
 from migen import *
 
@@ -19,8 +16,6 @@ from litex.gen import *
 
 from litex_boards.platforms import machdyne_kopflos
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-from litex.build.io import DDROutput
 
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -35,7 +30,6 @@ from litex.soc.interconnect.csr_eventmanager import *
 from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
 from litedram.phy import ECP5DDRPHY
 
-from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from litex.soc.integration.soc import SoCRegion
 

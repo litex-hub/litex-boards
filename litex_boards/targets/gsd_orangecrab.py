@@ -6,8 +6,6 @@
 # Copyright (c) Greg Davill <greg.davill@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import sys
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer

@@ -17,7 +17,6 @@ from litex_boards.platforms import lattice_ice40up5k_evn
 from litex.build.lattice.programmer import IceStormProgrammer
 
 from litex.soc.cores.ram import Up5kSPRAM
-from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
@@ -93,7 +92,6 @@ class BaseSoC(SoCCore):
 # Flash --------------------------------------------------------------------------------------------
 
 def flash(bios_flash_offset, target="lattice_ice40up5k_evn"):
-    from litex.build.dfu import DFUProg
     prog = IceStormProgrammer()
     bitstream  = open("build/"+target+"/gateware/"+target+".bin",  "rb")
     bios       = open("build/"+target+"/software/bios/bios.bin", "rb")

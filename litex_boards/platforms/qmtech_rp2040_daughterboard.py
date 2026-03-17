@@ -7,7 +7,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
-from litex.build.generic_platform import Subsignal, Pins, IOStandard, Misc
+from litex.build.generic_platform import Subsignal, Pins
 
 class QMTechDaughterboard:
     """

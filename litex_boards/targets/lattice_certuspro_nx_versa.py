@@ -15,7 +15,6 @@ from litex.gen import *
 from litex_boards.platforms import lattice_certuspro_nx_versa
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 

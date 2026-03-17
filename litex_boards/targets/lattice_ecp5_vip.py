@@ -17,7 +17,6 @@ from litex_boards.platforms import lattice_ecp5_vip
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT41K64M16

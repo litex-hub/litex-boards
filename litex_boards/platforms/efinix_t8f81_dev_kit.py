@@ -5,7 +5,6 @@
 # Copyright (c) 2022 Charles-Henri Mousset <ch.mousset@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
 from litex.build.generic_platform import *
 from litex.build.efinix.platform import EfinixPlatform
 from litex.build.efinix.programmer import EfinixAtmelProgrammer

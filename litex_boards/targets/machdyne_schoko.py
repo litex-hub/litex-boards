@@ -8,9 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-import os
-import sys
-import json
 
 from migen import *
 
@@ -23,7 +20,6 @@ from litex.build.io import DDROutput
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.usb_ohci import USBOHCI
-from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.video import VideoHDMIPHY
 
 from litex.soc.integration.soc_core import *

@@ -10,7 +10,6 @@
 import time
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 from litex.gen.genlib.misc import WaitTimer
@@ -93,7 +92,7 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
         # Tristate Test ----------------------------------------------------------------------------
-        from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
+        from litex.build.generic_platform import Subsignal, Pins, IOStandard
         from litex.soc.cores.bitbang import I2CMaster
         platform.add_extension([("i2c", 0,
             Subsignal("sda",   Pins("T12")),

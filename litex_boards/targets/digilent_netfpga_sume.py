@@ -14,7 +14,6 @@ from litex.gen import *
 from litex_boards.platforms import digilent_netfpga_sume
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -23,11 +22,8 @@ from litex.soc.cores.bitbang import I2CMaster
 from litedram.modules import MT8KTF51264
 from litedram.phy import s7ddrphy
 
-from litedram.common import PHYPadsReducer
 
-from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.phy.v7_1000basex import V7_1000BASEX
-from liteeth.phy import LiteEthPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 

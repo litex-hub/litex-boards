@@ -13,8 +13,6 @@ from litex.gen import *
 
 from litex_boards.platforms import tul_pynq_z2
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *

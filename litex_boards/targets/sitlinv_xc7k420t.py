@@ -107,7 +107,6 @@ class BaseSoC(SoCCore):
         # TODO verify / test
         # SATA -------------------------------------------------------------------------------------
         if with_sata:
-            from litex.build.generic_platform import Subsignal, Pins
             from litesata.phy import LiteSATAPHY
 
             # RefClk, Generate 150MHz from PLL.

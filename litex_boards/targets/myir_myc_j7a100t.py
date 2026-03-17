@@ -27,7 +27,6 @@ from litedram.phy import s7ddrphy
 # ETH
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
-import sys
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -88,7 +87,6 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            from litedram.common import PHYPadsCombiner
             if (with_sdram_256):
                 self.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram", 0),
                     memtype        = "DDR3",

@@ -32,12 +32,8 @@ from migen import *
 from litex.gen import *
 
 from litex_boards.platforms import digilent_arty_z7
-from litex.build import tools
-from litex.build.xilinx import common as xil_common
 from litex.build.tools import write_to_file
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *

@@ -8,9 +8,6 @@
 # Copyright (c) 2021 Greg Davill <greg.davill@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import sys
-import argparse
 
 from migen import *
 

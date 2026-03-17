@@ -9,9 +9,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-import os
-import sys
-import json
 
 from migen import *
 
@@ -19,7 +16,6 @@ from litex.gen import *
 
 from litex_boards.platforms import machdyne_mozart_ml2
 
-from litex.build.io import DDROutput
 
 from migen.genlib.resetsync import AsyncResetSynchronizer
 

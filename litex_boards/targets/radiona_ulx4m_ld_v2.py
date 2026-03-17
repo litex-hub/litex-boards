@@ -16,9 +16,6 @@
 # 3) DDR3 DM IOs, for PCB complexity, are not in the required group. The solution mentioned in
 #    this issue must be used: https://github.com/enjoy-digital/litedram/issues/299
 
-import os
-import sys
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -34,7 +31,7 @@ from litex.soc.cores.gpio import GPIOTristate
 from litex.soc.cores.video import VideoHDMIPHY
 
 from litedram.common import PHYPadsReducer
-from litedram.modules import MT41K64M16,MT41K128M16,MT41K256M16,MT41K512M16
+from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16
 from litedram.phy import ECP5DDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII

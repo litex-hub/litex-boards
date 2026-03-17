@@ -15,9 +15,8 @@ from litex.gen import *
 
 from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
-from litex.soc.cores.led import LedChaser, WS2812
+from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII

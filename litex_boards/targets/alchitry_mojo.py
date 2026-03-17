@@ -54,7 +54,7 @@ from litex.soc.cores.clock import *
 from litex.soc.cores.video import VideoS6HDMIPHY
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT48LC32M8, SDRModule
+from litedram.modules import MT48LC32M8
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------

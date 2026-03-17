@@ -12,7 +12,6 @@ from litex.gen import *
 
 from litex_boards.platforms import puzhi_p7_starlite
 
-from litex.build import tools
 from litex.build.tools import write_to_file
 
 from litex.soc.integration.soc_core import *

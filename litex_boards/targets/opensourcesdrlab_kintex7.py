@@ -7,23 +7,19 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
 from migen import *
 
 from litex_boards.platforms import opensourcesdrlab_kintex7
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT41K256M16
 from litedram.phy import s7ddrphy
 from litepcie.phy.s7pciephy import S7PCIEPHY
 
-from liteeth.phy.mii import LiteEthPHYMII
 
 # CRG ----------------------------------------------------------------------------------------------
 

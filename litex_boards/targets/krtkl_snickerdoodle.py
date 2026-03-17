@@ -15,8 +15,6 @@ from litex.gen import *
 
 from litex_boards.platforms import krtkl_snickerdoodle
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *

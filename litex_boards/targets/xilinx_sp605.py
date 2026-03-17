@@ -4,7 +4,6 @@
 # Copyright (c) 2025 Arif Darmawan <arif.pens@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -22,7 +21,7 @@ from litex.soc.cores.clock import S6PLL
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT41K64M16
-from litedram.phy import s6ddrphy, GENSDRPHY
+from litedram.phy import s6ddrphy
 from litex.soc.cores.bitbang import I2CMaster
 
 kB = 1024

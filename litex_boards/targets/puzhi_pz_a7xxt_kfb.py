@@ -14,7 +14,6 @@ from litex.gen import *
 from litex_boards.platforms import puzhi_pz_a7xxt_kfb
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoS7HDMIPHY
@@ -23,7 +22,6 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT41K256M16
 from litedram.phy import s7ddrphy
 
-from liteeth.phy.a7_gtp import QPLLSettings, QPLL
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
 from litepcie.phy.s7pciephy import S7PCIEPHY

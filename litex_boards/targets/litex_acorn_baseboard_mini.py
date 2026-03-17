@@ -6,15 +6,12 @@
 # Copyright (c) 2021-2024 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import subprocess
 
 from migen import *
 
 from litex.gen import *
 
-from litex.build.generic_platform import Subsignal, Pins
 from litex.build.io import DifferentialInput
-from litex.build.openocd import OpenOCD
 
 from litex_boards.platforms import sqrl_acorn
 
@@ -25,7 +22,6 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
 
-from litex.build.generic_platform import IOStandard, Subsignal, Pins
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.software import generate_litepcie_software

@@ -18,7 +18,6 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.cores.video import video_timings
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy

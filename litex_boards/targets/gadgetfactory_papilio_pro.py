@@ -6,7 +6,6 @@
 # Copyright (c) 2023 Fabien Caura <fabien@acathla.tk>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import argparse
 
 from migen import *
 
@@ -23,7 +22,7 @@ from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT48LC4M16
-from litedram.phy import s6ddrphy, GENSDRPHY, HalfRateGENSDRPHY
+from litedram.phy import GENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 

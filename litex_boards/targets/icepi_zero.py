@@ -10,13 +10,11 @@ from migen import *
 
 from litex.gen import *
 
-from litex.build.io import CRG
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import icepi_zero
 
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.clock import *

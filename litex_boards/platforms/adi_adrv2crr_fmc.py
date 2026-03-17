@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxUSPPlatform
-from litex.build.openocd import OpenOCD
 
 _io = [
     # Clk

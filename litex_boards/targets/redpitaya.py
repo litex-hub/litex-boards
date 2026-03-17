@@ -6,7 +6,6 @@
 # Copyright (c) 2020 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
 
 from migen import *
 
@@ -14,8 +13,6 @@ from litex.gen import *
 
 from litex_boards.platforms import redpitaya
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *

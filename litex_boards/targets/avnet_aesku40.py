@@ -6,10 +6,8 @@
 # Copyright (c) 2022 Andrew Elbert Wilson <andrew.e.wilson@ieee.org>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 

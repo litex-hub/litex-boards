@@ -26,8 +26,6 @@ from litex_boards.platforms import alinx_axu2cga
 
 from litex.build.tools import write_to_file
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *

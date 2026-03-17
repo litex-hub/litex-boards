@@ -8,7 +8,6 @@
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 

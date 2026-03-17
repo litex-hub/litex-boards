@@ -42,8 +42,6 @@ from litex.soc.cores.led import LedChaser
 from litex.soc.cores.xadc import XADC
 from litex.soc.cores.dna  import DNA
 
-from litedram.modules import MT41K256M16
-from litedram.phy import s7ddrphy
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.software import generate_litepcie_software

@@ -17,14 +17,11 @@
 # - add support for SD card pmod
 #
 
-import os
-import sys
 
 from migen import *
 
 from litex.gen import *
 
-from litex.build.io import CRG
 
 from litex_boards.platforms import machdyne_krote
 

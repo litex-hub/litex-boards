@@ -21,7 +21,7 @@ from litex.soc.cores.clock import *
 from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import W9812G6JB, SDRModule
+from litedram.modules import W9812G6JB
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------

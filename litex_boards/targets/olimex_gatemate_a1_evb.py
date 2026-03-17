@@ -12,7 +12,6 @@ from litex.gen import *
 
 from litex_boards.platforms import olimex_gatemate_a1_evb
 
-from litex.build.io import CRG
 
 from litex.soc.cores.clock.colognechip import GateMatePLL
 from litex.soc.integration.soc_core import *
