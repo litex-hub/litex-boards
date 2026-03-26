@@ -20,6 +20,7 @@ from litex.build.io import CRG
 from litex.soc.cores.clock.colognechip import GateMatePLL
 
 from litex.soc.interconnect import wishbone
+from litex.soc.interconnect.csr import *
 
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -51,8 +52,8 @@ p4 = [
      Subsignal("sda",  Pins("P4:12")),
      Subsignal("alert_n",  Pins("P4:16")),
      # Power Delivery Switch control
-     Subsignal("pd_src_en", Pins("P4:21")),
-     Subsignal("pd_disc",   Pins("P4:22")),
+     Subsignal("src_en", Pins("P4:21")),
+     Subsignal("disc",   Pins("P4:22")),
      ),
 
     # USB 1.1 (STmicro STUSB03E transceiver)
@@ -185,6 +186,34 @@ def add_async_ram(soc, platform, name, origin, size):
         soc.bus.regions[name]))
     setattr(soc.submodules, name, ram)
 
+# USB ----------------------------------------------------------------------------------------------
+
+class USB(LiteXModule):
+
+    def __init__(self, platform, usb_options):
+        # Power Delivery Control -------------------------------------------------------------------
+        if 'pd' in usb_options:
+            self.pd = pd = platform.request("pd")
+            self.comb += pd.en_n.eq(ResetSignal())
+            self.comb += [pd.src_en.eq(0), pd.disc.eq(0)] # disable Source and Discharge
+
+        # USB 1.1 transceiver ----------------------------------------------------------------------
+        if '1' in usb_options:
+            self.usb1 = usb1 = platform.request("usb1")
+            self.ctrl = ctrl = CSRStorage(2, description="USB 1.1 transceiver control signals: CON, SUS")
+            self.stat = stat = CSRStatus(1, description="USB 1.1 transceiver battery detected")
+            self.comb += [usb1.con.eq(ctrl.storage[1]), usb1.sus.eq(~ctrl.storage[0])]
+            self.comb += [stat.status[0].eq(usb1.busdet)]
+            self.comb += [usb1.oe_n.eq(0)] # do not transmit
+
+        # ULPI (USB 2.0 PHY) -----------------------------------------------------------------------
+        self.ulpi = ulpi = platform.request("ulpi")
+        if 'ulpi' in usb_options:
+            pass
+        else:
+            self.comb += [ulpi.rst_n.eq(0)] # keep PHY in reset
+                                            # D+/D- signals are connected to USB 1.1 transceiver
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -193,6 +222,7 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_spi_flash  = False,
         with_async_ram  = False,
+        usb_options     = [],
         **kwargs):
         platform = gmm7550.Platform(toolchain)
 
@@ -223,6 +253,12 @@ class BaseSoC(SoCCore):
         if with_async_ram:
             add_async_ram(self, platform, "main_ram", 0x40000000, 512 * KILOBYTE)
 
+        # USB --------------------------------------------------------------------------------------
+        if len(usb_options) > 0:
+            usb = USB(platform, usb_options)
+            setattr(self.submodules, "usb", usb)
+            self.add_i2c_master(name="i2c", pads=usb.pd, with_irq=True)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -231,6 +267,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=25e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash")
     parser.add_target_argument("--with-async-ram", action="store_true", help="Enable Asynchronous SRAM")
+    parser.add_target_argument("--usb", nargs='+', dest="usb_options", default=[], help="Enable USB functions: TBD")
 
     parser.set_defaults(cpu_type = "vexriscv", cpu_variant = "lite")
 
@@ -241,6 +278,7 @@ def main():
         toolchain      = "peppercorn", # args.toolchain,
         with_spi_flash = args.with_spi_flash,
         with_async_ram = args.with_async_ram,
+        usb_options    = args.usb_options,
         **parser.soc_argdict)
 
     builder = Builder(soc, **parser.builder_argdict)
