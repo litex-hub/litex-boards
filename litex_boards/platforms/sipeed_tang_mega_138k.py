@@ -253,7 +253,7 @@ _neo_dock_connectors = [
     # Note PMOD0 is shared with SDRAM1_Dx
     ["pmod0", "J0:25 J0:15 J0:20 J0:14 J0:23 J0:13 J0:18 J0:12"],
     # Note PMOD1 is shared with SDRAM1_Ax and CAM0
-    ["pmod1", " j2:5  j2:9 J2:13 J2:17  J2:3  J2:7 J2:11 J2:15"],
+    ["pmod1", " J2:5  J2:9 J2:13 J2:17  J2:3  J2:7 J2:11 J2:15"],
 
     # J13
     ["sdram0_connector",
