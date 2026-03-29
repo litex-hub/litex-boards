@@ -132,6 +132,7 @@ ps7_config_variants = {
         "PCW_UART1_UART1_IO"            : "MIO 48 .. 49",
         "PCW_PRESET_BANK1_VOLTAGE"      : "LVCMOS 1.8V",
         "PCW_USE_M_AXI_GP0"             : "1",
+        "PCW_USE_S_AXI_GP1"             : "1",
         "PCW_USE_S_AXI_GP0"             : "1",
         "PCW_USB0_PERIPHERAL_ENABLE"    : "1",
         "PCW_USB0_USB0_IO"              : "MIO 28 .. 39",
