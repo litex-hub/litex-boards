@@ -90,8 +90,10 @@ class BaseSoC(SoCCore):
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
             self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
-                data_width = 128,
-                bar0_size  = 0x20000)
+                data_width      = 128,
+                bar0_size       = 0x20000,
+                mmcm_speedgrade = -1,
+            )
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
         # DDR2 SDRAM -------------------------------------------------------------------------------
