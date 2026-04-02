@@ -31,6 +31,11 @@ from litex.soc.cores.usb_ohci import USBOHCI
 # --cpu-type=vexiiriscv --cpu-variant=debian --update-repo=no --with-jtag-tap --with-sdcard --with-coherent-dma --with-ohci --vexii-video "name=video"
 # --vexii-args="--fetch-l1-hardware-prefetch=nl --fetch-l1-refill-count=2 --fetch-l1-mem-data-width-min=128 --lsu-l1-mem-data-width-min=128 --lsu-software-prefetch --lsu-hardware-prefetch rpt --performance-counters 9 --lsu-l1-store-buffer-ops=32 --lsu-l1-refill-count 4 --lsu-l1-writeback-count 4 --lsu-l1-store-buffer-slots=4 --relaxed-div"
 # --l2-bytes=524288 --sys-clk-freq 100000000 --cpu-clk-freq 200000000 --with-cpu-clk --bus-standard axi-lite --cpu-count=4 --build
+#
+# PTP quick test:
+#   ./litex_boards/targets/efinix_ti375_c529_dev_kit.py --build --load --with-ptp --eth-phy sfp0 --eth-ip 192.168.1.50
+#   Run ptp4l on the host as a UDPv4 two-step master.
+#   /home/florent/dev/litex/liteeth/bench/test_ptp.py --count 100 [--debug]
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -239,13 +244,19 @@ class BaseSoC(SoCCore):
             spi_flash_rate = "1:1",
             with_ethernet  = False,
             with_etherbone = False,
+            with_ptp       = False,
             eth_phy        = "rgmii",
             eth_ip         = "192.168.1.50",
             remote_ip      = None,
             eth_dynamic_ip = False,
+            ptp_p2p        = False,
+            ptp_debug      = False,
             with_ohci      = False,
             **kwargs):
         platform = efinix_ti375_c529_dev_kit.Platform()
+
+        # PTP reuses the Etherbone UDP/IP core.
+        with_etherbone = with_etherbone or with_ptp
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq)
@@ -365,12 +376,42 @@ class BaseSoC(SoCCore):
                 self.ethphy.crg.cd_eth_tx.clk,
             )
             if with_etherbone:
+                ptp_igmp_groups = None
+                if with_ptp:
+                    ptp_igmp_groups = [0xE0000181, 0xE0000182] # 224.0.1.129, 224.0.1.130.
+                    if ptp_p2p:
+                        ptp_igmp_groups.append(0xE000006B)     # 224.0.0.107.
                 self.add_etherbone(
                     phy                     = self.ethphy,
                     ip_address              = eth_ip,
                     with_timing_constraints = False,
-                    with_ethmac            =  with_ethernet,
+                    with_ethmac             = with_ethernet,
+                    with_igmp               = with_ptp,
+                    igmp_groups             = ptp_igmp_groups,
+                    igmp_interval           = 2,
                 )
+
+                if with_ptp:
+                    from liteeth.core.ptp import LiteEthPTP, PTP_EVENT_PORT, PTP_GENERAL_PORT
+
+                    udp = self.ethcore_etherbone.udp
+
+                    # PTP event / general ports (CDC from etherbone to ethcore clock domain).
+                    self.ptp_event_port   = udp.crossbar.get_port(PTP_EVENT_PORT,   dw=8, cd="etherbone")
+                    self.ptp_general_port = udp.crossbar.get_port(PTP_GENERAL_PORT, dw=8, cd="etherbone")
+
+                    # PTP core (runs in Etherbone clock domain, synchronous to sys).
+                    self.ptp = ClockDomainsRenamer("etherbone")(LiteEthPTP(
+                        self.ptp_event_port,
+                        self.ptp_general_port,
+                        sys_clk_freq,
+                        monitor_debug = ptp_debug,
+                    ))
+
+                    self.comb += [
+                        self.ptp.clock_id.eq((0x10e2d5000001 << 16) | 1),
+                        self.ptp.p2p_mode.eq(1 if ptp_p2p else 0),
+                    ]
             elif with_ethernet:
                 self.add_ethernet(
                     phy                     = self.ethphy,
@@ -597,11 +638,16 @@ def main():
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     parser.add_target_argument("--with-ethernet",  action="store_true",                                          help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",                                          help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-phy",        default="rgmii", type=str, choices=["rgmii", "sfp0", "sfp1"], help="Ethernet PHY.")
+    parser.add_target_argument("--with-ptp",       action="store_true",                                          help="Enable PTP support over Etherbone.")
+    parser.add_target_argument("--eth-phy",        default=None, type=str, choices=["rgmii", "sfp0", "sfp1"], help="Ethernet PHY. Defaults to sfp0 with --with-ptp, else rgmii.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",                                       help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",                                          help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--ptp-p2p",        action="store_true",                                          help="Enable PTP P2P mode.")
+    parser.add_target_argument("--ptp-debug",      action="store_true",                                          help="Enable PTP debug monitor CSRs.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",                                      help="Remote IP address of TFTP server.")
     args = parser.parse_args()
+
+    eth_phy = args.eth_phy if args.eth_phy is not None else ("sfp0" if args.with_ptp else "rgmii")
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
@@ -609,9 +655,12 @@ def main():
         with_ohci      = args.with_ohci,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
-        eth_phy        = args.eth_phy,
+        with_ptp       = args.with_ptp,
+        eth_phy        = eth_phy,
         eth_ip         = args.eth_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
+        ptp_p2p        = args.ptp_p2p,
+        ptp_debug      = args.ptp_debug,
         remote_ip      = args.remote_ip,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
