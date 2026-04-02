@@ -40,13 +40,15 @@ from litex.soc.cores.usb_ohci import USBOHCI
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, cpu_clk_freq):
+    def __init__(self, platform, sys_clk_freq, cpu_clk_freq, with_ptp=False):
         self.rst    = Signal()
         self.cd_sys    = ClockDomain()
         self.cd_usb    = ClockDomain()
         self.cd_video  = ClockDomain()
         self.cd_cpu    = ClockDomain()
         self.cd_rst   = ClockDomain(reset_less=True)
+        if with_ptp:
+            self.cd_sys_eth = ClockDomain()
 
         # # #
 
@@ -74,12 +76,21 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_cpu, cpu_clk_freq)
         pll.create_clkout(self.cd_usb,         60e6, margin=0)
         pll.create_clkout(None,               800e6) # LPDDR4 ctrl
-        pll.create_clkout(self.cd_video,       40e6)
+        if with_ptp:
+            # Reuse the video PLL output for PTP's dedicated clock domain.
+            pll.create_clkout(self.cd_sys_eth, sys_clk_freq)
+        else:
+            pll.create_clkout(self.cd_video,   40e6)
 
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_usb.clk)
         platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_sys.clk)
-        platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_video.clk)
         platform.add_false_path_constraints(self.cd_sys.clk, self.cd_usb.clk)
+        if with_ptp:
+            platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_sys_eth.clk)
+            platform.add_false_path_constraints(self.cd_sys.clk, self.cd_sys_eth.clk)
+            platform.add_false_path_constraints(self.cd_usb.clk, self.cd_sys_eth.clk)
+        else:
+            platform.add_false_path_constraints(self.cd_cpu.clk, self.cd_video.clk)
 
 
 class EfinixLPDDR4(LiteXModule):
@@ -259,10 +270,12 @@ class BaseSoC(SoCCore):
         with_etherbone = with_etherbone or with_ptp
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq, with_ptp=with_ptp)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Efinix Ti375 C529 Dev Kit", **kwargs)
+        if with_ptp and hasattr(self.cpu, "video_clk"):
+            raise ValueError("PTP mode reuses the video PLL output; disable video support when using --with-ptp.")
         if hasattr(self.cpu, "cpu_clk"):
             self.comb += self.cpu.cpu_clk.eq(self.crg.cd_cpu.clk)
 
@@ -381,9 +394,15 @@ class BaseSoC(SoCCore):
                     ptp_igmp_groups = [0xE0000181, 0xE0000182] # 224.0.1.129, 224.0.1.130.
                     if ptp_p2p:
                         ptp_igmp_groups.append(0xE000006B)     # 224.0.0.107.
+                    platform.add_false_path_constraints(
+                        self.crg.cd_sys_eth.clk,
+                        self.ethphy.crg.cd_eth_rx.clk,
+                        self.ethphy.crg.cd_eth_tx.clk,
+                    )
                 self.add_etherbone(
                     phy                     = self.ethphy,
                     ip_address              = eth_ip,
+                    buffer_depth            = 255 if with_ptp else 16,
                     with_timing_constraints = False,
                     with_ethmac             = with_ethernet,
                     with_igmp               = with_ptp,
@@ -396,12 +415,12 @@ class BaseSoC(SoCCore):
 
                     udp = self.ethcore_etherbone.udp
 
-                    # PTP event / general ports (CDC from etherbone to ethcore clock domain).
-                    self.ptp_event_port   = udp.crossbar.get_port(PTP_EVENT_PORT,   dw=8, cd="etherbone")
-                    self.ptp_general_port = udp.crossbar.get_port(PTP_GENERAL_PORT, dw=8, cd="etherbone")
+                    # PTP event / general ports (CDC from sys_eth to ethcore clock domain).
+                    self.ptp_event_port   = udp.crossbar.get_port(PTP_EVENT_PORT,   dw=8, cd="sys_eth")
+                    self.ptp_general_port = udp.crossbar.get_port(PTP_GENERAL_PORT, dw=8, cd="sys_eth")
 
-                    # PTP core (runs in Etherbone clock domain, synchronous to sys).
-                    self.ptp = ClockDomainsRenamer("etherbone")(LiteEthPTP(
+                    # PTP core (runs in sys_eth clock domain).
+                    self.ptp = ClockDomainsRenamer("sys_eth")(LiteEthPTP(
                         self.ptp_event_port,
                         self.ptp_general_port,
                         sys_clk_freq,
