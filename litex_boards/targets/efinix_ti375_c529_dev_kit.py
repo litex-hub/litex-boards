@@ -639,7 +639,7 @@ def main():
     parser.add_target_argument("--with-ethernet",  action="store_true",                                          help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",                                          help="Enable Etherbone support.")
     parser.add_target_argument("--with-ptp",       action="store_true",                                          help="Enable PTP support over Etherbone.")
-    parser.add_target_argument("--eth-phy",        default=None, type=str, choices=["rgmii", "sfp0", "sfp1"], help="Ethernet PHY. Defaults to sfp0 with --with-ptp, else rgmii.")
+    parser.add_target_argument("--eth-phy",        default=None, type=str, choices=["rgmii", "sfp0", "sfp1"], help="Ethernet PHY. Defaults to rgmii unless explicitly specified.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",                                       help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",                                          help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--ptp-p2p",        action="store_true",                                          help="Enable PTP P2P mode.")
@@ -647,7 +647,7 @@ def main():
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",                                      help="Remote IP address of TFTP server.")
     args = parser.parse_args()
 
-    eth_phy = args.eth_phy if args.eth_phy is not None else ("sfp0" if args.with_ptp else "rgmii")
+    eth_phy = args.eth_phy if args.eth_phy is not None else "rgmii"
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
