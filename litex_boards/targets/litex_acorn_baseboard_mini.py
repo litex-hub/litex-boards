@@ -6,6 +6,8 @@
 # Copyright (c) 2021-2024 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+import os
+
 
 from migen import *
 
@@ -31,6 +33,7 @@ from litedram.phy import s7ddrphy
 
 from liteeth.phy.a7_gtp import QPLLSettings, QPLL
 from liteeth.phy.a7_1000basex import A7_1000BASEX
+from liteeth.core.ptp import LiteEthPTP, PTP_EVENT_PORT, PTP_GENERAL_PORT
 
 from litesata.phy import LiteSATAPHY
 
@@ -87,9 +90,12 @@ class BaseSoC(SoCCore):
         with_pcie       = False,
         with_ethernet   = False,
         with_etherbone  = False,
+        with_ptp        = False,
         eth_ip          = "192.168.1.50",
         remote_ip       = None,
         eth_dynamic_ip  = False,
+        ptp_p2p         = False,
+        ptp_debug       = False,
         with_led_chaser = True,
         with_sata       = False, sata_gen="gen2",
         **kwargs):
@@ -100,6 +106,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Acorn CLE-101/215(+)", **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
+        with_etherbone = with_etherbone or with_ptp
         with_eth = (with_ethernet or with_etherbone)
         self.crg = CRG(platform, sys_clk_freq,
             with_dram = not self.integrated_main_ram_size,
@@ -197,7 +204,39 @@ class BaseSoC(SoCCore):
             )
 
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+                ptp_igmp_groups = None
+                if with_ptp:
+                    ptp_igmp_groups = [0xE0000181, 0xE0000182] # 224.0.1.129, 224.0.1.130.
+                    if ptp_p2p:
+                        ptp_igmp_groups.append(0xE000006B)     # 224.0.0.107.
+                self.add_etherbone(
+                    phy           = self.ethphy,
+                    ip_address    = eth_ip,
+                    with_ethmac   = with_ethernet,
+                    with_igmp     = with_ptp,
+                    igmp_groups   = ptp_igmp_groups,
+                    igmp_interval = 2,
+                )
+
+                if with_ptp:
+                    udp = self.ethcore_etherbone.udp
+
+                    # PTP event / general ports (CDC from sys_eth to ethcore clock domain).
+                    self.ptp_event_port   = udp.crossbar.get_port(PTP_EVENT_PORT,   dw=8, cd="etherbone")
+                    self.ptp_general_port = udp.crossbar.get_port(PTP_GENERAL_PORT, dw=8, cd="etherbone")
+
+                    # PTP core (runs in Etherbone clock domain, synchronous to sys).
+                    self.ptp = ClockDomainsRenamer("etherbone")(LiteEthPTP(
+                        self.ptp_event_port,
+                        self.ptp_general_port,
+                        sys_clk_freq,
+                        monitor_debug = ptp_debug,
+                    ))
+
+                    self.comb += [
+                        self.ptp.clock_id.eq((0x10e2d5000001 << 16) | 1),
+                        self.ptp.p2p_mode.eq(1 if ptp_p2p else 0),
+                    ]
             elif with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
@@ -240,9 +279,12 @@ def main():
     parser.add_target_argument("--driver",         action="store_true",          help="Generate PCIe driver.")
     parser.add_target_argument("--with-ethernet",  action="store_true",          help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",          help="Enable Etherbone support.")
+    parser.add_target_argument("--with-ptp",       action="store_true",          help="Enable PTP support over Etherbone.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",       help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",      help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",          help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--ptp-p2p",        action="store_true",          help="Enable PTP P2P mode.")
+    parser.add_target_argument("--ptp-debug",      action="store_true",          help="Enable PTP debug monitor CSRs.")
     parser.add_target_argument("--with-sata",      action="store_true",          help="Enable SATA support (over FMCRAID).")
     parser.add_target_argument("--sata-gen",       default="2",                  choices=["1", "2"],
         help="SATA Gen.")
@@ -254,9 +296,12 @@ def main():
         with_pcie      = args.with_pcie,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
+        with_ptp       = args.with_ptp,
         eth_ip         = args.eth_ip,
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
+        ptp_p2p        = args.ptp_p2p,
+        ptp_debug      = args.ptp_debug,
         with_sata      = args.with_sata,
         sata_gen       = "gen" + args.sata_gen,
         **parser.soc_argdict
