@@ -190,12 +190,13 @@ def add_async_ram(soc, platform, name, origin, size):
 
 class USB(LiteXModule):
 
-    def __init__(self, platform, usb_options):
+    def __init__(self, soc, platform, usb_options):
         # Power Delivery Control -------------------------------------------------------------------
         if 'pd' in usb_options:
             self.pd = pd = platform.request("pd")
             self.comb += pd.en_n.eq(ResetSignal())
             self.comb += [pd.src_en.eq(0), pd.disc.eq(0)] # disable Source and Discharge
+            soc.add_i2c_master(name="i2c", pads=pd, with_irq=True)
 
         # USB 1.1 transceiver ----------------------------------------------------------------------
         if '1' in usb_options:
@@ -255,9 +256,8 @@ class BaseSoC(SoCCore):
 
         # USB --------------------------------------------------------------------------------------
         if len(usb_options) > 0:
-            usb = USB(platform, usb_options)
+            usb = USB(self, platform, usb_options)
             setattr(self.submodules, "usb", usb)
-            self.add_i2c_master(name="i2c", pads=usb.pd, with_irq=True)
 
 # Build --------------------------------------------------------------------------------------------
 
