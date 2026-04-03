@@ -91,7 +91,11 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ECPIX-5", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq,
+            uart_pads = {True: platform.request("ulpi"), False: None}[kwargs["uart_name"] == "usb_acm"],
+            ident     = "LiteX SoC on ECPIX-5",
+            **kwargs
+        )
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
