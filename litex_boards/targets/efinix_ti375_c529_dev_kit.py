@@ -397,8 +397,8 @@ class BaseSoC(SoCCore):
                     udp = self.ethcore_etherbone.udp
 
                     # PTP event / general ports (CDC from etherbone to ethcore clock domain).
-                    self.ptp_event_port   = udp.crossbar.get_port(PTP_EVENT_PORT,   dw=8, cd="etherbone")
-                    self.ptp_general_port = udp.crossbar.get_port(PTP_GENERAL_PORT, dw=8, cd="etherbone")
+                    self.ptp_event_port   = udp.crossbar.get_port(PTP_EVENT_PORT,   dw=8, cd="etherbone", depth=8)
+                    self.ptp_general_port = udp.crossbar.get_port(PTP_GENERAL_PORT, dw=8, cd="etherbone", depth=8)
 
                     # PTP core (runs in Etherbone clock domain, synchronous to sys).
                     self.ptp = ClockDomainsRenamer("etherbone")(LiteEthPTP(
