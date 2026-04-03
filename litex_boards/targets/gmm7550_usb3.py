@@ -264,7 +264,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=gmm7550.Platform, description="LiteX SoC on GMM-7550 and USB 3 Adapter")
-    parser.add_target_argument("--sys-clk-freq",   default=25e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",   default=20e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash")
     parser.add_target_argument("--with-async-ram", action="store_true", help="Enable Asynchronous SRAM")
     parser.add_target_argument("--usb", nargs='+', dest="usb_options", default=[], help="Enable USB functions: TBD")
