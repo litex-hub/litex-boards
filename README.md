@@ -270,6 +270,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── sqrl_acorn
     ├── sqrl_fk33
     ├── sqrl_xcu1525
+    ├── terasic_atum_a3_nano
     ├── terasic_de0nano
     ├── terasic_de10lite
     ├── terasic_de10nano
