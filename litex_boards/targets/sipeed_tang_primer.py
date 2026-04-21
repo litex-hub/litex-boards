@@ -80,7 +80,7 @@ def main():
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="flash", ext=".bin")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="flash", ext=".bit")) # FIXME
 
 if __name__ == "__main__":
     main()
