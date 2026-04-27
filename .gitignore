@@ -100,3 +100,10 @@ litex_boards/targets/libeos/
 
 # ip files used during build
 litex_boards/targets/ip/
+
+# Simulation waveform dumps
+*.vcd
+
+# CSR map / build leftovers under litex_boards/targets/
+litex_boards/targets/csr.csv
+litex_boards/targets/build-*/
