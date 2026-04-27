@@ -208,7 +208,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=alientek_davincipro.Platform, decription="LiteX SoC on Alientek Davinci Pro.")
+    parser = LiteXArgumentParser(platform=alientek_davincipro.Platform, description="LiteX SoC on Alientek Davinci Pro.")
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="a7-35",           help="Board variant (a7-35 or a7-100).")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
