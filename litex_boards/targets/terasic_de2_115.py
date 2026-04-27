@@ -80,15 +80,6 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
-        # Add debug interface if the CPU has one ---------------------------------------------------
-        if hasattr(self.cpu, "debug_bus"):
-            self.register_mem(
-                name      = "vexriscv_debug",
-                address   = 0xF00F0000,
-                interface = self.cpu.debug_bus,
-                size      = 0x100,
-            )
-
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
