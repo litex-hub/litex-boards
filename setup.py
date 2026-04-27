@@ -20,7 +20,7 @@ setup(
     download_url                  = "https://github.com/litex-hub/litex-boards",
     test_suite                    = "test",
     license                       = "BSD",
-    python_requires               = "~=3.7",
+    python_requires               = ">=3.9",
     install_requires              = ["litex"],
     include_package_data          = True,
     keywords                      = "HDL ASIC FPGA hardware design",
@@ -34,4 +34,5 @@ setup(
         "Programming Language :: Python",
     ],
     packages                      = find_packages(exclude=['test*']),
+    package_data                  = {"litex_boards": ["prog/*.cfg"]},
 )
