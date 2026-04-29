@@ -29,8 +29,8 @@ _io = [
     ("user_led", 3, Pins("AF2"), IOStandard("3.3-V LVCMOS")),
 
     # Switches.
-    ("user_sw", 0, Pins("A19"), IOStandard("1.2-V LVCMOS")),
-    ("user_sw", 1, Pins("B24"), IOStandard("1.2-V LVCMOS")),
+    ("user_sw", 0, Pins("A19"), IOStandard("1.2-V")),
+    ("user_sw", 1, Pins("B24"), IOStandard("1.2-V")),
 
     # Serial.
     ("serial", 0,
