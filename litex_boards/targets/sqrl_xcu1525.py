@@ -31,11 +31,55 @@ from litepcie.software import generate_litepcie_software
 
 QSFP_PORTS = tuple(f"qsfp{qsfp}_sfp{sfp}" for qsfp in range(2) for sfp in range(4))
 
+DDRAM_CHANNELS     = tuple(range(4))
+DDRAM_CHANNEL_SIZE = 0x40000000
+DDRAM_ORIGINS      = {
+    0: 0x40000000,
+    1: 0x80000000,
+    2: 0xc0000000,
+    3: 0x1_0000_0000,
+}
+
 def parse_qsfp_port(port):
     if port not in QSFP_PORTS:
         raise ValueError("QSFP port must be one of: " + ", ".join(QSFP_PORTS))
     qsfp, sfp = port.replace("qsfp", "").split("_sfp")
     return int(qsfp), int(sfp)
+
+def parse_ddram_channels(channels):
+    if isinstance(channels, int):
+        parsed_channels = [channels]
+    elif isinstance(channels, str):
+        channels = channels.strip().lower()
+        if channels == "all":
+            parsed_channels = list(DDRAM_CHANNELS)
+        else:
+            parsed_channels = []
+            for item in channels.split(","):
+                item = item.strip()
+                if not item:
+                    raise ValueError("empty DDRAM channel entry")
+                if "-" in item:
+                    start, end = [int(v, 0) for v in item.split("-", 1)]
+                    if end < start:
+                        raise ValueError("DDRAM channel ranges must be increasing")
+                    parsed_channels.extend(range(start, end + 1))
+                else:
+                    parsed_channels.append(int(item, 0))
+    else:
+        parsed_channels = list(channels)
+
+    if not parsed_channels:
+        raise ValueError("at least one DDRAM channel must be selected")
+    if len(parsed_channels) != len(set(parsed_channels)):
+        raise ValueError("DDRAM channels must be unique")
+    for channel in parsed_channels:
+        if channel not in DDRAM_CHANNELS:
+            raise ValueError("DDRAM channel must be 0, 1, 2 or 3")
+    return tuple(parsed_channels)
+
+def ddram_window_end(origins):
+    return max(origin + DDRAM_CHANNEL_SIZE for origin in origins.values())
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -74,6 +118,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6, ddram_channel=0,
+        ddram_channels        = None,
         with_led_chaser       = True,
         with_pcie             = False,
         pcie_lanes            = 4,
@@ -92,31 +137,60 @@ class BaseSoC(SoCCore):
         etherbone_ip          = "192.168.1.50",
         **kwargs):
         platform = sqrl_xcu1525.Platform()
-        if ddram_channel not in range(4):
-            raise ValueError("DDRAM channel must be 0, 1, 2 or 3")
+        if ddram_channels is None:
+            ddram_channels = (ddram_channel,)
+        ddram_channels = parse_ddram_channels(ddram_channels)
+        ddram_main_channel = 0 if 0 in ddram_channels else ddram_channels[0]
+        ddram_origins = {
+            channel: (DDRAM_ORIGINS[channel] if channel != ddram_main_channel else self.mem_map["main_ram"])
+            for channel in ddram_channels
+        }
+        ddram_end = ddram_window_end(ddram_origins)
+        if ddram_end > 2**kwargs.get("bus_address_width", 32):
+            kwargs["bus_address_width"] = 64
+        if with_pcie and ddram_end > 2**pcie_address_width:
+            pcie_address_width = 64
         if with_ethernet and with_etherbone and ethernet_port == etherbone_port:
             raise ValueError("Ethernet and Etherbone QSFP ports must be different")
 
         # CRG --------------------------------------------------------------------------------------
         with_qsfp = with_ethernet or with_etherbone
-        self.crg = _CRG(platform, sys_clk_freq, ddram_channel, with_qsfp=with_qsfp)
+        self.crg = _CRG(platform, sys_clk_freq, ddram_main_channel, with_qsfp=with_qsfp)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on XCU1525", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            self.ddrphy = usddrphy.USPDDRPHY(
-                pads             = platform.request("ddram", ddram_channel),
-                memtype          = "DDR4",
-                sys_clk_freq     = sys_clk_freq,
-                iodelay_clk_freq = 500e6)
-            self.add_sdram("sdram",
-                phy           = self.ddrphy,
-                module        = MT40A512M8(sys_clk_freq, "1:4"),
-                size          = 0x40000000,
-                l2_cache_size = kwargs.get("l2_size", 8192)
-            )
+            self.ddrphys = {}
+            for channel in ddram_channels:
+                phy_name = f"ddrphy{channel}"
+                phy = usddrphy.USPDDRPHY(
+                    pads             = platform.request("ddram", channel),
+                    memtype          = "DDR4",
+                    sys_clk_freq     = sys_clk_freq,
+                    iodelay_clk_freq = 500e6)
+                setattr(self, phy_name, phy)
+                self.ddrphys[channel] = phy
+
+                is_main    = channel == ddram_main_channel
+                sdram_name = "sdram" if is_main else f"sdram{channel}"
+                origin     = ddram_origins[channel]
+                self.add_sdram(sdram_name,
+                    phy           = phy,
+                    module        = MT40A512M8(sys_clk_freq, "1:4"),
+                    origin        = origin,
+                    size          = DDRAM_CHANNEL_SIZE,
+                    region_name   = None if is_main else f"ddram{channel}",
+                    main_ram      = is_main,
+                    channel       = channel,
+                    phy_name      = phy_name,
+                    ddrctrl_name  = f"ddrctrl{channel}",
+                    cached        = not (0x8000_0000 <= origin < 0x1_0000_0000),
+                    l2_cache_size = kwargs.get("l2_size", 8192)
+                )
+            self.add_constant("DDRAM_CHANNELS", len(ddram_channels))
+            self.add_constant("DDRAM_MAIN_CHANNEL", ddram_main_channel)
             # Workadound for Vivado 2018.2 DRC, can be ignored and probably fixed on newer Vivado versions.
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks PDCN-2736]")
 
@@ -222,7 +296,8 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sqrl_xcu1525.Platform, description="LiteX SoC on XCU1525.")
     parser.add_target_argument("--sys-clk-freq",  default=125e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--ddram-channel", default=0, type=lambda x: int(x, 0), choices=range(4), help="DDRAM channel (0, 1, 2 or 3).")
+    parser.add_target_argument("--ddram-channel",  default=0, type=lambda x: int(x, 0), choices=range(4), help="Legacy single DDRAM channel selector.")
+    parser.add_target_argument("--ddram-channels", default=None, help="DDRAM channels to map (comma/range list or all).")
     parser.add_target_argument("--with-pcie",     action="store_true",        help="Enable PCIe support.")
     parser.add_target_argument("--pcie-lanes",    default=4, type=int,        choices=[2, 4, 8, 16], help="PCIe lane count.")
     parser.add_target_argument("--pcie-ndmas",    default=1, type=int,        help="Number of PCIe DMA channels.")
@@ -253,10 +328,14 @@ def main():
         ]:
             if port == "qsfp0_sfp0":
                 parser.error(f"{feature} on qsfp0_sfp0 conflicts with SATA.")
+    try:
+        ddram_channels = parse_ddram_channels(args.ddram_channels if args.ddram_channels is not None else args.ddram_channel)
+    except ValueError as e:
+        parser.error(str(e))
 
     soc = BaseSoC(
         sys_clk_freq          = args.sys_clk_freq,
-        ddram_channel         = args.ddram_channel,
+        ddram_channels        = ddram_channels,
         with_pcie             = args.with_pcie,
         pcie_lanes            = args.pcie_lanes,
         pcie_ndmas            = args.pcie_ndmas,
