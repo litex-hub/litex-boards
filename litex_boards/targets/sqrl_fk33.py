@@ -153,7 +153,7 @@ def main():
     parser.add_target_argument("--pcie-address-width", default=32, type=int, choices=[32, 64], help="PCIe address width.")
     parser.add_target_argument("--pcie-with-dma-status",  action="store_true", help="Enable PCIe DMA status CSRs.")
     parser.add_target_argument("--pcie-with-dma-monitor", action="store_true", help="Enable PCIe DMA monitor CSRs.")
-    parser.add_target_argument("--with-hbm",     action="store_true",       help="Use HBM2.")
+    parser.add_target_argument("--with-hbm",              action="store_true", help="Use HBM2.")
     parser.add_target_argument("--hbm-channels", default="0,1,2,3",         help="HBM channels to map (comma/range list or all).")
     parser.add_target_argument("--hbm-main-channel", default=0, type=int,   help="Mapped HBM channel used as main RAM.")
     parser.add_target_argument("--hbm-base",       default=USPHBM2_DEFAULT_BASE,

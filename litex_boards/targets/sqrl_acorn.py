@@ -192,7 +192,8 @@ def main():
     parser.add_target_argument("--pcie-address-width", default=64, type=int, choices=[32, 64], help="PCIe address width.")
     parser.add_target_argument("--pcie-with-dma-status",  action="store_true", help="Enable PCIe DMA status CSRs.")
     parser.add_target_argument("--pcie-with-dma-monitor", action="store_true", help="Enable PCIe DMA monitor CSRs.")
-    parser.add_target_argument("--driver",          action="store_true", help="Generate PCIe driver.")
+    parser.add_target_argument("--driver",                action="store_true", help="Generate PCIe driver.")
+
     parser.add_target_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2).")
     pcieopts.add_argument("--with-sata",            action="store_true", help="Enable SATA support (over PCIe2SATA).")
     args = parser.parse_args()

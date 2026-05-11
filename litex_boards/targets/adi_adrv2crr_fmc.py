@@ -142,9 +142,9 @@ def main():
     parser.add_target_argument("--pcie-lanes",   default=8, type=int,        choices=[4, 8], help="PCIe lane count.")
     parser.add_target_argument("--pcie-ndmas",   default=1, type=int,        help="Number of PCIe DMA channels.")
     parser.add_target_argument("--pcie-address-width", default=32, type=int, choices=[32, 64], help="PCIe address width.")
-    parser.add_target_argument("--pcie-with-dma-status",  action="store_true", help="Enable PCIe DMA status CSRs.")
-    parser.add_target_argument("--pcie-with-dma-monitor", action="store_true", help="Enable PCIe DMA monitor CSRs.")
-    parser.add_target_argument("--driver",       action="store_true",        help="Generate PCIe driver.")
+    parser.add_target_argument("--pcie-with-dma-status",  action="store_true",        help="Enable PCIe DMA status CSRs.")
+    parser.add_target_argument("--pcie-with-dma-monitor", action="store_true",        help="Enable PCIe DMA monitor CSRs.")
+    parser.add_target_argument("--driver",                action="store_true",        help="Generate PCIe driver.")
     args = parser.parse_args()
     if args.pcie_ndmas < 0:
         parser.error("--pcie-ndmas must be >= 0")
