@@ -78,6 +78,10 @@ class BaseSoC(SoCCore):
     def __init__(self, variant="cle-215+", sys_clk_freq=100e6,
         with_led_chaser = True,
         with_pcie       = False,
+        pcie_ndmas      = 1,
+        pcie_address_width = 64,
+        with_pcie_dma_status  = False,
+        with_pcie_dma_monitor = False,
         with_sata       = False,
         **kwargs):
         platform = sqrl_acorn.Platform(variant=variant)
@@ -114,7 +118,12 @@ class BaseSoC(SoCCore):
             self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
                 data_width = 128,
                 bar0_size  = 0x20000)
-            self.add_pcie(phy=self.pcie_phy, ndmas=1, address_width=64)
+            self.add_pcie(
+                phy              = self.pcie_phy,
+                ndmas            = pcie_ndmas,
+                address_width    = pcie_address_width,
+                with_dma_status  = with_pcie_dma_status,
+                with_dma_monitor = with_pcie_dma_monitor)
             platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
 
             # ICAP (For FPGA reload over PCIe).
@@ -179,16 +188,26 @@ def main():
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     pcieopts = parser.target_group.add_mutually_exclusive_group()
     pcieopts.add_argument("--with-pcie",            action="store_true", help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-ndmas",      default=1, type=int, help="Number of PCIe DMA channels.")
+    parser.add_target_argument("--pcie-address-width", default=64, type=int, choices=[32, 64], help="PCIe address width.")
+    parser.add_target_argument("--pcie-with-dma-status",  action="store_true", help="Enable PCIe DMA status CSRs.")
+    parser.add_target_argument("--pcie-with-dma-monitor", action="store_true", help="Enable PCIe DMA monitor CSRs.")
     parser.add_target_argument("--driver",          action="store_true", help="Generate PCIe driver.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support (requires SDCard adapter on P2).")
     pcieopts.add_argument("--with-sata",            action="store_true", help="Enable SATA support (over PCIe2SATA).")
     args = parser.parse_args()
+    if args.pcie_ndmas < 0:
+        parser.error("--pcie-ndmas must be >= 0")
 
     soc = BaseSoC(
-        variant      = args.variant,
-        sys_clk_freq = args.sys_clk_freq,
-        with_pcie    = args.with_pcie,
-        with_sata    = args.with_sata,
+        variant               = args.variant,
+        sys_clk_freq          = args.sys_clk_freq,
+        with_pcie             = args.with_pcie,
+        pcie_ndmas            = args.pcie_ndmas,
+        pcie_address_width    = args.pcie_address_width,
+        with_pcie_dma_status  = args.pcie_with_dma_status,
+        with_pcie_dma_monitor = args.pcie_with_dma_monitor,
+        with_sata             = args.with_sata,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:
