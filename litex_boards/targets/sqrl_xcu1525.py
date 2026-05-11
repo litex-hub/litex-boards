@@ -15,6 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import sqrl_xcu1525
 
 from litex.soc.cores.clock import *
+from litex.soc.integration.soc import SoCIORegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -39,6 +40,8 @@ DDRAM_ORIGINS      = {
     2: 0xc0000000,
     3: 0x1_0000_0000,
 }
+DDRAM_CSR_ORIGIN   = 0x20000000
+DDRAM_DEBUG_ORIGIN = 0x20010000
 
 def parse_qsfp_port(port):
     if port not in QSFP_PORTS:
@@ -80,6 +83,14 @@ def parse_ddram_channels(channels):
 
 def ddram_window_end(origins):
     return max(origin + DDRAM_CHANNEL_SIZE for origin in origins.values())
+
+def ddram_windows_overlap(origins, origin, size):
+    if origin is None:
+        return False
+    return any(
+        (origin < ddram_origin + DDRAM_CHANNEL_SIZE) and (origin + size > ddram_origin)
+        for ddram_origin in origins.values()
+    )
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -159,6 +170,15 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on XCU1525", **kwargs)
+        relocated_io = False
+        if ddram_windows_overlap(ddram_origins, self.mem_map.get("csr"), 2**(self.csr.address_width + 2)):
+            self.mem_map["csr"] = DDRAM_CSR_ORIGIN
+            relocated_io = True
+        if ddram_windows_overlap(ddram_origins, self.mem_map.get("vexriscv_debug"), 0x100):
+            self.mem_map["vexriscv_debug"] = DDRAM_DEBUG_ORIGIN
+            relocated_io = True
+        if relocated_io:
+            self.bus.add_region("csr_io", SoCIORegion(origin=DDRAM_CSR_ORIGIN, size=0x20000))
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
