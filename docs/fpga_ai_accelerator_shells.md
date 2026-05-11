@@ -56,6 +56,9 @@ default base, channels 4 and above are placed at `--hbm-high-base` to avoid the
 target promotes the bus to 64-bit. PCIe/HBM targets also promote the PCIe DMA
 address width when needed. When a mapping would exceed the HBM AXI address
 width, local channel addressing is enabled automatically.
+The HBM pseudochannel parser and SoC bus mapping helper live with LiteX's
+`USPHBM2` core; board targets only select channels, bases and board-specific
+XCI sources.
 
 For AI kernels, prefer connecting performance-critical datapaths directly to
 the selected HBM AXI interfaces instead of routing tensor traffic through CSR

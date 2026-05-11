@@ -18,27 +18,29 @@ from migen import *
 from litex.gen import *
 
 from litex_boards.platforms import sqrl_fk33
-from litex_boards.utils.accelerator import (
-    HBM_CHANNEL_SIZE,
-    HBM_DEFAULT_BASE,
-    HBM_HIGH_BASE,
-    HBM_NCHANNELS,
-    add_hbm_pseudochannels,
-    ensure_hbm_xci,
-    hbm_channel_origin,
-    hbm_channel_origins,
-    hbm_window_end,
-    parse_hbm_channels,
-)
-
 from litex.soc.cores.clock import *
+from litex.soc.cores.ram.xilinx_usp_hbm2 import (
+    USPHBM2,
+    USPHBM2_DEFAULT_BASE,
+    USPHBM2_HIGH_BASE,
+    add_usphbm2_pseudochannels,
+    parse_usphbm2_channels,
+    usphbm2_channel_origins,
+    usphbm2_window_end,
+)
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.ram.xilinx_usp_hbm2 import USPHBM2
 from litex.soc.cores.led import LedChaser
 
 from litepcie.phy.usppciephy import USPHBMPCIEPHY
 from litepcie.software import generate_litepcie_software
+
+# HBM XCI ------------------------------------------------------------------------------------------
+
+def ensure_hbm_xci(url, hbm_xci=os.path.join("ip", "hbm", "hbm_0.xci")):
+    if not os.path.exists(hbm_xci):
+        os.makedirs(os.path.dirname(hbm_xci), exist_ok=True)
+        os.system(f"wget -O {hbm_xci} {url}")
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -66,28 +68,28 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6,
-        with_led_chaser = True,
-        with_pcie       = False,
-        pcie_lanes      = 4,
-        pcie_ndmas      = 1,
-        pcie_address_width = 32,
+        with_led_chaser       = True,
+        with_pcie             = False,
+        pcie_lanes            = 4,
+        pcie_ndmas            = 1,
+        pcie_address_width    = 32,
         with_pcie_dma_status  = False,
         with_pcie_dma_monitor = False,
-        with_hbm        = False,
-        hbm_channels    = (0, 1, 2, 3),
-        hbm_main_channel= 0,
-        hbm_base        = HBM_DEFAULT_BASE,
-        hbm_high_base   = HBM_HIGH_BASE,
-        hbm_strip_origin= False,
+        with_hbm              = False,
+        hbm_channels          = (0, 1, 2, 3),
+        hbm_main_channel      = 0,
+        hbm_base              = USPHBM2_DEFAULT_BASE,
+        hbm_high_base         = USPHBM2_HIGH_BASE,
+        hbm_strip_origin      = False,
         **kwargs):
         platform = sqrl_fk33.Platform()
         if with_hbm:
             assert 225e6 <= sys_clk_freq <= 450e6
-            hbm_channels = parse_hbm_channels(hbm_channels)
+            hbm_channels = parse_usphbm2_channels(hbm_channels)
             if hbm_main_channel not in hbm_channels:
                 raise ValueError("HBM main channel must be one of the mapped HBM channels")
-            hbm_origins = hbm_channel_origins(hbm_channels, hbm_base, hbm_high_base)
-            hbm_end = hbm_window_end(hbm_origins)
+            hbm_origins = usphbm2_channel_origins(hbm_channels, hbm_base, hbm_high_base)
+            hbm_end = usphbm2_window_end(hbm_origins)
             if hbm_end > 2**kwargs.get("bus_address_width", 32):
                 kwargs["bus_address_width"] = 64
             if hbm_end > 2**pcie_address_width:
@@ -111,7 +113,7 @@ class BaseSoC(SoCCore):
             self.hbm = hbm = ClockDomainsRenamer({"axi": "sys"})(USPHBM2(platform))
 
             ensure_hbm_xci("https://github.com/litex-hub/litex-boards/files/8178874/hbm_0.xci.txt")
-            add_hbm_pseudochannels(
+            add_usphbm2_pseudochannels(
                 soc              = self,
                 hbm              = hbm,
                 channels         = hbm_channels,
@@ -154,15 +156,17 @@ def main():
     parser.add_target_argument("--with-hbm",     action="store_true",       help="Use HBM2.")
     parser.add_target_argument("--hbm-channels", default="0,1,2,3",         help="HBM channels to map (comma/range list or all).")
     parser.add_target_argument("--hbm-main-channel", default=0, type=int,   help="Mapped HBM channel used as main RAM.")
-    parser.add_target_argument("--hbm-base",     default=HBM_DEFAULT_BASE, type=lambda x: int(x, 0), help="HBM bus base address.")
-    parser.add_target_argument("--hbm-high-base", default=HBM_HIGH_BASE, type=lambda x: int(x, 0), help="HBM bus base for channels above the low 32-bit cached window.")
+    parser.add_target_argument("--hbm-base",       default=USPHBM2_DEFAULT_BASE,
+        type=lambda x: int(x, 0), help="HBM bus base address.")
+    parser.add_target_argument("--hbm-high-base",  default=USPHBM2_HIGH_BASE,
+        type=lambda x: int(x, 0), help="HBM bus base for channels above the low 32-bit cached window.")
     parser.add_target_argument("--hbm-strip-origin", action="store_true",   help="Expose each mapped HBM channel with local AXI addresses.")
     parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
     args = parser.parse_args()
     if args.pcie_ndmas < 0:
         parser.error("--pcie-ndmas must be >= 0")
     try:
-        hbm_channels = parse_hbm_channels(args.hbm_channels)
+        hbm_channels = parse_usphbm2_channels(args.hbm_channels)
     except ValueError as e:
         parser.error(str(e))
 

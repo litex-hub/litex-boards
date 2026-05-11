@@ -61,10 +61,10 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6, with_led_chaser=True,
-        with_pcie       = False,
-        pcie_lanes      = 4,
-        pcie_ndmas      = 1,
-        pcie_address_width = 32,
+        with_pcie             = False,
+        pcie_lanes            = 4,
+        pcie_ndmas            = 1,
+        pcie_address_width    = 32,
         with_pcie_dma_status  = False,
         with_pcie_dma_monitor = False,
         **kwargs):

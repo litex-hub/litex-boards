@@ -76,13 +76,13 @@ class CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, variant="cle-215+", sys_clk_freq=100e6,
-        with_led_chaser = True,
-        with_pcie       = False,
-        pcie_ndmas      = 1,
-        pcie_address_width = 64,
+        with_led_chaser       = True,
+        with_pcie             = False,
+        pcie_ndmas            = 1,
+        pcie_address_width    = 64,
         with_pcie_dma_status  = False,
         with_pcie_dma_monitor = False,
-        with_sata       = False,
+        with_sata             = False,
         **kwargs):
         platform = sqrl_acorn.Platform(variant=variant)
 
