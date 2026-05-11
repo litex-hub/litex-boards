@@ -65,8 +65,14 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_pcie       = False,
         pcie_lanes      = 8,
+        pcie_ndmas      = 1,
+        pcie_address_width = 32,
+        with_pcie_dma_status  = False,
+        with_pcie_dma_monitor = False,
         **kwargs):
         platform = adi_adrv2crr_fmc.Platform()
+        if ddram_channel not in range(2):
+            raise ValueError("DDRAM channel must be 0 or 1")
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = CRG(platform, sys_clk_freq, ddram_channel)
@@ -98,7 +104,12 @@ class BaseSoC(SoCCore):
                 speed = "gen3",
                 data_width = {4: 128, 8: 256}[pcie_lanes],
                 bar0_size  = 0x20000)
-            self.add_pcie(phy=self.pcie_phy, ndmas=1)
+            self.add_pcie(
+                phy              = self.pcie_phy,
+                ndmas            = pcie_ndmas,
+                address_width    = pcie_address_width,
+                with_dma_status  = with_pcie_dma_status,
+                with_dma_monitor = with_pcie_dma_monitor)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -126,15 +137,27 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=adi_adrv2crr_fmc.Platform, description="LiteX SoC on ADI ADRV2CRR-FMC.")
     parser.add_target_argument("--sys-clk-freq", default=150e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--ddram-channel", default=0, type=lambda x: int(x, 0), choices=range(2), help="DDRAM channel (0 or 1).")
     parser.add_target_argument("--with-pcie",    action="store_true",        help="Enable PCIe support.")
     parser.add_target_argument("--pcie-lanes",   default=8, type=int,        choices=[4, 8], help="PCIe lane count.")
+    parser.add_target_argument("--pcie-ndmas",   default=1, type=int,        help="Number of PCIe DMA channels.")
+    parser.add_target_argument("--pcie-address-width", default=32, type=int, choices=[32, 64], help="PCIe address width.")
+    parser.add_target_argument("--pcie-with-dma-status",  action="store_true", help="Enable PCIe DMA status CSRs.")
+    parser.add_target_argument("--pcie-with-dma-monitor", action="store_true", help="Enable PCIe DMA monitor CSRs.")
     parser.add_target_argument("--driver",       action="store_true",        help="Generate PCIe driver.")
     args = parser.parse_args()
+    if args.pcie_ndmas < 0:
+        parser.error("--pcie-ndmas must be >= 0")
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        with_pcie    = args.with_pcie,
-        pcie_lanes   = args.pcie_lanes,
+        sys_clk_freq          = args.sys_clk_freq,
+        ddram_channel         = args.ddram_channel,
+        with_pcie             = args.with_pcie,
+        pcie_lanes            = args.pcie_lanes,
+        pcie_ndmas            = args.pcie_ndmas,
+        pcie_address_width    = args.pcie_address_width,
+        with_pcie_dma_status  = args.pcie_with_dma_status,
+        with_pcie_dma_monitor = args.pcie_with_dma_monitor,
         **parser.soc_argdict
     )
 

@@ -1,10 +1,12 @@
 import pytest
 
-from litex_boards.targets.sqrl_fk33 import (
+from litex_boards.utils.accelerator import (
     HBM_HIGH_BASE,
     hbm_channel_origin,
     parse_hbm_channels,
 )
+from litex_boards.targets.alibaba_vu13p import QSFP_PORTS as ALIBABA_QSFP_PORTS
+from litex_boards.targets.alibaba_vu13p import parse_qsfp_port as parse_alibaba_qsfp_port
 from litex_boards.targets.sqrl_xcu1525 import QSFP_PORTS, parse_qsfp_port
 
 
@@ -35,3 +37,14 @@ def test_xcu1525_qsfp_port_parser_covers_all_lanes():
 def test_xcu1525_qsfp_port_parser_rejects_invalid_port():
     with pytest.raises(ValueError):
         parse_qsfp_port("qsfp2_sfp0")
+
+
+def test_alibaba_qsfp_port_parser_uses_sfp_lane_names():
+    assert len(ALIBABA_QSFP_PORTS) == 8
+    assert parse_alibaba_qsfp_port("qsfp0_sfp0") == (0, 0)
+    assert parse_alibaba_qsfp_port("qsfp1_sfp3") == (1, 3)
+
+
+def test_alibaba_qsfp_port_parser_rejects_old_short_names():
+    with pytest.raises(ValueError):
+        parse_alibaba_qsfp_port("qsfp0_0")

@@ -18,98 +18,27 @@ from migen import *
 from litex.gen import *
 
 from litex_boards.platforms import sqrl_fk33
+from litex_boards.utils.accelerator import (
+    HBM_CHANNEL_SIZE,
+    HBM_DEFAULT_BASE,
+    HBM_HIGH_BASE,
+    HBM_NCHANNELS,
+    add_hbm_pseudochannels,
+    ensure_hbm_xci,
+    hbm_channel_origin,
+    hbm_channel_origins,
+    hbm_window_end,
+    parse_hbm_channels,
+)
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.interconnect.axi import *
 from litex.soc.cores.ram.xilinx_usp_hbm2 import USPHBM2
 from litex.soc.cores.led import LedChaser
 
 from litepcie.phy.usppciephy import USPHBMPCIEPHY
 from litepcie.software import generate_litepcie_software
-
-# HBM ----------------------------------------------------------------------------------------------
-
-HBM_NCHANNELS     = 32
-HBM_CHANNEL_SIZE  = 0x1000_0000 # 256MB.
-HBM_DEFAULT_BASE  = 0x4000_0000
-HBM_HIGH_BASE     = 0x1_0000_0000
-
-def parse_hbm_channels(channels):
-    if isinstance(channels, str):
-        channels = channels.strip().lower()
-        if channels == "all":
-            parsed_channels = list(range(HBM_NCHANNELS))
-        else:
-            parsed_channels = []
-            for item in channels.split(","):
-                item = item.strip()
-                if not item:
-                    raise ValueError("empty HBM channel entry")
-                if "-" in item:
-                    start, end = [int(v, 0) for v in item.split("-", 1)]
-                    if end < start:
-                        raise ValueError("HBM channel ranges must be increasing")
-                    parsed_channels.extend(range(start, end + 1))
-                else:
-                    parsed_channels.append(int(item, 0))
-    else:
-        parsed_channels = list(channels)
-
-    if not parsed_channels:
-        raise ValueError("at least one HBM channel must be selected")
-    if len(parsed_channels) != len(set(parsed_channels)):
-        raise ValueError("HBM channels must be unique")
-    for channel in parsed_channels:
-        if not 0 <= channel < HBM_NCHANNELS:
-            raise ValueError(f"HBM channel {channel} outside 0-{HBM_NCHANNELS - 1}")
-    return tuple(parsed_channels)
-
-def hbm_channel_origin(channel, hbm_base=HBM_DEFAULT_BASE, hbm_high_base=HBM_HIGH_BASE):
-    origin = hbm_base + HBM_CHANNEL_SIZE*channel
-    if hbm_base == HBM_DEFAULT_BASE and origin >= 0x8000_0000:
-        origin = hbm_high_base + HBM_CHANNEL_SIZE*(channel - 4)
-    return origin
-
-class AXILiteAddressRemapper(LiteXModule):
-    def __init__(self, master, slave, origin=0):
-        self.comb += [
-            slave.aw.valid.eq(master.aw.valid),
-            master.aw.ready.eq(slave.aw.ready),
-            slave.aw.first.eq(master.aw.first),
-            slave.aw.last.eq(master.aw.last),
-            slave.aw.addr.eq(master.aw.addr - origin),
-            slave.aw.prot.eq(master.aw.prot),
-
-            slave.w.valid.eq(master.w.valid),
-            master.w.ready.eq(slave.w.ready),
-            slave.w.first.eq(master.w.first),
-            slave.w.last.eq(master.w.last),
-            slave.w.data.eq(master.w.data),
-            slave.w.strb.eq(master.w.strb),
-
-            master.b.valid.eq(slave.b.valid),
-            slave.b.ready.eq(master.b.ready),
-            master.b.first.eq(slave.b.first),
-            master.b.last.eq(slave.b.last),
-            master.b.resp.eq(slave.b.resp),
-
-            slave.ar.valid.eq(master.ar.valid),
-            master.ar.ready.eq(slave.ar.ready),
-            slave.ar.first.eq(master.ar.first),
-            slave.ar.last.eq(master.ar.last),
-            slave.ar.addr.eq(master.ar.addr - origin),
-            slave.ar.prot.eq(master.ar.prot),
-
-            master.r.valid.eq(slave.r.valid),
-            slave.r.ready.eq(master.r.ready),
-            master.r.first.eq(slave.r.first),
-            master.r.last.eq(slave.r.last),
-            master.r.data.eq(slave.r.data),
-            master.r.resp.eq(slave.r.resp),
-        ]
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -157,16 +86,13 @@ class BaseSoC(SoCCore):
             hbm_channels = parse_hbm_channels(hbm_channels)
             if hbm_main_channel not in hbm_channels:
                 raise ValueError("HBM main channel must be one of the mapped HBM channels")
-            hbm_origins = {
-                channel: hbm_channel_origin(channel, hbm_base, hbm_high_base)
-                for channel in hbm_channels
-            }
-            hbm_window_end = max(origin + HBM_CHANNEL_SIZE for origin in hbm_origins.values())
-            if hbm_window_end > 2**kwargs.get("bus_address_width", 32):
+            hbm_origins = hbm_channel_origins(hbm_channels, hbm_base, hbm_high_base)
+            hbm_end = hbm_window_end(hbm_origins)
+            if hbm_end > 2**kwargs.get("bus_address_width", 32):
                 kwargs["bus_address_width"] = 64
-            if hbm_window_end > 2**pcie_address_width:
+            if hbm_end > 2**pcie_address_width:
                 pcie_address_width = 64
-            if hbm_window_end > 2**33:
+            if hbm_end > 2**33:
                 hbm_strip_origin = True
 
         # CRG --------------------------------------------------------------------------------------
@@ -184,40 +110,15 @@ class BaseSoC(SoCCore):
             # Add HBM Core.
             self.hbm = hbm = ClockDomainsRenamer({"axi": "sys"})(USPHBM2(platform))
 
-            # Get HBM .xci.
-            hbm_xci = os.path.join("ip", "hbm", "hbm_0.xci")
-            if not os.path.exists(hbm_xci):
-                os.makedirs(os.path.dirname(hbm_xci), exist_ok=True)
-                os.system(f"wget -O {hbm_xci} https://github.com/litex-hub/litex-boards/files/8178874/hbm_0.xci.txt")
-
-            # Connect selected HBM AXI interfaces to the main bus of the SoC.
-            hbm_regions = {}
-            for channel in hbm_channels:
-                axi_hbm      = hbm.axi[channel]
-                axi_lite_bus = AXILiteInterface(data_width=256, address_width=self.bus.address_width)
-                axi_lite_hbm = AXILiteInterface(data_width=256, address_width=33)
-                origin       = hbm_origins[channel]
-                self.submodules += AXILiteAddressRemapper(
-                    master = axi_lite_bus,
-                    slave  = axi_lite_hbm,
-                    origin = origin if hbm_strip_origin else 0)
-                self.submodules += AXILite2AXI(axi_lite_hbm, axi_hbm)
-                hbm_regions[channel] = origin
-                self.bus.add_slave(
-                    f"hbm{channel}",
-                    axi_lite_bus,
-                    SoCRegion(
-                        origin = origin,
-                        size   = HBM_CHANNEL_SIZE,
-                        cached = not (0x8000_0000 <= origin < 0x1_0000_0000)))
-            self.add_constant("HBM_CHANNELS", len(hbm_channels))
-            self.add_constant("HBM_MAIN_CHANNEL", hbm_main_channel)
-            self.add_constant("HBM_HIGH_BASE", hbm_high_base)
-            # Link selected HBM2 channel as main RAM.
-            self.bus.add_region("main_ram", SoCRegion(
-                origin = hbm_regions[hbm_main_channel],
-                size   = HBM_CHANNEL_SIZE,
-                linker = True))
+            ensure_hbm_xci("https://github.com/litex-hub/litex-boards/files/8178874/hbm_0.xci.txt")
+            add_hbm_pseudochannels(
+                soc              = self,
+                hbm              = hbm,
+                channels         = hbm_channels,
+                main_channel     = hbm_main_channel,
+                origins          = hbm_origins,
+                hbm_high_base    = hbm_high_base,
+                hbm_strip_origin = hbm_strip_origin)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:

@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
-import re
 
 from migen import *
 
@@ -27,6 +26,16 @@ from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX
 
 from litepcie.phy.usppciephy import USPPCIEPHY
 from litepcie.software import generate_litepcie_software
+
+# QSFP ---------------------------------------------------------------------------------------------
+
+QSFP_PORTS = tuple(f"qsfp{qsfp}_sfp{sfp}" for qsfp in range(2) for sfp in range(4))
+
+def parse_qsfp_port(port):
+    if port not in QSFP_PORTS:
+        raise ValueError("QSFP port must be one of: " + ", ".join(QSFP_PORTS))
+    qsfp, sfp = port.replace("qsfp", "").split("_sfp")
+    return int(qsfp), int(sfp)
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -79,8 +88,16 @@ class BaseSoC(SoCCore):
                 etherbone_ip    = "192.168.1.50",
                 with_pcie       = False,
                 pcie_lanes      = 4,
+                pcie_ndmas      = 1,
+                pcie_address_width = 32,
+                with_pcie_dma_status  = False,
+                with_pcie_dma_monitor = False,
                 **kwargs):
         platform = alibaba_vu13p.Platform()
+        if ddram_channel not in range(4):
+            raise ValueError("DDRAM channel must be 0, 1, 2 or 3")
+        if with_ethernet and with_etherbone and ethernet_port == etherbone_port:
+            raise ValueError("Ethernet and Etherbone QSFP ports must be different")
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, ddram_channel)
@@ -113,15 +130,14 @@ class BaseSoC(SoCCore):
             self.pcie_phy = USPPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 data_width = {4: 128, 8: 256, 16: 512}[pcie_lanes],
                 bar0_size  = 0x20000)
-            self.add_pcie(phy=self.pcie_phy, ndmas=1)
+            self.add_pcie(
+                phy              = self.pcie_phy,
+                ndmas            = pcie_ndmas,
+                address_width    = pcie_address_width,
+                with_dma_status  = with_pcie_dma_status,
+                with_dma_monitor = with_pcie_dma_monitor)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
-        def parse_qsfp_port(port_string):
-            match = re.match(r"qsfp(\d+)_sfp(\d+)", port_string)
-            qsfp_id = int(match.group(1))
-            sfp_lane = int(match.group(2))
-            return (qsfp_id, sfp_lane)
-
         qsfp_in_use = [False, False]
 
         if with_ethernet:
@@ -171,27 +187,28 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
 
-    sfp_list = []
-    for qsfp in range(2):
-        for sfp in range(4):
-            sfp_list.append("qsfp{}_{}".format(qsfp, sfp))
-
     parser = LiteXArgumentParser(platform=alibaba_vu13p.Platform, description="LiteX SoC on Alibaba VU13P.")
     parser.add_target_argument("--flash",          action="store_true",         help="Flash bitstream to SPI flash.")
     parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float,   help="System clock frequency.")
-    parser.add_target_argument("--ddram-channel",  default=0, type=int,         choices=range(4), help="DDRAM channel.")
+    parser.add_target_argument("--ddram-channel",  default=0, type=lambda x: int(x, 0), choices=range(4), help="DDRAM channel.")
     parser.add_target_argument("--with-ethernet",  action="store_true",         help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",         help="Enable Etherbone support.")
-    parser.add_target_argument("--ethernet-port",  default="qsfp0_sfp0",        choices=sfp_list, help="Ethernet SFP port.")
-    parser.add_target_argument("--etherbone-port", default="qsfp0_sfp0",        choices=sfp_list, help="Etherbone SFP port.")
+    parser.add_target_argument("--ethernet-port",  default="qsfp0_sfp0",        choices=QSFP_PORTS, help="Ethernet SFP port.")
+    parser.add_target_argument("--etherbone-port", default="qsfp0_sfp1",        choices=QSFP_PORTS, help="Etherbone SFP port.")
     parser.add_target_argument("--ethernet-ip",    default="192.168.1.50",      help="Ethernet IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",     help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",         help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--etherbone-ip",   default="192.168.1.50",      help="Ethernet IP address.")
     parser.add_target_argument("--with-pcie",      action="store_true",         help="Enable PCIe support.")
     parser.add_target_argument("--pcie-lanes",     default=4, type=int,         choices=[4, 8, 16], help="PCIe lane count.")
+    parser.add_target_argument("--pcie-ndmas",     default=1, type=int,         help="Number of PCIe DMA channels.")
+    parser.add_target_argument("--pcie-address-width", default=32, type=int, choices=[32, 64], help="PCIe address width.")
+    parser.add_target_argument("--pcie-with-dma-status",  action="store_true", help="Enable PCIe DMA status CSRs.")
+    parser.add_target_argument("--pcie-with-dma-monitor", action="store_true", help="Enable PCIe DMA monitor CSRs.")
     parser.add_target_argument("--driver",         action="store_true",         help="Generate PCIe driver.")
     args = parser.parse_args()
+    if args.pcie_ndmas < 0:
+        parser.error("--pcie-ndmas must be >= 0")
 
     if args.with_ethernet and args.with_etherbone:
         if args.ethernet_port == args.etherbone_port:
@@ -210,6 +227,10 @@ def main():
         etherbone_ip   = args.etherbone_ip,
         with_pcie      = args.with_pcie,
         pcie_lanes     = args.pcie_lanes,
+        pcie_ndmas     = args.pcie_ndmas,
+        pcie_address_width    = args.pcie_address_width,
+        with_pcie_dma_status  = args.pcie_with_dma_status,
+        with_pcie_dma_monitor = args.pcie_with_dma_monitor,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
