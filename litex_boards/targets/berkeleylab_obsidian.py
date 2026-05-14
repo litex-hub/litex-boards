@@ -246,6 +246,8 @@ def main():
     parser.add_target_argument("--with-ddr3",      action="store_true",       help="Add DDR3 dynamic RAM to the SOC")
     parser.add_target_argument("--with-bist",      action="store_true",       help="Add DDR3 BIST Generator/Checker.")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,

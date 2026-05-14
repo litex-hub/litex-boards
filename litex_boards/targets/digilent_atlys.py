@@ -220,6 +220,8 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
 
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         with_ethernet  = args.with_ethernet,

@@ -163,6 +163,8 @@ def main():
 
     parser.add_target_argument("--spd-dump",                                  help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,

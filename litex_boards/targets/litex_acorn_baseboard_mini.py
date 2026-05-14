@@ -289,6 +289,8 @@ def main():
     parser.add_target_argument("--sata-gen",       default="2",                  choices=["1", "2"],
         help="SATA Gen.")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         variant        = args.variant,

@@ -115,6 +115,8 @@ def main():
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP assignment.")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,

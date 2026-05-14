@@ -197,6 +197,8 @@ def main():
 
     parser.set_defaults(cpu_type="zynq7000")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         variant        = args.variant,

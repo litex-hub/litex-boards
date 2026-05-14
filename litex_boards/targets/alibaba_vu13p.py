@@ -207,6 +207,8 @@ def main():
     parser.add_target_argument("--pcie-with-dma-monitor", action="store_true",         help="Enable PCIe DMA monitor CSRs.")
     parser.add_target_argument("--driver",                action="store_true",         help="Generate PCIe driver.")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
     if args.pcie_ndmas < 0:
         parser.error("--pcie-ndmas must be >= 0")
 

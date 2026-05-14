@@ -135,6 +135,8 @@ def main():
     parser.add_target_argument("--etherbone-phy",   default=1, type=int,      help="Etherbone PHY (0 or 1).")
     parser.add_target_argument("--ethernet-phy",    default=0, type=int,      help="Ethernet  PHY (0 or 1).")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         sys_clk_freq    = args.sys_clk_freq,
