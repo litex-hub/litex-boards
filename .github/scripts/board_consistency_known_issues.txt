@@ -1,0 +1,11 @@
+litex_boards/targets/alibaba_vu13p.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/berkeleylab_marble.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/berkeleylab_obsidian.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/digilent_atlys.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/hyvision_pcie_opt01_revf.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/litex_acorn_baseboard_mini.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/puzhi_p7_starlite.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/sqrl_xcu1525.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/terasic_de2_115.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/trenz_c10lprefkit.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
+litex_boards/targets/xilinx_zc706.py: document or enforce --with-etherbone/--eth-dynamic-ip interaction
