@@ -29,8 +29,14 @@ jobs:
       - name: Check Target Parser Alignment
         run: python3 .github/scripts/check_target_parser_alignment.py
 
+      - name: Check Board Inventory
+        run: python3 .github/scripts/generate_board_inventory.py --check
+
+      - name: Check Board Consistency
+        run: python3 .github/scripts/audit_board_consistency.py --check
+
       - name: Run Fast Lint Tests
-        run: python3 -m pytest -q test/test_parser_style.py test/test_parser_alignment.py test/test_targets_parser_api.py
+        run: python3 -m pytest -q test/test_parser_style.py test/test_parser_alignment.py test/test_targets_parser_api.py test/test_board_guardrails.py
 
   build:
     needs: lint
@@ -77,6 +83,12 @@ jobs:
       # Validate parser argument alignment in targets.
       - name: Check Target Parser Alignment
         run: python3 .github/scripts/check_target_parser_alignment.py
+
+      # Validate generated board inventory and consistency baseline.
+      - name: Check Board Guardrails
+        run: |
+          python3 .github/scripts/generate_board_inventory.py --check
+          python3 .github/scripts/audit_board_consistency.py --check
 
       # Test
       - name: Run Tests
