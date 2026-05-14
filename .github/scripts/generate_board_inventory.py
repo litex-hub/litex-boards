@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -12,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TARGETS_DIR = ROOT / "litex_boards" / "targets"
 PLATFORMS_DIR = ROOT / "litex_boards" / "platforms"
 INVENTORY_PATH = ROOT / "docs" / "boards_inventory.md"
+TARGET_TESTS_PATH = ROOT / "test" / "test_targets.py"
 
 FEATURE_OPTIONS = {
     "--with-ethernet": "Ethernet",
@@ -36,6 +38,7 @@ class BoardInfo:
     toolchains: tuple[str, ...]
     sys_clk_freq: str
     features: tuple[str, ...]
+    target_test: str
 
 
 def _expr_text(node: ast.AST | None) -> str:
@@ -125,7 +128,27 @@ def collect_platform_toolchains(platforms: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(sorted(toolchains))
 
 
-def collect_board_info(target_path: Path) -> BoardInfo:
+def collect_target_test_exclusions(path: Path = TARGET_TESTS_PATH) -> dict[str, str]:
+    exclusions: dict[str, str] = {}
+    in_targets = False
+    line_re = re.compile(r'^\s*"(?P<name>[^"]+)",\s*# Reason:\s*(?P<reason>.+?)\s*$')
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip().startswith("excluded_targets"):
+            in_targets = True
+            continue
+        if in_targets and line.strip() == "]":
+            break
+        if not in_targets:
+            continue
+        match = line_re.match(line)
+        if match:
+            exclusions[match.group("name")] = match.group("reason")
+    return exclusions
+
+
+def collect_board_info(target_path: Path, target_test_exclusions: dict[str, str] | None = None) -> BoardInfo:
+    if target_test_exclusions is None:
+        target_test_exclusions = collect_target_test_exclusions()
     options = collect_target_options(target_path)
     platforms = collect_platform_imports(target_path)
     sys_clk = "default"
@@ -138,12 +161,14 @@ def collect_board_info(target_path: Path) -> BoardInfo:
         toolchains=collect_platform_toolchains(platforms),
         sys_clk_freq=sys_clk,
         features=features,
+        target_test=target_test_exclusions.get(target_path.stem, "included"),
     )
 
 
 def collect_inventory(targets_dir: Path = TARGETS_DIR) -> list[BoardInfo]:
+    target_test_exclusions = collect_target_test_exclusions()
     return [
-        collect_board_info(path)
+        collect_board_info(path, target_test_exclusions)
         for path in sorted(targets_dir.glob("*.py"))
         if path.name != "__init__.py"
     ]
@@ -163,13 +188,13 @@ def render_inventory(boards: list[BoardInfo]) -> str:
         "python3 .github/scripts/generate_board_inventory.py --write",
         "```",
         "",
-        "| Target | Platform module(s) | Toolchain(s) | Default sys clk | Common features |",
-        "| --- | --- | --- | --- | --- |",
+        "| Target | Platform module(s) | Toolchain(s) | Default sys clk | Common features | Target no-compile test |",
+        "| --- | --- | --- | --- | --- | --- |",
     ]
     for board in boards:
         lines.append(
             f"| `{board.target}` | {_cell(board.platforms)} | {_cell(board.toolchains)} | "
-            f"`{board.sys_clk_freq}` | {_cell(board.features)} |"
+            f"`{board.sys_clk_freq}` | {_cell(board.features)} | {board.target_test} |"
         )
     lines.append("")
     return "\n".join(lines)

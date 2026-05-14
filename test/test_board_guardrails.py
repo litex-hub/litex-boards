@@ -99,7 +99,27 @@ def main():
         encoding="utf-8",
     )
 
-    board = inventory.collect_board_info(target)
+    board = inventory.collect_board_info(target, {"demo": "No default clock."})
     assert board.platforms == ("demo",)
     assert board.toolchains == ("trellis",)
     assert board.features == ("Ethernet", "SDCard")
+    assert board.target_test == "No default clock."
+
+
+def test_board_inventory_reads_target_exclusion_reasons(tmp_path):
+    inventory = load_script("generate_board_inventory.py")
+    tests = tmp_path / "test_targets.py"
+    tests.write_text(
+        '''
+class TestTargets:
+    excluded_platforms = [
+        "demo_platform", # Reason: Platform only.
+    ]
+    excluded_targets = [
+        "demo", # Reason: No default clock.
+    ]
+''',
+        encoding="utf-8",
+    )
+
+    assert inventory.collect_target_test_exclusions(tests) == {"demo": "No default clock."}
