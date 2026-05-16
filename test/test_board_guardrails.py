@@ -133,6 +133,26 @@ TARGET_EXCLUSIONS = {
     assert inventory.collect_target_test_exclusions(tests) == {"demo": "No default clock."}
 
 
+def test_board_inventory_marks_external_toolchain_exclusions(tmp_path):
+    inventory = load_script("generate_board_inventory.py")
+    tests = tmp_path / "test_targets.py"
+    tests.write_text(
+        '''
+TARGET_EXCLUSIONS = {
+    "demo": {
+        "category": "external_toolchain",
+        "reason": "Require Efinity toolchain.",
+    },
+}
+''',
+        encoding="utf-8",
+    )
+
+    assert inventory.collect_target_test_exclusions(tests) == {
+        "demo": "toolchain-gated: Require Efinity toolchain.",
+    }
+
+
 def test_target_exclusions_use_structured_metadata():
     targets = load_test_targets()
     for exclusions in [targets.PLATFORM_EXCLUSIONS, targets.TARGET_EXCLUSIONS]:

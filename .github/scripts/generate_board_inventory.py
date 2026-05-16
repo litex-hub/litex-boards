@@ -136,11 +136,15 @@ def _collect_structured_target_exclusions(path: Path) -> dict[str, str]:
         if not any(isinstance(target, ast.Name) and target.id == "TARGET_EXCLUSIONS" for target in node.targets):
             continue
         value = ast.literal_eval(node.value)
-        return {
-            name: record["reason"]
-            for name, record in value.items()
-            if isinstance(record, dict) and "reason" in record
-        }
+        exclusions = {}
+        for name, record in value.items():
+            if not isinstance(record, dict) or "reason" not in record:
+                continue
+            reason = record["reason"]
+            if record.get("category") == "external_toolchain":
+                reason = f"toolchain-gated: {reason}"
+            exclusions[name] = reason
+        return exclusions
     return {}
 
 

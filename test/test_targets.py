@@ -164,6 +164,19 @@ def subprocess_run_quiet(cmd):
     return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
 
+def efinity_available():
+    if os.getenv("LITEX_ENV_EFINITY"):
+        return True
+    return any(shutil.which(tool) for tool in ["efx_map", "efx_pnr", "efx_run.py"])
+
+
+def efinity_target_names():
+    return sorted(
+        name for name, record in TARGET_EXCLUSIONS.items()
+        if record["category"] == "external_toolchain" and "Efinity" in record["reason"]
+    )
+
+
 class TestTargets(unittest.TestCase):
     excluded_platforms = sorted(PLATFORM_EXCLUSIONS)
     excluded_targets   = sorted(TARGET_EXCLUSIONS)
@@ -173,12 +186,33 @@ class TestTargets(unittest.TestCase):
         for name, record in PLATFORM_EXCLUSIONS.items():
             if record["category"] == "not_real_platform":
                 continue
-            if record["category"] == "external_toolchain" and "Efinity" in record["reason"]:
+            if record["category"] == "external_toolchain" and "Efinity" in record["reason"] and not efinity_available():
                 continue
             with self.subTest(platform=name):
                 module = importlib.import_module(f"litex_boards.platforms.{name}")
                 platform = getattr(module, "Platform")
                 platform()
+
+    # Build Efinix targets when Efinity is available on the runner.
+    def test_efinity_targets(self):
+        if not efinity_available():
+            self.skipTest("Efinity toolchain not available.")
+
+        for name in efinity_target_names():
+            with self.subTest(target=name):
+                output_dir = os.path.join("build", "test_efinity_targets", name)
+                shutil.rmtree(output_dir, ignore_errors=True)
+                cmd = [
+                    sys.executable,
+                    "-m", f"litex_boards.targets.{name}",
+                    "--cpu-type=vexriscv",
+                    "--cpu-variant=minimal",
+                    "--uart-name=stub",
+                    "--build",
+                    "--no-compile",
+                    "--output-dir", output_dir,
+                ]
+                subprocess.check_call(cmd)
 
     # Exercise target imports and parser setup for board targets, including no-compile exclusions.
     def test_target_parsers_smoke(self):
