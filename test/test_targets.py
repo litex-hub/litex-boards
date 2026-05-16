@@ -7,6 +7,7 @@
 
 import subprocess
 import unittest
+import importlib
 import os
 import shutil
 import sys
@@ -151,19 +152,55 @@ TARGET_EXCLUSIONS = {
 }
 
 
+def python_module_names(directory):
+    return sorted(
+        file.replace(".py", "")
+        for file in os.listdir(directory)
+        if file.endswith(".py") and file != "__init__.py"
+    )
+
+
+def subprocess_run_quiet(cmd):
+    return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+
+
 class TestTargets(unittest.TestCase):
     excluded_platforms = sorted(PLATFORM_EXCLUSIONS)
     excluded_targets   = sorted(TARGET_EXCLUSIONS)
+
+    # Import and instantiate excluded platforms when no external toolchain discovery is required.
+    def test_excluded_platforms_smoke(self):
+        for name, record in PLATFORM_EXCLUSIONS.items():
+            if record["category"] == "not_real_platform":
+                continue
+            if record["category"] == "external_toolchain" and "Efinity" in record["reason"]:
+                continue
+            with self.subTest(platform=name):
+                module = importlib.import_module(f"litex_boards.platforms.{name}")
+                platform = getattr(module, "Platform")
+                platform()
+
+    # Exercise target imports and parser setup for board targets, including no-compile exclusions.
+    def test_target_parsers_smoke(self):
+        targets = [name for name in python_module_names("./litex_boards/targets/") if name != "simple"]
+        for name in targets:
+            with self.subTest(target=name):
+                cmd = [
+                    sys.executable,
+                    "-m", f"litex_boards.targets.{name}",
+                    "--help",
+                ]
+                result = subprocess_run_quiet(cmd)
+                if result.returncode != 0:
+                    self.fail(result.stdout)
 
     # Build simple design for all platforms.
     def test_platforms(self):
         # Collect platforms.
         platforms = []
-        for file in os.listdir("./litex_boards/platforms/"):
-            if file.endswith(".py"):
-                file = file.replace(".py", "")
-                if file not in ["__init__"] + self.excluded_platforms:
-                    platforms.append(file)
+        for name in python_module_names("./litex_boards/platforms/"):
+            if name not in self.excluded_platforms:
+                platforms.append(name)
 
         # Test platforms with simple design.
         for name in platforms:
@@ -183,11 +220,9 @@ class TestTargets(unittest.TestCase):
     def test_targets(self):
         # Collect targets.
         targets = []
-        for file in os.listdir("./litex_boards/targets/"):
-            if file.endswith(".py"):
-                file = file.replace(".py", "")
-                if file not in ["__init__"] + self.excluded_targets:
-                    targets.append(file)
+        for name in python_module_names("./litex_boards/targets/"):
+            if name not in self.excluded_targets:
+                targets.append(name)
 
         # Test targets.
         for name in targets:
