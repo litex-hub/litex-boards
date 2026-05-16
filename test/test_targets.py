@@ -112,10 +112,6 @@ TARGET_EXCLUSIONS = {
         "category": "missing_default_clock",
         "reason": "No default clock.",
     },
-    "colognechip_gatemate_evb": {
-        "category": "external_toolchain",
-        "reason": "Toolchain not yet mainlined.",
-    },
     "efinix_ti375_c529_dev_kit": {
         "category": "external_toolchain",
         "reason": "Require Efinity toolchain.",
@@ -143,10 +139,6 @@ TARGET_EXCLUSIONS = {
     "efinix_xyloni_dev_kit": {
         "category": "external_toolchain",
         "reason": "Require Efinity toolchain.",
-    },
-    "sipeed_tang_primer": {
-        "category": "external_toolchain",
-        "reason": "Require Anlogic toolchain.",
     },
     "jungle_electronics_fireant": {
         "category": "external_toolchain",

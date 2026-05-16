@@ -37,7 +37,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `berkeleylab_obsidian` | berkeleylab_obsidian | vivado | `125000000.0` | Ethernet, Etherbone | included |
 | `bochenjingxin_kintex7_basec` | bochenjingxin_kintex7_basec | vivado | `125000000.0` | - | included |
 | `camlink_4k` | camlink_4k | trellis | `81000000.0` | - | included |
-| `colognechip_gatemate_evb` | colognechip_gatemate_evb | colognechip | `24000000.0` | SDCard, SPI SDCard, SPI Flash | Toolchain not yet mainlined. |
+| `colognechip_gatemate_evb` | colognechip_gatemate_evb | colognechip | `24000000.0` | SDCard, SPI SDCard, SPI Flash | included |
 | `colorlight_5a_75x` | colorlight_5a_75b, colorlight_5a_75e, colorlight_i5a_907 | trellis | `60000000.0` | Ethernet, Etherbone, SPI Flash | included |
 | `colorlight_i5` | colorlight_i5 | trellis | `60000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, Video Terminal, Video Framebuffer | included |
 | `colorlight_i9plus` | colorlight_i9plus | vivado | `100000000.0` | Ethernet, Etherbone, SPI Flash | included |
@@ -177,7 +177,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `sipeed_tang_nano_20k` | sipeed_tang_nano_20k | gowin | `48000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Colorbars | included |
 | `sipeed_tang_nano_4k` | sipeed_tang_nano_4k | gowin | `27000000.0` | Video Terminal | included |
 | `sipeed_tang_nano_9k` | sipeed_tang_nano_9k | gowin | `27000000.0` | SPI SDCard, Video Terminal | included |
-| `sipeed_tang_primer` | sipeed_tang_primer | td | `24000000.0` | - | Require Anlogic toolchain. |
+| `sipeed_tang_primer` | sipeed_tang_primer | td | `24000000.0` | - | included |
 | `sipeed_tang_primer_20k` | sipeed_tang_primer_20k | gowin | `48000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal | included |
 | `sipeed_tang_primer_25k` | sipeed_tang_primer_25k | gowin | `50000000.0` | SPI Flash | included |
 | `sitlinv_a_e115fb` | sitlinv_a_e115fb | quartus | `50000000.0` | - | included |
