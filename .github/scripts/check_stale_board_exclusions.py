@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-import importlib.util
+import ast
 import shutil
 import subprocess
 import sys
@@ -41,12 +41,20 @@ class ProbeResult:
         return self.returncode == 0
 
 
-def load_test_targets():
-    spec = importlib.util.spec_from_file_location("test_targets_exclusions", TEST_TARGETS_PATH)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["test_targets_exclusions"] = module
-    spec.loader.exec_module(module)
-    return module
+def collect_exclusion_metadata(path: Path = TEST_TARGETS_PATH):
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    values = {}
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        for target in node.targets:
+            if isinstance(target, ast.Name) and target.id in {
+                "EXCLUSION_CATEGORIES",
+                "PLATFORM_EXCLUSIONS",
+                "TARGET_EXCLUSIONS",
+            }:
+                values[target.id] = ast.literal_eval(node.value)
+    return values
 
 
 def is_probe_eligible(record: dict[str, str]) -> bool:
@@ -54,10 +62,10 @@ def is_probe_eligible(record: dict[str, str]) -> bool:
 
 
 def collect_probes(output_dir: Path) -> list[Probe]:
-    tests = load_test_targets()
+    metadata = collect_exclusion_metadata()
     probes = []
 
-    for name, record in sorted(tests.TARGET_EXCLUSIONS.items()):
+    for name, record in sorted(metadata["TARGET_EXCLUSIONS"].items()):
         if not is_probe_eligible(record):
             continue
         probes.append(Probe(
@@ -77,7 +85,7 @@ def collect_probes(output_dir: Path) -> list[Probe]:
             ),
         ))
 
-    for name, record in sorted(tests.PLATFORM_EXCLUSIONS.items()):
+    for name, record in sorted(metadata["PLATFORM_EXCLUSIONS"].items()):
         if not is_probe_eligible(record):
             continue
         probes.append(Probe(

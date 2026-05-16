@@ -16,15 +16,6 @@ def load_script(name):
     return module
 
 
-def load_test_targets():
-    path = ROOT / "test" / "test_targets.py"
-    spec = importlib.util.spec_from_file_location("test_targets_metadata", path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["test_targets_metadata"] = module
-    spec.loader.exec_module(module)
-    return module
-
-
 def test_board_inventory_is_current():
     script = ROOT / ".github" / "scripts" / "generate_board_inventory.py"
     result = subprocess.run([sys.executable, str(script), "--check"], check=False)
@@ -178,10 +169,11 @@ TARGET_EXCLUSIONS = {
 
 
 def test_target_exclusions_use_structured_metadata():
-    targets = load_test_targets()
-    for exclusions in [targets.PLATFORM_EXCLUSIONS, targets.TARGET_EXCLUSIONS]:
+    checker = load_script("check_stale_board_exclusions.py")
+    metadata = checker.collect_exclusion_metadata()
+    for exclusions in [metadata["PLATFORM_EXCLUSIONS"], metadata["TARGET_EXCLUSIONS"]]:
         for name, record in exclusions.items():
             assert name
             assert set(record) >= {"category", "reason"}
-            assert record["category"] in targets.EXCLUSION_CATEGORIES
+            assert record["category"] in metadata["EXCLUSION_CATEGORIES"]
             assert record["reason"].endswith(".")
