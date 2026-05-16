@@ -128,7 +128,23 @@ def collect_platform_toolchains(platforms: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(sorted(toolchains))
 
 
-def collect_target_test_exclusions(path: Path = TARGET_TESTS_PATH) -> dict[str, str]:
+def _collect_structured_target_exclusions(path: Path) -> dict[str, str]:
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(isinstance(target, ast.Name) and target.id == "TARGET_EXCLUSIONS" for target in node.targets):
+            continue
+        value = ast.literal_eval(node.value)
+        return {
+            name: record["reason"]
+            for name, record in value.items()
+            if isinstance(record, dict) and "reason" in record
+        }
+    return {}
+
+
+def _collect_legacy_target_exclusions(path: Path) -> dict[str, str]:
     exclusions: dict[str, str] = {}
     in_targets = False
     line_re = re.compile(r'^\s*"(?P<name>[^"]+)",\s*# Reason:\s*(?P<reason>.+?)\s*$')
@@ -144,6 +160,10 @@ def collect_target_test_exclusions(path: Path = TARGET_TESTS_PATH) -> dict[str, 
         if match:
             exclusions[match.group("name")] = match.group("reason")
     return exclusions
+
+
+def collect_target_test_exclusions(path: Path = TARGET_TESTS_PATH) -> dict[str, str]:
+    return _collect_structured_target_exclusions(path) or _collect_legacy_target_exclusions(path)
 
 
 def collect_board_info(target_path: Path, target_test_exclusions: dict[str, str] | None = None) -> BoardInfo:

@@ -16,6 +16,15 @@ def load_script(name):
     return module
 
 
+def load_test_targets():
+    path = ROOT / "test" / "test_targets.py"
+    spec = importlib.util.spec_from_file_location("test_targets_metadata", path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["test_targets_metadata"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_board_inventory_is_current():
     script = ROOT / ".github" / "scripts" / "generate_board_inventory.py"
     result = subprocess.run([sys.executable, str(script), "--check"], check=False)
@@ -111,15 +120,24 @@ def test_board_inventory_reads_target_exclusion_reasons(tmp_path):
     tests = tmp_path / "test_targets.py"
     tests.write_text(
         '''
-class TestTargets:
-    excluded_platforms = [
-        "demo_platform", # Reason: Platform only.
-    ]
-    excluded_targets = [
-        "demo", # Reason: No default clock.
-    ]
+TARGET_EXCLUSIONS = {
+    "demo": {
+        "category": "missing_default_clock",
+        "reason": "No default clock.",
+    },
+}
 ''',
         encoding="utf-8",
     )
 
     assert inventory.collect_target_test_exclusions(tests) == {"demo": "No default clock."}
+
+
+def test_target_exclusions_use_structured_metadata():
+    targets = load_test_targets()
+    for exclusions in [targets.PLATFORM_EXCLUSIONS, targets.TARGET_EXCLUSIONS]:
+        for name, record in exclusions.items():
+            assert name
+            assert set(record) >= {"category", "reason"}
+            assert record["category"] in targets.EXCLUSION_CATEGORIES
+            assert record["reason"].endswith(".")
