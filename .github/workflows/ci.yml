@@ -89,6 +89,7 @@ jobs:
         run: |
           python3 .github/scripts/generate_board_inventory.py --check
           python3 .github/scripts/audit_board_consistency.py --check
+          python3 .github/scripts/check_stale_board_exclusions.py --check
 
       # Test
       - name: Run Tests

@@ -43,6 +43,30 @@ def test_board_audit_matches_known_baseline():
     assert result.returncode == 0
 
 
+def test_stale_exclusion_checker_selects_default_build_probes():
+    checker = load_script("check_stale_board_exclusions.py")
+    assert checker.is_probe_eligible({"category": "missing_default_clock"})
+    assert checker.is_probe_eligible({"category": "known_build_failure"})
+    assert checker.is_probe_eligible({"category": "untested"})
+    assert not checker.is_probe_eligible({"category": "external_toolchain"})
+    assert not checker.is_probe_eligible({"category": "generic_target"})
+    assert not checker.is_probe_eligible({"category": "not_real_platform"})
+
+
+def test_stale_exclusion_checker_detects_passing_probe():
+    checker = load_script("check_stale_board_exclusions.py")
+    probe = checker.Probe(
+        kind     = "target",
+        name     = "demo",
+        category = "known_build_failure",
+        reason   = "Demo.",
+        cmd      = (sys.executable, "-c", ""),
+    )
+
+    result = checker.run_probe(probe, timeout=10)
+    assert result.stale
+
+
 def test_board_audit_understands_platform_module_imports(tmp_path):
     audit = load_script("audit_board_consistency.py")
     target = tmp_path / "demo.py"
