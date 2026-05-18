@@ -4,8 +4,8 @@
 # Copyright (c) 2023 Charles-Henri Mousset <ch.mousset@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 #
-# ColorLight i9+ Module and Ext-Board with onboard CH347 jtag usb-c interface are available on AliExpress
-# see https://github.com/wuxx/Colorlight-FPGA-Projects/blob/master/colorlight_i9plus_v6.1.md
+# ColorLight i9+ module and Ext-Board with onboard CH347 JTAG USB-C interface are available on AliExpress:
+# See https://github.com/wuxx/Colorlight-FPGA-Projects/blob/master/colorlight_i9plus_v6.1.md
 #     https://www.aliexpress.com/item/1005007847728268.html
 
 from litex.build.generic_platform import *
@@ -88,7 +88,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # SPIFlash (1 bit SPI, clk is provided by USRMCLK like ColorLight-i5)
+    # SPI Flash (1-bit SPI, clk is provided by USRMCLK like ColorLight-i5)
     ("spiflash", 0,
         Subsignal("cs_n", Pins("T19")),
         Subsignal("mosi", Pins("P22")),
@@ -145,7 +145,10 @@ class Platform(Xilinx7SeriesPlatform):
     def __init__(self, toolchain="vivado"):
         Xilinx7SeriesPlatform.__init__(self, "xc7a50tfgg484-1", _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]"]
-        #self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix1 -size 16 " "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
+        self.toolchain.additional_commands = [
+            "write_cfgmem -force -format bin -interface spix1 -size 16 "
+            "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"
+        ]
 
     def create_programmer(self):
         return OpenFPGALoader(cable="ch347_jtag")
