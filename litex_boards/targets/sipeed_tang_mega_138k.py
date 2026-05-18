@@ -106,7 +106,7 @@ class _CRG(LiteXModule):
                     i_CEN    = self.stop,
                     o_CLKOUT = self.cd_sys2x.clk
                 ),
-                AsyncResetSynchronizer(self.cd_sys2x, ~pll.locked | self.reset),
+                AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
             ]
             # Init clock domain
             self.comb += [
