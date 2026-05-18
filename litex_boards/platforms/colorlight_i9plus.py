@@ -3,6 +3,10 @@
 #
 # Copyright (c) 2023 Charles-Henri Mousset <ch.mousset@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
+#
+# ColorLight i9+ Module and Ext-Board with onboard CH347 jtag usb-c interface are available on AliExpress
+# see https://github.com/wuxx/Colorlight-FPGA-Projects/blob/master/colorlight_i9plus_v6.1.md
+#     https://www.aliexpress.com/item/1005007847728268.html
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
@@ -16,6 +20,8 @@ _io = [
 
     # Leds.
     ("user_led", 0, Pins("A18"), IOStandard("LVCMOS33")),
+    # (Ext-Board, socket P2, pin 26: WS2812 DOUT)
+    ("serial_rgb_led_dout", 0, Pins("T3"), IOStandard("LVCMOS33")),
 
     # RGMII Ethernet (B50612D) PHY 0.
     ("eth_clocks", 0, # U5 is SDIO phy #0
@@ -33,6 +39,7 @@ _io = [
         Subsignal("tx_data", Pins("B2 B1 C2 D2")),
         IOStandard("LVCMOS33")
     ),
+
     # RGMII Ethernet (B50612D) PHY 1.
     ("eth_clocks", 1, # U9 is SDIO phy #1
         Subsignal("tx", Pins("M6")),
@@ -49,6 +56,7 @@ _io = [
         Subsignal("tx_data", Pins("M5 M2 N4 P4")),
         IOStandard("LVCMOS33")
     ),
+
     # SDRRAM (M12L64322A).
     ("sdram_clock", 0, Pins("E14"), IOStandard("LVCMOS33")),
     ("sdram", 0,
@@ -69,7 +77,23 @@ _io = [
         Subsignal("ba",    Pins("D19 B13")),
         #Subsignal("dm",   Pins("")), # GND
         IOStandard("LVCMOS33"),
-        Misc("SLEWRATE=FAST")
+        Misc("SLEW=FAST")
+    ),
+
+    # Serial
+    # (Ext-Board, P2 conn., pin 23,25 : RX,TX)
+    ("serial", 0,
+        Subsignal("tx", Pins("R2")),
+        Subsignal("rx", Pins("T4")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # SPIFlash (1 bit SPI, clk is provided by USRMCLK like ColorLight-i5)
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("T19")),
+        Subsignal("mosi", Pins("P22")),
+        Subsignal("miso", Pins("R22")),
+        IOStandard("LVCMOS33"),
     ),
 ]
 
@@ -120,12 +144,8 @@ class Platform(Xilinx7SeriesPlatform):
 
     def __init__(self, toolchain="vivado"):
         Xilinx7SeriesPlatform.__init__(self, "xc7a50tfgg484-1", _io, _connectors, toolchain=toolchain)
-        self.toolchain.bitstream_commands = \
-            ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
-        self.toolchain.additional_commands = \
-            ["write_cfgmem -force -format bin -interface spix4 -size 16 "
-             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
-
+        self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]"]
+        #self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix1 -size 16 " "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
     def create_programmer(self):
         return OpenFPGALoader(cable="ch347_jtag")
