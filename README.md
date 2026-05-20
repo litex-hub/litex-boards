@@ -210,6 +210,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── mega65_mega65
     ├── microfpga_mf001_intel
     ├── microfpga_mf_c10lp_001
+    ├── microfpga_mf_max10_001
     ├── micronova_mercury2
     ├── microphase_a7_lite
     ├── microsoft_catapult_v3

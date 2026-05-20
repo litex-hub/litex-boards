@@ -9,7 +9,7 @@ from litex.build.altera.programmer import USBBlaster
 # IOs ----------------------------------------------------------------------------------------------
 
 #_io_10M08_U169 = [
-#    ("mfio", 0, Pins("D8"), 
+#    ("mfio", 0, Pins("D8"),
 #         IOStandard("3.3-V LVTTL"))
 #]
 
@@ -23,7 +23,7 @@ _io_10M08_U169 = [
 ]
 
 _io_MAX1000 = [
-    ("mfio", 0, Pins("D8"), 
+    ("mfio", 0, Pins("D8"),
          IOStandard("3.3-V LVTTL"))
 ]
 
@@ -41,21 +41,23 @@ _variants = [
 class Platform(AlteraPlatform):
     default_clk_name = "sys_clk"
     default_clk_period = 1e9/116e6
- 
-    rom_size = 16
-    ram_size = 8 
 
-    def __init__(self, id = 0):
+    rom_size = 16
+    ram_size = 8
+
+    def __init__(self, id=0, toolchain="quartus"):
         _device, _io, rom_size, ram_size = _variants[id]
-        
-        AlteraPlatform.__init__(self, _device, _io)
+        self.rom_size = rom_size
+        self.ram_size = ram_size
+
+        AlteraPlatform.__init__(self, _device, _io, toolchain=toolchain)
 
         self.add_platform_command("set_global_assignment -name FAMILY \"MAX 10\"")
         self.add_platform_command("set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF")
         self.add_platform_command("set_global_assignment -name INTERNAL_FLASH_UPDATE_MODE \"SINGLE IMAGE WITH ERAM\"")
         self.add_platform_command("set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF")
 
- 
+
 
     def create_programmer(self):
         return USBBlaster()
