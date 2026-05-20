@@ -3,7 +3,7 @@
 # License: BSD
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -48,16 +48,16 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
 
-    def __init__(self, variant="a7-35-2c"):
+    def __init__(self, variant="a7-35-2c", toolchain="vivado"):
         device = {
             "a7-35-2c": "xc7a35tcsg324-2",
             "a7-35-2i": "xc7a35tcsg324-2"
         }[variant]
-        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain="vivado")
+        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.add_platform_command("""
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
