@@ -77,6 +77,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq", default=116e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--platform-id",  default=0,     type=int,   help="Platform variant index.")
     parser.add_target_argument("--no-mfio",      action="store_true",      help="Disable MFIO Wishbone bridge.")
+    parser.set_defaults(uart_name="jtag_uart")
     args = parser.parse_args()
 
     soc = BaseSoC(
