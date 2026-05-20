@@ -122,6 +122,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `machdyne_vanille` | machdyne_vanille | trellis | `48000000.0` | SDCard, SPI SDCard, USB Host | included |
 | `machdyne_vivaldi_ml1` | machdyne_vivaldi_ml1 | trellis | `48000000.0` | Ethernet, SDCard, SPI SDCard, USB Host | included |
 | `mega65_mega65` | mega65_mega65 | vivado | `100000000.0` | Ethernet, Etherbone | included |
+| `microfpga_mf001_intel` | microfpga_mf001_intel | quartus | `116000000.0` | - | included |
 | `micronova_mercury2` | micronova_mercury2 | vivado | `50000000.0` | - | included |
 | `microphase_a7_lite` | microphase_a7_lite | vivado | `100000000.0` | Ethernet, SDCard, SPI SDCard, SPI Flash | included |
 | `microsoft_catapult_v3` | microsoft_catapult_v3 | quartus | `100000000.0` | - | included |

@@ -11,7 +11,7 @@ from litex.build.altera.programmer import USBBlaster
 # IOs ----------------------------------------------------------------------------------------------
 
 #_io_10M08_U169 = [
-#    ("mfio", 0, Pins("D8"), 
+#    ("mfio", 0, Pins("D8"),
 #         IOStandard("3.3-V LVTTL"))
 #]
 
@@ -22,11 +22,11 @@ from litex.build.altera.programmer import USBBlaster
 #    ("mfio", 0, Pins(
 #        "D1", "C2", "E3", "E4", "C1", "B1", "F1", "E1", "E5", "H1", "F4", "G4", "H2", "H3", "G5", "J1", "H6", "J2", "H5", "M1", "H4", "M2", "N2", "L1", "N3", "L2", "M3", "K1", "L3", "K2", "L5", "M4", "L4", "M5", "K5", "N4", "J5", "N5", "N6", "N7", "M7", "N8", "J6", "M8", "K6", "M9", "J7", "N11", "K7", "N12", "M13", "N10", "M12", "N9", "M11", "L11", "J8", "K8", "M10", "L10", "K10", "K11", "J10", "L12", "K12", "L13", "J12", "K13", "J9", "J13", "H10", "H13", "H9", "G13", "H8", "G12", "G9", "G10", "F13", "E13", "F12", "E12", "F9", "D13", "F10", "C13", "F8", "B12", "E9", "B11", "C12", "B13", "C11", "A12", "E10", "D9", "D12", "D11", "C10", "A8", "C9", "A9", "B10", "A10", "B9", "A11", "D8", "E8", "B7", "D7", "A7", "A6", "B6", "A4", "B5", "A3", "E6", "B3", "D6", "B4", "C4", "A5", "C5", "A2", "B2"
 #    ), IOStandard("3.3-V LVTTL")),
-#    
+#
 #]
 
 _io_MAX1000 = [
-    ("mfio", 0, Pins("D8", "A11", "A9"), 
+    ("mfio", 0, Pins("D8", "A11", "A9"),
          IOStandard("3.3-V LVTTL"))
 ]
 
@@ -291,38 +291,40 @@ class Platform(AlteraPlatform):
     default_clk_name = "sys_clk"
     default_clk_period = 1e9/116e6
 
-    docs = None 
+    docs = None
 
     rom_size = 16
-    ram_size = 8 
+    ram_size = 8
 
-    def __init__(self, id = 0):
+    def __init__(self, id=0, toolchain="quartus"):
         _device, _io, rom_size, ram_size = _variants[id]
+        self.rom_size = rom_size
+        self.ram_size = ram_size
 
-        AlteraPlatform.__init__(self, _device, _io)
+        AlteraPlatform.__init__(self, _device, _io, toolchain=toolchain)
 
         self.docs  = "MicroFPGA generated documentation\n"
-        self.docs += "ROM Size: {}\nRAM Size: {}\n".format(rom_size, ram_size)  
-        self.docs += "FPGA: {} \n\n".format(_device)  
+        self.docs += "ROM Size: {}\nRAM Size: {}\n".format(rom_size, ram_size)
+        self.docs += "FPGA: {} \n\n".format(_device)
 
         ios  = list(_io)
         resource = ios[0]
 
         #mfio
-        name   = resource[0] 
-        number = resource[1] 
+        name   = resource[0]
+        number = resource[1]
         if name.startswith("mfio"):
             for element in resource[2:]:
                 if isinstance(element, Pins):
                     i = 0
-                    self.docs +=     "  #    Offset FPGA\n" 
-                    self.docs +=     "==================\n" 
+                    self.docs +=     "  #    Offset FPGA\n"
+                    self.docs +=     "==================\n"
                     for idf in element.identifiers:
                         self.docs += "{:3d} {:>6}    {}\n".format(i, hex(i*4), idf)
-                        i += 1                          
-                    self.docs +=     "==================\n" 
-  
-        
+                        i += 1
+                    self.docs +=     "==================\n"
+
+
 
 
 
@@ -340,7 +342,7 @@ class Platform(AlteraPlatform):
             self.add_platform_command("set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION \"USE AS REGULAR IO\"")
             self.add_platform_command("set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION \"USE AS REGULAR IO\"")
 
- 
+
 
     def create_programmer(self):
         return USBBlaster()

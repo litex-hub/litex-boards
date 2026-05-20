@@ -94,6 +94,10 @@ PLATFORM_EXCLUSIONS = {
         "category": "untested",
         "reason": "Not yet tested.",
     },
+    "microfpga_mf001_intel": {
+        "category": "missing_default_clock",
+        "reason": "Uses an internal oscillator target CRG.",
+    },
 }
 
 TARGET_EXCLUSIONS = {
