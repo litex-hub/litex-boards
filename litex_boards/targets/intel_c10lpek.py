@@ -74,6 +74,7 @@ def main():
     parser = LiteXArgumentParser(platform=intel_c10lpek.Platform, description="LiteX SoC on C10LP Evaluation Kit.")
     parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-hyperram", action="store_true",    help="Enable HyperRAM support.")
+    parser.set_defaults(uart_name="jtag_uart")
     args = parser.parse_args()
 
     soc = BaseSoC(
