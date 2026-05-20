@@ -285,6 +285,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── tinyfpga_bx
     ├── trellisboard
     ├── trenz_c10lprefkit
+    ├── trenz_cr00010
     ├── trenz_cyc1000
     ├── trenz_max1000
     ├── trenz_te0725

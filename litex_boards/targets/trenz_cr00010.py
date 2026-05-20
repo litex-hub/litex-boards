@@ -1,217 +1,97 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
-# This file is Copyright (c) 2019 (year 0 AG) Antti Lukats <antti.lukats@gmail.com>
-# This file is Copyright (c) 2014-2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
-
-# info about the board http://trenz.org/max1000-info
-
-import argparse
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
+# Copyright (c) 2014-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
 
-from litex_boards.platforms import cr00010
+from litex.gen import *
 
+from litex_boards.platforms import trenz_cr00010
+
+from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
-
 from litex.soc.integration.builder import *
-
-from litedram.modules import MT48LC4M16
-from litedram.phy import GENSDRPHY
-
-#from litex.soc.cores import gpio
-from litex.soc.cores.spi_flash import SpiFlash
-from litex.soc.cores.hyperbus import HyperRAM
-
-#from bbio import *
-
-#class ClassicLed(gpio.GPIOOut):
-#    def __init__(self, pads):
-#        gpio.GPIOOut.__init__(self, pads)
+from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
-class _CRG(Module):
-    def __init__(self, platform):
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_sys_ps = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+
+class _CRG(LiteXModule):
+    def __init__(self, platform, sys_clk_freq):
+        self.rst       = Signal()
+        self.cd_sys    = ClockDomain()
+        self.cd_sys_ps = ClockDomain()
 
         # # #
 
-        self.cd_sys.clk.attr.add("keep")
-        self.cd_sys_ps.clk.attr.add("keep")
-        self.cd_por.clk.attr.add("keep")
+        self.pll = pll = CycloneVPLL(speedgrade="-C8")
+        self.comb += pll.reset.eq(self.rst)
+        pll.register_clkin(platform.request("clk12"), 12e6)
+        pll.create_clkout(self.cd_sys,    sys_clk_freq)
+        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
 
-        # clock input always available
-        clk12 = platform.request("clk12")
-
-        # power on rst
-        rst_n = Signal()
-        self.sync.por += rst_n.eq(1)
-        self.comb += [
-            self.cd_por.clk.eq(clk12),
-            self.cd_sys.rst.eq(~rst_n),
-            self.cd_sys_ps.rst.eq(~rst_n)
-        ]
-
-        clk_outs = Signal(5)
-
-        self.comb += self.cd_sys.clk.eq(clk_outs[0]) # C0
-        self.comb += self.cd_sys_ps.clk.eq(clk_outs[1]) # C1
-
-        #
-        # PLL we need 2 clocks one system one for SDRAM phase shifter
-        # 
-        self.specials += \
-            Instance("ALTPLL",
-                p_BANDWIDTH_TYPE="AUTO",
-                p_CLK0_DIVIDE_BY=6,
-                p_CLK0_DUTY_CYCLE=50,
-                p_CLK0_MULTIPLY_BY=25,
-                p_CLK0_PHASE_SHIFT="0",
-                p_CLK1_DIVIDE_BY=6,
-                p_CLK1_DUTY_CYCLE=50,
-                p_CLK1_MULTIPLY_BY=25, 
-                p_CLK1_PHASE_SHIFT="-10000",
-                p_COMPENSATE_CLOCK="CLK0",
-                p_INCLK0_INPUT_FREQUENCY=83000,
-                p_INTENDED_DEVICE_FAMILY="MAX 10",
-                p_LPM_TYPE = "altpll",
-                p_OPERATION_MODE = "NORMAL",
-                i_INCLK=clk12,
-                o_CLK=clk_outs, # we have total max 5 Cx clocks
-                i_ARESET=~rst_n,
-                i_CLKENA=0x3f,
-                i_EXTCLKENA=0xf,
-                i_FBIN=1,
-                i_PFDENA=1,
-                i_PLLENA=1,
-            )
         self.comb += platform.request("sdram_clock").eq(self.cd_sys_ps.clk)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
-class BaseSoC(SoCSDRAM):
+class BaseSoC(SoCCore):
+    def __init__(self, sys_clk_freq=50e6,
+        device          = "10M08SAU169C8G",
+        with_led_chaser = True,
+        **kwargs):
+        platform = trenz_cr00010.Platform(device=device)
 
-##   csr_peripherals = (
-##        "leds",
-##    )
-#    csr_map.update(SoCCore.csr_map, csr_peripherals)
+        # CRG --------------------------------------------------------------------------------------
+        self.crg = _CRG(platform, sys_clk_freq)
 
-##    mem_map = {
-#        "rom":      0x00000000,
-#        "sram":     0x10000000,
-#        "main_ram": 0xc0000000,
-##        "bbio":     0x60000000,
-#        "csr" :     0xf0000000
-##    }
-##    mem_map.update(SoCCore.mem_map)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on CR00010", **kwargs)
 
-    def __init__(self, device, sys_clk_freq=int(50e6), **kwargs):
-        assert sys_clk_freq == int(50e6)
-
-        platform = cr00010.Platform(device)
-
-        SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
-            integrated_rom_size=0x6000,
-#            integrated_main_ram_size=0x1000,
-            **kwargs)
-
-        self.mem_map['hyperram'] = 0x30000000
-
-        self.submodules.hyperram = HyperRAM(platform.request("hyperram"))
-        self.add_wb_slave(mem_decoder(self.mem_map["hyperram"]), self.hyperram.bus)
-        self.add_memory_region("hyperram", self.mem_map["hyperram"], 8*1024*1024)
-
- 
-        self.mem_map['spiflash'] = 0x20000000
-        spiflash_pads = platform.request('spiflash', 1)
-        self.add_memory_region(
-            "spiflash", self.mem_map["spiflash"], 8*1024*1024)
-
-        self.submodules.spiflash = SpiFlash(
-                spiflash_pads,
-                dummy=8,
-                div=4,
-                endianness=self.cpu.endianness)
-        self.add_csr("spiflash")
-
-        # 8 MB flash: W74M64FVSSIQ
-        self.add_constant("SPIFLASH_PAGE_SIZE", 256)
-        self.add_constant("SPIFLASH_SECTOR_SIZE", 4096)
-        self.add_constant("FLASH_BOOT_ADDRESS", self.mem_map['spiflash'])
-
-        # spi_flash.py supports max 16MB linear space
-        self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
-
-        self.submodules.crg = _CRG(platform)
- 
-##        self.submodules.leds = ClassicLed(Cat(platform.request("user_led", i) for i in range(7)))
-##        self.add_csr("leds", allow_user_defined=True)
-##        self.submodules.leds = ClassicLed(platform.request("user_led", 0))
-
-# 
-#        self.add_csr("gpio_leds", allow_user_defined=True)
-#        self.submodules.gpio_leds = gpio.GPIOOut(platform.request("gpio_leds"))
-
-        self.counter = counter = Signal(32)
-        self.sync += counter.eq(counter + 1)
- 
-	#
-        # make user LED to blink
-        #  
-        led_red = platform.request("user_led", 0)
-        self.comb += led_red.eq(counter[23])
-
-        # connect POWER Control
-        # enable permanent 3.3V   
-        pwr = platform.request('power_control', 0)
+        # Power Control ----------------------------------------------------------------------------
+        pwr = platform.request("power_control")
         self.comb += [
-            pwr.enable.eq (1),
-            pwr.vid0.eq (0),
-            pwr.vid1.eq (0),
-            pwr.vid2.eq (0),
+            pwr.enable.eq(1),
+            pwr.vid0.eq(0),
+            pwr.vid1.eq(0),
+            pwr.vid2.eq(0),
         ]
 
-
-# use micron device as winbond and ISSI not available
-
-        if not self.integrated_main_ram_size:
-            self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
-            sdram_module = MT48LC4M16(self.clk_freq, "1:1")
-            self.register_sdram(self.sdrphy,
-                                sdram_module.geom_settings,
-                                sdram_module.timing_settings)
- 
-# include all unused pins as generic BBIO basic IP core
-
-##        bbio_pads = platform.request("bbio")
-        # we can exclue any number of I/O pins to be included
-##        self.submodules.bbio = bbioBasic(bbio_pads, exclude=None)
-##        self.add_wb_slave(mem_decoder(self.mem_map["bbio"]), self.bbio.bus)
-##        self.add_memory_region("bbio", self.mem_map["bbio"], 4*4*1024)
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on CR00010")
-    builder_args(parser)
-    parser.add_argument("--device", choices=['8', '16'], help='Cyclone device: "8" for 10M08SAU169C8G or "16" for 10M16SAU169C8G')
-
-    soc_sdram_args(parser)
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=trenz_cr00010.Platform, description="LiteX SoC on CR00010.")
+    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float,       help="System clock frequency.")
+    parser.add_target_argument("--device",       default="10m08", choices=["10m08", "10m16"], help="FPGA device.")
     args = parser.parse_args()
 
-    if args.device == '16':
-        device = '10M16SAU169C8G'
-    else:
-        device = '10M08SAU169C8G'
-    soc = BaseSoC(device, **soc_sdram_argdict(args))
+    device = {
+        "10m08": "10M08SAU169C8G",
+        "10m16": "10M16SAU169C8G",
+    }[args.device]
 
+    soc = BaseSoC(
+        sys_clk_freq = args.sys_clk_freq,
+        device       = device,
+        **parser.soc_argdict
+    )
+    builder = Builder(soc, **parser.builder_argdict)
+    if args.build:
+        builder.build(**parser.toolchain_argdict)
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder.build()
-
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()
