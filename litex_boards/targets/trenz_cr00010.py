@@ -20,6 +20,12 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
+from litedram.modules import MT48LC4M16
+from litedram.phy import GENSDRPHY
+
+from litespi.modules import W74M64FV
+from litespi.opcodes import SpiNorFlashOpCodes as Codes
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -41,10 +47,16 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
+    mem_map = {**SoCCore.mem_map, **{
+        "spiflash": 0x20000000,
+    }}
+
     def __init__(self, sys_clk_freq=50e6,
         device          = "10M08SAU169C8G",
         with_hyperram   = True,
         with_led_chaser = True,
+        with_sdram      = True,
+        with_spi_flash  = False,
         **kwargs):
         platform = trenz_cr00010.Platform(device=device)
 
@@ -62,6 +74,25 @@ class BaseSoC(SoCCore):
                 size   = 8*MEGABYTE,
                 mode   = "rwx",
             ))
+
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            self.add_spi_flash(
+                name        = "spiflash",
+                mode        = "1x",
+                module      = W74M64FV(Codes.READ_1_1_1),
+                number      = 1,
+                with_master = False,
+            )
+
+        # SDR SDRAM --------------------------------------------------------------------------------
+        if with_sdram and not self.integrated_main_ram_size:
+            self.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
+            self.add_sdram("sdram",
+                phy           = self.sdrphy,
+                module        = MT48LC4M16(sys_clk_freq, "1:1"),
+                l2_cache_size = kwargs.get("l2_size", 8192)
+            )
 
         # Power Control ----------------------------------------------------------------------------
         pwr = platform.request("power_control")
@@ -83,9 +114,11 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=trenz_cr00010.Platform, description="LiteX SoC on CR00010.")
-    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float,       help="System clock frequency.")
-    parser.add_target_argument("--device",       default="10m08", choices=["10m08", "10m16"], help="FPGA device.")
-    parser.add_target_argument("--no-hyperram",  action="store_true",            help="Disable HyperRAM support.")
+    parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float,       help="System clock frequency.")
+    parser.add_target_argument("--device",          default="10m08", choices=["10m08", "10m16"], help="FPGA device.")
+    parser.add_target_argument("--no-hyperram",     action="store_true",            help="Disable HyperRAM support.")
+    parser.add_target_argument("--no-sdram",        action="store_true",            help="Disable SDRAM support.")
+    parser.add_target_argument("--with-spi-flash",  action="store_true",            help="Enable SPI flash support.")
     args = parser.parse_args()
 
     device = {
@@ -94,9 +127,11 @@ def main():
     }[args.device]
 
     soc = BaseSoC(
-        sys_clk_freq  = args.sys_clk_freq,
-        device        = device,
-        with_hyperram = not args.no_hyperram,
+        sys_clk_freq   = args.sys_clk_freq,
+        device         = device,
+        with_hyperram  = not args.no_hyperram,
+        with_sdram     = not args.no_sdram,
+        with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

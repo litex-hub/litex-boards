@@ -204,7 +204,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `tinyfpga_bx` | tinyfpga_bx | icestorm | `16000000.0` | - | included |
 | `trellisboard` | trellisboard | trellis | `75000000.0` | Ethernet, SDCard, SPI SDCard, Video Terminal, Video Framebuffer | included |
 | `trenz_c10lprefkit` | trenz_c10lprefkit | quartus | `50000000.0` | Ethernet, Etherbone | included |
-| `trenz_cr00010` | trenz_cr00010 | quartus | `50000000.0` | - | included |
+| `trenz_cr00010` | trenz_cr00010 | quartus | `50000000.0` | SPI Flash | included |
 | `trenz_cyc1000` | trenz_cyc1000 | quartus | `50000000.0` | - | included |
 | `trenz_max1000` | trenz_max1000 | quartus | `50000000.0` | - | included |
 | `trenz_s7mini` | trenz_s7mini | vivado | `100000000.0` | - | included |
