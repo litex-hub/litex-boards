@@ -84,6 +84,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `icebreaker` | icebreaker | icestorm | `24000000.0` | Video Terminal | included |
 | `icebreaker_bitsy` | icebreaker_bitsy | icestorm | `24000000.0` | - | included |
 | `icepi_zero` | icepi_zero | trellis | `50000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
+| `intel_c10lpek` | intel_c10lpek | quartus | `50000000.0` | - | included |
 | `intergalaktik_ulx5m_gs` | intergalaktik_ulx5m_gs | colognechip | `20000000.0` | SDCard, SPI SDCard, SPI Flash | included |
 | `isx_im1283` | isx_im1283 | vivado | `80000000.0` | SDCard, SPI SDCard | included |
 | `jungle_electronics_fireant` | jungle_electronics_fireant | efinity | `33333000.0` | - | toolchain-gated: Require Efinity toolchain. |

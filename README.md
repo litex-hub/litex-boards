@@ -170,6 +170,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── icebreaker
     ├── icebreaker_bitsy
     ├── icepi_zero
+    ├── intel_c10lpek
     ├── intergalaktik_ulx5m_gs
     ├── isx_im1283
     ├── jungle_electronics_fireant

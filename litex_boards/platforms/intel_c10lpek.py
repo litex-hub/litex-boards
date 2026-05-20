@@ -18,18 +18,18 @@ _io = [
 
 #    ("cpu_reset", 0, Pins("E2"), IOStandard("3.3-V LVTTL")), # GND
 
-    ("cpu_reset", 0, Pins("E15"), IOStandard("3.3-V LVTTL")), # PB0 low active !
+    ("cpu_reset_n", 0, Pins("E15"), IOStandard("3.3-V LVTTL")), # PB0 low active.
 
-    ("sw", 0, Pins("M16"), IOStandard("3.3-V LVTTL")), # DIP 0
-    ("sw", 1, Pins("A8"), IOStandard("3.3-V LVTTL")),
-    ("sw", 2, Pins("A9"), IOStandard("3.3-V LVTTL")),
+    ("user_sw", 0, Pins("M16"), IOStandard("3.3-V LVTTL")), # DIP 0
+    ("user_sw", 1, Pins("A8"),  IOStandard("3.3-V LVTTL")),
+    ("user_sw", 2, Pins("A9"),  IOStandard("3.3-V LVTTL")),
 
-    # no usb serial on the EK board! 
+    # no usb serial on the EK board!
     ("serial", 0,
         Subsignal("tx", Pins("L13"), IOStandard("3.3-V LVTTL")), # GPIO 0
         Subsignal("rx", Pins("L16"), IOStandard("3.3-V LVTTL"))  # GPIO 1
     ),
- 
+
     ("epcs", 0,
         Subsignal("data0", Pins("H2")),
         Subsignal("dclk", Pins("H1")),
@@ -43,7 +43,7 @@ _io = [
         Subsignal("clk_n", Pins("R14")), # P14 R14
         Subsignal("rst_n", Pins("N9")),
         Subsignal("dq", Pins("T12 T13 T11 R10 T10 R11 R12 R13")),
-        Subsignal("cs0_n", Pins("P9 N12")), # RAM, Flash
+        Subsignal("cs_n", Pins("P9 N12")), # RAM, Flash
         Subsignal("rwds", Pins("T14")),
         IOStandard("1.8 V")
     ),
@@ -62,7 +62,7 @@ _io = [
 #    ),
 
 
-    #ETH 
+    #ETH
 #    ("eth_clocks", 0,
 #        Subsignal("tx", Pins("")),
 #        Subsignal("rx", Pins("")),
@@ -91,8 +91,8 @@ class Platform(AlteraPlatform):
     default_clk_name = "clk50"
     default_clk_period = 20
 
-    def __init__(self):
-        AlteraPlatform.__init__(self, "10CL025YU256I7G", _io)
+    def __init__(self, toolchain="quartus"):
+        AlteraPlatform.__init__(self, "10CL025YU256I7G", _io, toolchain=toolchain)
         self.add_platform_command("set_global_assignment -name FAMILY \"Cyclone 10 LP\"")
 
     def create_programmer(self):
