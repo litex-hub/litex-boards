@@ -294,6 +294,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── trenz_cyc1000
     ├── trenz_max1000
     ├── trenz_s7mini
+    ├── trenz_te0710
     ├── trenz_te0725
     ├── trenz_te0890
     ├── trenz_tec0117
