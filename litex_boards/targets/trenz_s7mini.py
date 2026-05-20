@@ -1,94 +1,90 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
-# This file is Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
-
-import argparse
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
+# Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
 
-from litex_boards.partner.platforms import s7mini
+from litex.gen import *
 
-from litex.soc.interconnect import wishbone
+from litex_boards.platforms import trenz_s7mini
 
 from litex.soc.cores.clock import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-
-from hyper_memory import *
+from litex.soc.cores.hyperbus import HyperRAM
+from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
-        self.cd_sys.clk.attr.add("keep")
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset"))
+
+        self.pll = pll = S7PLL(speedgrade=-1)
+        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
-
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {
-        "hyperram": 0x40000000,
-    }
-    mem_map.update(SoCCore.mem_map)
+    def __init__(self, sys_clk_freq=100e6,
+        with_hyperram   = True,
+        with_led_chaser = True,
+        **kwargs):
+        platform = trenz_s7mini.Platform()
 
-    def __init__(self, sys_clk_freq=int(100e6), **kwargs):
-        platform = s7mini.Platform()
+        # CRG --------------------------------------------------------------------------------------
+        self.crg = _CRG(platform, sys_clk_freq)
 
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq,
-            integrated_rom_size=0x8000,
-#            integrated_main_ram_size=0x8000,
-            **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Trenz S7 Mini", **kwargs)
 
-	# can we just use the clock without PLL ?
+        # HyperRAM ---------------------------------------------------------------------------------
+        if with_hyperram:
+            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
+            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(
+                origin = 0x20000000,
+                size   = 8*MEGABYTE,
+                mode   = "rwx",
+            ))
 
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
-
-        hyperram_pads = platform.request("hyperram")
-        self.submodules.hyperram = HyperRAM(
-                hyperram_pads)
-
-        self.add_wb_slave(mem_decoder(self.mem_map["hyperram"]), self.hyperram.bus)
-        self.add_memory_region(
-            "hyperram", self.mem_map["hyperram"] | self.shadow_base, 8*1024*1024)
-
-
-        self.counter = counter = Signal(32)
-        self.sync += counter.eq(counter + 1)
- 
-	#
-        led_red = platform.request("user_led_red")
-        self.comb += led_red.eq(counter[23])
-
-        led_green = platform.request("user_led_green")
-        self.comb += led_green.eq(counter[25])
-
-
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX on Spartan-7 mini")
-    builder_args(parser)
-#    soc_sdram_args(parser)
-    soc_core_args(parser)
-
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=trenz_s7mini.Platform, description="LiteX SoC on Trenz S7 Mini.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--no-hyperram",  action="store_true",      help="Disable HyperRAM support.")
     args = parser.parse_args()
 
-    cls = BaseSoC
+    soc = BaseSoC(
+        sys_clk_freq  = args.sys_clk_freq,
+        with_hyperram = not args.no_hyperram,
+        **parser.soc_argdict
+    )
+    builder = Builder(soc, **parser.builder_argdict)
+    if args.build:
+        builder.build(**parser.toolchain_argdict)
 
-    soc = cls(**soc_core_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
-    builder.build()
-
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

@@ -3,13 +3,13 @@
 # License: BSD
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    ("user_led_red", 0, Pins("D14"), IOStandard("LVCMOS33")),
-    ("user_led_green", 0, Pins("C14"), IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("D14"), IOStandard("LVCMOS33")),
+    ("user_led", 1, Pins("C14"), IOStandard("LVCMOS33")),
 #J1
     ("user_sw", 0, Pins("D3"), IOStandard("LVCMOS33")),
 #J2
@@ -30,7 +30,7 @@ _io = [
         Subsignal("clk", Pins("N1")),
         Subsignal("rst_n", Pins("P3")),
         Subsignal("dq", Pins("P11 P12 N4 P10 P5 N10 N11 P13")),
-        Subsignal("cs0_n", Pins("P2")),
+        Subsignal("cs_n", Pins("P2")),
         Subsignal("rwds", Pins("P4")),
         IOStandard("LVCMOS33")
     ),
@@ -62,15 +62,15 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
 
-    def __init__(self, variant="s7-25"):
+    def __init__(self, variant="s7-25", toolchain="vivado"):
         device = {
             "s7-25": "xc7s25ftgb196-1"
         }[variant]
-        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain="vivado")
+        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = \
