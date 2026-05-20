@@ -47,5 +47,5 @@ class Platform(MicrosemiPlatform):
     default_clk_name = "clk12"
     default_clk_period = 83.0
 
-    def __init__(self):
-        MicrosemiPlatform.__init__(self, "MPF100T-FCVG484-1", _io)
+    def __init__(self, toolchain="libero_soc"):
+        MicrosemiPlatform.__init__(self, "MPF100T-1FCVG484", _io, toolchain=toolchain)
