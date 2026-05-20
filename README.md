@@ -213,6 +213,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── microfpga_mf_max10_001
     ├── micronova_mercury2
     ├── microphase_a7_lite
+    ├── microsemi_smf2000
     ├── microsoft_catapult_v3
     ├── mist
     ├── mlkpai_fs01_dr1v90m

@@ -1,81 +1,77 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
-# This file is Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
-
-import argparse
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
+# Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
 
-from litex_boards.partner.platforms import smf2000
+from litex.gen import *
 
-from litex.soc.cores.clock import *
+from litex_boards.platforms import microsemi_smf2000
+
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+
+        # # #
+
+        if sys_clk_freq != 12e6:
+            raise ValueError("microsemi_smf2000 currently supports a 12MHz system clock.")
 
         clk12 = platform.request("clk12")
-
-        btn = platform.request("user_btn", 0)
-
-        rst_n = Signal()
-        self.sync.por += rst_n.eq(btn)
         self.comb += [
-            self.cd_por.clk.eq(clk12),
             self.cd_sys.clk.eq(clk12),
-            self.cd_sys.rst.eq(~rst_n)
+            self.cd_sys.rst.eq(~platform.request("user_btn") | self.rst),
         ]
-
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
+    def __init__(self, sys_clk_freq=12e6, with_led_chaser=True, **kwargs):
+        platform = microsemi_smf2000.Platform()
 
-    def __init__(self, sys_clk_freq=int(12e6), **kwargs):
-        platform = smf2000.Platform()
+        # CRG --------------------------------------------------------------------------------------
+        self.crg = _CRG(platform, sys_clk_freq)
 
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq,
-            integrated_rom_size=0x6000,
-            integrated_main_ram_size=0x1000,
-            **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on SMF2000", **kwargs)
 
-	# can we just use the clock without PLL ?
-
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
-        self.counter = counter = Signal(32)
-        self.sync += counter.eq(counter + 1)
- 
-	#
-        led_red = platform.request("user_led", 0)
-        self.comb += led_red.eq(counter[23])
-
-#        led_green = platform.request("user_led_green")
-#        self.comb += led_green.eq(counter[25])
-
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX on SMF2000")
-    builder_args(parser)
-#    soc_sdram_args(parser)
-    soc_core_args(parser)
-
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=microsemi_smf2000.Platform, description="LiteX SoC on SMF2000.")
+    parser.add_target_argument("--sys-clk-freq", default=12e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
-    cls = BaseSoC
+    soc = BaseSoC(
+        sys_clk_freq = args.sys_clk_freq,
+        **parser.soc_argdict
+    )
+    builder = Builder(soc, **parser.builder_argdict)
+    if args.build:
+        builder.build(**parser.toolchain_argdict)
 
-    soc = cls(**soc_core_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
-    builder.build()
-
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

@@ -46,5 +46,6 @@ class Platform(MicrosemiPlatform):
     default_clk_name = "clk12"
     default_clk_period = 83.0
 
-    def __init__(self):
-        MicrosemiPlatform.__init__(self, "M2S010-VF400-1", _io)
+    def __init__(self, toolchain="libero_soc"):
+        # LiteX's Microsemi backend models the SmartFusion2 fabric through the IGLOO2 family.
+        MicrosemiPlatform.__init__(self, "M2GL010-1VF400", _io, toolchain=toolchain)

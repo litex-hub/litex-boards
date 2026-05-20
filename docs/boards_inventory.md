@@ -127,6 +127,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `microfpga_mf_max10_001` | microfpga_mf_max10_001 | quartus | `116000000.0` | - | included |
 | `micronova_mercury2` | micronova_mercury2 | vivado | `50000000.0` | - | included |
 | `microphase_a7_lite` | microphase_a7_lite | vivado | `100000000.0` | Ethernet, SDCard, SPI SDCard, SPI Flash | included |
+| `microsemi_smf2000` | microsemi_smf2000 | libero_soc | `12000000.0` | - | included |
 | `microsoft_catapult_v3` | microsoft_catapult_v3 | quartus | `100000000.0` | - | included |
 | `mist` | mist | quartus | `50000000.0` | Video Terminal | included |
 | `mlkpai_fs01_dr1v90m` | mlkpai_fs01_dr1v90m | td | `25000000.0` | - | included |
