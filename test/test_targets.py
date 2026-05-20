@@ -98,6 +98,10 @@ PLATFORM_EXCLUSIONS = {
         "category": "missing_default_clock",
         "reason": "Uses an internal oscillator target CRG.",
     },
+    "microfpga_mf_c10lp_001": {
+        "category": "missing_default_clock",
+        "reason": "Uses an internal oscillator target CRG.",
+    },
 }
 
 TARGET_EXCLUSIONS = {
