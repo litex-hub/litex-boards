@@ -211,6 +211,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `trenz_te0710` | trenz_te0710 | vivado | `100000000.0` | - | included |
 | `trenz_te0711` | trenz_te0711 | vivado | `100000000.0` | - | included |
 | `trenz_te0725` | trenz_te0725 | vivado | `100000000.0` | - | included |
+| `trenz_te0741` | trenz_te0741 | vivado | `100000000.0` | - | included |
 | `trenz_te0890` | trenz_te0890 | vivado | `100000000.0` | - | included |
 | `trenz_tec0117` | trenz_tec0117 | gowin | `25000000.0` | SDCard, SPI SDCard | included |
 | `tul_pynq_z2` | tul_pynq_z2 | vivado | `100000000.0` | - | included |

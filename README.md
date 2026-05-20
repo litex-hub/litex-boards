@@ -297,6 +297,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── trenz_te0710
     ├── trenz_te0711
     ├── trenz_te0725
+    ├── trenz_te0741
     ├── trenz_te0890
     ├── trenz_tec0117
     ├── tul_pynq_z2

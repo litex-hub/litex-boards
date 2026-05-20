@@ -1,82 +1,77 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
-# This file is Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
-
-import argparse
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
+# Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
 
-from litex_boards.partner.platforms import te0741
+from litex.gen import *
+
+from litex_boards.platforms import trenz_te0741
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
 
         # # #
-        self.cd_sys.clk.attr.add("keep")
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset"))
+
+        self.pll = pll = S7PLL(speedgrade=-2)
+        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
-
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), **kwargs):
-        platform = te0741.Platform()
+    def __init__(self, sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
+        platform = trenz_te0741.Platform()
 
-#        SoCCore.__init__(self, platform, sys_clk_freq, **kwargs)
+        # CRG --------------------------------------------------------------------------------------
+        self.crg = _CRG(platform, sys_clk_freq)
 
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq,
-            integrated_rom_size=0x8000,
-            integrated_main_ram_size=0x8000,
-            **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Trenz TE0741", **kwargs)
 
-        # make sure the clock chip for PLL is enabled
-        clk_en = platform.request("clk_en")
-        self.comb += clk_en.eq(1)
+        # Clk Enable -------------------------------------------------------------------------------
+        self.comb += platform.request("clk_en").eq(1)
 
-	# can we just use the clock without PLL ?
-
-#        self.submodules.crg = _CRG(platform, sys_clk_freq)
-#        self.counter = counter = Signal(32)
-#        self.sync += counter.eq(counter + 1)
-
-        
-
-	#
-#        led_red = platform.request("user_led_red")
-#        self.comb += led_red.eq(counter[23])
-
-#        led_green = platform.request("user_led_green")
-#        self.comb += led_green.eq(counter[25])
-
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX on TE0741 Kintex-7 board")
-    builder_args(parser)
-#    soc_sdram_args(parser)
-    soc_core_args(parser)
-
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=trenz_te0741.Platform, description="LiteX SoC on Trenz TE0741.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
-    cls = BaseSoC
-    soc = cls(**soc_core_argdict(args))
+    soc = BaseSoC(
+        sys_clk_freq = args.sys_clk_freq,
+        **parser.soc_argdict
+    )
+    builder = Builder(soc, **parser.builder_argdict)
+    if args.build:
+        builder.build(**parser.toolchain_argdict)
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder.build()
-
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()
