@@ -3,7 +3,7 @@
 # License: BSD
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -11,9 +11,9 @@ _io = [
     ("user_led", 0, Pins("U22"), IOStandard("LVCMOS33")), # LED4
 #    ("user_led", 1, Pins("E26"), IOStandard("LVCMOS33")),
 
-# 
+#
     ("clk100", 0, Pins("V13"), IOStandard("LVCMOS33")),
-# 
+#
     ("cpu_reset", 0, Pins("L15"), IOStandard("LVCMOS33")),
 # Debug UART
     ("serial", 0,
@@ -24,7 +24,7 @@ _io = [
 
     ("hyperram", 0,
         Subsignal("clk", Pins("D22")),
-        Subsignal("rstn_n", Pins("B22")),
+        Subsignal("rst_n", Pins("B22")),
         Subsignal("dq", Pins("A21 D21 C20 A20 B20 A19 E21 E22")),
         Subsignal("cs_n", Pins("C22")),
         Subsignal("rwds", Pins("B21")),
@@ -97,15 +97,15 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
 
-    def __init__(self, variant="a7-100-1c"):
+    def __init__(self, variant="a7-100-1c", toolchain="vivado"):
         device = {
             "a7-100-1c": "xc7a100tfgg484-1"
         }[variant]
-        XilinxPlatform.__init__(self, device, _io, _connectors, toolchain="vivado")
+        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.add_platform_command("""
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]

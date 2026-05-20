@@ -207,6 +207,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── machdyne_schoko
     ├── machdyne_vanille
     ├── machdyne_vivaldi_ml1
+    ├── mega65_mega65
     ├── micronova_mercury2
     ├── microphase_a7_lite
     ├── microsoft_catapult_v3

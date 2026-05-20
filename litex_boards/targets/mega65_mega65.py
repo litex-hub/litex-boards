@@ -1,141 +1,121 @@
 #!/usr/bin/env python3
 
-# This file is Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
-# This file is Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# License: BSD
-
-import argparse
+#
+# This file is part of LiteX-Boards.
+#
+# Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
+# Copyright (c) 2015-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
 
-from litex_boards.partner.platforms import mega65
+from litex.gen import *
 
-from litex.soc.interconnect import wishbone
+from litex_boards.platforms import mega65_mega65
 
 from litex.soc.cores.clock import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-
 from litex.soc.cores.hyperbus import HyperRAM
-
-from liteeth.phy.rmii import LiteEthPHYRMII
-from liteeth.mac import LiteEthMAC
-
-
-#from hyper_memory import *
-#self.submodules.hyperram = HyperRAM(platform.request("hyperram"))
-#self.add_wb_slave(mem_decoder(self.mem_map["hyperram"]), self.hyperram.bus)
-#self.add_memory_region("hyperram", self.mem_map["hyperram"], 8*1024*1024)
-
+from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
-class _CRG(Module):
+class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
-        self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_eth = ClockDomain()
+        self.rst    = Signal()
+        self.cd_sys = ClockDomain()
+        self.cd_eth = ClockDomain()
 
         # # #
-        self.cd_sys.clk.attr.add("keep")
-        self.submodules.pll = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(platform.request("cpu_reset"))
 
+        self.pll = pll = S7PLL(speedgrade=-1)
+        self.comb += pll.reset.eq(platform.request("cpu_reset") | self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         pll.create_clkout(self.cd_eth, 50e6)
 
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    mem_map = {
-#        "spiflash": 0x20000000,
-        "hyperram": 0x20000000,
-    }
-    mem_map.update(SoCCore.mem_map)
+    def __init__(self, sys_clk_freq=100e6,
+        with_hyperram   = True,
+        with_ethernet   = False,
+        with_etherbone  = False,
+        eth_ip          = "192.168.1.50",
+        remote_ip       = None,
+        eth_dynamic_ip  = False,
+        with_led_chaser = True,
+        **kwargs):
+        platform = mega65_mega65.Platform()
 
-    def __init__(self, sys_clk_freq=int(100e6), **kwargs):
-        platform = mega65.Platform()
+        # CRG --------------------------------------------------------------------------------------
+        self.crg = _CRG(platform, sys_clk_freq)
 
-        SoCCore.__init__(self, platform, clk_freq=sys_clk_freq,
-            ident="MEGA65", ident_version=True,
-            integrated_rom_size=0x8000,
-            integrated_main_ram_size=0x10000,
-            **kwargs)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on MEGA65", **kwargs)
 
-	# can we just use the clock without PLL ?
+        # HyperRAM ---------------------------------------------------------------------------------
+        if with_hyperram:
+            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
+            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(
+                origin = 0x20000000,
+                size   = 8*MEGABYTE,
+                mode   = "rwx",
+            ))
 
-        self.submodules.crg = _CRG(platform, sys_clk_freq)
-        self.counter = counter = Signal(32)
-        self.sync += counter.eq(counter + 1)
- 
-	#
-        led_red = platform.request("user_led", 0)
-        self.comb += led_red.eq(counter[23])
+        # Ethernet / Etherbone ---------------------------------------------------------------------
+        if with_ethernet or with_etherbone:
+            from liteeth.phy.rmii import LiteEthPHYRMII
+            self.ethphy = LiteEthPHYRMII(
+                clock_pads = self.platform.request("eth_clocks"),
+                pads       = self.platform.request("eth"))
+            if with_etherbone:
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+            if with_ethernet:
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
-#        led_green = platform.request("user_led_green")
-#        self.comb += led_green.eq(counter[25])
-
-
-#        hyperram_pads = platform.request("hyperram")
-#        self.submodules.hyperram = HyperRAM(hyperram_pads)
-#        self.add_wb_slave(mem_decoder(self.mem_map["hyperram"]), self.hyperram.bus)
-#        self.add_memory_region("hyperram", self.mem_map["hyperram"] | self.shadow_base, 8*1024*1024)
-
-        self.submodules.hyperram = HyperRAM(platform.request("hyperram"))
-        self.add_wb_slave(mem_decoder(self.mem_map["hyperram"]), self.hyperram.bus)
-        self.add_memory_region("hyperram", self.mem_map["hyperram"], 8*1024*1024)
-
-
-
-class EthernetSoC(BaseSoC):
-    mem_map = {
-        "ethmac": 0x30000000,  # (shadow @0xb0000000)
-    }
-    mem_map.update(BaseSoC.mem_map)
-
-    def __init__(self, **kwargs):
-        BaseSoC.__init__(self, **kwargs)
-
-        self.submodules.ethphy = LiteEthPHYRMII(self.platform.request("eth_clocks"),
-                                                self.platform.request("eth"))
-        self.add_csr("ethphy")
-        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32,
-            interface="wishbone", endianness=self.cpu.endianness)
-        self.add_wb_slave(self.mem_map["ethmac"], self.ethmac.bus, 0x2000)
-        self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
-        self.add_csr("ethmac")
-        self.add_interrupt("ethmac")
-
-        self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
-        self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 1e9/12.5e6)
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 1e9/12.5e6)
-        self.platform.add_false_path_constraints(
-            self.crg.cd_sys.clk,
-            self.ethphy.crg.cd_eth_rx.clk,
-            self.ethphy.crg.cd_eth_tx.clk)
-
+        # Leds -------------------------------------------------------------------------------------
+        if with_led_chaser:
+            self.leds = LedChaser(
+                pads         = platform.request_all("user_led"),
+                sys_clk_freq = sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX on MEGA65")
-    builder_args(parser)
-#    soc_sdram_args(parser)
-    soc_core_args(parser)
-
-    parser.add_argument("--with-ethernet", action="store_true",
-                        help="enable Ethernet support")
-
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(platform=mega65_mega65.Platform, description="LiteX SoC on MEGA65.")
+    parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--no-hyperram",    action="store_true",      help="Disable HyperRAM support.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
-    cls = EthernetSoC if args.with_ethernet else BaseSoC
-    soc = cls(**soc_core_argdict(args))
+    soc = BaseSoC(
+        sys_clk_freq   = args.sys_clk_freq,
+        with_hyperram  = not args.no_hyperram,
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        eth_ip         = args.eth_ip,
+        remote_ip      = args.remote_ip,
+        eth_dynamic_ip = args.eth_dynamic_ip,
+        **parser.soc_argdict
+    )
+    builder = Builder(soc, **parser.builder_argdict)
+    if args.build:
+        builder.build(**parser.toolchain_argdict)
 
-    builder = Builder(soc, **builder_argdict(args))
-    builder.build()
-
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()
