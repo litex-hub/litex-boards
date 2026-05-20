@@ -14,6 +14,8 @@ from litex.gen import *
 from litex_boards.platforms import trenz_cr00010
 
 from litex.soc.cores.clock import CycloneVPLL
+from litex.soc.cores.hyperbus import HyperRAM
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -41,6 +43,7 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
         device          = "10M08SAU169C8G",
+        with_hyperram   = True,
         with_led_chaser = True,
         **kwargs):
         platform = trenz_cr00010.Platform(device=device)
@@ -50,6 +53,15 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on CR00010", **kwargs)
+
+        # HyperRAM ---------------------------------------------------------------------------------
+        if with_hyperram:
+            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
+            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(
+                origin = 0x30000000,
+                size   = 8*MEGABYTE,
+                mode   = "rwx",
+            ))
 
         # Power Control ----------------------------------------------------------------------------
         pwr = platform.request("power_control")
@@ -73,6 +85,7 @@ def main():
     parser = LiteXArgumentParser(platform=trenz_cr00010.Platform, description="LiteX SoC on CR00010.")
     parser.add_target_argument("--sys-clk-freq", default=50e6, type=float,       help="System clock frequency.")
     parser.add_target_argument("--device",       default="10m08", choices=["10m08", "10m16"], help="FPGA device.")
+    parser.add_target_argument("--no-hyperram",  action="store_true",            help="Disable HyperRAM support.")
     args = parser.parse_args()
 
     device = {
@@ -81,8 +94,9 @@ def main():
     }[args.device]
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
-        device       = device,
+        sys_clk_freq  = args.sys_clk_freq,
+        device        = device,
+        with_hyperram = not args.no_hyperram,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
