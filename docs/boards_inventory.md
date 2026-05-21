@@ -84,6 +84,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `icebreaker` | icebreaker | icestorm | `24000000.0` | Video Terminal | included |
 | `icebreaker_bitsy` | icebreaker_bitsy | icestorm | `24000000.0` | - | included |
 | `icepi_zero` | icepi_zero | trellis | `50000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
+| `intel_c10lpek` | intel_c10lpek | quartus | `50000000.0` | - | included |
 | `intergalaktik_ulx5m_gs` | intergalaktik_ulx5m_gs | colognechip | `20000000.0` | SDCard, SPI SDCard, SPI Flash | included |
 | `isx_im1283` | isx_im1283 | vivado | `80000000.0` | SDCard, SPI SDCard | included |
 | `jungle_electronics_fireant` | jungle_electronics_fireant | efinity | `33333000.0` | - | toolchain-gated: Require Efinity toolchain. |
@@ -120,8 +121,13 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `machdyne_schoko` | machdyne_schoko | trellis | `40000000.0` | SDCard, SPI SDCard, USB Host | included |
 | `machdyne_vanille` | machdyne_vanille | trellis | `48000000.0` | SDCard, SPI SDCard, USB Host | included |
 | `machdyne_vivaldi_ml1` | machdyne_vivaldi_ml1 | trellis | `48000000.0` | Ethernet, SDCard, SPI SDCard, USB Host | included |
+| `mega65_mega65` | mega65_mega65 | vivado | `100000000.0` | Ethernet, Etherbone | included |
+| `microfpga_mf001_intel` | microfpga_mf001_intel | quartus | `116000000.0` | - | included |
+| `microfpga_mf_c10lp_001` | microfpga_mf_c10lp_001 | quartus | `80000000.0` | - | included |
+| `microfpga_mf_max10_001` | microfpga_mf_max10_001 | quartus | `116000000.0` | - | included |
 | `micronova_mercury2` | micronova_mercury2 | vivado | `50000000.0` | - | included |
 | `microphase_a7_lite` | microphase_a7_lite | vivado | `100000000.0` | Ethernet, SDCard, SPI SDCard, SPI Flash | included |
+| `microsemi_smf2000` | microsemi_smf2000 | libero_soc | `12000000.0` | - | included |
 | `microsoft_catapult_v3` | microsoft_catapult_v3 | quartus | `100000000.0` | - | included |
 | `mist` | mist | quartus | `50000000.0` | Video Terminal | included |
 | `mlkpai_fs01_dr1v90m` | mlkpai_fs01_dr1v90m | td | `25000000.0` | - | included |
@@ -198,11 +204,17 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `tinyfpga_bx` | tinyfpga_bx | icestorm | `16000000.0` | - | included |
 | `trellisboard` | trellisboard | trellis | `75000000.0` | Ethernet, SDCard, SPI SDCard, Video Terminal, Video Framebuffer | included |
 | `trenz_c10lprefkit` | trenz_c10lprefkit | quartus | `50000000.0` | Ethernet, Etherbone | included |
+| `trenz_cr00010` | trenz_cr00010 | quartus | `50000000.0` | SPI Flash | included |
 | `trenz_cyc1000` | trenz_cyc1000 | quartus | `50000000.0` | - | included |
 | `trenz_max1000` | trenz_max1000 | quartus | `50000000.0` | - | included |
+| `trenz_s7mini` | trenz_s7mini | vivado | `100000000.0` | - | included |
+| `trenz_te0710` | trenz_te0710 | vivado | `100000000.0` | - | included |
+| `trenz_te0711` | trenz_te0711 | vivado | `100000000.0` | - | included |
 | `trenz_te0725` | trenz_te0725 | vivado | `100000000.0` | - | included |
+| `trenz_te0741` | trenz_te0741 | vivado | `100000000.0` | - | included |
 | `trenz_te0890` | trenz_te0890 | vivado | `100000000.0` | - | included |
 | `trenz_tec0117` | trenz_tec0117 | gowin | `25000000.0` | SDCard, SPI SDCard | included |
+| `trenz_tem0006` | trenz_tem0006 | libero_soc | `12000000.0` | - | included |
 | `tul_pynq_z2` | tul_pynq_z2 | vivado | `100000000.0` | - | included |
 | `xilinx_ac701` | xilinx_ac701 | vivado | `100000000.0` | Ethernet, SPI Flash, PCIe | included |
 | `xilinx_alveo_u200` | xilinx_alveo_u200 | vivado | `125000000.0` | PCIe | included |

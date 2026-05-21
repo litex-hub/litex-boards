@@ -170,6 +170,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── icebreaker
     ├── icebreaker_bitsy
     ├── icepi_zero
+    ├── intel_c10lpek
     ├── intergalaktik_ulx5m_gs
     ├── isx_im1283
     ├── jungle_electronics_fireant
@@ -206,8 +207,13 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── machdyne_schoko
     ├── machdyne_vanille
     ├── machdyne_vivaldi_ml1
+    ├── mega65_mega65
+    ├── microfpga_mf001_intel
+    ├── microfpga_mf_c10lp_001
+    ├── microfpga_mf_max10_001
     ├── micronova_mercury2
     ├── microphase_a7_lite
+    ├── microsemi_smf2000
     ├── microsoft_catapult_v3
     ├── mist
     ├── mlkpai_fs01_dr1v90m
@@ -284,11 +290,17 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── tinyfpga_bx
     ├── trellisboard
     ├── trenz_c10lprefkit
+    ├── trenz_cr00010
     ├── trenz_cyc1000
     ├── trenz_max1000
+    ├── trenz_s7mini
+    ├── trenz_te0710
+    ├── trenz_te0711
     ├── trenz_te0725
+    ├── trenz_te0741
     ├── trenz_te0890
     ├── trenz_tec0117
+    ├── trenz_tem0006
     ├── tul_pynq_z2
     ├── xilinx_ac701
     ├── xilinx_alveo_u200
