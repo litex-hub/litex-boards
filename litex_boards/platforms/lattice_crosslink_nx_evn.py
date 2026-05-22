@@ -97,8 +97,42 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    #TODO ADC
-    #TODO D-PHY
+    # Section 8.4 Camera Connector
+    ("CAM", {
+        "CKP"    : "A2",  #  3
+        "CKN"    : "B1",  #  2
+        "DP0"    : "B2",  # 12
+        "DN0"    : "C1",  # 11
+        "DP1"    : "A3",  #  9
+        "DN1"    : "B3",  #  8
+        "DP2"    : "C2",  # 15
+        "DN2"    : "D1",  # 14
+        "DP3"    : "A4",  #  6
+        "DN3"    : "B4",  #  5
+        "SDA"    : "W5",  # 22
+        "SCL"    : "Y5",  # 23
+        "RESET"  : "W18", # 24
+    }),
+
+    # Section 8.5 D-PHY1 Header
+    ("DPHY1", {
+        "CKP" : "A8",  #  3
+        "CKN" : "B8",  #  4
+        "DP0" : "A7",  #  7
+        "DN0" : "B7",  #  8
+        "DP1" : "A9",  # 11
+        "DN1" : "B9",  # 12
+        "DP2" : "A6",  # 15
+        "DN2" : "B6",  # 16
+        "DP3" : "A10", # 19
+        "DN3" : "B10", # 20
+    }),
+
+    # Section 8.9 ADC Test Header
+    ("ADC", {
+        "IN1P" : "T17", #  9
+        "IN1N" : "U17", # 11
+    }),
 
     # Section 8.1 FMC LPC Connector
     ("FMC", {
