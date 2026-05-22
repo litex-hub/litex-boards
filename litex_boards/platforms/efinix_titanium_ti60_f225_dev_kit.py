@@ -184,7 +184,7 @@ def rgmii_ethernet_qse_ios(con, n=""):
 class Platform(EfinixPlatform):
     default_clk_name   = "clk25"
     default_clk_freq   = 25e6
-    default_clk_period = 1e9/50e6
+    default_clk_period = 1e9/25e6
 
     def __init__(self, toolchain="efinity"):
         EfinixPlatform.__init__(self, "Ti60F225C3", _io, _connectors, iobank_info=iobank_info, toolchain=toolchain)
@@ -194,4 +194,4 @@ class Platform(EfinixPlatform):
 
     def do_finalize(self, fragment):
         EfinixPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/50e6)
+        self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)

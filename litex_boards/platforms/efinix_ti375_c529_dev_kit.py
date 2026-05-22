@@ -92,7 +92,7 @@ _io = [
 
     # SPIFlash
     ("spiflash", 1,
-        Subsignal("cs_n", Pins("A2")),
+        Subsignal("cs_n", Pins("L4")),
         Subsignal("clk", Pins("G6")),
         Subsignal("mosi", Pins("D5")),
         Subsignal("miso", Pins("D6")),
