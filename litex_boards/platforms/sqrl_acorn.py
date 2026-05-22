@@ -8,7 +8,7 @@
 # repurposed as generic FPGA PCIe development boards:
 # - http://www.squirrelsresearch.com/acorn-cle-101
 # - http://www.squirrelsresearch.com/acorn-cle-215-plus
-# The 101 variant is eguivalent to the LiteFury and 215 variant equivalent to the NiteFury from
+# The 101 variant is equivalent to the LiteFury and 215 variant equivalent to the NiteFury from
 # RHSResearchLLC that are documented at: https://github.com/RHSResearchLLC/NiteFury-and-LiteFury.
 
 import subprocess
@@ -131,8 +131,8 @@ _litex_acorn_baseboard_mini_io = [
     ),
     # SFP-0.
     ("sfp", 0,
-        Subsignal("txp", Pins(" D5")),
-        Subsignal("txn", Pins(" C5")),
+        Subsignal("txp", Pins("D5")),
+        Subsignal("txn", Pins("C5")),
         Subsignal("rxp", Pins("D11")),
         Subsignal("rxn", Pins("C11")),
     ),
