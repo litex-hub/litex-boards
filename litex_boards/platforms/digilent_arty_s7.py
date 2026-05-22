@@ -222,7 +222,7 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 34]")
 
     def create_programmer(self):
-        bscan_spi = "bscan_spi_xc7s50.bit" if "xc7s50" in self.device else "bscan_spi_xc7a25.bit"
+        bscan_spi = "bscan_spi_xc7s50.bit" if "xc7s50" in self.device else "bscan_spi_xc7s25.bit"
         return OpenOCD("openocd_xc7_ft2232.cfg", bscan_spi)
 
     def do_finalize(self, fragment):

@@ -86,8 +86,8 @@ _ps7_io = [
         " D5  B5  E9  C6  D9  E8  C5  C8",
         "A19 E14 B18 D10 A17 F14 B17 D11",
         "A16 F15 A15 D13 C16 C13 C15 E16",
-        "A14 D15 A12 F12 A11 A10 E13 C18"
-        "D14 C17 E12  A9 F13 B15 D16 B14"
+        "A14 D15 A12 F12 A11 A10 E13 C18",
+        "D14 C17 E12  A9 F13 B15 D16 B14",
         "B12 C12 B13  B9 C10 C11")),
     ("ps7_ddram", 0,
         Subsignal("addr", Pins(

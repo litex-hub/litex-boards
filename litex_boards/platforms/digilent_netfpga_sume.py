@@ -177,11 +177,11 @@ _io = [
     ),
 
     ("sfp_tx_disable_n", 0, Pins("M18"), IOStandard("LVCMOS15")),
-    ("sfp_led", Pins("G13 L15"), IOStandard("LVCMOS15")),
-    ("sfp_mod_detect", Pins("N18"), IOStandard("LVCMOS15")),
-    ("sfp_rs", Pins("N19 P18"), IOStandard("LVCMOS15")),
-    ("sfp_rx_los", Pins("L17"), IOStandard("LVCMOS15")),
-    ("sfp_tx_fault_n", Pins("M19"), IOStandard("LVCMOS15")),
+    ("sfp_led", 0, Pins("G13 L15"), IOStandard("LVCMOS15")),
+    ("sfp_mod_detect", 0, Pins("N18"), IOStandard("LVCMOS15")),
+    ("sfp_rs", 0, Pins("N19 P18"), IOStandard("LVCMOS15")),
+    ("sfp_rx_los", 0, Pins("L17"), IOStandard("LVCMOS15")),
+    ("sfp_tx_fault_n", 0, Pins("M19"), IOStandard("LVCMOS15")),
 
     ("sfp_tx_disable_n", 1, Pins("B31"), IOStandard("LVCMOS15")),
     ("sfp_led", 1, Pins("AL22 BA20"), IOStandard("LVCMOS15")),
@@ -235,4 +235,3 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200",             loose=True), 1e9/200e6)
-

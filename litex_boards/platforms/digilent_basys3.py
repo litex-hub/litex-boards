@@ -155,7 +155,7 @@ def sdcard_pmod_io(pmod):
         ),
 
 ]
-_sdcard_pmod_io = sdcard_pmod_io("pmoda") # SDCARD PMOD on JD.
+_sdcard_pmod_io = sdcard_pmod_io("pmoda") # SDCARD PMOD on JA.
 
 class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk100"
