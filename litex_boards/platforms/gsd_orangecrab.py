@@ -182,6 +182,15 @@ _io_r0_2 = [
         Subsignal("cd",   Pins("L1"), Misc("PULLMODE=UP")),
         IOStandard("LVCMOS33"), Misc("SLEWRATE=FAST")
     ),
+
+    # ADC
+    ("adc", 0,
+        Subsignal("ctrl",    Pins("G1 F1")),
+        Subsignal("mux",     Pins("F4 F3 F2 H1")),
+        Subsignal("sense_p", Pins("H3"), IOStandard("LVCMOS33D")),
+        Subsignal("sense_n", Pins("G3"), IOStandard("LVCMOS33D")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

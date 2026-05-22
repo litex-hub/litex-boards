@@ -23,9 +23,6 @@ _io = [
     ("debug", 2, Pins("B14"), IOStandard("LVCMOS33")),
     ("debug", 3, Pins("A14"), IOStandard("LVCMOS33")),
 
-    # Fan.
-    ("fan", 0, Pins(""), IOStandard("LVCMOS33")),
-
     # Flash.
     ("flash_cs_n", 0, Pins("C23"), IOStandard("LVCMOS33")),
     ("flash", 0,

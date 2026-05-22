@@ -9,6 +9,9 @@ _io = [
 
     # LEDs
     ("user_led_n", 0, Pins("39"), IOStandard("LVCMOS33")),
+    ("user_ledb_n", 0, Pins("39"), IOStandard("LVCMOS33")),
+    ("user_ledg_n", 0, Pins("40"), IOStandard("LVCMOS33")),
+    ("user_ledr_n", 0, Pins("41"), IOStandard("LVCMOS33")),
     ("rgb_led", 0,
         Subsignal("r", Pins("41")),
         Subsignal("g", Pins("40")),
@@ -17,10 +20,10 @@ _io = [
     ),
 
     # Buttons
-    ("user_sw", 0, Pins("23"), IOStandard("LVCMOS33")),
-    ("user_sw", 1, Pins("25"), IOStandard("LVCMOS33")),
-    ("user_sw", 2, Pins("34"), IOStandard("LVCMOS33")),
-    ("user_sw", 3, Pins("43"), IOStandard("LVCMOS33"))
+    ("user_sw", 0, Pins("23"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 1, Pins("25"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 2, Pins("34"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 3, Pins("43"), IOStandard("LVCMOS33"), Misc("PULLUP"))
 ]
 
 spiflash = [
@@ -127,4 +130,3 @@ class Platform(LatticeiCE40Platform):
     def do_finalize(self, fragment):
         LatticeiCE40Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk12", loose=True), 1e9/12e6)
-

@@ -24,6 +24,12 @@ _io_common = [
     ("user_btn", 5, Pins( "U1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # LEFT
     ("user_btn", 6, Pins("H16"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # RIGHT
 
+    # Switches
+    ("user_sw", 0, Pins("E8"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")),
+    ("user_sw", 1, Pins("D8"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")),
+    ("user_sw", 2, Pins("D7"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")),
+    ("user_sw", 3, Pins("E7"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")),
+
     # Leds
     ("user_led", 0, Pins("B2"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("C2"), IOStandard("LVCMOS33")),
@@ -37,8 +43,11 @@ _io_common = [
     # Serial
     ("serial", 0,
         Subsignal("tx", Pins("L4"), IOStandard("LVCMOS33")),
-        Subsignal("rx", Pins("M1"), IOStandard("LVCMOS33"))
+        Subsignal("rx", Pins("M1"), IOStandard("LVCMOS33")),
+        Subsignal("rts", Pins("M3"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+        Subsignal("dtr", Pins("N1"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
     ),
+    ("uart_tx_enable", 0, Pins("L3"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
 
     # SDR SDRAM
     ("sdram_clock", 0, Pins("F19"), IOStandard("LVCMOS33")),
@@ -103,6 +112,23 @@ _io_common = [
         Subsignal("cs_n", Pins("R2")),
         Subsignal("dq", Pins("W2", "V2", "Y2", "W1")),
         IOStandard("LVCMOS33")
+    ),
+
+    # ADC
+    ("adc", 0,
+        Subsignal("cs_n", Pins("R17"), Misc("PULLMODE=UP")),
+        Subsignal("mosi", Pins("R16"), Misc("PULLMODE=UP")),
+        Subsignal("miso", Pins("U16"), Misc("PULLMODE=UP")),
+        Subsignal("clk",  Pins("P17"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Audio
+    ("audio", 0,
+        Subsignal("l",     Pins("E4 D3 C3 B3")),
+        Subsignal("r",     Pins("A3 B5 D5 C5")),
+        Subsignal("ring2", Pins("H5 F2 F5 E5")),
+        IOStandard("LVCMOS33"),
     ),
 
     # OLED
@@ -194,7 +220,25 @@ _io_2_0 = [
         #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
     ),
     # Wifi power
-    ("wifi_gpio0", 0, Pins("F1"), IOStandard("LVCMOS33")),
+    ("wifi_en", 0, Pins("F1"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+    ("wifi_gpio0", 0, Pins("L2"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+
+    # ESP32
+    ("esp32", 0,
+        Subsignal("en",     Pins("F1"), Misc("PULLMODE=UP")),
+        Subsignal("tx",     Pins("K3"), Misc("PULLMODE=UP")),
+        Subsignal("rx",     Pins("K4"), Misc("PULLMODE=UP")),
+        Subsignal("gpio0",  Pins("L2"), Misc("PULLMODE=UP")),
+        Subsignal("gpio5",  Pins("N4")),
+        Subsignal("gpio16", Pins("L1"), Misc("PULLMODE=UP")),
+        Subsignal("gpio17", Pins("N3"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # PCB antenna / programming
+    ("ant",       0, Pins("G1"),  IOStandard("LVCMOS33")),
+    ("program_n", 0, Pins("M4"),  IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
+    ("shutdown",  0, Pins("G16"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
