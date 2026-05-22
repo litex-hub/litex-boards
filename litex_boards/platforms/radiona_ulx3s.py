@@ -16,7 +16,7 @@ _io_common = [
     ("rst",   0, Pins("R1"), IOStandard("LVCMOS33")),
 
     # Buttons
-    ("user_btn", 0, Pins( "D6"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # PWR
+    ("user_btn", 0, Pins( "D6"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),   # PWRn
     ("user_btn", 1, Pins( "R1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # F1
     ("user_btn", 2, Pins( "T1"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # F2
     ("user_btn", 3, Pins("R18"), IOStandard("LVCMOS33"), Misc("PULLMODE=DOWN")), # UP
@@ -215,9 +215,11 @@ _io_2_0 = [
         #Subsignal("data1_n", Pins("C14"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
         Subsignal("data2_p",  Pins("A12"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
         #Subsignal("data2_n", Pins("A13"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
-        #Subsignal("cec",     Pins("A18"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        #Subsignal("scl",     Pins("E19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
-        #Subsignal("sda",     Pins("B19"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP"))
+        Subsignal("eth_p",    Pins("A19"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("eth_n",    Pins("B20"), IOStandard("LVCMOS33D"), Misc("DRIVE=4")),
+        Subsignal("cec",      Pins("A18"), IOStandard("LVCMOS33"),  Misc("PULLMODE=UP")),
+        Subsignal("scl",      Pins("E12"), IOStandard("LVCMOS33"),  Misc("PULLMODE=UP")),
+        Subsignal("sda",      Pins("B19"), IOStandard("LVCMOS33"),  Misc("PULLMODE=UP")),
     ),
     # Wifi power
     ("wifi_en", 0, Pins("F1"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
