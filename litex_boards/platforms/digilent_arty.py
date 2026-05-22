@@ -242,9 +242,9 @@ _connectors = [
         "vsns5v0_n"  : "B12",
         "vsns5v0_p"  : "C12",
         "isns5v0_n"  : "F14",
-        "isns5v0_n"  : "F13",
+        "isns5v0_p"  : "F13",
         "isns0v95_n" : "A16",
-        "isns0v95_n" : "A15",
+        "isns0v95_p" : "A15",
         } ),
 ]
 

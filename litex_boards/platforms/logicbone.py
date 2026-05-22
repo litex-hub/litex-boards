@@ -64,6 +64,12 @@ _io_rev0 = [
         Subsignal("pullup", Pins("C16")),
         IOStandard("LVCMOS33")
     ),
+    ("usb", 1,
+        Subsignal("d_p", Pins("R1")),
+        Subsignal("d_n", Pins("T1")),
+        Subsignal("pullup", Pins("T2")),
+        IOStandard("LVCMOS33")
+    ),
 
     # Serial
     ("serial", 0,

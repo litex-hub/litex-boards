@@ -21,9 +21,9 @@ _io = [
     # Leds
     ("user_led_n", 0, Pins("A5"), IOStandard("LVCMOS33")),
     ("rgb_led", 0,
-        Subsignal("r", Pins("C5")),
-        Subsignal("g", Pins("B5")),
-        Subsignal("b", Pins("A5")),
+        Subsignal("r", Pins("B5")),
+        Subsignal("g", Pins("A5")),
+        Subsignal("b", Pins("C5")),
         IOStandard("LVCMOS33")
     ),
 

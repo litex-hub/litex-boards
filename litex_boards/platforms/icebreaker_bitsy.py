@@ -71,6 +71,13 @@ _io_v1 = [
     ("user_ledr_n",   0, Pins("25"), IOStandard("LVCMOS33")), # Color-specific alias
     ("user_ledg_n",   0, Pins( "6"), IOStandard("LVCMOS33")), # Color-specific alias
 
+    ("rgb_led", 0,
+        Subsignal("r", Pins("39")),
+        Subsignal("g", Pins("40")),
+        Subsignal("b", Pins("41")),
+        IOStandard("LVCMOS33"),
+    ),
+
     # Button
     ("user_btn_n",    0, Pins( "2"), IOStandard("LVCMOS33")),
 

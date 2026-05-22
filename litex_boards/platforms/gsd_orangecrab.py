@@ -86,6 +86,13 @@ _io_r0_1 = [
         Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33"),
     ),
+    ("sdcard", 0,
+        Subsignal("clk",  Pins("K1")),
+        Subsignal("cmd",  Pins("K2"), Misc("PULLMODE=UP")),
+        Subsignal("data", Pins("J1 K3 L3 M1"), Misc("PULLMODE=UP")),
+        Subsignal("cd",   Pins("L1"), Misc("PULLMODE=UP")),
+        IOStandard("LVCMOS33"), Misc("SLEWRATE=FAST")
+    ),
 ]
 
 _io_r0_2 = [
@@ -172,6 +179,7 @@ _io_r0_2 = [
         Subsignal("clk",  Pins("K1")),
         Subsignal("cmd",  Pins("K2"), Misc("PULLMODE=UP")),
         Subsignal("data", Pins("J1 K3 L3 M1"), Misc("PULLMODE=UP")),
+        Subsignal("cd",   Pins("L1"), Misc("PULLMODE=UP")),
         IOStandard("LVCMOS33"), Misc("SLEWRATE=FAST")
     ),
 ]
@@ -180,13 +188,13 @@ _io_r0_2 = [
 
 _connectors_r0_1 = [
     # Feather 0.1" Header Pin Numbers,
-    # Note: Pin nubering is not continuous.
+    # Note: Pin numbering is not continuous.
     ("GPIO", "N17 M18 C10 C9 - B10 B9 - - C8 B8 A8 H2 J2 N15 R17 N16 - - - - - - - -"),
 ]
 
 _connectors_r0_2 = [
     # Feather 0.1" Header Pin Numbers,
-    # Note: Pin nubering is not continuous.
+    # Note: Pin numbering is not continuous.
     ("GPIO", "N17 M18 C10 C9 - B10 B9 - - C8 B8 A8 H2 J2 N15 R17 N16 - L4 N3 N4 H4 G4 T17"),
 ]
 

@@ -191,7 +191,7 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
 
     def create_programmer(self):
-        return OpenOCD("openocd_genesys2.cfg", "bscan_spi_xc7a325t.bit")
+        return OpenOCD("openocd_genesys2.cfg", "bscan_spi_xc7k325t.bit")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)

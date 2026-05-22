@@ -70,6 +70,9 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # One-wire interface to crypto authentication device.
+    # May not be populated on the board.
+    ("atsha204a", 0, Pins("D17"), IOStandard("LVCMOS33")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -79,7 +82,13 @@ _connectors = [
     # pin 15: XADC, pin 16: XADC, pin 24: VU
     ("j1", "M3 L3 A16 K3 C15 H1 A15 B15 A14 J3 J1 K2 L1 L2 - - M1 N3 P3 M2 N1 N2 P1 -"),
     # pin 25: GND
-    ("j2", "- R3 T3 R2 T1 T2 U1 W2 V2 W3 V3 W5 V4 U4 V5 W4 U5 U2 W6 U3 U7 W7 U8 V8")
+    ("j2", "- R3 T3 R2 T1 T2 U1 W2 V2 W3 V3 W5 V4 U4 V5 W4 U5 U2 W6 U3 U7 W7 U8 V8"),
+    ("XADC", {
+        "vaux4_n":  "G2",
+        "vaux4_p":  "G3",
+        "vaux12_n": "J2",
+        "vaux12_p": "H2",
+    }),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
@@ -90,6 +99,7 @@ class Platform(Xilinx7SeriesPlatform):
 
     def __init__(self, variant="a7-35", toolchain="vivado"):
         device = {
+            "a7-15": "xc7a15tcpg236-1",
             "a7-35": "xc7a35tcpg236-1"
         }[variant]
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)

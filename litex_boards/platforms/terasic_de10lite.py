@@ -90,7 +90,7 @@ _io = [
     # Accelerometer
     ("acc", 0,
         Subsignal("int1", Pins("Y14")),
-        Subsignal("int1", Pins("Y13")),
+        Subsignal("int2", Pins("Y13")),
         Subsignal("mosi", Pins("V11")),
         Subsignal("miso", Pins("V12")),
         Subsignal("clk",  Pins("AB15")),

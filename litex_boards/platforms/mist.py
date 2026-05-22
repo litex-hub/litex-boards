@@ -13,7 +13,7 @@ from litex.build.altera.programmer import USBBlaster
 _io = [
     # Clk / Rst
     ("clk27", 0, Pins("54")),
-    ("clk27", 0, Pins("54")),
+    ("clk27", 1, Pins("55")),
 
     # Leds
     ("user_led", 0, Pins("7"),
@@ -103,4 +103,3 @@ class Platform(AlteraPlatform):
         AlteraPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk27", 0, loose=True), 1e9/27e6)
         self.add_period_constraint(self.lookup_request("clk27", 1, loose=True), 1e9/27e6)
-
