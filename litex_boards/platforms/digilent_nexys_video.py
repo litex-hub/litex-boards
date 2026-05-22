@@ -140,6 +140,33 @@ _io = [
         IOStandard("LVCMOS25")
     ),
 
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("T19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("mosi", Pins("P22")),
+        Subsignal("miso", Pins("R22")),
+        Subsignal("wp",   Pins("P21")),
+        Subsignal("hold", Pins("R21")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("T19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("dq",   Pins("P22 R22 P21 R21")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Audio
+    ("audio_i2s", 0,
+        Subsignal("clk",    Pins("T5")),
+        Subsignal("sync",   Pins("U5")),
+        Subsignal("sd_adc", Pins("T4")),
+        Subsignal("sd_dac", Pins("W6")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("audio_clk", 0, Pins("U6"), IOStandard("LVCMOS33")),
+
     # HDMI In
     ("hdmi_in", 0,
         Subsignal("clk_p",   Pins("V4"),   IOStandard("TMDS_33")),
@@ -175,6 +202,20 @@ _io = [
 
     # Others
     ("vadj", 0, Pins("AA13 AB17"), IOStandard("LVCMOS25")),
+
+    # PS/2
+    ("ps2", 0,
+        Subsignal("clk", Pins("W17")),
+        Subsignal("dat", Pins("N13")),
+        IOStandard("LVCMOS33"),
+        Misc("PULLUP True"),
+    ),
+
+    # Fan
+    ("fan", 0,
+        Subsignal("pwm", Pins("U15")),
+        IOStandard("LVCMOS25"),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

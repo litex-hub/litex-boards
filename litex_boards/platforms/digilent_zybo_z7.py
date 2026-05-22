@@ -45,6 +45,14 @@ _io = [
         Subsignal("rx", Pins("Y17")),
         IOStandard("LVCMOS33")
     ),
+
+    # Audio
+    ("audio_mute", 0, Pins("P18"), IOStandard("LVCMOS33")),
+    ("audio_i2c", 0,
+        Subsignal("scl", Pins("N18")),
+        Subsignal("sda", Pins("N17")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 _io_z7 = [
@@ -56,6 +64,55 @@ _io_z7 = [
     ("user_btn", 1, Pins("P16"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("K19"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("Y16"), IOStandard("LVCMOS33")),
+
+    ("rgb_led", 0,
+        Subsignal("r", Pins("V16")),
+        Subsignal("g", Pins("F17")),
+        Subsignal("b", Pins("M17")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Audio
+    ("audio_i2s", 0,
+        Subsignal("clk",    Pins("R19")),
+        Subsignal("sync",   Pins("T19")),
+        Subsignal("sd_adc", Pins("R16")),
+        Subsignal("sd_dac", Pins("R18")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("audio_clk", 0, Pins("R17"), IOStandard("LVCMOS33")),
+
+    # HDMI In
+    ("hdmi_in", 0,
+        Subsignal("clk_p",   Pins("U18"), IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("U19"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("V20"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("W20"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("T20"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("U20"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("N20"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("P20"), IOStandard("TMDS_33")),
+        Subsignal("scl",     Pins("W18"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("Y19"), IOStandard("LVCMOS33")),
+        Subsignal("hpd_en",  Pins("W19"), IOStandard("LVCMOS33")),
+    ),
+
+    # Fan
+    ("fan", 0,
+        Subsignal("fb_pu", Pins("Y13"), Misc("PULLUP True")),
+        IOStandard("LVCMOS33"),
+    ),
+]
+
+_io_z7_20 = [
+    ("rgb_led", 1,
+        Subsignal("r", Pins("Y11")),
+        Subsignal("g", Pins("T5")),
+        Subsignal("b", Pins("Y12")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    ("hdmi_in_cec", 0, Pins("Y8"), IOStandard("LVCMOS33")),
 ]
 
 _io_original = [
@@ -67,6 +124,18 @@ _io_original = [
     ("user_btn", 1, Pins("P16"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("V16"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("Y16"), IOStandard("LVCMOS33")),
+
+    # Audio
+    ("audio_i2s", 0,
+        Subsignal("clk",    Pins("K18")),
+        Subsignal("sync",   Pins("L17")),
+        Subsignal("sd_adc", Pins("K17")),
+        Subsignal("sd_dac", Pins("M17")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("audio_clk", 0, Pins("T19"), IOStandard("LVCMOS33")),
+
+    ("hdmi_out_en", 0, Pins("F17"), IOStandard("LVCMOS33")),
 ]
 
 _ps7_io = [
@@ -166,6 +235,8 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_extension(_ps7_io)
         self.add_extension(_usb_uart_pmod_io)
         self.add_extension(_io_original if variant == "original" else _io_z7)
+        if variant == "z7-20":
+            self.add_extension(_io_z7_20)
         self.add_connector(_connectors_original if variant == "original" else _connectors_z7)
         self.ps7_config = ps7_config
 

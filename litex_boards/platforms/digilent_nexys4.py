@@ -95,6 +95,25 @@ _io = [
     ("serial", 0,
         Subsignal("tx", Pins("D4")),
         Subsignal("rx", Pins("C4")),
+        Subsignal("rts", Pins("E5")),
+        Subsignal("cts", Pins("D3")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("L13")),
+        Subsignal("clk",  Pins("E9")),
+        Subsignal("mosi", Pins("K17")),
+        Subsignal("miso", Pins("K18")),
+        Subsignal("wp",   Pins("L14")),
+        Subsignal("hold", Pins("M14")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("L13")),
+        Subsignal("clk",  Pins("E9")),
+        Subsignal("dq",   Pins("K17 K18 L14 M14")),
         IOStandard("LVCMOS33"),
     ),
 
@@ -175,6 +194,14 @@ _io = [
         Subsignal("g", Pins("A6 B6 A5 C6")),
         Subsignal("b", Pins("D7 C7 B7 D8")),
         IOStandard("LVCMOS33")
+    ),
+
+    # PS/2
+    ("ps2", 0,
+        Subsignal("clk", Pins("F4")),
+        Subsignal("dat", Pins("B2")),
+        IOStandard("LVCMOS33"),
+        Misc("PULLUP True"),
     ),
 ]
 

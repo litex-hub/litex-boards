@@ -57,10 +57,31 @@ _io = [
     ("user_btnr", 0, Pins("T17"), IOStandard("LVCMOS33")),
     ("user_btnc", 0, Pins("U18"), IOStandard("LVCMOS33")),
 
+    # Seven Segments
+    ("seven_seg", 0, Pins("W7 W6 U8 V8 U5 V5 U7 V7"), IOStandard("LVCMOS33")),
+    ("seven_seg_ctrl_n", 0, Pins("U2 U4 V4 W4"), IOStandard("LVCMOS33")),
+
     # Serial
     ("serial", 0,
         Subsignal("tx", Pins("A18")),
         Subsignal("rx", Pins("B18")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("K19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("mosi", Pins("D18")),
+        Subsignal("miso", Pins("D19")),
+        Subsignal("wp",   Pins("G18")),
+        Subsignal("hold", Pins("F18")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("K19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("dq",   Pins("D18 D19 G18 F18")),
         IOStandard("LVCMOS33"),
     ),
 
@@ -76,11 +97,19 @@ _io = [
 
     # USB PS/2
     ("usbhost", 0,
-       Subsignal("ps2_clk", Pins("B6")),
-       Subsignal("ps2_data", Pins("A6")),
-       IOStandard("LVCMOS33")
+       Subsignal("ps2_clk", Pins("C17")),
+       Subsignal("ps2_data", Pins("B17")),
+       IOStandard("LVCMOS33"),
+       Misc("PULLUP True"),
     ),
 
+    # PS/2
+    ("ps2", 0,
+        Subsignal("clk", Pins("C17")),
+        Subsignal("dat", Pins("B17")),
+        IOStandard("LVCMOS33"),
+        Misc("PULLUP True"),
+    ),
 
     ("gpio", 0,
        Subsignal("a", Pins("J1   L2  J2  G2  H1  K2  H2  G3")),

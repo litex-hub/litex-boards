@@ -63,7 +63,7 @@ _io = [
 
     # HDMI In
     ("hdmi_in", 0,
-        Subsignal("clk_p",   Pins("H17"), IOStandard("TMDS_33")),
+        Subsignal("clk_p",   Pins("N18"), IOStandard("TMDS_33")),
         Subsignal("clk_n",   Pins("P19"), IOStandard("TMDS_33")),
         Subsignal("data0_p", Pins("V20"), IOStandard("TMDS_33")),
         Subsignal("data0_n", Pins("W20"), IOStandard("TMDS_33")),

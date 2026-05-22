@@ -163,6 +163,8 @@ _connectors = [
     ("pmodc", "U12 V12 V10 V11 U14 V14 T13 U13"),
     ("pmodd", "D4 D3 F4 F3 E2 D2 H2 G2"),
     ("ck_io", {
+        "ck_ioa"  : "M17",
+
         # Outer Digital Header
         "ck_io0"  : "V15",
         "ck_io1"  : "U16",

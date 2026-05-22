@@ -50,6 +50,22 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # Audio
+    ("audio_i2s", 0,
+        Subsignal("clk",    Pins("AA6")),
+        Subsignal("sync",   Pins("Y6")),
+        Subsignal("sd_adc", Pins("AA7")),
+        Subsignal("sd_dac", Pins("Y8")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("audio_clk", 0, Pins("AB2"), IOStandard("LVCMOS33")),
+    ("audio_i2c", 0,
+        Subsignal("scl", Pins("AB4")),
+        Subsignal("sda", Pins("AB5")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("audio_addr", 0, Pins("AB1 Y5"), IOStandard("LVCMOS33")),
+
     # PS7
     ("ps7_clk",   0, Pins("F7")),
     ("ps7_porb",  0, Pins("B5")),
