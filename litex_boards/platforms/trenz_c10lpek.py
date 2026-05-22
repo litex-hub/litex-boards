@@ -43,7 +43,7 @@ _io = [
         Subsignal("clk_n", Pins("R14")), # P14 R14
         Subsignal("rst_n", Pins("N9")),
         Subsignal("dq", Pins("T12 T13 T11 R10 T10 R11 R12 R13")),
-        Subsignal("cs_n", Pins("P9 N12")), # RAM, Flash
+        Subsignal("cs_n", Pins("P9")),
         Subsignal("rwds", Pins("T14")),
         IOStandard("1.8 V")
     ),

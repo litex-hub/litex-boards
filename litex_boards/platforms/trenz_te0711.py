@@ -8,13 +8,12 @@ from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
-    ("user_led", 0, Pins("R17"), IOStandard("LVCMOS33")), # LED4
-#    ("user_led", 1, Pins("E26"), IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("A8"),  IOStandard("LVCMOS18")),
+    ("user_led", 1, Pins("L15"), IOStandard("LVCMOS33")),
+    ("user_led", 2, Pins("R17"), IOStandard("LVCMOS33")),
 
 # P17
     ("clk100", 0, Pins("P17"), IOStandard("LVCMOS33")),
-# LED
-    ("cpu_reset", 0, Pins("L15"), IOStandard("LVCMOS33")),
 #
     ("serial", 0,
         Subsignal("tx", Pins("R10")),

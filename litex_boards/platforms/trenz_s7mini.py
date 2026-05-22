@@ -72,9 +72,9 @@ class Platform(Xilinx7SeriesPlatform):
         }[variant]
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
-            ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
+            ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]"]
         self.toolchain.additional_commands = \
-            ["write_cfgmem -force -format bin -interface spix4 -size 16 "
+            ["write_cfgmem -force -format bin -interface spix1 -size 8 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 # required as s7-mini has global clock on regular io pin
         self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk100_IBUF]")

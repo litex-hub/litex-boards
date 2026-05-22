@@ -31,7 +31,7 @@ _io = [
         IOStandard("3.3-V LVTTL"),
     ),
 
-# CRUVI LS module connnected SPI Flash
+# CRUVI LS module connected SPI Flash
 # tested with ISSI 8Mbyte Flash
     ("spiflash", 1,
         Subsignal("cs_n", Pins("M3")),
