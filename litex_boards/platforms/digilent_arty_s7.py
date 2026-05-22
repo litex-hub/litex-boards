@@ -142,6 +142,7 @@ _connectors = [
         "ck_io11" : "H17",
         "ck_io12" : "K14",
         "ck_io13" : "G16",
+        "ck_ioa"  : "K13",
 
         # Inner Digital Header
         "ck_io26" : "U11",
@@ -179,6 +180,9 @@ _connectors = [
         }
     ),
     ("XADC", {
+        "vp_in" : "J10",
+        "vn_in" : "K9",
+
         # Outer Analog Header
         "vaux0_p"  : "B13",
         "vaux0_n"  : "A13",

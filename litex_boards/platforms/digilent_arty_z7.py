@@ -54,6 +54,9 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # Crypto
+    ("crypto_sda", 0, Pins("J15"), IOStandard("LVCMOS33")),
+
     # Audio
     ("audio", 0,
         Subsignal("pwm", Pins("R18")), # AUD_PWM.
@@ -182,7 +185,7 @@ _ck_io_z7_20 = {
 _xadc = {
     # Outer Analog Header
     "vaux1_p"  : "E17",
-    "vaux1_n"  : "B18",
+    "vaux1_n"  : "D18",
     "vaux9_p"  : "E18",
     "vaux9_n"  : "E19",
     "vaux6_p"  : "K14",

@@ -63,12 +63,14 @@ _io = [
 
     # USB FIFO
     ("usb_fifo", 0, # Can be used when FT2232H's Channel A configured to ASYNC FIFO 245 mode
+        Subsignal("clko",  Pins("Y18")),
         Subsignal("data",  Pins("U20 P14 P15 U17 R17 P16 R18 N14")),
         Subsignal("rxf_n", Pins("N17")),
         Subsignal("txe_n", Pins("Y19")),
         Subsignal("rd_n",  Pins("P19")),
         Subsignal("wr_n",  Pins("R19")),
         Subsignal("siwua", Pins("P17")),
+        Subsignal("spien", Pins("R14")),
         Subsignal("oe_n",  Pins("V17")),
         Misc("SLEW=FAST"),
         Drive(8),
@@ -131,6 +133,7 @@ _io = [
     ("eth", 0,
         Subsignal("rst_n",   Pins("U7"), IOStandard("LVCMOS33")),
         Subsignal("int_n",   Pins("Y14")),
+        Subsignal("pme_n",   Pins("W14")),
         Subsignal("mdio",    Pins("Y16")),
         Subsignal("mdc",     Pins("AA16")),
         Subsignal("rx_ctl",  Pins("W10")),
@@ -202,6 +205,20 @@ _io = [
 
     # Others
     ("vadj", 0, Pins("AA13 AB17"), IOStandard("LVCMOS25")),
+    ("vadj_en", 0, Pins("V14"), IOStandard("LVCMOS25")),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("W5")),
+        Subsignal("sda", Pins("V5")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # GTP RefClk
+    ("gtp_refclk", 0,
+        Subsignal("p", Pins("F6")),
+        Subsignal("n", Pins("E6")),
+    ),
 
     # PS/2
     ("ps2", 0,
@@ -224,6 +241,16 @@ _connectors = [
     ("pmoda", "AB22 AB21 AB20 AB18 Y21 AA21 AA20 AA18"),
     ("pmodb", "V9 V8 V7 W7 W9 Y9 Y8 Y7"),
     ("pmodc", "Y6 AA6 AA8 AB8 R6 T6 AB7 AB6"),
+    ("XADC", {
+        "vaux1_p" : "J14",
+        "vaux1_n" : "H14",
+        "vaux0_p" : "H13",
+        "vaux0_n" : "G13",
+        "vaux8_p" : "G15",
+        "vaux8_n" : "G16",
+        "vaux9_p" : "J15",
+        "vaux9_n" : "H15",
+    }),
     ("LPC", {
         "DP0_C2M_P"     : "D7",
         "DP0_C2M_N"     : "C7",

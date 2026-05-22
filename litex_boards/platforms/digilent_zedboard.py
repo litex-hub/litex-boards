@@ -66,6 +66,43 @@ _io = [
     ),
     ("audio_addr", 0, Pins("AB1 Y5"), IOStandard("LVCMOS33")),
 
+    # HDMI
+    ("hdmi", 0,
+        Subsignal("clk", Pins("W18")),
+        Subsignal("d", Pins(
+            "Y13 AA13 AA14 Y14 AB15 AB16 AA16 AB17",
+            "AA17 Y15 W13 W15 V15 U17 V14 V13")),
+        Subsignal("de",        Pins("U16")),
+        Subsignal("hsync",     Pins("V17")),
+        Subsignal("vsync",     Pins("W17")),
+        Subsignal("int",       Pins("W16")),
+        Subsignal("scl",       Pins("AA18")),
+        Subsignal("sda",       Pins("Y16")),
+        Subsignal("spdif",     Pins("U15")),
+        Subsignal("spdif_out", Pins("Y18")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # VGA
+    ("vga", 0,
+        Subsignal("r",  Pins("V20 U20 V19 V18")),
+        Subsignal("g",  Pins("AB22 AA22 AB21 AA21")),
+        Subsignal("b",  Pins("Y21 Y20 AB20 AB19")),
+        Subsignal("hs", Pins("AA19")),
+        Subsignal("vs", Pins("Y19")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # USB OTG
+    ("usb_otg", 0,
+        Subsignal("reset_n", Pins("G17")),
+        Subsignal("vbusoc",  Pins("L16")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Misc
+    ("pudc_b", 0, Pins("K16"), IOStandard("LVCMOS33")),
+
     # PS7
     ("ps7_clk",   0, Pins("F7")),
     ("ps7_porb",  0, Pins("B5")),

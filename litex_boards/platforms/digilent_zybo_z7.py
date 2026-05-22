@@ -76,6 +76,7 @@ _io_z7 = [
     ("audio_i2s", 0,
         Subsignal("clk",    Pins("R19")),
         Subsignal("sync",   Pins("T19")),
+        Subsignal("sync_adc", Pins("Y18")),
         Subsignal("sd_adc", Pins("R16")),
         Subsignal("sd_dac", Pins("R18")),
         IOStandard("LVCMOS33"),
@@ -164,11 +165,35 @@ _io_original = [
     ("audio_i2s", 0,
         Subsignal("clk",    Pins("K18")),
         Subsignal("sync",   Pins("L17")),
+        Subsignal("sync_adc", Pins("M18")),
         Subsignal("sd_adc", Pins("K17")),
         Subsignal("sd_dac", Pins("M17")),
         IOStandard("LVCMOS33"),
     ),
     ("audio_clk", 0, Pins("T19"), IOStandard("LVCMOS33")),
+
+    # Ethernet PHY sideband
+    ("eth_phy", 0,
+        Subsignal("int_n", Pins("F16")),
+        Subsignal("rst_n", Pins("E17")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # USB OTG
+    ("usb_otg", 0,
+        Subsignal("oc", Pins("U13")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # VGA
+    ("vga", 0,
+        Subsignal("r",  Pins("M19 L20 J20 G20 F19")),
+        Subsignal("g",  Pins("H18 N20 L19 J19 H20 F20")),
+        Subsignal("b",  Pins("P20 M20 K19 J18 G19")),
+        Subsignal("hs", Pins("P19")),
+        Subsignal("vs", Pins("R19")),
+        IOStandard("LVCMOS33"),
+    ),
 
     ("hdmi_out_en", 0, Pins("F17"), IOStandard("LVCMOS33")),
 ]

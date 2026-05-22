@@ -203,6 +203,33 @@ _io = [
         IOStandard("LVCMOS33"),
         Misc("PULLUP True"),
     ),
+
+    # Accelerometer
+    ("accelerometer", 0,
+        Subsignal("cs_n", Pins("C15")),
+        Subsignal("clk",  Pins("D15")),
+        Subsignal("mosi", Pins("B14")),
+        Subsignal("miso", Pins("D13")),
+        Subsignal("int",  Pins("C16 E15"), Misc("PULLUP True")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Temperature Sensor
+    ("temp_sensor", 0,
+        Subsignal("scl", Pins("F16")),
+        Subsignal("sda", Pins("G16")),
+        Subsignal("int", Pins("D14"), Misc("PULLUP True")),
+        Subsignal("ct",  Pins("C14"), Misc("PULLUP True")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Microphone
+    ("microphone", 0,
+        Subsignal("clk",    Pins("J5")),
+        Subsignal("data",   Pins("H5")),
+        Subsignal("lr_sel", Pins("F5")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

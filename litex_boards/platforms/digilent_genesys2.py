@@ -54,15 +54,51 @@ _io = [
 
     # USB FIFO
     ("usb_fifo", 0, # Can be used when FT2232H's Channel A configured to ASYNC FIFO 245 mode
+        Subsignal("clko",  Pins("AB27")),
         Subsignal("data",  Pins("AD27 W27 W28 W29 Y29 Y28 AA28 AA26")),
         Subsignal("rxf_n", Pins("AB29")),
         Subsignal("txe_n", Pins("AA25")),
         Subsignal("rd_n",  Pins("AB25")),
         Subsignal("wr_n",  Pins("AC27")),
         Subsignal("siwua", Pins("AB28")),
+        Subsignal("spien", Pins("AD29")),
         Subsignal("oe_n",  Pins("AC30")),
         Misc("SLEW=FAST"),
         Drive(8),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("U19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("mosi", Pins("P24")),
+        Subsignal("miso", Pins("R25")),
+        Subsignal("wp",   Pins("R20")),
+        Subsignal("hold", Pins("R21")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("U19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("dq",   Pins("P24 R25 R20 R21")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # OLED
+    ("oled", 0,
+        Subsignal("dc",   Pins("AC17"), IOStandard("LVCMOS18")),
+        Subsignal("res",  Pins("AB17"), IOStandard("LVCMOS18")),
+        Subsignal("sclk", Pins("AF17"), IOStandard("LVCMOS18")),
+        Subsignal("sdin", Pins("Y15"),  IOStandard("LVCMOS18")),
+        Subsignal("vbat", Pins("AB22"), IOStandard("LVCMOS33")),
+        Subsignal("vdd",  Pins("AG17"), IOStandard("LVCMOS18")),
+    ),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("AE30")),
+        Subsignal("sda", Pins("AF30")),
         IOStandard("LVCMOS33"),
     ),
 
@@ -128,6 +164,7 @@ _io = [
     ("eth", 0,
         Subsignal("rst_n",   Pins("AH24"), IOStandard("LVCMOS33")),
         Subsignal("int_n",   Pins("AK16"), IOStandard("LVCMOS18")),
+        Subsignal("pme_n",   Pins("AK15"), IOStandard("LVCMOS18")),
         Subsignal("mdio",    Pins("AG12"), IOStandard("LVCMOS15")),
         Subsignal("mdc",     Pins("AF12"), IOStandard("LVCMOS15")),
         Subsignal("rx_ctl",  Pins("AH11"), IOStandard("LVCMOS15")),
@@ -166,6 +203,34 @@ _io = [
         Subsignal("sda",     Pins("AJ29"), IOStandard("LVCMOS33")),
         Subsignal("cec",     Pins("Y21"),  IOStandard("LVCMOS33")),
         Subsignal("hpa",     Pins("AH29"), IOStandard("LVCMOS33")),
+    ),
+
+    # USB OTG
+    ("usb_otg", 0,
+        Subsignal("clk",     Pins("AD18")),
+        Subsignal("data",    Pins("AE14 AE15 AC15 AC16 AB15 AA15 AD14 AC14")),
+        Subsignal("dir",     Pins("Y16")),
+        Subsignal("nxt",     Pins("AA16")),
+        Subsignal("reset_n", Pins("AB14")),
+        Subsignal("stp",     Pins("AA17")),
+        Subsignal("vbusoc",  Pins("AF16")),
+        IOStandard("LVCMOS18"),
+    ),
+
+    # DisplayPort
+    ("displayport_in", 0,
+        Subsignal("aux_in_n",  Pins("AC19"), IOStandard("LVCMOS18")),
+        Subsignal("aux_in_p",  Pins("AB19"), IOStandard("LVCMOS18")),
+        Subsignal("aux_out_n", Pins("Y18"),  IOStandard("LVCMOS18")),
+        Subsignal("aux_out_p", Pins("Y19"),  IOStandard("LVCMOS18")),
+        Subsignal("hpd",       Pins("AE21"), IOStandard("LVCMOS33")),
+    ),
+    ("displayport_out", 0,
+        Subsignal("aux_in_n",  Pins("AD16"), IOStandard("LVCMOS18")),
+        Subsignal("aux_in_p",  Pins("AD17"), IOStandard("LVCMOS18")),
+        Subsignal("aux_out_n", Pins("AB18"), IOStandard("LVCMOS18")),
+        Subsignal("aux_out_p", Pins("AA18"), IOStandard("LVCMOS18")),
+        Subsignal("hpd",       Pins("AD21"), IOStandard("LVCMOS33")),
     ),
 
     # VGA
