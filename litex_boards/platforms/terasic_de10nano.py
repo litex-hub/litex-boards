@@ -96,6 +96,15 @@ _io = [
     ),
 ]
 
+# Connectors ---------------------------------------------------------------------------------------
+
+_connectors = [
+    # PIN    0 1    2   3    4    5   6    7   8    9    10  11 12 13   14   15   16  17   18   19  20   21  22   23   24   25  26   27   28  29 30 31   32  33   34  35   36   37  38   39   40
+    ("JP1", "- V12  E8  W12  D11  D8  AH13 AF7 AH14 AF4  AH3 -  -  AD5  AG14 AE23 AE6 AD23 AE24 D12 AD20 C12 AD17 AC23 AC22 Y19 AB23 AA19 W11 -  -  AA18 W14 Y18  Y17 AB25 AB26 Y11 AA26 AA13 AA11"),
+    ("JP7", "- Y15 AC24 AA15 AD26 AG28 AF28 AE25 AF27 AG26 AH27 -  -  AG25 AH26 AH24 AF25 AG23 AF23 AG24 AH22 AH21 AG21 AH23 AA20 AF22 AE22 AG20 AF21 -  -  AG19 AH19 AG18 AH18 AF18 AF20 AG15 AE20 AE19 AE17"),
+    ("arduino", "AG13 AF13 AG10 AG9 U14 U13 AG8 AH8 AF17 AE15 AF15 AG16 AH11 AH12 AH9 AG11 AH7"),
+]
+
 # MiSTer extension board (https://github.com/MiSTer-devel/Main_MiSTer/wiki) ------------------------
 
 _mister_sdram_module_io = [
@@ -167,7 +176,7 @@ class Platform(AlteraPlatform):
     default_clk_period = 1e9/50e6
 
     def __init__(self, toolchain="quartus"):
-        AlteraPlatform.__init__(self, "5CSEBA6U23I7", _io, toolchain=toolchain)
+        AlteraPlatform.__init__(self, "5CSEBA6U23I7", _io, _connectors, toolchain=toolchain)
         self.add_extension(_mister_sdram_module_io)
 
     def create_programmer(self):
