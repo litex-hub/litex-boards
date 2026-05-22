@@ -33,11 +33,27 @@ _io = [
         Subsignal("cs_n",  Pins("T19")),
         Subsignal("mosi",  Pins("P22")),
         Subsignal("miso",  Pins("R22")),
+        Subsignal("wp",    Pins("P21")),
+        Subsignal("hold",  Pins("R21")),
+        Subsignal("rst_n", Pins("R19")),
+        IOStandard("LVCMOS33")
+    ),
+    ("spiflash", 0,
+        Subsignal("cs_n",  Pins("T19")),
+        Subsignal("mosi",  Pins("P22")),
+        Subsignal("miso",  Pins("R22")),
+        Subsignal("wp",    Pins("P21")),
         Subsignal("hold",  Pins("R21")),
         Subsignal("rst_n", Pins("R19")),
         IOStandard("LVCMOS33")
     ),
     ("flash4x", 0,
+        Subsignal("cs_n", Pins("T19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("dq",   Pins("P22", "R22", "P21", "R21")),
+        IOStandard("LVCMOS33")
+    ),
+    ("spiflash4x", 0,
         Subsignal("cs_n", Pins("T19")),
         #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("P22", "R22", "P21", "R21")),
@@ -55,8 +71,10 @@ _io = [
     ),
 
     # PCIe
+    ("pcie_clkreq_n", 0, Pins("AA19"), IOStandard("LVCMOS33")),
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("AB20"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+        Subsignal("wake_n", Pins("V17"), IOStandard("LVCMOS33")),
         Subsignal("clk_p", Pins("F6")),
         Subsignal("clk_n", Pins("E6")),
         Subsignal("rx_p",  Pins("B8")),
@@ -65,8 +83,20 @@ _io = [
         Subsignal("tx_n",  Pins("A4"))
     ),
 
+    ("pcie_x2", 0,
+        Subsignal("rst_n", Pins("AB20"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+        Subsignal("wake_n", Pins("V17"), IOStandard("LVCMOS33")),
+        Subsignal("clk_p", Pins("F6")),
+        Subsignal("clk_n", Pins("E6")),
+        Subsignal("rx_p",  Pins("B8 D11")),
+        Subsignal("rx_n",  Pins("A8 C11")),
+        Subsignal("tx_p",  Pins("B4 D5")),
+        Subsignal("tx_n",  Pins("A4 C5"))
+    ),
+
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("AB20"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+        Subsignal("wake_n", Pins("V17"), IOStandard("LVCMOS33")),
         Subsignal("clk_p", Pins("F6")),
         Subsignal("clk_n", Pins("E6")),
         Subsignal("rx_p",  Pins("B8 D11 B10 D9")),
