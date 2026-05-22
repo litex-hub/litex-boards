@@ -34,6 +34,13 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("E6")),
+        Subsignal("sda", Pins("K5")),
+        IOStandard("LVCMOS33"),
+    ),
+
     ("spiflash", 0,
         Subsignal("cs_n", Pins("T19")),
         #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
