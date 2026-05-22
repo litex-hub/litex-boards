@@ -106,9 +106,35 @@ _sbus_io = [
     ("user_led", 9, Pins("T3"),  IOStandard("lvcmos33")), #SBUS_DATA_OE_LED_2
     ## serial header for console
     ("serial", 0,
-     Subsignal("tx", Pins("V9")), # FIXME: might be the other way round
+     Subsignal("tx", Pins("V9")),
      Subsignal("rx", Pins("U9")),
      IOStandard("LVCMOS33")
+    ),
+    ## SBus connector
+    ("sbus", 0,
+        Subsignal("data", Pins(
+            "J18 K16 J17 K15 K13 J15 J13 J14",
+            "H14 H17 G14 G17 G16 G18 H16 F18",
+            "F16 E18 F15 D18 E17 G13 D17 F13",
+            "F14 E16 E15 C17 C16 A18 B18 C15")),
+        Subsignal("addr", Pins(
+            "B16 B17 D14 C14 D12 A16 A15 B14",
+            "B13 B12 C12 A14 A13 B11 A11 M4",
+            "R2 M3 P2 M2 N2 K5 N1 L4 M1 L3 L1 K3")),
+        Subsignal("clk",    Pins("D15")),
+        Subsignal("size",   Pins("R7 U3 V1")),
+        Subsignal("as_n",   Pins("T4")),
+        Subsignal("bg_n",   Pins("T6")),
+        Subsignal("br_n",   Pins("R6")),
+        Subsignal("err_n",  Pins("V2")),
+        Subsignal("rst_n",  Pins("U2")),
+        Subsignal("sel_n",  Pins("K6")),
+        Subsignal("int1_n", Pins("R3")),
+        Subsignal("int7_n", Pins("N5")),
+        Subsignal("pprd",   Pins("N6")),
+        Subsignal("oe",     Pins("P5")),
+        Subsignal("ack_n",  Pins("M6 L6 N4")),
+        IOStandard("LVTTL"),
     ),
     ## sdcard connector
     ("spisdcard", 0,
