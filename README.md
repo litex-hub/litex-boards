@@ -6,7 +6,7 @@
 
                                               LiteX boards files
 
-                                     Copyright 2012-2025 / LiteX-Hub community
+                                     Copyright 2012-2026 / LiteX-Hub community
 
 [![](https://github.com/litex-hub/litex-boards/workflows/ci/badge.svg)](https://github.com/litex-hub/litex-boards/actions) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/litex-hub/litex-boards)
 
