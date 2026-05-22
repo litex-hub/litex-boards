@@ -147,7 +147,7 @@ _connectors = [
         "LA29_P"	: "Y15", # G30
         "LA29_N"	: "Y16", # G31
         "LA31_P"	: "Y17", # G33
-        "LA31_N"	: "U16", # G34
+        "LA31_N"	: "W17", # G34
         "VREF"	        : "T6",  # H01
         "VREFa"	        : "Y18", # H01
         "CLK0_P"	: "Y12", # H04
@@ -169,7 +169,7 @@ _connectors = [
         "LA24_P"	: "W14", # H28
         "LA24_N"	: "W15", # H29
         "LA28_P"	: "U15", # H31
-        "LA28_N"	: "U16", # H32
+        "LA28_N"	: "V16", # H32
         "LA30_P"	: "V17", # H34
         "LA30_N"	: "U16", # H35
     }),
@@ -256,7 +256,7 @@ class Platform(LatticeNexusPlatform):
         # LIFCL just means Crosslink-NX so we can expect every
         # Crosslink-NX Evaluation Board to have a LIFCL part.
         if device == "LIFCL":
-            device == "LIFCL-40-9BG400C"
+            device = "LIFCL-40-9BG400C"
         assert device in ["LIFCL-40-9BG400C", "LIFCL-40-8BG400CES"]
         LatticeNexusPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
 
@@ -264,7 +264,7 @@ class Platform(LatticeNexusPlatform):
         import time
         if "serial" in args:
             msg =  "FT2232H will be used as serial, make sure that:\n"
-            msg += " -the hardware has been modified: R18 and R19 should be removed, two 0 Ω resistors shoud be populated on R15 (and not R16) and R17.\n"
+            msg += " -the hardware has been modified: R18 and R19 should be removed, two 0 Ω resistors should be populated on R15 (and not R16) and R17.\n"
             msg += " -the chip is configured as UART with virtual COM on port B (With FTProg or https://github.com/trabucayre/fixFT2232_ecp5evn)."
             print(msg)
             time.sleep(2)

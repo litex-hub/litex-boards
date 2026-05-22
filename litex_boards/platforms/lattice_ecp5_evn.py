@@ -142,7 +142,7 @@ class Platform(LatticeECP5Platform):
         import time
         if "serial" in args:
             msg =  "FT2232H will be used as serial, make sure that:\n"
-            msg += " -the hardware has been modified: R22 and R23 should be removed, two 0 Ω resistors shoud be populated on R34 and R35.\n"
+            msg += " -the hardware has been modified: R22 and R23 should be removed, two 0 Ω resistors should be populated on R34 and R35.\n"
             msg += " -the chip is configured as UART with virtual COM on port B (With FTProg or https://github.com/trabucayre/fixFT2232_ecp5evn)."
             print(msg)
             time.sleep(2)

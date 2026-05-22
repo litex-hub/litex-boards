@@ -113,6 +113,54 @@ _io = [
         # Subsignal("clk_n", Pins("W21"), IOStandard("LVDS")),
         Misc("SLEWRATE=FAST")
     ),
+
+    # 8.1 SMA Header.
+    ("sma_rx", 0,
+        Subsignal("p", Pins("B20")),
+        Subsignal("n", Pins("B19")),
+    ),
+    ("sma_tx", 0,
+        Subsignal("p", Pins("A18")),
+        Subsignal("n", Pins("A17")),
+    ),
+    ("sma_rx", 1,
+        Subsignal("p", Pins("C16")),
+        Subsignal("n", Pins("B16")),
+    ),
+    ("sma_tx", 1,
+        Subsignal("p", Pins("A15")),
+        Subsignal("n", Pins("A14")),
+    ),
+    ("sma_rx", 2,
+        Subsignal("p", Pins("B13")),
+        Subsignal("n", Pins("C12")),
+    ),
+    ("sma_tx", 2,
+        Subsignal("p", Pins("A12")),
+        Subsignal("n", Pins("A11")),
+    ),
+    ("sma_rx", 3,
+        Subsignal("p", Pins("B10")),
+        Subsignal("n", Pins("C10")),
+    ),
+    ("sma_tx", 3,
+        Subsignal("p", Pins("A9")),
+        Subsignal("n", Pins("A8")),
+    ),
+
+    # 8.3 Parallel FMC Configuration Header.
+    ("fmc_config", 0,
+        Subsignal("fmc_tck",   Pins("H20")),
+        Subsignal("pg_c2m",    Pins("J22")),
+        Subsignal("pg_m2c",    Pins("J25")),
+        Subsignal("fmc_tdi",   Pins("J24")),
+        Subsignal("fmc_prsnt", Pins("H21")),
+        Subsignal("fmc_tdo",   Pins("H26")),
+        Subsignal("fmc_scl",   Pins("H22")),
+        Subsignal("fmc_tms",   Pins("J26")),
+        Subsignal("fmc_sda",   Pins("H23")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -125,7 +173,52 @@ _connectors = [
     ("PMOD1", "V7   V6  V5  V4  V8  W7  W6  W5"), # J4
     ("PMOD2", "AA4 AB3 AA2 AA1  W4  Y4 AB2 AB1"), # J6
 
-    # FIXME SMA Header, FMC, TP and RPi Board header
+    # 8.4 Raspberry PI Board GPIO Header.
+    ("RASP",
+        "None",  # (no pin 0)
+        "None",  #  1 3.3V
+        "None",  #  2 5V
+        "K26",   #  3 RASP_IO02
+        "None",  #  4 5V
+        "L26",   #  5 RASP_IO03
+        "None",  #  6 GND
+        "K25",   #  7 RASP_IO04
+        "L25",   #  8 RASP_IO14
+        "None",  #  9 GND
+        "K24",   # 10 RASP_IO15
+        "L24",   # 11 RASP_IO17
+        "N26",   # 12 RASP_IO18
+        "J21",   # 13 RASP_IO27
+        "None",  # 14 GND
+        "L23",   # 15 RASP_IO22
+        "J20",   # 16 RASP_IO23
+        "None",  # 17 3.3V
+        "K21",   # 18 RASP_IO24
+        "J19",   # 19 RASP_IO10
+        "None",  # 20 GND
+        "K20",   # 21 RASP_IO09
+        "L22",   # 22 RASP_IO25
+        "M26",   # 23 RASP_IO11
+        "K19",   # 24 RASP_IO08
+        "None",  # 25 GND
+        "K18",   # 26 RASP_IO07
+        "P20",   # 27 RASP_ID_SD
+        "P19",   # 28 RASP_ID_SC
+        "L20",   # 29 RASP_IO05
+        "None",  # 30 GND
+        "L19",   # 31 RASP_IO06
+        "L21",   # 32 RASP_IO12
+        "N23",   # 33 RASP_IO13
+        "None",  # 34 GND
+        "N22",   # 35 RASP_IO19
+        "N19",   # 36 RASP_IO16
+        "N20",   # 37 RASP_IO26
+        "N21",   # 38 RASP_IO20
+        "None",  # 39 GND
+        "P18",   # 40 RASP_IO21
+    ),
+
+    # FIXME FMC HPC and TP headers
 ]
 
 # Platform -----------------------------------------------------------------------------------------

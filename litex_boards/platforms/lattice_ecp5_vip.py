@@ -85,12 +85,12 @@ _io = [
         Subsignal("cs_n", Pins("AJ3"), IOStandard("LVCMOS33")),
         Subsignal("mosi",   Pins("AK2"), IOStandard("LVCMOS33")),
         Subsignal("miso",   Pins("AJ2"), IOStandard("LVCMOS33")),
-        #Subsignal("wp",     Pins("Y2"), IOStandard("LVCMOS33")),
-        #Subsignal("hold",   Pins("W1"), IOStandard("LVCMOS33")),
+        Subsignal("wp",     Pins("AJ4"), IOStandard("LVCMOS33")),
+        Subsignal("hold",   Pins("AG4"), IOStandard("LVCMOS33")),
     ),
     ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("R2"),          IOStandard("LVCMOS33")),
-        Subsignal("dq",   Pins("W2 V2 Y2 W1"), IOStandard("LVCMOS33")),
+        Subsignal("cs_n", Pins("AJ3"),             IOStandard("LVCMOS33")),
+        Subsignal("dq",   Pins("AK2 AJ2 AJ4 AG4"), IOStandard("LVCMOS33")),
     ),
 
     # HDMI
@@ -125,7 +125,7 @@ class Platform(LatticeECP5Platform):
         import time
         if "serial" in args:
             msg =  "FT2232H will be used as serial, make sure that:\n"
-            msg += " -the hardware has been modified: R22 and R23 should be removed, two 0 Ω resistors shoud be populated on R34 and R35.\n"
+            msg += " -the hardware has been modified: R22 and R23 should be removed, two 0 Ω resistors should be populated on R34 and R35.\n"
             msg += " -the chip is configured as UART with virtual COM on port B (With FTProg or https://github.com/trabucayre/fixFT2232_ecp5evn)."
             print(msg)
             time.sleep(2)
