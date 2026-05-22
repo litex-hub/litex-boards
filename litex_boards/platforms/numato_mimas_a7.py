@@ -42,6 +42,20 @@ _io = [
     ("user_btn", 2, Pins("P17"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("N17"), IOStandard("LVCMOS33")),
 
+    # 7-Segment Display
+    ("segled_an", 0, Pins("N3"), IOStandard("LVCMOS33")),
+    ("segled_an", 1, Pins("R1"), IOStandard("LVCMOS33")),
+    ("segled_an", 2, Pins("P1"), IOStandard("LVCMOS33")),
+    ("segled_an", 3, Pins("L4"), IOStandard("LVCMOS33")),
+    ("segled_ca", 0, Pins("L5"), IOStandard("LVCMOS33")),
+    ("segled_cb", 0, Pins("P4"), IOStandard("LVCMOS33")),
+    ("segled_cc", 0, Pins("N4"), IOStandard("LVCMOS33")),
+    ("segled_cd", 0, Pins("P5"), IOStandard("LVCMOS33")),
+    ("segled_ce", 0, Pins("M6"), IOStandard("LVCMOS33")),
+    ("segled_cf", 0, Pins("L6"), IOStandard("LVCMOS33")),
+    ("segled_cg", 0, Pins("M5"), IOStandard("LVCMOS33")),
+    ("segled_dp", 0, Pins("M3"), IOStandard("LVCMOS33")),
+
     # Serial
     ("serial", 0, # Can be used when FT2232H's Channel A configured to ASYNC Serial (UART) mode
         Subsignal("tx", Pins("Y21")),
@@ -78,6 +92,23 @@ _io = [
         Subsignal("clk",  Pins("L12")),
         Subsignal("dq",   Pins("P22", "R22", "P21", "R21")),
         IOStandard("LVCMOS33")
+    ),
+
+    # SDCard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("R16")),
+        Subsignal("mosi", Pins("T18"), Misc("PULLUP True")),
+        Subsignal("cs_n", Pins("R18"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("P15"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+    ("sdcard", 0,
+        Subsignal("data", Pins("P15 P14 R17 R18"), Misc("PULLUP True")),
+        Subsignal("cmd",  Pins("T18"),             Misc("PULLUP True")),
+        Subsignal("clk",  Pins("R16")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
     ),
 
     # DDR3 SDRAM
@@ -145,8 +176,7 @@ _io = [
         Subsignal("scl",     Pins("J2"), IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("H2"), IOStandard("LVCMOS33")),
         Subsignal("hpd_en",  Pins("G2"), IOStandard("LVCMOS33")),
-        Subsignal("cec",     Pins("K2"), IOStandard("LVCMOS33")), # FIXME
-        # Subsignal("txen", Pins("R3"), IOStandard("LVCMOS33")),  # FIXME
+        Subsignal("cec",     Pins("K2"), IOStandard("LVCMOS33")),
     ),
 
     # HDMI Out
@@ -161,8 +191,8 @@ _io = [
         Subsignal("data2_n", Pins("F1"), IOStandard("TMDS_33")),
         Subsignal("scl",     Pins("D2"), IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("C2"), IOStandard("LVCMOS33")),
-        Subsignal("cec",     Pins("E2"), IOStandard("LVCMOS33")), # FIXME
-        Subsignal("hdp",     Pins("B2"), IOStandard("LVCMOS33")), # FIXME
+        Subsignal("cec",     Pins("E2"), IOStandard("LVCMOS33")),
+        Subsignal("hdp",     Pins("B2"), IOStandard("LVCMOS33")),
     ),
 ]
 
