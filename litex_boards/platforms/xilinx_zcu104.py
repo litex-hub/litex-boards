@@ -102,6 +102,93 @@ _io = [
     ),
 ]
 
+# Connectors ---------------------------------------------------------------------------------------
+
+_connectors = [
+    ("pmod0", "G8 H8 G7 H7 G6 H6 J6 J7"),
+    ("pmod1", "J9 K9 K8 L8 L10 M10 M8 M9"),
+    ("FMC_LPC", {
+        "CLK0_M2C_N"      : "E14",
+        "CLK0_M2C_P"      : "E15",
+        "CLK1_M2C_N"      : "F10",
+        "CLK1_M2C_P"      : "G10",
+        "DP0_C2M_N"       : "H3",
+        "DP0_C2M_P"       : "H4",
+        "DP0_M2C_N"       : "G1",
+        "DP0_M2C_P"       : "G2",
+        "GBTCLK0_M2C_C_N" : "V7",
+        "GBTCLK0_M2C_C_P" : "V8",
+        "LA00_CC_N"       : "F16",
+        "LA00_CC_P"       : "F17",
+        "LA01_CC_N"       : "H17",
+        "LA01_CC_P"       : "H18",
+        "LA02_N"          : "K20",
+        "LA02_P"          : "L20",
+        "LA03_N"          : "K18",
+        "LA03_P"          : "K19",
+        "LA04_N"          : "L16",
+        "LA04_P"          : "L17",
+        "LA05_N"          : "J17",
+        "LA05_P"          : "K17",
+        "LA06_N"          : "G19",
+        "LA06_P"          : "H19",
+        "LA07_N"          : "J15",
+        "LA07_P"          : "J16",
+        "LA08_N"          : "E17",
+        "LA08_P"          : "E18",
+        "LA09_N"          : "G16",
+        "LA09_P"          : "H16",
+        "LA10_N"          : "K15",
+        "LA10_P"          : "L15",
+        "LA11_N"          : "A12",
+        "LA11_P"          : "A13",
+        "LA12_N"          : "F18",
+        "LA12_P"          : "G18",
+        "LA13_N"          : "F15",
+        "LA13_P"          : "G15",
+        "LA14_N"          : "C12",
+        "LA14_P"          : "C13",
+        "LA15_N"          : "C16",
+        "LA15_P"          : "D16",
+        "LA16_N"          : "C17",
+        "LA16_P"          : "D17",
+        "LA17_CC_N"       : "E10",
+        "LA17_CC_P"       : "F11",
+        "LA18_CC_N"       : "D10",
+        "LA18_CC_P"       : "D11",
+        "LA19_N"          : "C11",
+        "LA19_P"          : "D12",
+        "LA20_N"          : "E12",
+        "LA20_P"          : "F12",
+        "LA21_N"          : "A10",
+        "LA21_P"          : "B10",
+        "LA22_N"          : "H12",
+        "LA22_P"          : "H13",
+        "LA23_N"          : "A11",
+        "LA23_P"          : "B11",
+        "LA24_N"          : "A6",
+        "LA24_P"          : "B6",
+        "LA25_N"          : "C6",
+        "LA25_P"          : "C7",
+        "LA26_N"          : "B8",
+        "LA26_P"          : "B9",
+        "LA27_N"          : "A7",
+        "LA27_P"          : "A8",
+        "LA28_N"          : "L13",
+        "LA28_P"          : "M13",
+        "LA29_N"          : "J10",
+        "LA29_P"          : "K10",
+        "LA30_N"          : "D9",
+        "LA30_P"          : "E9",
+        "LA31_N"          : "E7",
+        "LA31_P"          : "F7",
+        "LA32_N"          : "E8",
+        "LA32_P"          : "F8",
+        "LA33_N"          : "C8",
+        "LA33_P"          : "C9",
+    }),
+]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxUSPPlatform):
@@ -109,7 +196,7 @@ class Platform(XilinxUSPPlatform):
     default_clk_period = 1e9/125e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxUSPPlatform.__init__(self, "xczu7ev-ffvc1156-2-i", _io, toolchain=toolchain)
+        XilinxUSPPlatform.__init__(self, "xczu7ev-ffvc1156-2-i", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
         return VivadoProgrammer()
@@ -117,7 +204,7 @@ class Platform(XilinxUSPPlatform):
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
-        self.add_period_constraint(self.lookup_request("clk300", loose=True), 1e9/125e6)
+        self.add_period_constraint(self.lookup_request("clk300", loose=True), 1e9/300e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 65]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")

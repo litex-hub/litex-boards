@@ -72,6 +72,38 @@ _io = [
         Subsignal("tx_n",  Pins("AD3 AE5 AG5 AH3")),
     ),
 
+    # SFP.
+    ("sfp_tx_disable_n", 0, Pins("AE22"), IOStandard("LVCMOS12")),
+    ("sfp", 0,
+        Subsignal("txp", Pins("Y4")),
+        Subsignal("txn", Pins("Y3")),
+        Subsignal("rxp", Pins("AA2")),
+        Subsignal("rxn", Pins("AA1")),
+    ),
+    ("sfp_tx", 0,
+        Subsignal("p", Pins("Y4")),
+        Subsignal("n", Pins("Y3")),
+    ),
+    ("sfp_rx", 0,
+        Subsignal("p", Pins("AA2")),
+        Subsignal("n", Pins("AA1")),
+    ),
+    ("sfp_tx_disable_n", 1, Pins("AF20"), IOStandard("LVCMOS12")),
+    ("sfp", 1,
+        Subsignal("txp", Pins("W6")),
+        Subsignal("txn", Pins("W5")),
+        Subsignal("rxp", Pins("W2")),
+        Subsignal("rxn", Pins("W1")),
+    ),
+    ("sfp_tx", 1,
+        Subsignal("p", Pins("W6")),
+        Subsignal("n", Pins("W5")),
+    ),
+    ("sfp_rx", 1,
+        Subsignal("p", Pins("W2")),
+        Subsignal("n", Pins("W1")),
+    ),
+
     # DDR4 SDRAM
     ("ddram", 0,
         Subsignal("a",       Pins(
@@ -120,6 +152,8 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
+    ("pmod0", "B23 A23 F25 E20 K24 L23 L22 D7"),
+    ("pmod1", "AN8 AN9 AP11 AN11 AP9 AP10 AP12 AN12"),
     ("FMC_HPC0", {
         "CLK0_M2C_N"      : "E14",
         "CLK0_M2C_P"      : "E15",
@@ -159,7 +193,7 @@ _connectors = [
         "DP7_M2C_P"       : "J2",
         "GBTCLK0_M2C_C_N" : "V7",
         "GBTCLK0_M2C_C_P" : "V8",
-        "GBTCLK1_M2C_C_N" : "77",
+        "GBTCLK1_M2C_C_N" : "T7",
         "GBTCLK1_M2C_C_P" : "T8",
         "LA00_CC_N"       : "F16",
         "LA00_CC_P"       : "F17",

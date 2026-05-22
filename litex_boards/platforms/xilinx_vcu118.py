@@ -520,7 +520,7 @@ class Platform(XilinxUSPPlatform):
         self.add_period_constraint(self.lookup_request("clk250", 0, loose=True), 1e9/250e6)
         self.add_period_constraint(self.lookup_request("clk250", 1, loose=True), 1e9/250e6)
         self.add_period_constraint(self.lookup_request("clk125",    loose=True), 1e9/125e6)
-        self.add_period_constraint(self.lookup_request("clk156",    loose=True), 1e9/156e6)
+        self.add_period_constraint(self.lookup_request("clk156",    loose=True), 1e9/156.25e6)
         # DDR4 memory channel C1 Internal Vref
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 71]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 72]")

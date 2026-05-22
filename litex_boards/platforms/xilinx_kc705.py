@@ -543,7 +543,7 @@ _connectors = [
 
 class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk156"
-    default_clk_period = 1e9/156.5e6
+    default_clk_period = 1e9/156.25e6
 
     def __init__(self, toolchain="vivado"):
         Xilinx7SeriesPlatform.__init__(self, "xc7k325t-ffg900-2", _io, _connectors, toolchain=toolchain)

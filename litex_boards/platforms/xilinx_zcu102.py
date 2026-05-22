@@ -38,7 +38,7 @@ _io = [
     ("user_btn", 1, Pins("AE14"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("AF15"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("AE15"), IOStandard("LVCMOS33")),
-    ("user_btn", 3, Pins("AG13"), IOStandard("LVCMOS33")),
+    ("user_btn", 4, Pins("AG13"), IOStandard("LVCMOS33")),
 
     # Switches
     ("user_dip", 0, Pins("AN14"), IOStandard("LVCMOS33")),
@@ -185,6 +185,8 @@ _io = [
 _connectors = [
     ("j55", "A20 B20 A22 A21 B21 C21 C22 D21"),
     ("j87", "D20 E20 D22 E22 F20 G20 J20 J19"),
+    ("pmod0", "A20 B20 A22 A21 B21 C21 C22 D21"),
+    ("pmod1", "D20 E20 D22 E22 F20 G20 J20 J19"),
     ("FMC_HPC0", {
         "CLK0_M2C_N"      : "AA6",
         "CLK0_M2C_P"      : "AA7",
