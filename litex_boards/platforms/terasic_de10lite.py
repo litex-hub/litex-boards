@@ -115,6 +115,14 @@ _io = [
     ),
 ]
 
+# Connectors ---------------------------------------------------------------------------------------
+
+_connectors = [
+    # PIN    0 1   2   3  4  5  6  7  8  9  10 11 12 13  14   15   16  17  18   19   20  21   22  23   24   25  26  27  28 29 30 31  32 33  34 35  36 37  38 39  40
+    ("JP1", "- V10 W10 V9 W9 V8 W8 V7 W7 W6 V5 -  -  W5 AA15 AA14 W13 W12 AB13 AB12 Y11 AB11 W11 AB10 AA10 AA9 Y8 AA8 Y7 -  -  AA7 Y6 AA6 Y5 AA5 Y4 AB3 Y3 AB2 AA2"),
+    ("arduino", "AB5 AB6 AB7 AB8 AB9 Y10 AA11 AA12 AB17 AA17 AB19 AA19 Y19 AB20 AB21 AA20 F16"),
+]
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(AlteraPlatform):
@@ -123,7 +131,7 @@ class Platform(AlteraPlatform):
     create_rbf         = False
 
     def __init__(self, toolchain="quartus"):
-        AlteraPlatform.__init__(self, "10M50DAF484C7G", _io, toolchain=toolchain)
+        AlteraPlatform.__init__(self, "10M50DAF484C7G", _io, _connectors, toolchain=toolchain)
         self.add_platform_command("set_global_assignment -name FAMILY \"MAX 10\"")
         self.add_platform_command("set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF")
         self.add_platform_command("set_global_assignment -name INTERNAL_FLASH_UPDATE_MODE \"SINGLE IMAGE WITH ERAM\"")
