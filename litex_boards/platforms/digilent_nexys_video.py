@@ -246,7 +246,7 @@ _connectors = [
         "LA26_P"        : "F18",
         "LA26_N"        : "E18",
         "CLK0_M2C_P"    : "J19",
-        "CLK0_M2C_N"    : "A19",
+        "CLK0_M2C_N"    : "H19",
         "LA02_P"        : "M18",
         "LA02_N"        : "L18",
         "LA04_P"        : "N20",

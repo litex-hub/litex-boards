@@ -82,6 +82,19 @@ _io_z7 = [
     ),
     ("audio_clk", 0, Pins("R17"), IOStandard("LVCMOS33")),
 
+    # Ethernet PHY sideband
+    ("eth_phy", 0,
+        Subsignal("int_n", Pins("F16"), Misc("PULLUP True")),
+        Subsignal("rst_n", Pins("E17")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # USB OTG
+    ("usb_otg", 0,
+        Subsignal("oc", Pins("U13")),
+        IOStandard("LVCMOS33"),
+    ),
+
     # HDMI In
     ("hdmi_in", 0,
         Subsignal("clk_p",   Pins("U18"), IOStandard("TMDS_33")),
@@ -102,6 +115,28 @@ _io_z7 = [
         Subsignal("fb_pu", Pins("Y13"), Misc("PULLUP True")),
         IOStandard("LVCMOS33"),
     ),
+
+    # MIPI CSI
+    ("camera", 0,
+        Subsignal("clk_p",     Pins("J18"), IOStandard("LVDS_25")),
+        Subsignal("clk_n",     Pins("H18"), IOStandard("LVDS_25")),
+        Subsignal("data_p",    Pins("M19 L16"), IOStandard("LVDS_25")),
+        Subsignal("data_n",    Pins("M20 L17"), IOStandard("LVDS_25")),
+        Subsignal("lp_clk_p",  Pins("H20"), IOStandard("HSUL_12")),
+        Subsignal("lp_clk_n",  Pins("J19"), IOStandard("HSUL_12")),
+        Subsignal("lp_data_p", Pins("L19 J20"), IOStandard("HSUL_12")),
+        Subsignal("lp_data_n", Pins("M18 L20"), IOStandard("HSUL_12")),
+        Subsignal("mclk",      Pins("G19"), IOStandard("LVCMOS33")),
+        Subsignal("gpio",      Pins("G20"), Misc("PULLUP True"), IOStandard("LVCMOS33")),
+    ),
+    ("mipi_i2c", 0,
+        Subsignal("scl", Pins("F20")),
+        Subsignal("sda", Pins("F19")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Crypto
+    ("crypto_sda", 0, Pins("P19"), IOStandard("LVCMOS33")),
 ]
 
 _io_z7_20 = [
@@ -228,8 +263,10 @@ class Platform(Xilinx7SeriesPlatform):
             "z7-20": "xc7z020-clg400-1",
             "original": "xc7z010-clg400-1"
         }[variant]
-        ps7_config = ps7_config_variants["common"]
-        ps7_config.update(ps7_config_variants["original" if variant == "original" else "z7"])
+        ps7_config = {
+            **ps7_config_variants["common"],
+            **ps7_config_variants["original" if variant == "original" else "z7"],
+        }
 
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
