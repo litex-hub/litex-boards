@@ -94,15 +94,15 @@ PLATFORM_EXCLUSIONS = {
         "category": "untested",
         "reason": "Not yet tested.",
     },
-    "microfpga_mf001_intel": {
+    "trenz_mf001_intel": {
         "category": "missing_default_clock",
         "reason": "Uses an internal oscillator target CRG.",
     },
-    "microfpga_mf_c10lp_001": {
+    "trenz_mf_c10lp_001": {
         "category": "missing_default_clock",
         "reason": "Uses an internal oscillator target CRG.",
     },
-    "microfpga_mf_max10_001": {
+    "trenz_mf_max10_001": {
         "category": "missing_default_clock",
         "reason": "Uses an internal oscillator target CRG.",
     },

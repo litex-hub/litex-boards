@@ -11,7 +11,7 @@ from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import mega65_mega65
+from litex_boards.platforms import trenz_mega65
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -48,7 +48,7 @@ class BaseSoC(SoCCore):
         eth_dynamic_ip  = False,
         with_led_chaser = True,
         **kwargs):
-        platform = mega65_mega65.Platform()
+        platform = trenz_mega65.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -86,7 +86,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=mega65_mega65.Platform, description="LiteX SoC on MEGA65.")
+    parser = LiteXArgumentParser(platform=trenz_mega65.Platform, description="LiteX SoC on MEGA65.")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--no-hyperram",    action="store_true",      help="Disable HyperRAM support.")
     ethopts = parser.target_group.add_mutually_exclusive_group()

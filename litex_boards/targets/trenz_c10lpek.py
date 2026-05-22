@@ -4,15 +4,17 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
-# Copyright (c) 2018-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2019 msloniewski <marcin.sloniewski@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import microsemi_smf2000
+from litex_boards.platforms import trenz_c10lpek
 
+from litex.soc.cores.hyperbus import HyperRAM
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -26,26 +28,38 @@ class _CRG(LiteXModule):
 
         # # #
 
-        if sys_clk_freq != 12e6:
-            raise ValueError("microsemi_smf2000 currently supports a 12MHz system clock.")
+        if sys_clk_freq != 50e6:
+            raise ValueError("trenz_c10lpek currently supports a 50MHz system clock.")
 
-        clk12 = platform.request("clk12")
+        clk50 = platform.request("clk50")
         self.comb += [
-            self.cd_sys.clk.eq(clk12),
-            self.cd_sys.rst.eq(~platform.request("user_btn") | self.rst),
+            self.cd_sys.clk.eq(clk50),
+            self.cd_sys.rst.eq(~platform.request("cpu_reset_n") | self.rst),
         ]
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=12e6, with_led_chaser=True, **kwargs):
-        platform = microsemi_smf2000.Platform()
+    def __init__(self, sys_clk_freq=50e6,
+        with_hyperram   = False,
+        with_led_chaser = True,
+        **kwargs):
+        platform = trenz_c10lpek.Platform()
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on SMF2000", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on C10LP Evaluation Kit", **kwargs)
+
+        # HyperRAM ---------------------------------------------------------------------------------
+        if with_hyperram:
+            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
+            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(
+                origin = 0x20000000,
+                size   = 8*MEGABYTE,
+                mode   = "rwx",
+            ))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -57,12 +71,15 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=microsemi_smf2000.Platform, description="LiteX SoC on SMF2000.")
-    parser.add_target_argument("--sys-clk-freq", default=12e6, type=float, help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=trenz_c10lpek.Platform, description="LiteX SoC on C10LP Evaluation Kit.")
+    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-hyperram", action="store_true",    help="Enable HyperRAM support.")
+    parser.set_defaults(uart_name="jtag_uart")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
+        sys_clk_freq  = args.sys_clk_freq,
+        with_hyperram = args.with_hyperram,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

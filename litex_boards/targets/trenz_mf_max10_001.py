@@ -11,7 +11,7 @@ from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import microfpga_mf_max10_001
+from litex_boards.platforms import trenz_mf_max10_001
 from litex_boards.targets.microfpga.common import MFIOBasic, OnChipOscillator
 
 from litex.soc.integration.soc import SoCRegion
@@ -45,7 +45,7 @@ class BaseSoC(SoCCore):
         platform_id = 0,
         with_mfio   = True,
         **kwargs):
-        platform = microfpga_mf_max10_001.Platform(platform_id)
+        platform = trenz_mf_max10_001.Platform(platform_id)
 
         kwargs.setdefault("integrated_rom_size",      platform.rom_size*1024)
         kwargs.setdefault("integrated_main_ram_size", platform.ram_size*1024)
@@ -73,7 +73,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=microfpga_mf_max10_001.Platform, description="LiteX SoC on MicroFPGA MAX10 001.")
+    parser = LiteXArgumentParser(platform=trenz_mf_max10_001.Platform, description="LiteX SoC on MicroFPGA MAX10 001.")
     parser.add_target_argument("--sys-clk-freq", default=116e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--platform-id",  default=0,     type=int,   help="Platform variant index.")
     parser.add_target_argument("--no-mfio",      action="store_true",      help="Disable MFIO Wishbone bridge.")
