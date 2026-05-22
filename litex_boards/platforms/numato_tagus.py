@@ -119,8 +119,18 @@ _io = [
         Subsignal("p", Pins("B10")),
         Subsignal("n", Pins("A10"))
     ),
+    ("sfp_tx_fault",     0, Pins("P20"),  IOStandard("LVCMOS33")),
+    ("sfp_tx_disable",   0, Pins("V22"),  IOStandard("LVCMOS33")),
     ("sfp_tx_disable_n", 0, Pins("V22"),  IOStandard("LVCMOS33")),
+    ("sfp_mod_abs",      0, Pins("T20"),  IOStandard("LVCMOS33")),
+    ("sfp_rs0",          0, Pins("AA21"), IOStandard("LVCMOS33")),
+    ("sfp_rs1",          0, Pins("AB22"), IOStandard("LVCMOS33")),
     ("sfp_rx_los",       0, Pins("AB21"), IOStandard("LVCMOS33")),
+    ("sfp_i2c", 0,
+        Subsignal("sda", Pins("AA18")),
+        Subsignal("scl", Pins("AB18")),
+        IOStandard("LVCMOS33"),
+    ),
 
     # SFP1
     ("sfp_tx", 1,
@@ -131,8 +141,18 @@ _io = [
         Subsignal("p", Pins("D9")),
         Subsignal("n", Pins("C9")),
     ),
+    ("sfp_tx_fault",     1, Pins("U20"), IOStandard("LVCMOS33")),
+    ("sfp_tx_disable",   1, Pins("P15"), IOStandard("LVCMOS33")),
     ("sfp_tx_disable_n", 1, Pins("P15"), IOStandard("LVCMOS33")),
+    ("sfp_mod_abs",      1, Pins("R16"), IOStandard("LVCMOS33")),
+    ("sfp_rs0",          1, Pins("P16"), IOStandard("LVCMOS33")),
+    ("sfp_rs1",          1, Pins("N15"), IOStandard("LVCMOS33")),
     ("sfp_rx_los",       1, Pins("R17"), IOStandard("LVCMOS33")),
+    ("sfp_i2c", 1,
+        Subsignal("sda", Pins("U17")),
+        Subsignal("scl", Pins("U18")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 _connectors = [
