@@ -180,8 +180,8 @@ _io = [
         Subsignal("scl",     Pins("Y4"),   IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("AB5"),  IOStandard("LVCMOS33")),
         Subsignal("hpd_en",  Pins("AB12"), IOStandard("LVCMOS25")),
-        Subsignal("cec",     Pins("AA5"),  IOStandard("LVCMOS33")), # FIXME
-        Subsignal("txen",    Pins("R3"),   IOStandard("LVCMOS33")), # FIXME
+        Subsignal("cec",     Pins("AA5"),  IOStandard("LVCMOS33")),
+        Subsignal("txen",    Pins("R3"),   IOStandard("LVCMOS33")),
     ),
 
     # HDMI Out
@@ -196,8 +196,8 @@ _io = [
         Subsignal("data2_n", Pins("AB2"),  IOStandard("TMDS_33")),
         Subsignal("scl",     Pins("U3"),   IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("V3"),   IOStandard("LVCMOS33")),
-        Subsignal("cec",     Pins("AA4"),  IOStandard("LVCMOS33")), # FIXME
-        Subsignal("hdp",     Pins("AB13"), IOStandard("LVCMOS25")), # FIXME
+        Subsignal("cec",     Pins("AA4"),  IOStandard("LVCMOS33")),
+        Subsignal("hdp",     Pins("AB13"), IOStandard("LVCMOS25")),
     ),
 
     # Others

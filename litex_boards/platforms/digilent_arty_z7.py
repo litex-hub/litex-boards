@@ -56,8 +56,8 @@ _io = [
 
     # Audio
     ("audio", 0,
-        Subsignal("pwm", Pins("R18")), # FIXME
-        Subsignal("sd", Pins("T17")), # FIXME
+        Subsignal("pwm", Pins("R18")), # AUD_PWM.
+        Subsignal("sd",  Pins("T17")), # AUD_SD.
         IOStandard("LVCMOS33"),
     ),
 
