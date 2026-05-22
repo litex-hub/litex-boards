@@ -174,7 +174,6 @@ _io = [
         Subsignal("pclk", Pins("D23")),
         Subsignal("dtx",  Pins("T19")),
         Subsignal("drx",  Pins("U19")),
-        Subsignal("drx",  Pins("U19")),
         IOStandard("LVCMOS33")
     ),
 ]

@@ -141,7 +141,6 @@ def _get_io(io_standard):
             Subsignal("rst_n", Pins("W21"), io_standard),
             Subsignal("clk_p", Pins("T6")),
             Subsignal("clk_n", Pins("T5")),
-            Subsignal("rx_p",  Pins("")),
             Subsignal("rx_p",  Pins("P6 R4")),
             Subsignal("rx_n",  Pins("P5 R3")),
             Subsignal("tx_p",  Pins("N4 P2")),

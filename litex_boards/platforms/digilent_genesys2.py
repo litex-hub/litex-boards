@@ -132,7 +132,7 @@ _io = [
         Subsignal("mdc",     Pins("AF12"), IOStandard("LVCMOS15")),
         Subsignal("rx_ctl",  Pins("AH11"), IOStandard("LVCMOS15")),
         Subsignal("rx_data", Pins("AJ14 AH14 AK13 AJ13"), IOStandard("LVCMOS15")),
-        Subsignal("tx_ctl",  Pins(" AK14"), IOStandard("LVCMOS15")),
+        Subsignal("tx_ctl",  Pins("AK14"), IOStandard("LVCMOS15")),
         Subsignal("tx_data", Pins("AJ12 AK11 AJ11 AK10"), IOStandard("LVCMOS15")),
     ),
 
@@ -151,11 +151,70 @@ _io = [
         Subsignal("cec",     Pins("Y24"),  IOStandard("LVCMOS33")),
         Subsignal("hdp",     Pins("AG29"), IOStandard("LVCMOS33")),
     ),
+
+    # HDMI In
+    ("hdmi_in", 0,
+        Subsignal("clk_p",   Pins("AE28"), IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("AF28"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("AJ26"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("AK26"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("AG27"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("AG28"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("AH26"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("AH27"), IOStandard("TMDS_33")),
+        Subsignal("scl",     Pins("AJ28"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("AJ29"), IOStandard("LVCMOS33")),
+        Subsignal("cec",     Pins("Y21"),  IOStandard("LVCMOS33")),
+        Subsignal("hpa",     Pins("AH29"), IOStandard("LVCMOS33")),
+    ),
+
+    # VGA
+    ("vga", 0,
+        Subsignal("r",  Pins("AK25 AG25 AH25 AK24 AJ24")),
+        Subsignal("g",  Pins("AJ23 AJ22 AH22 AK21 AJ21 AK23")),
+        Subsignal("b",  Pins("AH20 AG20 AF21 AK20 AG22")),
+        Subsignal("hs", Pins("AF20")),
+        Subsignal("vs", Pins("AG23")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Audio
+    ("audio_i2c", 0,
+        Subsignal("scl", Pins("AE19")),
+        Subsignal("sda", Pins("AF18")),
+        Subsignal("adr", Pins("AD19 AG19")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("audio_i2s", 0,
+        Subsignal("clk",    Pins("AG18")),
+        Subsignal("sync",   Pins("AJ18")),
+        Subsignal("sd_adc", Pins("AH19")),
+        Subsignal("sd_dac", Pins("AJ19")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("audio_clk", 0, Pins("AK19"), IOStandard("LVCMOS18")),
+
+    # PS/2
+    ("ps2", 0,
+        Subsignal("clk", Pins("AD23")),
+        Subsignal("dat", Pins("AE20")),
+        IOStandard("LVCMOS33"),
+        Misc("PULLUP True"),
+    ),
+
+    # Fan
+    ("fan", 0,
+        Subsignal("pwm",  Pins("W19")),
+        Subsignal("tach", Pins("V21")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
+    ("pmoda", "U27 U28 T26 T27 T22 T23 T20 T21"),
+    ("pmodb", "V29 V30 V25 W26 T25 U25 U22 U23"),
     ("HPC", {
         "DP0_C2M_P"     : "Y2",
         "DP0_C2M_N"     : "Y1",
@@ -166,6 +225,17 @@ _connectors = [
         }
     ),
     ("pmodc", "AC26 AJ27 AH30 AK29 AD26 AG30 AK30 AK28"),
+    ("pmodd", "V27 Y30 V24 W22 U24 Y26 V22 W21"),
+    ("xadc", {
+        "vaux0_n": "J24",
+        "vaux0_p": "J23",
+        "vaux1_n": "K24",
+        "vaux1_p": "K23",
+        "vaux8_n": "L23",
+        "vaux8_p": "L22",
+        "vaux9_n": "K21",
+        "vaux9_p": "L21",
+    }),
 ]
 
 # PMODS --------------------------------------------------------------------------------------------

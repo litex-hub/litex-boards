@@ -24,6 +24,12 @@ _io = [
     ("user_led", 0, Pins("16"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("17"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("18"), IOStandard("LVCMOS33")),
+    ("rgb_led", 0,
+        Subsignal("r", Pins("18")),
+        Subsignal("g", Pins("16")),
+        Subsignal("b", Pins("17")),
+        IOStandard("LVCMOS33"),
+    ),
 
     # Buttons.
     ("user_btn_n", 0, Pins("15"),  IOStandard("LVCMOS33")),
@@ -35,6 +41,35 @@ _io = [
         Subsignal("rx", Pins("9")),
         IOStandard("LVCMOS33")
     ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("19"), IOStandard("LVCMOS33")),
+        Subsignal("clk",  Pins("20"), IOStandard("LVCMOS33")),
+        Subsignal("mosi", Pins("22"), IOStandard("LVCMOS33")),
+        Subsignal("miso", Pins("23"), IOStandard("LVCMOS33")),
+        Subsignal("wp",   Pins("24"), IOStandard("LVCMOS33")),
+        Subsignal("hold", Pins("25"), IOStandard("LVCMOS33")),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("19")),
+        Subsignal("clk",  Pins("20")),
+        Subsignal("dq",   Pins("22 23 24 25")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # LCD
+    ("lcd", 0,
+        Subsignal("clk", Pins("11")),
+        Subsignal("hs",  Pins("10")),
+        Subsignal("vs",  Pins("46")),
+        Subsignal("de",  Pins("5")),
+        Subsignal("r",   Pins("27 28 29 30 31")),
+        Subsignal("g",   Pins("32 33 34 38 39 40")),
+        Subsignal("b",   Pins("41 42 43 44 45")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("lcd_backlight", 0, Pins("47"), IOStandard("LVCMOS33")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -51,6 +86,8 @@ class Platform(GowinPlatform):
         GowinPlatform.__init__(self, "GW1N-LV1QN48C6/I5", _io, _connectors, toolchain=toolchain, devicename="GW1N-1")
         self.toolchain.options["use_done_as_gpio"]      = 1
         self.toolchain.options["use_reconfign_as_gpio"] = 1
+        self.toolchain.options["use_mspi_as_gpio"]      = 1
+        self.toolchain.options["use_sspi_as_gpio"]      = 1
 
     def create_programmer(self):
         return OpenFPGALoader("tangnano")

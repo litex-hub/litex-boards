@@ -53,6 +53,19 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # LCD
+    ("lcd", 0,
+        Subsignal("clk", Pins("35")),
+        Subsignal("hs",  Pins("40")),
+        Subsignal("vs",  Pins("34")),
+        Subsignal("de",  Pins("33")),
+        Subsignal("r",   Pins("75 74 73 72 71")),
+        Subsignal("g",   Pins("70 69 68 57 56 55")),
+        Subsignal("b",   Pins("54 53 51 42 41")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("lcd_backlight", 0, Pins("86"), IOStandard("LVCMOS33")),
+
     # PSRAM
     ("O_psram_ck",      0, Pins(2)),
     ("O_psram_ck_n",    0, Pins(2)),
@@ -101,6 +114,7 @@ class Platform(GowinPlatform):
     def __init__(self, toolchain="gowin"):
         GowinPlatform.__init__(self, "GW1NR-LV9QN88PC6/I5", _io, _connectors, toolchain=toolchain, devicename="GW1NR-9C")
         self.toolchain.options["use_mspi_as_gpio"] = 1
+        self.toolchain.options["use_sspi_as_gpio"] = 1
 
     def create_programmer(self, kit="openfpgaloader"):
         if kit == "gowin":

@@ -46,6 +46,10 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # 7-Segment Display
+    ("seven_seg", 0, Pins("T10 R10 K16 K13 P15 T11 L18 H15"), IOStandard("LVCMOS33")),
+    ("seven_seg_ctrl_n", 0, Pins("J17 J18 T9 J14 P14 T14 K2 U13"), IOStandard("LVCMOS33")),
+
     # Switches
     ("user_sw",  0, Pins("J15"), IOStandard("LVCMOS33")),
     ("user_sw",  1, Pins("L16"), IOStandard("LVCMOS33")),
@@ -75,6 +79,8 @@ _io = [
     ("serial", 0,
         Subsignal("tx", Pins("D4")),
         Subsignal("rx", Pins("C4")),
+        Subsignal("rts", Pins("E5")),
+        Subsignal("cts", Pins("D3")),
         IOStandard("LVCMOS33"),
     ),
 
@@ -168,6 +174,48 @@ _io = [
         Subsignal("g", Pins("A6 B6 A5 C6")),
         Subsignal("b", Pins("D7 C7 B7 D8")),
         IOStandard("LVCMOS33")
+    ),
+
+    # Accelerometer
+    ("accelerometer", 0,
+        Subsignal("cs_n", Pins("D15")),
+        Subsignal("clk",  Pins("F15")),
+        Subsignal("mosi", Pins("F14")),
+        Subsignal("miso", Pins("E15")),
+        Subsignal("int",  Pins("B13 C16"), Misc("PULLUP True")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Temperature Sensor
+    ("temp_sensor", 0,
+        Subsignal("scl", Pins("C14")),
+        Subsignal("sda", Pins("C15")),
+        Subsignal("int", Pins("D13"), Misc("PULLUP True")),
+        Subsignal("ct",  Pins("B14"), Misc("PULLUP True")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Microphone
+    ("microphone", 0,
+        Subsignal("clk",    Pins("J5")),
+        Subsignal("data",   Pins("H5")),
+        Subsignal("lr_sel", Pins("F5")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Audio
+    ("audio", 0,
+        Subsignal("pwm", Pins("A11")),
+        Subsignal("sd",  Pins("D12")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # PS/2
+    ("ps2", 0,
+        Subsignal("clk", Pins("F4")),
+        Subsignal("dat", Pins("B2")),
+        IOStandard("LVCMOS33"),
+        Misc("PULLUP True"),
     ),
 ]
 
