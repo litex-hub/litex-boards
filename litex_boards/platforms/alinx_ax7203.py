@@ -24,8 +24,8 @@ _io = [
     ("hdmi_reset_n", 0, Pins("J19"), IOStandard("LVCMOS33")),
 
     ("clk148p5", 0,
-        Subsignal("p", Pins("F6"), IOStandard("LVCMOS33")),
-        Subsignal("n", Pins("E6"), IOStandard("LVCMOS33"))
+        Subsignal("p", Pins("F6")),
+        Subsignal("n", Pins("E6"))
     ),
 
     # Serial
@@ -45,11 +45,45 @@ _io = [
         Subsignal("tx_n",  Pins("C5   A4  A6 C7"))
     ),
 
+    # RGMII Ethernet.
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("E18")),
+        Subsignal("rx", Pins("B17")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("D16"), IOStandard("LVCMOS33")),
+        Subsignal("mdio",    Pins("B15"), IOStandard("LVCMOS33")),
+        Subsignal("mdc",     Pins("B16"), IOStandard("LVCMOS33")),
+        Subsignal("rx_ctl",  Pins("A15"), IOStandard("LVCMOS33")),
+        Subsignal("rx_data", Pins("A16 B18 C18 C19"), IOStandard("LVCMOS33")),
+        Subsignal("tx_ctl",  Pins("F18"), IOStandard("LVCMOS33")),
+        Subsignal("tx_data", Pins("C20 D20 A19 A18"), IOStandard("LVCMOS33")),
+    ),
+    ("eth_clocks", 1,
+        Subsignal("tx", Pins("A14")),
+        Subsignal("rx", Pins("E19")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 1,
+        Subsignal("rst_n",   Pins("B22"), IOStandard("LVCMOS33")),
+        Subsignal("mdio",    Pins("C22"), IOStandard("LVCMOS33")),
+        Subsignal("mdc",     Pins("F20"), IOStandard("LVCMOS33")),
+        Subsignal("rx_ctl",  Pins("F19"), IOStandard("LVCMOS33")),
+        Subsignal("rx_data", Pins("A20 B20 D19 C17"), IOStandard("LVCMOS33")),
+        Subsignal("tx_ctl",  Pins("D17"), IOStandard("LVCMOS33")),
+        Subsignal("tx_data", Pins("E17 C14 C15 A13"), IOStandard("LVCMOS33")),
+    ),
+
     # Leds
     ("user_led", 0, Pins("B13"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("C13"), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("D14"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("D15"), IOStandard("LVCMOS33")),
+
+    # Buttons
+    ("user_btn", 0, Pins("J21"), IOStandard("LVCMOS33")),
+    ("user_btn", 1, Pins("E13"), IOStandard("LVCMOS33")),
 
     # HDMI Out
     ("hdmi", 0,
@@ -98,7 +132,43 @@ _io = [
         Subsignal("wp",   Pins("P21")),
         Subsignal("hold", Pins("R21")),
         IOStandard("LVCMOS33"),
-    )
+    ),
+
+    # SDCard.
+    ("sdcard", 0,
+        Subsignal("data", Pins("AA13 AB13 Y13 AA14"), Misc("PULLUP True")),
+        Subsignal("cmd",  Pins("AB11"),               Misc("PULLUP True")),
+        Subsignal("clk",  Pins("AB12")),
+        Subsignal("cd",   Pins("F14")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # EEPROM.
+    ("i2c", 0,
+        Subsignal("scl", Pins("F13")),
+        Subsignal("sda", Pins("E14")),
+        IOStandard("LVCMOS33")
+    ),
+]
+
+# Connectors ---------------------------------------------------------------------------------------
+
+_connectors = [
+    ("j11",
+        "P16 R17 R16 P15 N17 P17 U16 T16",
+        "U17 U18 P19 R19 V18 V19 U20 V20",
+        "AA9 AB10 AA10 AA11 W10 V10 Y12 Y11",
+        "W12 W11 AA15 AB15 Y16 AA16 AB16 AB17",
+        "W14 Y14"
+    ),
+    ("j13",
+        "W16 W15 V17 W17 U15 V15 AB21 AB22",
+        "AA21 AA20 AB20 AA19 AA18 AB18 T20 Y17",
+        "W22 W21 T21 U21 Y21 Y22 W20 W19",
+        "Y19 Y18 V22 U22 T18 R18 R14 P14",
+        "N13 N14"
+    ),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
@@ -107,7 +177,7 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_period = 1e9/200e6
 
     def __init__(self):
-        Xilinx7SeriesPlatform.__init__(self, "xc7a200t-fbg484-2", _io, toolchain="vivado")
+        Xilinx7SeriesPlatform.__init__(self, "xc7a200t-fbg484-2", _io, _connectors, toolchain="vivado")
         self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
 
@@ -149,3 +219,4 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)
+        self.add_period_constraint(self.lookup_request("clk148p5", loose=True), 1e9/148.5e6)
