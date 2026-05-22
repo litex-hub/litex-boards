@@ -205,11 +205,17 @@ _io = [
     ("sfp_rs", 3, Pins("H38 G38"), IOStandard("LVCMOS15")),
     ("sfp_rx_los", 3, Pins("J36"), IOStandard("LVCMOS15")),
     ("sfp_tx_disable", 3, Pins("L21"), IOStandard("LVCMOS15")),
-    ("sfp_tx_fault", 3, Pins("J26"), IOStandard("LVCMOS15"))
+    ("sfp_tx_fault", 3, Pins("J26"), IOStandard("LVCMOS15")),
+
+    # PMOD transceiver control.
+    ("pmod_dir", 0, Pins("AT16 AU16 BB19 AV20 AW20 BA17 BB17 AY20"), IOStandard("LVCMOS15")),
+    ("pmod_oe_n", 0, Pins("C40"), IOStandard("LVCMOS15")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
-_connectors = []
+_connectors = [
+    ("pmod", "AW18 AW17 AU19 AV19 AT20 AT19 AV16 AW16"),
+]
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
