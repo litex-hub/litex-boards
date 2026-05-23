@@ -150,6 +150,7 @@ class BaseSoC(SoCCore):
         pcie_address_width    = 32,
         with_pcie_dma_status  = False,
         with_pcie_dma_monitor = False,
+        with_sdram_bist       = False,
         with_sata             = False,
         with_ethernet         = False,
         with_etherbone        = False,
@@ -222,6 +223,7 @@ class BaseSoC(SoCCore):
                     channel       = channel,
                     phy_name      = phy_name,
                     ddrctrl_name  = f"ddrctrl{channel}",
+                    with_bist     = with_sdram_bist,
                     cached        = not (0x8000_0000 <= origin < 0x1_0000_0000),
                     l2_cache_size = kwargs.get("l2_size", 8192)
                 )
@@ -341,6 +343,7 @@ def main():
     parser.add_target_argument("--pcie-address-width", default=32, type=int, choices=[32, 64], help="PCIe address width.")
     parser.add_target_argument("--pcie-with-dma-status",  action="store_true",       help="Enable PCIe DMA status CSRs.")
     parser.add_target_argument("--pcie-with-dma-monitor", action="store_true",       help="Enable PCIe DMA monitor CSRs.")
+    parser.add_target_argument("--with-sdram-bist",       action="store_true",       help="Enable LiteDRAM BIST generator/checker on selected DDRAM channels.")
     parser.add_target_argument("--with-ethernet",         action="store_true",       help="Enable Ethernet support over QSFP/SFP.")
     parser.add_target_argument("--with-etherbone",        action="store_true",       help="Enable Etherbone support over QSFP/SFP.")
     parser.add_target_argument("--ethernet-port",  default="qsfp0_sfp0", choices=QSFP_PORTS, help="Ethernet QSFP/SFP port.")
@@ -379,6 +382,7 @@ def main():
         pcie_address_width    = args.pcie_address_width,
         with_pcie_dma_status  = args.pcie_with_dma_status,
         with_pcie_dma_monitor = args.pcie_with_dma_monitor,
+        with_sdram_bist       = args.with_sdram_bist,
         with_sata             = args.with_sata,
         with_ethernet         = args.with_ethernet,
         with_etherbone        = args.with_etherbone,
