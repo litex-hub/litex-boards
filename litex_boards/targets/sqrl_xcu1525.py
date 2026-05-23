@@ -32,9 +32,10 @@ from litepcie.software import generate_litepcie_software
 
 QSFP_PORTS = tuple(f"qsfp{qsfp}_sfp{sfp}" for qsfp in range(2) for sfp in range(4))
 
-DDRAM_CHANNELS     = tuple(range(4))
-DDRAM_CHANNEL_SIZE = 0x40000000
-DDRAM_ORIGINS      = {
+DDRAM_CHANNELS          = tuple(range(4))
+DDRAM_CHANNEL_SIZE      = 0x40000000
+DDRAM_32BIT_WINDOW_SIZE = 0x20000000
+DDRAM_ORIGINS           = {
     0: 0x40000000,
     1: 0x80000000,
     2: 0xc0000000,
@@ -81,14 +82,26 @@ def parse_ddram_channels(channels):
             raise ValueError("DDRAM channel must be 0, 1, 2 or 3")
     return tuple(parsed_channels)
 
-def ddram_window_end(origins):
-    return max(origin + DDRAM_CHANNEL_SIZE for origin in origins.values())
+def get_ddram_origins(channels, main_channel, window_size):
+    main_ram_origin = SoCCore.mem_map["main_ram"]
+    if window_size == DDRAM_CHANNEL_SIZE:
+        return {
+            channel: (DDRAM_ORIGINS[channel] if channel != main_channel else main_ram_origin)
+            for channel in channels
+        }
+    return {
+        channel: main_ram_origin + n*window_size
+        for n, channel in enumerate(channels)
+    }
 
-def ddram_windows_overlap(origins, origin, size):
+def ddram_window_end(origins, window_size):
+    return max(origin + window_size for origin in origins.values())
+
+def ddram_windows_overlap(origins, window_size, origin, size):
     if origin is None:
         return False
     return any(
-        (origin < ddram_origin + DDRAM_CHANNEL_SIZE) and (origin + size > ddram_origin)
+        (origin < ddram_origin + window_size) and (origin + size > ddram_origin)
         for ddram_origin in origins.values()
     )
 
@@ -152,12 +165,15 @@ class BaseSoC(SoCCore):
             ddram_channels = (ddram_channel,)
         ddram_channels = parse_ddram_channels(ddram_channels)
         ddram_main_channel = 0 if 0 in ddram_channels else ddram_channels[0]
-        ddram_origins = {
-            channel: (DDRAM_ORIGINS[channel] if channel != ddram_main_channel else self.mem_map["main_ram"])
-            for channel in ddram_channels
-        }
-        ddram_end = ddram_window_end(ddram_origins)
-        if ddram_end > 2**kwargs.get("bus_address_width", 32):
+        bus_address_width = kwargs.get("bus_address_width", 32)
+        ddram_window_size = DDRAM_CHANNEL_SIZE
+        ddram_origins = get_ddram_origins(ddram_channels, ddram_main_channel, ddram_window_size)
+        ddram_end = ddram_window_end(ddram_origins, ddram_window_size)
+        if ddram_end > 2**bus_address_width and bus_address_width <= 32:
+            ddram_window_size = DDRAM_32BIT_WINDOW_SIZE
+            ddram_origins = get_ddram_origins(ddram_channels, ddram_main_channel, ddram_window_size)
+            ddram_end = ddram_window_end(ddram_origins, ddram_window_size)
+        if ddram_end > 2**bus_address_width:
             kwargs["bus_address_width"] = 64
         if with_pcie and ddram_end > 2**pcie_address_width:
             pcie_address_width = 64
@@ -171,10 +187,10 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on XCU1525", **kwargs)
         relocated_io = False
-        if ddram_windows_overlap(ddram_origins, self.mem_map.get("csr"), 2**(self.csr.address_width + 2)):
+        if ddram_windows_overlap(ddram_origins, ddram_window_size, self.mem_map.get("csr"), 2**(self.csr.address_width + 2)):
             self.mem_map["csr"] = DDRAM_CSR_ORIGIN
             relocated_io = True
-        if ddram_windows_overlap(ddram_origins, self.mem_map.get("vexriscv_debug"), 0x100):
+        if ddram_windows_overlap(ddram_origins, ddram_window_size, self.mem_map.get("vexriscv_debug"), 0x100):
             self.mem_map["vexriscv_debug"] = DDRAM_DEBUG_ORIGIN
             relocated_io = True
         if relocated_io:
@@ -200,7 +216,7 @@ class BaseSoC(SoCCore):
                     phy           = phy,
                     module        = MT40A512M8(sys_clk_freq, "1:4"),
                     origin        = origin,
-                    size          = DDRAM_CHANNEL_SIZE,
+                    size          = ddram_window_size,
                     region_name   = None if is_main else f"ddram{channel}",
                     main_ram      = is_main,
                     channel       = channel,
@@ -211,6 +227,7 @@ class BaseSoC(SoCCore):
                 )
             self.add_constant("DDRAM_CHANNELS", len(ddram_channels))
             self.add_constant("DDRAM_MAIN_CHANNEL", ddram_main_channel)
+            self.add_constant("DDRAM_WINDOW_SIZE", ddram_window_size)
             # Workadound for Vivado 2018.2 DRC, can be ignored and probably fixed on newer Vivado versions.
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks PDCN-2736]")
 
