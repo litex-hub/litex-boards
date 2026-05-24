@@ -9,11 +9,11 @@
 import os
 
 from migen import *
-from migen.genlib.cdc import PulseSynchronizer
 
 from litex.gen import *
 
 from litex_boards.platforms import sqrl_xcu1525
+from litex_boards.targets.usp_gty_10g import LiteEthPHYUSPGTY10G
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCIORegion, SoCRegion
@@ -24,10 +24,7 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT40A512M8
 from litedram.phy import usddrphy
 
-from liteiclink.serdes.gty_ultrascale import GTYQuadPLL
 from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX, USP_GTY_2500BASEX
-from liteeth.phy.usp_gty_10g_baser import USP_GTY_10G_BASER
-from liteeth.phy.xgmii import LiteEthPHYXGMIIPads, LiteEthPHYXGMIITX, LiteEthPHYXGMIIRX
 
 from litepcie.phy.usppciephy import USPPCIEPHY
 from litepcie.software import generate_litepcie_software
@@ -42,21 +39,6 @@ ETHERBONE_RATES = ("1g", "2.5g")
 
 QSFP_FABRIC_REFCLK_FREQ = 200e6
 QSFP_156P25_REFCLK_FREQ = 156.25e6
-
-XCU1525_10G_RTL_DIR = os.path.join(os.path.dirname(__file__), "sqrl_xcu1525_10g", "rtl")
-XCU1525_10G_RTL_SOURCES = [
-    "lfsr.v",
-    "eth_phy_10g_tx_if.v",
-    "eth_phy_10g_rx_if.v",
-    "eth_phy_10g_rx_frame_sync.v",
-    "eth_phy_10g_rx_ber_mon.v",
-    "eth_phy_10g_rx_watchdog.v",
-    "xgmii_baser_enc_64.v",
-    "xgmii_baser_dec_64.v",
-    "eth_phy_10g_tx.v",
-    "eth_phy_10g_rx.v",
-    "eth_phy_10g.v",
-]
 
 DDRAM_CHANNELS          = tuple(range(4))
 DDRAM_CHANNEL_SIZE      = 0x40000000
@@ -167,76 +149,6 @@ def remap_ddram_origins_around_vexii_io(origins, main_channel):
             high_origin += DDRAM_CHANNEL_SIZE
         remapped[channel] = origin
     return remapped
-
-# 10GBASE-R PHY ------------------------------------------------------------------------------------
-
-class LiteEthPHYXCU152510G(LiteXModule):
-    dw          = 64
-    tx_clk_freq = QSFP_156P25_REFCLK_FREQ
-    rx_clk_freq = QSFP_156P25_REFCLK_FREQ
-    integrated_ifg_inserter = True
-
-    def __init__(self, platform, refclk, data_pads, sys_clk_freq, refclk_freq=QSFP_156P25_REFCLK_FREQ):
-        self.pll    = pll    = GTYQuadPLL(refclk, refclk_freq, 10.3125e9)
-        self.serdes = serdes = USP_GTY_10G_BASER(pll, data_pads=data_pads, sys_clk_freq=sys_clk_freq)
-        self.cd_eth_tx = serdes.cd_eth_tx
-        self.cd_eth_rx = serdes.cd_eth_rx
-
-        xgmii = LiteEthPHYXGMIIPads()
-        self.tx = ClockDomainsRenamer("eth_tx")(LiteEthPHYXGMIITX(xgmii, dw=64))
-        self.rx = ClockDomainsRenamer("eth_rx")(LiteEthPHYXGMIIRX(xgmii, dw=64))
-        self.sink, self.source = self.tx.sink, self.rx.source
-
-        self.tx_bad_block      = Signal()
-        self.rx_error_count    = Signal(7)
-        self.rx_bad_block      = Signal()
-        self.rx_sequence_error = Signal()
-        self.rx_block_lock     = Signal()
-        self.rx_high_ber       = Signal()
-        self.rx_status         = Signal()
-        self.link_up           = Signal()
-
-        # # #
-
-        platform.add_sources(XCU1525_10G_RTL_DIR, *XCU1525_10G_RTL_SOURCES)
-        self.comb += self.link_up.eq(self.rx_status)
-
-        rx_reset_req = Signal()
-        rx_restart = PulseSynchronizer("eth_rx", "sys")
-        self.submodules += rx_restart
-        self.comb += [
-            rx_restart.i.eq(rx_reset_req),
-            serdes.rx_init.restart.eq(rx_restart.o),
-        ]
-
-        self.specials += Instance("eth_phy_10g",
-            p_DATA_WIDTH           = 64,
-            p_CTRL_WIDTH           = 8,
-            p_HDR_WIDTH            = 2,
-            i_tx_clk               = ClockSignal("eth_tx"),
-            i_tx_rst               = ResetSignal("eth_tx"),
-            i_rx_clk               = ClockSignal("eth_rx"),
-            i_rx_rst               = ResetSignal("eth_rx"),
-            i_xgmii_txd            = xgmii.tx_data,
-            i_xgmii_txc            = xgmii.tx_ctl,
-            o_xgmii_rxd            = xgmii.rx_data,
-            o_xgmii_rxc            = xgmii.rx_ctl,
-            o_serdes_tx_data       = serdes.tx_data,
-            o_serdes_tx_hdr        = serdes.tx_header,
-            i_serdes_rx_data       = serdes.rx_data,
-            i_serdes_rx_hdr        = serdes.rx_header,
-            o_serdes_rx_bitslip    = serdes.rx_slip,
-            o_serdes_rx_reset_req  = rx_reset_req,
-            o_tx_bad_block         = self.tx_bad_block,
-            o_rx_error_count       = self.rx_error_count,
-            o_rx_bad_block         = self.rx_bad_block,
-            o_rx_sequence_error    = self.rx_sequence_error,
-            o_rx_block_lock        = self.rx_block_lock,
-            o_rx_high_ber          = self.rx_high_ber,
-            o_rx_status            = self.rx_status,
-            i_cfg_tx_prbs31_enable = 0,
-            i_cfg_rx_prbs31_enable = 0,
-        )
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -447,7 +359,7 @@ class BaseSoC(SoCCore):
             if ethernet_rate == "10g":
                 refclk_name = get_qsfp_refclk_name(ethernet_port, ethernet_refclk)
                 refclk = get_qsfp_external_refclk(refclk_name, ethernet_refclk_freq)
-                self.ethphy = LiteEthPHYXCU152510G(
+                self.ethphy = LiteEthPHYUSPGTY10G(
                     platform        = platform,
                     refclk          = refclk,
                     data_pads       = data_pads,
