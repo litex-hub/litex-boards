@@ -23,6 +23,11 @@ from migen import *
 from litex.gen import *
 
 from litex_boards.platforms import alibaba_xcku3p
+from litex_boards.targets.usp_gty_10g import (
+    LiteEthPHYUSPGTY10G,
+    USP_GTY_10GBASE_R_REFCLK_FREQ,
+    gty_refclk_from_pads,
+)
 
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder  import *
@@ -30,10 +35,23 @@ from litex.soc.integration.builder  import *
 from litex.soc.cores.clock import *
 from litex.soc.cores.led   import LedChaser
 
-from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX
+from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX, USP_GTY_2500BASEX
 
 from litepcie.phy.usppciephy import USPPCIEPHY
 from litepcie.software       import generate_litepcie_software
+
+# Ethernet -----------------------------------------------------------------------------------------
+
+ETHERNET_RATES   = ("1g", "2.5g", "10g")
+ETHERNET_REFCLKS = ("auto", "fabric", "sfp_mgt")
+
+ETHERNET_FABRIC_REFCLK_FREQ = 200e6
+
+def get_basex_phy(rate):
+    return {
+        "1g"   : USP_GTY_1000BASEX,
+        "2.5g" : USP_GTY_2500BASEX,
+    }[rate]
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -58,17 +76,22 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
-        with_ethernet   = False,
-        with_etherbone  = False,
-        eth_sfp         = 0,
-        eth_ip          = "192.168.1.50",
-        remote_ip       = None,
-        eth_dynamic_ip  = False,
-        with_led_chaser = True,
-        with_pcie       = False,
-        pcie_lanes      = 4,
+        with_ethernet        = False,
+        with_etherbone       = False,
+        ethernet_rate        = "1g",
+        ethernet_refclk      = "auto",
+        ethernet_refclk_freq = USP_GTY_10GBASE_R_REFCLK_FREQ,
+        eth_sfp              = 0,
+        eth_ip               = "192.168.1.50",
+        remote_ip            = None,
+        eth_dynamic_ip       = False,
+        with_led_chaser      = True,
+        with_pcie            = False,
+        pcie_lanes           = 4,
         **kwargs):
         platform = alibaba_xcku3p.Platform()
+        if with_etherbone and ethernet_rate == "10g":
+            raise ValueError("Etherbone supports only 1g/2.5g on this target")
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -80,15 +103,41 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.ethphy = USP_GTY_1000BASEX(self.crg.cd_eth.clk,
-                data_pads    = self.platform.request("sfp", eth_sfp),
-                sys_clk_freq = self.clk_freq,
-                refclk_from_fabric = True)
+            if ethernet_refclk == "auto":
+                ethernet_refclk = "sfp_mgt" if ethernet_rate == "10g" else "fabric"
+            if ethernet_refclk == "fabric":
+                refclk             = self.crg.cd_eth.clk
+                refclk_freq        = ETHERNET_FABRIC_REFCLK_FREQ
+                refclk_from_fabric = True
+            else:
+                refclk             = gty_refclk_from_pads(self, platform.request("sfp_mgt_clk", 0))
+                refclk_freq        = ethernet_refclk_freq
+                refclk_from_fabric = False
+
+            if ethernet_rate == "10g":
+                self.ethphy = LiteEthPHYUSPGTY10G(
+                    platform           = platform,
+                    refclk             = refclk,
+                    data_pads          = self.platform.request("sfp", eth_sfp),
+                    sys_clk_freq       = self.clk_freq,
+                    refclk_freq        = refclk_freq,
+                    refclk_from_fabric = refclk_from_fabric)
+            else:
+                self.ethphy = get_basex_phy(ethernet_rate)(refclk,
+                    data_pads          = self.platform.request("sfp", eth_sfp),
+                    sys_clk_freq       = self.clk_freq,
+                    refclk_freq        = refclk_freq,
+                    refclk_from_fabric = refclk_from_fabric)
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-1753]")
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+                self.add_ethernet(
+                    phy        = self.ethphy,
+                    data_width = 32 if ethernet_rate == "10g" else 8,
+                    dynamic_ip = eth_dynamic_ip,
+                    local_ip   = eth_ip if not eth_dynamic_ip else None,
+                    remote_ip  = remote_ip)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -124,25 +173,32 @@ def main():
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-sfp",        default=0, type=int, choices=[0, 1], help="Ethernet SFP.")
-    parser.add_target_argument("--eth-ip",         default="192.168.1.50",              help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",                 help="Enable dynamic Ethernet IP assignment.")
-    parser.add_target_argument("--remote-ip",      default=None,                        help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--with-pcie",      action="store_true",                 help="Enable PCIe support.")
-    parser.add_target_argument("--pcie-lanes",     default=4, type=int,                 choices=[4, 8], help="PCIe lane count.")
-    parser.add_target_argument("--driver",         action="store_true",                 help="Generate PCIe driver.")
+    parser.add_target_argument("--ethernet-rate",        default="1g",    choices=ETHERNET_RATES,   help="Ethernet line rate.")
+    parser.add_target_argument("--ethernet-refclk",      default="auto",  choices=ETHERNET_REFCLKS, help="Ethernet reference clock.")
+    parser.add_target_argument("--ethernet-refclk-freq", default=USP_GTY_10GBASE_R_REFCLK_FREQ,
+        type=float, help="External Ethernet reference clock frequency.")
+    parser.add_target_argument("--eth-sfp",              default=0,       type=int, choices=[0, 1], help="Ethernet SFP.")
+    parser.add_target_argument("--eth-ip",               default="192.168.1.50",     help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",       action="store_true",        help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",            default=None,               help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--with-pcie",            action="store_true",        help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",           default=4, type=int,        choices=[4, 8], help="PCIe lane count.")
+    parser.add_target_argument("--driver",               action="store_true",        help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq   = args.sys_clk_freq,
-        with_ethernet  = args.with_ethernet,
-        with_etherbone = args.with_etherbone,
-        eth_sfp        = args.eth_sfp,
-        eth_ip         = args.eth_ip,
-        eth_dynamic_ip = args.eth_dynamic_ip,
-        remote_ip      = args.remote_ip,
-        with_pcie      = args.with_pcie,
-        pcie_lanes     = args.pcie_lanes,
+        sys_clk_freq         = args.sys_clk_freq,
+        with_ethernet        = args.with_ethernet,
+        with_etherbone       = args.with_etherbone,
+        ethernet_rate        = args.ethernet_rate,
+        ethernet_refclk      = args.ethernet_refclk,
+        ethernet_refclk_freq = args.ethernet_refclk_freq,
+        eth_sfp              = args.eth_sfp,
+        eth_ip               = args.eth_ip,
+        eth_dynamic_ip       = args.eth_dynamic_ip,
+        remote_ip            = args.remote_ip,
+        with_pcie            = args.with_pcie,
+        pcie_lanes           = args.pcie_lanes,
         **parser.soc_argdict
     )
 
