@@ -127,6 +127,24 @@ _io = [
         IOStandard("LVCMOS18")
     ),
 
+    # SGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("p", Pins("T24")),
+        Subsignal("n", Pins("U24")),
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",  Pins("AA23"), IOStandard("LVCMOS18")),
+        Subsignal("int_n",  Pins("R25"),  IOStandard("LVCMOS18")),
+        Subsignal("mdio",   Pins("P25"),  IOStandard("LVCMOS18")),
+        Subsignal("mdc",    Pins("U25"),  IOStandard("LVCMOS18")),
+        Subsignal("clkout", Pins("T25"),  IOStandard("LVCMOS18")),
+        Subsignal("gpio0",  Pins("P26"),  IOStandard("LVCMOS18")),
+        Subsignal("rx_p",   Pins("U26")),
+        Subsignal("rx_n",   Pins("V26")),
+        Subsignal("tx_p",   Pins("N24")),
+        Subsignal("tx_n",   Pins("P24")),
+    ),
+
     # DDR4 SDRAM
     ("ddram", 0,
         Subsignal("a", Pins(
