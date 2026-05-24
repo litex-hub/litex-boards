@@ -19,6 +19,12 @@ from migen import *
 from litex.gen import *
 
 from litex_boards.platforms import xilinx_alveo_u280
+from litex_boards.targets.usp_gty_10g import (
+    LiteEthPHYUSPGTY10G,
+    USP_GTY_10GBASE_R_REFCLK_FREQ,
+    gty_data_pads_lane,
+    gty_refclk_from_pads,
+)
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -42,6 +48,16 @@ from litepcie.software import generate_litepcie_software
 
 from litedram.common import *
 from litedram.frontend.axi import *
+
+# QSFP ---------------------------------------------------------------------------------------------
+
+QSFP_PORTS = tuple(f"qsfp{qsfp}_sfp{sfp}" for qsfp in range(2) for sfp in range(4))
+
+def parse_qsfp_port(port):
+    if port not in QSFP_PORTS:
+        raise ValueError("QSFP port must be one of: " + ", ".join(QSFP_PORTS))
+    qsfp, sfp = port.replace("qsfp", "").split("_sfp")
+    return int(qsfp), int(sfp)
 
 # HBM XCI ------------------------------------------------------------------------------------------
 
@@ -99,6 +115,11 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=150e6, ddram_channel=0,
+        with_ethernet         = False,
+        ethernet_port         = "qsfp0_sfp0",
+        eth_ip                = "192.168.1.50",
+        eth_dynamic_ip        = False,
+        remote_ip             = None,
         with_pcie             = False,
         pcie_lanes            = 4,
         pcie_ndmas            = 1,
@@ -183,6 +204,38 @@ class BaseSoC(SoCCore):
                 with_dma_status  = with_pcie_dma_status,
                 with_dma_monitor = with_pcie_dma_monitor)
 
+        # Ethernet ---------------------------------------------------------------------------------
+        if with_ethernet:
+            qsfp_id, sfp_lane = parse_qsfp_port(ethernet_port)
+            qsfp_pads = platform.request("qsfp28", qsfp_id)
+            self.ethphy = LiteEthPHYUSPGTY10G(
+                platform     = platform,
+                refclk       = gty_refclk_from_pads(
+                    self, platform.request("qsfp_156mhz_clock", qsfp_id)),
+                data_pads    = gty_data_pads_lane(self, qsfp_pads, sfp_lane),
+                sys_clk_freq = self.clk_freq,
+                refclk_freq  = USP_GTY_10GBASE_R_REFCLK_FREQ)
+            self.add_ethernet(
+                phy        = self.ethphy,
+                data_width = 32,
+                dynamic_ip = eth_dynamic_ip,
+                local_ip   = eth_ip if not eth_dynamic_ip else None,
+                remote_ip  = remote_ip)
+
+            reset_cycles = int(sys_clk_freq*10e-3)
+            reset_count  = Signal(max=reset_cycles + 1, reset=reset_cycles)
+            self.sync += [
+                If(ResetSignal("sys"),
+                    reset_count.eq(reset_cycles)
+                ).Elif(reset_count != 0,
+                    reset_count.eq(reset_count - 1)
+                )
+            ]
+            self.comb += [
+                qsfp_pads.resetl.eq(~(ResetSignal("sys") | (reset_count != 0))),
+                qsfp_pads.lpmode.eq(0),
+            ]
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -196,6 +249,11 @@ def main():
     parser = LiteXArgumentParser(platform=xilinx_alveo_u280.Platform, description="LiteX SoC on Alveo U280.")
     parser.add_target_argument("--sys-clk-freq",    default=150e6, type=float, help="System clock frequency.") # HBM2 with 250MHz, DDR4 with 150MHz (1:4)
     parser.add_target_argument("--ddram-channel",   default=0, type=lambda x: int(x, 0), choices=range(2), help="DDRAM channel (0 or 1).") # also selects clk 0 or 1
+    parser.add_target_argument("--with-ethernet",   action="store_true",        help="Enable 10G Ethernet support.")
+    parser.add_target_argument("--ethernet-port",   default="qsfp0_sfp0",       choices=QSFP_PORTS, help="Ethernet QSFP port.")
+    parser.add_target_argument("--ethernet-ip",     default="192.168.1.50",     help="Ethernet IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",        help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100",    help="Remote IP address of TFTP server.")
     parser.add_target_argument("--with-pcie",       action="store_true",        help="Enable PCIe support.")
     parser.add_target_argument("--pcie-lanes",      default=4, type=int,        choices=[4, 16], help="PCIe lane count.")
     parser.add_target_argument("--pcie-ndmas",      default=1, type=int,        help="Number of PCIe DMA channels.")
@@ -227,6 +285,11 @@ def main():
     soc = BaseSoC(
         sys_clk_freq          = args.sys_clk_freq,
         ddram_channel         = args.ddram_channel,
+        with_ethernet         = args.with_ethernet,
+        ethernet_port         = args.ethernet_port,
+        eth_ip                = args.ethernet_ip,
+        eth_dynamic_ip        = args.eth_dynamic_ip,
+        remote_ip             = args.remote_ip,
         with_pcie             = args.with_pcie,
         pcie_lanes            = args.pcie_lanes,
         pcie_ndmas            = args.pcie_ndmas,
