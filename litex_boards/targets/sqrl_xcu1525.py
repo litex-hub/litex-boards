@@ -37,8 +37,11 @@ from litepcie.software import generate_litepcie_software
 QSFP_PORTS   = tuple(f"qsfp{qsfp}_sfp{sfp}"    for qsfp in range(2) for sfp in range(4))
 QSFP_REFCLKS = tuple(f"qsfp{qsfp}_refclk{ref}" for qsfp in range(2) for ref in range(2))
 
-ETHERNET_RATES = ("1g", "2.5g", "10g")
+ETHERNET_RATES  = ("1g", "2.5g", "10g")
 ETHERBONE_RATES = ("1g", "2.5g")
+
+QSFP_FABRIC_REFCLK_FREQ = 200e6
+QSFP_156P25_REFCLK_FREQ = 156.25e6
 
 XCU1525_10G_RTL_DIR = os.path.join(os.path.dirname(__file__), "sqrl_xcu1525_10g", "rtl")
 XCU1525_10G_RTL_SOURCES = [
@@ -90,8 +93,8 @@ def parse_qsfp_refclk(refclk):
     qsfp, refclk_id = refclk.replace("qsfp", "").split("_refclk")
     return int(qsfp), int(refclk_id)
 
-def is_156m25(freq):
-    return abs(freq - 156.25e6) < 1
+def is_156p25mhz(freq):
+    return abs(freq - QSFP_156P25_REFCLK_FREQ) < 1
 
 def get_basex_phy(rate):
     return {
@@ -169,14 +172,11 @@ def remap_ddram_origins_around_vexii_io(origins, main_channel):
 
 class LiteEthPHYXCU152510G(LiteXModule):
     dw          = 64
-    tx_clk_freq = 156.25e6
-    rx_clk_freq = 156.25e6
+    tx_clk_freq = QSFP_156P25_REFCLK_FREQ
+    rx_clk_freq = QSFP_156P25_REFCLK_FREQ
     integrated_ifg_inserter = True
 
-    def __init__(self, platform, refclk, data_pads, sys_clk_freq, refclk_freq=156.25e6):
-        for filename in XCU1525_10G_RTL_SOURCES:
-            platform.add_source(os.path.join(XCU1525_10G_RTL_DIR, filename))
-
+    def __init__(self, platform, refclk, data_pads, sys_clk_freq, refclk_freq=QSFP_156P25_REFCLK_FREQ):
         self.pll    = pll    = GTYQuadPLL(refclk, refclk_freq, 10.3125e9)
         self.serdes = serdes = USP_GTY_10G_BASER(pll, data_pads=data_pads, sys_clk_freq=sys_clk_freq)
         self.cd_eth_tx = serdes.cd_eth_tx
@@ -195,6 +195,10 @@ class LiteEthPHYXCU152510G(LiteXModule):
         self.rx_high_ber       = Signal()
         self.rx_status         = Signal()
         self.link_up           = Signal()
+
+        # # #
+
+        platform.add_sources(XCU1525_10G_RTL_DIR, *XCU1525_10G_RTL_SOURCES)
         self.comb += self.link_up.eq(self.rx_status)
 
         rx_reset_req = Signal()
@@ -254,7 +258,7 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
         pll.create_clkout(self.cd_idelay, 500e6)
         if with_qsfp:
-            pll.create_clkout(self.cd_eth, 200e6, margin=0)
+            pll.create_clkout(self.cd_eth, QSFP_FABRIC_REFCLK_FREQ, margin=0)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         self.specials += [
@@ -299,7 +303,7 @@ class BaseSoC(SoCCore):
         ethernet_rate         = "1g",
         etherbone_rate        = "1g",
         ethernet_refclk       = "auto",
-        ethernet_refclk_freq  = 156.25e6,
+        ethernet_refclk_freq  = QSFP_156P25_REFCLK_FREQ,
         eth_ip                = "192.168.1.50",
         eth_dynamic_ip        = False,
         remote_ip             = None,
@@ -414,9 +418,9 @@ class BaseSoC(SoCCore):
                 with_dma_monitor = with_pcie_dma_monitor)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
-        qsfp_in_use        = [False, False]
-        qsfp_refclk_156m25 = [False, False]
-        qsfp_refclks       = {}
+        qsfp_in_use           = [False, False]
+        qsfp_refclk_156p25mhz = [False, False]
+        qsfp_refclks          = {}
 
         def get_qsfp_external_refclk(refclk_name, refclk_freq):
             if refclk_name not in qsfp_refclks:
@@ -431,11 +435,11 @@ class BaseSoC(SoCCore):
                 )
                 qsfp_refclks[refclk_name] = refclk
             qsfp_id, _ = parse_qsfp_refclk(refclk_name)
-            qsfp_refclk_156m25[qsfp_id] |= is_156m25(refclk_freq)
+            qsfp_refclk_156p25mhz[qsfp_id] |= is_156p25mhz(refclk_freq)
             return qsfp_refclks[refclk_name]
 
-        def get_qsfp_156m25_refclk(qsfp_id):
-            return get_qsfp_external_refclk(f"qsfp{qsfp_id}_refclk0", 156.25e6)
+        def get_qsfp_156p25mhz_refclk(qsfp_id):
+            return get_qsfp_external_refclk(f"qsfp{qsfp_id}_refclk0", QSFP_156P25_REFCLK_FREQ)
 
         if with_ethernet:
             qsfp_id, sfp_lane = parse_qsfp_port(ethernet_port)
@@ -451,11 +455,11 @@ class BaseSoC(SoCCore):
                     refclk_freq     = ethernet_refclk_freq)
             else:
                 basex_refclk      = self.crg.cd_eth.clk
-                basex_refclk_freq = 200e6
+                basex_refclk_freq = QSFP_FABRIC_REFCLK_FREQ
                 basex_from_fabric = True
                 if ethernet_rate == "2.5g":
-                    basex_refclk      = get_qsfp_156m25_refclk(qsfp_id)
-                    basex_refclk_freq = 156.25e6
+                    basex_refclk      = get_qsfp_156p25mhz_refclk(qsfp_id)
+                    basex_refclk_freq = QSFP_156P25_REFCLK_FREQ
                     basex_from_fabric = False
                 self.ethphy = get_basex_phy(ethernet_rate)(basex_refclk,
                     data_pads          = data_pads,
@@ -473,11 +477,11 @@ class BaseSoC(SoCCore):
         if with_etherbone:
             qsfp_id, sfp_lane = parse_qsfp_port(etherbone_port)
             basex_refclk      = self.crg.cd_eth.clk
-            basex_refclk_freq = 200e6
+            basex_refclk_freq = QSFP_FABRIC_REFCLK_FREQ
             basex_from_fabric = True
             if etherbone_rate == "2.5g":
-                basex_refclk      = get_qsfp_156m25_refclk(qsfp_id)
-                basex_refclk_freq = 156.25e6
+                basex_refclk      = get_qsfp_156p25mhz_refclk(qsfp_id)
+                basex_refclk_freq = QSFP_156P25_REFCLK_FREQ
                 basex_from_fabric = False
             self.bonephy = get_basex_phy(etherbone_rate)(basex_refclk,
                 data_pads          = platform.request(f"qsfp{qsfp_id}_sfp{sfp_lane}"),
@@ -539,7 +543,7 @@ class BaseSoC(SoCCore):
                     resetl.eq(~(ResetSignal("sys") | (reset_count != 0))),
                     lpmode.eq(0),
                 ]
-                if qsfp_refclk_156m25[qsfp_id]:
+                if qsfp_refclk_156p25mhz[qsfp_id]:
                     self.comb += platform.request(f"qsfp{qsfp_id}_fs").eq(0b01)
 
         # Leds -------------------------------------------------------------------------------------
@@ -566,12 +570,12 @@ def main():
     parser.add_target_argument("--with-sdram-bist",       action="store_true",       help="Enable LiteDRAM BIST generator/checker on selected DDRAM channels.")
     parser.add_target_argument("--with-ethernet",         action="store_true",       help="Enable Ethernet support over QSFP/SFP.")
     parser.add_target_argument("--with-etherbone",        action="store_true",       help="Enable Etherbone support over QSFP/SFP.")
-    parser.add_target_argument("--ethernet-port",  default="qsfp0_sfp0", choices=QSFP_PORTS, help="Ethernet QSFP/SFP port.")
-    parser.add_target_argument("--etherbone-port", default="qsfp0_sfp1", choices=QSFP_PORTS, help="Etherbone QSFP/SFP port.")
-    parser.add_target_argument("--ethernet-rate",  default="1g", choices=ETHERNET_RATES, help="Ethernet line rate.")
-    parser.add_target_argument("--etherbone-rate", default="1g", choices=ETHERBONE_RATES, help="Etherbone line rate.")
-    parser.add_target_argument("--ethernet-refclk", default="auto", choices=("auto",) + QSFP_REFCLKS, help="QSFP refclk for 10G Ethernet.")
-    parser.add_target_argument("--ethernet-refclk-freq", default=156.25e6, type=float, help="QSFP refclk frequency for 10G Ethernet.")
+    parser.add_target_argument("--ethernet-port",        default="qsfp0_sfp0",             choices=QSFP_PORTS,       help="Ethernet QSFP/SFP port.")
+    parser.add_target_argument("--etherbone-port",       default="qsfp0_sfp1",             choices=QSFP_PORTS,       help="Etherbone QSFP/SFP port.")
+    parser.add_target_argument("--ethernet-rate",        default="1g",                     choices=ETHERNET_RATES,   help="Ethernet line rate.")
+    parser.add_target_argument("--etherbone-rate",       default="1g",                     choices=ETHERBONE_RATES,  help="Etherbone line rate.")
+    parser.add_target_argument("--ethernet-refclk",      default="auto",                   choices=("auto",) + QSFP_REFCLKS, help="QSFP refclk for 10G Ethernet.")
+    parser.add_target_argument("--ethernet-refclk-freq", default=QSFP_156P25_REFCLK_FREQ,  type=float,               help="QSFP refclk frequency for 10G Ethernet.")
     parser.add_target_argument("--ethernet-ip",    default="192.168.1.50",    help="Ethernet IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
