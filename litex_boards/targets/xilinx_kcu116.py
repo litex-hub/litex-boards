@@ -13,6 +13,11 @@ from migen import *
 from litex.gen import *
 
 from litex_boards.platforms import xilinx_kcu116
+from litex_boards.targets.usp_gty_10g import (
+    LiteEthPHYUSPGTY10G,
+    USP_GTY_10GBASE_R_REFCLK_FREQ,
+    gty_refclk_from_pads,
+)
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -22,10 +27,20 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import EDY4016A
 from litedram.phy import usddrphy
 
-from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX
+from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX, USP_GTY_2500BASEX
 
 from litepcie.phy.uspciephy import USPCIEPHY
 from litepcie.software import generate_litepcie_software
+
+# Ethernet -----------------------------------------------------------------------------------------
+
+ETHERNET_RATES = ("1g", "2.5g", "10g")
+
+def get_basex_phy(rate):
+    return {
+        "1g"   : USP_GTY_1000BASEX,
+        "2.5g" : USP_GTY_2500BASEX,
+    }[rate]
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -62,6 +77,8 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6,
         with_ethernet   = False,
         with_etherbone  = False,
+        ethernet_rate   = "1g",
+        eth_sfp         = 1,
         eth_ip          = "192.168.1.50",
         remote_ip       = None,
         eth_dynamic_ip  = False,
@@ -71,6 +88,8 @@ class BaseSoC(SoCCore):
         with_sata       = False,
         **kwargs):
         platform = xilinx_kcu116.Platform()
+        if with_etherbone and ethernet_rate == "10g":
+            raise ValueError("Etherbone supports only 1g/2.5g on this target")
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -93,18 +112,30 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.ethphy = USP_GTY_1000BASEX(
-                self.platform.request("USER_MGT_CLK", 0),
-                data_pads = self.platform.request("sfp", 1),
-                sys_clk_freq = self.clk_freq,
-                refclk_freq = 156.25e6,
-            )
-            self.comb += self.platform.request("sfp_tx_disable_n", 1).eq(1)
+            if ethernet_rate == "10g":
+                self.ethphy = LiteEthPHYUSPGTY10G(
+                    platform     = platform,
+                    refclk       = gty_refclk_from_pads(self, self.platform.request("USER_MGT_CLK", 0)),
+                    data_pads    = self.platform.request("sfp", eth_sfp),
+                    sys_clk_freq = self.clk_freq)
+            else:
+                self.ethphy = get_basex_phy(ethernet_rate)(
+                    self.platform.request("USER_MGT_CLK", 0),
+                    data_pads    = self.platform.request("sfp", eth_sfp),
+                    sys_clk_freq = self.clk_freq,
+                    refclk_freq  = USP_GTY_10GBASE_R_REFCLK_FREQ,
+                )
+            self.comb += self.platform.request("sfp_tx_disable_n", eth_sfp).eq(1)
             self.platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-1753]")
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+                self.add_ethernet(
+                    phy        = self.ethphy,
+                    data_width = 32 if ethernet_rate == "10g" else 8,
+                    dynamic_ip = eth_dynamic_ip,
+                    local_ip   = eth_ip if not eth_dynamic_ip else None,
+                    remote_ip  = remote_ip)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -162,6 +193,8 @@ def main():
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--ethernet-rate",  default="1g", choices=ETHERNET_RATES, help="Ethernet line rate.")
+    parser.add_target_argument("--eth-sfp",        default=1, type=int, choices=[0, 1, 2, 3], help="Ethernet SFP.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
@@ -175,6 +208,8 @@ def main():
         sys_clk_freq   = args.sys_clk_freq,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
+        ethernet_rate  = args.ethernet_rate,
+        eth_sfp        = args.eth_sfp,
         eth_ip         = args.eth_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
