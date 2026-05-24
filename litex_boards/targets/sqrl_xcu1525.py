@@ -402,6 +402,13 @@ def main():
     parser.add_target_argument("--etherbone-ip",   default="192.168.1.50",    help="Etherbone IP address.")
     parser.add_target_argument("--driver",        action="store_true",        help="Generate PCIe driver.")
     parser.add_target_argument("--with-sata",     action="store_true",        help="Enable SATA support (over SFP2SATA on qsfp0_sfp0).")
+
+    # VexiiRiscv exposes an AXI-Lite peripheral bus, so use AXI-Lite as the
+    # default SoC bus for this CPU while still allowing explicit overrides.
+    if (parser.get_value_from_key("--cpu-type", None) == "vexiiriscv" and
+        parser.get_value_from_key("--bus-standard", None) is None):
+        parser.set_defaults(bus_standard="axi-lite")
+
     args = parser.parse_args()
     if args.with_etherbone and args.eth_dynamic_ip:
         parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
