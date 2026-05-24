@@ -28,6 +28,29 @@ _io = [
     ("user_led", 2, Pins("T25"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("R26"), IOStandard("LVCMOS33")),
 
+    # Switches
+    ("user_btn_n", 0, Pins("P6"), IOStandard("SSTL15")),
+    ("user_btn_e", 0, Pins("U5"), IOStandard("SSTL15")),
+    ("user_btn_s", 0, Pins("T5"), IOStandard("SSTL15")),
+    ("user_btn_w", 0, Pins("R5"), IOStandard("SSTL15")),
+    ("user_btn_c", 0, Pins("U6"), IOStandard("SSTL15")),
+    ("user_sw",    0, Pins("R8"), IOStandard("SSTL15")),
+    ("user_sw",    1, Pins("P8"), IOStandard("SSTL15")),
+    ("user_sw",    2, Pins("R7"), IOStandard("SSTL15")),
+    ("user_sw",    3, Pins("R6"), IOStandard("SSTL15")),
+
+    # Rotary Encoder
+    ("rotary", 0,
+        Subsignal("a",    Pins("N22")),
+        Subsignal("b",    Pins("P20")),
+        Subsignal("push", Pins("N21")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # SMA GPIO
+    ("user_sma_gpio_p", 0, Pins("T8"), IOStandard("SSTL15")),
+    ("user_sma_gpio_n", 0, Pins("T7"), IOStandard("SSTL15")),
+
     # Serial
     ("serial", 0,
         Subsignal("cts", Pins("V19")),
@@ -35,6 +58,13 @@ _io = [
         Subsignal("tx",  Pins("U19")),
         Subsignal("rx",  Pins("T19")),
         IOStandard("LVCMOS18")
+    ),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("sda", Pins("K25")),
+        Subsignal("scl", Pins("N18")),
+        IOStandard("LVCMOS33")
     ),
 
     # RGMII Ethernet
@@ -109,6 +139,50 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # SDCard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("N24")),
+        Subsignal("mosi", Pins("N23"), Misc("PULLUP True")),
+        Subsignal("cs_n", Pins("P21"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("P19"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+    ("sdcard", 0,
+        Subsignal("data", Pins("P19 N19 P23 P21"), Misc("PULLUP True")),
+        Subsignal("cmd",  Pins("N23"), Misc("PULLUP True")),
+        Subsignal("clk",  Pins("N24")),
+        Subsignal("cd",   Pins("P24"), Misc("PULLUP True")),
+        Subsignal("wp",   Pins("R20"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # LCD
+    ("lcd", 0,
+        Subsignal("db", Pins("L25 M24 M25 L22")),
+        Subsignal("e",  Pins("L20")),
+        Subsignal("rs", Pins("L23")),
+        Subsignal("rw", Pins("L24")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # HDMI
+    ("hdmi", 0,
+        Subsignal("d", Pins(
+            "AA24 Y25 Y26 V26 W26 W25 W24 U26",
+            "U25 V24 U20 W23 W20 U24 Y20 V23",
+            "AA23 AA25 AB25 AC24 AB24 Y22 Y23 V22")),
+        Subsignal("de",        Pins("AB26")),
+        Subsignal("clk",       Pins("V21")),
+        Subsignal("vsync",     Pins("AC26")),
+        Subsignal("hsync",     Pins("AA22")),
+        Subsignal("int",       Pins("W21")),
+        Subsignal("spdif",     Pins("Y21")),
+        Subsignal("spdif_out", Pins("T20")),
+        IOStandard("LVCMOS18")
+    ),
+
     # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("M20"), IOStandard("LVCMOS25")),
@@ -156,6 +230,7 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
+    ("pmod", "P26 T22 R22 T23"),
     ("HPC", {
       "CLK0_M2C_N" : "C19",
       "CLK0_M2C_P" : "D19",
