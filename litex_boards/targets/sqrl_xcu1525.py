@@ -9,6 +9,7 @@
 import os
 
 from migen import *
+from migen.genlib.cdc import PulseSynchronizer
 
 from litex.gen import *
 
@@ -23,14 +24,36 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT40A512M8
 from litedram.phy import usddrphy
 
-from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX
+from liteiclink.serdes.gty_ultrascale import GTYQuadPLL
+from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX, USP_GTY_2500BASEX
+from liteeth.phy.usp_gty_10g_baser import USP_GTY_10G_BASER
+from liteeth.phy.xgmii import LiteEthPHYXGMIIPads, LiteEthPHYXGMIITX, LiteEthPHYXGMIIRX
 
 from litepcie.phy.usppciephy import USPPCIEPHY
 from litepcie.software import generate_litepcie_software
 
 # QSFP ---------------------------------------------------------------------------------------------
 
-QSFP_PORTS = tuple(f"qsfp{qsfp}_sfp{sfp}" for qsfp in range(2) for sfp in range(4))
+QSFP_PORTS   = tuple(f"qsfp{qsfp}_sfp{sfp}"    for qsfp in range(2) for sfp in range(4))
+QSFP_REFCLKS = tuple(f"qsfp{qsfp}_refclk{ref}" for qsfp in range(2) for ref in range(2))
+
+ETHERNET_RATES = ("1g", "2.5g", "10g")
+ETHERBONE_RATES = ("1g", "2.5g")
+
+XCU1525_10G_RTL_DIR = os.path.join(os.path.dirname(__file__), "sqrl_xcu1525_10g", "rtl")
+XCU1525_10G_RTL_SOURCES = [
+    "lfsr.v",
+    "eth_phy_10g_tx_if.v",
+    "eth_phy_10g_rx_if.v",
+    "eth_phy_10g_rx_frame_sync.v",
+    "eth_phy_10g_rx_ber_mon.v",
+    "eth_phy_10g_rx_watchdog.v",
+    "xgmii_baser_enc_64.v",
+    "xgmii_baser_dec_64.v",
+    "eth_phy_10g_tx.v",
+    "eth_phy_10g_rx.v",
+    "eth_phy_10g.v",
+]
 
 DDRAM_CHANNELS          = tuple(range(4))
 DDRAM_CHANNEL_SIZE      = 0x40000000
@@ -54,6 +77,27 @@ def parse_qsfp_port(port):
         raise ValueError("QSFP port must be one of: " + ", ".join(QSFP_PORTS))
     qsfp, sfp = port.replace("qsfp", "").split("_sfp")
     return int(qsfp), int(sfp)
+
+def get_qsfp_refclk_name(port, refclk):
+    if refclk == "auto":
+        qsfp, _ = parse_qsfp_port(port)
+        return f"qsfp{qsfp}_refclk0"
+    if refclk not in QSFP_REFCLKS:
+        raise ValueError("QSFP refclk must be auto or one of: " + ", ".join(QSFP_REFCLKS))
+    return refclk
+
+def parse_qsfp_refclk(refclk):
+    qsfp, refclk_id = refclk.replace("qsfp", "").split("_refclk")
+    return int(qsfp), int(refclk_id)
+
+def is_156m25(freq):
+    return abs(freq - 156.25e6) < 1
+
+def get_basex_phy(rate):
+    return {
+        "1g"   : USP_GTY_1000BASEX,
+        "2.5g" : USP_GTY_2500BASEX,
+    }[rate]
 
 def parse_ddram_channels(channels):
     if isinstance(channels, int):
@@ -121,6 +165,75 @@ def remap_ddram_origins_around_vexii_io(origins, main_channel):
         remapped[channel] = origin
     return remapped
 
+# 10GBASE-R PHY ------------------------------------------------------------------------------------
+
+class LiteEthPHYXCU152510G(LiteXModule):
+    dw          = 64
+    tx_clk_freq = 156.25e6
+    rx_clk_freq = 156.25e6
+    integrated_ifg_inserter = True
+
+    def __init__(self, platform, refclk, data_pads, sys_clk_freq, refclk_freq=156.25e6):
+        for filename in XCU1525_10G_RTL_SOURCES:
+            platform.add_source(os.path.join(XCU1525_10G_RTL_DIR, filename))
+
+        self.pll    = pll    = GTYQuadPLL(refclk, refclk_freq, 10.3125e9)
+        self.serdes = serdes = USP_GTY_10G_BASER(pll, data_pads=data_pads, sys_clk_freq=sys_clk_freq)
+        self.cd_eth_tx = serdes.cd_eth_tx
+        self.cd_eth_rx = serdes.cd_eth_rx
+
+        xgmii = LiteEthPHYXGMIIPads()
+        self.tx = ClockDomainsRenamer("eth_tx")(LiteEthPHYXGMIITX(xgmii, dw=64))
+        self.rx = ClockDomainsRenamer("eth_rx")(LiteEthPHYXGMIIRX(xgmii, dw=64))
+        self.sink, self.source = self.tx.sink, self.rx.source
+
+        self.tx_bad_block      = Signal()
+        self.rx_error_count    = Signal(7)
+        self.rx_bad_block      = Signal()
+        self.rx_sequence_error = Signal()
+        self.rx_block_lock     = Signal()
+        self.rx_high_ber       = Signal()
+        self.rx_status         = Signal()
+        self.link_up           = Signal()
+        self.comb += self.link_up.eq(self.rx_status)
+
+        rx_reset_req = Signal()
+        rx_restart = PulseSynchronizer("eth_rx", "sys")
+        self.submodules += rx_restart
+        self.comb += [
+            rx_restart.i.eq(rx_reset_req),
+            serdes.rx_init.restart.eq(rx_restart.o),
+        ]
+
+        self.specials += Instance("eth_phy_10g",
+            p_DATA_WIDTH           = 64,
+            p_CTRL_WIDTH           = 8,
+            p_HDR_WIDTH            = 2,
+            i_tx_clk               = ClockSignal("eth_tx"),
+            i_tx_rst               = ResetSignal("eth_tx"),
+            i_rx_clk               = ClockSignal("eth_rx"),
+            i_rx_rst               = ResetSignal("eth_rx"),
+            i_xgmii_txd            = xgmii.tx_data,
+            i_xgmii_txc            = xgmii.tx_ctl,
+            o_xgmii_rxd            = xgmii.rx_data,
+            o_xgmii_rxc            = xgmii.rx_ctl,
+            o_serdes_tx_data       = serdes.tx_data,
+            o_serdes_tx_hdr        = serdes.tx_header,
+            i_serdes_rx_data       = serdes.rx_data,
+            i_serdes_rx_hdr        = serdes.rx_header,
+            o_serdes_rx_bitslip    = serdes.rx_slip,
+            o_serdes_rx_reset_req  = rx_reset_req,
+            o_tx_bad_block         = self.tx_bad_block,
+            o_rx_error_count       = self.rx_error_count,
+            o_rx_bad_block         = self.rx_bad_block,
+            o_rx_sequence_error    = self.rx_sequence_error,
+            o_rx_block_lock        = self.rx_block_lock,
+            o_rx_high_ber          = self.rx_high_ber,
+            o_rx_status            = self.rx_status,
+            i_cfg_tx_prbs31_enable = 0,
+            i_cfg_rx_prbs31_enable = 0,
+        )
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -183,6 +296,10 @@ class BaseSoC(SoCCore):
         with_etherbone        = False,
         ethernet_port         = "qsfp0_sfp0",
         etherbone_port        = "qsfp0_sfp1",
+        ethernet_rate         = "1g",
+        etherbone_rate        = "1g",
+        ethernet_refclk       = "auto",
+        ethernet_refclk_freq  = 156.25e6,
         eth_ip                = "192.168.1.50",
         eth_dynamic_ip        = False,
         remote_ip             = None,
@@ -221,6 +338,10 @@ class BaseSoC(SoCCore):
             pcie_address_width = 64
         if with_ethernet and with_etherbone and ethernet_port == etherbone_port:
             raise ValueError("Ethernet and Etherbone QSFP ports must be different")
+        if ethernet_rate not in ETHERNET_RATES:
+            raise ValueError("Ethernet rate must be one of: " + ", ".join(ETHERNET_RATES))
+        if etherbone_rate not in ETHERBONE_RATES:
+            raise ValueError("Etherbone rate must be one of: " + ", ".join(ETHERBONE_RATES))
 
         # CRG --------------------------------------------------------------------------------------
         with_qsfp = with_ethernet or with_etherbone
@@ -293,16 +414,57 @@ class BaseSoC(SoCCore):
                 with_dma_monitor = with_pcie_dma_monitor)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
-        qsfp_in_use = [False, False]
+        qsfp_in_use        = [False, False]
+        qsfp_refclk_156m25 = [False, False]
+        qsfp_refclks       = {}
+
+        def get_qsfp_external_refclk(refclk_name, refclk_freq):
+            if refclk_name not in qsfp_refclks:
+                refclk = Signal()
+                refclk_pads = platform.request(refclk_name)
+                self.specials += Instance("IBUFDS_GTE4",
+                    p_REFCLK_HROW_CK_SEL = 0,
+                    i_I   = refclk_pads.p,
+                    i_IB  = refclk_pads.n,
+                    i_CEB = 0,
+                    o_O   = refclk,
+                )
+                qsfp_refclks[refclk_name] = refclk
+            qsfp_id, _ = parse_qsfp_refclk(refclk_name)
+            qsfp_refclk_156m25[qsfp_id] |= is_156m25(refclk_freq)
+            return qsfp_refclks[refclk_name]
+
+        def get_qsfp_156m25_refclk(qsfp_id):
+            return get_qsfp_external_refclk(f"qsfp{qsfp_id}_refclk0", 156.25e6)
 
         if with_ethernet:
             qsfp_id, sfp_lane = parse_qsfp_port(ethernet_port)
-            self.ethphy = USP_GTY_1000BASEX(self.crg.cd_eth.clk,
-                data_pads          = platform.request(f"qsfp{qsfp_id}_sfp{sfp_lane}"),
-                sys_clk_freq       = self.clk_freq,
-                refclk_from_fabric = True)
+            data_pads = platform.request(f"qsfp{qsfp_id}_sfp{sfp_lane}")
+            if ethernet_rate == "10g":
+                refclk_name = get_qsfp_refclk_name(ethernet_port, ethernet_refclk)
+                refclk = get_qsfp_external_refclk(refclk_name, ethernet_refclk_freq)
+                self.ethphy = LiteEthPHYXCU152510G(
+                    platform        = platform,
+                    refclk          = refclk,
+                    data_pads       = data_pads,
+                    sys_clk_freq    = self.clk_freq,
+                    refclk_freq     = ethernet_refclk_freq)
+            else:
+                basex_refclk      = self.crg.cd_eth.clk
+                basex_refclk_freq = 200e6
+                basex_from_fabric = True
+                if ethernet_rate == "2.5g":
+                    basex_refclk      = get_qsfp_156m25_refclk(qsfp_id)
+                    basex_refclk_freq = 156.25e6
+                    basex_from_fabric = False
+                self.ethphy = get_basex_phy(ethernet_rate)(basex_refclk,
+                    data_pads          = data_pads,
+                    sys_clk_freq       = self.clk_freq,
+                    refclk_freq        = basex_refclk_freq,
+                    refclk_from_fabric = basex_from_fabric)
             self.add_ethernet(
                 phy        = self.ethphy,
+                data_width = 32 if ethernet_rate == "10g" else 8,
                 local_ip   = eth_ip if not eth_dynamic_ip else None,
                 dynamic_ip = eth_dynamic_ip,
                 remote_ip  = remote_ip)
@@ -310,10 +472,18 @@ class BaseSoC(SoCCore):
 
         if with_etherbone:
             qsfp_id, sfp_lane = parse_qsfp_port(etherbone_port)
-            self.bonephy = USP_GTY_1000BASEX(self.crg.cd_eth.clk,
+            basex_refclk      = self.crg.cd_eth.clk
+            basex_refclk_freq = 200e6
+            basex_from_fabric = True
+            if etherbone_rate == "2.5g":
+                basex_refclk      = get_qsfp_156m25_refclk(qsfp_id)
+                basex_refclk_freq = 156.25e6
+                basex_from_fabric = False
+            self.bonephy = get_basex_phy(etherbone_rate)(basex_refclk,
                 data_pads          = platform.request(f"qsfp{qsfp_id}_sfp{sfp_lane}"),
                 sys_clk_freq       = self.clk_freq,
-                refclk_from_fabric = True)
+                refclk_freq        = basex_refclk_freq,
+                refclk_from_fabric = basex_from_fabric)
             self.add_etherbone(phy=self.bonephy, ip_address=etherbone_ip)
             qsfp_in_use[qsfp_id] = True
 
@@ -369,6 +539,8 @@ class BaseSoC(SoCCore):
                     resetl.eq(~(ResetSignal("sys") | (reset_count != 0))),
                     lpmode.eq(0),
                 ]
+                if qsfp_refclk_156m25[qsfp_id]:
+                    self.comb += platform.request(f"qsfp{qsfp_id}_fs").eq(0b01)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -396,6 +568,10 @@ def main():
     parser.add_target_argument("--with-etherbone",        action="store_true",       help="Enable Etherbone support over QSFP/SFP.")
     parser.add_target_argument("--ethernet-port",  default="qsfp0_sfp0", choices=QSFP_PORTS, help="Ethernet QSFP/SFP port.")
     parser.add_target_argument("--etherbone-port", default="qsfp0_sfp1", choices=QSFP_PORTS, help="Etherbone QSFP/SFP port.")
+    parser.add_target_argument("--ethernet-rate",  default="1g", choices=ETHERNET_RATES, help="Ethernet line rate.")
+    parser.add_target_argument("--etherbone-rate", default="1g", choices=ETHERBONE_RATES, help="Etherbone line rate.")
+    parser.add_target_argument("--ethernet-refclk", default="auto", choices=("auto",) + QSFP_REFCLKS, help="QSFP refclk for 10G Ethernet.")
+    parser.add_target_argument("--ethernet-refclk-freq", default=156.25e6, type=float, help="QSFP refclk frequency for 10G Ethernet.")
     parser.add_target_argument("--ethernet-ip",    default="192.168.1.50",    help="Ethernet IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
@@ -444,6 +620,10 @@ def main():
         with_etherbone        = args.with_etherbone,
         ethernet_port         = args.ethernet_port,
         etherbone_port        = args.etherbone_port,
+        ethernet_rate         = args.ethernet_rate,
+        etherbone_rate        = args.etherbone_rate,
+        ethernet_refclk       = args.ethernet_refclk,
+        ethernet_refclk_freq  = args.ethernet_refclk_freq,
         eth_ip                = args.ethernet_ip,
         eth_dynamic_ip        = args.eth_dynamic_ip,
         remote_ip             = args.remote_ip,
