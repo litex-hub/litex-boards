@@ -13,6 +13,10 @@ from migen import *
 from litex.gen import *
 
 from litex_boards.platforms import alibaba_vu13p
+from litex_boards.targets.usp_gty_10g import (
+    LiteEthPHYUSPGTY10G,
+    gty_refclk_from_pads,
+)
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
@@ -22,20 +26,31 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT40A512M16
 from litedram.phy import usddrphy
 
-from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX
+from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX, USP_GTY_2500BASEX
 
 from litepcie.phy.usppciephy import USPPCIEPHY
 from litepcie.software import generate_litepcie_software
 
 # QSFP ---------------------------------------------------------------------------------------------
 
-QSFP_PORTS = tuple(f"qsfp{qsfp}_sfp{sfp}" for qsfp in range(2) for sfp in range(4))
+QSFP_PORTS       = tuple(f"qsfp{qsfp}_sfp{sfp}" for qsfp in range(2) for sfp in range(4))
+ETHERNET_RATES   = ("1g", "2.5g", "10g")
+ETHERBONE_RATES  = ("1g", "2.5g")
+
+QSFP_FABRIC_REFCLK_FREQ = 200e6
+QSFP_REFCLK_FREQ        = 161.1328125e6
 
 def parse_qsfp_port(port):
     if port not in QSFP_PORTS:
         raise ValueError("QSFP port must be one of: " + ", ".join(QSFP_PORTS))
     qsfp, sfp = port.replace("qsfp", "").split("_sfp")
     return int(qsfp), int(sfp)
+
+def get_basex_phy(rate):
+    return {
+        "1g"   : USP_GTY_1000BASEX,
+        "2.5g" : USP_GTY_2500BASEX,
+    }[rate]
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -82,6 +97,8 @@ class BaseSoC(SoCCore):
                 with_etherbone        = False,
                 ethernet_port         = "qsfp0_sfp0",
                 etherbone_port        = "qsfp0_sfp0",
+                ethernet_rate         = "1g",
+                etherbone_rate        = "1g",
                 eth_ip                = "192.168.1.50",
                 eth_dynamic_ip        = True,
                 remote_ip             = None,
@@ -139,21 +156,43 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         qsfp_in_use = [False, False]
+        qsfp_refclks = {}
+
+        def get_qsfp_refclk(qsfp_id):
+            if qsfp_id not in qsfp_refclks:
+                qsfp_refclks[qsfp_id] = gty_refclk_from_pads(
+                    self, platform.request("qsfp_refclk", qsfp_id))
+            return qsfp_refclks[qsfp_id]
 
         if with_ethernet:
             qsfp_id, sfp_lane = parse_qsfp_port(ethernet_port)
-            self.ethphy = USP_GTY_1000BASEX(self.crg.cd_eth.clk,
-                data_pads    = self.platform.request("qsfp{}_sfp".format(qsfp_id), sfp_lane),
-                sys_clk_freq = self.clk_freq,
-                refclk_from_fabric = True)
-            self.add_ethernet(phy=self.ethphy, local_ip=eth_ip if not eth_dynamic_ip else None, dynamic_ip=eth_dynamic_ip, remote_ip=remote_ip)
+            if ethernet_rate == "10g":
+                self.ethphy = LiteEthPHYUSPGTY10G(
+                    platform     = platform,
+                    refclk       = get_qsfp_refclk(qsfp_id),
+                    data_pads    = self.platform.request("qsfp{}_sfp".format(qsfp_id), sfp_lane),
+                    sys_clk_freq = self.clk_freq,
+                    refclk_freq  = QSFP_REFCLK_FREQ)
+            else:
+                self.ethphy = get_basex_phy(ethernet_rate)(self.crg.cd_eth.clk,
+                    data_pads          = self.platform.request("qsfp{}_sfp".format(qsfp_id), sfp_lane),
+                    sys_clk_freq       = self.clk_freq,
+                    refclk_freq        = QSFP_FABRIC_REFCLK_FREQ,
+                    refclk_from_fabric = True)
+            self.add_ethernet(
+                phy        = self.ethphy,
+                data_width = 32 if ethernet_rate == "10g" else 8,
+                local_ip   = eth_ip if not eth_dynamic_ip else None,
+                dynamic_ip = eth_dynamic_ip,
+                remote_ip  = remote_ip)
             qsfp_in_use[qsfp_id] = True
 
         if with_etherbone:
             qsfp_id, sfp_lane = parse_qsfp_port(etherbone_port)
-            self.bonephy = USP_GTY_1000BASEX(self.crg.cd_eth.clk,
-                data_pads    = self.platform.request("qsfp{}_sfp".format(qsfp_id), sfp_lane),
-                sys_clk_freq = self.clk_freq,
+            self.bonephy = get_basex_phy(etherbone_rate)(self.crg.cd_eth.clk,
+                data_pads          = self.platform.request("qsfp{}_sfp".format(qsfp_id), sfp_lane),
+                sys_clk_freq       = self.clk_freq,
+                refclk_freq        = QSFP_FABRIC_REFCLK_FREQ,
                 refclk_from_fabric = True)
             self.add_etherbone(phy=self.bonephy, ip_address=etherbone_ip)
             qsfp_in_use[qsfp_id] = True
@@ -195,6 +234,8 @@ def main():
     parser.add_target_argument("--with-etherbone", action="store_true",         help="Enable Etherbone support.")
     parser.add_target_argument("--ethernet-port",  default="qsfp0_sfp0",        choices=QSFP_PORTS, help="Ethernet SFP port.")
     parser.add_target_argument("--etherbone-port", default="qsfp0_sfp1",        choices=QSFP_PORTS, help="Etherbone SFP port.")
+    parser.add_target_argument("--ethernet-rate",  default="1g",                choices=ETHERNET_RATES,  help="Ethernet line rate.")
+    parser.add_target_argument("--etherbone-rate", default="1g",                choices=ETHERBONE_RATES, help="Etherbone line rate.")
     parser.add_target_argument("--ethernet-ip",    default="192.168.1.50",      help="Ethernet IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",     help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",         help="Enable dynamic Ethernet IP assignment.")
@@ -223,6 +264,8 @@ def main():
         with_etherbone        = args.with_etherbone,
         ethernet_port         = args.ethernet_port,
         etherbone_port        = args.etherbone_port,
+        ethernet_rate         = args.ethernet_rate,
+        etherbone_rate        = args.etherbone_rate,
         eth_ip                = args.ethernet_ip,
         remote_ip             = args.remote_ip,
         eth_dynamic_ip        = args.eth_dynamic_ip,
