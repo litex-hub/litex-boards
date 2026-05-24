@@ -92,14 +92,23 @@ _io = [
 
     # SPIFlash
     ("spiflash", 0, # clock needs to be accessed through primitive
-        Subsignal("cs_n"), Pins("AA12"),
-        Subsignal("dq"),   Pins("AD11 AC12 AC11 AE11"),
+        Subsignal("cs_n", Pins("AA12")),
+        Subsignal("dq",   Pins("AD11 AC12 AC11 AE11")),
         IOStandard("LVCMOS18")
     ),
-
+    ("spiflash4x", 0, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("AA12")),
+        Subsignal("dq",   Pins("AD11 AC12 AC11 AE11")),
+        IOStandard("LVCMOS18")
+    ),
     ("spiflash", 1, # clock needs to be accessed through primitive
-        Subsignal("cs_n"), Pins("U22"),
-        Subsignal("dq"),   Pins("N23 P23 R20 R21"),
+        Subsignal("cs_n", Pins("R20")),
+        Subsignal("dq",   Pins("N19 P23 N23 R21")),
+        IOStandard("LVCMOS18")
+    ),
+    ("spiflash4x", 1, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("R20")),
+        Subsignal("dq",   Pins("N19 P23 N23 R21")),
         IOStandard("LVCMOS18")
     ),
 
