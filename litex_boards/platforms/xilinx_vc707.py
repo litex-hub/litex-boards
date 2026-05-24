@@ -82,6 +82,14 @@ _io = [
     ("i2c_mux_reset", 0, Pins("AY42"), IOStandard("LVCMOS18")),
 
     # SDCard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("AN30")),
+        Subsignal("mosi", Pins("AP30"), Misc("PULLUP True")),
+        Subsignal("cs_n", Pins("AT30"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("AR30"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS18"),
+    ),
     ("sdcard", 0,
         Subsignal("clk", Pins("AN30")),
         Subsignal("cmd", Pins("AP30")),
