@@ -174,19 +174,19 @@ _io = [
         Subsignal("rst_n", Pins("R16"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
         Subsignal("clk_n", Pins("E6")),
-        Subsignal("rx_p",  Pins("B4")),
-        Subsignal("rx_n",  Pins("A4")),
-        Subsignal("tx_p",  Pins("B8")),
-        Subsignal("tx_n",  Pins("A8"))
+        Subsignal("rx_p",  Pins("B8")),
+        Subsignal("rx_n",  Pins("A8")),
+        Subsignal("tx_p",  Pins("B4")),
+        Subsignal("tx_n",  Pins("A4"))
     ),
     ("pcie_x2", 0,
         Subsignal("rst_n", Pins("R16"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
         Subsignal("clk_n", Pins("E6")),
-        Subsignal("rx_p",  Pins("B4 D5")),
-        Subsignal("rx_n",  Pins("A4 C5")),
-        Subsignal("tx_p",  Pins("B8 D11")),
-        Subsignal("tx_n",  Pins("A8 C11"))
+        Subsignal("rx_p",  Pins("B8 D11")),
+        Subsignal("rx_n",  Pins("A8 C11")),
+        Subsignal("tx_p",  Pins("B4 D5")),
+        Subsignal("tx_n",  Pins("A4 C5"))
     ),
 
     # SFP+
@@ -199,16 +199,16 @@ _io = [
         Subsignal("n", Pins("E10"))
     ),
     ("sfp", 0,
-        Subsignal("rxp", Pins("B6")),
-        Subsignal("rxn", Pins("A6")),
-        Subsignal("txp", Pins("B10")),
-        Subsignal("txn", Pins("A10")),
+        Subsignal("rxp", Pins("B10")),
+        Subsignal("rxn", Pins("A10")),
+        Subsignal("txp", Pins("B6")),
+        Subsignal("txn", Pins("A6")),
     ),
     ("sfp", 1,
-        Subsignal("rxp", Pins("D7")),
-        Subsignal("rxn", Pins("C7")),
-        Subsignal("txp", Pins("D9")),
-        Subsignal("txn", Pins("C9")),
+        Subsignal("rxp", Pins("D9")),
+        Subsignal("rxn", Pins("C9")),
+        Subsignal("txp", Pins("D7")),
+        Subsignal("txn", Pins("C7")),
     ),
 
     # HDMI Out
@@ -246,7 +246,39 @@ _io = [
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = []
+_connectors = [
+    # 2x20 expansion header, MY-WIREDCOM/Raspberry Pi pin numbers.
+    ("wirecom", {
+         3: "V10",
+         5: "W10",
+         7: "Y11",
+         8: "Y12",
+        10: "W11",
+        11: "V13",
+        12: "W12",
+        13: "V14",
+        15: "U15",
+        16: "Y13",
+        18: "AA14",
+        19: "V15",
+        21: "T14",
+        22: "Y16",
+        23: "T15",
+        24: "AA16",
+        26: "W14",
+        27: "W15",
+        28: "Y14",
+        29: "W16",
+        31: "T16",
+        32: "AA13",
+        33: "U16",
+        35: "AB16",
+        36: "AB13",
+        37: "AB17",
+        38: "AA15",
+        40: "AB15",
+    }),
+]
 
 
 # Platform -----------------------------------------------------------------------------------------
@@ -256,7 +288,7 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_period = 1e9/200e6
 
     def __init__(self, toolchain="vivado"):
-        device = "xc7a100tfgg484-1"
+        device = "xc7a100tfgg484-2"
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             [

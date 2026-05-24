@@ -48,14 +48,14 @@ class _CRG(LiteXModule):
         rst    = ~platform.request("rst_n") if with_rst else 0
 
         # PLL.
-        self.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-2)
         self.comb += pll.reset.eq(rst | self.rst)
         pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
         if with_dram:
-            self.dram_pll = dram_pll = S7PLL(speedgrade=-1)
+            self.dram_pll = dram_pll = S7PLL(speedgrade=-2)
             dram_pll.register_clkin(self.cd_sys.clk, sys_clk_freq)
             dram_pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
             dram_pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
