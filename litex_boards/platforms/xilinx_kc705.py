@@ -140,9 +140,11 @@ _io = [
         IOStandard("LVCMOS25")
     ),
     ("sdcard", 0,
-        Subsignal("clk", Pins("AB23")),
-        Subsignal("cmd", Pins("AB22"), Misc("PULLUP True")),
+        Subsignal("clk",  Pins("AB23")),
+        Subsignal("cmd",  Pins("AB22"), Misc("PULLUP True")),
         Subsignal("data", Pins("AC20 AA23 AA22 AC21"), Misc("PULLUP True")),
+        Subsignal("cd",   Pins("AA21"), Misc("PULLUP True")),
+        Subsignal("wp",   Pins("Y21"),  Misc("PULLUP True")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS25")
     ),
