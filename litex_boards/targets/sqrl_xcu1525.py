@@ -15,7 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import sqrl_xcu1525
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCIORegion
+from litex.soc.integration.soc import SoCIORegion, SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -43,6 +43,11 @@ DDRAM_ORIGINS           = {
 }
 DDRAM_CSR_ORIGIN   = 0x20000000
 DDRAM_DEBUG_ORIGIN = 0x20010000
+DDRAM_FULL_MAP_PHYSICAL_WIDTH = 38
+DDRAM_FULL_MAP_IO_REGIONS     = {
+    DDRAM_CSR_ORIGIN : 0x02000000,
+    0xf0000000       : 0x10000000,
+}
 
 def parse_qsfp_port(port):
     if port not in QSFP_PORTS:
@@ -105,6 +110,17 @@ def ddram_windows_overlap(origins, window_size, origin, size):
         for ddram_origin in origins.values()
     )
 
+def remap_ddram_origins_around_vexii_io(origins, main_channel):
+    remapped = {}
+    high_origin = 0x1_0000_0000
+    for channel in sorted(origins):
+        origin = origins[channel]
+        if channel != main_channel and origin >= 0xc0000000:
+            origin = high_origin
+            high_origin += DDRAM_CHANNEL_SIZE
+        remapped[channel] = origin
+    return remapped
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -137,6 +153,16 @@ class _CRG(LiteXModule):
         ]
 
         self.idelayctrl = USPIDELAYCTRL(cd_ref=self.cd_idelay, cd_sys=self.cd_sys)
+        platform.add_platform_command(
+            "set_false_path -quiet "
+            "-to [get_cells -quiet -hierarchical -filter {{NAME =~ *idelayctrl*ic_reset_reg*}}]"
+        )
+        platform.add_platform_command(
+            "set_false_path -quiet "
+            "-to [get_pins -quiet -of_objects "
+            "[get_cells -quiet -hierarchical -filter {{REF_NAME == IDELAYCTRL}}] "
+            "-filter {{REF_PIN_NAME == RST}}]"
+        )
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -148,6 +174,7 @@ class BaseSoC(SoCCore):
         pcie_lanes            = 4,
         pcie_ndmas            = 1,
         pcie_address_width    = 32,
+        ddram_full_map        = False,
         with_pcie_dma_status  = False,
         with_pcie_dma_monitor = False,
         with_sdram_bist       = False,
@@ -169,8 +196,22 @@ class BaseSoC(SoCCore):
         bus_address_width = kwargs.get("bus_address_width", 32)
         ddram_window_size = DDRAM_CHANNEL_SIZE
         ddram_origins = get_ddram_origins(ddram_channels, ddram_main_channel, ddram_window_size)
+        is_vexiiriscv = kwargs.get("cpu_type", "vexriscv") == "vexiiriscv"
+        if ddram_full_map and is_vexiiriscv:
+            ddram_origins = remap_ddram_origins_around_vexii_io(ddram_origins, ddram_main_channel)
         ddram_end = ddram_window_end(ddram_origins, ddram_window_size)
-        if ddram_end > 2**bus_address_width and bus_address_width <= 32:
+        if ddram_full_map:
+            if bus_address_width <= 32:
+                kwargs["bus_address_width"] = 64
+                bus_address_width = 64
+            if ddram_end > 2**bus_address_width:
+                kwargs["bus_address_width"] = 64
+            if is_vexiiriscv:
+                from litex.soc.cores.cpu.vexiiriscv.core import VexiiRiscv
+                VexiiRiscv.set_physical_width(max(DDRAM_FULL_MAP_PHYSICAL_WIDTH, ddram_end.bit_length()))
+                if VexiiRiscv.io_regions == {0x8000_0000: 0x8000_0000}:
+                    VexiiRiscv.io_regions = dict(DDRAM_FULL_MAP_IO_REGIONS)
+        elif ddram_end > 2**bus_address_width and bus_address_width <= 32:
             ddram_window_size = DDRAM_32BIT_WINDOW_SIZE
             ddram_origins = get_ddram_origins(ddram_channels, ddram_main_channel, ddram_window_size)
             ddram_end = ddram_window_end(ddram_origins, ddram_window_size)
@@ -213,6 +254,11 @@ class BaseSoC(SoCCore):
                 is_main    = channel == ddram_main_channel
                 sdram_name = "sdram" if is_main else f"sdram{channel}"
                 origin     = ddram_origins[channel]
+                cached     = is_main if ddram_full_map else not (0x8000_0000 <= origin < 0x1_0000_0000)
+                if ddram_full_map and not is_main:
+                    ddram_io_region = SoCRegion(origin=origin, size=ddram_window_size, cached=False)
+                    if not self.bus.check_region_is_io(ddram_io_region):
+                        self.bus.add_region(f"ddram{channel}_io", SoCIORegion(origin=origin, size=ddram_window_size))
                 self.add_sdram(sdram_name,
                     phy           = phy,
                     module        = MT40A512M8(sys_clk_freq, "1:4"),
@@ -224,12 +270,13 @@ class BaseSoC(SoCCore):
                     phy_name      = phy_name,
                     ddrctrl_name  = f"ddrctrl{channel}",
                     with_bist     = with_sdram_bist,
-                    cached        = not (0x8000_0000 <= origin < 0x1_0000_0000),
+                    cached        = cached,
                     l2_cache_size = kwargs.get("l2_size", 8192)
                 )
             self.add_constant("DDRAM_CHANNELS", len(ddram_channels))
             self.add_constant("DDRAM_MAIN_CHANNEL", ddram_main_channel)
             self.add_constant("DDRAM_WINDOW_SIZE", ddram_window_size)
+            self.add_constant("DDRAM_FULL_MAP", int(ddram_full_map))
             # Workadound for Vivado 2018.2 DRC, can be ignored and probably fixed on newer Vivado versions.
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks PDCN-2736]")
 
@@ -337,6 +384,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",  default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--ddram-channel",  default=0, type=lambda x: int(x, 0), choices=range(4), help="Legacy single DDRAM channel selector.")
     parser.add_target_argument("--ddram-channels", default=None, help="DDRAM channels to map (comma/range list or all).")
+    parser.add_target_argument("--ddram-full-map", action="store_true", help="Map selected DDRAM channels at their full native address windows.")
     parser.add_target_argument("--with-pcie",     action="store_true",        help="Enable PCIe support.")
     parser.add_target_argument("--pcie-lanes",    default=4, type=int,        choices=[2, 4, 8, 16], help="PCIe lane count.")
     parser.add_target_argument("--pcie-ndmas",    default=1, type=int,        help="Number of PCIe DMA channels.")
@@ -376,6 +424,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq          = args.sys_clk_freq,
         ddram_channels        = ddram_channels,
+        ddram_full_map        = args.ddram_full_map,
         with_pcie             = args.with_pcie,
         pcie_lanes            = args.pcie_lanes,
         pcie_ndmas            = args.pcie_ndmas,
