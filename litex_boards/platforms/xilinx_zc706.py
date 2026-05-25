@@ -46,8 +46,8 @@ _io = [
         IOStandard("LVDS_25"),
         Misc("DIFF_TERM=TRUE")
     ),
-    ("user_sma_clock_p", Pins("AD18"), IOStandard("LVCMOS25")),
-    ("user_sma_clock_n", Pins("AD19"), IOStandard("LVCMOS25")),
+    ("user_sma_clock_p", 0, Pins("AD18"), IOStandard("LVCMOS25")),
+    ("user_sma_clock_n", 0, Pins("AD19"), IOStandard("LVCMOS25")),
 
     # FAN.
     ("fan", 0,
