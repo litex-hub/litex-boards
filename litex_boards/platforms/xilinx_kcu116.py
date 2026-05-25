@@ -26,6 +26,14 @@ _io = [
         Subsignal("p", Pins("M7")),
         Subsignal("n", Pins("M6"))
     ),
+    ("mgt_refclk", 0, # SFP_SI5328_OUT, GTY Quad 226 MGTREFCLK0
+        Subsignal("p", Pins("P7")),
+        Subsignal("n", Pins("P6"))
+    ),
+    ("mgt_refclk", 1, # USER_MGT_SI570_CLOCK, GTY Quad 226 MGTREFCLK1
+        Subsignal("p", Pins("M7")),
+        Subsignal("n", Pins("M6"))
+    ),
 
     ("CLK_74_25", 0,
         Subsignal("p", Pins("D11"), IOStandard("LVDS_25")),
@@ -354,7 +362,7 @@ _connectors = [
         "PG_M2C"        : "H13"   # LVCMOS33
     }),
     
-    ("pmod0", "A14 B15 A12 A13 B12 C12 C13 C14"), # LVCMOS33
+    ("pmod0", "A14 B14 A12 A13 B12 C12 C13 C14"), # LVCMOS33
     ("pmod1", "D13 D14 E12 E13 F13 F14 J14 J15")  # LVCMOS33
 ]
 
