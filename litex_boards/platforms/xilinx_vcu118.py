@@ -198,6 +198,28 @@ _io = [
         Subsignal("cts", Pins("AY25"), IOStandard("LVCMOS18")),
     ),
 
+    # SPIFlash
+    ("spiflash", 0, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("AJ11")),
+        Subsignal("dq",   Pins("AP11 AN11 AM11 AL11")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("spiflash4x", 0, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("AJ11")),
+        Subsignal("dq",   Pins("AP11 AN11 AM11 AL11")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("spiflash", 1, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("BF16")),
+        Subsignal("dq",   Pins("AM19 AM18 AN20 AP20")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("spiflash4x", 1, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("BF16")),
+        Subsignal("dq",   Pins("AM19 AM18 AN20 AP20")),
+        IOStandard("LVCMOS18"),
+    ),
+
     # DDR4 memory channel C1. Only use the first 64 data bits
     ("ddram", 0,
         Subsignal("a", Pins(
