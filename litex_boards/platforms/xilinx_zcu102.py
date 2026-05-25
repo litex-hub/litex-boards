@@ -109,6 +109,10 @@ _io = [
         Subsignal("p", Pins("C8")),
         Subsignal("n", Pins("C7")),
     ),
+    ("mgt_refclk", 1,
+        Subsignal("p", Pins("B10")),
+        Subsignal("n", Pins("B9")),
+    ),
 
     # SFP.
     # Right Top (GT Location: X1Y12).
@@ -177,6 +181,10 @@ _io = [
     ("sfp_rx", 3,
         Subsignal("p", Pins("A4")),
         Subsignal("n", Pins("A3")),
+    ),
+    ("sfp_rec_clk", 0,
+        Subsignal("p", Pins("R10"), IOStandard("LVDS")),
+        Subsignal("n", Pins("R9"),  IOStandard("LVDS")),
     ),
 ]
 
