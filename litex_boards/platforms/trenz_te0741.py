@@ -73,10 +73,10 @@ set_property CONFIG_VOLTAGE 3.3 [current_design]
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
         self.toolchain.additional_commands = \
-            ["write_cfgmem -force -format bin -interface spix4 -size 16 "
+            ["write_cfgmem -force -format bin -interface spix4 -size 32 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 # required as s7-mini has global clock on regular io pin
 #        self.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk100_IBUF]")
-#fixme change spi flash type
+
     def create_programmer(self):
-        return VivadoProgrammer(flash_part="n25q128-3.3v-spi-x1_x2_x4")
+        return VivadoProgrammer(flash_part="s25fl256sxxxxxx0-spi-x1_x2_x4")
