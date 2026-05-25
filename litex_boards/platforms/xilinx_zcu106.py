@@ -72,6 +72,12 @@ _io = [
         Subsignal("tx_n",  Pins("AD3 AE5 AG5 AH3")),
     ),
 
+    # GTH RefClks
+    ("mgt_refclk", 0,
+        Subsignal("p", Pins("W10")),
+        Subsignal("n", Pins("W9")),
+    ),
+
     # SFP.
     ("sfp_tx_disable_n", 0, Pins("AE22"), IOStandard("LVCMOS12")),
     ("sfp", 0,
@@ -102,6 +108,10 @@ _io = [
     ("sfp_rx", 1,
         Subsignal("p", Pins("W2")),
         Subsignal("n", Pins("W1")),
+    ),
+    ("sfp_rec_clk", 0,
+        Subsignal("p", Pins("H11"), IOStandard("LVDS")),
+        Subsignal("n", Pins("G11"), IOStandard("LVDS")),
     ),
 
     # HDMI
