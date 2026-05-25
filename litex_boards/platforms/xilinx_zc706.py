@@ -134,8 +134,8 @@ _io = [
 
     # SMA.
     ("user_sma_mgt_refclk", 0,
-        Subsignal("p", Pins("W7")),
-        Subsignal("n", Pins("W8"))
+        Subsignal("p", Pins("W8")),
+        Subsignal("n", Pins("W7"))
     ),
     ("user_sma_mgt_tx", 0,
         Subsignal("p", Pins("Y2")),
@@ -144,6 +144,22 @@ _io = [
     ("user_sma_mgt_rx", 0,
         Subsignal("p", Pins("AB6")),
         Subsignal("n", Pins("AB5"))
+    ),
+
+    # SI5324.
+    ("mgt_refclk", 0,
+        Subsignal("p", Pins("AC8")),
+        Subsignal("n", Pins("AC7")),
+    ),
+    ("si5324_rec_clk", 0,
+        Subsignal("p", Pins("AD20")),
+        Subsignal("n", Pins("AE20")),
+        IOStandard("LVDS_25"),
+    ),
+    ("si5324", 0,
+        Subsignal("rst_n", Pins("W23")),
+        Subsignal("int_n", Pins("AJ25")),
+        IOStandard("LVCMOS25"),
     ),
 
     # SFP.
