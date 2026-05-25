@@ -63,6 +63,22 @@ _io = [
         IOStandard("LVCMOS25")
     ),
 
+    # HDMI.
+    ("hdmi_out", 0,
+        Subsignal("clk",       Pins("P28")),
+        Subsignal("hsync",     Pins("R22")),
+        Subsignal("vsync",     Pins("U21")),
+        Subsignal("de",        Pins("V24")),
+        Subsignal("data",      Pins(
+            "U24 T22 R23 AA25 AE28 T23 AB25 T27",
+            "AD26 AB26 AA28 AC26 AE30 Y25 AA29 AD30",
+            "Y28 AF28 V22 AA27 U22 N28 V21 AC22")),
+        Subsignal("int_n",     Pins("AC23")),
+        Subsignal("spdif",     Pins("AC21")),
+        Subsignal("spdif_out", Pins("AB22")),
+        IOStandard("LVCMOS25"),
+    ),
+
     # DDR3 SDRAM.
     ("ddram", 0,
         Subsignal("a", Pins(
