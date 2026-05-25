@@ -66,6 +66,7 @@ _io = [
         Subsignal("sda", Pins("L21"), Misc("PULLUP=True")),
         IOStandard("LVCMOS25")
     ),
+    ("i2c_mux_reset", 0, Pins("P23"), IOStandard("LVCMOS25")),
 
     # Serial
     ("serial", 0,
@@ -127,6 +128,21 @@ _io = [
         Subsignal("cs_n", Pins("U19")),
         #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("P24 R25 R20 R21")),
+        IOStandard("LVCMOS25")
+    ),
+    ("linear_flash", 0,
+        Subsignal("a", Pins(
+            "W22 W21 V24 U24 V22 V21 U23 W24",
+            "W23 V20 V19 W26 V25 V30 V29 V27",
+            "P22 P21 N24 N22 N21 N20 N19 N26",
+            "M23 M22")),
+        Subsignal("dq", Pins(
+            "P24 R25 R20 R21 T20 T21 T22 T23",
+            "U20 P29 R29 P27 P28 T30 P26 R26")),
+        Subsignal("ce_n",  Pins("U19")),
+        Subsignal("oe_n",  Pins("M24")),
+        Subsignal("we_n",  Pins("M25")),
+        Subsignal("adv_n", Pins("M30")),
         IOStandard("LVCMOS25")
     ),
 
