@@ -15,13 +15,13 @@ from litex.build.lattice.programmer import LatticeProgrammer
 _io = [
     ("clk12", 0, Pins("L16"), IOStandard("LVCMOS33")), # Ensure JP2 is installed
 
-    # Reference clocks. Why are there four 27MHz oscs. Is this really correct??
+    # Reference clocks.
     ("clk27_0", 0, Pins("L5"), IOStandard("LVCMOS18")),
     ("clk27_1", 0, Pins("L7"), IOStandard("LVCMOS18")),
     ("clk27_2", 0, Pins("M2"), IOStandard("LVCMOS18")),
     ("clk27_3", 0, Pins("Y2"), IOStandard("LVCMOS18")),
 
-    # 8.1. General Purpose Push Buttons - all logic zero when pressed]
+    # 8.1. General Purpose Push Buttons - all logic zero when pressed.
     ("cam_reset", 0, Pins("T1"), IOStandard("LVCMOS18H"), Misc("PULLMODE=UP")),  # SW1
     ("gsrn",      0, Pins("G13"), IOStandard("LVCMOS33")),  # SW3
     ("programn",  0, Pins("E11"), IOStandard("LVCMOS33")),  # SW4
@@ -87,7 +87,7 @@ _io = [
     ),
 
     # Shared camera control signals
-    ("cam_ctrl",
+    ("cam_ctrl", 0,
         Subsignal("cam_reset", Pins("T1")),
         Subsignal("cam_frame_sync", Pins("U1")),
     ),
@@ -376,5 +376,4 @@ class Platform(LatticeNexusPlatform):
             xcf_template = xcf_template_flash
 
         return LatticeProgrammer(xcf_template)
-
 
