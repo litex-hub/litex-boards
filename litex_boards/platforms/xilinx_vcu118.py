@@ -176,6 +176,20 @@ _io = [
         Subsignal("lpmode",  Pins("AT24"), IOStandard("LVCMOS18")),
     ),
 
+    # FireFly
+    ("firefly", 0,
+        Subsignal("clk_p",    Pins("L9")),
+        Subsignal("clk_n",    Pins("L8")),
+        Subsignal("txp",      Pins("G5 F7 E5 C5")),
+        Subsignal("txn",      Pins("G4 F6 E4 C4")),
+        Subsignal("rxp",      Pins("K2 H2 F2 D2")),
+        Subsignal("rxn",      Pins("K1 H1 F1 D1")),
+        Subsignal("modsel_b", Pins("AN23"), IOStandard("LVCMOS18")),
+        Subsignal("reset_b",  Pins("AY22"), IOStandard("LVCMOS18")),
+        Subsignal("modprs_b", Pins("AN24"), IOStandard("LVCMOS18")),
+        Subsignal("int_b",    Pins("AT21"), IOStandard("LVCMOS18")),
+    ),
+
     # Serial
     ("serial", 0,
         Subsignal("rx",  Pins("AW25"), IOStandard("LVCMOS18")),
