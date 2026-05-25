@@ -69,6 +69,7 @@ _io = [
         Subsignal("sda", Pins("J25")),
         IOStandard("LVCMOS18")
     ),
+    ("i2c_mux_reset", 0, Pins("AP10"), IOStandard("LVCMOS18")),
 
     # Serial
     ("serial", 0,
