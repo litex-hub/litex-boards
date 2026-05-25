@@ -184,6 +184,14 @@ _io = [
         Subsignal("p", Pins("AD8")),
         Subsignal("n", Pins("AD7")),
     ),
+    ("si5324_clkout", 0,
+        Subsignal("p", Pins("AD8")),
+        Subsignal("n", Pins("AD7")),
+    ),
+    ("si5324_rec_clk", 0,
+        Subsignal("p", Pins("AW32"), IOStandard("LVDS_18")),
+        Subsignal("n", Pins("AW33"), IOStandard("LVDS_18")),
+    ),
 
     # HDMI
     ("hdmi", 0,
