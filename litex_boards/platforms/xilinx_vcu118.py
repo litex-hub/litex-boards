@@ -64,6 +64,24 @@ _io = [
     ),
     ("i2c_mux_reset_n", 0, Pins("AL25"), IOStandard("LVCMOS18")),
 
+    # SGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("p", Pins("AT22"), IOStandard("LVCMOS18")),
+        Subsignal("n", Pins("AU22"), IOStandard("LVCMOS18")),
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",  Pins("BA21"), IOStandard("LVCMOS18")),
+        Subsignal("int_n",  Pins("AR24"), IOStandard("LVCMOS18")),
+        Subsignal("mdio",   Pins("AR23"), IOStandard("LVCMOS18")),
+        Subsignal("mdc",    Pins("AV23"), IOStandard("LVCMOS18")),
+        Subsignal("clkout", Pins("AU23"), IOStandard("LVCMOS18")),
+        Subsignal("gpio0",  Pins("AR22"), IOStandard("LVCMOS18")),
+        Subsignal("rx_p",   Pins("AU24"), IOStandard("LVCMOS18")),
+        Subsignal("rx_n",   Pins("AV24"), IOStandard("LVCMOS18")),
+        Subsignal("tx_p",   Pins("AU21"), IOStandard("LVCMOS18")),
+        Subsignal("tx_n",   Pins("AV21"), IOStandard("LVCMOS18")),
+    ),
+
     # Serial
     ("serial", 0,
         Subsignal("rx",  Pins("AW25"), IOStandard("LVCMOS18")),
