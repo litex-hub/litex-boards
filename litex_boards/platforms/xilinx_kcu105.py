@@ -20,6 +20,10 @@ _io = [
         Subsignal("p", Pins("AK17"), IOStandard("DIFF_SSTL12")),
         Subsignal("n", Pins("AK16"), IOStandard("DIFF_SSTL12"))
     ),
+    ("user_prog_clock", 0,
+        Subsignal("p", Pins("M25"), IOStandard("LVDS_25")),
+        Subsignal("n", Pins("M26"), IOStandard("LVDS_25"))
+    ),
     ("cpu_reset", 0, Pins("AN8"), IOStandard("LVCMOS18")),
 
     # Leds
@@ -218,10 +222,29 @@ _io = [
         Subsignal("n", Pins("N26"), IOStandard("LVDS_25"))
     ),
 
+    # SGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("p", Pins("P26"), IOStandard("LVDS_25")),
+        Subsignal("n", Pins("N26"), IOStandard("LVDS_25"))
+    ),
+    ("eth", 0,
+        Subsignal("rst_n", Pins("J23"), IOStandard("LVCMOS18")),
+        Subsignal("mdio",  Pins("H26"), IOStandard("LVCMOS18")),
+        Subsignal("mdc",   Pins("L25"), IOStandard("LVCMOS18")),
+        Subsignal("rx_p",  Pins("P24")),
+        Subsignal("rx_n",  Pins("P25")),
+        Subsignal("tx_p",  Pins("N24")),
+        Subsignal("tx_n",  Pins("M24")),
+    ),
+
     # SI570
     ("si570_refclk", 0,
         Subsignal("p", Pins("P6")),
         Subsignal("n", Pins("P5"))
+    ),
+    ("jitter_attn_clk", 0,
+        Subsignal("p", Pins("M6")),
+        Subsignal("n", Pins("M5"))
     ),
 
     # SMA
@@ -254,6 +277,7 @@ _io = [
         Subsignal("n", Pins("T1")),
     ),
     ("sfp_tx_disable_n", 0, Pins("AL8"), IOStandard("LVCMOS18")),
+    ("sfp_rx_los",       0, Pins("K21"), IOStandard("LVCMOS18")),
 
     ("sfp", 1,
         Subsignal("txp", Pins("W4")),
@@ -270,6 +294,7 @@ _io = [
         Subsignal("n", Pins("V1")),
     ),
     ("sfp_tx_disable_n", 1, Pins("D28"), IOStandard("LVCMOS18")),
+    ("sfp_rx_los",       1, Pins("AM9"), IOStandard("LVCMOS18")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
