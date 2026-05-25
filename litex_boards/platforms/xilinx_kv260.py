@@ -16,7 +16,13 @@ _io = [
 
     # Seems like there are no on-board clock sources for PL when PS is not used so here a
     # clock-capable PMOD connector pin is added as a possible clock input (not tested).
-    ("pmod_hda16_cc", 0, Pins("B21"), IOStandard("LVCMOS33")),
+    ("pmod_hda16_cc", 0, Pins("E12"), IOStandard("LVCMOS33")),
+]
+
+# Connectors ---------------------------------------------------------------------------------------
+
+_connectors = [
+    ("pmod0", "H12 E10 D10 C11 B10 E12 D11 B11"),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
@@ -26,7 +32,7 @@ class Platform(XilinxUSPPlatform):
     default_clk_period = 1e9/100e6
 
     def __init__(self, toolchain="vivado"):
-        XilinxUSPPlatform.__init__(self, "xck26-sfvc784-2lv-c", _io, toolchain=toolchain)
+        XilinxUSPPlatform.__init__(self, "xck26-sfvc784-2lv-c", _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]", ]
         self.default_clk_freq = 1e9 / self.default_clk_period
