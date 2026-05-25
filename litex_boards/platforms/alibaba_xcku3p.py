@@ -32,36 +32,36 @@ _io = [
     ),
 
     # LEDs.
-    ("user_led", 0, Pins("B11"), IOStandard("LVCMOS18")),  # GPIO_LED_1
-    ("user_led", 1, Pins("C11"), IOStandard("LVCMOS18")),  # GPIO_LED_2
-    ("user_led", 2, Pins("A10"), IOStandard("LVCMOS18")),  # GPIO_LED_3
-    ("user_led", 3, Pins("B10"), IOStandard("LVCMOS18")),  # GPIO_LED_4
+    ("user_led", 0, Pins("B11"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),  # GPIO_LED_1
+    ("user_led", 1, Pins("C11"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),  # GPIO_LED_2
+    ("user_led", 2, Pins("A10"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),  # GPIO_LED_3
+    ("user_led", 3, Pins("B10"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),  # GPIO_LED_4
 
     # LEDs.
     ("user_led_rgh", 0,
-        Subsignal("r", Pins("A13"), IOStandard("LVCMOS18")),  # GPIO_LED_R
-        Subsignal("g", Pins("A12"), IOStandard("LVCMOS18")),  # GPIO_LED_G
-        Subsignal("h", Pins("B9"),  IOStandard("LVCMOS18")),  # GPIO_LED_H
+        Subsignal("r", Pins("A13"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),  # GPIO_LED_R
+        Subsignal("g", Pins("A12"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),  # GPIO_LED_G
+        Subsignal("h", Pins("B9"),  IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),  # GPIO_LED_H
     ),
 
     # I2C EEPROMs.
     ("i2c_eeprom", 0,
-        Subsignal("scl", Pins("G9"),  IOStandard("LVCMOS18"), Misc("DRIVE=8")),
-        Subsignal("sda", Pins("G10"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
+        Subsignal("scl", Pins("G9"),  IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12"), Misc("PULLUP=TRUE")),
+        Subsignal("sda", Pins("G10"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12"), Misc("PULLUP=TRUE")),
     ),
-    ("i2c_eeprom", 0,
-        Subsignal("scl", Pins("J14"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
-        Subsignal("sda", Pins("J15"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
+    ("i2c_eeprom", 1,
+        Subsignal("scl", Pins("J14"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12"), Misc("PULLUP=TRUE")),
+        Subsignal("sda", Pins("J15"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12"), Misc("PULLUP=TRUE")),
     ),
 
     # SFP-0.
-    ("sfp_mod_def0", 0, Pins("D14"), IOStandard("LVCMOS18")),
-    ("sfp_tx_fault", 0, Pins("B14"), IOStandard("LVCMOS18")),
-    ("sfp_los",      0, Pins("D13"), IOStandard("LVCMOS18")),
-    ("sfp_led",      0, Pins("B12"), IOStandard("LVCMOS18")),
+    ("sfp_mod_def0", 0, Pins("D14"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+    ("sfp_tx_fault", 0, Pins("B14"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+    ("sfp_los",      0, Pins("D13"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+    ("sfp_led",      0, Pins("B12"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),
     ("sfp_i2c", 0,
-        Subsignal("scl", Pins("C13"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
-        Subsignal("sda", Pins("C14"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
+        Subsignal("scl", Pins("C13"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12"), Misc("PULLUP=TRUE")),
+        Subsignal("sda", Pins("C14"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12"), Misc("PULLUP=TRUE")),
     ),
     ("sfp", 0,
         Subsignal("txp", Pins("B7")),
@@ -79,13 +79,13 @@ _io = [
     ),
 
     # SFP-1.
-    ("sfp_mod_def0", 0, Pins("E11"), IOStandard("LVCMOS18")),
-    ("sfp_tx_fault", 0, Pins("F9"),  IOStandard("LVCMOS18")),
-    ("sfp_los",      0, Pins("E10"), IOStandard("LVCMOS18")),
-    ("sfp_led",      0, Pins("C12"), IOStandard("LVCMOS18")),
+    ("sfp_mod_def0", 1, Pins("E11"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+    ("sfp_tx_fault", 1, Pins("F9"),  IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+    ("sfp_los",      1, Pins("E10"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
+    ("sfp_led",      1, Pins("C12"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),
     ("sfp_i2c", 1,
-        Subsignal("scl", Pins("D10"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
-        Subsignal("sda", Pins("D11"), IOStandard("LVCMOS18"), Misc("DRIVE=8")),
+        Subsignal("scl", Pins("D10"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12"), Misc("PULLUP=TRUE")),
+        Subsignal("sda", Pins("D11"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=12"), Misc("PULLUP=TRUE")),
     ),
     ("sfp", 1,
         Subsignal("txp", Pins("D7")),
@@ -104,7 +104,7 @@ _io = [
 
     # PCIe.
     ("pcie_x1", 0,
-        Subsignal("rst_n", Pins("A9"), IOStandard("LVCMOS18")),
+        Subsignal("rst_n", Pins("A9"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("T7")),
         Subsignal("clk_n", Pins("T6")),
         Subsignal("rx_p",  Pins("P2")),
@@ -113,7 +113,7 @@ _io = [
         Subsignal("tx_n",  Pins("R4"))
     ),
     ("pcie_x2", 0,
-        Subsignal("rst_n", Pins("A9"), IOStandard("LVCMOS18")),
+        Subsignal("rst_n", Pins("A9"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("T7")),
         Subsignal("clk_n", Pins("T6")),
         Subsignal("rx_p",  Pins("P2 T2")),
@@ -122,7 +122,7 @@ _io = [
         Subsignal("tx_n",  Pins("R4 U4"))
     ),
     ("pcie_x4", 0,
-        Subsignal("rst_n", Pins("A9"), IOStandard("LVCMOS18")),
+        Subsignal("rst_n", Pins("A9"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("T7")),
         Subsignal("clk_n", Pins("T6")),
         Subsignal("rx_p",  Pins("P2 T2 V2  Y2")),
@@ -131,7 +131,7 @@ _io = [
         Subsignal("tx_n",  Pins("R4 U4 W4 AA4"))
     ),
     ("pcie_x8", 0,
-        Subsignal("rst_n", Pins("A9"), IOStandard("LVCMOS18")),
+        Subsignal("rst_n", Pins("A9"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("T7")),
         Subsignal("clk_n", Pins("T6")),
         Subsignal("rx_p",  Pins("P2 T2 V2  Y2 AB2 AD2 AE4 AF2")),
