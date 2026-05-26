@@ -10,6 +10,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
+from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -155,12 +156,10 @@ class Platform(Xilinx7SeriesPlatform):
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 34]")
 
-    def create_programmer(self):
-        bscan_spi = "bscan_spi_xc7a100t.bit" if "xc7a100t" in self.device else "bscan_spi_xc7a35t.bit"
-        return OpenOCD("openocd_xc7_ft2232.cfg", bscan_spi)
+    def create_programmer(self, cable="dirtyJtag"):
+        return OpenFPGALoader(cable=cable, fpga_part="xc7a35tftg256")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk48", loose=True), 1e9/48e6)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
-
