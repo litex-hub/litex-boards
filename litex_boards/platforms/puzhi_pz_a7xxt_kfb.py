@@ -280,7 +280,7 @@ class Platform(Xilinx7SeriesPlatform):
     kgates             = None
 
     def __init__(self, kgates=75, toolchain="vivado"):
-        assert(kgates in [35, 75, 100, 200], "kgates can only be 35, 75, 100 or 200, representing a XC7A35T, XC7A75T, XC7TA100T, XC7A200T")
+        assert kgates in [35, 75, 100, 200], "kgates can only be 35, 75, 100 or 200, representing a XC7A35T, XC7A75T, XC7A100T or XC7A200T"
         self.kgates = kgates
         device = "xc7a200tfbg484-2" if kgates == 200 else f"xc7a{kgates}tfgg484-2"
         io = _io
