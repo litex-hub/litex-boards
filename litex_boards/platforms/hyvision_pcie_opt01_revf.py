@@ -203,7 +203,7 @@ class Platform(Xilinx7SeriesPlatform):
         Xilinx7SeriesPlatform.__init__(self, "xc7k70t-fbg676-1", _io, toolchain=toolchain)
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a70t.bit")
+        return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7k70t.bit")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
