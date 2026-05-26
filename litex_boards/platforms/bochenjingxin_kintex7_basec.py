@@ -52,7 +52,7 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_period = 1e9/50e6
 
     def __init__(self, toolchain="vivado"):
-        device = "xc7k325tffg676-1" # FIXME: Should be xc7k325tffg676-2
+        device = "xc7k325tffg676-2"
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
