@@ -59,7 +59,7 @@ _io = [
     ("ddram", 0,
         Subsignal("a", Pins(
             "M1 K2 G2 J4 J2 H2 G3 J1",
-            "J5 H5 L1 H3 K4 K1"),      # D1(A14) R1(A15): Unused
+            "J5 H5 L1 H3 K4 K1 D1"),   # R1(A15): Unused
             IOStandard("SSTL15"),
             Misc("DRIVE=12"),
         ),
