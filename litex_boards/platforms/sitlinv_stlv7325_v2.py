@@ -47,7 +47,7 @@ def _get_io(voltage="2.5V"):
 
         # Buttons
         ("user_btn_n", 0, Pins("AC16"), IOStandard("LVCMOS15")),
-        ("user_btn_n", 0, Pins("C24"),  IOStandard("LVCMOS33")), # J4 jumper 2.5V or 3.3V
+        ("user_btn_n", 1, Pins("C24"),  IOStandard("LVCMOS33")), # J4 jumper 2.5V or 3.3V
 
         # I2C / AT24C04
         ("i2c", 0,
