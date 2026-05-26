@@ -104,10 +104,10 @@ _connectors = [
         "- "
         "    GND      5V     GND      5V     GND      5V     GND      5V     GND      5V"  #   1-10
         "    GND      5V      NC      NC ETH1_1P ETH2_1P ETH1_1N ETH2_1N      NC      NC"  #  11-20
-        "ETH1_2N ETH2_2N ETH1_2P ETH2_2P      NC      NC ETH1_3P ETH2_3P ETH1_3N ETH2_3N"  #  21-30
+        " ETH1_2N ETH2_2N ETH1_2P ETH2_2P      NC      NC ETH1_3P ETH2_3P ETH1_3N ETH2_3N"  #  21-30
         "     NC      NC ETH1_4N ETH2_4N ETH1_4P ETH2_4P      NC      NC     GND     GND"  #  31-40
-        "     R2      P5      P6      T6      R6      U7      T1      U6      T3      U5"  #  41-50
-        "     T4      V5      T4      U1     GND     GND      U2      H3      U3      J1"  #  51-60
+        "     R2      P5      NC      T6      NC      U7      NC      U6      T3      U5"  #  41-50
+        "     T4      V5      NC      U1     GND     GND      U2      H3      U3      J1"  #  51-60
         "     V2      K1      V3      L1      W1      M1      Y1      J2     AA1      K2"  #  61-70
         "    AB1      K3      W2      G3      Y2      J4     AB2      G4     AA3      F4"  #  71-80
         "    AB3      L4      Y3      R3      W4      M3     AA4      V4      Y4      R4"  #  81-90
@@ -117,11 +117,11 @@ _connectors = [
         "     W9     N17      V9     V17     R14     P17     P14     U17     W17     T18"  # 121-130
         "    Y18     R17    AA18     U18     W19     R18    AB18     N18     Y19     R19"  # 131-140
         "   AA19     N19     V18     N15     V19     M16    AB20     M15    AA20     L15"  # 141-150
-        "   AA21     L16    AB21     K14     Y21     N22     GND     GND    AB22     J14"  # 151-160
-        "    W20     J15     Y22     J19     W21     H13     W22     H14     V20     H17"  # 161-170
-        "    V22     H15     U21     G18     U20     G17     T20     G16     P19     F16"  # 171-180
-        "    P20     F15     M18     E17     L19     E16     J17     D16     K18     D15"  # 181-190
-        "    K19     C18     K16     C17     H18     B20     H19     B17      NC      NC"  # 191-200
+        "   AA21     L16    AB21     K14     Y21     N22     GND     GND      NC      NC"  # 151-160
+        "     NC      NC      NC      NC      NC      NC      NC      NC      NC      NC"  # 161-170
+        "     NC      NC      NC      NC      NC      NC      NC      NC      NC      NC"  # 171-180
+        "     NC      NC      NC      NC      NC      NC      NC      NC      NC      NC"  # 181-190
+        "     NC      NC      NC      NC      NC      NC      NC      NC     GND     GND"  # 191-200
     )
 ]
 
