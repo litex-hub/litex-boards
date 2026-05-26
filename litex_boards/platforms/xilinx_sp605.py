@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxSpartan6Platform
+from litex.build.xilinx import XilinxSpartan6Platform, iMPACT
 
 # IOs ----------------------------------------------------------------------------------------------
 
