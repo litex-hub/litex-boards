@@ -22,7 +22,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT48LC4M16  # FIXME: use EtronTech reference.
+from litedram.modules import EM638165
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ class BaseSoC(SoCCore):
             self.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = MT48LC4M16(sys_clk_freq, sdram_rate), # FIXME.
+                module        = EM638165(sys_clk_freq, sdram_rate),
                 l2_cache_size = 128,
             )
 
