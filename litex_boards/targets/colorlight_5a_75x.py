@@ -57,7 +57,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import M12L16161A, M12L64322A
+from litedram.modules import EM636165, M12L16161A, M12L64322A
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
@@ -167,7 +167,9 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
-            if (board == "5a-75e" and revision == "6.0") or (board == "5a-75b" and (revision == "8.0" or revision == "8.2")):
+            if board == "5a-75b" and revision == "6.1":
+                sdram_cls  = EM636165
+            elif (board == "5a-75e" and revision == "6.0") or (board == "5a-75b" and (revision == "8.0" or revision == "8.2")):
                 sdram_cls  = M12L64322A
             else:
                 sdram_cls  = M12L16161A
