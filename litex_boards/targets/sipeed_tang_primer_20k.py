@@ -24,7 +24,7 @@ from liteeth.phy.rmii import LiteEthPHYRMII
 
 from litex_boards.platforms import sipeed_tang_primer_20k
 
-from litedram.modules import MT41K64M16
+from litedram.modules import IMD128M16R39CG8GNF
 from litedram.phy import GW2DDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41K64M16(sys_clk_freq, "1:2"),
+                module        = IMD128M16R39CG8GNF(sys_clk_freq, "1:2"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
