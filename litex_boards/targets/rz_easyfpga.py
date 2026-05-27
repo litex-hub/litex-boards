@@ -19,7 +19,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT48LC4M16
+from litedram.modules import HY57V641620FTP
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ class BaseSoC(SoCCore):
             self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = MT48LC4M16(sys_clk_freq, sdram_rate), # Hynix HY57V641620FTP-7
+                module        = HY57V641620FTP(sys_clk_freq, sdram_rate),
                 l2_cache_size = 0
             )
 

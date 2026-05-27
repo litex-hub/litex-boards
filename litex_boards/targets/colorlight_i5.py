@@ -22,7 +22,7 @@ from litex.soc.cores.led import LedChaser
 
 from litex.soc.interconnect.csr import *
 
-from litedram.modules import M12L64322A # Compatible with EM638325-6H.
+from litedram.modules import EM638325
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
@@ -145,7 +145,7 @@ class BaseSoC(SoCCore):
             self.sdrphy = sdrphy_cls(platform.request("sdram"))
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = M12L64322A(sys_clk_freq, sdram_rate),
+                module        = EM638325(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 

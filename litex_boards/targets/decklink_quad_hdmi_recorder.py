@@ -26,7 +26,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
 from litedram.common import PHYPadsReducer
-from litedram.modules import MT41J256M16
+from litedram.modules import H5TQ4G63CFR
 from litedram.phy import usddrphy
 
 from litepcie.phy.uspciephy import USPCIEPHY
@@ -83,7 +83,7 @@ class BaseSoC(SoCCore):
                 iodelay_clk_freq = 200e6)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41J256M16(sys_clk_freq, "1:4"),
+                module        = H5TQ4G63CFR(sys_clk_freq, "1:4"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
