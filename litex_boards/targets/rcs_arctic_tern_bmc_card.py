@@ -19,7 +19,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
-from litedram.modules import MT41J256M16
+from litedram.modules import AS4C256M16D3C
 from litedram.phy import ECP5DDRPHY
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 from litex.soc.cores.video import VideoGenericPHY
@@ -120,7 +120,7 @@ class BaseSoC(SoCCore):
         self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
         self.add_sdram("sdram",
             phy           = self.ddrphy,
-            module        = MT41J256M16(sys_clk_freq, "1:2"), # Not MT41J256M16, but the AS4C256M16D3C in use has similar specifications
+            module        = AS4C256M16D3C(sys_clk_freq, "1:2"),
             l2_cache_size = kwargs.get("l2_size", 8192),
         )
 
