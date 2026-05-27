@@ -31,7 +31,7 @@ from litex.soc.cores.gpio import GPIOTristate
 from litex.soc.cores.video import VideoHDMIPHY
 
 from litedram.common import PHYPadsReducer
-from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16
+from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
 from litedram.phy import ECP5DDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
@@ -144,7 +144,7 @@ class BaseSoC(SoCCore):
                 "MT41K64M16":  MT41K64M16,
                 "MT41K128M16": MT41K128M16,
                 "MT41K256M16": MT41K256M16,
-                "MT41K512M16": MT41K256M16,
+                "MT41K512M16": MT41K512M16,
             }
             sdram_module = available_sdram_modules.get(sdram_device)
 
