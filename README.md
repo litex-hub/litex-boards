@@ -111,6 +111,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── alinx_ax7203
     ├── alinx_axau15
     ├── alinx_axu2cga
+    ├── altera_agilex5e_065b_premium_devkit
     ├── analog_pocket
     ├── antmicro_artix_dc_scm
     ├── antmicro_datacenter_ddr4_test_board
