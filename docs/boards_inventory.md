@@ -37,6 +37,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `berkeleylab_marble` | berkeleylab_marble | vivado | `125000000.0` | Ethernet, Etherbone | included |
 | `berkeleylab_obsidian` | berkeleylab_obsidian | vivado | `125000000.0` | Ethernet, Etherbone | included |
 | `bochenjingxin_kintex7_basec` | bochenjingxin_kintex7_basec | vivado | `125000000.0` | - | included |
+| `brisbaneSilicon_brs_100_gw1nr9` | brisbaneSilicon_brs_100_gw1nr9 | gowin | `27000000.0` | - | included |
 | `camlink_4k` | camlink_4k | trellis | `81000000.0` | - | included |
 | `colognechip_gatemate_evb` | colognechip_gatemate_evb | colognechip | `24000000.0` | SDCard, SPI SDCard, SPI Flash | included |
 | `colorlight_5a_75x` | colorlight_5a_75b, colorlight_5a_75e, colorlight_i5a_907 | trellis | `60000000.0` | Ethernet, Etherbone, SPI Flash | included |

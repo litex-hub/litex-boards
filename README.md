@@ -123,6 +123,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── berkeleylab_marble
     ├── berkeleylab_obsidian
     ├── bochenjingxin_kintex7_basec
+    ├── brisbaneSilicon_brs_100_gw1nr9
     ├── camlink_4k
     ├── colognechip_gatemate_evb
     ├── colorlight_5a_75x
