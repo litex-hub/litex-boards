@@ -13,7 +13,7 @@ from litex.gen import *
 from litex_boards.platforms import signaloid_c0_microsd
 
 from litex.soc.cores.ram import Up5kSPRAM
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser

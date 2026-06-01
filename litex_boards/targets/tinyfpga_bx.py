@@ -14,7 +14,7 @@ from litex.build.io import CRG
 
 from litex_boards.platforms import tinyfpga_bx
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser

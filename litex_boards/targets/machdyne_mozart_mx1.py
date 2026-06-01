@@ -25,7 +25,7 @@ from litex.soc.cores.clock import *
 from litex.soc.cores.usb_ohci import USBOHCI
 from litex.soc.cores.video import VideoS7HDMIPHY
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.interconnect.csr_eventmanager import *
 

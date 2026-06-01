@@ -14,7 +14,7 @@ from litex.gen.genlib.misc import WaitTimer
 from litex_boards.platforms import efinix_titanium_ti60_f225_dev_kit
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.interconnect import wishbone

@@ -12,7 +12,7 @@ from litex.gen import *
 from litex_boards.platforms import terasic_sockit
 
 from litex.soc.cores.clock import CycloneVPLL
-from litex.soc.integration.soc_core  import *
+from litex.soc.integration.soc  import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import VideoVGAPHY

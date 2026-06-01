@@ -22,7 +22,7 @@ from litex.gen import *
 from litex_boards.platforms import decklink_quad_hdmi_recorder
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.common import PHYPadsReducer

@@ -22,7 +22,7 @@ from litex.soc.cores.led import LedChaser
 from litex.soc.cores.usb_ohci import USBOHCI
 from litex.soc.cores.video import VideoHDMIPHY
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import W9825G6KH6

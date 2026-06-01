@@ -16,7 +16,7 @@ from litex_boards.platforms import terasic_de2_115
 
 from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.cores.led import LedChaser
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import IS42S16320

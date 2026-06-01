@@ -26,7 +26,7 @@ then test and benchmark the etherbone link:
 from migen import Signal, Instance, ClockDomain, reduce, or_
 from litex.gen import LiteXModule
 from litex.soc.cores.clock import S7MMCM, S7IDELAYCTRL
-from litex.soc.integration.soc_core import SoCCore
+from litex.soc.integration.soc import SoCCore
 from litex.soc.integration.builder import Builder
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster

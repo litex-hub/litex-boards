@@ -10,7 +10,7 @@ from migen import *
 
 from litex.gen import *
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder  import *
 
 from litex_boards.platforms.sipeed_slogic16u3 import Platform

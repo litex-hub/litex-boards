@@ -14,7 +14,7 @@ from litex.build.generic_platform import Subsignal, Pins
 
 from litex_boards.platforms import efinix_tz170_j484_dev_kit
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 

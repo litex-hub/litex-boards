@@ -15,7 +15,7 @@ from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
 
 from litex_boards.platforms import efinix_ti375_c529_dev_kit
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 

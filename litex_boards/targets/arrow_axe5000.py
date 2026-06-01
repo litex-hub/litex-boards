@@ -16,7 +16,7 @@ from litex_boards.platforms import arrow_axe5000
 from litex.soc.interconnect import wishbone
 
 from litex.soc.integration.soc      import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder  import *
 
 from litex.soc.cores.clock    import Agilex5PLL

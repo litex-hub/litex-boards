@@ -28,7 +28,7 @@ from litex.soc.cores.ram.xilinx_usp_hbm2 import (
     usphbm2_channel_origins,
     usphbm2_window_end,
 )
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 

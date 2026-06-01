@@ -15,7 +15,7 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import muselab_icesugar_pro
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.led import LedChaser

@@ -17,7 +17,7 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import qmtech_5cefa2
 
 from litex.soc.cores.clock import CycloneVPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 

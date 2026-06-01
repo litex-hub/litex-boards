@@ -24,7 +24,7 @@ from litex.soc.cores.led import LedChaser
 from litex.soc.cores.usb_ohci import USBOHCI
 from litex.soc.cores.video import VideoHDMIPHY
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16

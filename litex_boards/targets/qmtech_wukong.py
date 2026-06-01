@@ -13,7 +13,7 @@ from litex.gen import *
 from litex_boards.platforms import qmtech_wukong
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.cores.video import video_timings

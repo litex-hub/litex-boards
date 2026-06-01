@@ -15,7 +15,7 @@ from litex_boards.platforms import trenz_s7mini
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.hyperbus import HyperRAM
 from litex.soc.cores.led import LedChaser

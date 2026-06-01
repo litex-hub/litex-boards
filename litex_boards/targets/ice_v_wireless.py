@@ -23,7 +23,7 @@ from litex_boards.platforms import ice_v_wireless
 
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser

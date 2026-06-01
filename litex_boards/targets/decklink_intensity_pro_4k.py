@@ -17,7 +17,7 @@ from litex.gen import *
 from litex_boards.platforms import decklink_intensity_pro_4k
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litepcie.phy.s7pciephy import S7PCIEPHY

@@ -15,7 +15,7 @@ from litex_boards.platforms import trenz_mf_c10lp_001
 from litex_boards.targets.microfpga.common import MFIOBasic, OnChipOscillator
 
 from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 

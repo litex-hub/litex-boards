@@ -22,7 +22,7 @@ from litex.soc.cores.ram import NXLRAM
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser

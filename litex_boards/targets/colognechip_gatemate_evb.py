@@ -18,7 +18,7 @@ from litex.soc.cores.hyperbus import HyperRAM
 
 from litex.soc.interconnect import wishbone
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.soc import SoCRegion
 

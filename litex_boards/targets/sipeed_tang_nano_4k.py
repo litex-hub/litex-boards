@@ -13,7 +13,7 @@ from litex.gen import *
 from litex_boards.platforms import sipeed_tang_nano_4k
 
 from litex.soc.cores.clock.gowin_gw1n import GW1NPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser

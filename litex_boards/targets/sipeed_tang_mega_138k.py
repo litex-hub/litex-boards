@@ -16,7 +16,7 @@ from litex.gen import *
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock.gowin_gw5a import GW5APLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *

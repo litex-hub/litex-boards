@@ -15,7 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import arduino_mkrvidor4000
 
 from litex.soc.cores.clock import Cyclone10LPPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import AS4C4M16

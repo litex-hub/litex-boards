@@ -16,7 +16,7 @@ from litex_boards.platforms import terasic_deca
 from litex.gen import *
 
 from litex.soc.cores.clock import Max10PLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoDVIPHY
 from litex.soc.cores.led import LedChaser

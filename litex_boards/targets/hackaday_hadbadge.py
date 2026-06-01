@@ -18,7 +18,7 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import hackaday_hadbadge
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.phy import GENSDRPHY

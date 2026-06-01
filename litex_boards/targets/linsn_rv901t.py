@@ -14,7 +14,7 @@ from litex.build.io import DDROutput
 
 from litex_boards.platforms import linsn_rv901t
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.clock import S6PLL
 from litex.soc.cores.led import LedChaser
