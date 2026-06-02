@@ -124,7 +124,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".bin")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         flash(int(args.bios_flash_offset, 0))
