@@ -315,11 +315,16 @@ def main():
     )
 
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.with_pcie:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.with_pcie:
-        generate_litepcie_software_headers(soc, os.path.join(builder.output_dir, "driver"))
+        driver_dir = os.path.join(builder.output_dir, "driver")
+        os.makedirs(driver_dir, exist_ok=True)
+        generate_litepcie_software_headers(soc, driver_dir)
 
     if args.load:
         prog = soc.platform.create_programmer()
