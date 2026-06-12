@@ -370,7 +370,12 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
                 # Connect AXI interface to the main bus of the SoC.
                 axi_lite_port = axi.AXILiteInterface(data_width=data_width, address_width=28)
                 self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
-                self.bus.add_slave(f"target{n}", axi_lite_port, SoCRegion(origin=0x4000_0000 + 0x1000_0000*n, size=0x1000_0000)) # 256MB.
+                self.bus.add_slave(
+                    f"target{n}",
+                    axi_lite_port,
+                    SoCRegion(origin=0x4000_0000 + 0x1000_0000*n, size=0x1000_0000), # 256MB.
+                    strip_origin=True,
+                )
 
             # Use DRAM's target0 port as Main Ram  -----------------------------------------------------
             self.bus.add_region("main_ram", SoCRegion(
