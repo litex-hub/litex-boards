@@ -29,7 +29,11 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_usb_pll=False, with_video_pll=False, sdram_rate="1:1"):
+    def __init__(self, platform, sys_clk_freq,
+        with_usb_pll   = False,
+        with_video_pll = False,
+        sdram_rate     = "1:1",
+        sdcard_mux     = "esp32"):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
         if sdram_rate == "1:2":
@@ -79,8 +83,12 @@ class _CRG(LiteXModule):
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
         self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
 
-        # Prevent ESP32 from resetting FPGA
-        self.comb += platform.request("wifi_gpio0").eq(1)
+        if sdcard_mux not in [None, "fpga", "esp32"]:
+            raise ValueError("Unsupported SDCard mux selection: {}.".format(sdcard_mux))
+        if sdcard_mux == "fpga":
+            self.comb += platform.request("wifi_gpio0").eq(0)
+        if sdcard_mux == "esp32":
+            self.comb += platform.request("wifi_gpio0").eq(1)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -92,6 +100,7 @@ class BaseSoC(SoCCore):
         with_video_terminal    = False,
         with_video_framebuffer = False,
         with_spi_flash         = False,
+        sdcard_mux             = "esp32",
         **kwargs):
         platform = radiona_ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
 
@@ -99,7 +108,12 @@ class BaseSoC(SoCCore):
         uart_name      = kwargs.get("uart_name", "serial")
         with_usb_pll   = uart_name == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
-        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, sdram_rate=sdram_rate)
+        self.crg = _CRG(platform, sys_clk_freq,
+            with_usb_pll   = with_usb_pll,
+            with_video_pll = with_video_pll,
+            sdram_rate     = sdram_rate,
+            sdcard_mux     = sdcard_mux,
+        )
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX3S", **kwargs)
@@ -156,12 +170,20 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--sdcard-mux", default="auto", choices=["auto", "fpga", "esp32", "none"],
+        help="Select SDCard connection.")
     parser.add_target_argument("--with-oled",  action="store_true", help="Enable SDD1331 OLED support.")
     parser.add_target_argument("--sdram-rate", default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     args = parser.parse_args()
+
+    sdcard_mux = args.sdcard_mux
+    if sdcard_mux == "auto":
+        sdcard_mux = "fpga" if (args.with_spi_sdcard or args.with_sdcard) else "esp32"
+    if sdcard_mux == "none":
+        sdcard_mux = None
 
     soc = BaseSoC(
         device                 = args.device,
@@ -173,6 +195,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_spi_flash         = args.with_spi_flash,
+        sdcard_mux             = sdcard_mux,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
