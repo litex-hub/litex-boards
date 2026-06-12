@@ -302,6 +302,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── trenz_te0741
     ├── trenz_te0890
     ├── trenz_tec0117
+    ├── trenz_tel0025
     ├── trenz_tem0006
     ├── tul_pynq_z2
     ├── xilinx_ac701
