@@ -224,7 +224,12 @@ class Platform(Xilinx7SeriesPlatform):
             "cle-215+": "fbg484"
         }[self.variant]
         if name == "openfpgaloader":
-            return OpenFPGALoader(cable=ftdi_chip, fpga_part=f"{device}{package}", freq=10e6)
+            ofl_cable = {
+                "ft232"  : "digilent_hs2",
+                "ft2232" : "ft2232",
+                "ft4232" : "ft4232",
+            }[ftdi_chip]
+            return OpenFPGALoader(cable=ofl_cable, fpga_part=f"{device}{package}", freq=10e6)
         elif name == "openocd":
             return OpenOCD(f"openocd_xc7_{ftdi_chip}.cfg", f"bscan_spi_{device}.bit")
 
