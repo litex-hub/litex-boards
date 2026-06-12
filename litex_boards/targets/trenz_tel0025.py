@@ -21,7 +21,7 @@ from litex.soc.integration.builder import *
 
 # Constants ----------------------------------------------------------------------------------------
 
-_HYPERRAM_SIZE  = 8*MEGABYTE
+_HYPERRAM_SIZE  = 32*MEGABYTE
 _OPENSBI_OFFSET = 0x00f00000
 _OPENSBI_SIZE   = 0x00080000
 
@@ -60,7 +60,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, toolchain="radiant",
+    def __init__(self, sys_clk_freq=25e6, toolchain="radiant",
         with_hyperram       = True,
         with_led_chaser     = True,
         with_sdcard         = False,
@@ -82,8 +82,9 @@ class BaseSoC(SoCCore):
         )
         if with_opensbi and main_ram_size < (_OPENSBI_OFFSET + _OPENSBI_SIZE):
             raise ValueError(
-                "vexriscv_smp/vexiiriscv Linux variants place OpenSBI beyond "
-                "the TEL0025 8MiB HyperRAM window; use vexriscv linux instead."
+                "vexriscv_smp/vexiiriscv Linux variants place OpenSBI at "
+                "main_ram + 0x00f00000; provide at least 16MiB of main RAM "
+                "or use vexriscv linux instead."
             )
 
         # CRG --------------------------------------------------------------------------------------
@@ -136,7 +137,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=trenz_tel0025.Platform, description="LiteX SoC on Trenz TEL0025.")
-    parser.add_target_argument("--sys-clk-freq",   default=50e6,       type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",   default=25e6,       type=float, help="System clock frequency.")
     parser.add_target_argument("--no-hyperram",    action="store_true",            help="Disable HyperRAM support.")
     parser.add_target_argument("--with-spi-flash", action="store_true",            help="Enable SPI Flash support.")
     parser.add_target_argument("--flash",          action="store_true",            help="Flash bitstream to SPI Flash.")

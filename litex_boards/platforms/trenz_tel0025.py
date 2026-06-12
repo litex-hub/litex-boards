@@ -12,9 +12,7 @@ from litex.build.openfpgaloader import OpenFPGALoader
 
 _io = [
     # Clk / Rst
-    ("clk25",     0, Pins("C1"), IOStandard("LVCMOS33")), # CLK_25M.
-    ("clk25_aux", 0, Pins("G1"), IOStandard("LVCMOS33")), # CLK1_25M.
-    ("clk12",     0, Pins("E6"), IOStandard("LVCMOS33")), # CLK_12M.
+    ("clk25",      0, Pins("G1"), IOStandard("LVCMOS33")), # CLK1_25M.
     ("user_btn_n", 0, Pins("C8"), IOStandard("LVCMOS33"), Misc("PULLMODE=UP")),
 
     # Leds (RGB LED, active-low).
@@ -153,6 +151,4 @@ class Platform(LatticeNexusPlatform):
 
     def do_finalize(self, fragment):
         LatticeNexusPlatform.do_finalize(self, fragment)
-        self.add_period_constraint(self.lookup_request("clk25",     loose=True), 1e9/25e6)
-        self.add_period_constraint(self.lookup_request("clk25_aux", loose=True), 1e9/25e6)
-        self.add_period_constraint(self.lookup_request("clk12",     loose=True), 1e9/12e6)
+        self.add_period_constraint(self.lookup_request("clk25", loose=True), 1e9/25e6)
