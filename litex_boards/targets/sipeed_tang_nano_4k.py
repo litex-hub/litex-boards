@@ -19,8 +19,6 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
 
-from litex.soc.cores.hyperbus import HyperRAM
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -123,8 +121,12 @@ class BaseSoC(SoCCore):
             hyperram_pads = HyperRAMPads()
             self.comb += platform.request("O_hpram_ck").eq(hyperram_pads.clk)
             self.comb += platform.request("O_hpram_ck_n").eq(~hyperram_pads.clk)
-            self.hyperram = HyperRAM(hyperram_pads, sys_clk_freq=sys_clk_freq)
-            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8 * MEGABYTE, mode="rwx"))
+            self.add_hyperram(
+                pads        = hyperram_pads,
+                region_name = "main_ram",
+                origin      = 0x40000000,
+                size        = 8*MEGABYTE,
+            )
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:

@@ -14,8 +14,6 @@ from litex.gen import *
 from litex_boards.platforms import trenz_cr00010
 
 from litex.soc.cores.clock import CycloneVPLL
-from litex.soc.cores.hyperbus import HyperRAM
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -68,12 +66,10 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
-            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(
+            self.add_hyperram(
                 origin = 0x30000000,
                 size   = 8*MEGABYTE,
-                mode   = "rwx",
-            ))
+            )
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:

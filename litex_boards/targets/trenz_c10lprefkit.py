@@ -16,7 +16,6 @@ from litex_boards.platforms import trenz_c10lprefkit
 
 from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -25,7 +24,6 @@ from litedram.phy import GENSDRPHY
 
 from liteeth.phy.mii import LiteEthPHYMII
 
-from litex.soc.cores.hyperbus import HyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -75,8 +73,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on C10 LP RefKit", **kwargs)
 
         # HyperRam ---------------------------------------------------------------------------------
-        self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
-        self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8 * MEGABYTE, mode="rwx"))
+        self.add_hyperram(size=8*MEGABYTE)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:

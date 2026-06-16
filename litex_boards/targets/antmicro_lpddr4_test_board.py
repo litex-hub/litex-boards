@@ -13,7 +13,6 @@ from litex_boards.platforms import antmicro_lpddr4_test_board
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -21,8 +20,6 @@ from litedram.modules import MT53E256M16D1
 from litedram.phy import lpddr4
 
 from liteeth.phy import LiteEthS7PHYRGMII
-from litex.soc.cores.hyperbus import HyperRAM
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -81,8 +78,10 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
-            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8 * MEGABYTE, mode="rwx"))
+            self.add_hyperram(
+                origin = 0x20000000,
+                size   = 8*MEGABYTE,
+            )
 
         # SD Card ----------------------------------------------------------------------------------
         if with_sdcard:

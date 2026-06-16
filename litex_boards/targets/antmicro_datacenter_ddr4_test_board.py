@@ -17,7 +17,6 @@ from litex_boards.platforms import antmicro_datacenter_ddr4_test_board
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
@@ -30,8 +29,6 @@ from litedram.core.controller import ControllerSettings
 from litedram.common import PhySettings, GeomSettings, TimingSettings
 
 from liteeth.phy import LiteEthS7PHYRGMII
-from litex.soc.cores.hyperbus import HyperRAM
-
 from litespi.modules import S25FL128S0
 from litespi.opcodes import SpiNorFlashOpCodes as Codes
 
@@ -117,8 +114,10 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
-            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8 * MEGABYTE, mode="rwx"))
+            self.add_hyperram(
+                origin = 0x20000000,
+                size   = 8*MEGABYTE,
+            )
 
         # SD Card ----------------------------------------------------------------------------------
         if with_sdcard:
