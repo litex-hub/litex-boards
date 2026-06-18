@@ -26,7 +26,7 @@ from litedram.phy import GENSDRPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, sdram_clk_phase):
         self.rst       = Signal()
         self.cd_sys    = ClockDomain()
         self.cd_sys_ps = ClockDomain()
@@ -42,7 +42,7 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
-        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
+        pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=sdram_clk_phase)
         pll.create_clkout(self.cd_vga,    40e6)
 
         # SDRAM clock
@@ -52,13 +52,14 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
+        sdram_clk_phase     = 90,
         with_led_chaser     = True,
         with_video_terminal = False,
         **kwargs):
         platform = terasic_de10lite.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, sdram_clk_phase)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on DE10-Lite", **kwargs)
@@ -89,11 +90,13 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=terasic_de10lite.Platform, description="LiteX SoC on DE10-Lite.")
     parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-clk-phase",     default=90,   type=float, help="SDRAM clock phase.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (VGA).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
+        sdram_clk_phase     = args.sdram_clk_phase,
         with_video_terminal = args.with_video_terminal,
         **parser.soc_argdict
     )

@@ -135,6 +135,7 @@ class Platform(AlteraPlatform):
         self.add_platform_command("set_global_assignment -name FAMILY \"MAX 10\"")
         self.add_platform_command("set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF")
         self.add_platform_command("set_global_assignment -name INTERNAL_FLASH_UPDATE_MODE \"SINGLE IMAGE WITH ERAM\"")
+        self.add_platform_command("set_global_assignment -name ALLOW_ANY_RAM_SIZE_FOR_RECOGNITION ON")
 
     def create_programmer(self):
         return USBBlaster()
