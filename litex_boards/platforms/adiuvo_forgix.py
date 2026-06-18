@@ -36,6 +36,14 @@ _io = [
         IOStandard("3.3_V_LVTTL_/_LVCMOS"),
     ),
 
+    # Optional 3-wire SPIBone over the RP2350 passive-SPI pins.
+    ("spibone", 0,
+        Subsignal("cs_n", Pins("G3")),
+        Subsignal("clk",  Pins("F3")),
+        Subsignal("mosi", Pins("F2")),
+        IOStandard("3.3_V_LVTTL_/_LVCMOS"),
+    ),
+
     # FPGA I/Os routed to the Teensy-style edge connector.
     ("user_io", 0, Pins(
         "A5 D7 C7 D6 G7 G5 G2 F5 F6",
