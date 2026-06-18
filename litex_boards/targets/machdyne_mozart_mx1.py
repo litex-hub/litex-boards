@@ -23,6 +23,7 @@ from litex.build.io import DDROutput
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.usb_ohci import USBOHCI
+from litex.soc.cores.xadc import S7SystemMonitor
 from litex.soc.cores.video import VideoS7HDMIPHY
 
 from litex.soc.integration.soc import *
@@ -151,7 +152,7 @@ class BaseSoC(SoCCore):
 
         # XADC -------------------------------------------------------------------------------------
         if with_xadc:
-            self.xadc = XADC()
+            self.xadc = S7SystemMonitor()
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q32

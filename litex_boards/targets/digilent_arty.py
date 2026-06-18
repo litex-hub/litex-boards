@@ -24,8 +24,8 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn, GPIOTristate
-from litex.soc.cores.xadc import XADC
-from litex.soc.cores.dna  import DNA
+from litex.soc.cores.xadc import S7SystemMonitor
+from litex.soc.cores.dna  import S7DNA
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
@@ -96,11 +96,11 @@ class BaseSoC(SoCCore):
 
         # XADC -------------------------------------------------------------------------------------
         if with_xadc:
-            self.xadc = XADC()
+            self.xadc = S7SystemMonitor()
 
         # DNA --------------------------------------------------------------------------------------
         if with_dna:
-            self.dna = DNA()
+            self.dna = S7DNA()
             self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
