@@ -51,7 +51,7 @@ class BaseSoC(SoCMini):
         kwargs["with_uart"]            = False
         kwargs["with_timer"]           = False
         kwargs["uart_name"]            = "crossover"
-        kwargs["with_uartbone"]        = True
+        kwargs["with_uartbone"]        = kwargs.get("with_uartbone", False) or not with_spibone
         SoCMini.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Adiuvo Forgix", **kwargs)
 
         # RP2350 <-> MMAP over 3-wire SPIBone. See the RP-side USB/SPI bridge approach:
@@ -80,7 +80,7 @@ def main():
         no_uart              = True,
         no_timer             = True,
         uart_name            = "crossover",
-        with_uartbone        = True)
+        with_uartbone        = False)
     args = parser.parse_args()
 
     soc = BaseSoC(
