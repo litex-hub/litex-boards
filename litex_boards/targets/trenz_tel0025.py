@@ -59,7 +59,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=25e6, toolchain="radiant",
+    def __init__(self, sys_clk_freq=75e6, toolchain="radiant",
         with_hyperram       = True,
         with_led_chaser     = True,
         with_sdcard         = False,
@@ -131,7 +131,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=trenz_tel0025.Platform, description="LiteX SoC on Trenz TEL0025.")
-    parser.add_target_argument("--sys-clk-freq",   default=25e6,       type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",   default=75e6,       type=float, help="System clock frequency.")
     parser.add_target_argument("--no-hyperram",    action="store_true",            help="Disable HyperRAM support.")
     parser.add_target_argument("--with-spi-flash", action="store_true",            help="Enable SPI Flash support.")
     parser.add_target_argument("--flash",          action="store_true",            help="Flash bitstream to SPI Flash.")
