@@ -78,6 +78,10 @@ PLATFORM_EXCLUSIONS = {
         "category": "external_toolchain",
         "reason": "Require Efinity toolchain.",
     },
+    "adiuvo_forgix": {
+        "category": "external_toolchain",
+        "reason": "Require Efinity toolchain.",
+    },
     "adi_plutosdr": {
         "category": "missing_default_clock",
         "reason": "No default clock.",
@@ -150,6 +154,10 @@ TARGET_EXCLUSIONS = {
         "reason": "Require Efinity toolchain.",
     },
     "efinix_t8f81_dev_kit": {
+        "category": "external_toolchain",
+        "reason": "Require Efinity toolchain.",
+    },
+    "adiuvo_forgix": {
         "category": "external_toolchain",
         "reason": "Require Efinity toolchain.",
     },

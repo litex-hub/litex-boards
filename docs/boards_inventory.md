@@ -10,6 +10,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | --- | --- | --- | --- | --- | --- |
 | `adi_adrv2crr_fmc` | adi_adrv2crr_fmc | - | `150000000.0` | PCIe | included |
 | `adi_plutosdr` | adi_plutosdr | vivado | `100000000.0` | - | included |
+| `adiuvo_forgix` | adiuvo_forgix | efinity | `32000000.0` | - | toolchain-gated: Require Efinity toolchain. |
 | `alchitry_au` | alchitry_au | vivado | `83333000.0` | SPI Flash | included |
 | `alchitry_au_v2` | alchitry_au_v2 | vivado | `100000000.0` | SPI Flash | included |
 | `alchitry_cu` | alchitry_cu | icestorm | `50000000.0` | - | included |

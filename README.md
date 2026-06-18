@@ -96,6 +96,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
 ---------------
     ├── adi_adrv2crr_fmc
     ├── adi_plutosdr
+    ├── adiuvo_forgix
     ├── alchitry_au
     ├── alchitry_au_v2
     ├── alchitry_cu
