@@ -159,18 +159,25 @@ class BaseSoC(SoCCore):
                 pads = platform.request("eth", 0),
                 with_hw_init_reset=True,
                 refclk_cd="eth")
-            self.add_csr("ethphy")
-            self.add_ethernet(name="ethmac", phy=self.ethphy,
-                phy_cd="ethphy_eth", dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+            self.csr.add("ethphy")
+            self.add_ethernet(
+                name       = "ethmac",
+                phy        = self.ethphy,
+                phy_cd     = "ethphy_eth",
+                dynamic_ip = eth_dynamic_ip,
+                local_ip   = None if eth_dynamic_ip else eth_ip,
+                remote_ip  = remote_ip)
 
             self.ethphy1 = LiteEthPHYRMII(
                 clock_pads=None,
                 pads = platform.request("eth", 1),
                 with_hw_init_reset=True,
                 refclk_cd="eth")
-            self.add_csr("ethphy1")
-            self.add_ethernet(name="ethmac1", phy=self.ethphy1,
-                phy_cd="ethphy1_eth", dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+            self.csr.add("ethphy1")
+            self.add_ethernet(
+                name   = "ethmac1",
+                phy    = self.ethphy1,
+                phy_cd = "ethphy1_eth")
 
 # Build --------------------------------------------------------------------------------------------
 
