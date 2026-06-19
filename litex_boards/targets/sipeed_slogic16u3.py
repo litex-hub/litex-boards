@@ -51,6 +51,9 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
+        # GW5AT has no pROM resource, so implement the boot memory as RAM.
+        kwargs["integrated_rom_size"] = 32 * KILOBYTE
+        kwargs["integrated_rom_mode"] = "rwx"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Sipeed Slogic16U3", **kwargs)
 
 # Build --------------------------------------------------------------------------------------------
