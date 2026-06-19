@@ -30,6 +30,7 @@ class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
+        self.cd_sys2x = ClockDomain()
         self.cd_por = ClockDomain()
 
         # # #
@@ -54,7 +55,9 @@ class _CRG(LiteXModule):
         self.comb += sys_pll.reset.eq(self.rst | ~por_done)
         sys_pll.register_clkin(clk25, 25e6)
         sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
+        sys_pll.create_clkout(self.cd_sys2x, 2*sys_clk_freq)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~sys_pll.locked)
+        self.specials += AsyncResetSynchronizer(self.cd_sys2x, ~sys_pll.locked)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -96,10 +99,11 @@ class BaseSoC(SoCCore):
         if with_hyperram and not self.integrated_main_ram_size:
             self.add_hyperram(
                 region_name  = "main_ram",
-                latency      = 7,
-                latency_mode = "variable",
-                clk_ratio    = "4:1",
-                size         = _HYPERRAM_SIZE,
+                latency        = 7,
+                latency_mode   = "variable",
+                clk_ratio      = "2:1",
+                cs_high_cycles = 2,
+                size           = _HYPERRAM_SIZE,
             )
 
         # SPI Flash --------------------------------------------------------------------------------
