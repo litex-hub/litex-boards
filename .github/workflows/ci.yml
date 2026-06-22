@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v6
@@ -44,7 +44,7 @@ jobs:
     steps:
       # Checkout Repository
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Install Tools
       - name: Install Tools
