@@ -148,11 +148,21 @@ _io = [
         IOStandard("1.5 V")
     ),
 
-    # USB ULPI (TUSB1210).
-    ("ulpi", 0,
+    # USB / ULPI
+    # "usb" resource: auxiliary PHY control signals (chip-select, fault indicator)
+    ("usb", 0,
         Subsignal("fault_n", Pins("D8"),  IOStandard("1.2 V")),
         Subsignal("cs",      Pins("J11"), IOStandard("1.8 V")),
-        Subsignal("clk",     Pins("H11"), IOStandard("1.2 V")),
+    ),
+
+    # clk60: raw 60MHz clock INPUT from the USB3300 PHY (feeds the PLL)
+    ("clk60", 0, Pins("H11"), IOStandard("1.2 V")),
+
+    # "ulpi" resource: the 12-pin ULPI bus proper
+    #  - clk (W3) is an OUTPUT from FPGA to PHY (3.3V bank 3)
+    #  - reset_n is active-low
+    ("ulpi", 0,
+        Subsignal("clk",     Pins("W3"), IOStandard("3.3-V LVTTL")),
         Subsignal("stp",     Pins("J12"), IOStandard("1.8 V")),
         Subsignal("dir",     Pins("J13"), IOStandard("1.8 V")),
         Subsignal("nxt",     Pins("H12"), IOStandard("1.8 V")),
