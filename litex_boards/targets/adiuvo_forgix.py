@@ -137,7 +137,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=adiuvo_forgix.Platform, description="LiteX SoC on Adiuvo Forgix.")
     parser.add_target_argument("--sys-clk-freq", default=32e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spibone", action="store_true", help="Add SPIBone on the RP2350 SPI pins.")
+    parser.add_target_argument("--with-spibone",   action="store_true", help="Add SPIBone on the RP2350 SPI pins.")
     parser.add_target_argument("--with-demo-leds", action="store_true", help="Add the CSR-controlled RGB LED demo core.")
     parser.set_defaults(
         cpu_type             = "None",
