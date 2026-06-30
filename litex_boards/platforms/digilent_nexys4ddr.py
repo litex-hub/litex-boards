@@ -107,7 +107,8 @@ _io = [
     # SPIFlash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("L13")),
-        Subsignal("clk",  Pins("E9")),
+   
+        # Subsignal("clk",  Pins("E9")),   # Accessed through STARTUPE2.
         Subsignal("mosi", Pins("K17")),
         Subsignal("miso", Pins("K18")),
         Subsignal("wp",   Pins("L14")),
@@ -116,7 +117,7 @@ _io = [
     ),
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("L13")),
-        Subsignal("clk",  Pins("E9")),
+        # Subsignal("clk",  Pins("E9")),   # Accessed through STARTUPE2.
         Subsignal("dq",   Pins("K17 K18 L14 M14")),
         IOStandard("LVCMOS33"),
     ),

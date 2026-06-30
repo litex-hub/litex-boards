@@ -53,6 +53,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=75e6,
+        with_spi_flash         = False,
         with_ethernet          = False,
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
@@ -81,6 +82,12 @@ class BaseSoC(SoCCore):
                 module        = MT47H64M16(sys_clk_freq, "1:2"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
+            
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import S25FL128S
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=S25FL128S(Codes.READ_1_1_4), with_master=True)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -115,6 +122,7 @@ def main():
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
@@ -130,6 +138,7 @@ def main():
         sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
+        with_spi_flash         = args.with_spi_flash,
         eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         remote_ip              = args.remote_ip,
