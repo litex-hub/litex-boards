@@ -117,6 +117,18 @@ TARGET_EXCLUSIONS = {
         "category": "generic_target",
         "reason": "Generic target.",
     },
+    "antmicro_ddr5_test_board": {
+        "category": "known_build_failure",
+        "reason": "Requires a LiteDRAM checkout with litedram.phy.ddr5.",
+    },
+    "antmicro_ddr5_tester": {
+        "category": "known_build_failure",
+        "reason": "Requires a LiteDRAM checkout with litedram.phy.ddr5.",
+    },
+    "antmicro_sodimm_ddr5_tester": {
+        "category": "known_build_failure",
+        "reason": "Requires a LiteDRAM checkout with litedram.phy.ddr5.",
+    },
     "quicklogic_quickfeather": {
         "category": "missing_default_clock",
         "reason": "No default clock.",

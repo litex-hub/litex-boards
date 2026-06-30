@@ -116,8 +116,11 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── analog_pocket
     ├── antmicro_artix_dc_scm
     ├── antmicro_datacenter_ddr4_test_board
+    ├── antmicro_ddr5_test_board
+    ├── antmicro_ddr5_tester
     ├── antmicro_lpddr4_test_board
     ├── antmicro_sdi_mipi_video_converter
+    ├── antmicro_sodimm_ddr5_tester
     ├── arduino_mkrvidor4000
     ├── arrow_axe5000
     ├── avnet_aesku40
