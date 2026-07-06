@@ -59,7 +59,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `digilent_genesys2` | digilent_genesys2 | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, Video Terminal, Video Framebuffer | included |
 | `digilent_netfpga_sume` | digilent_netfpga_sume | vivado | `125000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard | included |
 | `digilent_nexys4` | digilent_nexys4 | vivado | `75000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, Video Terminal, Video Framebuffer | included |
-| `digilent_nexys4ddr` | digilent_nexys4ddr | vivado | `75000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, Video Terminal, Video Framebuffer | included |
+| `digilent_nexys4ddr` | digilent_nexys4ddr | vivado | `75000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
 | `digilent_nexys_video` | digilent_nexys_video | vivado | `100000000.0` | Ethernet, SDCard, SPI SDCard, SATA, Video Terminal, Video Framebuffer, USB | included |
 | `digilent_pynq_z1` | digilent_pynq_z1 | vivado | `125000000.0` | Video Terminal | included |
 | `digilent_zedboard` | digilent_arty, digilent_zedboard | vivado | `100000000.0` | - | included |
