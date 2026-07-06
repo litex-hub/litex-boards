@@ -17,7 +17,7 @@ from litex.gen import *
 from litex_boards.platforms import altera_agilex5e_065b_premium_devkit
 
 from litex.soc.integration.soc      import *
-from litex.soc.integration.soc import *
+from litex.soc.integration.soc      import SoCRegion
 from litex.soc.integration.builder  import *
 
 from litex.soc.cores.clock import Agilex5PLL
@@ -84,8 +84,17 @@ class BaseSoC(SoCCore):
         with_sdcard     = False,
         with_spi_sdcard = False,
         with_led_chaser = True,
+        with_h2f_bridge = False,
         **kwargs):
-        kwargs.setdefault("integrated_main_ram_size", 64*KILOBYTE)
+        with_hps = (kwargs.get("cpu_type", None) == "agilex_hps")
+        if with_hps:
+            # The Agilex 5 HPS is the SoC's CPU: no fabric main RAM/SRAM, console on HPS UART0.
+            kwargs["cpu_variant"]              = kwargs.get("cpu_variant") or "agilex5"
+            kwargs["with_uart"]                = False
+            kwargs["integrated_sram_size"]     = 0
+            kwargs["integrated_main_ram_size"] = 0
+        else:
+            kwargs.setdefault("integrated_main_ram_size", 64*KILOBYTE)
 
         platform = altera_agilex5e_065b_premium_devkit.Platform(variant=variant)
         with_eth = with_ethernet or with_etherbone
@@ -97,6 +106,22 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on Altera Agilex 5E 065B Premium Development Kit",
             **kwargs)
+
+        # Agilex 5 HPS Integration -----------------------------------------------------------------
+        if with_hps:
+            # HPS-EMIF (LPDDR4, pins located by the platform, IO owned by the EMIF IP).
+            self.cpu.add_emif(
+                pads        = platform.request("lpddr4"),
+                refclk_pads = platform.request("lpddr_refclk"),
+            )
+            # HPS DDR linker regions are intentionally NOT added here: they would trigger BIOS
+            # compilation, which needs aarch64-none-elf-gcc. To run a LiteX BIOS from HPS DDR,
+            # install the toolchain and uncomment:
+            # self.bus.add_region("sram", SoCRegion(origin=self.cpu.mem_map["sram"], size=15*MEGABYTE))
+            # self.bus.add_region("rom",  SoCRegion(origin=self.cpu.mem_map["rom"],  size=8*MEGABYTE, linker=True))
+            # H2F Bridge (LiteX bus visible to the ARM at mem_map["main_ram"], 0x8000_0000).
+            if with_h2f_bridge:
+                self.bus.add_master(name="h2f", master=self.cpu.add_axi_h2f_master())
 
         # SDCard -----------------------------------------------------------------------------------
         if with_sdcard or with_spi_sdcard:
@@ -161,6 +186,8 @@ def main():
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support on J9 adapter.")
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support on J9 adapter.")
 
+    parser.add_target_argument("--with-h2f-bridge", action="store_true", help="Enable H2F bridge (with agilex_hps CPU).")
+
     # Overrides defaults synth/conv tools.
     parser.set_defaults(synth_tool="quartus_syn")
     parser.set_defaults(conv_tool="quartus_pfg")
@@ -178,6 +205,7 @@ def main():
         eth_dynamic_ip  = args.eth_dynamic_ip,
         with_sdcard     = args.with_sdcard,
         with_spi_sdcard = args.with_spi_sdcard,
+        with_h2f_bridge = args.with_h2f_bridge,
         **parser.soc_argdict)
 
     builder = Builder(soc, **parser.builder_argdict)
