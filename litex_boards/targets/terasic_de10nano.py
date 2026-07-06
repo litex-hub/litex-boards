@@ -7,6 +7,14 @@
 # Copyright (c) 2026 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Cyclone V HPS (MiSTer) use:
+# ./terasic_de10nano.py --cpu-type=cyclonev_hps --build [--with-mister-sdram]
+# Copy the bitstream to the MiSTer and load it:
+#  scp build/terasic_de10nano/gateware/terasic_de10nano.rbf root@<mister-ip>:/media/fat/litex.rbf
+#  ssh root@<mister-ip> "echo load_core /media/fat/litex.rbf > /dev/MiSTer_cmd"
+# LiteX CSRs are then accessible from the HPS at 0xff20_0000 (addresses in csr.csv), ex:
+#  devmem <ctrl_scratch_addr> -> 0x12345678.
+
 from migen import *
 
 from litex.gen import *
