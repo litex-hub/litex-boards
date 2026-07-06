@@ -4,6 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2020 Paul Sajna <sajattack@gmail.com>
+# Copyright (c) 2026 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
@@ -16,6 +17,7 @@ from litex_boards.platforms import terasic_de10nano
 
 from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
@@ -65,6 +67,7 @@ class BaseSoC(SoCCore):
         with_led_chaser            = True,
         with_mister_sdram          = True,
         with_mister_video_terminal = False,
+        with_h2f_bridge            = False,
         sdram_rate                 = "1:1",
         **kwargs):
         platform = terasic_de10nano.Platform()
@@ -73,7 +76,26 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, with_sdram=with_mister_sdram, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
+        if kwargs.get("cpu_type", None) == "cyclonev_hps":
+            kwargs["with_uart"]            = False # Console is on HPS UART0 (Linux on MiSTer).
+            kwargs["integrated_sram_size"] = 0     # SRAM region is in HPS DDR3 (Linker-only).
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on DE10-Nano", **kwargs)
+
+        # Cyclone V HPS Integration ----------------------------------------------------------------
+        if kwargs.get("cpu_type", None) == "cyclonev_hps":
+            # HPS DDR3 Regions (Linker-only, enable BIOS compilation as on Zynq targets).
+            self.bus.add_region("sram", SoCRegion(
+                origin = self.cpu.mem_map["sram"],
+                size   = 15 * MEGABYTE,
+            ))
+            self.bus.add_region("rom", SoCRegion(
+                origin = self.cpu.mem_map["rom"],
+                size   = 8 * MEGABYTE,
+                linker = True,
+            ))
+            # H2F Bridge (LiteX bus/Fabric SDRAM visible to the ARM at 0xc000_0000).
+            if with_h2f_bridge or with_mister_sdram:
+                self.bus.add_master(name="h2f", master=self.cpu.add_axi_h2f_master())
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if with_mister_sdram and not self.integrated_main_ram_size:
@@ -104,6 +126,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",               default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-mister-sdram",          action="store_true",      help="Enable SDRAM with MiSTer expansion board.")
     parser.add_target_argument("--with-mister-video-terminal", action="store_true",      help="Enable Video Terminal with Mister expansion board.")
+    parser.add_target_argument("--with-h2f-bridge",            action="store_true",      help="Enable H2F bridge (with cyclonev_hps CPU).")
     parser.add_target_argument("--sdram-rate",                 default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     args = parser.parse_args()
 
@@ -111,6 +134,7 @@ def main():
         sys_clk_freq               = args.sys_clk_freq,
         with_mister_sdram          = args.with_mister_sdram,
         with_mister_video_terminal = args.with_mister_video_terminal,
+        with_h2f_bridge            = args.with_h2f_bridge,
         sdram_rate                 = args.sdram_rate,
         **parser.soc_argdict
     )
