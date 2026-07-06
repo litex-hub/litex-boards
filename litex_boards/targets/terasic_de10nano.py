@@ -8,7 +8,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Cyclone V HPS (MiSTer) use:
-# ./terasic_de10nano.py --cpu-type=cyclonev_hps --build [--with-mister-sdram]
+# ./terasic_de10nano.py --cpu-type=cyclonev_hps --build [--with-mister-sdram] [--with-f2h-sdram]
 # Copy the bitstream to the MiSTer and load it:
 #  scp build/terasic_de10nano/gateware/terasic_de10nano.rbf root@<mister-ip>:/media/fat/litex.rbf
 #  ssh root@<mister-ip> "echo load_core /media/fat/litex.rbf > /dev/MiSTer_cmd"
@@ -76,6 +76,7 @@ class BaseSoC(SoCCore):
         with_mister_sdram          = True,
         with_mister_video_terminal = False,
         with_h2f_bridge            = False,
+        with_f2h_sdram             = False,
         sdram_rate                 = "1:1",
         **kwargs):
         platform = terasic_de10nano.Platform()
@@ -104,6 +105,19 @@ class BaseSoC(SoCCore):
             # H2F Bridge (LiteX bus/Fabric SDRAM visible to the ARM at 0xc000_0000).
             if with_h2f_bridge or with_mister_sdram:
                 self.bus.add_master(name="h2f", master=self.cpu.add_axi_h2f_master())
+            # F2SDRAM Port 1 (64-bit): first 256MB of HPS DDR3 visible on the LiteX bus at
+            # 0xd000_0000 (non-coherent with the ARM caches; useful for Fabric DMAs and as a
+            # F2SDRAM smoke test from the ARM through the H2F bridge).
+            if with_f2h_sdram:
+                from litex.soc.interconnect.avalon import Wishbone2AvalonMM
+                f2h_sdram_region = SoCRegion(origin=0xd000_0000, size=256 * MEGABYTE)
+                self.f2h_sdram = Wishbone2AvalonMM(
+                    data_width           = 64,
+                    avalon_address_width = 29,
+                    avalon_base_address  = f2h_sdram_region.origin >> 3,
+                )
+                self.comb += self.f2h_sdram.w2a_avl.connect(self.cpu.add_fpga2sdram_port(n=1))
+                self.bus.add_slave(name="f2h_sdram", slave=self.f2h_sdram.w2a_wb, region=f2h_sdram_region)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if with_mister_sdram and not self.integrated_main_ram_size:
@@ -135,6 +149,7 @@ def main():
     parser.add_target_argument("--with-mister-sdram",          action="store_true",      help="Enable SDRAM with MiSTer expansion board.")
     parser.add_target_argument("--with-mister-video-terminal", action="store_true",      help="Enable Video Terminal with Mister expansion board.")
     parser.add_target_argument("--with-h2f-bridge",            action="store_true",      help="Enable H2F bridge (with cyclonev_hps CPU).")
+    parser.add_target_argument("--with-f2h-sdram",             action="store_true",      help="Enable F2SDRAM port (with cyclonev_hps CPU).")
     parser.add_target_argument("--sdram-rate",                 default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     args = parser.parse_args()
 
@@ -143,6 +158,7 @@ def main():
         with_mister_sdram          = args.with_mister_sdram,
         with_mister_video_terminal = args.with_mister_video_terminal,
         with_h2f_bridge            = args.with_h2f_bridge,
+        with_f2h_sdram             = args.with_f2h_sdram,
         sdram_rate                 = args.sdram_rate,
         **parser.soc_argdict
     )
