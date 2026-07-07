@@ -17,7 +17,6 @@ from litex_boards.platforms import sipeed_tang_console
 
 from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
@@ -30,7 +29,12 @@ from litex.build.io import DDROutput
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2", with_ddr3=False, with_video_pll=False, without_pll=False):
+    def __init__(self, platform, sys_clk_freq,
+        with_sdram     = False,
+        sdram_rate     = "1:2",
+        with_ddr3      = False,
+        with_video_pll = False,
+        without_pll    = False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
         self.cd_por = ClockDomain()
@@ -62,9 +66,9 @@ class _CRG(LiteXModule):
         # PLL
         if without_pll:
             assert sys_clk_freq == 50e6
-            assert not with_sdram and not with_ddr3
+            assert not with_sdram and not with_ddr3 and not with_video_pll
             self.comb += self.cd_sys.clk.eq(clk50)
-            self.comb += self.cd_sys.rst.eq(~por_done | ~rst)
+            self.comb += self.cd_sys.rst.eq(~por_done | rst)
         else:
             self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
             self.comb += pll.reset.eq(~por_done | rst)
@@ -212,7 +216,8 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_console.Platform, description="LiteX SoC on Tang Console.")
     parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
-    parser.add_target_argument("--device",          default="GW5AT-60B", type=str, help="Device, GW5AT-60B or GW5AST-138C")
+    parser.add_target_argument("--device",          default="GW5AT-60B",
+        choices=["GW5AT-60B", "GW5AST-138C"], help="Device.")
     parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
