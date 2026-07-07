@@ -62,6 +62,7 @@ class BaseSoC(SoCCore):
     def __init__(self, toolchain="gowin", sys_clk_freq=27e6, bios_flash_offset=0x0,
         with_led_chaser     = True,
         with_video_terminal = False,
+        with_integrated_rom = False,
         **kwargs):
         platform = sipeed_tang_nano_9k.Platform(toolchain=toolchain)
 
@@ -69,8 +70,12 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
-        # Disable Integrated ROM
-        kwargs["integrated_rom_size"] = 0
+        # Keep the BIOS in external SPI Flash by default to save GW1N-9 resources.
+        # --with-integrated-rom is useful for SRAM-only loading/debug, at the cost of extra BRAMs.
+        if with_integrated_rom:
+            kwargs.setdefault("integrated_rom_size", 128 * KILOBYTE)
+        else:
+            kwargs["integrated_rom_size"] = 0
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano 9K", **kwargs)
 
         # SPI Flash --------------------------------------------------------------------------------
@@ -79,12 +84,13 @@ class BaseSoC(SoCCore):
         self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
 
         # Add ROM linker region --------------------------------------------------------------------
-        self.bus.add_region("rom", SoCRegion(
-            origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 64 * KILOBYTE,
-            linker = True)
-        )
-        self.cpu.set_reset_address(self.bus.regions["rom"].origin)
+        if not with_integrated_rom:
+            self.bus.add_region("rom", SoCRegion(
+                origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
+                size   = 64 * KILOBYTE,
+                linker = True)
+            )
+            self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
         # HyperRAM ---------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -142,6 +148,7 @@ def main():
     parser.add_target_argument("--bios-flash-offset",   default="0x0",            help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--with-spi-sdcard",     action="store_true",      help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-integrated-rom", action="store_true",      help="Build BIOS into FPGA bitstream for SRAM-only loading/debug.")
     parser.add_target_argument("--prog-kit",            default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     args = parser.parse_args()
 
@@ -150,6 +157,7 @@ def main():
         sys_clk_freq        = args.sys_clk_freq,
         bios_flash_offset   = int(args.bios_flash_offset, 0),
         with_video_terminal = args.with_video_terminal,
+        with_integrated_rom = args.with_integrated_rom,
         **parser.soc_argdict
     )
 
