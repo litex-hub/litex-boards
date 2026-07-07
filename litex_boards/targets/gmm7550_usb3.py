@@ -104,17 +104,21 @@ p2 = [
     ),
 
     ("async_sram", 0,
-        Subsignal("ce", Pins("P2:24")),
-        Subsignal("oe", Pins("P2:27")),
-        Subsignal("we", Pins("P2:44")),
-        Subsignal("adr", Pins("P2:10 P2:12 P2:16 P2:18", # A0, A1, A2, A3
-                              "P2:22 P2:46 P2:50 P2:52", # A4, A5, A6, A7
-                              "P2:56 P2:58 P2:57 P2:55", # A8, A9, A10, A11
-                              "P2:51 P2:49 P2:45 P2:23", # A12, A13, A14, A15
-                              "P2:21 P2:17 P2:15")),
-        Subsignal("dat", Pins("P2:28 P2:30 P2:38 P2:40",   # D0, D1, D1, D3
-                              "P2:43 P2:39 P2:37 P2:29")), # D4, D5, D6, D7
-     ),
+        Subsignal("ce",  Pins("P2:24")),
+        Subsignal("oe",  Pins("P2:27")),
+        Subsignal("we",  Pins("P2:44")),
+        Subsignal("adr", Pins(
+            "P2:10 P2:12 P2:16 P2:18", # A0, A1, A2, A3.
+            "P2:22 P2:46 P2:50 P2:52", # A4, A5, A6, A7.
+            "P2:56 P2:58 P2:57 P2:55", # A8, A9, A10, A11.
+            "P2:51 P2:49 P2:45 P2:23", # A12, A13, A14, A15.
+            "P2:21 P2:17 P2:15"        # A16, A17, A18.
+        )),
+        Subsignal("dat", Pins(
+            "P2:28 P2:30 P2:38 P2:40", # D0, D1, D2, D3.
+            "P2:43 P2:39 P2:37 P2:29"  # D4, D5, D6, D7.
+        )),
+    ),
 ]
 
 # Clock/Reset Generator ---------------------------------------------------------
