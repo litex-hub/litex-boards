@@ -78,6 +78,7 @@ class BaseSoC(SoCCore):
         eth_ip          = "192.168.1.50",
         remote_ip       = None,
         eth_dynamic_ip  = False,
+        eth_dhcp        = False,
         with_usb        = False,
         with_led_chaser = True,
         with_spi_flash  = False,
@@ -123,7 +124,13 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             elif with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+                self.add_ethernet(
+                    phy         = self.ethphy,
+                    dynamic_ip  = eth_dynamic_ip,
+                    with_dhcp   = eth_dhcp,
+                    local_ip    = None if (eth_dynamic_ip or eth_dhcp) else eth_ip,
+                    remote_ip   = remote_ip,
+                )
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -207,6 +214,7 @@ def main():
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--eth-dhcp",       action="store_true",       help="Enable Ethernet DHCP support.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
@@ -218,7 +226,7 @@ def main():
     parser.add_target_argument("--with-can",       action="store_true", help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'.")
     args = parser.parse_args()
 
-    assert not (args.with_etherbone and args.eth_dynamic_ip)
+    assert not (args.with_etherbone and (args.eth_dynamic_ip or args.eth_dhcp))
 
     soc = BaseSoC(
         variant        = args.variant,
@@ -231,6 +239,7 @@ def main():
         eth_ip         = args.eth_ip,
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
+        eth_dhcp       = args.eth_dhcp,
         with_usb       = args.with_usb,
         with_spi_flash = args.with_spi_flash,
         with_pmod_gpio = args.with_pmod_gpio,
