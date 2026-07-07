@@ -84,18 +84,16 @@ class BaseSoC(SoCCore):
                 module        = MT47H64M16(sys_clk_freq, "1:2"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
-            
-        # Seven segment ----------------------------------------------------------------------------
+
+        # 7-Segment Display ------------------------------------------------------------------------
         if with_seven_seg:
-            seven_seg = platform.request("seven_seg")
-            seven_seg_ctrl_n = platform.request("seven_seg_ctrl_n")
-            self.submodules.seven_seg = SevenSegmentDisplay(
-                sys_clk_freq    = self.sys_clk_freq,
-                segments_pads   = seven_seg,
-                anodes_pads     = seven_seg_ctrl_n
+            self.seven_seg = SevenSegmentDisplay(
+                sys_clk_freq  = sys_clk_freq,
+                segments_pads = platform.request("seven_seg"),
+                anodes_pads   = platform.request("seven_seg_ctrl_n"),
             )
-            self.add_csr("seven_seg")
-          
+            self.csr.add("seven_seg")
+
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import S25FL128S
@@ -136,7 +134,7 @@ def main():
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
     parser.add_target_argument("--with-spi-flash", action="store_true",     help="Enable memory-mapped SPI flash.")
-    parser.add_target_argument("--with-seven-seg", action="store_true",     help="Seven segment display.")
+    parser.add_target_argument("--with-seven-seg", action="store_true",     help="Enable 7-segment display support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
