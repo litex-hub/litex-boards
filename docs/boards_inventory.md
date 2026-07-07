@@ -81,6 +81,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `fpc_iii` | fpc_iii | trellis | `80000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard | included |
 | `fpgawars_alhambra2` | fpgawars_alhambra2 | icestorm | `12000000.0` | - | included |
 | `gadgetfactory_papilio_pro` | gadgetfactory_papilio_pro | ise | `80000000.0` | Video Terminal | included |
+| `gmm7550_usb3` | gmm7550 | peppercorn | `20000000.0` | SPI Flash | included |
 | `gsd_butterstick` | gsd_butterstick | trellis | `75000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash | included |
 | `gsd_orangecrab` | gsd_orangecrab | trellis | `48000000.0` | SPI SDCard | included |
 | `hackaday_hadbadge` | hackaday_hadbadge | trellis | `48000000.0` | - | included |
