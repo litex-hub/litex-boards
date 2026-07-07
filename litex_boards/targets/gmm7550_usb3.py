@@ -27,6 +27,7 @@ from litex.soc.integration.soc import SoCRegion
 
 from litex.build.generic_platform import Pins, Subsignal
 
+from litex.soc.cores.ram import AsyncSRAM
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOOut
 
@@ -141,44 +142,15 @@ class _CRG(LiteXModule):
 
         platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
 
-# AsyncSRAM ------------------------------------------------------------------------------------------
-
-class AsyncSRAM(LiteXModule):
-
-    def __init__(self, platform, clk, rst, wb, size, pins):
-        self.bus = wb
-        self.data_width = 32
-        self.size = size
-        self.specials += Instance("issiram",
-                                  i_clk = clk,
-                                  i_rst = rst,
-                                  i_wbs_stb_i = self.bus.stb,
-                                  i_wbs_cyc_i = self.bus.cyc,
-                                  i_wbs_adr_i = self.bus.adr,
-                                  i_wbs_we_i  = self.bus.we,
-                                  i_wbs_sel_i = self.bus.sel,
-                                  i_wbs_dat_i = self.bus.dat_w,
-                                  o_wbs_ack_o = self.bus.ack,
-                                  o_wbs_dat_o = self.bus.dat_r,
-                                  o_mem_ce_n = pins.ce,
-                                  o_mem_oe_n = pins.oe,
-                                  o_mem_we_n = pins.we,
-                                  o_mem_adr  = pins.adr,
-                                  io_mem_dat = pins.dat,
-                                  )
-        hdl_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                               "gmm7550")
-        platform.add_source(os.path.join(hdl_dir, "issiram.v"))
+# Async SRAM ---------------------------------------------------------------------------------------
 
 def add_async_ram(soc, platform, name, origin, size):
     if soc.bus.data_width != 32:
         raise ValueError("Async SRAM only supports 32-bit Wishbone data width")
     soc.check_if_exists(name)
     ram_bus = wishbone.Interface(data_width=soc.bus.data_width)
-    clk     = ClockSignal()
-    rst     = ResetSignal()
-    ram     = AsyncSRAM(platform, clk, rst, ram_bus, size,
-                        platform.request("async_sram"))
+    ram     = AsyncSRAM(pads=platform.request("async_sram"), bus=ram_bus)
+    ram.size = size
 
     soc.bus.add_slave(name, ram.bus, SoCRegion(origin=origin, size=size, mode="rwx"))
     soc.logger.info("AsyncSRAM {} {} {}.".format(
