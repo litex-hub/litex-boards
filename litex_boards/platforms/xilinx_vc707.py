@@ -82,12 +82,35 @@ _io = [
     ("i2c_mux_reset", 0, Pins("AY42"), IOStandard("LVCMOS18")),
 
     # SDCard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("AN30")),
+        Subsignal("mosi", Pins("AP30"), Misc("PULLUP True")),
+        Subsignal("cs_n", Pins("AT30"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("AR30"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS18"),
+    ),
     ("sdcard", 0,
         Subsignal("clk", Pins("AN30")),
         Subsignal("cmd", Pins("AP30")),
         Subsignal("det", Pins("AP32")),
         Subsignal("wp",  Pins("AR32")),
         Subsignal("data", Pins("AR30 AU31 AV31 AT30")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("linear_flash", 0,
+        Subsignal("a", Pins(
+            "AJ28 AH28 AG31 AF30 AK29 AK28 AG29 AK30",
+            "AJ30 AH30 AH29 AL30 AL29 AN33 AM33 AM32",
+            "AV41 AU41 BA42 AU42 AT41 BA40 BA39 BB39",
+            "AW42 AW41")),
+        Subsignal("dq", Pins(
+            "AM36 AN36 AJ36 AJ37 AK37 AL37 AN35 AP35",
+            "AM37 AG33 AH33 AK35 AL35 AJ31 AH34 AJ35")),
+        Subsignal("ce_n",  Pins("AL36")),
+        Subsignal("oe_n",  Pins("BA41")),
+        Subsignal("we_n",  Pins("BB41")),
+        Subsignal("adv_n", Pins("AY37")),
         IOStandard("LVCMOS18"),
     ),
 
@@ -176,6 +199,14 @@ _io = [
         Subsignal("p", Pins("AD8")),
         Subsignal("n", Pins("AD7")),
     ),
+    ("si5324_clkout", 0,
+        Subsignal("p", Pins("AD8")),
+        Subsignal("n", Pins("AD7")),
+    ),
+    ("si5324_rec_clk", 0,
+        Subsignal("p", Pins("AW32"), IOStandard("LVDS_18")),
+        Subsignal("n", Pins("AW33"), IOStandard("LVDS_18")),
+    ),
 
     # HDMI
     ("hdmi", 0,
@@ -232,12 +263,12 @@ _io = [
         Subsignal("rxn", Pins("AL5")),
     ),
     ("sfp_tx", 0,
-        Subsignal("txp", Pins("AM4")),
-        Subsignal("txn", Pins("AM3")),
+        Subsignal("p", Pins("AM4")),
+        Subsignal("n", Pins("AM3")),
     ),
     ("sfp_rx", 0,
-        Subsignal("rxp", Pins("AL6")),
-        Subsignal("rxn", Pins("AL5")),
+        Subsignal("p", Pins("AL6")),
+        Subsignal("n", Pins("AL5")),
     ),
     ("sfp_tx_disable_n", 0, Pins("AP33"), IOStandard("LVCMOS18")),
     ("sfp_rx_los",       0, Pins("BB38"), IOStandard("LVCMOS18")),
@@ -642,5 +673,5 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200",      loose=True), 1e9/200e6)
-        self.add_period_constraint(self.lookup_request("clk156",      loose=True), 1e9/156e6)
+        self.add_period_constraint(self.lookup_request("clk156",      loose=True), 1e9/156.25e6)
         self.add_period_constraint(self.lookup_request("sgmii_clock", loose=True), 1e9/125e6)

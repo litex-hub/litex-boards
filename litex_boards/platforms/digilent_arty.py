@@ -14,7 +14,7 @@ from litex.build.openocd import OpenOCD
 _io = [
     # Clk / Rst
     ("clk100",    0, Pins("E3"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("C2"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("C2"), IOStandard("LVCMOS33")),
 
 
     # Leds
@@ -163,6 +163,8 @@ _connectors = [
     ("pmodc", "U12 V12 V10 V11 U14 V14 T13 U13"),
     ("pmodd", "D4 D3 F4 F3 E2 D2 H2 G2"),
     ("ck_io", {
+        "ck_ioa"  : "M17",
+
         # Outer Digital Header
         "ck_io0"  : "V15",
         "ck_io1"  : "U16",
@@ -242,9 +244,9 @@ _connectors = [
         "vsns5v0_n"  : "B12",
         "vsns5v0_p"  : "C12",
         "isns5v0_n"  : "F14",
-        "isns5v0_n"  : "F13",
+        "isns5v0_p"  : "F13",
         "isns0v95_n" : "A16",
-        "isns0v95_n" : "A15",
+        "isns0v95_p" : "A15",
         } ),
 ]
 

@@ -16,11 +16,10 @@ from litex.gen import *
 from litex_boards.platforms import rcs_arctic_tern_bmc_card
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
-from litex.soc.integration.soc import SoCRegion
 
-from litedram.modules import MT41J256M16
+from litedram.modules import AS4C256M16D3C
 from litedram.phy import ECP5DDRPHY
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 from litex.soc.cores.video import VideoGenericPHY
@@ -121,7 +120,7 @@ class BaseSoC(SoCCore):
         self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
         self.add_sdram("sdram",
             phy           = self.ddrphy,
-            module        = MT41J256M16(sys_clk_freq, "1:2"), # Not MT41J256M16, but the AS4C256M16D3C in use has similar specifications
+            module        = AS4C256M16D3C(sys_clk_freq, "1:2"),
             l2_cache_size = kwargs.get("l2_size", 8192),
         )
 
@@ -157,13 +156,13 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=rcs_arctic_tern_bmc_card.Platform, description="LiteX SoC on Arctic Tern (BMC card carrier).")
-    parser.add_target_argument("--sys-clk-freq", default=60e6, type=float, help="System clock frequency (default: 60MHz).")
+    parser.add_target_argument("--sys-clk-freq",        default=60e6, type=float, help="System clock frequency (default: 60MHz).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone", action="store_true",    help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",   default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -181,7 +180,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

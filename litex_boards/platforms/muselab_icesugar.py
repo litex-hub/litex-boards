@@ -18,22 +18,22 @@ _io = [
 
     # Leds R / G / B
     ("user_led_n",    0, Pins("40"), IOStandard("LVCMOS33")),
-    ("user_led_n",    1, Pins("39"), IOStandard("LVCMOS33")),
-    ("user_led_n",    2, Pins("41"), IOStandard("LVCMOS33")),
+    ("user_led_n",    1, Pins("41"), IOStandard("LVCMOS33")),
+    ("user_led_n",    2, Pins("39"), IOStandard("LVCMOS33")),
 
     # RGB led, active-low, alias for Leds
     ("rgb_led", 0,
         Subsignal("r", Pins("40")),
-        Subsignal("g", Pins("39")),
-        Subsignal("b", Pins("31")),
+        Subsignal("g", Pins("41")),
+        Subsignal("b", Pins("39")),
         IOStandard("LVCMOS33"),
     ),
 
     # Switches / jumper-attached to PMOD4
-    ("user_sw", 0, Pins("18"), IOStandard("LVCMOS18")),
-    ("user_sw", 1, Pins("19"), IOStandard("LVCMOS18")),
-    ("user_sw", 2, Pins("20"), IOStandard("LVCMOS18")),
-    ("user_sw", 3, Pins("21"), IOStandard("LVCMOS18")),
+    ("user_sw", 0, Pins("18"), IOStandard("LVCMOS33")),
+    ("user_sw", 1, Pins("19"), IOStandard("LVCMOS33")),
+    ("user_sw", 2, Pins("20"), IOStandard("LVCMOS33")),
+    ("user_sw", 3, Pins("21"), IOStandard("LVCMOS33")),
 
     # Serial
     ("serial", 0,
@@ -48,6 +48,13 @@ _io = [
         Subsignal("clk",  Pins("15"), IOStandard("LVCMOS33")),
         Subsignal("miso", Pins("17"), IOStandard("LVCMOS33")),
         Subsignal("mosi", Pins("14"), IOStandard("LVCMOS33")),
+        Subsignal("wp",   Pins("12"), IOStandard("LVCMOS33")),
+        Subsignal("hold", Pins("13"), IOStandard("LVCMOS33")),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("16"), IOStandard("LVCMOS33")),
+        Subsignal("clk",  Pins("15"), IOStandard("LVCMOS33")),
+        Subsignal("dq",   Pins("14 17 12 13"), IOStandard("LVCMOS33")),
     ),
 
     # USB
@@ -66,6 +73,7 @@ _connectors = [
     ("PMOD1", "10  6  3 48  9  4  2 47"),
     ("PMOD2", "46 44 42 37 45 43 38 36"),
     ("PMOD3", "34 31 27 25 32 28 26 23"),
+    ("PMOD4", "21 20 19 18 - - - -"),
     ("J7",    "48 - 3 47 - 2"), # Numbering similar to PMODS: 0: Marked pin.
 ]
 

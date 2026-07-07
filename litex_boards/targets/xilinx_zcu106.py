@@ -7,14 +7,13 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
 from litex_boards.platforms import xilinx_zcu106
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -22,7 +21,6 @@ from litedram.modules import MT40A256M16
 from litedram.phy import usddrphy
 
 from litepcie.phy.usppciephy import USPPCIEPHY
-from litepcie.software import generate_litepcie_software
 
 # CRG ----------------------------------------------------------------------------------------------
 

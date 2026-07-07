@@ -25,10 +25,10 @@ _io = [
     ),
 
     # Buttons.
-    ("user_btn", 0, Pins("U19"), IOStandard("3.3_V_LVCMOS")),
+    ("user_btn_n", 0, Pins("U19"), IOStandard("3.3_V_LVCMOS")),
 
     # DRAM.
-    ("dram_pll_refclk", 0, Pins("XXX"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("dram_pll_refclk", 0, Pins("E20"), IOStandard("1.8_V_LVCMOS")),
 
     # SDCard.
     ("spisdcard", 0,
@@ -92,7 +92,7 @@ _io = [
 
     # SPIFlash
     ("spiflash", 1,
-        Subsignal("cs_n", Pins("A2")),
+        Subsignal("cs_n", Pins("L4")),
         Subsignal("clk", Pins("G6")),
         Subsignal("mosi", Pins("D5")),
         Subsignal("miso", Pins("D6")),
@@ -116,7 +116,7 @@ _io = [
     ("user_led", 4, Pins("E19")),
 ]
 
-    
+
 
 # Bank voltage ---------------------------------------------------------------------------------------
 

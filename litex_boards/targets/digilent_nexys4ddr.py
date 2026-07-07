@@ -13,11 +13,11 @@ from litex.gen import *
 from litex_boards.platforms import digilent_nexys4ddr
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.seven_seg import SevenSegmentDisplay
 
 from litedram.modules import MT47H64M16
 from litedram.phy import s7ddrphy
@@ -38,7 +38,7 @@ class _CRG(LiteXModule):
         # # #
 
         self.pll = pll = S7MMCM(speedgrade=-1)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
+        self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys2x,     2*sys_clk_freq)
@@ -54,6 +54,8 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=75e6,
+        with_spi_flash         = False,
+        with_seven_seg         = False,
         with_ethernet          = False,
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
@@ -82,6 +84,21 @@ class BaseSoC(SoCCore):
                 module        = MT47H64M16(sys_clk_freq, "1:2"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
+
+        # 7-Segment Display ------------------------------------------------------------------------
+        if with_seven_seg:
+            self.seven_seg = SevenSegmentDisplay(
+                sys_clk_freq  = sys_clk_freq,
+                segments_pads = platform.request("seven_seg"),
+                anodes_pads   = platform.request("seven_seg_ctrl_n"),
+            )
+            self.csr.add("seven_seg")
+
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi.modules import S25FL128S
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            self.add_spi_flash(mode="4x", module=S25FL128S(Codes.READ_1_1_4), with_master=True)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
@@ -112,25 +129,29 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_nexys4ddr.Platform, description="LiteX SoC on Nexys4DDR.")
-    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float,   help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=75e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",         action="store_true",     help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",        action="store_true",     help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",     help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-seven-seg", action="store_true",     help="Enable 7-segment display support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",        action="store_true",     help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",            action="store_true",     help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     viopts = parser.target_group.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true",     help="Enable Video Terminal (VGA).")
-    viopts.add_argument("--with-video-framebuffer", action="store_true",     help="Enable Video Framebuffer (VGA).")
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
+        with_spi_flash         = args.with_spi_flash,
+        with_seven_seg         = args.with_seven_seg,
         eth_ip                 = args.eth_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         remote_ip              = args.remote_ip,

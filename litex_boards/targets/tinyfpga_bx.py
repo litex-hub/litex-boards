@@ -14,7 +14,7 @@ from litex.build.io import CRG
 
 from litex_boards.platforms import tinyfpga_bx
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -57,8 +57,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=tinyfpga_bx.Platform, description="LiteX SoC on TinyFPGA BX.")
-    parser.add_target_argument("--bios-flash-offset", default="0x50000",         help="BIOS offset in SPI Flash.")
-    parser.add_target_argument("--sys-clk-freq",      default=16e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--bios-flash-offset", default="0x50000",        help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--sys-clk-freq",      default=16e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

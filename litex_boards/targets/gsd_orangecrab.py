@@ -6,8 +6,6 @@
 # Copyright (c) Greg Davill <greg.davill@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
-import sys
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -18,7 +16,7 @@ from litex.gen.genlib.misc import WaitTimer
 from litex_boards.platforms import gsd_orangecrab
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -153,13 +151,17 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = gsd_orangecrab.Platform(revision=revision, device=device ,toolchain=toolchain)
 
+        # Default to USB ACM through LUNA, but allow explicit override.
+        uart_name = kwargs.get("uart_name", "serial")
+        if uart_name == "serial":
+            uart_name = "usb_acm"
+        kwargs["uart_name"] = uart_name
+
         # CRG --------------------------------------------------------------------------------------
         crg_cls      = _CRGSDRAM if kwargs.get("integrated_main_ram_size", 0) == 0 else _CRG
-        self.crg = crg_cls(platform, sys_clk_freq, with_usb_pll=True, with_dfu_rst=with_dfu_rst)
+        self.crg = crg_cls(platform, sys_clk_freq, with_usb_pll=(uart_name == "usb_acm"), with_dfu_rst=with_dfu_rst)
 
         # SoCCore ----------------------------------------------------------------------------------
-        # Defaults to USB ACM through ValentyUSB.
-        kwargs["uart_name"] = "usb_acm"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on OrangeCrab", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------

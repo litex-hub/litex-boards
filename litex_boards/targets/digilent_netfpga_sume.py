@@ -4,7 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2019-2024 Florent Kermarrec <florent@enjoy-digital.fr>
-# Copyright (c) 2024 Gustavo Bastos <gustavocerq7gmail.com> 
+# Copyright (c) 2024 Gustavo Bastos <gustavocerq7gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
@@ -14,8 +14,7 @@ from litex.gen import *
 from litex_boards.platforms import digilent_netfpga_sume
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
@@ -23,11 +22,8 @@ from litex.soc.cores.bitbang import I2CMaster
 from litedram.modules import MT8KTF51264
 from litedram.phy import s7ddrphy
 
-from litedram.common import PHYPadsReducer
 
-from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.phy.v7_1000basex import V7_1000BASEX
-from liteeth.phy import LiteEthPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -40,7 +36,7 @@ class _CRG(LiteXModule):
         self.cd_sfp   = ClockDomain()
 
         self.pll = pll = S7PLL(speedgrade = -2)
-        self.comb += pll.reset.eq(platform.request("cpu_reset_n") | self.rst)
+        self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
         pll.register_clkin(platform.request("clk200"), 200e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
@@ -92,7 +88,7 @@ class BaseSoC(SoCCore):
                 data_pads          = self.platform.request("sfp"),
                 sys_clk_freq       = sys_clk_freq,
                 with_csr           = True
-            )                    
+            )
             self.comb += self.platform.request("sfp_tx_disable_n").eq(1)
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks UCIO-1]")
             platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-44]")
@@ -117,16 +113,16 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_netfpga_sume.Platform, description="LiteX SoC on NetFPGA-Sume.")
     parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-i2c",             action="store_true",     help="Enable I2C support.")
+    parser.add_target_argument("--with-i2c",     action="store_true",       help="Enable I2C support.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",        action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",            action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 
     args = parser.parse_args()
 

@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ class Platform(Xilinx7SeriesPlatform):
         Xilinx7SeriesPlatform.__init__(self, "xc7k420tl-ffg901", _io, toolchain=toolchain)
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a420t.bit")
+        return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7k420t.bit")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)

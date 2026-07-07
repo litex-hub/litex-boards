@@ -15,7 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import kosagi_netv2
 
 from litex.soc.interconnect.csr import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
@@ -114,14 +114,14 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=kosagi_netv2.Platform, description="LiteX SoC on NeTV2.")
-    parser.add_target_argument("--variant",       default="a7-35",           help="Board variant (a7-35 or a7-100).")
-    parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-ethernet", action="store_true",       help="Enable Ethernet support.")
-    parser.add_target_argument("--eth-ip",        default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",     default="192.168.1.100",   help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--with-pcie",     action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--driver",        action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--variant",        default="a7-35",           help="Board variant (a7-35 or a7-100).")
+    parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--with-pcie",      action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--driver",         action="store_true",       help="Generate PCIe driver.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
@@ -142,7 +142,10 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

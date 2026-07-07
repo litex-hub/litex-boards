@@ -14,7 +14,7 @@ from litex.build.openfpgaloader import OpenFPGALoader
 _io = [
     # Clk / Rst
     ("clk100",    0, Pins("L5"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("B10"),  IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("B10"),  IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led",  0, Pins("D14"), IOStandard("LVCMOS33")),
@@ -82,7 +82,7 @@ class Platform(Xilinx7SeriesPlatform):
         # OpenFPGALoader doesn't have a spiOverJtag bit for the ftgb196 package, but does have one
         # for the csga225.  Based on a hint from bscan_spi_bitstreams, it seems the package doesn't
         # matter, so lie here to make it work.
-        # (https://github.com/quartiq/bscan_spi_bitstreams/blob/master/xilinx_bscan_spi.py#L358) 
+        # (https://github.com/quartiq/bscan_spi_bitstreams/blob/master/xilinx_bscan_spi.py#L358)
         return OpenFPGALoader(cable="ft2232", fpga_part=f"xc7s25csga225")
 
     def do_finalize(self, fragment):

@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -17,7 +16,7 @@ from litex_boards.platforms import terasic_de2_115
 
 from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.cores.led import LedChaser
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import IS42S16320
@@ -81,15 +80,6 @@ class BaseSoC(SoCCore):
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
-        # Add debug interface if the CPU has one ---------------------------------------------------
-        if hasattr(self.cpu, "debug_bus"):
-            self.register_mem(
-                name      = "vexriscv_debug",
-                address   = 0xF00F0000,
-                interface = self.cpu.debug_bus,
-                size      = 0x100,
-            )
-
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -138,13 +128,15 @@ def main():
     parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SD card support.")
     parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone",  action="store_true",      help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--etherbone-ip",    default="192.168.48.100", help="Etherbone IP address.")
     parser.add_target_argument("--etherbone-phy",   default=1, type=int,      help="Etherbone PHY (0 or 1).")
     parser.add_target_argument("--ethernet-phy",    default=0, type=int,      help="Ethernet  PHY (0 or 1).")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         sys_clk_freq    = args.sys_clk_freq,

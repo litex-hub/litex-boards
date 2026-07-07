@@ -47,14 +47,14 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import alchitry_mojo
 
 from litex.soc.interconnect.csr import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.video import VideoS6HDMIPHY
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT48LC32M8, SDRModule
+from litedram.modules import MT48LC32M8
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -73,12 +73,12 @@ class CRG(LiteXModule):
 
         # Clk/Rst
         clk50 = platform.request("clk50")
-        rst = platform.request("cpu_reset")
+        rst_n = platform.request("cpu_reset_n")
         avr_ready = platform.request("cclk")
 
         # PLL
         self.pll = pll = S6PLL()
-        self.comb += pll.reset.eq(~rst | ~avr_ready | self.rst)
+        self.comb += pll.reset.eq(~rst_n | ~avr_ready | self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_hdmi,   25e6,  margin=0)

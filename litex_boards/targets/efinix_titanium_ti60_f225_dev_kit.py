@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 from litex.gen.genlib.misc import WaitTimer
@@ -15,7 +14,7 @@ from litex.gen.genlib.misc import WaitTimer
 from litex_boards.platforms import efinix_titanium_ti60_f225_dev_kit
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.interconnect import wishbone
@@ -37,7 +36,7 @@ class _CRG(LiteXModule):
         # # #
 
         clk25 = platform.request("clk25")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         self.comb += self.cd_rst.clk.eq(clk25)
 
@@ -139,18 +138,18 @@ def main():
     parser = LiteXArgumentParser(platform=efinix_titanium_ti60_f225_dev_kit.Platform, description="LiteX SoC on Efinix Titanium Ti60 F225 Dev Kit.")
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=200e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-hyperram",  action="store_true",       help="Enable HyperRAM.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",   action="store_true",     help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",  action="store_true",     help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",    default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip", default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-phy",   default=0, type=int,     help="Ethernet PHY: 0 (default) or 1.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-phy",        default=0, type=int,     help="Ethernet PHY: 0 (default) or 1.")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -6,7 +6,7 @@
 # Copyright (c) 2025 Samuele Baisi <samuele.baisi@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-# Notes: 
+# Notes:
 # - default clock set to 100MHz, above that timings start to crap out
 
 from migen import *
@@ -16,7 +16,7 @@ from litex.gen import *
 from litex_boards.platforms import myir_myc_j7a100t
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -27,7 +27,6 @@ from litedram.phy import s7ddrphy
 # ETH
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
-import sys
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -49,14 +48,14 @@ class _CRG(LiteXModule):
         rst    = ~platform.request("rst_n") if with_rst else 0
 
         # PLL.
-        self.pll = pll = S7PLL(speedgrade=-1)
+        self.pll = pll = S7PLL(speedgrade=-2)
         self.comb += pll.reset.eq(rst | self.rst)
         pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
         if with_dram:
-            self.dram_pll = dram_pll = S7PLL(speedgrade=-1)
+            self.dram_pll = dram_pll = S7PLL(speedgrade=-2)
             dram_pll.register_clkin(self.cd_sys.clk, sys_clk_freq)
             dram_pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
             dram_pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=90)
@@ -88,7 +87,6 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
-            from litedram.common import PHYPadsCombiner
             if (with_sdram_256):
                 self.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram", 0),
                     memtype        = "DDR3",
@@ -133,11 +131,11 @@ def main():
     parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--with-sdram-256", action="store_true",       help="Enable a single DDR chip only (256MB)")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",       action="store_true",       help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",           action="store_true",       help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     args = parser.parse_args()
 
     #assert not (args.with_etherbone and args.eth_dynamic_ip)

@@ -9,18 +9,21 @@ _io = [
 
     # LEDs
     ("user_led_n", 0, Pins("39"), IOStandard("LVCMOS33")),
+    ("user_ledb_n", 0, Pins("39"), IOStandard("LVCMOS33")),
+    ("user_ledg_n", 0, Pins("40"), IOStandard("LVCMOS33")),
+    ("user_ledr_n", 0, Pins("41"), IOStandard("LVCMOS33")),
     ("rgb_led", 0,
         Subsignal("r", Pins("41")),
         Subsignal("g", Pins("40")),
         Subsignal("b", Pins("39")),
         IOStandard("LVCMOS33")
     ),
-    
+
     # Buttons
-    ("user_sw", 0, Pins("23"), IOStandard("LVCMOS33")),
-    ("user_sw", 1, Pins("25"), IOStandard("LVCMOS33")),
-    ("user_sw", 2, Pins("34"), IOStandard("LVCMOS33")),
-    ("user_sw", 3, Pins("43"), IOStandard("LVCMOS33"))
+    ("user_sw", 0, Pins("23"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 1, Pins("25"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 2, Pins("34"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 3, Pins("43"), IOStandard("LVCMOS33"), Misc("PULLUP"))
 ]
 
 spiflash = [
@@ -99,7 +102,7 @@ _connectors = [
     # 19, 20- user_sw3, GND
     #        3   5   7   8   9  10  11  12  13  14     15      16  17  19
     ("J2", "23  25  26  36  27  42  32  38  31  28     37      35  34  43"),
-    # Silk:37A 36B 39A 48B 38B 51A 43A 50B 42B 41A 45A_G1 ICE_CLK 44B 49A 
+    # Silk:37A 36B 39A 48B 38B 51A 43A 50B 42B 41A 45A_G1 ICE_CLK 44B 49A
     # index: 0   1   2   3   4  5    6   7   8   9     10      11  12  13
 
     # Bank2: 4 3 48 45 47 44 46 2
@@ -127,4 +130,3 @@ class Platform(LatticeiCE40Platform):
     def do_finalize(self, fragment):
         LatticeiCE40Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk12", loose=True), 1e9/12e6)
-

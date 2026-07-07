@@ -16,7 +16,7 @@ from litex_boards.platforms import seeedstudio_spartan_edge_accelerator
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser,WS2812
 from litex.soc.cores.video import *

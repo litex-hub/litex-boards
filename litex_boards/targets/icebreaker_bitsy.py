@@ -25,7 +25,7 @@ from litex_boards.platforms import icebreaker_bitsy
 
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -99,10 +99,11 @@ class BaseSoC(SoCCore):
         platform = icebreaker_bitsy.Platform(revision=revision)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_acm = kwargs["uart_name"] == "usb_acm"
-        if with_usb_acm:
+        uart_name = kwargs.get("uart_name", "serial")
+        with_usb_uart = uart_name == "usb_acm"
+        if with_usb_uart:
             sys_clk_freq = 48e6
-        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_acm)
+        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll=with_usb_uart)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM/SRAM since too large for iCE40 and UP5K has specific SPRAM.
@@ -159,7 +160,7 @@ def main():
     soc = BaseSoC(
         bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = args.sys_clk_freq,
-		revision          = args.revision,
+        revision          = args.revision,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
@@ -171,7 +172,7 @@ def main():
         prog_gw = DFUProg(vid="1d50", pid="0x6146", alt=0)
         prog_sw = DFUProg(vid="1d50", pid="0x6146", alt=1)
 
-        prog_gw.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".bin"), reset=False) # FIXME
+        prog_gw.load_bitstream(builder.get_bitstream_filename(mode="sram"), reset=False)
         prog_sw.load_bitstream(builder.get_bios_filename())
 
 if __name__ == "__main__":

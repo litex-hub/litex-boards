@@ -106,7 +106,7 @@ _io = [
     ("sdcard", 0,
         Subsignal("cmd", Pins("H24")),
         Subsignal("clk", Pins("G22")),
-        Subsignal("dat", Pins("F25 E25 J23 H23")),
+        Subsignal("data", Pins("F25 E25 J23 H23")),
         IOStandard("LVCMOS33")
      ),
 
@@ -115,28 +115,28 @@ _io = [
         Subsignal("rst_n", Pins("E21"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("K6")),
         Subsignal("clk_n", Pins("K5")),
-        Subsignal("rx_p",  Pins("J4")),
-        Subsignal("rx_n",  Pins("J3")),
-        Subsignal("tx_p",  Pins("H2")),
-        Subsignal("tx_n",  Pins("H1"))
+        Subsignal("rx_p",  Pins("J3")),
+        Subsignal("rx_n",  Pins("J4")),
+        Subsignal("tx_p",  Pins("H1")),
+        Subsignal("tx_n",  Pins("H2"))
     ),
     ("pcie_x2", 0,
         Subsignal("rst_n", Pins("E21"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("K6")),
         Subsignal("clk_n", Pins("K5")),
-        Subsignal("rx_p",  Pins("J4 L4")),
-        Subsignal("rx_n",  Pins("J3 L3")),
-        Subsignal("tx_p",  Pins("H2 K2")),
-        Subsignal("tx_n",  Pins("H1 K1"))
+        Subsignal("rx_p",  Pins("J3 L3")),
+        Subsignal("rx_n",  Pins("J4 L4")),
+        Subsignal("tx_p",  Pins("H1 K1")),
+        Subsignal("tx_n",  Pins("H2 K2"))
     ),
     ("pcie_x4", 0,
         Subsignal("rst_n", Pins("E21"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("K6")),
         Subsignal("clk_n", Pins("K5")),
-        Subsignal("rx_p",  Pins("J4 L4 N4 R4")),
-        Subsignal("rx_n",  Pins("J3 L3 N3 R3")),
-        Subsignal("tx_p",  Pins("H2 K2 M2 P2")),
-        Subsignal("tx_n",  Pins("H1 K1 M1 P1"))
+        Subsignal("rx_p",  Pins("J3 L3 N3 R3")),
+        Subsignal("rx_n",  Pins("J4 L4 N4 R4")),
+        Subsignal("tx_p",  Pins("H1 K1 M1 P1")),
+        Subsignal("tx_n",  Pins("H2 K2 M2 P2"))
     ),
 ]
 

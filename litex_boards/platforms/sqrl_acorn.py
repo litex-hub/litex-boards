@@ -8,7 +8,7 @@
 # repurposed as generic FPGA PCIe development boards:
 # - http://www.squirrelsresearch.com/acorn-cle-101
 # - http://www.squirrelsresearch.com/acorn-cle-215-plus
-# The 101 variant is eguivalent to the LiteFury and 215 variant equivalent to the NiteFury from
+# The 101 variant is equivalent to the LiteFury and 215 variant equivalent to the NiteFury from
 # RHSResearchLLC that are documented at: https://github.com/RHSResearchLLC/NiteFury-and-LiteFury.
 
 import subprocess
@@ -131,8 +131,8 @@ _litex_acorn_baseboard_mini_io = [
     ),
     # SFP-0.
     ("sfp", 0,
-        Subsignal("txp", Pins(" D5")),
-        Subsignal("txn", Pins(" C5")),
+        Subsignal("txp", Pins("D5")),
+        Subsignal("txn", Pins("C5")),
         Subsignal("rxp", Pins("D11")),
         Subsignal("rxn", Pins("C11")),
     ),
@@ -224,7 +224,12 @@ class Platform(Xilinx7SeriesPlatform):
             "cle-215+": "fbg484"
         }[self.variant]
         if name == "openfpgaloader":
-            return OpenFPGALoader(cable=ftdi_chip, fpga_part=f"{device}{package}", freq=10e6)
+            ofl_cable = {
+                "ft232"  : "digilent_hs2",
+                "ft2232" : "ft2232",
+                "ft4232" : "ft4232",
+            }[ftdi_chip]
+            return OpenFPGALoader(cable=ofl_cable, fpga_part=f"{device}{package}", freq=10e6)
         elif name == "openocd":
             return OpenOCD(f"openocd_xc7_{ftdi_chip}.cfg", f"bscan_spi_{device}.bit")
 

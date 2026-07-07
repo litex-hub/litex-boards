@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -16,7 +15,7 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import qmtech_ep4ce15_starter_kit
 
 from litex.soc.cores.clock import CycloneIVPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.led import LedChaser
@@ -71,7 +70,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["with_jtagbone"]:
-            kwargs["uart_name"] = "crossover"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
 
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTECH Cyclone IV Starter Kit",
@@ -101,8 +100,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_ep4ce15_starter_kit.Platform, description="LiteX SoC on QMTECH EP4CE15")
-    parser.add_target_argument("--sys-clk-freq",  default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",    default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",   default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     args = parser.parse_args()
 
     soc = BaseSoC(

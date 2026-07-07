@@ -11,9 +11,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-import os
-import sys
-import json
 
 from migen import *
 
@@ -21,15 +18,14 @@ from litex.gen import *
 
 from litex_boards.platforms import machdyne_mozart_mx2
 
-from litex.build.io import DDROutput
 
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.usb_ohci import USBOHCI
+from litex.soc.cores.xadc import S7SystemMonitor
 from litex.soc.cores.video import VideoS7HDMIPHY
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.interconnect.csr_eventmanager import *
 
@@ -133,7 +129,7 @@ class BaseSoC(SoCCore):
 
         # XADC -------------------------------------------------------------------------------------
         if with_xadc:
-            self.xadc = XADC()
+            self.xadc = S7SystemMonitor()
 
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q32
@@ -166,15 +162,15 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_mozart_mx2.Platform, description="LiteX SoC on Mozart MX2.")
-    parser.add_argument("--sys-clk-freq",    default=75e6,          help="System clock frequency.")
-    parser.add_argument("--revision",        default="v0",          help="Board Revision (v0).")
-    parser.add_argument("--with-sdcard",     action="store_true",   help="Enable SDCard support.")
-    parser.add_argument("--with-spi-sdcard", action="store_true",   help="Enable SPI-mode SDCard support.")
-    parser.add_argument("--with-usb-host",   action="store_true",   help="Enable USB host support.")
-    parser.add_argument("--with-ethernet",   action="store_true",   help="Enable ethernet support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--sys-clk-freq",    default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",        default="v0",             help="Board Revision (v0).")
+    parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
+    parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP assignment.")
 
     args = parser.parse_args()
 

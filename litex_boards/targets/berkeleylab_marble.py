@@ -31,7 +31,7 @@ from litex.gen import *
 from litex_boards.platforms import berkeleylab_marble
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
@@ -155,13 +155,16 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--with-rts-reset", action="store_true",       help="Connect UART RTS line to sys_clk reset.")
     parser.add_target_argument("--with-bist",      action="store_true",       help="Add DDR3 BIST Generator/Checker.")
+
     parser.add_target_argument("--spd-dump",                                  help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,

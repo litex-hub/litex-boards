@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -57,10 +57,31 @@ _io = [
     ("user_btnr", 0, Pins("T17"), IOStandard("LVCMOS33")),
     ("user_btnc", 0, Pins("U18"), IOStandard("LVCMOS33")),
 
+    # Seven Segments
+    ("seven_seg", 0, Pins("W7 W6 U8 V8 U5 V5 U7 V7"), IOStandard("LVCMOS33")),
+    ("seven_seg_ctrl_n", 0, Pins("U2 U4 V4 W4"), IOStandard("LVCMOS33")),
+
     # Serial
     ("serial", 0,
         Subsignal("tx", Pins("A18")),
         Subsignal("rx", Pins("B18")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("K19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("mosi", Pins("D18")),
+        Subsignal("miso", Pins("D19")),
+        Subsignal("wp",   Pins("G18")),
+        Subsignal("hold", Pins("F18")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("K19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("dq",   Pins("D18 D19 G18 F18")),
         IOStandard("LVCMOS33"),
     ),
 
@@ -76,11 +97,19 @@ _io = [
 
     # USB PS/2
     ("usbhost", 0,
-       Subsignal("ps2_clk", Pins("B6")),
-       Subsignal("ps2_data", Pins("A6")),
-       IOStandard("LVCMOS33")
+       Subsignal("ps2_clk", Pins("C17")),
+       Subsignal("ps2_data", Pins("B17")),
+       IOStandard("LVCMOS33"),
+       Misc("PULLUP True"),
     ),
 
+    # PS/2
+    ("ps2", 0,
+        Subsignal("clk", Pins("C17")),
+        Subsignal("dat", Pins("B17")),
+        IOStandard("LVCMOS33"),
+        Misc("PULLUP True"),
+    ),
 
     ("gpio", 0,
        Subsignal("a", Pins("J1   L2  J2  G2  H1  K2  H2  G3")),
@@ -126,7 +155,7 @@ def sdcard_pmod_io(pmod):
         ),
 
 ]
-_sdcard_pmod_io = sdcard_pmod_io("pmoda") # SDCARD PMOD on JD.
+_sdcard_pmod_io = sdcard_pmod_io("pmoda") # SDCARD PMOD on JA.
 
 class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk100"
@@ -137,7 +166,7 @@ class Platform(Xilinx7SeriesPlatform):
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a35t.bit")
-    
+
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)

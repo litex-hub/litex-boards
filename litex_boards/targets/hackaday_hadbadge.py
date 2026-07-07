@@ -10,7 +10,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -19,10 +18,9 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import hackaday_hadbadge
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
-from litedram import modules as litedram_modules
 from litedram.phy import GENSDRPHY
 from litedram.modules import AS4C32M8
 
@@ -76,7 +74,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=hackaday_hadbadge.Platform, description="LiteX SoC on Hackaday Badge.")
-    parser.add_target_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=48e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

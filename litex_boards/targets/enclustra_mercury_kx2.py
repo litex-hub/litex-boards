@@ -14,7 +14,7 @@ from litex.gen import *
 from litex_boards.platforms import enclustra_mercury_kx2, enclustra_st1
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -66,6 +66,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = H5TC4G63CFR(sys_clk_freq, "1:4"),
+                size          = 0x40000000,
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -80,8 +81,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=enclustra_mercury_kx2.Platform, description="LiteX SoC on Enclustra Mercury+ KX2.")
-    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    parser.add_argument("--with-st1-baseboard",  action="store_true", help="add enclustra ST1 baseboard")
+    parser.add_target_argument("--sys-clk-freq",       default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-st1-baseboard", action="store_true",       help="add enclustra ST1 baseboard")
     args = parser.parse_args()
 
     soc = BaseSoC(

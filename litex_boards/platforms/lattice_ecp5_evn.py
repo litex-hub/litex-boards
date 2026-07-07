@@ -8,7 +8,6 @@ from litex.build.generic_platform import *
 from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
-import os
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -63,6 +62,40 @@ _io = [
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("R2"),          IOStandard("LVCMOS33")),
         Subsignal("dq",   Pins("W2 V2 Y2 W1"), IOStandard("LVCMOS33")),
+    ),
+
+    # SERDES SMAs
+    ("serdes", 0,
+        Subsignal("tx_p", Pins("W4")),
+        Subsignal("tx_n", Pins("W5")),
+        Subsignal("rx_p", Pins("Y5")),
+        Subsignal("rx_n", Pins("Y6")),
+    ),
+    ("serdes", 1,
+        Subsignal("tx_p", Pins("W8")),
+        Subsignal("tx_n", Pins("W9")),
+        Subsignal("rx_p", Pins("Y7")),
+        Subsignal("rx_n", Pins("Y8")),
+    ),
+    ("serdes", 2,
+        Subsignal("tx_p", Pins("W13")),
+        Subsignal("tx_n", Pins("W14")),
+        Subsignal("rx_p", Pins("Y14")),
+        Subsignal("rx_n", Pins("Y15")),
+    ),
+    ("serdes", 3,
+        Subsignal("tx_p", Pins("W17")),
+        Subsignal("tx_n", Pins("W18")),
+        Subsignal("rx_p", Pins("Y16")),
+        Subsignal("rx_n", Pins("Y17")),
+    ),
+    ("serdes_clk", 0,
+        Subsignal("p", Pins("Y11")),
+        Subsignal("n", Pins("Y12")),
+    ),
+    ("serdes_clk", 1,
+        Subsignal("p", Pins("Y19")),
+        Subsignal("n", Pins("W20")),
     ),
 ]
 
@@ -143,7 +176,7 @@ class Platform(LatticeECP5Platform):
         import time
         if "serial" in args:
             msg =  "FT2232H will be used as serial, make sure that:\n"
-            msg += " -the hardware has been modified: R22 and R23 should be removed, two 0 Ω resistors shoud be populated on R34 and R35.\n"
+            msg += " -the hardware has been modified: R22 and R23 should be removed, two 0 Ω resistors should be populated on R34 and R35.\n"
             msg += " -the chip is configured as UART with virtual COM on port B (With FTProg or https://github.com/trabucayre/fixFT2232_ecp5evn)."
             print(msg)
             time.sleep(2)

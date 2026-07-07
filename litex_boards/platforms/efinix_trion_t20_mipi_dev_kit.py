@@ -12,16 +12,17 @@ from litex.build.efinix import EfinixProgrammer
 
 _io = [
     # Clk
-    ("clk26", 0, Pins("F11"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
-    ("clk50", 0, Pins("D13"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("clk26",    0, Pins("F11"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("clk50",    0, Pins("D13"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("clk74_25", 0, Pins("B1"),  IOStandard("1.8_V_LVCMOS")),
 
     # Leds
     ("user_led", 0, Pins("E1"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
     ("user_led", 1, Pins("F2"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 
     # Buttons
-    ("user_btn", 0, Pins("F1"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
-    ("user_btn", 1, Pins("G2"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("user_btn_n", 0, Pins("F1"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
+    ("user_btn_n", 1, Pins("G2"), IOStandard("3.3_V_LVTTL_/_LVCMOS")),
 
     # Serial
     ("serial", 0,
@@ -58,7 +59,39 @@ _bank_info = [
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = []
+_connectors = [
+    ("J8", {
+         1: "F1",  2: "G2",
+         3: "E1",  4: "F2",
+         5: "D1",  6: "D2",
+         7: "C2",  8: "F3",
+         9: "C1", 10: "E3",
+    }),
+    ("J11", {
+         1: "K5",  2: "K6",
+         3: "L6",  4: "L5",
+         5: "N6",  6: "M6",
+         7: "L9",  8: "J12",
+        10: "E11",
+        11: "E13", 12: "F12",
+        13: "K9",  14: "G11",
+        15: "M9",  16: "L10",
+        17: "M10", 18: "N9",
+        19: "K10", 20: "N10",
+    }),
+    ("J12", {
+         1: "G3",
+         3: "F13",  4: "H3",
+         5: "J11",  6: "G12",
+         7: "G13",  8: "H11",
+        10: "H13",
+        11: "H12", 12: "J13",
+        13: "K11",
+        15: "L11", 16: "K13",
+        17: "M12", 18: "N12",
+        19: "M11", 20: "N11",
+    }),
+]
 
 # Platform -----------------------------------------------------------------------------------------
 

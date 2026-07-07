@@ -46,8 +46,8 @@ _io = [
         IOStandard("LVDS_25"),
         Misc("DIFF_TERM=TRUE")
     ),
-    ("user_sma_clock_p", Pins("AD18"), IOStandard("LVCMOS25")),
-    ("user_sma_clock_n", Pins("AD19"), IOStandard("LVCMOS25")),
+    ("user_sma_clock_p", 0, Pins("AD18"), IOStandard("LVCMOS25")),
+    ("user_sma_clock_n", 0, Pins("AD19"), IOStandard("LVCMOS25")),
 
     # FAN.
     ("fan", 0,
@@ -61,6 +61,22 @@ _io = [
         Subsignal("scl", Pins("AJ14"), Misc("PULLUP=True")),
         Subsignal("sda", Pins("AJ18"), Misc("PULLUP=True")),
         IOStandard("LVCMOS25")
+    ),
+
+    # HDMI.
+    ("hdmi_out", 0,
+        Subsignal("clk",       Pins("P28")),
+        Subsignal("hsync",     Pins("R22")),
+        Subsignal("vsync",     Pins("U21")),
+        Subsignal("de",        Pins("V24")),
+        Subsignal("data",      Pins(
+            "U24 T22 R23 AA25 AE28 T23 AB25 T27",
+            "AD26 AB26 AA28 AC26 AE30 Y25 AA29 AD30",
+            "Y28 AF28 V22 AA27 U22 N28 V21 AC22")),
+        Subsignal("int_n",     Pins("AC23")),
+        Subsignal("spdif",     Pins("AC21")),
+        Subsignal("spdif_out", Pins("AB22")),
+        IOStandard("LVCMOS25"),
     ),
 
     # DDR3 SDRAM.
@@ -134,8 +150,8 @@ _io = [
 
     # SMA.
     ("user_sma_mgt_refclk", 0,
-        Subsignal("p", Pins("W7")),
-        Subsignal("n", Pins("W8"))
+        Subsignal("p", Pins("W8")),
+        Subsignal("n", Pins("W7"))
     ),
     ("user_sma_mgt_tx", 0,
         Subsignal("p", Pins("Y2")),
@@ -144,6 +160,22 @@ _io = [
     ("user_sma_mgt_rx", 0,
         Subsignal("p", Pins("AB6")),
         Subsignal("n", Pins("AB5"))
+    ),
+
+    # SI5324.
+    ("mgt_refclk", 0,
+        Subsignal("p", Pins("AC8")),
+        Subsignal("n", Pins("AC7")),
+    ),
+    ("si5324_rec_clk", 0,
+        Subsignal("p", Pins("AD20")),
+        Subsignal("n", Pins("AE20")),
+        IOStandard("LVDS_25"),
+    ),
+    ("si5324", 0,
+        Subsignal("rst_n", Pins("W23")),
+        Subsignal("int_n", Pins("AJ25")),
+        IOStandard("LVCMOS25"),
     ),
 
     # SFP.

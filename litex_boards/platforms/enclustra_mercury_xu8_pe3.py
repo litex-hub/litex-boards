@@ -26,14 +26,14 @@ _io = [
         Subsignal("rx", Pins("B14")), # ANIO IO_D23_N.
         IOStandard("LVCMOS18")
     ),
-    ("debug", 0, Pins("G13"), IOStandard("LVCMOS18")),
-    ("debug", 0, Pins("F13"), IOStandard("LVCMOS18")),
+    ("debug", 0, Pins("G13"), IOStandard("LVCMOS18")), # ANIO IO_D20_P.
+    ("debug", 1, Pins("F13"), IOStandard("LVCMOS18")), # ANIO IO_D21_N.
 
     # I2C.
     ("i2c_user", 0,
         Subsignal("scl", Pins("K15"), Misc("PULLUP=True")),
         Subsignal("sda", Pins("K14"), Misc("PULLUP=True")),
-        IOStandard("LVCMOS12")
+        IOStandard("LVCMOS18")
     ),
     ("i2c_mgmt", 0,
         Subsignal("scl", Pins("AB13"), Misc("PULLUP=True")),

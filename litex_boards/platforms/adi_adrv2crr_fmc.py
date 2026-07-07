@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxUSPPlatform
-from litex.build.openocd import OpenOCD
 
 _io = [
     # Clk
@@ -478,6 +477,170 @@ _io = [
 
 _connectors = [
     ("pmod", "AW12 AV12 AU13 AU14 AM13 AL13 AK15 AJ15"),
+    ("FMC_HPC", {
+        "DP1_M2C_P"     : "W4",   # A2
+        "DP1_M2C_N"     : "W3",   # A3
+        "DP2_M2C_P"     : "V2",   # A6
+        "DP2_M2C_N"     : "V1",   # A7
+        "DP3_M2C_P"     : "U4",   # A10
+        "DP3_M2C_N"     : "U3",   # A11
+        "DP4_M2C_P"     : "T2",   # A14
+        "DP4_M2C_N"     : "T1",   # A15
+        "DP5_M2C_P"     : "R4",   # A18
+        "DP5_M2C_N"     : "R3",   # A19
+        "DP1_C2M_P"     : "Y6",   # A22
+        "DP1_C2M_N"     : "Y5",   # A23
+        "DP2_C2M_P"     : "V6",   # A26
+        "DP2_C2M_N"     : "V5",   # A27
+        "DP3_C2M_P"     : "U8",   # A30
+        "DP3_C2M_N"     : "U7",   # A31
+        "DP4_C2M_P"     : "T6",   # A34
+        "DP4_C2M_N"     : "T5",   # A35
+        "DP5_C2M_P"     : "R8",   # A38
+        "DP5_C2M_N"     : "R7",   # A39
+        "DP9_M2C_P"     : "L4",   # B4
+        "DP9_M2C_N"     : "L3",   # B5
+        "DP8_M2C_P"     : "M2",   # B8
+        "DP8_M2C_N"     : "M1",   # B9
+        "DP7_M2C_P"     : "N4",   # B12
+        "DP7_M2C_N"     : "N3",   # B13
+        "DP6_M2C_P"     : "P2",   # B16
+        "DP6_M2C_N"     : "P1",   # B17
+        "GBTCLK1_M2C_P" : "W12",  # B20
+        "GBTCLK1_M2C_N" : "W11",  # B21
+        "DP9_C2M_P"     : "L8",   # B24
+        "DP9_C2M_N"     : "L7",   # B25
+        "DP8_C2M_P"     : "M6",   # B28
+        "DP8_C2M_N"     : "M5",   # B29
+        "DP7_C2M_P"     : "N8",   # B32
+        "DP7_C2M_N"     : "N7",   # B33
+        "DP6_C2M_P"     : "P6",   # B36
+        "DP6_C2M_N"     : "P5",   # B37
+        "DP0_C2M_P"     : "W8",   # C2
+        "DP0_C2M_N"     : "W7",   # C3
+        "DP0_M2C_P"     : "Y2",   # C6
+        "DP0_M2C_N"     : "Y1",   # C7
+        "LA06_P"        : "AH22", # C10
+        "LA06_N"        : "AJ22", # C11
+        "LA10_P"        : "AG22", # C14
+        "LA10_N"        : "AG23", # C15
+        "LA14_P"        : "G38",  # C18
+        "LA14_N"        : "G39",  # C19
+        "LA18_CC_P"     : "E34",  # C22
+        "LA18_CC_N"     : "D34",  # C23
+        "LA27_P"        : "E39",  # C26
+        "LA27_N"        : "D39",  # C27
+        "GBTCLK0_M2C_P" : "V10",  # D4
+        "GBTCLK0_M2C_N" : "V9",   # D5
+        "LA01_CC_P"     : "AP25", # D8
+        "LA01_CC_N"     : "AP26", # D9
+        "LA05_P"        : "AJ25", # D11
+        "LA05_N"        : "AJ26", # D12
+        "LA09_P"        : "AL22", # D14
+        "LA09_N"        : "AL23", # D15
+        "LA13_P"        : "H31",  # D17
+        "LA13_N"        : "H32",  # D18
+        "LA17_CC_P"     : "G35",  # D20
+        "LA17_CC_N"     : "G36",  # D21
+        "LA23_P"        : "F38",  # D23
+        "LA23_N"        : "E38",  # D24
+        "LA26_P"        : "A37",  # D26
+        "LA26_N"        : "A38",  # D27
+        "HA01_CC_P"     : "AM11", # E2
+        "HA01_CC_N"     : "AN11", # E3
+        "HA05_P"        : "AU18", # E6
+        "HA05_N"        : "AV18", # E7
+        "HA09_P"        : "AV21", # E9
+        "HA09_N"        : "AW21", # E10
+        "HA13_P"        : "AV17", # E12
+        "HA13_N"        : "AW17", # E13
+        "HA16_P"        : "AW19", # E15
+        "HA16_N"        : "AV16", # E16
+        "HA20_P"        : "AW16", # E18
+        "HA20_N"        : "AU19", # E19
+        "HA00_CC_P"     : "AV19", # F4
+        "HA00_CC_N"     : "AM18", # F5
+        "HA04_P"        : "AM19", # F7
+        "HA04_N"        : "AW20", # F8
+        "HA08_P"        : "AM21", # F10
+        "HA08_N"        : "AL21", # F11
+        "HA12_P"        : "AT20", # F13
+        "HA12_N"        : "AM20", # F14
+        "HA15_P"        : "AW5",  # F16
+        "HA15_N"        : "AR8",  # F17
+        "HA19_P"        : "AL10", # F19
+        "CLK1_M2C_P"    : "AN22", # G2
+        "CLK1_M2C_N"    : "AP22", # G3
+        "LA00_CC_P"     : "AP24", # G6
+        "LA00_CC_N"     : "AR24", # G7
+        "LA03_P"        : "AK24", # G9
+        "LA03_N"        : "AK25", # G10
+        "LA08_P"        : "AL25", # G12
+        "LA08_N"        : "AM25", # G13
+        "LA12_P"        : "AH24", # G15
+        "LA12_N"        : "AJ24", # G16
+        "LA16_P"        : "AM23", # G18
+        "LA16_N"        : "AM24", # G19
+        "LA20_P"        : "J32",  # G21
+        "LA20_N"        : "H33",  # G22
+        "LA22_P"        : "H38",  # G24
+        "LA22_N"        : "H39",  # G25
+        "LA25_P"        : "C37",  # G27
+        "LA25_N"        : "B38",  # G28
+        "LA29_P"        : "E32",  # G30
+        "LA29_N"        : "E33",  # G31
+        "LA31_P"        : "A32",  # G33
+        "LA31_N"        : "A33",  # G34
+        "LA33_P"        : "D32",  # G36
+        "LA33_N"        : "C32",  # G37
+        "CLK0_M2C_P"    : "AN23", # H4
+        "CLK0_M2C_N"    : "AN24", # H5
+        "LA02_P"        : "AW26", # H7
+        "LA02_N"        : "AW27", # H8
+        "LA04_P"        : "AR25", # H10
+        "LA04_N"        : "AT25", # H11
+        "LA07_P"        : "AW24", # H13
+        "LA07_N"        : "AW25", # H14
+        "LA11_P"        : "H36",  # H16
+        "LA11_N"        : "H37",  # H17
+        "LA15_P"        : "F37",  # H19
+        "LA15_N"        : "E37",  # H20
+        "LA19_P"        : "C38",  # H22
+        "LA19_N"        : "C39",  # H23
+        "LA21_P"        : "B33",  # H25
+        "LA21_N"        : "B34",  # H26
+        "LA24_P"        : "AR22", # H28
+        "LA24_N"        : "AT22", # H29
+        "LA28_P"        : "E35",  # H31
+        "LA28_N"        : "D35",  # H32
+        "LA30_P"        : "AK22", # H34
+        "LA30_N"        : "AK23", # H35
+        "LA32_P"        : "G33",  # H37
+        "LA32_N"        : "G34",  # H38
+        "HA03_P"        : "AW7",  # J6
+        "HA03_N"        : "AW6",  # J7
+        "HA07_P"        : "AU5",  # J9
+        "HA07_N"        : "AU4",  # J10
+        "HA11_P"        : "AV4",  # J12
+        "HA11_N"        : "AW4",  # J13
+        "HA14_P"        : "AT8",  # J15
+        "HA14_N"        : "AT7",  # J16
+        "HA18_P"        : "AT5",  # J18
+        "HA18_N"        : "AU9",  # J19
+        "HA22_P"        : "AU8",  # J21
+        "HA22_N"        : "AR5",  # J22
+        "HA02_P"        : "AR4",  # K7
+        "HA02_N"        : "AR7",  # K8
+        "HA06_P"        : "AP7",  # K10
+        "HA06_N"        : "AT6",  # K11
+        "HA10_P"        : "AP4",  # K13
+        "HA10_N"        : "AP5",  # K14
+        "HA17_CC_P"     : "AP2",  # K16
+        "HA17_CC_N"     : "AP1",  # K17
+        "HA21_P"        : "AR3",  # K19
+        "HA21_N"        : "AT3",  # K20
+        "HA23_P"        : "AP6",  # K22
+    }),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
@@ -507,4 +670,3 @@ class Platform(XilinxUSPPlatform):
 
         # Reduce programming time
         self.add_platform_command("set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]")
-

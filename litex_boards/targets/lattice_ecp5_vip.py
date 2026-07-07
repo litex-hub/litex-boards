@@ -15,9 +15,8 @@ from litex.gen import *
 from litex_boards.platforms import lattice_ecp5_vip
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
-from litex.soc.integration.soc import SoCRegion
 from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT41K64M16
@@ -138,13 +137,13 @@ class BaseSoC(SoCCore):
                 (0x08, 0x60), # Input Bus/Pixel Repetition (default)
 
                 (0x00, int((pixel_clock_hz/1e4) %256)), # Pixel clock in MHz * 100
-                (0x01, int((pixel_clock_hz/1e4)//256)), # 
+                (0x01, int((pixel_clock_hz/1e4)//256)), #
 
                 (0x02, int((framerate_hz*100) %256)), # Framerate * 100
-                (0x03, int((framerate_hz*100)//256)), #             
+                (0x03, int((framerate_hz*100)//256)), #
 
                 (0x04, int((pixels_horizontal) %256)), # Pixels horizontal
-                (0x05, int((pixels_horizontal)//256)), #  
+                (0x05, int((pixels_horizontal)//256)), #
 
                 (0x06, int((pixels_vertical) %256)), # Pixels vertical
                 (0x07, int((pixels_vertical)//256)), #
@@ -186,7 +185,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lattice_ecp5_vip.Platform, description="LiteX SoC on ECP5 Evaluation Board.")
-    parser.add_target_argument("--sys-clk-freq", default=60e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=60e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -199,7 +198,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

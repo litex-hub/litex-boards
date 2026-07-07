@@ -14,11 +14,9 @@ from litex_boards.platforms import xilinx_zcu216
 
 from litex.build.tools import write_to_file
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -185,7 +183,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_zcu216.Platform, description="LiteX SoC on ZCU216.")
-    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
     parser.set_defaults(cpu_type="zynqmp")
     parser.set_defaults(no_uart=True)
     args = parser.parse_args()

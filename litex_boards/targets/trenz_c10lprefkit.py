@@ -15,8 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import trenz_c10lprefkit
 
 from litex.soc.cores.clock import Cyclone10LPPLL
-from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -25,7 +24,6 @@ from litedram.phy import GENSDRPHY
 
 from liteeth.phy.mii import LiteEthPHYMII
 
-from litex.soc.cores.hyperbus import HyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -42,7 +40,7 @@ class _CRG(LiteXModule):
 
         # PLL
         self.pll = pll = Cyclone10LPPLL(speedgrade="-A7")
-        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
+        self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
         pll.register_clkin(clk12, 12e6)
         pll.create_clkout(self.cd_sys,    sys_clk_freq)
         pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
@@ -75,8 +73,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on C10 LP RefKit", **kwargs)
 
         # HyperRam ---------------------------------------------------------------------------------
-        self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
-        self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8 * MEGABYTE, mode="rwx"))
+        self.add_hyperram(size=8*MEGABYTE)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -111,10 +108,12 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",      help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP assignment.")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,

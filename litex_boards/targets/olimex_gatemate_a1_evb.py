@@ -12,10 +12,9 @@ from litex.gen import *
 
 from litex_boards.platforms import olimex_gatemate_a1_evb
 
-from litex.build.io import CRG
 
 from litex.soc.cores.clock.colognechip import GateMatePLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.build.generic_platform import Pins
@@ -131,9 +130,9 @@ def main():
     pmodopts.add_argument("--with-sdcard",              action="store_true",      help="Enable SDCard support.")
     pmodopts.add_argument("--with-ethernet",            action="store_true",      help="Enable Ethernet support.")
     pmodopts.add_argument("--with-etherbone",           action="store_true",      help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",              default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",           default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
 
     args = parser.parse_args()
 

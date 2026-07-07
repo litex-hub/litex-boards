@@ -13,14 +13,14 @@ from litex.gen import *
 from litex_boards.platforms import alinx_ax7020
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
 
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.cores.cpu import zynq7000
-from litex.soc.interconnect import wishbone, axi
+from litex.soc.interconnect import wishbone
 
 # CRG ----------------------------------------------------------------------------------------------
 

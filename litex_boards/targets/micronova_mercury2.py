@@ -10,12 +10,11 @@ from migen import *
 
 from litex.gen import *
 
-from litex.build.io import CRG
 
 from litex_boards.platforms import micronova_mercury2
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -64,8 +63,8 @@ class AsyncSRAM(LiteXModule):
         chip_ena = self.bus.cyc & self.bus.stb & self.bus.sel[0]
         write_ena = (chip_ena & self.bus.we)
         ########################
-        # external write enable, 
-        # external chip enable, 
+        # external write enable,
+        # external chip enable,
         # internal tristate write enable
         ########################
         self.comb += [
@@ -104,7 +103,7 @@ def addAsyncSram(soc, platform, name, origin, size):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, 
+    def __init__(self,
         variant         = "a7-35",
         toolchain       = "vivado",
         sys_clk_freq    = 100e6,

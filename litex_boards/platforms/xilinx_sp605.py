@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxSpartan6Platform
+from litex.build.xilinx import XilinxSpartan6Platform, iMPACT
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -31,6 +31,16 @@ _io = [
     ("user_btn", 2, Pins("F5"), IOStandard("LVCMOS25")),
     ("user_btn", 3, Pins("C1"), IOStandard("LVCMOS25")),
 
+    # Switches
+    ("user_sw", 0, Pins("C18"), IOStandard("LVCMOS25")),
+    ("user_sw", 1, Pins("Y6"),  IOStandard("LVCMOS25")),
+    ("user_sw", 2, Pins("W6"),  IOStandard("LVCMOS25")),
+    ("user_sw", 3, Pins("E4"),  IOStandard("LVCMOS25")),
+
+    # GPIO
+    ("user_gpio", 0, Pins("G7 H6 D1 R7"), IOStandard("LVCMOS25")),
+    ("user_sma_gpio_p", 0, Pins("B3"), IOStandard("LVCMOS25")),
+    ("user_sma_gpio_n", 0, Pins("A3"), IOStandard("LVCMOS25")),
 
     # Serial
     ("serial", 0,
@@ -78,7 +88,7 @@ _io = [
         Subsignal("reset", Pins("L15")),
 
         Subsignal("d", Pins("K16 U19 T20 N16 P16 M17 M18 R15 R16 P17 P18 R17")),
-  
+
         Subsignal("sda", Pins("AA4")),
         Subsignal("scl", Pins("W13")),
 
@@ -92,6 +102,16 @@ _io = [
         Subsignal("dq",   Pins("AB20", "AA20", "R13", "T14")),
         IOStandard("LVCMOS25"),
         Misc("SLEW=FAST"),
+    ),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("T21"), IOStandard("LVCMOS25")),
+        Subsignal("sda", Pins("R22"), IOStandard("LVCMOS25")),
+    ),
+    ("sfp_i2c", 0,
+        Subsignal("scl", Pins("E5"), IOStandard("LVCMOS25")),
+        Subsignal("sda", Pins("E6"), IOStandard("LVCMOS25")),
     ),
 
     # GMII Ethernet
@@ -116,6 +136,53 @@ _io = [
         Subsignal("crs",     Pins("N15")),
         IOStandard("LVCMOS25")
     ),
+
+    # PCIe
+    ("pcie_x1", 0,
+        Subsignal("rst_n", Pins("J7"), IOStandard("LVCMOS25")),
+        Subsignal("clk_p", Pins("A10")),
+        Subsignal("clk_n", Pins("B10")),
+        Subsignal("rx_p",  Pins("D7")),
+        Subsignal("rx_n",  Pins("C7")),
+        Subsignal("tx_p",  Pins("B6")),
+        Subsignal("tx_n",  Pins("A6")),
+    ),
+
+    # SMA
+    ("user_sma_mgt_refclk", 0,
+        Subsignal("p", Pins("C11")),
+        Subsignal("n", Pins("D11")),
+    ),
+    ("user_sma_mgt_rx", 0,
+        Subsignal("p", Pins("D9")),
+        Subsignal("n", Pins("C9")),
+    ),
+    ("user_sma_mgt_tx", 0,
+        Subsignal("p", Pins("B8")),
+        Subsignal("n", Pins("A8")),
+    ),
+
+    # SFP
+    ("sfp", 0,
+        Subsignal("txp", Pins("B14")),
+        Subsignal("txn", Pins("A14")),
+        Subsignal("rxp", Pins("D13")),
+        Subsignal("rxn", Pins("C13")),
+    ),
+    ("sfp_tx", 0,
+        Subsignal("p", Pins("B14")),
+        Subsignal("n", Pins("A14")),
+    ),
+    ("sfp_rx", 0,
+        Subsignal("p", Pins("D13")),
+        Subsignal("n", Pins("C13")),
+    ),
+    ("sfp_clock", 0,
+        Subsignal("p", Pins("B12")),
+        Subsignal("n", Pins("A12")),
+    ),
+    ("sfp_tx_disable", 0, Pins("Y8"),  IOStandard("LVCMOS25")),
+    ("sfp_rx_los",     0, Pins("T17"), IOStandard("LVCMOS25")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------

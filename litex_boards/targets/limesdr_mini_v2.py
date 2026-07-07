@@ -24,7 +24,7 @@ from litex_boards.platforms import limesdr_mini_v2
 
 from litex.soc.cores.clock import *
 from litex.soc.interconnect.csr import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.interconnect import stream
 
@@ -81,7 +81,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] != "jtag_uart":
-            kwargs["uart_name"]     = "crossover"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
             kwargs["with_jtagbone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on LimeSDR-Mini-V2", **kwargs)
 
@@ -142,7 +142,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=limesdr_mini_v2.Platform, description="LiteX SoC on LimeSDR-Mini-V2.")
-    parser.add_target_argument("--sys-clk-freq", default=80e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=80e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -156,7 +156,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

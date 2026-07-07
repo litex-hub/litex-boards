@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ from litex.build.openocd import OpenOCD
 _io = [
     # Clk / Rst
     ("clk100", 0, Pins("R4"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("G4"), IOStandard("LVCMOS15")),
+    ("cpu_reset_n", 0, Pins("G4"), IOStandard("LVCMOS15")),
 
     # Leds
     ("user_led", 0, Pins("T14"), IOStandard("LVCMOS25")),
@@ -63,12 +63,14 @@ _io = [
 
     # USB FIFO
     ("usb_fifo", 0, # Can be used when FT2232H's Channel A configured to ASYNC FIFO 245 mode
+        Subsignal("clko",  Pins("Y18")),
         Subsignal("data",  Pins("U20 P14 P15 U17 R17 P16 R18 N14")),
         Subsignal("rxf_n", Pins("N17")),
         Subsignal("txe_n", Pins("Y19")),
         Subsignal("rd_n",  Pins("P19")),
         Subsignal("wr_n",  Pins("R19")),
         Subsignal("siwua", Pins("P17")),
+        Subsignal("spien", Pins("R14")),
         Subsignal("oe_n",  Pins("V17")),
         Misc("SLEW=FAST"),
         Drive(8),
@@ -131,6 +133,7 @@ _io = [
     ("eth", 0,
         Subsignal("rst_n",   Pins("U7"), IOStandard("LVCMOS33")),
         Subsignal("int_n",   Pins("Y14")),
+        Subsignal("pme_n",   Pins("W14")),
         Subsignal("mdio",    Pins("Y16")),
         Subsignal("mdc",     Pins("AA16")),
         Subsignal("rx_ctl",  Pins("W10")),
@@ -139,6 +142,33 @@ _io = [
         Subsignal("tx_data", Pins("Y12 W12 W11 Y11")),
         IOStandard("LVCMOS25")
     ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("T19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("mosi", Pins("P22")),
+        Subsignal("miso", Pins("R22")),
+        Subsignal("wp",   Pins("P21")),
+        Subsignal("hold", Pins("R21")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("T19")),
+        #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
+        Subsignal("dq",   Pins("P22 R22 P21 R21")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Audio
+    ("audio_i2s", 0,
+        Subsignal("clk",    Pins("T5")),
+        Subsignal("sync",   Pins("U5")),
+        Subsignal("sd_adc", Pins("T4")),
+        Subsignal("sd_dac", Pins("W6")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("audio_clk", 0, Pins("U6"), IOStandard("LVCMOS33")),
 
     # HDMI In
     ("hdmi_in", 0,
@@ -153,8 +183,8 @@ _io = [
         Subsignal("scl",     Pins("Y4"),   IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("AB5"),  IOStandard("LVCMOS33")),
         Subsignal("hpd_en",  Pins("AB12"), IOStandard("LVCMOS25")),
-        Subsignal("cec",     Pins("AA5"),  IOStandard("LVCMOS33")), # FIXME
-        Subsignal("txen",    Pins("R3"),   IOStandard("LVCMOS33")), # FIXME
+        Subsignal("cec",     Pins("AA5"),  IOStandard("LVCMOS33")),
+        Subsignal("txen",    Pins("R3"),   IOStandard("LVCMOS33")),
     ),
 
     # HDMI Out
@@ -169,12 +199,40 @@ _io = [
         Subsignal("data2_n", Pins("AB2"),  IOStandard("TMDS_33")),
         Subsignal("scl",     Pins("U3"),   IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("V3"),   IOStandard("LVCMOS33")),
-        Subsignal("cec",     Pins("AA4"),  IOStandard("LVCMOS33")), # FIXME
-        Subsignal("hdp",     Pins("AB13"), IOStandard("LVCMOS25")), # FIXME
+        Subsignal("cec",     Pins("AA4"),  IOStandard("LVCMOS33")),
+        Subsignal("hdp",     Pins("AB13"), IOStandard("LVCMOS25")),
     ),
 
     # Others
     ("vadj", 0, Pins("AA13 AB17"), IOStandard("LVCMOS25")),
+    ("vadj_en", 0, Pins("V14"), IOStandard("LVCMOS25")),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("W5")),
+        Subsignal("sda", Pins("V5")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # GTP RefClk
+    ("gtp_refclk", 0,
+        Subsignal("p", Pins("F6")),
+        Subsignal("n", Pins("E6")),
+    ),
+
+    # PS/2
+    ("ps2", 0,
+        Subsignal("clk", Pins("W17")),
+        Subsignal("dat", Pins("N13")),
+        IOStandard("LVCMOS33"),
+        Misc("PULLUP True"),
+    ),
+
+    # Fan
+    ("fan", 0,
+        Subsignal("pwm", Pins("U15")),
+        IOStandard("LVCMOS25"),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -183,6 +241,16 @@ _connectors = [
     ("pmoda", "AB22 AB21 AB20 AB18 Y21 AA21 AA20 AA18"),
     ("pmodb", "V9 V8 V7 W7 W9 Y9 Y8 Y7"),
     ("pmodc", "Y6 AA6 AA8 AB8 R6 T6 AB7 AB6"),
+    ("XADC", {
+        "vaux1_p" : "J14",
+        "vaux1_n" : "H14",
+        "vaux0_p" : "H13",
+        "vaux0_n" : "G13",
+        "vaux8_p" : "G15",
+        "vaux8_n" : "G16",
+        "vaux9_p" : "J15",
+        "vaux9_n" : "H15",
+    }),
     ("LPC", {
         "DP0_C2M_P"     : "D7",
         "DP0_C2M_N"     : "C7",
@@ -205,7 +273,7 @@ _connectors = [
         "LA26_P"        : "F18",
         "LA26_N"        : "E18",
         "CLK0_M2C_P"    : "J19",
-        "CLK0_M2C_N"    : "A19",
+        "CLK0_M2C_N"    : "H19",
         "LA02_P"        : "M18",
         "LA02_N"        : "L18",
         "LA04_P"        : "N20",

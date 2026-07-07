@@ -14,7 +14,7 @@ from litex.gen import *
 from litex_boards.platforms import intergalaktik_ulx5m_gs
 
 from litex.soc.cores.clock.colognechip import GateMatePLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.build.io import DDROutput
 
@@ -35,7 +35,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst
         clk25    = platform.request("clk25")
-        self.rst = ~platform.request("user_btn", 0)
+        self.rst = ~platform.request("user_btn_n", 0)
 
         self.specials += Instance("CC_USR_RSTN", o_USR_RSTN = rst_n)
 
@@ -92,10 +92,10 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=intergalaktik_ulx5m_gs.Platform, description="LiteX SoC on ULX5M-GS")
     parser.add_target_argument("--sys-clk-freq",   default=20e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",       action="store_true",      help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",           action="store_true",      help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 
     args = parser.parse_args()
 

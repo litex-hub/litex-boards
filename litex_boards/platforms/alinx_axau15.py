@@ -18,8 +18,8 @@ _io = [
     ),
 
     ("clk156p25", 0,
-        Subsignal("p", Pins("T7"), IOStandard("LVDS")),
-        Subsignal("n", Pins("T6"), IOStandard("LVDS"))
+        Subsignal("p", Pins("T7")),
+        Subsignal("n", Pins("T6"))
     ),
 
     # Buttons.
@@ -55,9 +55,9 @@ _io = [
             IOStandard("SSTL12_DCI")),
         Subsignal("ba",      Pins("J26 G22"), IOStandard("SSTL12_DCI")),
         Subsignal("bg",      Pins("L22"), IOStandard("SSTL12_DCI")),
-        Subsignal("ras_n",   Pins("H21"), IOStandard("SSTL12_DCI")), 
-        Subsignal("cas_n",   Pins("H22"), IOStandard("SSTL12_DCI")), 
-        Subsignal("we_n",    Pins("K26"), IOStandard("SSTL12_DCI")), 
+        Subsignal("ras_n",   Pins("H21"), IOStandard("SSTL12_DCI")),
+        Subsignal("cas_n",   Pins("H22"), IOStandard("SSTL12_DCI")),
+        Subsignal("we_n",    Pins("K26"), IOStandard("SSTL12_DCI")),
         Subsignal("cs_n",    Pins("H23"), IOStandard("SSTL12_DCI")),
         Subsignal("act_n",   Pins("K25"), IOStandard("SSTL12_DCI")),
         #Subsignal("par",      Pins("L24"), IOStandard("SSTL12_DCI")),
@@ -88,7 +88,7 @@ _io = [
     # SPIFlash.
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("AA12")),
-        Subsignal("clk",  Pins("Y11")), 
+        Subsignal("clk",  Pins("Y11")),
         Subsignal("dq",   Pins("AD11 AC12 AC11 AE11")),
         IOStandard("LVCMOS18")
     ),
@@ -286,5 +286,5 @@ class Platform(XilinxUSPPlatform):
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9/200e6)
-        self.add_period_constraint(self.lookup_request("clk156", loose=True), 1e9/156e6)
+        self.add_period_constraint(self.lookup_request("clk156p25", loose=True), 1e9/156.25e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 66]")

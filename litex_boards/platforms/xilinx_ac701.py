@@ -28,6 +28,29 @@ _io = [
     ("user_led", 2, Pins("T25"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("R26"), IOStandard("LVCMOS33")),
 
+    # Switches
+    ("user_btn_n", 0, Pins("P6"), IOStandard("SSTL15")),
+    ("user_btn_e", 0, Pins("U5"), IOStandard("SSTL15")),
+    ("user_btn_s", 0, Pins("T5"), IOStandard("SSTL15")),
+    ("user_btn_w", 0, Pins("R5"), IOStandard("SSTL15")),
+    ("user_btn_c", 0, Pins("U6"), IOStandard("SSTL15")),
+    ("user_sw",    0, Pins("R8"), IOStandard("SSTL15")),
+    ("user_sw",    1, Pins("P8"), IOStandard("SSTL15")),
+    ("user_sw",    2, Pins("R7"), IOStandard("SSTL15")),
+    ("user_sw",    3, Pins("R6"), IOStandard("SSTL15")),
+
+    # Rotary Encoder
+    ("rotary", 0,
+        Subsignal("a",    Pins("N22")),
+        Subsignal("b",    Pins("P20")),
+        Subsignal("push", Pins("N21")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # SMA GPIO
+    ("user_sma_gpio_p", 0, Pins("T8"), IOStandard("SSTL15")),
+    ("user_sma_gpio_n", 0, Pins("T7"), IOStandard("SSTL15")),
+
     # Serial
     ("serial", 0,
         Subsignal("cts", Pins("V19")),
@@ -36,6 +59,14 @@ _io = [
         Subsignal("rx",  Pins("T19")),
         IOStandard("LVCMOS18")
     ),
+
+    # I2C
+    ("i2c", 0,
+        Subsignal("sda", Pins("K25")),
+        Subsignal("scl", Pins("N18")),
+        IOStandard("LVCMOS33")
+    ),
+    ("i2c_mux_reset", 0, Pins("R17"), IOStandard("LVCMOS33")),
 
     # RGMII Ethernet
     ("eth_clocks", 0,
@@ -109,6 +140,50 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # SDCard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("N24")),
+        Subsignal("mosi", Pins("N23"), Misc("PULLUP True")),
+        Subsignal("cs_n", Pins("P21"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("P19"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+    ("sdcard", 0,
+        Subsignal("data", Pins("P19 N19 P23 P21"), Misc("PULLUP True")),
+        Subsignal("cmd",  Pins("N23"), Misc("PULLUP True")),
+        Subsignal("clk",  Pins("N24")),
+        Subsignal("cd",   Pins("P24"), Misc("PULLUP True")),
+        Subsignal("wp",   Pins("R20"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # LCD
+    ("lcd", 0,
+        Subsignal("db", Pins("L25 M24 M25 L22")),
+        Subsignal("e",  Pins("L20")),
+        Subsignal("rs", Pins("L23")),
+        Subsignal("rw", Pins("L24")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # HDMI
+    ("hdmi", 0,
+        Subsignal("d", Pins(
+            "AA24 Y25 Y26 V26 W26 W25 W24 U26",
+            "U25 V24 U20 W23 W20 U24 Y20 V23",
+            "AA23 AA25 AB25 AC24 AB24 Y22 Y23 V22")),
+        Subsignal("de",        Pins("AB26")),
+        Subsignal("clk",       Pins("V21")),
+        Subsignal("vsync",     Pins("AC26")),
+        Subsignal("hsync",     Pins("AA22")),
+        Subsignal("int",       Pins("W21")),
+        Subsignal("spdif",     Pins("Y21")),
+        Subsignal("spdif_out", Pins("T20")),
+        IOStandard("LVCMOS18")
+    ),
+
     # PCIe
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("M20"), IOStandard("LVCMOS25")),
@@ -135,6 +210,10 @@ _io = [
      Subsignal("p", Pins("AA13")),
      Subsignal("n", Pins("AB13"))
     ),
+    ("gtp_refclk", 1,
+     Subsignal("p", Pins("AA11")),
+     Subsignal("n", Pins("AB11"))
+    ),
 
     # SFP
     ("sfp", 0,
@@ -143,10 +222,28 @@ _io = [
         Subsignal("rxp", Pins("AC12")),
         Subsignal("rxn", Pins("AD12")),
     ),
+    ("sfp_tx", 0,
+        Subsignal("p", Pins("AC10")),
+        Subsignal("n", Pins("AD10")),
+    ),
+    ("sfp_rx", 0,
+        Subsignal("p", Pins("AC12")),
+        Subsignal("n", Pins("AD12")),
+    ),
     ("sfp_mgt_clk_sel0", 0, Pins("B26"), IOStandard("LVCMOS25")),
     ("sfp_mgt_clk_sel1", 0, Pins("C24"), IOStandard("LVCMOS25")),
     ("sfp_tx_disable_n", 0, Pins("R18"), IOStandard("LVCMOS33")),
     ("sfp_rx_los",       0, Pins("R23"), IOStandard("LVCMOS33")),
+
+    # SMA GTP
+    ("user_sma_mgt_rx", 0,
+        Subsignal("p", Pins("AE11")),
+        Subsignal("n", Pins("AF11")),
+    ),
+    ("user_sma_mgt_tx", 0,
+        Subsignal("p", Pins("AE7")),
+        Subsignal("n", Pins("AF7")),
+    ),
 
     # Others
     ("vadj_on_b", 0, Pins("R16"), IOStandard("LVCMOS25")),
@@ -156,6 +253,7 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
+    ("pmod", "P26 T22 R22 T23"),
     ("HPC", {
       "CLK0_M2C_N" : "C19",
       "CLK0_M2C_P" : "D19",
@@ -230,7 +328,65 @@ _connectors = [
       "LA33_N"     : "F25",
       "LA33_P"     : "G25",
       "PRSNT_M2C_L"         : "N16",
-      "PWR_GOOD_FLASH_RST_B": "P15"}
+      "PG_M2C"              : "N17",
+      "PWR_GOOD_FLASH_RST_B": "N17",
+      "CTRL2_PWRGOOD"       : "P15",
+      "HA00_CC_N"  : "AB19",
+      "HA00_CC_P"  : "AA19",
+      "HA01_CC_N"  : "AC21",
+      "HA01_CC_P"  : "AB21",
+      "HA02_N"     : "AE26",
+      "HA02_P"     : "AE25",
+      "HA03_N"     : "AC23",
+      "HA03_P"     : "AC22",
+      "HA04_N"     : "AF25",
+      "HA04_P"     : "AF24",
+      "HA05_N"     : "AD26",
+      "HA05_P"     : "AD25",
+      "HA06_N"     : "AF23",
+      "HA06_P"     : "AE23",
+      "HA07_N"     : "AD24",
+      "HA07_P"     : "AD23",
+      "HA08_N"     : "AE21",
+      "HA08_P"     : "AD21",
+      "HA09_N"     : "AF20",
+      "HA09_P"     : "AF19",
+      "HA10_N"     : "AF22",
+      "HA10_P"     : "AE22",
+      "HA11_N"     : "AE20",
+      "HA11_P"     : "AD20",
+      "HA12_N"     : "AD19",
+      "HA12_P"     : "AC19",
+      "HA13_N"     : "AD18",
+      "HA13_P"     : "AC18",
+      "HA14_N"     : "AF18",
+      "HA14_P"     : "AE18",
+      "HA15_N"     : "AA18",
+      "HA15_P"     : "Y18",
+      "HA16_N"     : "AF17",
+      "HA16_P"     : "AE17",
+      "HA17_CC_N"  : "AB20",
+      "HA17_CC_P"  : "AA20",
+      "HA18_N"     : "AB17",
+      "HA18_P"     : "AA17",
+      "HA19_N"     : "AD17",
+      "HA19_P"     : "AC17",
+      "HA20_N"     : "Y17",
+      "HA20_P"     : "Y16",
+      "HA21_N"     : "AC16",
+      "HA21_P"     : "AB16",
+      "HA22_N"     : "AA15",
+      "HA22_P"     : "Y15",
+      "HA23_N"     : "W15",
+      "HA23_P"     : "W14",
+      "DP0_C2M_N"  : "AF9",
+      "DP0_C2M_P"  : "AE9",
+      "DP0_M2C_N"  : "AF13",
+      "DP0_M2C_P"  : "AE13",
+      "DP1_C2M_N"  : "AD8",
+      "DP1_C2M_P"  : "AC8",
+      "DP1_M2C_N"  : "AD14",
+      "DP1_M2C_P"  : "AC14"}
     ),
     ("XADC", {
         "GPIO0"   : "H17",
@@ -249,7 +405,7 @@ _connectors = [
 
 class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk156"
-    default_clk_period = 1e9/156.5e6
+    default_clk_period = 1e9/156.25e6
 
     def __init__(self, toolchain="vivado"):
         Xilinx7SeriesPlatform.__init__(self, "xc7a200t-fbg676-2", _io, _connectors, toolchain=toolchain)

@@ -11,7 +11,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -28,7 +28,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst
         clk12 = platform.request("clk12")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
         self.comb += self.cd_sys.clk.eq(clk12)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n)
 
@@ -59,8 +59,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=myminieye_runber.Platform, description="LiteX SoC on Runber.")
-    parser.add_target_argument("--flash",       action="store_true",      help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",default=12e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=12e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

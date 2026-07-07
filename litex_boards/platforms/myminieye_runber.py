@@ -63,14 +63,14 @@ _io = [
     ("user_sw", 7, Pins("83"), IOStandard("LVCMOS33")),
 
     # Buttons.
-    ("user_btn", 0, Pins("58"),  IOStandard("LVCMOS33")),
-    ("user_btn", 1, Pins("59"),  IOStandard("LVCMOS33")),
-    ("user_btn", 2, Pins("60"),  IOStandard("LVCMOS33")),
-    ("user_btn", 3, Pins("61"),  IOStandard("LVCMOS33")),
-    ("user_btn", 4, Pins("62"),  IOStandard("LVCMOS33")),
-    ("user_btn", 5, Pins("63"),  IOStandard("LVCMOS33")),
-    ("user_btn", 6, Pins("64"),  IOStandard("LVCMOS33")),
-    ("user_btn", 7, Pins("65"),  IOStandard("LVCMOS33")),
+    ("user_btn_n", 0, Pins("58"),  IOStandard("LVCMOS33")),
+    ("user_btn_n", 1, Pins("59"),  IOStandard("LVCMOS33")),
+    ("user_btn_n", 2, Pins("60"),  IOStandard("LVCMOS33")),
+    ("user_btn_n", 3, Pins("61"),  IOStandard("LVCMOS33")),
+    ("user_btn_n", 4, Pins("62"),  IOStandard("LVCMOS33")),
+    ("user_btn_n", 5, Pins("63"),  IOStandard("LVCMOS33")),
+    ("user_btn_n", 6, Pins("64"),  IOStandard("LVCMOS33")),
+    ("user_btn_n", 7, Pins("65"),  IOStandard("LVCMOS33")),
 
     # Serial.
     # FT232H has only one interface -> use (arbitrary) two pins from J2 to

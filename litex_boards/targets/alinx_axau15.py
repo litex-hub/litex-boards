@@ -15,7 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import alinx_axau15
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -134,17 +134,17 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alinx_axau15.Platform, description="LiteX SoC on AXAU15.")
-    parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",        action="store_true",      help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",       action="store_true",      help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",         default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--with-pcie",      action="store_true",      help="Enable PCIe support.")
-    parser.add_target_argument("--pcie-speed",     default="gen3",           help="PCIe speed.", choices=["gen3", "gen4"])
-    parser.add_target_argument("--driver",         action="store_true",      help="Generate PCIe driver.")
-    parser.add_target_argument("--with-sdcard",    action="store_true",      help="Add SDCard.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",                   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",                  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",                      help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--with-pcie",      action="store_true",                      help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-speed",     default="gen3", choices=["gen3", "gen4"], help="PCIe speed.")
+    parser.add_target_argument("--driver",         action="store_true",                      help="Generate PCIe driver.")
+    parser.add_target_argument("--with-sdcard",    action="store_true",                      help="Add SDCard.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -160,10 +160,13 @@ def main():
         pcie_speed     = args.pcie_speed,
         with_sdcard    = args.with_sdcard,
         **parser.soc_argdict
-	)
+    )
 
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

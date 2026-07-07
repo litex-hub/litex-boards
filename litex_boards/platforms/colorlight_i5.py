@@ -134,8 +134,8 @@ for i, x in enumerate(_io_v7_2):
 
 # optional, alternative uart location
 # requires "--uart-name serialx"
-_io_v7_2 += [ 
-    ("serialx", 0, Subsignal("tx", Pins("E5")), Subsignal("rx", Pins("F4")), IOStandard("LVCMOS33")) 
+_io_v7_2 += [
+    ("serialx", 0, Subsignal("tx", Pins("E5")), Subsignal("rx", Pins("F4")), IOStandard("LVCMOS33"))
 ]
 
 _connectors_v7_2 = copy.deepcopy(_connectors_v7_0)

@@ -38,7 +38,7 @@ _io = [
     ("user_btn", 1, Pins("AE14"), IOStandard("LVCMOS33")),
     ("user_btn", 2, Pins("AF15"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("AE15"), IOStandard("LVCMOS33")),
-    ("user_btn", 3, Pins("AG13"), IOStandard("LVCMOS33")),
+    ("user_btn", 4, Pins("AG13"), IOStandard("LVCMOS33")),
 
     # Switches
     ("user_dip", 0, Pins("AN14"), IOStandard("LVCMOS33")),
@@ -64,6 +64,41 @@ _io = [
         Subsignal("sda", Pins("J11")),
         Subsignal("scl", Pins("J10")),
         IOStandard("LVCMOS33")
+    ),
+
+    # HDMI
+    ("hdmi_out", 0,
+        Subsignal("txp",   Pins("T29 R31 P29")),
+        Subsignal("txn",   Pins("T30 R32 P30")),
+        Subsignal("clk_p", Pins("AF6"), IOStandard("LVDS")),
+        Subsignal("clk_n", Pins("AG6"), IOStandard("LVDS")),
+        Subsignal("scl",   Pins("C16"), IOStandard("LVCMOS33")),
+        Subsignal("sda",   Pins("D16"), IOStandard("LVCMOS33")),
+        Subsignal("en",    Pins("B15"), IOStandard("LVCMOS33")),
+        Subsignal("cec",   Pins("A16"), IOStandard("LVCMOS33")),
+        Subsignal("hpd",   Pins("B16"), IOStandard("LVCMOS33")),
+    ),
+    ("hdmi_in", 0,
+        Subsignal("rxp",     Pins("T33 P33 N31")),
+        Subsignal("rxn",     Pins("T34 P34 N32")),
+        Subsignal("clk_p",   Pins("N27")),
+        Subsignal("clk_n",   Pins("N28")),
+        Subsignal("hpd",     Pins("E14"), IOStandard("LVCMOS33")),
+        Subsignal("pwr_det", Pins("D14"), IOStandard("LVCMOS33")),
+        Subsignal("cec",     Pins("D15"), IOStandard("LVCMOS33")),
+        Subsignal("scl",     Pins("E15"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("A15"), IOStandard("LVCMOS33")),
+    ),
+    ("hdmi_ctl", 0,
+        Subsignal("scl",        Pins("F15"), IOStandard("LVCMOS33")),
+        Subsignal("sda",        Pins("F16"), IOStandard("LVCMOS33")),
+        Subsignal("clkgen_lol", Pins("H12"), IOStandard("LVCMOS33")),
+        Subsignal("clkgen_rst", Pins("J12"), IOStandard("LVCMOS33")),
+        Subsignal("clkgen_int", Pins("F11"), IOStandard("LVCMOS33")),
+        Subsignal("rec_clk_p",  Pins("AG5"), IOStandard("LVDS")),
+        Subsignal("rec_clk_n",  Pins("AG4"), IOStandard("LVDS")),
+        Subsignal("refclk_p",   Pins("R27")),
+        Subsignal("refclk_n",   Pins("R28")),
     ),
 
     # DDR4 SDRAM
@@ -108,6 +143,10 @@ _io = [
     ("mgt_refclk", 0,
         Subsignal("p", Pins("C8")),
         Subsignal("n", Pins("C7")),
+    ),
+    ("mgt_refclk", 1,
+        Subsignal("p", Pins("B10")),
+        Subsignal("n", Pins("B9")),
     ),
 
     # SFP.
@@ -178,6 +217,10 @@ _io = [
         Subsignal("p", Pins("A4")),
         Subsignal("n", Pins("A3")),
     ),
+    ("sfp_rec_clk", 0,
+        Subsignal("p", Pins("R10"), IOStandard("LVDS")),
+        Subsignal("n", Pins("R9"),  IOStandard("LVDS")),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -185,6 +228,8 @@ _io = [
 _connectors = [
     ("j55", "A20 B20 A22 A21 B21 C21 C22 D21"),
     ("j87", "D20 E20 D22 E22 F20 G20 J20 J19"),
+    ("pmod0", "A20 B20 A22 A21 B21 C21 C22 D21"),
+    ("pmod1", "D20 E20 D22 E22 F20 G20 J20 J19"),
     ("FMC_HPC0", {
         "CLK0_M2C_N"      : "AA6",
         "CLK0_M2C_P"      : "AA7",
@@ -293,7 +338,7 @@ _connectors = [
         "LA32_N"          : "T11",
         "LA32_P"          : "U11",
         "LA33_N"          : "V11",
-        "LA33_P"          : "V12",        
+        "LA33_P"          : "V12",
     }),
     ("FMC_HPC1", {
         "CLK0_M2C_N"      : "AF7",

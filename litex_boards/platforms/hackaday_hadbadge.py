@@ -230,8 +230,7 @@ class Platform(LatticeECP5Platform):
             toolchain=toolchain, **kwargs)
 
     def create_programmer(self):
-        raise ValueError("{} programmer is not supported"
-                             .format(self.programmer))
+        raise NotImplementedError("Programming is not supported for this platform.")
 
     def do_finalize(self, fragment):
         LatticeECP5Platform.do_finalize(self, fragment)

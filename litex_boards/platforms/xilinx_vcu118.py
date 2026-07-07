@@ -64,12 +64,160 @@ _io = [
     ),
     ("i2c_mux_reset_n", 0, Pins("AL25"), IOStandard("LVCMOS18")),
 
+    # SGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("p", Pins("AT22"), IOStandard("LVCMOS18")),
+        Subsignal("n", Pins("AU22"), IOStandard("LVCMOS18")),
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",  Pins("BA21"), IOStandard("LVCMOS18")),
+        Subsignal("int_n",  Pins("AR24"), IOStandard("LVCMOS18")),
+        Subsignal("mdio",   Pins("AR23"), IOStandard("LVCMOS18")),
+        Subsignal("mdc",    Pins("AV23"), IOStandard("LVCMOS18")),
+        Subsignal("clkout", Pins("AU23"), IOStandard("LVCMOS18")),
+        Subsignal("gpio0",  Pins("AR22"), IOStandard("LVCMOS18")),
+        Subsignal("rx_p",   Pins("AU24"), IOStandard("LVCMOS18")),
+        Subsignal("rx_n",   Pins("AV24"), IOStandard("LVCMOS18")),
+        Subsignal("tx_p",   Pins("AU21"), IOStandard("LVCMOS18")),
+        Subsignal("tx_n",   Pins("AV21"), IOStandard("LVCMOS18")),
+    ),
+
+    # PCIe
+    ("pcie_refclk", 0, # PCIE_CLK2, for GTY bank 227.
+        Subsignal("p", Pins("AC9")),
+        Subsignal("n", Pins("AC8")),
+    ),
+    ("pcie_refclk", 1, # PCIE_CLK1, for GTY bank 225.
+        Subsignal("p", Pins("AL9")),
+        Subsignal("n", Pins("AL8")),
+    ),
+    ("pcie_x1", 0,
+        Subsignal("clk_p", Pins("AC9")),
+        Subsignal("clk_n", Pins("AC8")),
+        Subsignal("rx_p",  Pins("AA4")),
+        Subsignal("rx_n",  Pins("AA3")),
+        Subsignal("tx_p",  Pins("Y7")),
+        Subsignal("tx_n",  Pins("Y6")),
+    ),
+    ("pcie_x2", 0,
+        Subsignal("clk_p", Pins("AC9")),
+        Subsignal("clk_n", Pins("AC8")),
+        Subsignal("rx_p",  Pins("AA4 AB2")),
+        Subsignal("rx_n",  Pins("AA3 AB1")),
+        Subsignal("tx_p",  Pins("Y7 AB7")),
+        Subsignal("tx_n",  Pins("Y6 AB6")),
+    ),
+    ("pcie_x4", 0,
+        Subsignal("clk_p", Pins("AC9")),
+        Subsignal("clk_n", Pins("AC8")),
+        Subsignal("rx_p",  Pins("AA4 AB2 AC4 AD2")),
+        Subsignal("rx_n",  Pins("AA3 AB1 AC3 AD1")),
+        Subsignal("tx_p",  Pins("Y7 AB7 AD7 AF7")),
+        Subsignal("tx_n",  Pins("Y6 AB6 AD6 AF6")),
+    ),
+    ("pcie_x8", 0,
+        Subsignal("clk_p", Pins("AC9")),
+        Subsignal("clk_n", Pins("AC8")),
+        Subsignal("rx_p",  Pins(
+            "AA4 AB2 AC4 AD2",
+            "AE4 AF2 AG4 AH2")),
+        Subsignal("rx_n",  Pins(
+            "AA3 AB1 AC3 AD1",
+            "AE3 AF1 AG3 AH1")),
+        Subsignal("tx_p",  Pins(
+            "Y7 AB7 AD7 AF7",
+            "AH7 AK7 AM7 AN5")),
+        Subsignal("tx_n",  Pins(
+            "Y6 AB6 AD6 AF6",
+            "AH6 AK6 AM6 AN4")),
+    ),
+    ("pcie_x16", 0,
+        Subsignal("clk_p", Pins("AC9")),
+        Subsignal("clk_n", Pins("AC8")),
+        Subsignal("rx_p",  Pins(
+            "AA4 AB2 AC4 AD2 AE4 AF2 AG4 AH2",
+            "AJ4 AK2 AM2 AP2 AT2 AV2 AY2 BB2")),
+        Subsignal("rx_n",  Pins(
+            "AA3 AB1 AC3 AD1 AE3 AF1 AG3 AH1",
+            "AJ3 AK1 AM1 AP1 AT1 AV1 AY1 BB1")),
+        Subsignal("tx_p",  Pins(
+            "Y7 AB7 AD7 AF7 AH7 AK7 AM7 AN5",
+            "AP7 AR5 AT7 AU5 AW5 BA5 BC5 BE5")),
+        Subsignal("tx_n",  Pins(
+            "Y6 AB6 AD6 AF6 AH6 AK6 AM6 AN4",
+            "AP6 AR4 AT6 AU4 AW4 BA4 BC4 BE4")),
+    ),
+
+    # QSFP+
+    ("qsfp", 0,
+        Subsignal("clk_p",   Pins("W9")),
+        Subsignal("clk_n",   Pins("W8")),
+        Subsignal("txp",     Pins("V7 T7 P7 M7")),
+        Subsignal("txn",     Pins("V6 T6 P6 M6")),
+        Subsignal("rxp",     Pins("Y2 W4 V2 U4")),
+        Subsignal("rxn",     Pins("Y1 W3 V1 U3")),
+        Subsignal("modsell", Pins("AM21"), IOStandard("LVCMOS18")),
+        Subsignal("resetl",  Pins("BA22"), IOStandard("LVCMOS18")),
+        Subsignal("modprsl", Pins("AL21"), IOStandard("LVCMOS18")),
+        Subsignal("intl",    Pins("AP21"), IOStandard("LVCMOS18")),
+        Subsignal("lpmode",  Pins("AN21"), IOStandard("LVCMOS18")),
+    ),
+    ("qsfp", 1,
+        Subsignal("clk_p",   Pins("R9")),
+        Subsignal("clk_n",   Pins("R8")),
+        Subsignal("txp",     Pins("L5 K7 J5 H7")),
+        Subsignal("txn",     Pins("L4 K6 J4 H6")),
+        Subsignal("rxp",     Pins("T2 R4 P2 M2")),
+        Subsignal("rxn",     Pins("T1 R3 P1 M1")),
+        Subsignal("modsell", Pins("AN23"), IOStandard("LVCMOS18")),
+        Subsignal("resetl",  Pins("AY22"), IOStandard("LVCMOS18")),
+        Subsignal("modprsl", Pins("AN24"), IOStandard("LVCMOS18")),
+        Subsignal("intl",    Pins("AT21"), IOStandard("LVCMOS18")),
+        Subsignal("lpmode",  Pins("AT24"), IOStandard("LVCMOS18")),
+    ),
+
+    # FireFly
+    ("firefly", 0,
+        Subsignal("clk_p",    Pins("L9")),
+        Subsignal("clk_n",    Pins("L8")),
+        Subsignal("txp",      Pins("G5 F7 E5 C5")),
+        Subsignal("txn",      Pins("G4 F6 E4 C4")),
+        Subsignal("rxp",      Pins("K2 H2 F2 D2")),
+        Subsignal("rxn",      Pins("K1 H1 F1 D1")),
+        Subsignal("modsel_b", Pins("AN23"), IOStandard("LVCMOS18")),
+        Subsignal("reset_b",  Pins("AY22"), IOStandard("LVCMOS18")),
+        Subsignal("modprs_b", Pins("AN24"), IOStandard("LVCMOS18")),
+        Subsignal("int_b",    Pins("AT21"), IOStandard("LVCMOS18")),
+    ),
+
     # Serial
     ("serial", 0,
         Subsignal("rx",  Pins("AW25"), IOStandard("LVCMOS18")),
         Subsignal("rts", Pins("BB22"), IOStandard("LVCMOS18")),
         Subsignal("tx",  Pins("BB21"), IOStandard("LVCMOS18")),
         Subsignal("cts", Pins("AY25"), IOStandard("LVCMOS18")),
+    ),
+
+    # SPIFlash
+    ("spiflash", 0, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("AJ11")),
+        Subsignal("dq",   Pins("AP11 AN11 AM11 AL11")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("spiflash4x", 0, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("AJ11")),
+        Subsignal("dq",   Pins("AP11 AN11 AM11 AL11")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("spiflash", 1, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("BF16")),
+        Subsignal("dq",   Pins("AM19 AM18 AN20 AP20")),
+        IOStandard("LVCMOS18"),
+    ),
+    ("spiflash4x", 1, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("BF16")),
+        Subsignal("dq",   Pins("AM19 AM18 AN20 AP20")),
+        IOStandard("LVCMOS18"),
     ),
 
     # DDR4 memory channel C1. Only use the first 64 data bits
@@ -104,11 +252,11 @@ _io = [
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p",   Pins("D11 P17 K19 F16 A19 N22 M20 H24"),
-		    IOStandard("DIFF_POD12"),
+            IOStandard("DIFF_POD12"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n",   Pins("D10 P16 J19 E16 A18 M22 L20 G23"),
-		    IOStandard("DIFF_POD12"),
+            IOStandard("DIFF_POD12"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("clk_p",   Pins("F14"), IOStandard("DIFF_SSTL12_DCI")),
@@ -520,7 +668,7 @@ class Platform(XilinxUSPPlatform):
         self.add_period_constraint(self.lookup_request("clk250", 0, loose=True), 1e9/250e6)
         self.add_period_constraint(self.lookup_request("clk250", 1, loose=True), 1e9/250e6)
         self.add_period_constraint(self.lookup_request("clk125",    loose=True), 1e9/125e6)
-        self.add_period_constraint(self.lookup_request("clk156",    loose=True), 1e9/156e6)
+        self.add_period_constraint(self.lookup_request("clk156",    loose=True), 1e9/156.25e6)
         # DDR4 memory channel C1 Internal Vref
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 71]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 72]")

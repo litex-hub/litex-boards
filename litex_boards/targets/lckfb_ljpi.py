@@ -12,7 +12,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen import *
 
 from litex.soc.cores.clock.gowin_gw2a import GW2APLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
@@ -168,13 +168,13 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lckfb_ljpi.Platform, description="LiteX SoC on LCKFB LJPI.")
-    parser.add_target_argument("--flash",          action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     viopts = parser.target_group.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",   action="store_true", help="Enable Video Terminal (HDMI).")
-    viopts.add_argument("--with-video-colorbars",  action="store_true", help="Enable Video Colorbars (HDMI).")
-    parser.add_target_argument("--prog-kit",       default="gpwin", help="Programmer select from Gowin/openFPGALoader.")
+    viopts.add_argument("--with-video-terminal",  action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-colorbars", action="store_true", help="Enable Video Colorbars (HDMI).")
+    parser.add_target_argument("--prog-kit",            default="gpwin",            help="Programmer select from Gowin/openFPGALoader.")
 
     args = parser.parse_args()
 

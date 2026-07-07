@@ -9,7 +9,7 @@
 # The Taobao agent I used: https://www.basetao.com/?ejATJf+gGuEbpa8IBg
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ from litex.build.openocd import OpenOCD
 _io = [
     # Clk / Rst
     ("clk50",     0, Pins("R4"), IOStandard("SSTL135")),
-    ("cpu_reset", 0, Pins("U7"), IOStandard("SSTL135")),
+    ("cpu_reset_n", 0, Pins("U7"), IOStandard("SSTL135")),
 
     # Leds
     ("user_led", 0, Pins("V9"), IOStandard("SSTL135")),

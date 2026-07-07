@@ -8,9 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-import os
-import sys
-import json
 
 from migen import *
 
@@ -23,10 +20,9 @@ from litex.build.io import DDROutput
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.usb_ohci import USBOHCI
-from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.video import VideoHDMIPHY
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import W9825G6KH6
@@ -166,14 +162,14 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_konfekt.Platform, description="LiteX SoC on Konfekt")
-    parser.add_argument("--sys-clk-freq",    default=40e6,         help="System clock frequency.")
-    parser.add_argument("--revision",        default="v0",         help="Board Revision (v0).")
-    parser.add_argument("--device",          default="12F",        help="ECP5 device (12F, 25F, 45F or 85F).")
-    parser.add_argument("--cable",           default="dirtyJtag",  help="OpenFPGALoader cable type.")
-    parser.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
-    parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
-    parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
-    parser.add_argument("--sdram-device",    default="W9825G6KH6", help="SDRAM device (W9825G6KH6 or IS42S16320).")
+    parser.add_target_argument("--sys-clk-freq",    default=40e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",        default="v0",             help="Board Revision (v0).")
+    parser.add_target_argument("--device",          default="12F",            help="ECP5 device (12F, 25F, 45F or 85F).")
+    parser.add_target_argument("--cable",           default="dirtyJtag",      help="OpenFPGALoader cable type.")
+    parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
+    parser.add_target_argument("--sdram-device",    default="W9825G6KH6",     help="SDRAM device (W9825G6KH6 or IS42S16320).")
 
     args = parser.parse_args()
 

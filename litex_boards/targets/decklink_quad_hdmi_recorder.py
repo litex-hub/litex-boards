@@ -22,11 +22,11 @@ from litex.gen import *
 from litex_boards.platforms import decklink_quad_hdmi_recorder
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.common import PHYPadsReducer
-from litedram.modules import MT41J256M16
+from litedram.modules import H5TQ4G63CFR
 from litedram.phy import usddrphy
 
 from litepcie.phy.uspciephy import USPCIEPHY
@@ -69,7 +69,8 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"]    = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         kwargs["with_jtabone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Blackmagic Decklink Quad HDMI Recorder", **kwargs)
 
@@ -82,7 +83,7 @@ class BaseSoC(SoCCore):
                 iodelay_clk_freq = 200e6)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41J256M16(sys_clk_freq, "1:4"),
+                module        = H5TQ4G63CFR(sys_clk_freq, "1:4"),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -117,9 +118,12 @@ def main():
         sys_clk_freq = args.sys_clk_freq,
         with_pcie    = args.with_pcie,
         **parser.soc_argdict
-	)
+    )
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

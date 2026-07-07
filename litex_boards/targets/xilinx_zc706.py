@@ -37,7 +37,7 @@ from litex.gen import *
 from litex_boards.platforms import xilinx_zc706
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -92,7 +92,8 @@ class BaseSoC(SoCCore):
         platform = xilinx_zc706.Platform()
 
         # When nor jtagbone, nor etherbone are set forces jtagbone.
-        kwargs["uart_name"]     = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         if not (kwargs["with_jtagbone"] or with_etherbone):
             kwargs["with_jtagbone"] = True
 
@@ -154,10 +155,12 @@ def main():
     parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--with-pcie",      action="store_true",       help="Enable PCIe support.")
     parser.add_target_argument("--driver",         action="store_true",       help="Generate PCIe driver.")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
@@ -170,7 +173,10 @@ def main():
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

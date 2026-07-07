@@ -97,8 +97,42 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-    #TODO ADC
-    #TODO D-PHY
+    # Section 8.4 Camera Connector
+    ("CAM", {
+        "CKP"    : "A2",  #  3
+        "CKN"    : "B1",  #  2
+        "DP0"    : "B2",  # 12
+        "DN0"    : "C1",  # 11
+        "DP1"    : "A3",  #  9
+        "DN1"    : "B3",  #  8
+        "DP2"    : "C2",  # 15
+        "DN2"    : "D1",  # 14
+        "DP3"    : "A4",  #  6
+        "DN3"    : "B4",  #  5
+        "SDA"    : "W5",  # 22
+        "SCL"    : "Y5",  # 23
+        "RESET"  : "W18", # 24
+    }),
+
+    # Section 8.5 D-PHY1 Header
+    ("DPHY1", {
+        "CKP" : "A8",  #  3
+        "CKN" : "B8",  #  4
+        "DP0" : "A7",  #  7
+        "DN0" : "B7",  #  8
+        "DP1" : "A9",  # 11
+        "DN1" : "B9",  # 12
+        "DP2" : "A6",  # 15
+        "DN2" : "B6",  # 16
+        "DP3" : "A10", # 19
+        "DN3" : "B10", # 20
+    }),
+
+    # Section 8.9 ADC Test Header
+    ("ADC", {
+        "IN1P" : "T17", #  9
+        "IN1N" : "U17", # 11
+    }),
 
     # Section 8.1 FMC LPC Connector
     ("FMC", {
@@ -147,7 +181,7 @@ _connectors = [
         "LA29_P"	: "Y15", # G30
         "LA29_N"	: "Y16", # G31
         "LA31_P"	: "Y17", # G33
-        "LA31_N"	: "U16", # G34
+        "LA31_N"	: "W17", # G34
         "VREF"	        : "T6",  # H01
         "VREFa"	        : "Y18", # H01
         "CLK0_P"	: "Y12", # H04
@@ -169,7 +203,7 @@ _connectors = [
         "LA24_P"	: "W14", # H28
         "LA24_N"	: "W15", # H29
         "LA28_P"	: "U15", # H31
-        "LA28_N"	: "U16", # H32
+        "LA28_N"	: "V16", # H32
         "LA30_P"	: "V17", # H34
         "LA30_N"	: "U16", # H35
     }),
@@ -256,7 +290,7 @@ class Platform(LatticeNexusPlatform):
         # LIFCL just means Crosslink-NX so we can expect every
         # Crosslink-NX Evaluation Board to have a LIFCL part.
         if device == "LIFCL":
-            device == "LIFCL-40-9BG400C"
+            device = "LIFCL-40-9BG400C"
         assert device in ["LIFCL-40-9BG400C", "LIFCL-40-8BG400CES"]
         LatticeNexusPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain, **kwargs)
 
@@ -264,7 +298,7 @@ class Platform(LatticeNexusPlatform):
         import time
         if "serial" in args:
             msg =  "FT2232H will be used as serial, make sure that:\n"
-            msg += " -the hardware has been modified: R18 and R19 should be removed, two 0 Ω resistors shoud be populated on R15 (and not R16) and R17.\n"
+            msg += " -the hardware has been modified: R18 and R19 should be removed, two 0 Ω resistors should be populated on R15 (and not R16) and R17.\n"
             msg += " -the chip is configured as UART with virtual COM on port B (With FTProg or https://github.com/trabucayre/fixFT2232_ecp5evn)."
             print(msg)
             time.sleep(2)

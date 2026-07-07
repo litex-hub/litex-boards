@@ -17,12 +17,12 @@ from litex_boards.platforms import trenz_tec0117
 from litex.build.io import DDROutput
 
 from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import MT48LC4M16  # FIXME: use EtronTech reference.
+from litedram.modules import EM638165
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ class BaseSoC(SoCCore):
             self.sdrphy = sdrphy_cls(sdram_pads, sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = MT48LC4M16(sys_clk_freq, sdram_rate), # FIXME.
+                module        = EM638165(sys_clk_freq, sdram_rate),
                 l2_cache_size = 128,
             )
 
@@ -154,7 +154,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=trenz_tec0117.Platform, description="LiteX SoC on TEC0117.")
     parser.add_target_argument("--bios-flash-offset", default="0x0000",         help="BIOS offset in SPI Flash.")
-    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream and BIOS.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream and BIOS.")
     parser.add_target_argument("--sys-clk-freq",      default=25e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")

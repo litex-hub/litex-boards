@@ -16,7 +16,7 @@ from litex.gen import *
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock.gowin_gw5a import GW5APLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
@@ -106,7 +106,7 @@ class _CRG(LiteXModule):
                     i_CEN    = self.stop,
                     o_CLKOUT = self.cd_sys2x.clk
                 ),
-                AsyncResetSynchronizer(self.cd_sys2x, ~pll.locked | self.reset),
+                AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
             ]
             # Init clock domain
             self.comb += [
@@ -265,33 +265,33 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_mega_138k.Platform, description="LiteX SoC on Tang Mega 138K.")
-    parser.add_target_argument("--flash",           action="store_true",      help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
 
     # Memory.
-    parser.add_target_argument("--with-ddr3",       action="store_true",      help="Enable optional DDR3 module.")
-    parser.add_target_argument("--with-sdram",      action="store_true",      help="Enable optional SDRAM module.")
-    parser.add_target_argument("--sdram-model",     default="sipeed",         help="SDRAM module model.",
+    parser.add_target_argument("--with-ddr3",      action="store_true", help="Enable optional DDR3 module.")
+    parser.add_target_argument("--with-sdram",     action="store_true", help="Enable optional SDRAM module.")
+    parser.add_target_argument("--sdram-model",    default="sipeed",
         choices=[
             "sipeed",
             "mister"
-    ])
+    ], help="SDRAM module model.")
 
     # Video.
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-colorbars",   action="store_true",      help="Enable Video ColoBars (HDMI).")
-    viopts.add_argument("--with-video-terminal",    action="store_true",      help="Enable Video Terminal (HDMI).")
-    viopts.add_argument("--with-video-framebuffer", action="store_true",      help="Enable Video Framebuffer (HDMI).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video ColoBars (HDMI).")
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
 
     # Ethernet.
-    parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone",  action="store_true",      help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--local-ip",        default="192.168.1.50",   help="Local IP address.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",     help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-ip", "--local-ip", dest="eth_ip", default="192.168.1.50", help="Ethernet/Etherbone IP address.")
 
     # PCIe.
-    parser.add_target_argument("--with-pcie",       action="store_true",      help="Enable PCIe support.")
+    parser.add_target_argument("--with-pcie",           action="store_true",        help="Enable PCIe support.")
 
     args = parser.parse_args()
 
@@ -308,18 +308,23 @@ def main():
         with_pcie              = args.with_pcie,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        eth_ip                 = args.local_ip,
+        eth_ip                 = args.eth_ip,
         remote_ip              = args.remote_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         **parser.soc_argdict
     )
 
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.with_pcie:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.with_pcie:
-        generate_litepcie_software_headers(soc, os.path.join(builder.output_dir, "driver"))
+        driver_dir = os.path.join(builder.output_dir, "driver")
+        os.makedirs(driver_dir, exist_ok=True)
+        generate_litepcie_software_headers(soc, driver_dir)
 
     if args.load:
         prog = soc.platform.create_programmer()

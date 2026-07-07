@@ -14,7 +14,7 @@ from litex.gen import *
 from litex_boards.platforms import digilent_arty_s7
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -35,7 +35,7 @@ class _CRG(LiteXModule):
         # # #
 
         self.pll = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
+        self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
         pll.register_clkin(platform.request("clk100"), 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys2x,     2*sys_clk_freq)
@@ -92,7 +92,7 @@ def main():
     parser = LiteXArgumentParser(platform=digilent_arty_s7.Platform, description="LiteX SoC on Arty S7.")
     parser.add_target_argument("--variant",        default="s7-50",           help="Board variant (s7-50 or s7-25).")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(

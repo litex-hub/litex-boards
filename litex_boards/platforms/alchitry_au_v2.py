@@ -2,7 +2,7 @@
 
 #
 # This file is part of LiteX-Boards.
-# 
+#
 # Copyright (c) 2025 Victor Vimbert-Guerlais <victor.vimbertguerlais@gmail.com>
 # Modified from the Alchitry Au v1 version by Nathaniel Lewis <github@nrlewis.dev>
 # SPDX-License-Identifier: BSD-2-Clause
@@ -16,7 +16,7 @@ from litex.build.openocd import OpenOCD
 _io = [
     # Clk / Rst
     ("clk100", 0, Pins("N14"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("P6"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("P6"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("K13"), IOStandard("LVCMOS33")),
@@ -35,6 +35,13 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # I2C
+    ("i2c", 0,
+        Subsignal("scl", Pins("E6")),
+        Subsignal("sda", Pins("K5")),
+        IOStandard("LVCMOS33"),
+    ),
+
     ("spiflash", 0,
         Subsignal("cs_n", Pins("L12")),
         #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.
@@ -44,7 +51,7 @@ _io = [
         Subsignal("hold", Pins("K16")),
         IOStandard("LVCMOS33")
     ),
-    
+
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("L12")),
         #Subsignal("clk",  Pins("")), # Accessed through STARTUPE2.

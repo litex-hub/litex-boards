@@ -19,7 +19,7 @@ _io = [
     ("user_led", 0, Pins("M14"),  IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("M15"),  IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("K16"),  IOStandard("LVCMOS33")),
-    ("user_led", 3, Pins("J18"),  IOStandard("LVCMOS33")),
+    ("user_led", 3, Pins("J16"),  IOStandard("LVCMOS33")),
 
     # Buttons
     ("user_btn", 0, Pins("N15"), IOStandard("LVCMOS33")),
@@ -66,6 +66,8 @@ _ps7_io = [
 _connectors = [
     ("pmodb",    "B12 B12 C12"),
     ("pmodhdmi", "N18 P19 V20 W20 T20 U20 N20 P20 R18 R16 Y18 Y19 V16"),
+    ("j10",      "W19 W18 R14 P14 Y17 Y16 W15 V15 Y14 W14 P18 N17 U15 U14 P16 P15 U17 T16 V18 V17 T15 T14 V13 U13 W13 V12 U12 T12 T10 T11 A20 B19 B20 C20"),
+    ("j11",      "F17 F16 F20 F19 G20 G19 H18 J18 L20 L19 M20 M19 K18 K17 J19 K19 H20 J20 L17 L16 M18 M17 D20 D19 E19 E18 G18 G17 H17 H16 G15 H15 J14 K14"),
     ("pmodj10",  "W19 W18 R14 P14 Y17 Y16 W15 V15 Y14 W14 P18 N17 U15 U14 P16 P15 U17 T16 V18 V17 T15 T14 V13 U13 W13 V12 U12 T12 T10 T11 A20 B19 B20 C20"),
     ("pmodj11",  "F17 F16 F20 F19 G20 G19 H18 J18 L20 L19 M20 M19 K18 K17 J19 K19 H20 J20 L17 L16 M18 M17 D20 D19 E19 E18 G18 G17 H17 H16 G15 H15 J14 K14"),
 ]

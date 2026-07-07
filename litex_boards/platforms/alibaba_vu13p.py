@@ -255,7 +255,7 @@ _io = [
         Subsignal("act_n", Pins("A28"), IOStandard("SSTL12_DCI")),
         Subsignal("dm", Pins(
             "E40 C36 M31 B34 H37 G30 U34 R30", # 0-7
-            "T28"), # 8 
+            "T28"), # 8
             IOStandard("POD12_DCI")),
         Subsignal("dq", Pins(
             "D39 C39 B40 A40 E38 D38 E39 C38",  # 0-7
@@ -421,7 +421,7 @@ class Platform(XilinxUSPPlatform):
         self.add_platform_command("set_property BITSTREAM.CONFIG.CONFIGRATE 85.0 [current_design]")
         self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]")
         self.add_platform_command("set_property BITSTREAM.CONFIG.SPI_FALL_EDGE Yes [current_design]")
-        
+
         # Configure voltage and CONFIG_VOLTAGE
         self.add_platform_command("set_property CFGBVS GND [current_design]")
         self.add_platform_command("set_property CONFIG_VOLTAGE 1.8 [current_design]")

@@ -8,7 +8,6 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
-from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
 
@@ -46,17 +45,6 @@ _io = [
         Subsignal("cmd",  Pins("82")),
         Subsignal("clk",  Pins("83")),
         IOStandard("LVCMOS33"),
-    ),
-    
-    ("hdmi", 0,
-        Subsignal("clk_p", Pins("33")),
-        Subsignal("clk_n", Pins("34")),
-        Subsignal("data0_p", Pins("35")),
-        Subsignal("data0_n", Pins("36")),
-        Subsignal("data1_p", Pins("37")),
-        Subsignal("data1_n", Pins("38")),
-        Subsignal("data2_p", Pins("39")),
-        Subsignal("data2_n", Pins("40")),
     ),
 
     # HDMI
@@ -107,8 +95,8 @@ _io = [
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
-        ("J5", "- - - 76 80 42 41 56 54 51 48 55 49 86 79 - - 72 71 53 52"),
-        ("J6", "- 73 74 75 85 77 15 16 27 28 25 26 29 30 31 17 20 19 18 - -")
+        ("J5", "- - - 75 80 42 41 56 54 51 48 55 49 86 79 - - 72 71 53 52"),
+        ("J6", "- 73 74 76 85 77 15 16 27 28 26 25 29 30 31 17 20 19 18 - -")
 ]
 
 # Platform -----------------------------------------------------------------------------------------

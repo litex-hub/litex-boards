@@ -16,7 +16,7 @@ from litex.gen import *
 from litex_boards.platforms import numato_nereid
 
 from litex.soc.interconnect.csr import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
@@ -88,9 +88,9 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=numato_nereid.Platform, description="LiteX SoC on Nereid.")
-    parser.add_target_argument("--sys-clk-freq", default=100e6,  type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",    action="store_true",        help="Enable PCIe support.")
-    parser.add_target_argument("--driver",       action="store_true",        help="Generate PCIe driver.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -99,7 +99,10 @@ def main():
          **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

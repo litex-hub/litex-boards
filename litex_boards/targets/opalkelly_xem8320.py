@@ -6,17 +6,15 @@
 # Copyright (c) 2022 Andrew Elbert Wilson <Andrew.E.Wilson@ieee.org>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
 from litex_boards.platforms import opalkelly_xem8320
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import VideoDVIPHY
@@ -76,7 +74,8 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_framebuffer)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "jtag_uart"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on XEM8320", **kwargs)
 
         # DDR4 SDRAM -------------------------------------------------------------------------------
@@ -122,12 +121,12 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=opalkelly_xem8320.Platform, description="LiteX SoC on XEM8320.")
-    parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock frequency.")
     #ethopts = parser.target_group.add_mutually_exclusive_group()
     #ethopts.add_argument("--with-ethernet",        action="store_true",    help="Enable Ethernet support.")
     #ethopts.add_argument("--with-etherbone",       action="store_true",    help="Enable Etherbone support.")
     #parser.add_target_argument("--eth-ip",         default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    #parser.add_target_argument("--eth-dynamic-ip", action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    #parser.add_target_argument("--eth-dynamic-ip", action="store_true",    help="Enable dynamic Ethernet IP assignment.")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
@@ -144,7 +143,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
-	)
+    )
 
     soc.platform.add_extension(opalkelly_xem8320._sdcard_pmod_io)
     soc.add_spi_sdcard()

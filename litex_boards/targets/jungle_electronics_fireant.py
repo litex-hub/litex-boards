@@ -10,7 +10,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 from litex.gen.genlib.misc import WaitTimer
@@ -20,7 +19,7 @@ from litex_boards.platforms import jungle_electronics_fireant
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 
 from litex.soc.integration.builder import *
@@ -37,7 +36,7 @@ class _CRG(LiteXModule):
         # # #
 
         clk33 = platform.request("clk33")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         self.comb += self.cd_rst.clk.eq(clk33)
 
@@ -105,7 +104,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=jungle_electronics_fireant.Platform, description="LiteX SoC on Jungle Electronics FireAnt.")
-    parser.add_target_argument("--flash",             action="store_true",          help="Flash Bitstream.")
+    parser.add_target_argument("--flash",             action="store_true",          help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",      default=33.333e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x40000",            help="BIOS offset in SPI Flash.")
     args = parser.parse_args()

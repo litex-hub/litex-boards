@@ -6,17 +6,15 @@
 # Copyright (c) 2022 Andrew Elbert Wilson <andrew.e.wilson@ieee.org>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
 from litex_boards.platforms import avnet_aesku40
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import EDY4016A
@@ -111,13 +109,13 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=avnet_aesku40.Platform, description="LiteX SoC on AESKU40.")
-    parser.add_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone", action="store_true",    help="Add EtherBone.")
-    parser.add_target_argument("--eth-ip",   default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -128,7 +126,7 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         **parser.soc_argdict
-	)
+    )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

@@ -14,7 +14,8 @@ from litex.build.openocd import OpenOCD
 _io = [
     # Clk / Rst
     ("clk100", 0, Pins("R2"), IOStandard("SSTL135")),
-    ("cpu_reset", 0, Pins("C18"), IOStandard("LVCMOS33")),
+    ("clk12",  0, Pins("F14"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("C18"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("E18"), IOStandard("LVCMOS33")),
@@ -141,6 +142,7 @@ _connectors = [
         "ck_io11" : "H17",
         "ck_io12" : "K14",
         "ck_io13" : "G16",
+        "ck_ioa"  : "K13",
 
         # Inner Digital Header
         "ck_io26" : "U11",
@@ -178,6 +180,9 @@ _connectors = [
         }
     ),
     ("XADC", {
+        "vp_in" : "J10",
+        "vn_in" : "K9",
+
         # Outer Analog Header
         "vaux0_p"  : "B13",
         "vaux0_n"  : "A13",
@@ -221,7 +226,7 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.675 [get_iobanks 34]")
 
     def create_programmer(self):
-        bscan_spi = "bscan_spi_xc7s50.bit" if "xc7s50" in self.device else "bscan_spi_xc7a25.bit"
+        bscan_spi = "bscan_spi_xc7s50.bit" if "xc7s50" in self.device else "bscan_spi_xc7s25.bit"
         return OpenOCD("openocd_xc7_ft2232.cfg", bscan_spi)
 
     def do_finalize(self, fragment):

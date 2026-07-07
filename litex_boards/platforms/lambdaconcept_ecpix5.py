@@ -13,7 +13,20 @@ from litex.build.openfpgaloader import OpenFPGALoader
 _io = [
     # Clk / Rst
     ("clk100", 0, Pins("K23"), IOStandard("LVCMOS33")),
+    ("clk26",  0, Pins("N22"), IOStandard("LVCMOS33")),
+    ("clk_aux", 0, Pins("H26"), IOStandard("LVCMOS33")),
+    ("serdes_clk100", 0,
+        Subsignal("p", Pins("AF12")),
+        Subsignal("n", Pins("AF13")),
+    ),
+    ("gsrn",   0, Pins("AB1"), IOStandard("LVCMOS33")),
     ("rst_n",  0, Pins("N5"),  IOStandard("LVCMOS33")),
+    ("rst_sys", 0,
+        Subsignal("in_n", Pins("N5")),
+        Subsignal("out",  Pins("M6")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("ftdi_reset_n", 0, Pins("P23"), IOStandard("LVCMOS33")),
 
     # Leds
     ("rgb_led", 0,
@@ -80,6 +93,7 @@ _io = [
     ),
     ("eth", 0,
         Subsignal("rst_n",   Pins("C13")),
+        Subsignal("int_n",   Pins("B13")),
         Subsignal("mdio",    Pins("A13")),
         Subsignal("mdc",     Pins("C11")),
         Subsignal("rx_ctl",  Pins("A11")),
@@ -134,8 +148,35 @@ _io = [
         Subsignal("dir",  Pins("F22")),
         Subsignal("nxt",  Pins("F23")),
         Subsignal("stp",  Pins("H23")),
-        Subsignal("data", Pins("M26 L25 L26 K25 K26 J23 P25 H25")),
+        Subsignal("data", Pins("M26 L25 L26 K25 K26 J23 J26 H25")),
         IOStandard("LVCMOS33")
+    ),
+
+    # USB-C
+    ("usb_c_power", 0,
+        Subsignal("en_n", Pins("F24")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("usbc_cfg", 0,
+        Subsignal("scl",   Pins("D24")),
+        Subsignal("sda",   Pins("C24")),
+        Subsignal("dir",   Pins("B23")),
+        Subsignal("id_n",  Pins("D23")),
+        Subsignal("int_n", Pins("B24")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("usbc_mux", 0,
+        Subsignal("en_n",  Pins("C23"), IOStandard("LVCMOS33")),
+        Subsignal("amsel", Pins("B26"), IOStandard("LVCMOS33")),
+        Subsignal("pol",   Pins("D26"), IOStandard("LVCMOS33")),
+        Subsignal("lna_p", Pins("AD10"), IOStandard("LVCMOS18D")),
+        Subsignal("lna_n", Pins("AD11"), IOStandard("LVCMOS18D")),
+        Subsignal("lnb_p", Pins("AF9"),  IOStandard("LVCMOS18D")),
+        Subsignal("lnb_n", Pins("AF10"), IOStandard("LVCMOS18D")),
+        Subsignal("lnc_p", Pins("AD7"),  IOStandard("LVCMOS18D")),
+        Subsignal("lnc_n", Pins("AD8"),  IOStandard("LVCMOS18D")),
+        Subsignal("lnd_p", Pins("AF6"),  IOStandard("LVCMOS18D")),
+        Subsignal("lnd_n", Pins("AF7"),  IOStandard("LVCMOS18D")),
     ),
 
     # HDMI / IT6613
@@ -149,6 +190,12 @@ _io = [
         Subsignal("hsync", Pins("B4")),
         Subsignal("sda",   Pins("E17")),
         Subsignal("scl",   Pins("C17")),
+        Subsignal("rst_n", Pins("N6")),
+        Subsignal("int_n", Pins("C4")),
+        Subsignal("mclk",  Pins("E19")),
+        Subsignal("sck",   Pins("D6")),
+        Subsignal("ws",    Pins("C6")),
+        Subsignal("i2s",   Pins("A6 B6 A5 C5")),
         IOStandard("LVCMOS33")
     ),
 ]

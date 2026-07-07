@@ -20,7 +20,7 @@ from litex.soc.cores.clock import NXPLL
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -92,10 +92,10 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=antmicro_sdi_mipi_video_converter.Platform, description="LiteX SoC on Antmicro SDI MIPI Video Converter Board.")
-    parser.add_target_argument("--device",        default="LIFCL-40-9BG256C", help="FPGA device (LIFCL-40-9BG400C, LIFCL-40-8BG400CES, or LIFCL-40-8BG400CES2).")
-    parser.add_target_argument("--sys-clk-freq",  default=75e6,               help="System clock frequency.")
-    parser.add_target_argument("--programmer",    default="radiant",          help="Programmer (radiant or ecpprog).")
-    parser.add_target_argument("--prog-target",   default="direct",           help="Programming Target (direct or flash).")
+    parser.add_target_argument("--device",       default="LIFCL-40-9BG256C", help="FPGA device (LIFCL-40-9BG256C, LIFCL-40-9BG400C, LIFCL-40-8BG400CES, or LIFCL-40-8BG400CES2).")
+    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float,   help="System clock frequency.")
+    parser.add_target_argument("--programmer",   default="radiant",          help="Programmer (radiant or ecpprog).")
+    parser.add_target_argument("--prog-target",  default="direct",           help="Programming Target (direct or flash).")
     args = parser.parse_args()
 
     soc = BaseSoC(

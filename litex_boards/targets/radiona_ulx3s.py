@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -17,7 +16,7 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import radiona_ulx3s
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.led import LedChaser
@@ -30,7 +29,11 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_usb_pll=False, with_video_pll=False, sdram_rate="1:1"):
+    def __init__(self, platform, sys_clk_freq,
+        with_usb_pll   = False,
+        with_video_pll = False,
+        sdram_rate     = "1:1",
+        sdcard_mux     = "esp32"):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
         if sdram_rate == "1:2":
@@ -80,8 +83,12 @@ class _CRG(LiteXModule):
         sdram_clk = ClockSignal("sys2x_ps" if sdram_rate == "1:2" else "sys_ps")
         self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
 
-        # Prevent ESP32 from resetting FPGA
-        self.comb += platform.request("wifi_gpio0").eq(1)
+        if sdcard_mux not in [None, "fpga", "esp32"]:
+            raise ValueError("Unsupported SDCard mux selection: {}.".format(sdcard_mux))
+        if sdcard_mux == "fpga":
+            self.comb += platform.request("wifi_gpio0").eq(0)
+        if sdcard_mux == "esp32":
+            self.comb += platform.request("wifi_gpio0").eq(1)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -93,13 +100,20 @@ class BaseSoC(SoCCore):
         with_video_terminal    = False,
         with_video_framebuffer = False,
         with_spi_flash         = False,
+        sdcard_mux             = "esp32",
         **kwargs):
         platform = radiona_ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
+        uart_name      = kwargs.get("uart_name", "serial")
+        with_usb_pll   = uart_name == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
-        self.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, sdram_rate=sdram_rate)
+        self.crg = _CRG(platform, sys_clk_freq,
+            with_usb_pll   = with_usb_pll,
+            with_video_pll = with_video_pll,
+            sdram_rate     = sdram_rate,
+            sdcard_mux     = sdcard_mux,
+        )
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX3S", **kwargs)
@@ -148,20 +162,28 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=radiona_ulx3s.Platform, description="LiteX SoC on ULX3S")
-    parser.add_target_argument("--device",          default="LFE5U-45F",      help="FPGA device (LFE5U-12F, LFE5U-25F, LFE5U-45F or LFE5U-85F).")
-    parser.add_target_argument("--revision",        default="2.0",            help="Board revision (2.0 or 1.7).")
-    parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--sdram-module",    default="MT48LC16M16",    help="SDRAM module (MT48LC16M16, AS4C32M16 or AS4C16M16).")
-    parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--device",         default="LFE5U-45F",      help="FPGA device (LFE5U-12F, LFE5U-25F, LFE5U-45F or LFE5U-85F).")
+    parser.add_target_argument("--revision",       default="2.0",            help="Board revision (2.0 or 1.7).")
+    parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-module",   default="MT48LC16M16",    help="SDRAM module (MT48LC16M16, AS4C32M16 or AS4C16M16).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",   action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",       action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--sdcard-mux", default="auto", choices=["auto", "fpga", "esp32", "none"],
+        help="Select SDCard connection.")
     parser.add_target_argument("--with-oled",  action="store_true", help="Enable SDD1331 OLED support.")
     parser.add_target_argument("--sdram-rate", default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     args = parser.parse_args()
+
+    sdcard_mux = args.sdcard_mux
+    if sdcard_mux == "auto":
+        sdcard_mux = "fpga" if (args.with_spi_sdcard or args.with_sdcard) else "esp32"
+    if sdcard_mux == "none":
+        sdcard_mux = None
 
     soc = BaseSoC(
         device                 = args.device,
@@ -173,6 +195,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_spi_flash         = args.with_spi_flash,
+        sdcard_mux             = sdcard_mux,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
@@ -187,7 +210,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

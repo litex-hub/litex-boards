@@ -14,13 +14,12 @@ from litex.gen import *
 from litex_boards.platforms import embedfire_rise_pro
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
-from litex.soc.cores.xadc import XADC
-from litex.soc.cores.dna  import DNA
+from litex.soc.cores.xadc import S7SystemMonitor
+from litex.soc.cores.dna  import S7DNA
 from litex.soc.cores.pwm  import PWM
 
 from litedram.modules import MT41K256M16
@@ -43,11 +42,11 @@ class _CRG(LiteXModule):
 
         # Clk/Rst.
         clk50 = platform.request("clk50")
-        rst    = ~platform.request("cpu_reset") if with_rst else 0
+        rst_n  = platform.request("cpu_reset_n") if with_rst else 1
 
         # PLL.
         self.pll = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(rst | self.rst)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
@@ -86,11 +85,11 @@ class BaseSoC(SoCCore):
 
         # XADC -------------------------------------------------------------------------------------
         if with_xadc:
-            self.xadc = XADC()
+            self.xadc = S7SystemMonitor()
 
         # DNA --------------------------------------------------------------------------------------
         if with_dna:
-            self.dna = DNA()
+            self.dna = S7DNA()
             self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
@@ -152,19 +151,19 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=embedfire_rise_pro.Platform, description="LiteX SoC on embedfire rise pro.")
-    parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
-    parser.add_target_argument("--variant",        default="a7-35",           help="Board variant (a7-35 or a7-100 or a7-200).")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--variant",        default="a7-35",          help="Board variant (a7-35 or a7-100 or a7-200).")
     parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-xadc",      action="store_true",       help="Enable 7-Series XADC.")
-    parser.add_target_argument("--with-dna",       action="store_true",       help="Enable 7-Series DNA.")
-    parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone", action="store_true",       help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--with-xadc",      action="store_true",      help="Enable 7-Series XADC.")
+    parser.add_target_argument("--with-dna",       action="store_true",      help="Enable 7-Series DNA.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",      help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP assignment.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",       action="store_true",       help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",           action="store_true",       help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)

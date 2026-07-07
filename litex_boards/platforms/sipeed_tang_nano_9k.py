@@ -27,8 +27,8 @@ _io = [
     ("user_led", 5, Pins("16"), IOStandard("LVCMOS18")),
 
     # Buttons.
-    ("user_btn", 0, Pins("3"), IOStandard("LVCMOS18")),
-    ("user_btn", 1, Pins("4"), IOStandard("LVCMOS18")),
+    ("user_btn_n", 0, Pins("3"), IOStandard("LVCMOS18")),
+    ("user_btn_n", 1, Pins("4"), IOStandard("LVCMOS18")),
 
     # Serial
     ("serial", 0,
@@ -52,6 +52,19 @@ _io = [
         Subsignal("miso", Pins("39")),
         IOStandard("LVCMOS33"),
     ),
+
+    # LCD
+    ("lcd", 0,
+        Subsignal("clk", Pins("35")),
+        Subsignal("hs",  Pins("40")),
+        Subsignal("vs",  Pins("34")),
+        Subsignal("de",  Pins("33")),
+        Subsignal("r",   Pins("75 74 73 72 71")),
+        Subsignal("g",   Pins("70 69 68 57 56 55")),
+        Subsignal("b",   Pins("54 53 51 42 41")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("lcd_backlight", 0, Pins("86"), IOStandard("LVCMOS33")),
 
     # PSRAM
     ("O_psram_ck",      0, Pins(2)),
@@ -101,11 +114,12 @@ class Platform(GowinPlatform):
     def __init__(self, toolchain="gowin"):
         GowinPlatform.__init__(self, "GW1NR-LV9QN88PC6/I5", _io, _connectors, toolchain=toolchain, devicename="GW1NR-9C")
         self.toolchain.options["use_mspi_as_gpio"] = 1
+        self.toolchain.options["use_sspi_as_gpio"] = 1
 
     def create_programmer(self, kit="openfpgaloader"):
         if kit == "gowin":
             return GowinProgrammer(self.devicename)
-        else: 
+        else:
             return OpenFPGALoader(cable="ft2232")
 
     def do_finalize(self, fragment):

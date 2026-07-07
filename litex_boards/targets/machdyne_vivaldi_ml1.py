@@ -8,9 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-import os
-import sys
-import json
 
 from migen import *
 
@@ -20,12 +17,11 @@ from litex_boards.platforms import machdyne_vivaldi_ml1
 
 from litex.build.io import DDROutput
 
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.usb_ohci import USBOHCI
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.interconnect.csr_eventmanager import *
 
@@ -163,36 +159,43 @@ class BaseSoC(SoCCore):
                 pads = platform.request("eth", 0),
                 with_hw_init_reset=True,
                 refclk_cd="eth")
-            self.add_csr("ethphy")
-            self.add_ethernet(name="ethmac", phy=self.ethphy,
-                phy_cd="ethphy_eth", dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+            self.csr.add("ethphy")
+            self.add_ethernet(
+                name       = "ethmac",
+                phy        = self.ethphy,
+                phy_cd     = "ethphy_eth",
+                dynamic_ip = eth_dynamic_ip,
+                local_ip   = None if eth_dynamic_ip else eth_ip,
+                remote_ip  = remote_ip)
 
             self.ethphy1 = LiteEthPHYRMII(
                 clock_pads=None,
                 pads = platform.request("eth", 1),
                 with_hw_init_reset=True,
                 refclk_cd="eth")
-            self.add_csr("ethphy1")
-            self.add_ethernet(name="ethmac1", phy=self.ethphy1,
-                phy_cd="ethphy1_eth", dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+            self.csr.add("ethphy1")
+            self.add_ethernet(
+                name   = "ethmac1",
+                phy    = self.ethphy1,
+                phy_cd = "ethphy1_eth")
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_vivaldi_ml1.Platform, description="LiteX SoC on Vivaldi ML1")
-    parser.add_argument("--sys-clk-freq",    default=48e6,         help="System clock frequency.")
-    parser.add_argument("--revision",        default="v2",         help="Board Revision (v0, v1, v2).")
-    parser.add_argument("--device",          default="45F",        help="ECP5 device (12F, 25F, 45F or 85F).")
-    parser.add_argument("--cable",           default="dirtyJtag",  help="Specify an openFPGALoader cable.")
-    parser.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
-    parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
-    parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
-    parser.add_argument("--with-ethernet",   action="store_true",  help="Enable ethernet support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
+    parser.add_target_argument("--sys-clk-freq",    default=48e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",        default="v2",             help="Board Revision (v0, v1, v2).")
+    parser.add_target_argument("--device",          default="45F",            help="ECP5 device (12F, 25F, 45F or 85F).")
+    parser.add_target_argument("--cable",           default="dirtyJtag",      help="Specify an openFPGALoader cable.")
+    parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
+    parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--boot-from-flash", action="store_true",      help="Boot from flash MMOD.")
 
     args = parser.parse_args()
 

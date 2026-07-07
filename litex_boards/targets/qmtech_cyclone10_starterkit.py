@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -17,7 +16,7 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import qmtech_cyclone10_starterkit
 
 from litex.soc.cores.clock import Cyclone10LPPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -103,11 +102,11 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_cyclone10_starterkit.Platform, description="LiteX SoC on QMTECH Cyclone10 Starter Kit.")
-    parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",      default="1:2",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",   default="1:2",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",        action="store_true",      help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",            action="store_true",      help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     args = parser.parse_args()
 
     soc = BaseSoC(

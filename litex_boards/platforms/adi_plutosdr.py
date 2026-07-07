@@ -14,11 +14,15 @@ _io = [
     ("gpio", 0, Pins("K13"), IOStandard("LVCMOS18")),
     ("gpio", 1, Pins("M12"), IOStandard("LVCMOS18")),
     ("gpio", 2, Pins("R10"), IOStandard("LVCMOS18")),
+    ("gpio", 3, Pins("N14"), IOStandard("LVCMOS18")),
+    ("gpio", 4, Pins("M14"), IOStandard("LVCMOS18")),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = []
+_connectors = [
+    ("PL_GPIO", "K13 M12 R10 N14 M14"),
+]
 
 # Platform -----------------------------------------------------------------------------------------
 

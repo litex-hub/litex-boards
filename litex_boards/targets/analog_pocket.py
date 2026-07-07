@@ -17,7 +17,7 @@ from litex.gen import *
 
 from litex_boards.platforms import analog_pocket
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.build.io import DDROutput

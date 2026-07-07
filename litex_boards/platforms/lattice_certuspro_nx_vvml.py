@@ -24,7 +24,8 @@ _io = [
     # 8.1. DIP Switch
     ("user_dip_btn", 0, Pins("AA15"), IOStandard("LVCMOS33")),
     ("user_dip_btn", 1, Pins("AB16"), IOStandard("LVCMOS33")),
-    ("user_dip_btn", 1, Pins("W16"),  IOStandard("LVCMOS33")),
+    ("user_dip_btn", 2, Pins("AA16"), IOStandard("LVCMOS33")),
+    ("user_dip_btn", 3, Pins("W16"),  IOStandard("LVCMOS33")),
 
     # Figure 8.1 UART Topology
     ("serial", 0,

@@ -16,7 +16,7 @@ from litex_boards.platforms import sipeed_tang_primer
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -31,7 +31,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst.
         clk24 = platform.request("clk24")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         self.comb += self.cd_sys.clk.eq(clk24)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n | self.rst)
@@ -61,7 +61,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_primer.Platform, description="LiteX SoC on Tang Primer.")
-    parser.add_target_argument("--flash",        action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq", default=24e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
@@ -80,7 +80,7 @@ def main():
 
     if args.flash:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="flash", ext=".bin")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="flash", ext=".bit")) # FIXME
 
 if __name__ == "__main__":
     main()

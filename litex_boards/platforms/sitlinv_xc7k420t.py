@@ -141,7 +141,6 @@ def _get_io(io_standard):
             Subsignal("rst_n", Pins("W21"), io_standard),
             Subsignal("clk_p", Pins("T6")),
             Subsignal("clk_n", Pins("T5")),
-            Subsignal("rx_p",  Pins("")),
             Subsignal("rx_p",  Pins("P6 R4")),
             Subsignal("rx_n",  Pins("P5 R3")),
             Subsignal("tx_p",  Pins("N4 P2")),
@@ -343,7 +342,7 @@ class Platform(Xilinx7SeriesPlatform):
         self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 32 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a420t.bit")
+        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7k420t.bit")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)

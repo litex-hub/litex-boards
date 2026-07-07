@@ -38,7 +38,7 @@ _io = [
     ("user_btn", 2, Pins("L20"), IOStandard("LVCMOS33")),
     ("user_btn", 3, Pins("L19"), IOStandard("LVCMOS33")),
 
-	# SPI
+    # SPI
     ("spi", 0,
         Subsignal("clk",  Pins("H15")),
         Subsignal("cs_n", Pins("F16")),
@@ -47,23 +47,26 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-	# I2C
+    # I2C
     ("i2c", 0,
         Subsignal("scl",  Pins("P16")),
         Subsignal("sda",  Pins("P15")),
         IOStandard("LVCMOS33"),
     ),
 
-	# Audio
+    # Crypto
+    ("crypto_sda", 0, Pins("J15"), IOStandard("LVCMOS33")),
+
+    # Audio
     ("audio", 0,
-        Subsignal("pwm", Pins("R18")), # FIXME
-        Subsignal("sd", Pins("T17")), # FIXME
+        Subsignal("pwm", Pins("R18")), # AUD_PWM.
+        Subsignal("sd",  Pins("T17")), # AUD_SD.
         IOStandard("LVCMOS33"),
     ),
 
     # HDMI In
     ("hdmi_in", 0,
-        Subsignal("clk_p",   Pins("H17"), IOStandard("TMDS_33")),
+        Subsignal("clk_p",   Pins("N18"), IOStandard("TMDS_33")),
         Subsignal("clk_n",   Pins("P19"), IOStandard("TMDS_33")),
         Subsignal("data0_p", Pins("V20"), IOStandard("TMDS_33")),
         Subsignal("data0_n", Pins("W20"), IOStandard("TMDS_33")),
@@ -122,91 +125,97 @@ _io = [
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = [
+_ck_io_common = {
+    # Outer Digital Header
+    "ck_io0"  : "T14",
+    "ck_io1"  : "U12",
+    "ck_io2"  : "U13",
+    "ck_io3"  : "V13",
+    "ck_io4"  : "V15",
+    "ck_io5"  : "T15",
+    "ck_io6"  : "R16",
+    "ck_io7"  : "U17",
+    "ck_io8"  : "V17",
+    "ck_io9"  : "V18",
+    "ck_io10" : "T16",
+    "ck_io11" : "R17",
+    "ck_io12" : "P18",
+    "ck_io13" : "N17",
+
+    # Inner Analog Header as Digital IO
+    "ck_a6"  : "F19",
+    "ck_a7"  : "F20",
+    "ck_a8"  : "C20",
+    "ck_a9"  : "B20",
+    "ck_a10" : "B19",
+    "ck_a11" : "A20",
+}
+
+_ck_io_z7_20 = {
+    **_ck_io_common,
+    "ck_ioa"  : "Y13",
+
+    # Inner Digital Header
+    "ck_io26" : "U5",
+    "ck_io27" : "V5",
+    "ck_io28" : "V6",
+    "ck_io29" : "U7",
+    "ck_io30" : "V7",
+    "ck_io31" : "U8",
+    "ck_io32" : "V8",
+    "ck_io33" : "V10",
+    "ck_io34" : "W10",
+    "ck_io35" : "W6",
+    "ck_io36" : "Y6",
+    "ck_io37" : "Y7",
+    "ck_io38" : "W8",
+    "ck_io39" : "Y8",
+    "ck_io40" : "W9",
+    "ck_io41" : "Y9",
+
+    # Outer Analog Header as Digital IO
+    "ck_a0" : "Y11",
+    "ck_a1" : "Y12",
+    "ck_a2" : "W11",
+    "ck_a3" : "V11",
+    "ck_a4" : "T5",
+    "ck_a5" : "U10",
+}
+
+_xadc = {
+    # Outer Analog Header
+    "vaux1_p"  : "E17",
+    "vaux1_n"  : "D18",
+    "vaux9_p"  : "E18",
+    "vaux9_n"  : "E19",
+    "vaux6_p"  : "K14",
+    "vaux6_n"  : "J14",
+    "vaux15_p" : "K16",
+    "vaux15_n" : "J16",
+    "vaux5_p"  : "J20",
+    "vaux5_n"  : "H20",
+    "vaux13_p" : "G19",
+    "vaux13_n" : "G20",
+
+    # Inner Analog Header
+    "vaux12_p" : "F19",
+    "vaux12_n" : "F20",
+    "vaux0_p"  : "C20",
+    "vaux0_n"  : "B20",
+    "vaux8_p"  : "B19",
+    "vaux8_n"  : "A20",
+}
+
+def _connectors(variant):
     # access a pin with `pmoda:N`, where N is:
     #   N: 0  1  2  3  4  5  6  7
     # Pin: 1  2  3  4  7  8  9 10
     # Bank 13
-    ("pmoda", "Y18 Y19 Y16 Y17 U18 U19 W18 W19"),
-    ("pmodb", "W14 Y14 T11 T10 V16 W16 V12 W13"),
-    ("ck_io", {
-		"ck_ioa"  : "Y13",
-
-        # Outer Digital Header
-		"ck_io0"  : "T14",
-        "ck_io1"  : "U12",
-        "ck_io2"  : "U13",
-        "ck_io3"  : "V13",
-        "ck_io4"  : "V15",
-        "ck_io5"  : "T15",
-        "ck_io6"  : "R16",
-        "ck_io7"  : "U17",
-        "ck_io8"  : "V17",
-        "ck_io9"  : "V18",
-        "ck_io10" : "T16",
-        "ck_io11" : "R17",
-        "ck_io12" : "P18",
-        "ck_io13" : "N17",
-
-		# Inner Digital Header
-        # Only for Arty Z7 20
-        "ck_io26" : "U5",
-        "ck_io27" : "V5",
-        "ck_io28" : "V6",
-        "ck_io29" : "U7",
-        "ck_io30" : "V7",
-        "ck_io31" : "U8",
-        "ck_io32" : "V8",
-        "ck_io33" : "V10",
-        "ck_io34" : "W10",
-        "ck_io35" : "W6",
-        "ck_io36" : "Y6",
-        "ck_io37" : "Y7",
-        "ck_io38" : "W8",
-        "ck_io39" : "Y8",
-        "ck_io40" : "W9",
-        "ck_io41" : "Y9",
-
-        # Outer Analog Header as Digital IO
-        # Only for Arty Z7 20
-        "ck_a0" : "Y11",
-        "ck_a1" : "Y12",
-        "ck_a2" : "W11",
-        "ck_a3" : "V11",
-        "ck_a4" : "T5",
-        "ck_a5" : "U10",
-
-        # Inner Analog Header as Digital IO
-        "ck_a6"  : "F19",
-        "ck_a7"  : "F20",
-        "ck_a8"  : "C20",
-        "ck_a9"  : "B20",
-        "ck_a10" : "B19",
-        "ck_a11" : "A20",
-	}),
-    ("XADC", {
-        # Outer Analog Header
-        "vaux1_p"  : "E17",
-        "vaux1_n"  : "B18",
-        "vaux9_p"  : "E18",
-        "vaux9_n"  : "E19",
-        "vaux6_p"  : "K14",
-        "vaux6_n"  : "J14",
-        "vaux15_p" : "K16",
-        "vaux15_n" : "J16",
-        "vaux5_p"  : "J20",
-        "vaux5_n"  : "H20",
-        "vaux13_p" : "G19",
-        "vaux13_n" : "G20",
-
-        # Inner Analog Header
-        "vaux12_p" : "F19",
-        "vaux12_n" : "F20",
-        "vaux0_p"  : "C20",
-        "vaux0_n"  : "B20",
-        "vaux8_p"  : "B19",
-        "vaux8_n"  : "A19",
-    })
+    return [
+        ("pmoda", "Y18 Y19 Y16 Y17 U18 U19 W18 W19"),
+        ("pmodb", "W14 Y14 T11 T10 V16 W16 V12 W13"),
+        ("ck_io", _ck_io_z7_20 if variant == "z7-20" else _ck_io_common),
+        ("XADC", _xadc),
 ]
 
 # PS7 config ---------------------------------------------------------------------------------------
@@ -266,7 +275,7 @@ class Platform(Xilinx7SeriesPlatform):
             "z7-20": "arty_z7_20"
         }[variant]
 
-        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors(variant), toolchain=toolchain)
         self.ps7_config = ps7_config
 
     def create_programmer(self):

@@ -16,9 +16,6 @@
 # 3) DDR3 DM IOs, for PCB complexity, are not in the required group. The solution mentioned in
 #    this issue must be used: https://github.com/enjoy-digital/litedram/issues/299
 
-import os
-import sys
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -27,14 +24,14 @@ from litex.gen import *
 from litex_boards.platforms import radiona_ulx4m_ld_v2
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOTristate
 from litex.soc.cores.video import VideoHDMIPHY
 
 from litedram.common import PHYPadsReducer
-from litedram.modules import MT41K64M16,MT41K128M16,MT41K256M16,MT41K512M16
+from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
 from litedram.phy import ECP5DDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
@@ -133,8 +130,9 @@ class BaseSoC(SoCCore):
         platform = radiona_ulx4m_ld_v2.Platform(revision=revision, device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
+        uart_name      = kwargs.get("uart_name", "serial")
         with_video_pll = with_video_terminal or with_video_framebuffer or with_video_colorbars
-        with_usb_pll   = kwargs["uart_name"] == "usb_acm"
+        with_usb_pll   = uart_name == "usb_acm"
         self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll, with_usb_pll)
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -146,7 +144,7 @@ class BaseSoC(SoCCore):
                 "MT41K64M16":  MT41K64M16,
                 "MT41K128M16": MT41K128M16,
                 "MT41K256M16": MT41K256M16,
-                "MT41K512M16": MT41K256M16,
+                "MT41K512M16": MT41K512M16,
             }
             sdram_module = available_sdram_modules.get(sdram_device)
 
@@ -205,33 +203,35 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=radiona_ulx4m_ld_v2.Platform, description="LiteX SoC on ULX4M-LD-V2")
-    parser.add_argument("--sys-clk-freq",    default=75e6,           help="System clock frequency.")
-    parser.add_argument("--revision",        default="0.3",          help="Board Revision (1.0).")
-    parser.add_argument("--device",          default="85F",          help="ECP5 device (25F, 45F, 85F).")
+    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",     default="0.3",            help="Board revision (0.3).")
+    parser.add_target_argument("--device",       default="85F",            help="ECP5 device (25F, 45F, or 85F).")
 
     # RAM.
-    parser.add_argument("--sdram-device",    default="MT41K512M16",  help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16 or MT41K512M16).")
+    parser.add_target_argument("--sdram-device", default="MT41K512M16",
+        help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16, or MT41K512M16).")
 
     # Ethernet.
-    ethopts = parser.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true",     help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone", action="store_true",     help="Add EtherBone.")
-    parser.add_argument("--local-ip",        default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_argument("--eth-dynamic-ip",  action="store_true",     help="Enable dynamic Ethernet IP addresses setting.")
+    ethopts = parser.target_group.add_mutually_exclusive_group()
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip", "--local-ip", dest="eth_ip", default="192.168.1.50", help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
 
     # SPI Flash.
-    parser.add_argument("--with-spi-flash",  action="store_true",    help="Enable SPI Flash (MMAPed).")
-    sdopts = parser.add_mutually_exclusive_group()
+    parser.add_target_argument("--with-spi-flash",      action="store_true",        help="Enable memory-mapped SPI flash.")
+    sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 
     # Connectors.
-    parser.add_argument("--with-syzygy-gpio", action="store_true", help="Enable GPIOs through SYZYGY Breakout on Port-A.")
+    parser.add_target_argument("--with-syzygy-gpio", action="store_true",
+        help="Enable GPIOs through the SYZYGY breakout on Port A.")
 
     # Video.
-    viopts = parser.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video ColoBars (HDMI).")
+    viopts = parser.target_group.add_mutually_exclusive_group()
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable video color bars (HDMI).")
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
 
@@ -249,7 +249,7 @@ def main():
         sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
-        eth_ip                 = args.local_ip,
+        eth_ip                 = args.eth_ip,
         remote_ip              = args.remote_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
         with_spi_flash         = args.with_spi_flash,

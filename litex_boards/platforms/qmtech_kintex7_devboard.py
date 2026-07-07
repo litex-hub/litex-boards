@@ -8,7 +8,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
-from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ _io = [
 
     # Switches
     ("sw2", 0, Pins("U26"), IOStandard("LVCMOS33")), # cpu_reset
-    ("sw3", 0, Pins("V26"), IOStandard("LVCMOS33")), 
+    ("sw3", 0, Pins("V26"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("R26"), IOStandard("LVCMOS33")),
@@ -78,7 +78,7 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
-#    ("csi", 0,  
+#    ("csi", 0,
 #        Subsignal("csi", Pins("")),
 #        IOStandard("LVCMOS33")
 #    ),
@@ -115,7 +115,7 @@ _connectors = [
       1: "C16", 7: "B16",
       2: "A17", 8: "B17",
       3: "A18", 9: "A19",
-      4: "A20", 10: "B20", 
+      4: "A20", 10: "B20",
     }),
     # PMOD_2
     ("J12", {
@@ -141,7 +141,7 @@ _connectors = [
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
+class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk50"
     default_clk_period = 1e9/50e6
 
@@ -150,7 +150,7 @@ class Platform(XilinxPlatform):
         io = _io
         connectors = _connectors
 
-        XilinxPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
 
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
@@ -167,5 +167,5 @@ class Platform(XilinxPlatform):
 
 
     def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
+        Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)

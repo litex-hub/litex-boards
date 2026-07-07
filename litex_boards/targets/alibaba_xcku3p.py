@@ -24,7 +24,7 @@ from litex.gen import *
 
 from litex_boards.platforms import alibaba_xcku3p
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder  import *
 
 from litex.soc.cores.clock import *
@@ -66,6 +66,7 @@ class BaseSoC(SoCCore):
         eth_dynamic_ip  = False,
         with_led_chaser = True,
         with_pcie       = False,
+        pcie_lanes      = 4,
         **kwargs):
         platform = alibaba_xcku3p.Platform()
 
@@ -74,7 +75,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG UART.
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG UART.
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alibaba Cloud KU3P Board", **kwargs)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
@@ -93,8 +94,9 @@ class BaseSoC(SoCCore):
         if with_pcie:
             self.pcie_phy = USPPCIEPHY(
                 platform,
-                platform.request("pcie_x4"),
-                data_width = 128,
+                platform.request(f"pcie_x{pcie_lanes}"),
+                speed      = "gen3",
+                data_width = {4: 128, 8: 256}[pcie_lanes],
                 bar0_size  = 0x20000
             )
             self.pcie_phy.update_config({
@@ -118,16 +120,17 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alibaba_xcku3p.Platform, description="LiteX SoC on Alibaba Cloud KU3P board.")
-    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",        action="store_true",    help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",       action="store_true",    help="Enable Etherbone support.")
-    parser.add_argument("--eth-sfp",               default=0, type=int,    help="Ethernet SFP.", choices=[0, 1])
-    parser.add_target_argument("--eth-ip",         default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",      default=None,           help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--with-pcie",      action="store_true",    help="Enable PCIe support.")
-    parser.add_target_argument("--driver",         action="store_true",    help="Generate PCIe driver.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-sfp",        default=0, type=int, choices=[0, 1], help="Ethernet SFP.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",              help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",                 help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default=None,                        help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--with-pcie",      action="store_true",                 help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",     default=4, type=int,                 choices=[4, 8], help="PCIe lane count.")
+    parser.add_target_argument("--driver",         action="store_true",                 help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -139,11 +142,15 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         with_pcie      = args.with_pcie,
+        pcie_lanes     = args.pcie_lanes,
         **parser.soc_argdict
     )
 
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

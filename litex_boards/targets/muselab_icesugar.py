@@ -17,7 +17,7 @@ from litex_boards.platforms import muselab_icesugar
 
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -108,9 +108,9 @@ def flash(bios_flash_offset):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=muselab_icesugar.Platform, description="LiteX SoC on iCEBreaker.")
-    parser.add_target_argument("--flash",             action="store_true",       help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",      default=24e6,  type=float, help="System clock frequency.")
-    parser.add_target_argument("--bios-flash-offset", default="0x40000",         help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",      default=24e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--bios-flash-offset", default="0x40000",        help="BIOS offset in SPI Flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -124,7 +124,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".bin")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
         flash(int(args.bios_flash_offset, 0))

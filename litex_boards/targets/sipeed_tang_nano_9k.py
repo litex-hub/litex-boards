@@ -14,7 +14,7 @@ from litex.gen import *
 from litex_boards.platforms import sipeed_tang_nano_9k
 
 from litex.soc.cores.clock.gowin_gw1n import GW1NPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -33,7 +33,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst
         clk27 = platform.request("clk27")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         # PLL
         self.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
@@ -106,12 +106,18 @@ class BaseSoC(SoCCore):
             hyperram_pads = HyperRAMPads(0)
             self.comb += ck[0].eq(hyperram_pads.clk)
             self.comb += ck_n[0].eq(~hyperram_pads.clk)
-            # FIXME: Issue with upstream HyperRAM core, so use old one. Need to investigate.
+            # FIXME: Issue with upstream HyperRAM core, so use old one when available.
+            HyperRAMCore = HyperRAM
             if not os.path.exists("hyperbus.py"):
                 os.system("wget https://github.com/litex-hub/litex-boards/files/8831568/hyperbus.py.txt")
-                os.system("mv hyperbus.py.txt hyperbus.py")
-            from hyperbus import HyperRAM
-            self.hyperram = HyperRAM(hyperram_pads)
+                if os.path.exists("hyperbus.py.txt"):
+                    os.system("mv hyperbus.py.txt hyperbus.py")
+            if os.path.exists("hyperbus.py"):
+                try:
+                    from hyperbus import HyperRAM as HyperRAMCore
+                except ImportError:
+                    pass
+            self.hyperram = HyperRAMCore(hyperram_pads)
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4 * MEGABYTE, mode="rwx"))
 
         # Video ------------------------------------------------------------------------------------
@@ -131,12 +137,12 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_nano_9k.Platform, description="LiteX SoC on Tang Nano 9K.")
-    parser.add_target_argument("--flash",                action="store_true",      help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",         default=27e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--bios-flash-offset",    default="0x0",            help="BIOS offset in SPI Flash.")
-    parser.add_target_argument("--with-spi-sdcard",      action="store_true",      help="Enable SPI-mode SDCard support.")
-    parser.add_target_argument("--with-video-terminal",  action="store_true",      help="Enable Video Terminal (HDMI).")
-    parser.add_target_argument("--prog-kit",             default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
+    parser.add_target_argument("--flash",               action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",        default=27e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--bios-flash-offset",   default="0x0",            help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--with-spi-sdcard",     action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--prog-kit",            default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     args = parser.parse_args()
 
     soc = BaseSoC(

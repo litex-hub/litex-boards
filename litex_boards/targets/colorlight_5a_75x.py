@@ -45,7 +45,6 @@
 # ./colorlight_5a_75x.py --board=i5a-907 --revision=7.0 --build
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -54,11 +53,11 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import colorlight_5a_75b, colorlight_5a_75e, colorlight_i5a_907
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import M12L16161A, M12L64322A
+from litedram.modules import EM636165, M12L16161A, M12L64322A
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
@@ -144,10 +143,11 @@ class BaseSoC(SoCCore):
             assert use_internal_osc, "You cannot use the 25MHz clock as system clock since it is provided by the Ethernet PHY and will stop during PHY reset."
 
         # CRG --------------------------------------------------------------------------------------
-        with_rst     = kwargs["uart_name"] not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
+        uart_name = kwargs.get("uart_name", "serial")
+        with_rst     = uart_name not in ["serial", "crossover"] # serial_rx shared with user_btn_n.
         if board == "i5a-907":
             with_rst = True
-        with_usb_pll = kwargs.get("uart_name", None) == "usb_acm"
+        with_usb_pll = uart_name == "usb_acm"
         self.crg = _CRG(platform, sys_clk_freq,
             use_internal_osc = use_internal_osc,
             with_usb_pll     = with_usb_pll,
@@ -167,7 +167,9 @@ class BaseSoC(SoCCore):
         if not self.integrated_main_ram_size:
             sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
             self.sdrphy = sdrphy_cls(platform.request("sdram"), sys_clk_freq)
-            if (board == "5a-75e" and revision == "6.0") or (board == "5a-75b" and (revision == "8.0" or revision == "8.2")):
+            if board == "5a-75b" and revision == "6.1":
+                sdram_cls  = EM636165
+            elif (board == "5a-75e" and revision == "6.0") or (board == "5a-75b" and (revision == "8.0" or revision == "8.2")):
                 sdram_cls  = M12L64322A
             else:
                 sdram_cls  = M12L16161A
@@ -222,19 +224,19 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=colorlight_5a_75b.Platform, description="LiteX SoC on Colorlight 5A-75X.")
-    parser.add_target_argument("--board",             default="5a-75b",         help="Board type (5a-75b, 5a-75e or i5a-907).")
-    parser.add_target_argument("--revision",          default="7.0",            help="Board revision (6.0, 6.1, 7.0, 8.0, or 8.2).")
-    parser.add_target_argument("--sys-clk-freq",      default=60e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--board",        default="5a-75b",         help="Board type (5a-75b, 5a-75e or i5a-907).")
+    parser.add_target_argument("--revision",     default="7.0",            help="Board revision (6.0, 6.1, 7.0, 8.0, or 8.2).")
+    parser.add_target_argument("--sys-clk-freq", default=60e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",           action="store_true",    help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",          action="store_true",    help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",            default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-phy",           default=0, type=int,    help="Ethernet PHY (0 or 1).")
-    parser.add_target_argument("--use-internal-osc",  action="store_true",    help="Use internal oscillator.")
-    parser.add_target_argument("--sdram-rate",        default="1:1",          help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    parser.add_target_argument("--with-spi-flash",    action="store_true",    help="Add SPI flash support to the SoC")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",           default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip",   action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",        default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-phy",          default=0, type=int,     help="Ethernet PHY (0 or 1).")
+    parser.add_target_argument("--use-internal-osc", action="store_true",     help="Use internal oscillator.")
+    parser.add_target_argument("--sdram-rate",       default="1:1",           help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-spi-flash",   action="store_true",     help="Add SPI flash support to the SoC")
     args = parser.parse_args()
 
     soc = BaseSoC(board=args.board, revision=args.revision,
@@ -258,7 +260,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

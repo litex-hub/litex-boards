@@ -101,7 +101,7 @@ _io = [
         Subsignal("data", Pins("B15 R16 E14 P2"), Misc("PULLMODE=UP")),
         IOStandard("LVCMOS33"), Misc("SLEW=FAST")
     ),
-    
+
     # RMII Ethernet (LAN8720A).
     ("eth_clocks", 0,
         Subsignal("ref_clk", Pins("H2")),
@@ -276,9 +276,9 @@ _connectors = [
         "GND"               : "---", # 31
         "GND"               : "---", # 32
         "CAM1_D2_N"         : "---", # 33
-        "CAM0_D0_N"         : "A5",  # 34
+        "CAM0_D1_N"         : "B1",  # 34
         "CAM1_D2_P"         : "---", # 35
-        "CAM0_D0_P"         : "A4",  # 36
+        "CAM0_D1_P"         : "A2",  # 36
         "GND"               : "---", # 37
         "GND"               : "---", # 38
         "CAM1_D3_N"         : "---", # 39

@@ -6,7 +6,7 @@
 
                                               LiteX boards files
 
-                                     Copyright 2012-2025 / LiteX-Hub community
+                                     Copyright 2012-2026 / LiteX-Hub community
 
 [![](https://github.com/litex-hub/litex-boards/workflows/ci/badge.svg)](https://github.com/litex-hub/litex-boards/actions) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/litex-hub/litex-boards)
 
@@ -61,6 +61,9 @@ But this is just the starting point to create your own hardware! You can then:
 
 Please use `python3 -m litex_boards.targets.<board> --help` to see the various pre-built possibilities.
 
+For contributions and cleanup work, see the [target/platform style guide](docs/board_target_style.md)
+and the generated [board inventory](docs/boards_inventory.md).
+
 Hoping you will find this useful and enjoy it, please contribute back if you make improvements that could be useful to others or find issues!
 
 **A question or want to get in touch? Our IRC channel is [#litex at irc.libera.chat](https://web.libera.chat/#litex)**
@@ -93,6 +96,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
 ---------------
     ├── adi_adrv2crr_fmc
     ├── adi_plutosdr
+    ├── adiuvo_forgix
     ├── alchitry_au
     ├── alchitry_au_v2
     ├── alchitry_cu
@@ -108,17 +112,22 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── alinx_ax7203
     ├── alinx_axau15
     ├── alinx_axu2cga
+    ├── altera_agilex5e_065b_premium_devkit
     ├── analog_pocket
     ├── antmicro_artix_dc_scm
     ├── antmicro_datacenter_ddr4_test_board
+    ├── antmicro_ddr5_test_board
+    ├── antmicro_ddr5_tester
     ├── antmicro_lpddr4_test_board
     ├── antmicro_sdi_mipi_video_converter
+    ├── antmicro_sodimm_ddr5_tester
     ├── arduino_mkrvidor4000
     ├── arrow_axe5000
     ├── avnet_aesku40
     ├── berkeleylab_marble
     ├── berkeleylab_obsidian
     ├── bochenjingxin_kintex7_basec
+    ├── brisbaneSilicon_brs_100_gw1nr9
     ├── camlink_4k
     ├── colognechip_gatemate_evb
     ├── colorlight_5a_75x
@@ -158,6 +167,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── fpc_iii
     ├── fpgawars_alhambra2
     ├── gadgetfactory_papilio_pro
+    ├── gmm7550_usb3
     ├── gsd_butterstick
     ├── gsd_orangecrab
     ├── hackaday_hadbadge
@@ -270,6 +280,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── sqrl_acorn
     ├── sqrl_fk33
     ├── sqrl_xcu1525
+    ├── terasic_atum_a3_nano
     ├── terasic_de0nano
     ├── terasic_de10lite
     ├── terasic_de10nano
@@ -279,12 +290,25 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── terasic_sockit
     ├── tinyfpga_bx
     ├── trellisboard
+    ├── trenz_c10lpek
     ├── trenz_c10lprefkit
+    ├── trenz_cr00010
     ├── trenz_cyc1000
     ├── trenz_max1000
+    ├── trenz_mega65
+    ├── trenz_mf001_intel
+    ├── trenz_mf_c10lp_001
+    ├── trenz_mf_max10_001
+    ├── trenz_s7mini
+    ├── trenz_smf2000
+    ├── trenz_te0710
+    ├── trenz_te0711
     ├── trenz_te0725
+    ├── trenz_te0741
     ├── trenz_te0890
     ├── trenz_tec0117
+    ├── trenz_tel0025
+    ├── trenz_tem0006
     ├── tul_pynq_z2
     ├── xilinx_ac701
     ├── xilinx_alveo_u200

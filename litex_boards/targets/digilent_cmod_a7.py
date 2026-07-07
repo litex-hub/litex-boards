@@ -10,12 +10,11 @@ from migen import *
 
 from litex.gen import *
 
-from litex.build.io import CRG
 
 from litex_boards.platforms import digilent_cmod_a7
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -63,8 +62,8 @@ class AsyncSRAM(LiteXModule):
         chip_ena = self.bus.cyc & self.bus.stb & self.bus.sel[0]
         write_ena = (chip_ena & self.bus.we)
         ########################
-        # external write enable, 
-        # external chip enable, 
+        # external write enable,
+        # external chip enable,
         # internal tristate write enable
         ########################
         self.comb += [
@@ -142,7 +141,7 @@ def main():
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="a7-35",          help="Board variant (a7-35 or a7-100).")
     parser.add_target_argument("--sys-clk-freq",   default=48e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
 
     args = parser.parse_args()
 

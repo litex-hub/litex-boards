@@ -15,8 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import lattice_certuspro_nx_versa
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.led import LedChaser
@@ -105,14 +104,19 @@ def main():
     )
 
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.with_pcie:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.with_pcie:
         if args.driver:
             generate_litepcie_software(soc, "software")
         else:
-            generate_litepcie_software_headers(soc, os.path.join("software", "kernel"))
+            driver_dir = os.path.join("software", "kernel")
+            os.makedirs(driver_dir, exist_ok=True)
+            generate_litepcie_software_headers(soc, driver_dir)
 
     if args.load:
         prog = soc.platform.create_programmer()

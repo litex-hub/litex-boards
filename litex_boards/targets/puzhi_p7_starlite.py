@@ -12,10 +12,9 @@ from litex.gen import *
 
 from litex_boards.platforms import puzhi_p7_starlite
 
-from litex.build import tools
 from litex.build.tools import write_to_file
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 
@@ -194,10 +193,12 @@ def main():
     parser.add_target_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
 
     parser.set_defaults(cpu_type="zynq7000")
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         variant        = args.variant,

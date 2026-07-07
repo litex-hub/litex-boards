@@ -37,7 +37,7 @@ from litex.gen import *
 from litex_boards.platforms import sipeed_tang_nano
 
 from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -52,7 +52,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst.
         clk24 = platform.request("clk24")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         # PLL.
         self.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
@@ -70,7 +70,8 @@ class BaseSoC(SoCMini):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCMini ----------------------------------------------------------------------------------
-        kwargs["uart_name"]     = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         kwargs["uart_baudrate"] = 1e6 # CH552 firmware does not support traditional baudrates.
         kwargs["with_uartbone"] = True
         SoCMini.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Nano", **kwargs)
@@ -86,8 +87,8 @@ class BaseSoC(SoCMini):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_nano.Platform, description="LiteX SoC on Tang Nano.")
-    parser.add_target_argument("--flash",       action="store_true",      help="Flash Bitstream.")
-    parser.add_target_argument("--sys-clk-freq",default=48e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

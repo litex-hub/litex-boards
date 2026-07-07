@@ -7,6 +7,8 @@
 
 # https://github.com/enjoy-digital/litex-acorn-baseboard
 
+import subprocess
+
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeECP5Platform
 from litex.build.openfpgaloader import OpenFPGALoader
@@ -131,8 +133,18 @@ class Platform(LatticeECP5Platform):
     def __init__(self, toolchain="trellis", **kwargs):
         LatticeECP5Platform.__init__(self, "LFE5UM5G-45F-8BG381I", _io, _connectors, toolchain=toolchain, **kwargs)
 
+    def detect_ftdi_chip(self):
+        lsusb_log = subprocess.run(['lsusb'], capture_output=True, text=True)
+        for ftdi_chip in ["ft232", "ft2232", "ft4232"]:
+            if f"Future Technology Devices International, Ltd {ftdi_chip.upper()}" in lsusb_log.stdout:
+                return "digilent_hs2" if ftdi_chip == "ft232" else ftdi_chip
+        return None
+
     def create_programmer(self):
-        return OpenFPGALoader("ecpix5")
+        ftdi_chip = self.detect_ftdi_chip()
+        if ftdi_chip is None:
+            raise RuntimeError("No compatible FTDI device found.")
+        return OpenFPGALoader("ecpix5", cable=ftdi_chip)
 
     def do_finalize(self, fragment):
         LatticeECP5Platform.do_finalize(self, fragment)

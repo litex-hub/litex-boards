@@ -51,7 +51,7 @@ _io = [
         Subsignal("sda",     Pins("AE13")),
         IOStandard("LVCMOS33")
     ),
- 
+
     # MIPI 1
     ("camera", 1,
         Subsignal("mclk",    Pins("AC14"), IOStandard("LVCMOS33")),

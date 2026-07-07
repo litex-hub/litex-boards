@@ -27,8 +27,8 @@ _io_r1_0 = [
     ("user_led_color", 0, Pins("T1 R1 U1"), IOStandard("LVCMOS33")),
 
     # Buttons
-    ("user_btn", 0, Pins("U16"), IOStandard("SSTL135_I")),
-    ("user_btn", 1, Pins("T17"), IOStandard("SSTL135_I")),
+    ("user_btn_n", 0, Pins("U16"), IOStandard("SSTL135_I")),
+    ("user_btn_n", 1, Pins("T17"), IOStandard("SSTL135_I")),
 
     # SPIFlash
     ("spiflash4x", 0,

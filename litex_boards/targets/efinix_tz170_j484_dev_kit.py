@@ -14,7 +14,7 @@ from litex.build.generic_platform import Subsignal, Pins
 
 from litex_boards.platforms import efinix_tz170_j484_dev_kit
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 
@@ -35,7 +35,7 @@ class _CRG(LiteXModule):
 
         # Clk/Rst.
         default_clk = platform.request(platform.default_clk_name)
-        rst_n  = platform.request("user_btn", 0)
+        rst_n  = platform.request("user_btn_n", 0)
 
         self.comb += self.cd_rst.clk.eq(default_clk)
 
@@ -286,17 +286,17 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=efinix_tz170_j484_dev_kit.Platform, description="LiteX SoC on Efinix Tz170 J484 Dev Kit.")
-    parser.add_target_argument("--flash",               action="store_true",        help="Flash bitstream.")
-    parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float,  help="System clock frequency.")
-    parser.add_target_argument("--cpu-clk-freq",        default=175e6, type=float,  help="CPU clock frequency.")
+    parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--cpu-clk-freq", default=175e6, type=float, help="CPU clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",            action="store_true",        help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",                action="store_true",        help="Enable SDCard support.")
-    sdopts.add_argument("--with-sdcard-emulator",       action="store_true",        help="Enable SDCard (emulator) support.")
-    parser.add_target_argument("--with-spi-flash",      action="store_true",        help="Enable SPI Flash.")
-    parser.add_target_argument("--spi-flash-number",    default=0,     type=int,    help="SPI Flash number.", choices=[0, 1])
-    parser.add_target_argument("--spi-flash-rate",      default="1:2", type=str,    help="SPI Flash rate.",   choices=["1:1", "1:2"])
-    parser.add_target_argument("--with-led-chaser",     action="store_true",      help="Enable LED Chaser.")
+    sdopts.add_argument("--with-spi-sdcard",      action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",          action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-sdcard-emulator", action="store_true", help="Enable SDCard (emulator) support.")
+    parser.add_target_argument("--with-spi-flash",   action="store_true",                             help="Enable SPI Flash.")
+    parser.add_target_argument("--spi-flash-number", default=0, type=int, choices=[0, 1],             help="SPI Flash number.")
+    parser.add_target_argument("--spi-flash-rate",   default="1:2", type=str, choices=["1:1", "1:2"], help="SPI Flash rate.")
+    parser.add_target_argument("--with-led-chaser",  action="store_true",                             help="Enable LED Chaser.")
     args = parser.parse_args()
 
     soc = BaseSoC(args.sys_clk_freq, args.cpu_clk_freq, args.with_spi_flash,

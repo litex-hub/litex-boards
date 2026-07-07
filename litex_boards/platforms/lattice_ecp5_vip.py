@@ -9,7 +9,6 @@ from litex.build.generic_platform import *
 from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
-import os
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -86,12 +85,12 @@ _io = [
         Subsignal("cs_n", Pins("AJ3"), IOStandard("LVCMOS33")),
         Subsignal("mosi",   Pins("AK2"), IOStandard("LVCMOS33")),
         Subsignal("miso",   Pins("AJ2"), IOStandard("LVCMOS33")),
-        #Subsignal("wp",     Pins("Y2"), IOStandard("LVCMOS33")),
-        #Subsignal("hold",   Pins("W1"), IOStandard("LVCMOS33")),
+        Subsignal("wp",     Pins("AJ4"), IOStandard("LVCMOS33")),
+        Subsignal("hold",   Pins("AG4"), IOStandard("LVCMOS33")),
     ),
     ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("R2"),          IOStandard("LVCMOS33")),
-        Subsignal("dq",   Pins("W2 V2 Y2 W1"), IOStandard("LVCMOS33")),
+        Subsignal("cs_n", Pins("AJ3"),             IOStandard("LVCMOS33")),
+        Subsignal("dq",   Pins("AK2 AJ2 AJ4 AG4"), IOStandard("LVCMOS33")),
     ),
 
     # HDMI
@@ -99,13 +98,13 @@ _io = [
         Subsignal("clk", Pins("E25")),
         Subsignal("hsync_n", Pins("D25")),
         Subsignal("vsync_n", Pins("A25")),
-        
+
         Subsignal("de", Pins("C25")),
 
         Subsignal("r", Pins("AE27 AD27 AB29 AB30 AB28 AB27 AC26 Y27 D24 W28 F25 F17")),
         Subsignal("g", Pins("AD26 T26 R26 A24 T32 AC30 AB31 V32 W32 Y26 W30 T30")),
         Subsignal("b", Pins("T31 R32 Y32 W31 T29 U28 V27 V26 AC31 AB32 AC32 AD32")),
-  
+
         Subsignal("sda", Pins("AJ1")),
         Subsignal("scl", Pins("AG1")),
 
@@ -126,7 +125,7 @@ class Platform(LatticeECP5Platform):
         import time
         if "serial" in args:
             msg =  "FT2232H will be used as serial, make sure that:\n"
-            msg += " -the hardware has been modified: R22 and R23 should be removed, two 0 Ω resistors shoud be populated on R34 and R35.\n"
+            msg += " -the hardware has been modified: R22 and R23 should be removed, two 0 Ω resistors should be populated on R34 and R35.\n"
             msg += " -the chip is configured as UART with virtual COM on port B (With FTProg or https://github.com/trabucayre/fixFT2232_ecp5evn)."
             print(msg)
             time.sleep(2)

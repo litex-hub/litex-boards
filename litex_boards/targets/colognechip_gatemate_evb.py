@@ -12,18 +12,16 @@ from litex.gen import *
 
 from litex_boards.platforms import colognechip_gatemate_evb
 
-from litex.build.io import CRG
 
 from litex.soc.cores.clock.colognechip import GateMatePLL
 from litex.soc.cores.hyperbus import HyperRAM
 
 from litex.soc.interconnect import wishbone
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.soc import SoCRegion
 
-from litex.build.generic_platform import Pins
 
 from litex.soc.cores.led import LedChaser
 
@@ -62,7 +60,8 @@ class BaseSoC(SoCCore):
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
         platform.add_extension(colognechip_gatemate_evb.usb_pmod_io("PMODB"))
-        kwargs["uart_name"] = "usb_uart"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart"
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -123,10 +122,10 @@ def main():
     parser = LiteXArgumentParser(platform=colognechip_gatemate_evb.Platform, description="LiteX SoC on Gatemate EVB")
     parser.add_target_argument("--sys-clk-freq",   default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",       action="store_true",      help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",           action="store_true",      help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     args = parser.parse_args()
 
     soc = BaseSoC(

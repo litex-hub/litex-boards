@@ -13,11 +13,11 @@ from litex.gen import *
 from litex_boards.platforms import trenz_max1000
 
 from litex.soc.cores.clock import CycloneVPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
-from litedram.modules import M12L64322A
+from litedram.modules import W9864G6JT
 from litedram.phy import GENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ class BaseSoC(SoCCore):
             self.sdrphy = GENSDRPHY(platform.request("sdram"), sys_clk_freq)
             self.add_sdram("sdram",
                 phy           = self.sdrphy,
-                module        = M12L64322A(sys_clk_freq, "1:1"), # Winbond W9864G6JT
+                module        = W9864G6JT(sys_clk_freq, "1:1"),
                 l2_cache_size = kwargs.get("l2_size", 0)
             )
 
@@ -77,7 +77,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=trenz_max1000.Platform, description="LiteX SoC on MAX1000.")
-    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -19,7 +19,7 @@ from litex.gen import *
 
 from litex_boards.platforms import digilent_atlys
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -102,7 +102,7 @@ class _CRG(LiteXModule):
         )
 
         # Power on reset
-        reset = ~platform.request("cpu_reset") | self.reset
+        reset = ~platform.request("cpu_reset_n") | self.reset
         self.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))
@@ -213,13 +213,15 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_atlys.Platform, description="LiteX SoC on Atlys.")
-    parser.add_target_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",     help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
 
     args = parser.parse_args()
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
 
     soc = BaseSoC(
         with_ethernet  = args.with_ethernet,

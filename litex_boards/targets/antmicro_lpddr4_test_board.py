@@ -12,8 +12,7 @@ from litex.gen import *
 from litex_boards.platforms import antmicro_lpddr4_test_board
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -21,8 +20,6 @@ from litedram.modules import MT53E256M16D1
 from litedram.phy import lpddr4
 
 from liteeth.phy import LiteEthS7PHYRGMII
-from litex.soc.cores.hyperbus import HyperRAM
-
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -81,8 +78,10 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
-            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8 * MEGABYTE, mode="rwx"))
+            self.add_hyperram(
+                origin = 0x20000000,
+                size   = 8*MEGABYTE,
+            )
 
         # SD Card ----------------------------------------------------------------------------------
         if with_sdcard:
@@ -114,17 +113,17 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=antmicro_lpddr4_test_board.Platform, description="LiteX SoC on LPDDR4 Test Board.")
-    parser.add_target_argument("--flash",            action="store_true", help="Flash bitstream.")
-    parser.add_target_argument("--sys-clk-freq",     default=50e6,  type=float, help="System clock frequency.")
+    parser.add_target_argument("--flash",            action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq",     default=50e6, type=float,  help="System clock frequency.")
     parser.add_target_argument("--iodelay-clk-freq", default=200e6, type=float, help="IODELAYCTRL frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",          action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone",         action="store_true",    help="Add EtherBone.")
-    parser.add_target_argument("--eth-ip",           default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip",   action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--with-hyperram",    action="store_true",    help="Add HyperRAM.")
-    parser.add_target_argument("--with-sdcard",      action="store_true",    help="Add SDCard.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--with-hyperram",  action="store_true",     help="Add HyperRAM.")
+    parser.add_target_argument("--with-sdcard",    action="store_true",     help="Add SDCard.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)

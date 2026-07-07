@@ -12,7 +12,7 @@ from litex.gen import *
 
 from litex_boards.platforms import alchitry_cu
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.clock import iCE40PLL
@@ -30,7 +30,7 @@ class _CRG(LiteXModule):
 
         # Clk/Rst
         clk100  = platform.request("clk100")
-        rst_n   = platform.request("cpu_reset")
+        rst_n   = platform.request("cpu_reset_n")
 
         # Power On Reset
         por_count = Signal(16, reset=2**16-1)
@@ -98,7 +98,7 @@ def flash(build_dir, build_name, bios_flash_offset):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alchitry_cu.Platform, description="LiteX SoC on Alchitry Cu")
-    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream and BIOS.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream and BIOS.")
     parser.add_target_argument("--bios-flash-offset", default="0x040000",       help="BIOS offset in SPI Flash (default: 0x40000)")
     parser.add_target_argument("--sys-clk-freq",      default=50e6, type=float, help="System clock frequency (default: 50MHz)")
     parser.add_target_argument("--with-led-chaser",   action="store_true",      help="Enable LED Chaser.")

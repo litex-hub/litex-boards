@@ -8,7 +8,6 @@ from litex.build.generic_platform import *
 from litex.build.lattice import LatticeECP5Platform
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
-import os
 
 # IOs ----------------------------------------------------------------------------------------------
 

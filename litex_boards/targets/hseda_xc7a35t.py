@@ -15,8 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import hseda_xc7a35t
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -37,8 +36,8 @@ class _CRG(LiteXModule):
 
         self.pll = pll = S7PLL(speedgrade=-1)
         try:
-            reset_button = platform.request("cpu_reset")
-            self.comb += pll.reset.eq(~reset_button | self.rst)
+            rst = platform.request("cpu_reset")
+            self.comb += pll.reset.eq(~rst | self.rst)
         except:
             self.comb += pll.reset.eq(self.rst)
 
@@ -101,10 +100,10 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=hseda_xc7a35t.Platform, description="LiteX SoC on HSEDA XC7A35T.")
-    parser.add_target_argument("--flash",          action="store_true",        help="Write FPGA bitstream into spi flash.")
-    parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float,  help="System clock frequency.")
-    parser.add_target_argument("--with-sdcard",    action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash support.")
+    parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream to SPI flash.")
+    parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-sdcard",    action="store_true",      help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash support.")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -13,11 +13,9 @@ from litex.gen import *
 
 from litex_boards.platforms import tul_pynq_z2
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -52,7 +50,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Pynq Z2", **kwargs)
 
         # Zynq7000 Integration ---------------------------------------------------------------------
@@ -69,7 +67,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=tul_pynq_z2.Platform, description="LiteX SoC on Pynq Z2.")
-    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -14,8 +14,7 @@ from litex.gen import *
 
 from litex_boards.platforms import fpgawars_alhambra2
 
-from litex.build.lattice.programmer import IceStormProgrammer
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -77,10 +76,10 @@ def main():
 
     from litex.build.parser import LiteXArgumentParser
 
-    parser = LiteXArgumentParser(platform=fpgawars_alhambra2.Platform, description="LiteX SoC on Lattice iCE40UP5k EVN breakout board.")
+    parser = LiteXArgumentParser(platform=fpgawars_alhambra2.Platform, description="LiteX SoC on Alhambra II.")
     parser.add_target_argument("--sys-clk-freq",      default=12e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x50000",        help="BIOS offset in SPI flash.")
-    parser.add_target_argument("--flash",             action="store_true",      help="Flash Bitstream.")
+    parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream.")
     args = parser.parse_args()
 
     soc = BaseSoC(

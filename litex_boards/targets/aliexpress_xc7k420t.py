@@ -12,7 +12,7 @@ from litex.gen import *
 
 from litex_boards.platforms import aliexpress_xc7k420t
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
@@ -51,9 +51,8 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------_-----------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on AliExpress u420t", **kwargs)
 
-	    # SPI Flash --------------------------------------------------------------------------------
+        # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
-            from litespi.modules import N25Q256
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="4x", module=W25Q256(Codes.READ_1_1_4))
 
@@ -63,7 +62,7 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
-# Build --------------------------------------------------------------------------------------------  
+# Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser

@@ -11,7 +11,7 @@ from litex_boards.platforms import microsoft_catapult_v3
 
 from litex.gen import *
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
@@ -55,11 +55,11 @@ class BaseSoC(SoCCore):
         real_uart_name = kwargs["uart_name"]
         if real_uart_name == "serial":
             if kwargs["with_jtagbone"]:
-                kwargs["uart_name"] = "crossover"
+                if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
             else:
-                kwargs["uart_name"] = "jtag_uart"
+                if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart"
         if kwargs["with_uartbone"]:
-            kwargs["uart_name"] = "crossover"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Microsoft Catapult v3 SmartNIC", **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ def main():
     parser = LiteXArgumentParser(platform=microsoft_catapult_v3.Platform, description="LiteX SoC on Microsoft Catapult v3 SmartNIC.")
     parser.add_target_argument("--variant",         default="pcie",                    help="Board variant (pcie or ocp).")
     parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float,         help="System clock frequency.")
-    parser.add_target_argument("--with-led-chaser", default=True, action="store_true", help="Enable LED Chaser.")
+    parser.add_target_argument("--with-led-chaser", action="store_true", default=True, help="Enable LED Chaser.")
     args = parser.parse_args()
 
     soc = BaseSoC(

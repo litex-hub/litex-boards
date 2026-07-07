@@ -14,8 +14,7 @@ from litex.gen import *
 from litex_boards.platforms import puzhi_pz_a7xxt_kfb
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.cores.led import LedChaser
@@ -23,7 +22,6 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT41K256M16
 from litedram.phy import s7ddrphy
 
-from liteeth.phy.a7_gtp import QPLLSettings, QPLL
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
@@ -43,14 +41,14 @@ class _CRG(LiteXModule):
 
         # Clk/Rst
         clk200 = platform.request("clk200")
-        rst    = ~platform.request("cpu_reset")
+        rst_n  = platform.request("cpu_reset_n")
 
         # PLL
         if toolchain == "vivado":
             self.pll = pll = S7MMCM(speedgrade=-2)
         else:
             self.pll = pll = S7PLL(speedgrade=-2)
-        self.comb += pll.reset.eq(rst | self.rst)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk200,           200e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
@@ -177,28 +175,28 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=puzhi_pz_a7xxt_kfb.Platform, description="LiteX SoC on Puzhi PZ-A7xxT-KFB")
-    parser.add_target_argument("--kgates",          default=75,   type=int,    help="Number of kgates. Allowed values: 35, 75, 100, 200, representing XC7A35T, XC7A75T, XC7A100T and XC7A200T")
-    parser.add_target_argument("--flash",           action="store_true",       help="Flash bitstream.")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",       action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--pcie-lanes",      default=2, type=int,       help="Number of PCIe lanes (1 or 2).")
-    parser.add_target_argument("--driver",          action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--kgates",       default=75, type=int,      help="Number of kgates. Allowed values: 35, 75, 100, 200, representing XC7A35T, XC7A75T, XC7A100T and XC7A200T")
+    parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",   default=2, type=int,       help="Number of PCIe lanes (1 or 2).")
+    parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",        action="store_true",       help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",            action="store_true",       help="Enable SDCard support.")
-    parser.add_target_argument("--with-i2c",        action="store_true",       help="Enable I2C support.")
-    parser.add_target_argument("--with-ethernet",   action="store_true",       help="Enable Ethernet support.")
-    parser.add_target_argument("--with-etherbone",  action="store_true",       help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-phy",         default=0, type=int,       help="Ethernet PHY (0 or 1).")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100",   help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",       help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_argument("--with-hdmi",              action="store_true",       help="Enable HDMI")
-    parser.add_target_argument("--hdmi-port",       default=0, type=int,       help="Ethernet PHY (0 or 1).")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-i2c",       action="store_true",     help="Enable I2C support.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",     help="Enable Ethernet support.")
+    parser.add_target_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-phy",        default=0, type=int,     help="Ethernet PHY (0 or 1).")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--with-hdmi",      action="store_true",     help="Enable HDMI")
+    parser.add_target_argument("--hdmi-port",      default=0, type=int,     help="Ethernet PHY (0 or 1).")
     viopts = parser.target_group.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true",       help="Enable Video Terminal (HDMI).")
-    viopts.add_argument("--with-video-framebuffer", action="store_true",       help="Enable Video Framebuffer (HDMI).")
-    viopts.add_argument("--with-video-colorbars",   action="store_true",       help="Enable Video Colorbars (HDMI).")
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video Colorbars (HDMI).")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -228,7 +226,10 @@ def main():
         soc.add_sdcard()
 
     builder  = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

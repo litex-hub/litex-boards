@@ -34,16 +34,14 @@ from litex_boards.platforms import ocp_tap_timecard
 
 from litex.soc.interconnect.csr import *
 from litex.soc.interconnect import stream
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.xadc import XADC
-from litex.soc.cores.dna  import DNA
+from litex.soc.cores.xadc import S7SystemMonitor
+from litex.soc.cores.dna  import S7DNA
 
-from litedram.modules import MT41K256M16
-from litedram.phy import s7ddrphy
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.software import generate_litepcie_software
@@ -87,14 +85,15 @@ class BaseSoC(SoCCore):
         self.crg = CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on OCP-TAP TimeCard", **kwargs)
 
         # XADC -------------------------------------------------------------------------------------
-        self.xadc = XADC()
+        self.xadc = S7SystemMonitor()
 
         # DNA --------------------------------------------------------------------------------------
-        self.dna = DNA()
+        self.dna = S7DNA()
         self.dna.add_timing_constraints(platform, sys_clk_freq, self.crg.cd_sys.clk)
 
         # Leds -------------------------------------------------------------------------------------
@@ -197,9 +196,9 @@ def main():
     parser = LiteXArgumentParser(platform=ocp_tap_timecard.Platform, description="LiteX SoC on OCP-TAP TimeCard.")
     parser.add_target_argument("--flash",        action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",    action="store_true", help="Enable PCIe support.")
-    parser.add_target_argument("--with-smas",    action="store_true", help="Enable SMAs support.")
-    parser.add_target_argument("--driver",       action="store_true", help="Generate PCIe driver.")
+    parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--with-smas",    action="store_true",       help="Enable SMAs support.")
+    parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -210,7 +209,10 @@ def main():
     )
 
     builder  = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

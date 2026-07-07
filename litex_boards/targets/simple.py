@@ -15,7 +15,7 @@ from litex.gen import *
 
 from litex.build.io import CRG
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.led import LedChaser
@@ -48,9 +48,9 @@ def main():
     parser = LiteXArgumentParser(description="Generic LiteX SoC")
     target_group = parser.add_argument_group(title="Target options")
     target_group.add_argument("platform",                             help="Module name of the platform to build for.")
-    target_group.add_argument("--build",         action="store_true", help="Build design.")
-    target_group.add_argument("--load",          action="store_true", help="Load bitstream.")
-    target_group.add_argument("--toolchain",     default=None,        help="FPGA toolchain.")
+    target_group.add_argument("--build",     action="store_true", help="Build bitstream.")
+    target_group.add_argument("--load",      action="store_true", help="Load bitstream.")
+    target_group.add_argument("--toolchain", default=None,        help="FPGA toolchain.")
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()

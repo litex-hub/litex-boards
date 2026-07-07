@@ -5,14 +5,14 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform
+from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     # Clk / Rst
     ("clk50",       0, Pins("G22"), IOStandard("LVCMOS33")),
-    ("cpu_reset",   0, Pins("D26"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("D26"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led", 0, Pins("A23"), IOStandard("LVCMOS33")),
@@ -52,7 +52,7 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_period = 1e9/50e6
 
     def __init__(self, toolchain="vivado"):
-        device = "xc7k325tffg676-1" # FIXME: Should be xc7k325tffg676-2
+        device = "xc7k325tffg676-2"
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):

@@ -16,8 +16,7 @@ from litex.gen import *
 from litex_boards.platforms import antmicro_datacenter_ddr4_test_board
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
@@ -30,8 +29,6 @@ from litedram.core.controller import ControllerSettings
 from litedram.common import PhySettings, GeomSettings, TimingSettings
 
 from liteeth.phy import LiteEthS7PHYRGMII
-from litex.soc.cores.hyperbus import HyperRAM
-
 from litespi.modules import S25FL128S0
 from litespi.opcodes import SpiNorFlashOpCodes as Codes
 
@@ -117,8 +114,10 @@ class BaseSoC(SoCCore):
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
-            self.hyperram = HyperRAM(platform.request("hyperram"), sys_clk_freq=sys_clk_freq)
-            self.bus.add_slave("hyperram", slave=self.hyperram.bus, region=SoCRegion(origin=0x20000000, size=8 * MEGABYTE, mode="rwx"))
+            self.add_hyperram(
+                origin = 0x20000000,
+                size   = 8*MEGABYTE,
+            )
 
         # SD Card ----------------------------------------------------------------------------------
         if with_sdcard:
@@ -192,17 +191,17 @@ def main():
     parser.add_target_argument("--sys-clk-freq",     default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--iodelay-clk-freq", default=200e6, type=float, help="IODELAYCTRL frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",                action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone",               action="store_true",    help="Add EtherBone.")
-    parser.add_target_argument("--eth-ip",                 default="192.168.1.50", help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip",         action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--eth-reset-time",         default="10e-3",        help="Duration of Ethernet PHY reset.")
-    parser.add_target_argument("--with-hyperram",          action="store_true",    help="Add HyperRAM.")
-    parser.add_target_argument("--with-sdcard",            action="store_true",    help="Add SDCard.")
-    parser.add_target_argument("--with-video-terminal",    action="store_true",    help="Enable Video Terminal (HDMI).")
-    parser.add_target_argument("--with-video-framebuffer", action="store_true",    help="Enable Video Framebuffer (HDMI).")
-    parser.add_target_argument("--with-spi-flash",         action="store_true",    help="Enable SPI Flash (MMAPed).")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",                 default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",              default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip",         action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--eth-reset-time",         default="10e-3",         help="Duration of Ethernet PHY reset.")
+    parser.add_target_argument("--with-hyperram",          action="store_true",     help="Add HyperRAM.")
+    parser.add_target_argument("--with-sdcard",            action="store_true",     help="Add SDCard.")
+    parser.add_target_argument("--with-video-terminal",    action="store_true",     help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-video-framebuffer", action="store_true",     help="Enable Video Framebuffer (HDMI).")
+    parser.add_target_argument("--with-spi-flash",         action="store_true",     help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)

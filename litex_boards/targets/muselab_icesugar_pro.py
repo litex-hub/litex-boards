@@ -15,7 +15,7 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import muselab_icesugar_pro
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.led import LedChaser
@@ -25,7 +25,6 @@ from litex.soc.interconnect.csr import *
 from litedram.modules import IS42S16160
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
-from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -110,8 +109,8 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            ledn = platform.request_all("user_led_n")
-            self.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
+            leds_n = platform.request_all("user_led_n")
+            self.leds = LedChaser(pads=leds_n, sys_clk_freq=sys_clk_freq)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -152,23 +151,23 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=muselab_icesugar_pro.Platform, description="LiteX SoC on Colorlight i5.")
-    parser.add_target_argument("--sys-clk-freq", default=50e6, help="System clock frequency.")
+    parser = LiteXArgumentParser(platform=muselab_icesugar_pro.Platform, description="LiteX SoC on iCESugar Pro.")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",         action="store_true",  help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",             action="store_true",  help="Enable SDCard support.")
-    parser.add_target_argument("--with-spi-flash",   action="store_true",  help="Enable SPI Flash (MMAPed).")
-    parser.add_target_argument("--use-internal-osc", action="store_true",  help="Use internal oscillator.")
-    parser.add_target_argument("--sdram-rate",       default="1:1",        help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-flash",   action="store_true", help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--use-internal-osc", action="store_true", help="Use internal oscillator.")
+    parser.add_target_argument("--sdram-rate",       default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",         action="store_true",    help="Add Ethernet.")
-    ethopts.add_argument("--with-etherbone",        action="store_true",    help="Add EtherBone.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50", help="Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",    help="Enable dynamic Ethernet IP addresses setting.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
 
     args = parser.parse_args()
 

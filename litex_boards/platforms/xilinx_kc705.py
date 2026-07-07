@@ -66,6 +66,7 @@ _io = [
         Subsignal("sda", Pins("L21"), Misc("PULLUP=True")),
         IOStandard("LVCMOS25")
     ),
+    ("i2c_mux_reset", 0, Pins("P23"), IOStandard("LVCMOS25")),
 
     # Serial
     ("serial", 0,
@@ -129,6 +130,21 @@ _io = [
         Subsignal("dq",   Pins("P24 R25 R20 R21")),
         IOStandard("LVCMOS25")
     ),
+    ("linear_flash", 0,
+        Subsignal("a", Pins(
+            "W22 W21 V24 U24 V22 V21 U23 W24",
+            "W23 V20 V19 W26 V25 V30 V29 V27",
+            "P22 P21 N24 N22 N21 N20 N19 N26",
+            "M23 M22")),
+        Subsignal("dq", Pins(
+            "P24 R25 R20 R21 T20 T21 T22 T23",
+            "U20 P29 R29 P27 P28 T30 P26 R26")),
+        Subsignal("ce_n",  Pins("U19")),
+        Subsignal("oe_n",  Pins("M24")),
+        Subsignal("we_n",  Pins("M25")),
+        Subsignal("adv_n", Pins("M30")),
+        IOStandard("LVCMOS25")
+    ),
 
     # SDCard
     ("spisdcard", 0,
@@ -140,9 +156,11 @@ _io = [
         IOStandard("LVCMOS25")
     ),
     ("sdcard", 0,
-        Subsignal("clk", Pins("AB23")),
-        Subsignal("cmd", Pins("AB22"), Misc("PULLUP True")),
+        Subsignal("clk",  Pins("AB23")),
+        Subsignal("cmd",  Pins("AB22"), Misc("PULLUP True")),
         Subsignal("data", Pins("AC20 AA23 AA22 AC21"), Misc("PULLUP True")),
+        Subsignal("cd",   Pins("AA21"), Misc("PULLUP True")),
+        Subsignal("wp",   Pins("Y21"),  Misc("PULLUP True")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS25")
     ),
@@ -543,7 +561,7 @@ _connectors = [
 
 class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk156"
-    default_clk_period = 1e9/156.5e6
+    default_clk_period = 1e9/156.25e6
 
     def __init__(self, toolchain="vivado"):
         Xilinx7SeriesPlatform.__init__(self, "xc7k325t-ffg900-2", _io, _connectors, toolchain=toolchain)

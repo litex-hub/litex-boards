@@ -6,7 +6,6 @@
 # Copyright (c) 2020 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
 
 from migen import *
 
@@ -14,11 +13,9 @@ from litex.gen import *
 
 from litex_boards.platforms import redpitaya
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -56,7 +53,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "usb_uart"
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart"
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs["integrated_sram_size"] = 0
             kwargs["with_uart"]            = False
@@ -104,7 +101,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
-    parser = LiteXArgumentParser(platform=redpitaya.Platform, description="LiteX SoC on Zedboard.")
+    parser = LiteXArgumentParser(platform=redpitaya.Platform, description="LiteX SoC on Red Pitaya.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--board",        default="redpitaya14",     help="Board type (redpitaya14 or redpitaya16).")
     parser.set_defaults(cpu_type="zynq7000")

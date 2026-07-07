@@ -55,12 +55,12 @@ _io = [
         Misc("PULL_MODE=UP DRIVE=OFF BANK_VCCIO=3.3"),
     ),
 
-    ## DDR3 SDRAM MT41J128M16JT-125
+    ## DDR3 SDRAM MT41J256M16JT-125
     # FIXME: Tang Mega 138k: Two chips (but only one is used here.
     ("ddram", 0,
         Subsignal("a", Pins(
             "M1 K2 G2 J4 J2 H2 G3 J1",
-            "J5 H5 L1 H3 K4 K1"),      # D1(A14) R1(A15): Unused
+            "J5 H5 L1 H3 K4 K1 D1"),   # R1(A15): Unused
         ),
         Subsignal("ba",      Pins("P5 P2 M6")),
         Subsignal("ras_n",   Pins("L5")),
@@ -253,7 +253,7 @@ _neo_dock_connectors = [
     # Note PMOD0 is shared with SDRAM1_Dx
     ["pmod0", "J0:25 J0:15 J0:20 J0:14 J0:23 J0:13 J0:18 J0:12"],
     # Note PMOD1 is shared with SDRAM1_Ax and CAM0
-    ["pmod1", " j2:5  j2:9 J2:13 J2:17  J2:3  J2:7 J2:11 J2:15"],
+    ["pmod1", " J2:5  J2:9 J2:13 J2:17  J2:3  J2:7 J2:11 J2:15"],
 
     # J13
     ["sdram0_connector",

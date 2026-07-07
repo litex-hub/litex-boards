@@ -8,14 +8,13 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
 from litex_boards.platforms import xilinx_vcu118
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -87,7 +86,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_vcu118.Platform, description="LiteX SoC on VCU118.")
-    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

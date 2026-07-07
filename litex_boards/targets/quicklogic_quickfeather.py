@@ -16,7 +16,7 @@ from litex.gen import *
 from litex_boards.platforms import quicklogic_quickfeather
 
 from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import *

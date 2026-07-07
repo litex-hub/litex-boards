@@ -26,6 +26,26 @@ _io = [
     ("user_led", 6, Pins("E17"), IOStandard("LVCMOS25")),
     ("user_led", 7, Pins("F16"), IOStandard("LVCMOS25")),
 
+    # Alphanumeric LED
+    ("alnum_led", 0,
+        Subsignal("a",  Pins("M20")),
+        Subsignal("b",  Pins("L18")),
+        Subsignal("c",  Pins("M19")),
+        Subsignal("d",  Pins("L16")),
+        Subsignal("e",  Pins("L17")),
+        Subsignal("f",  Pins("M18")),
+        Subsignal("g",  Pins("N16")),
+        Subsignal("h",  Pins("M17")),
+        Subsignal("j",  Pins("N18")),
+        Subsignal("k",  Pins("P17")),
+        Subsignal("l",  Pins("N17")),
+        Subsignal("m",  Pins("P16")),
+        Subsignal("n",  Pins("R16")),
+        Subsignal("p",  Pins("R17")),
+        Subsignal("dp", Pins("U1")),
+        IOStandard("LVCMOS25"),
+    ),
+
     # Switches
     ("user_dip_btn", 0, Pins("H2"),  IOStandard("LVCMOS15")),
     ("user_dip_btn", 1, Pins("K3"),  IOStandard("LVCMOS15")),

@@ -19,7 +19,7 @@ from litex.gen import *
 from litex_boards.platforms import sitlinv_stlv7325_v2
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
@@ -125,7 +125,6 @@ class BaseSoC(SoCCore):
         # TODO verify / test
         # SATA -------------------------------------------------------------------------------------
         if with_sata:
-            from litex.build.generic_platform import Subsignal, Pins
             from litesata.phy import LiteSATAPHY
 
             # RefClk, Generate 150MHz from PLL.
@@ -169,16 +168,16 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sitlinv_stlv7325_v2.Platform, description="LiteX SoC on AliExpress STLV7325-v2.")
-    parser.add_target_argument("--sys-clk-freq",  default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--vccio",         default="3.3V", type=str, help="IO Voltage (set by J4), can be 2.5V or 3.3V")
-    parser.add_target_argument("--with-pcie",       action="store_true",    help="Enable PCIe support.")
-    parser.add_target_argument("--driver",          action="store_true",    help="Generate PCIe driver.")
-    parser.add_target_argument("--with-ethernet",   action="store_true",    help="Enable Ethernet support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--with-sata",       action="store_true",    help="Enable SATA support.")
-    parser.add_target_argument("--sata-gen",        default="2",    help="SATA Gen..", choices=["1", "2", "3"])
+    parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float,            help="System clock frequency.")
+    parser.add_target_argument("--vccio",          default="3.3V", type=str,             help="IO Voltage (set by J4), can be 2.5V or 3.3V")
+    parser.add_target_argument("--with-pcie",      action="store_true",                  help="Enable PCIe support.")
+    parser.add_target_argument("--driver",         action="store_true",                  help="Generate PCIe driver.")
+    parser.add_target_argument("--with-ethernet",  action="store_true",                  help="Enable Ethernet support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",               help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",              help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",                  help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--with-sata",      action="store_true",                  help="Enable SATA support.")
+    parser.add_target_argument("--sata-gen",       default="2", choices=["1", "2", "3"], help="SATA Gen..")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
@@ -208,7 +207,10 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

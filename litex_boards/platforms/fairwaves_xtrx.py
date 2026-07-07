@@ -186,7 +186,7 @@ class Platform(Xilinx7SeriesPlatform):
             "xc7a35t" : "xc7a35tcpg236-3",
             "xc7a50t" : "xc7a50tcpg236-2",
         }[variant]
-        Xilinx7SeriesPlatform.__init__(self, "xc7a50tcpg236-2", _io, toolchain=toolchain)
+        Xilinx7SeriesPlatform.__init__(self, device, _io, toolchain=toolchain)
 
         self.toolchain.bitstream_commands = [
             "set_property BITSTREAM.CONFIG.UNUSEDPIN Pulldown [current_design]",

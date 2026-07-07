@@ -12,7 +12,7 @@ from litex.gen import *
 from litex_boards.platforms import terasic_sockit
 
 from litex.soc.cores.clock import CycloneVPLL
-from litex.soc.integration.soc_core  import *
+from litex.soc.integration.soc  import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import VideoVGAPHY
@@ -80,7 +80,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
-            kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG-UART.
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart" # Defaults to JTAG-UART.
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on the Terasic SoCKit", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------

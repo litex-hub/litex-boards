@@ -13,12 +13,11 @@ from litex.gen import *
 from litex_boards.platforms import qmtech_wukong
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.cores.video import video_timings
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
@@ -42,7 +41,7 @@ class _CRG(LiteXModule):
 
         # Clk/Rst.
         clk50 = platform.request("clk50")
-        rst_n = platform.request("cpu_reset")
+        rst_n = platform.request("cpu_reset_n")
 
         # Main PLL.
         self.pll = pll = S7MMCM(speedgrade=speed_grade)
@@ -137,21 +136,21 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_wukong.Platform, description="LiteX SoC on QMTECH Wukong Board.")
-    parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--revision",        default=1,                 help="Board version (1 , 2 or 3).")
-    parser.add_target_argument("--speedgrade",      default=-1,    type=int,   help="FPGA speedgrade (-1 or -2).")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",     default=1,                 help="Board version (1 , 2 or 3).")
+    parser.add_target_argument("--speedgrade",   default=-1, type=int,      help="FPGA speedgrade (-1 or -2).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",         action="store_true",       help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",        action="store_true",       help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100",   help="Remote IP address of TFTP server.")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",        action="store_true",       help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",            action="store_true",       help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     viopts = parser.target_group.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal",    action="store_true",       help="Enable Video Terminal (HDMI).")
-    viopts.add_argument("--with-video-framebuffer", action="store_true",       help="Enable Video Framebuffer (HDMI).")
+    viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
+    viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     args = parser.parse_args()
 
     soc = BaseSoC(

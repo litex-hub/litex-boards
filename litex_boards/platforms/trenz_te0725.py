@@ -14,7 +14,7 @@ from litex.build.openocd import OpenOCD
 _io = [
     # Clk / Rst
     ("clk100",    0, Pins("P17"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("T8"),  IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("T8"),  IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led",  0, Pins("M16"), IOStandard("LVCMOS33")),
@@ -96,4 +96,3 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
 
 #         "set_property SEVERITY {{Warning}} [get_drc_checks UCIO-1]"]
-

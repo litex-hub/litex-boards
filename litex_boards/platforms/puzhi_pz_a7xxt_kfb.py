@@ -26,7 +26,7 @@ _io = [
         Subsignal("p", Pins("F10")),
         Subsignal("n", Pins("E10"))
     ),
-    ("cpu_reset", 0, Pins("R14"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("R14"), IOStandard("LVCMOS33")),
 
     # Leds - active high
     ("user_led", 0, Pins("P15"),  IOStandard("LVCMOS33")),
@@ -280,7 +280,7 @@ class Platform(Xilinx7SeriesPlatform):
     kgates             = None
 
     def __init__(self, kgates=75, toolchain="vivado"):
-        assert(kgates in [35, 75, 100, 200], "kgates can only be 35, 75, 100 or 200, representing a XC7A35T, XC7A75T, XC7TA100T, XC7A200T")
+        assert kgates in [35, 75, 100, 200], "kgates can only be 35, 75, 100 or 200, representing a XC7A35T, XC7A75T, XC7A100T or XC7A200T"
         self.kgates = kgates
         device = "xc7a200tfbg484-2" if kgates == 200 else f"xc7a{kgates}tfgg484-2"
         io = _io

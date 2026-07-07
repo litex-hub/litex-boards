@@ -15,13 +15,13 @@ from litex.build.lattice.programmer import LatticeProgrammer
 _io = [
     ("clk12", 0, Pins("L16"), IOStandard("LVCMOS33")), # Ensure JP2 is installed
 
-    # Reference clocks. Why are there four 27MHz oscs. Is this really correct??
+    # Reference clocks.
     ("clk27_0", 0, Pins("L5"), IOStandard("LVCMOS18")),
     ("clk27_1", 0, Pins("L7"), IOStandard("LVCMOS18")),
     ("clk27_2", 0, Pins("M2"), IOStandard("LVCMOS18")),
     ("clk27_3", 0, Pins("Y2"), IOStandard("LVCMOS18")),
 
-    # 8.1. General Purpose Push Buttons - all logic zero when pressed]
+    # 8.1. General Purpose Push Buttons - all logic zero when pressed.
     ("cam_reset", 0, Pins("T1"), IOStandard("LVCMOS18H"), Misc("PULLMODE=UP")),  # SW1
     ("gsrn",      0, Pins("G13"), IOStandard("LVCMOS33")),  # SW3
     ("programn",  0, Pins("E11"), IOStandard("LVCMOS33")),  # SW4
@@ -87,7 +87,7 @@ _io = [
     ),
 
     # Shared camera control signals
-    ("cam_ctrl",
+    ("cam_ctrl", 0,
         Subsignal("cam_reset", Pins("T1")),
         Subsignal("cam_frame_sync", Pins("U1")),
     ),
@@ -121,16 +121,16 @@ _io = [
     # Note that use of MIPI_DPHY standard for + and LVCMOS12H for - is copied from Lattice PDC
     # MIPI pins are unconstrained to work around a Radiant 2.0 bug
     ("camera", 0,
-        Subsignal("clkp", Pins("X")),
-        Subsignal("clkn", Pins("X")),
-        Subsignal("dp", Pins("X X X X")),
-        Subsignal("dn", Pins("X X X X")),
+        Subsignal("clkp", Pins("A2"), IOStandard("MIPI_DPHY")),
+        Subsignal("clkn", Pins("B1"), IOStandard("LVCMOS12H")),
+        Subsignal("dp", Pins("B2 A3 C2 A4"), IOStandard("MIPI_DPHY")),
+        Subsignal("dn", Pins("C1 B3 D1 B4"), IOStandard("LVCMOS12H")),
     ),
     ("camera", 1,
-        Subsignal("clkp", Pins("X")),
-        Subsignal("clkn", Pins("X")),
-        Subsignal("dp", Pins("X X X X")),
-        Subsignal("dn", Pins("X X X X")),
+        Subsignal("clkp", Pins("A8"), IOStandard("MIPI_DPHY")),
+        Subsignal("clkn", Pins("B8"), IOStandard("LVCMOS12H")),
+        Subsignal("dp", Pins("A7 A9 A6 A10"), IOStandard("MIPI_DPHY")),
+        Subsignal("dn", Pins("B7 B9 B6 B10"), IOStandard("LVCMOS12H")),
     ),
     ("camera", 2,
         Subsignal("clkp", Pins("W11"), IOStandard("MIPI_DPHY")),
@@ -376,6 +376,4 @@ class Platform(LatticeNexusPlatform):
             xcf_template = xcf_template_flash
 
         return LatticeProgrammer(xcf_template)
-
-
 

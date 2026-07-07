@@ -24,11 +24,11 @@ _io = [
     ("user_led", 7, Pins("G14"), IOStandard("LVCMOS33")),
     ("user_led", 8, Pins("L14"), IOStandard("LVCMOS33")),
     ("user_led", 9, Pins("M15"), IOStandard("LVCMOS33")),
-  
+
     # Switches
     ("user_sw", 0, Pins("M20"), IOStandard("LVCMOS33")),
     ("user_sw", 1, Pins("M19"), IOStandard("LVCMOS33")),
-    
+
     # Buttons
     ("user_btn", 0, Pins("D19"), IOStandard("LVCMOS33")),
     ("user_btn", 1, Pins("D20"), IOStandard("LVCMOS33")),
@@ -67,7 +67,7 @@ _io = [
     ("ck_mosi", 0, Pins("T12"), IOStandard("LVCMOS33")),
     ("ck_sck",  0, Pins("H15"), IOStandard("LVCMOS33")),
     ("ck_ss",   0, Pins("F16"), IOStandard("LVCMOS33")),
-    
+
     # Chipkit I2C
     ("ck_scl", 0, Pins("P16"), IOStandard("LVCMOS33")),
     ("ck_sda", 0, Pins("P15"), IOStandard("LVCMOS33")),
@@ -76,7 +76,7 @@ _io = [
     ("crypto_sda", 0, Pins("J15"), IOStandard("LVCMOS33")),
 ]
 
-_ps7_io = [    
+_ps7_io = [
     # PS7
     ("ps7_clk",   0, Pins("E7")),
     ("ps7_porb",  0, Pins("C7")),
@@ -86,8 +86,8 @@ _ps7_io = [
         " D5  B5  E9  C6  D9  E8  C5  C8",
         "A19 E14 B18 D10 A17 F14 B17 D11",
         "A16 F15 A15 D13 C16 C13 C15 E16",
-        "A14 D15 A12 F12 A11 A10 E13 C18"
-        "D14 C17 E12  A9 F13 B15 D16 B14"
+        "A14 D15 A12 F12 A11 A10 E13 C18",
+        "D14 C17 E12  A9 F13 B15 D16 B14",
         "B12 C12 B13  B9 C10 C11")),
     ("ps7_ddram", 0,
         Subsignal("addr", Pins(

@@ -83,8 +83,8 @@ _io = [ # Documented by https://github.com/360nosc0pe project.
         Subsignal("dq", Pins(
             " T21  U21  T22  U22  W20  W21 U20   V20",
             "AA22 AB22 AA21 AB21 AB19 AB20 Y19  AA19",
-	        " W16  Y16  U17  V17 AA17 AB17 AA16 AB16",
-	        " V14  V13  W13  Y14 AA14  Y13 AA13 AB14"),
+            " W16  Y16  U17  V17 AA17 AB17 AA16 AB16",
+            " V14  V13  W13  Y14 AA14  Y13 AA13 AB14"),
             IOStandard("SSTL15"),
             Misc("IN_TERM=UNTUNED_SPLIT_40")),
         Subsignal("dqs_p", Pins("V22 Y20 U15 W15"),

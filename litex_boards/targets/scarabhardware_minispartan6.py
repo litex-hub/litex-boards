@@ -9,7 +9,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -18,7 +17,7 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import scarabhardware_minispartan6
 
 from litex.soc.cores.clock import S6PLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoS6HDMIPHY
 from litex.soc.cores.led import LedChaser
@@ -108,8 +107,8 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=scarabhardware_minispartan6.Platform, description="LiteX SoC on MiniSpartan6.")
-    parser.add_target_argument("--sys-clk-freq",           default=80e6, type=float,  help="System clock frequency.")
-    parser.add_target_argument("--sdram-rate",             default="1:1",             help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--sys-clk-freq", default=80e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",   default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")

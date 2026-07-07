@@ -15,11 +15,9 @@ from litex.gen import *
 
 from litex_boards.platforms import krtkl_snickerdoodle
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -99,10 +97,11 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=krtkl_snickerdoodle.Platform, description="LiteX SoC on Snickerdoodle.")
     parser.add_target_argument("--variant",      default="z7-10",           help="Board variant (z7-10 or z7-20).")
-    parser.add_target_argument("--ext-clk-freq", default=10e6,  type=float, help="External Clock Frequency.")
+    parser.add_target_argument("--ext-clk-freq", default=10e6, type=float,  help="External Clock Frequency.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--xci-file",     help="XCI file for PS7 configuration.")
-    parser.add_target_argument("--target",       help="Vivado programmer target.")
+
+    parser.add_target_argument("--xci-file",                                help="XCI file for PS7 configuration.")
+    parser.add_target_argument("--target",                                  help="Vivado programmer target.")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -14,7 +14,7 @@ from litex.build.openocd import OpenOCD
 _io = [
     # Clk / Rst
     ("clk100",    0, Pins("E3"),  IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("C12"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("C12"), IOStandard("LVCMOS33")),
 
     # Leds
     ("user_led",  0, Pins("T8"), IOStandard("LVCMOS33")),
@@ -95,6 +95,25 @@ _io = [
     ("serial", 0,
         Subsignal("tx", Pins("D4")),
         Subsignal("rx", Pins("C4")),
+        Subsignal("rts", Pins("E5")),
+        Subsignal("cts", Pins("D3")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # SPIFlash
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("L13")),
+        Subsignal("clk",  Pins("E9")),
+        Subsignal("mosi", Pins("K17")),
+        Subsignal("miso", Pins("K18")),
+        Subsignal("wp",   Pins("L14")),
+        Subsignal("hold", Pins("M14")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("L13")),
+        Subsignal("clk",  Pins("E9")),
+        Subsignal("dq",   Pins("K17 K18 L14 M14")),
         IOStandard("LVCMOS33"),
     ),
 
@@ -175,6 +194,41 @@ _io = [
         Subsignal("g", Pins("A6 B6 A5 C6")),
         Subsignal("b", Pins("D7 C7 B7 D8")),
         IOStandard("LVCMOS33")
+    ),
+
+    # PS/2
+    ("ps2", 0,
+        Subsignal("clk", Pins("F4")),
+        Subsignal("dat", Pins("B2")),
+        IOStandard("LVCMOS33"),
+        Misc("PULLUP True"),
+    ),
+
+    # Accelerometer
+    ("accelerometer", 0,
+        Subsignal("cs_n", Pins("C15")),
+        Subsignal("clk",  Pins("D15")),
+        Subsignal("mosi", Pins("B14")),
+        Subsignal("miso", Pins("D13")),
+        Subsignal("int",  Pins("C16 E15"), Misc("PULLUP True")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Temperature Sensor
+    ("temp_sensor", 0,
+        Subsignal("scl", Pins("F16")),
+        Subsignal("sda", Pins("G16")),
+        Subsignal("int", Pins("D14"), Misc("PULLUP True")),
+        Subsignal("ct",  Pins("C14"), Misc("PULLUP True")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Microphone
+    ("microphone", 0,
+        Subsignal("clk",    Pins("J5")),
+        Subsignal("data",   Pins("H5")),
+        Subsignal("lr_sel", Pins("F5")),
+        IOStandard("LVCMOS33"),
     ),
 ]
 

@@ -13,7 +13,7 @@ from litex.gen import *
 from litex_boards.platforms import bochenjingxin_kintex7_basec
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -28,11 +28,11 @@ class _CRG(LiteXModule):
 
         # Clk/Rst.
         clk50 = platform.request("clk50")
-        rst   = ~platform.request("cpu_reset")
+        rst_n = platform.request("cpu_reset_n")
 
         # PLL.
-        self.pll  = pll = S7PLL(speedgrade=-1)
-        self.comb += pll.reset.eq(rst | self.rst)
+        self.pll  = pll = S7PLL(speedgrade=-2)
+        self.comb += pll.reset.eq(~rst_n | self.rst)
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
@@ -63,7 +63,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=bochenjingxin_kintex7_basec.Platform, description="LiteX SoC on Kintex-7 Base C.")
-    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock frequency.")
 
     args = parser.parse_args()
 

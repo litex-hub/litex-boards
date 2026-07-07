@@ -5,14 +5,14 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxSpartan6Platform
+from litex.build.xilinx import XilinxSpartan6Platform, iMPACT
 
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     # Clk/Rst
     ("clk100",    0, Pins("L15"), IOStandard("LVCMOS33")),
-    ("cpu_reset", 0, Pins("T15"), IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("T15"), IOStandard("LVCMOS33")),
 
     # Serial
     ("serial", 0,
@@ -38,10 +38,20 @@ _io = [
 
     # SPI Flash
     ("spiflash4x", 0,
-        Subsignal("cs_n", Pins("V3")),
-        Subsignal("clk",  Pins("R15")),
-        Subsignal("dq",   Pins("T13", "R13", "T14", "V14")),
-        IOStandard("LVCMOS33"),
+        Subsignal("cs_n", Pins("AE14")),
+        Subsignal("clk",  Pins("AH18")),
+        Subsignal("dq",   Pins("AF14 AF20 AG21 AG17")),
+        IOStandard("LVCMOS25"),
+        Misc("SLEW=FAST"),
+    ),
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("AE14")),
+        Subsignal("clk",  Pins("AH18")),
+        Subsignal("mosi", Pins("AF14")),
+        Subsignal("miso", Pins("AF20")),
+        Subsignal("wp",   Pins("AG21")),
+        Subsignal("hold", Pins("AG17")),
+        IOStandard("LVCMOS25"),
         Misc("SLEW=FAST"),
     ),
 
@@ -162,11 +172,34 @@ _io = [
         Subsignal("scl",     Pins("M16"), IOStandard("LVCMOS33")),
         Subsignal("sda",     Pins("M18"), IOStandard("LVCMOS33")),
     ),
+
+    # PS/2
+    ("ps2", 0,
+        Subsignal("clk", Pins("P17")),
+        Subsignal("dat", Pins("N15")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("ps2", 1,
+        Subsignal("clk", Pins("N18")),
+        Subsignal("dat", Pins("P18")),
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Audio
+    ("ac97", 0,
+        Subsignal("clk",     Pins("L13")),
+        Subsignal("sync",    Pins("U17")),
+        Subsignal("reset",   Pins("T17")),
+        Subsignal("sdo",     Pins("N16")),
+        Subsignal("sdi",     Pins("T18")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
 
 _connectors = [
+    ("pmod", "T3 R3 P6 N5 V9 T9 V4 T4"),
     ("VHDCI",
         {
         "EXP-IO1_P"  : "U16",

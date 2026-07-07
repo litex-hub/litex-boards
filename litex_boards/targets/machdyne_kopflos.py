@@ -9,9 +9,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-import os
-import sys
-import json
 
 from migen import *
 
@@ -19,8 +16,6 @@ from litex.gen import *
 
 from litex_boards.platforms import machdyne_kopflos
 
-from litex.build.lattice.trellis import trellis_args, trellis_argdict
-from litex.build.io import DDROutput
 
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -28,14 +23,13 @@ from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.usb_ohci import USBOHCI
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.interconnect.csr_eventmanager import *
 
 from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
 from litedram.phy import ECP5DDRPHY
 
-from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from litex.soc.integration.soc import SoCRegion
 
@@ -144,7 +138,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = sdram_module(sys_clk_freq, "1:2"),
-                l2_cache_size = kwargs.get("l2_size", 8192) 
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # USB Host ---------------------------------------------------------------------------------
@@ -174,18 +168,18 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_kopflos.Platform, description="LiteX SoC on Schoko")
-    parser.add_argument("--sys-clk-freq",    default=40e6,         help="System clock frequency.")
-    parser.add_argument("--revision",        default="v0",         help="Board Revision (v0).")
-    parser.add_argument("--device",          default="12F",        help="ECP5 device (12F, 25F, 45F or 85F).")
-    parser.add_argument("--cable",           default="dirtyJtag",  help="Specify an openFPGALoader cable.")
-    parser.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
-    parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
-    parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
-    parser.add_argument("--with-ethernet",   action="store_true",  help="Enable ethernet support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_argument("--sdram-device",    default="MT41K128M16", help="SDRAM device.")
+    parser.add_target_argument("--sys-clk-freq",    default=40e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",        default="v0",             help="Board Revision (v0).")
+    parser.add_target_argument("--device",          default="12F",            help="ECP5 device (12F, 25F, 45F or 85F).")
+    parser.add_target_argument("--cable",           default="dirtyJtag",      help="Specify an openFPGALoader cable.")
+    parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
+    parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
+    parser.add_target_argument("--eth-ip",          default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",       default="192.168.1.100",  help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--sdram-device",    default="MT41K128M16",    help="SDRAM device.")
 
     args = parser.parse_args()
 

@@ -9,9 +9,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-import os
-import sys
-import json
 
 from migen import *
 
@@ -19,17 +16,15 @@ from litex.gen import *
 
 from litex_boards.platforms import machdyne_noir
 
-from litex.build.io import DDROutput
 
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.usb_ohci import USBOHCI
-from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.video import VideoHDMIPHY
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import MT41K64M16, MT41K128M16, MT41K256M16, MT41K512M16
@@ -139,7 +134,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = sdram_module(sys_clk_freq, "1:2"),
-                l2_cache_size = kwargs.get("l2_size", 8192) 
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # USB Host ---------------------------------------------------------------------------------
@@ -166,16 +161,16 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=machdyne_noir.Platform, description="LiteX SoC on Noir")
-    parser.add_argument("--sys-clk-freq",    default=50e6,         help="System clock frequency.")
-    parser.add_argument("--revision",        default="v0",         help="Board Revision (v0).")
-    parser.add_argument("--device",          default="45F",        help="ECP5 device (25F, 45F or 85F).")
-    parser.add_argument("--cable",           default="usb-blaster", help="Specify an openFPGALoader cable.")
-    parser.add_argument("--with-sdcard",     action="store_true",  help="Enable SDCard support.")
-    parser.add_argument("--with-spi-sdcard", action="store_true",  help="Enable SPI-mode SDCard support.")
-    parser.add_argument("--with-usb-host",   action="store_true",  help="Enable USB host support.")
-    parser.add_argument("--with-ethernet",   action="store_true",  help="Enable ethernet support.")
-    parser.add_argument("--boot-from-flash", action="store_true",  help="Boot from flash MMOD.")
-    parser.add_argument("--sdram-device",    default="MT41K128M16", help="SDRAM device.")
+    parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--revision",        default="v0",             help="Board Revision (v0).")
+    parser.add_target_argument("--device",          default="45F",            help="ECP5 device (25F, 45F or 85F).")
+    parser.add_target_argument("--cable",           default="usb-blaster",    help="Specify an openFPGALoader cable.")
+    parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
+    parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
+    parser.add_target_argument("--boot-from-flash", action="store_true",      help="Boot from flash MMOD.")
+    parser.add_target_argument("--sdram-device",    default="MT41K128M16",    help="SDRAM device.")
 
     args = parser.parse_args()
 

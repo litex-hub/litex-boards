@@ -7,13 +7,12 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
 from litex_boards.platforms import sitlinv_a_e115fb
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.cores.led import LedChaser
@@ -51,15 +50,15 @@ class BaseSoC(SoCCore):
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
-            ledn = platform.request_all("user_led_n")
-            self.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
+            leds_n = platform.request_all("user_led_n")
+            self.leds = LedChaser(pads=leds_n, sys_clk_freq=sys_clk_freq)
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sitlinv_a_e115fb.Platform, description="LiteX SoC on A-E115FB.")
-    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

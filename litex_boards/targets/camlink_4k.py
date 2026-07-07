@@ -14,7 +14,7 @@ from litex.gen import *
 from litex_boards.platforms import camlink_4k
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -102,7 +102,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=camlink_4k.Platform, description="LiteX SoC on Cam Link 4K.")
-    parser.add_target_argument("--sys-clk-freq", default=81e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=81e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -116,7 +116,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".svf")) # FIXME
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

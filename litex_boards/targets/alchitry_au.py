@@ -13,7 +13,7 @@ from litex.gen import *
 from litex_boards.platforms import alchitry_au
 
 from litex.soc.interconnect.csr import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *
@@ -37,7 +37,7 @@ class CRG(LiteXModule):
 
         # PLL
         self.pll = pll = S7PLL()
-        self.comb += pll.reset.eq(~platform.request("cpu_reset") | self.rst)
+        self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
         pll.register_clkin(clk100, 100e6)
         pll.create_clkout(self.cd_sys,       sys_clk_freq)
         pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
@@ -92,10 +92,10 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=alchitry_au.Platform, description="LiteX SoC on Alchitry Au(+).")
-    parser.add_target_argument("--flash",           action="store_true",          help="Flash bitstream.")
-    parser.add_target_argument("--variant",         default="au",                 help="Board variant (au or au+).")
-    parser.add_target_argument("--sys-clk-freq",    default=83.333e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash",  action="store_true",          help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--flash",          action="store_true",          help="Flash bitstream.")
+    parser.add_target_argument("--variant",        default="au",                 help="Board variant (au or au+).")
+    parser.add_target_argument("--sys-clk-freq",   default=83.333e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",          help="Enable memory-mapped SPI flash.")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -40,7 +40,7 @@ _io = [
 
     # PCIe
     ("pcie_x1", 0,
-        #Subsignal("rst_n", Pins(""), IOStandard("")),
+        Subsignal("rst_n", Pins("K22"), IOStandard("LVCMOS18")),
         Subsignal("clk_p", Pins("AB6")),
         Subsignal("clk_n", Pins("AB5")),
         Subsignal("rx_p",  Pins("AB2")),
@@ -49,7 +49,7 @@ _io = [
         Subsignal("tx_n",  Pins("AC3"))
     ),
     ("pcie_x2", 0,
-        #Subsignal("rst_n", Pins(""), IOStandard("")),
+        Subsignal("rst_n", Pins("K22"), IOStandard("LVCMOS18")),
         Subsignal("clk_p", Pins("AB6")),
         Subsignal("clk_n", Pins("AB5")),
         Subsignal("rx_p",  Pins("AB2 AD2")),
@@ -58,7 +58,7 @@ _io = [
         Subsignal("tx_n",  Pins("AC3 AE3"))
     ),
     ("pcie_x4", 0,
-        #Subsignal("rst_n", Pins(""), IOStandard("")),
+        Subsignal("rst_n", Pins("K22"), IOStandard("LVCMOS18")),
         Subsignal("clk_p", Pins("AB6")),
         Subsignal("clk_n", Pins("AB5")),
         Subsignal("rx_p",  Pins("AB2 AD2 AF2 AH2")),
@@ -67,7 +67,7 @@ _io = [
         Subsignal("tx_n",  Pins("AC3 AE3 AG3 AH5"))
     ),
     ("pcie_x8", 0,
-        #Subsignal("rst_n", Pins(""), IOStandard("")),
+        Subsignal("rst_n", Pins("K22"), IOStandard("LVCMOS18")),
         Subsignal("clk_p", Pins("AB6")),
         Subsignal("clk_n", Pins("AB5")),
         Subsignal("rx_p",  Pins("AB2 AD2 AF2 AH2 AJ4 AK2 AM2 AP2")),

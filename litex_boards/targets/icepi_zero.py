@@ -10,13 +10,11 @@ from migen import *
 
 from litex.gen import *
 
-from litex.build.io import CRG
 from litex.build.io import DDROutput
 
 from litex_boards.platforms import icepi_zero
 
-from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.clock import *
@@ -95,7 +93,8 @@ class BaseSoC(SoCCore):
         platform = icepi_zero.Platform(device=device, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        with_usb_pll   = kwargs.get("uart_name", None) == "usb_acm"
+        uart_name      = kwargs.get("uart_name", "serial")
+        with_usb_pll   = uart_name == "usb_acm"
         with_video_pll = with_video_terminal or with_video_framebuffer
         video_pll_type = "video" if with_video_framebuffer else "terminal"
         self.crg = _CRG(platform, sys_clk_freq, with_usb_pll, with_video_pll, video_pll_type, sdram_rate=sdram_rate)
@@ -141,15 +140,15 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=icepi_zero.Platform, description="LiteX SoC on Icepi Zero.")
-    parser.add_target_argument("--device",            default="LFE5U-25F",      help="FPGA device (LFE5U-25F).")
-    parser.add_target_argument("--sdram-module",      default="W9825G6KH6",      help="SDRAM module (W9825G6KH6).")
-    parser.add_target_argument("--sdram-rate", default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
-    parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable SPI Flash (MMAPed).")
-    parser.add_target_argument("--sys-clk-freq",      default=50e6, type=float,  help="System clock frequency.")
+    parser.add_target_argument("--device",         default="LFE5U-25F",      help="FPGA device (LFE5U-25F).")
+    parser.add_target_argument("--sdram-module",   default="W9825G6KH6",     help="SDRAM module (W9825G6KH6).")
+    parser.add_target_argument("--sdram-rate",     default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
 
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",   action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",       action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
@@ -179,7 +178,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".bit"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()

@@ -14,12 +14,10 @@ from litex.gen import *
 
 from litex_boards.platforms import lattice_certuspro_nx_evn
 
-from litex.build.io import CRG
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.led import LedChaser
@@ -36,7 +34,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst
         self.clk125 = platform.request("clk125")
-        self.rst_n  = platform.request("user_btn", 0)
+        self.rst_n  = platform.request("user_btn_n", 0)
 
         # Clocking
         self.hf_clk = NXOSCA(platform)

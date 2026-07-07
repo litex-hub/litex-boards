@@ -13,11 +13,9 @@ from litex.gen import *
 
 from litex_boards.platforms import digilent_zybo_z7
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.integration.soc import SoCRegion
@@ -53,7 +51,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs["uart_name"] == "serial":
-            kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart" # Use USB-UART Pmod on JB.
         if kwargs.get("cpu_type", None) == "zynq7000":
             kwargs["integrated_sram_size"] = 0x0
             kwargs["with_uart"] = False
@@ -162,9 +160,9 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_zybo_z7.Platform, description="LiteX SoC on Zybo Z7/original Zybo")
-    parser.add_target_argument("--sys-clk-freq",    default=125e6, type=float,  help="System clock frequency.")
-    parser.add_target_argument("--variant",         default="z7-10",            help="Board variant (z7-10, z7-20 or original).")
-    parser.add_target_argument("--with-ps7",        action="store_true",        help="Add the PS7 as slave for soft CPUs.")
+    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--variant",      default="z7-10",           help="Board variant (z7-10, z7-20 or original).")
+    parser.add_target_argument("--with-ps7",     action="store_true",       help="Add the PS7 as slave for soft CPUs.")
     args = parser.parse_args()
 
     soc = BaseSoC(

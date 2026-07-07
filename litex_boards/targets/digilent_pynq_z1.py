@@ -12,10 +12,8 @@ from litex.gen import *
 
 from litex_boards.platforms import digilent_pynq_z1
 
-from litex.soc.interconnect import axi
-from litex.soc.interconnect import wishbone
 
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock import *

@@ -17,8 +17,7 @@ from litex.gen import *
 from litex_boards.platforms import decklink_intensity_pro_4k
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
@@ -49,7 +48,8 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
-        kwargs["uart_name"] = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Blackmagic Decklink Intensity Pro 4K", **kwargs)
 
         # PCIe -------------------------------------------------------------------------------------
@@ -75,7 +75,10 @@ def main():
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

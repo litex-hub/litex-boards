@@ -10,7 +10,6 @@
 import time
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 from litex.gen.genlib.misc import WaitTimer
@@ -18,7 +17,7 @@ from litex.gen.genlib.misc import WaitTimer
 from litex_boards.platforms import efinix_trion_t120_bga576_dev_kit
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
@@ -37,7 +36,7 @@ class _CRG(LiteXModule):
         # # #
 
         clk40 = platform.request("clk40")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         self.comb += self.cd_rst.clk.eq(clk40)
 
@@ -71,7 +70,8 @@ class BaseSoC(SoCCore):
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
         platform.add_extension(efinix_trion_t120_bga576_dev_kit.usb_pmod_io("pmod_e"))
-        kwargs["uart_name"] = "usb_uart"
+        if kwargs.get("uart_name", "serial") == "serial":
+            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart"
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -92,7 +92,7 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
         # Tristate Test ----------------------------------------------------------------------------
-        from litex.build.generic_platform import Subsignal, Pins, Misc, IOStandard
+        from litex.build.generic_platform import Subsignal, Pins, IOStandard
         from litex.soc.cores.bitbang import I2CMaster
         platform.add_extension([("i2c", 0,
             Subsignal("sda",   Pins("T12")),
@@ -295,7 +295,7 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
             # DRAM Rst.
             # ---------
             dram_pll_rst_n = platform.add_iface_io("dram_pll_rst_n")
-            self.comb += dram_pll_rst_n.eq(platform.request("user_btn", 1))
+            self.comb += dram_pll_rst_n.eq(platform.request("user_btn_n", 1))
 
             # DRAM AXI-Ports.
             # --------------
@@ -370,7 +370,12 @@ calc_result = design.auto_calc_pll_clock("dram_pll", {"CLKOUT0_FREQ": "400.0"})
                 # Connect AXI interface to the main bus of the SoC.
                 axi_lite_port = axi.AXILiteInterface(data_width=data_width, address_width=28)
                 self.submodules += axi.AXILite2AXI(axi_lite_port, axi_port)
-                self.bus.add_slave(f"target{n}", axi_lite_port, SoCRegion(origin=0x4000_0000 + 0x1000_0000*n, size=0x1000_0000)) # 256MB.
+                self.bus.add_slave(
+                    f"target{n}",
+                    axi_lite_port,
+                    SoCRegion(origin=0x4000_0000 + 0x1000_0000*n, size=0x1000_0000), # 256MB.
+                    strip_origin=True,
+                )
 
             # Use DRAM's target0 port as Main Ram  -----------------------------------------------------
             self.bus.add_region("main_ram", SoCRegion(
@@ -386,15 +391,15 @@ def main():
     parser = LiteXArgumentParser(platform=efinix_trion_t120_bga576_dev_kit.Platform, description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",       action="store_true",     help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone",      action="store_true",     help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-ip",        default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--remote-ip",     default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-rgmii-phy", action="store_true",     help="Uses onboard RGMII Phy instead of RMII PMOD.")
-    parser.add_target_argument("--eth-phy",       default=0, type=int,     help="Ethernet PHY: 0 (default) or 1. (Only available with --eth-rgmii-phy")
+    ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
+    ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-rgmii-phy",  action="store_true",     help="Uses onboard RGMII Phy instead of RMII PMOD.")
+    parser.add_target_argument("--eth-phy",        default=0, type=int,     help="Ethernet PHY: 0 (default) or 1. (Only available with --eth-rgmii-phy")
     args = parser.parse_args()
 
     soc = BaseSoC(

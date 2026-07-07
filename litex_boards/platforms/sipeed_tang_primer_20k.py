@@ -9,7 +9,6 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
-from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
 
@@ -154,14 +153,14 @@ _dock_io = [
 
     # HDMI.
     ("hdmi", 0,
-        Subsignal("clk_p",   Pins("CARD1:68")),
-        Subsignal("clk_n",   Pins("CARD1:70")),
-        Subsignal("data0_p", Pins("CARD1:64")),
-        Subsignal("data0_n", Pins("CARD1:62")),
-        Subsignal("data1_p", Pins("CARD1:58")),
-        Subsignal("data1_n", Pins("CARD1:56")),
-        Subsignal("data2_p", Pins("CARD1:52")),
-        Subsignal("data2_n", Pins("CARD1:50")),
+        Subsignal("clk_p",   Pins("CARD1:68"), IOStandard("LVCMOS33")),
+        Subsignal("clk_n",   Pins("CARD1:70"), IOStandard("LVCMOS33")),
+        Subsignal("data0_p", Pins("CARD1:64"), IOStandard("LVCMOS33")),
+        Subsignal("data0_n", Pins("CARD1:62"), IOStandard("LVCMOS33")),
+        Subsignal("data1_p", Pins("CARD1:58"), IOStandard("LVCMOS33")),
+        Subsignal("data1_n", Pins("CARD1:56"), IOStandard("LVCMOS33")),
+        Subsignal("data2_p", Pins("CARD1:52"), IOStandard("LVCMOS33")),
+        Subsignal("data2_n", Pins("CARD1:50"), IOStandard("LVCMOS33")),
         Subsignal("hdp", Pins("CARD1:154"), IOStandard("LVCMOS33")),
         Subsignal("cec", Pins("CARD1:152"), IOStandard("LVCMOS33")),
         #Subsignal("sda", Pins("CARD1:95")), # Conflict with eth mdc

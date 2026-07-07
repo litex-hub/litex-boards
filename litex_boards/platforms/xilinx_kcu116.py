@@ -26,6 +26,14 @@ _io = [
         Subsignal("p", Pins("M7")),
         Subsignal("n", Pins("M6"))
     ),
+    ("mgt_refclk", 0, # SFP_SI5328_OUT, GTY Quad 226 MGTREFCLK0
+        Subsignal("p", Pins("P7")),
+        Subsignal("n", Pins("P6"))
+    ),
+    ("mgt_refclk", 1, # USER_MGT_SI570_CLOCK, GTY Quad 226 MGTREFCLK1
+        Subsignal("p", Pins("M7")),
+        Subsignal("n", Pins("M6"))
+    ),
 
     ("CLK_74_25", 0,
         Subsignal("p", Pins("D11"), IOStandard("LVDS_25")),
@@ -92,14 +100,23 @@ _io = [
 
     # SPIFlash
     ("spiflash", 0, # clock needs to be accessed through primitive
-        Subsignal("cs_n"), Pins("AA12"),
-        Subsignal("dq"),   Pins("AD11 AC12 AC11 AE11"),
+        Subsignal("cs_n", Pins("AA12")),
+        Subsignal("dq",   Pins("AD11 AC12 AC11 AE11")),
         IOStandard("LVCMOS18")
     ),
-
+    ("spiflash4x", 0, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("AA12")),
+        Subsignal("dq",   Pins("AD11 AC12 AC11 AE11")),
+        IOStandard("LVCMOS18")
+    ),
     ("spiflash", 1, # clock needs to be accessed through primitive
-        Subsignal("cs_n"), Pins("U22"),
-        Subsignal("dq"),   Pins("N23 P23 R20 R21"),
+        Subsignal("cs_n", Pins("R20")),
+        Subsignal("dq",   Pins("N19 P23 N23 R21")),
+        IOStandard("LVCMOS18")
+    ),
+    ("spiflash4x", 1, # clock needs to be accessed through primitive
+        Subsignal("cs_n", Pins("R20")),
+        Subsignal("dq",   Pins("N19 P23 N23 R21")),
         IOStandard("LVCMOS18")
     ),
 
@@ -116,6 +133,24 @@ _io = [
         Subsignal("spdif",     Pins("T20")),
         Subsignal("spdif_out", Pins("U19")),
         IOStandard("LVCMOS18")
+    ),
+
+    # SGMII Ethernet
+    ("eth_clocks", 0,
+        Subsignal("p", Pins("T24")),
+        Subsignal("n", Pins("U24")),
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",  Pins("AA23"), IOStandard("LVCMOS18")),
+        Subsignal("int_n",  Pins("R25"),  IOStandard("LVCMOS18")),
+        Subsignal("mdio",   Pins("P25"),  IOStandard("LVCMOS18")),
+        Subsignal("mdc",    Pins("U25"),  IOStandard("LVCMOS18")),
+        Subsignal("clkout", Pins("T25"),  IOStandard("LVCMOS18")),
+        Subsignal("gpio0",  Pins("P26"),  IOStandard("LVCMOS18")),
+        Subsignal("rx_p",   Pins("U26")),
+        Subsignal("rx_n",   Pins("V26")),
+        Subsignal("tx_p",   Pins("N24")),
+        Subsignal("tx_n",   Pins("P24")),
     ),
 
     # DDR4 SDRAM
@@ -327,7 +362,7 @@ _connectors = [
         "PG_M2C"        : "H13"   # LVCMOS33
     }),
     
-    ("pmod0", "A14 B15 A12 A13 B12 C12 C13 C14"), # LVCMOS33
+    ("pmod0", "A14 B14 A12 A13 B12 C12 C13 C14"), # LVCMOS33
     ("pmod1", "D13 D14 E12 E13 F13 F14 J14 J15")  # LVCMOS33
 ]
 

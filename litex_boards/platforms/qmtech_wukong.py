@@ -13,7 +13,7 @@ from litex.build.openocd import OpenOCD
 # IOs specific to V1 of the board.
 _io_v1 = [
     # Reset (Key1 button).
-    ("cpu_reset", 0, Pins("J8"),  IOStandard("LVCMOS33")),
+    ("cpu_reset_n", 0, Pins("J8"),  IOStandard("LVCMOS33")),
 
     # Clock.
     ("clk50"   ,  0, Pins("M22"), IOStandard("LVCMOS33")),
@@ -26,7 +26,7 @@ _io_v1 = [
 # IOs specific to V2 of the board.
 _io_v2 = [
     # Reset (Key1 button).
-    ("cpu_reset",  0, Pins("M6"),  IOStandard("LVCMOS33")),
+    ("cpu_reset_n",  0, Pins("M6"),  IOStandard("LVCMOS33")),
 
     # Clock.
     ("clk50"   ,   0, Pins("M21"), IOStandard("LVCMOS33")),
@@ -49,7 +49,7 @@ _io_v2 = [
 # IOs specific to V3 of the board.
 _io_v3 = [
     # Reset (Key1 button).
-    ("cpu_reset",  0, Pins("M6"),  IOStandard("LVCMOS33")),
+    ("cpu_reset_n",  0, Pins("M6"),  IOStandard("LVCMOS33")),
 
     # Clock.
     ("clk50"   ,   0, Pins("M21"), IOStandard("LVCMOS33")),

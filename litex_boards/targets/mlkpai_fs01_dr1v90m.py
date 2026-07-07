@@ -16,7 +16,7 @@ from litex_boards.platforms import mlkpai_fs01_dr1v90m
 from litex.build.generic_platform import *
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -29,7 +29,7 @@ class _CRG(LiteXModule):
 
         # Clk / Rst.
         clk25 = platform.request("clk25")
-        rst_n = platform.request("user_btn", 0)
+        rst_n = platform.request("user_btn_n", 0)
 
         self.comb += self.cd_sys.clk.eq(clk25)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~rst_n | self.rst)
@@ -49,7 +49,7 @@ class BaseSoC(SoCCore):
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
-                pads         = platform.request_all("user_led"),
+                pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq,
                 polarity     = 1)
 
@@ -58,7 +58,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=mlkpai_fs01_dr1v90m.Platform, description="LiteX SoC on MLKPAI FS01 DR1V90M.")
-    parser.add_target_argument("--sys-clk-freq", default=25e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=25e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

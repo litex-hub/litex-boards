@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
 
@@ -16,7 +15,7 @@ from litex.build.io import DDROutput
 from litex_boards.platforms import terasic_de1soc
 
 from litex.soc.cores.clock import CycloneVPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -78,7 +77,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=terasic_de1soc.Platform, description="LiteX SoC on DE1-SoC.")
-    parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

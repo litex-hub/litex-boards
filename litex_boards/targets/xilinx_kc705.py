@@ -17,7 +17,7 @@ from litex.gen import *
 from litex_boards.platforms import xilinx_kc705
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 
@@ -68,6 +68,7 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_spi_flash  = False,
         with_pcie       = False,
+        pcie_lanes      = 4,
         with_sata       = False,
         **kwargs):
         platform = xilinx_kc705.Platform()
@@ -106,7 +107,7 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            self.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x4"),
+            self.pcie_phy = S7PCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 data_width = 128,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
@@ -158,11 +159,12 @@ def main():
     parser = LiteXArgumentParser(platform=xilinx_kc705.Platform, description="LiteX SoC on KC705.")
     parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
-    parser.add_target_argument("--eth-ip",          default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
-    parser.add_target_argument("--remote-ip",       default="192.168.1.100", help="Remote IP address of TFTP server.")
-    parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP addresses setting.")
-    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable SPI Flash (MMAPed).")
+    parser.add_target_argument("--eth-ip",         default="192.168.1.50",    help="Ethernet/Etherbone IP address.")
+    parser.add_target_argument("--remote-ip",      default="192.168.1.100",   help="Remote IP address of TFTP server.")
+    parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-pcie",      action="store_true",       help="Enable PCIe support.")
+    parser.add_target_argument("--pcie-lanes",     default=4, type=int,       choices=[4, 8], help="PCIe lane count.")
     parser.add_target_argument("--driver",         action="store_true",       help="Generate PCIe driver.")
     parser.add_target_argument("--with-sata",      action="store_true",       help="Enable SATA support (over SFP2SATA).")
     args = parser.parse_args()
@@ -175,11 +177,15 @@ def main():
         remote_ip      = args.remote_ip,
         with_spi_flash = args.with_spi_flash,
         with_pcie      = args.with_pcie,
+        pcie_lanes     = args.pcie_lanes,
         with_sata      = args.with_sata,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.driver:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
 
     if args.driver:

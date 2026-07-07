@@ -15,8 +15,8 @@ class EnclustraST1:
     """
     def __init__(self, vccio_a="1.8V", vccio_b="1.8V", vccio_c="1.8V") -> None:
         def strip_v(s, is_a = False):
-            assert s in [ 
-                "1.2V" if not is_a else None, 
+            assert s in [
+                "1.2V" if not is_a else None,
                 "1.8V", # VCC_OUT_B
                 "2.5V", # VCC_OUT_A
                 "3.3V" ]

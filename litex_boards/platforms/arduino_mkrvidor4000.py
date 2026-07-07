@@ -87,7 +87,7 @@ _io = [
 #         Subsignal("hold", Pins("AL1")),
 #         IOStandard("LVCMOS33")
 #     ),
-    
+
 
 
 #     # HDMI
@@ -139,7 +139,7 @@ set_location_assignment PIN_C15 -to bMKR_D[11]
 set_location_assignment PIN_B16 -to bMKR_D[12]
 set_location_assignment PIN_C11 -to bMKR_D[13]
 set_location_assignment PIN_A13 -to bMKR_D[14]
-  
+
 # Mini PCIe
 set_location_assignment PIN_P8  -to bPEX_PIN6
 set_location_assignment PIN_L7  -to bPEX_PIN8

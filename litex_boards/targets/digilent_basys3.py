@@ -13,8 +13,7 @@ from litex.gen import *
 from litex_boards.platforms import digilent_basys3
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
@@ -60,18 +59,18 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
-# Build --------------------------------------------------------------------------------------------  
+# Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_basys3.Platform, description="LiteX SoC on Basys3.")
-    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=75e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard",       action="store_true", help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",           action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--sdcard-adapter",                      help="SDCard PMOD adapter (digilent or numato).")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    parser.add_target_argument("--sdcard-adapter",      help="SDCard PMOD adapter (digilent or numato).")
     viopts = parser.target_group.add_mutually_exclusive_group()
-    viopts.add_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (VGA).")
+    viopts.add_argument("--with-video-terminal", action="store_true",        help="Enable Video Terminal (VGA).")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -15,11 +15,11 @@ from litex.gen import *
 from litex_boards.platforms import arduino_mkrvidor4000
 
 from litex.soc.cores.clock import Cyclone10LPPLL
-from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import AS4C4M16
-from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
+from litedram.phy import GENSDRPHY
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=arduino_mkrvidor4000.Platform, description="LiteX SoC on MKR Vidor 4000.")
-    parser.add_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",        default=48e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
     soc = BaseSoC(

@@ -29,10 +29,10 @@ _io = [
     ("user_led", 7, Pins("AC16"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("DRIVE_STRENGTH=3")),
 
     # Buttons
-    ("user_btn", 0, Pins("AD15"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
-    ("user_btn", 1, Pins("AC15"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
-    ("user_btn", 2, Pins("W15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
-    ("user_btn", 3, Pins("V15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn_n", 0, Pins("AD15"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn_n", 1, Pins("AC15"), IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn_n", 2, Pins("W15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
+    ("user_btn_n", 3, Pins("V15"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
 
     # Switches
     ("user_sw", 0, Pins("U16"),  IOStandard("3.3_V_LVTTL_/_LVCMOS"), Misc("WEAK_PULLUP")),
