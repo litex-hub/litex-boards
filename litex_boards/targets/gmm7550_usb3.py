@@ -262,14 +262,9 @@ def main():
     if args.build:
         builder.build(**parser.toolchain_argdict)
 
-    # if args.load:
-    #     prog = soc.platform.create_programmer()
-    #     prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
-
-    # if args.flash:
-    #     from litex.build.openfpgaloader import OpenFPGALoader
-    #     prog = OpenFPGALoader("gatemate_evb_spi")
-    #     prog.flash(0, builder.get_bitstream_filename(mode="flash"))
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()
