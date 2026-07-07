@@ -158,7 +158,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── fpc_iii
     ├── fpgawars_alhambra2
     ├── gadgetfactory_papilio_pro
-    ├── gmm7550
+    ├── gmm7550_usb3
     ├── gsd_butterstick
     ├── gsd_orangecrab
     ├── hackaday_hadbadge
