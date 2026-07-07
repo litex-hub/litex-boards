@@ -36,54 +36,49 @@ from litex.soc.cores.gpio import GPIOOut
 # P4/J4 (South IO)
 p4 = [
     # LEDs (green)
-    ("user_led_n", 0, Pins("P4:5" )), # D10
-    ("user_led_n", 1, Pins("P4:9" )), # D9
-    ("user_led_n", 2, Pins("P4:6" )), # D8
-    ("user_led_n", 3, Pins("P4:10")), # D7
+    ("user_led_n", 0, Pins("P4:5" )), # D10.
+    ("user_led_n", 1, Pins("P4:9" )), # D9.
+    ("user_led_n", 2, Pins("P4:6" )), # D8.
+    ("user_led_n", 3, Pins("P4:10")), # D7.
 
     # Buttons
-    ("btn_n", 0, Pins("P4:3")), # SW2, A
-    ("btn_n", 1, Pins("P4:4")), # SW3, B
+    ("btn_n", 0, Pins("P4:3")), # SW2, A.
+    ("btn_n", 1, Pins("P4:4")), # SW3, B.
 
     # USB-C Power Delivery Controller (OnSemi FUSB303B)
     ("pd", 0,
-     Subsignal("en_n", Pins("P4:15")),
-     Subsignal("scl",  Pins("P4:11")),
-     Subsignal("sda",  Pins("P4:12")),
-     Subsignal("alert_n",  Pins("P4:16")),
-     # Power Delivery Switch control
-     Subsignal("src_en", Pins("P4:21")),
-     Subsignal("disc",   Pins("P4:22")),
-     ),
+        Subsignal("en_n",    Pins("P4:15")),
+        Subsignal("scl",     Pins("P4:11")),
+        Subsignal("sda",     Pins("P4:12")),
+        Subsignal("alert_n", Pins("P4:16")),
+        # Power Delivery Switch control.
+        Subsignal("src_en",  Pins("P4:21")),
+        Subsignal("disc",    Pins("P4:22")),
+    ),
 
     # USB 1.1 (STmicro STUSB03E transceiver)
     ("usb1", 0,
-     Subsignal("vp",     Pins("P4:50")),
-     Subsignal("vm",     Pins("P4:52")),
-     Subsignal("rcv",    Pins("P4:51")),
-     Subsignal("busdet", Pins("P4:55")),
-     Subsignal("oe_n",   Pins("P4:57")),
-     Subsignal("con",    Pins("P4:56")),
-     Subsignal("sus",    Pins("P4:58")),
-     ),
+        Subsignal("vp",     Pins("P4:50")),
+        Subsignal("vm",     Pins("P4:52")),
+        Subsignal("rcv",    Pins("P4:51")),
+        Subsignal("busdet", Pins("P4:55")),
+        Subsignal("oe_n",   Pins("P4:57")),
+        Subsignal("con",    Pins("P4:56")),
+        Subsignal("sus",    Pins("P4:58")),
+    ),
 
     # USB 2.0 (ULPI, Microchip USB3340 PHY)
     ("ulpi", 0,
-     Subsignal("clk",   Pins("P4:23")), # CLK 1, 60 MHz
-     Subsignal("stp",   Pins("P4:28")),
-     Subsignal("dir",   Pins("P4:30")),
-     Subsignal("nxt",   Pins("P4:37")),
-     Subsignal("rst_n", Pins("P4:24")),
-     Subsignal("data",  Pins("P4:39", # 0
-                             "P4:43", # 1
-                             "P4:45", # 2
-                             "P4:49", # 3
-                             "P4:38", # 4
-                             "P4:40", # 5
-                             "P4:44", # 6
-                             "P4:46", # 7
-                             )),
-     ),
+        Subsignal("clk",   Pins("P4:23")), # CLK 1, 60 MHz.
+        Subsignal("stp",   Pins("P4:28")),
+        Subsignal("dir",   Pins("P4:30")),
+        Subsignal("nxt",   Pins("P4:37")),
+        Subsignal("rst_n", Pins("P4:24")),
+        Subsignal("data",  Pins(
+            "P4:39 P4:43 P4:45 P4:49", # D0, D1, D2, D3.
+            "P4:38 P4:40 P4:44 P4:46"  # D4, D5, D6, D7.
+        )),
+    ),
 ]
 
 # Memory Module (SRAM and SPI) on P2 (North) ------------------------------------
