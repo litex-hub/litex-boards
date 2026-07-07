@@ -4,6 +4,7 @@
 # This file is part of LiteX-Boards.
 #
 # Copyright (c) 2026 Anton Kuzmin <ak@gmm7550.dev>
+# Copyright (c) 2026 Florent Kermarrec <florent@enjoy-digital.fr>
 #
 # based on litex_boards/targets/colognechip_gatemate_evb.py
 # Copyright (c) 2023 Gwenhael Goavec-merou<gwenhael.goavec-merou@trabucayre.com>
