@@ -15,8 +15,6 @@ from litex.gen import *
 
 from litex_boards.platforms import gmm7550
 
-from litex.build.io import CRG
-
 from litex.soc.cores.clock.colognechip import GateMatePLL
 
 from litex.soc.interconnect import wishbone
@@ -172,14 +170,16 @@ class AsyncSRAM(LiteXModule):
         platform.add_source(os.path.join(hdl_dir, "issiram.v"))
 
 def add_async_ram(soc, platform, name, origin, size):
+    if soc.bus.data_width != 32:
+        raise ValueError("Async SRAM only supports 32-bit Wishbone data width")
+    soc.check_if_exists(name)
     ram_bus = wishbone.Interface(data_width=soc.bus.data_width)
     clk     = ClockSignal()
     rst     = ResetSignal()
-    ram     = AsyncSRAM(platform, clk, rst, ram_bus, 512 * 1024,
+    ram     = AsyncSRAM(platform, clk, rst, ram_bus, size,
                         platform.request("async_sram"))
 
     soc.bus.add_slave(name, ram.bus, SoCRegion(origin=origin, size=size, mode="rwx"))
-    soc.check_if_exists(name)
     soc.logger.info("AsyncSRAM {} {} {}.".format(
         colorer(name),
         colorer("added", color="green"),
@@ -223,8 +223,13 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_spi_flash  = False,
         with_async_ram  = False,
-        usb_options     = [],
+        usb_options     = None,
         **kwargs):
+        if usb_options is None:
+            usb_options = []
+        if (kwargs.get("cpu_type", "vexriscv") == "vexriscv") and (kwargs.get("cpu_variant") is None):
+            kwargs["cpu_variant"] = "lite"
+
         platform = gmm7550.Platform(toolchain)
 
         platform.add_extension(p4)
@@ -255,9 +260,8 @@ class BaseSoC(SoCCore):
             add_async_ram(self, platform, "main_ram", 0x40000000, 512 * KILOBYTE)
 
         # USB --------------------------------------------------------------------------------------
-        if len(usb_options) > 0:
-            usb = USB(self, platform, usb_options)
-            setattr(self.submodules, "usb", usb)
+        if usb_options:
+            self.usb = USB(self, platform, usb_options)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -265,17 +269,17 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=gmm7550.Platform, description="LiteX SoC on GMM-7550 and USB 3 Adapter")
     parser.add_target_argument("--sys-clk-freq",   default=20e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash")
-    parser.add_target_argument("--with-async-ram", action="store_true", help="Enable Asynchronous SRAM")
-    parser.add_target_argument("--usb", nargs='+', dest="usb_options", default=[], help="Enable USB functions: TBD")
+    parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash.")
+    parser.add_target_argument("--with-async-ram", action="store_true", help="Enable asynchronous SRAM.")
+    parser.add_target_argument("--usb", nargs="+", dest="usb_options", default=[], help="Enable USB functions.")
 
-    parser.set_defaults(cpu_type = "vexriscv", cpu_variant = "lite")
+    parser.set_defaults(cpu_type="vexriscv")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
-        toolchain      = "peppercorn", # args.toolchain,
+        toolchain      = args.toolchain,
         with_spi_flash = args.with_spi_flash,
         with_async_ram = args.with_async_ram,
         usb_options    = args.usb_options,
