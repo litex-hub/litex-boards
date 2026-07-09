@@ -109,13 +109,14 @@ class BaseSoC(SoCCore):
         with_sdcard            = False,
         with_spi_flash         = False,
         with_led_chaser        = True,
+        with_video_colorbars   = False,
         with_video_terminal    = False,
         with_video_framebuffer = False,
         **kwargs):
         platform = antmicro_sodimm_ddr5_tester.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        with_video_pll = with_video_terminal or with_video_framebuffer
+        with_video_pll = with_video_colorbars or with_video_terminal or with_video_framebuffer
         self.crg = _CRG(platform, sys_clk_freq,
             iodelay_clk_freq = iodelay_clk_freq,
             with_video_pll   = with_video_pll,
@@ -207,8 +208,10 @@ class BaseSoC(SoCCore):
             )
 
         # Video ------------------------------------------------------------------------------------
-        if with_video_terminal or with_video_framebuffer:
+        if with_video_colorbars or with_video_terminal or with_video_framebuffer:
             self.videophy = VideoS7HDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
+            if with_video_colorbars:
+                self.add_video_colorbars(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
             if with_video_framebuffer:
@@ -299,11 +302,13 @@ def main():
     parser.add_target_argument("--hyperram-init-drive-strength", default=34, type=int, choices=[34, 115, 67, 46, 27, 22, 19], help="BIOS HyperRAM output drive strength in ohms.")
     parser.add_target_argument("--with-sdcard",            action="store_true",     help="Add SDCard.")
     parser.add_target_argument("--with-spi-flash",         action="store_true",     help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-video-colorbars",   action="store_true",     help="Enable Video Colorbars (HDMI).")
     parser.add_target_argument("--with-video-terminal",    action="store_true",     help="Enable Video Terminal (HDMI).")
     parser.add_target_argument("--with-video-framebuffer", action="store_true",     help="Enable Video Framebuffer (HDMI).")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
+    assert sum([args.with_video_colorbars, args.with_video_terminal, args.with_video_framebuffer]) <= 1
 
     try:
         soc = BaseSoC(
@@ -320,6 +325,7 @@ def main():
             hyperram_init_drive_strength = args.hyperram_init_drive_strength,
             with_sdcard            = args.with_sdcard,
             with_spi_flash         = args.with_spi_flash,
+            with_video_colorbars   = args.with_video_colorbars,
             with_video_terminal    = args.with_video_terminal,
             with_video_framebuffer = args.with_video_framebuffer,
             **parser.soc_argdict,
