@@ -34,7 +34,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `antmicro_ddr5_tester` | antmicro_ddr5_tester | vivado | `200000000.0` | Ethernet, Etherbone, SDCard, SPI Flash, Video Terminal, Video Framebuffer | Requires a LiteDRAM checkout with litedram.phy.ddr5. |
 | `antmicro_lpddr4_test_board` | antmicro_lpddr4_test_board | vivado | `50000000.0` | Ethernet, Etherbone, SDCard | included |
 | `antmicro_sdi_mipi_video_converter` | antmicro_sdi_mipi_video_converter | radiant | `75000000.0` | - | included |
-| `antmicro_sodimm_ddr5_tester` | antmicro_sodimm_ddr5_tester | vivado | `200000000.0` | Ethernet, Etherbone, SDCard, SPI Flash, Video Terminal, Video Framebuffer | Requires a LiteDRAM checkout with litedram.phy.ddr5. |
+| `antmicro_sodimm_ddr5_tester` | antmicro_sodimm_ddr5_tester | vivado | `200000000.0` | Ethernet, Etherbone, SDCard, SPI Flash, Video Terminal, Video Framebuffer, Video Colorbars | Requires a LiteDRAM checkout with litedram.phy.ddr5. |
 | `arduino_mkrvidor4000` | arduino_mkrvidor4000 | - | `48000000.0` | - | included |
 | `arrow_axe5000` | arrow_axe5000 | quartus | `100000000.0` | Ethernet, Etherbone | included |
 | `avnet_aesku40` | avnet_aesku40 | - | `125000000.0` | Ethernet, Etherbone | included |
