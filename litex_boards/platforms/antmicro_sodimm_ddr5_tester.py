@@ -114,7 +114,8 @@ _io = [
 
     # HyperRAM
     ("hyperram", 0,
-        Subsignal("clk",   Pins("AD26")), # clk_n AE26
+        Subsignal("clk_p", Pins("AD26")),
+        Subsignal("clk_n", Pins("AE26")),
         Subsignal("rst_n", Pins("AC24")),
         Subsignal("cs_n",  Pins("AC26")),
         Subsignal("dq",    Pins("AE23 AD25 AF24 AE22 AF23 AF25 AE25 AD24")),
