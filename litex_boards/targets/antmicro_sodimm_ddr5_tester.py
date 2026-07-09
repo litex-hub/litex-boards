@@ -104,7 +104,7 @@ class BaseSoC(SoCCore):
         eth_reset_time         = "10e-3",
         eth_dynamic_ip         = False,
         with_hyperram          = False,
-        hyperram_init_latency  = 6,
+        hyperram_init_latency  = 3,
         hyperram_init_drive_strength = 34,
         with_sdcard            = False,
         with_spi_flash         = False,
@@ -295,7 +295,7 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip",         action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--eth-reset-time",         default="10e-3",         help="Duration of Ethernet PHY reset.")
     parser.add_target_argument("--with-hyperram",          action="store_true",     help="Add HyperRAM.")
-    parser.add_target_argument("--hyperram-init-latency",  default=6, type=int, choices=[3, 4, 5, 6, 7], help="BIOS HyperRAM initial latency in clocks.")
+    parser.add_target_argument("--hyperram-init-latency",        default=3,  type=int, choices=[3, 4, 5, 6, 7],               help="BIOS HyperRAM initial latency in clocks.")
     parser.add_target_argument("--hyperram-init-drive-strength", default=34, type=int, choices=[34, 115, 67, 46, 27, 22, 19], help="BIOS HyperRAM output drive strength in ohms.")
     parser.add_target_argument("--with-sdcard",            action="store_true",     help="Add SDCard.")
     parser.add_target_argument("--with-spi-flash",         action="store_true",     help="Enable memory-mapped SPI flash.")
