@@ -104,7 +104,6 @@ class BaseSoC(SoCCore):
 
         if kwargs.get("uart_name", "serial") == "serial":
             if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
-        kwargs["with_jtagbone"] = True
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alibaba VU13P", **kwargs)
