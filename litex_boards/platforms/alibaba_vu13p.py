@@ -369,14 +369,14 @@ _io = [
             ),
             IOStandard("POD12_DCI")),
         Subsignal("dq", Pins(
-            "AY26 BB26 BA27 AY28 AW28 BB27 AY27 BA28",  # 0-7
+            "AY26 BB26 AY28 BA27 AW28 BB27 AY27 BA28",  # 0-7
             "AM16 AM19 AP19 AM20 AN16 AL20 AN19 AL19",  # 8-15
             "BE25 BE28 BF25 BF27 BC27 BD28 BC26 BE27",  # 16-23
             "AV18 AW18 AW19 AY18 AW20 BA18 AV19 AY20",  # 24-31
             "BC13 BF15 BD14 BE16 BC14 BD15 BE15 BD16",  # 32-39
             "AR28 AU27 AT27 AV27 AR27 AT28 AU26 AV28",  # 40-47
             "AR18 AT18 AU17 AR20 AP20 AU20 AP18 AT20",  # 48-55
-            "BB19 BE19 BC17 BF18 BB17 BD18 BC18 BF19",  # 56-63
+            "BB19 BE18 BC17 BF18 BB17 BD18 BC18 BF19",  # 56-63
             # ECC: "AL25 AP28 AN27 AM27 AM25 AL28 AN28 AL27", # 64-71
             ),
             IOStandard("POD12_DCI"),
