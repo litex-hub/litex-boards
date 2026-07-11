@@ -48,7 +48,7 @@ class _CRG(LiteXModule):
         self.cd_eth    = ClockDomain()
         self.cd_idelay = ClockDomain()
 
-        self.pll = pll = USMMCM(speedgrade=-2)
+        self.pll = pll = USPMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("clk400", 0), 400e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
