@@ -129,6 +129,16 @@ class BaseSoC(SoCCore):
             self.pcie_phy = USPPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 data_width = {4: 128, 8: 256, 16: 512}[pcie_lanes],
                 bar0_size  = 0x20000)
+            self.pcie_phy.update_config({
+                "mode_selection"           : "Advanced",
+                "en_gt_selection"          : "true",
+                "select_quad"              : "GTY_Quad_227",
+                "pcie_blk_locn"            : "X0Y1",
+                "gen_x0y0"                 : "false",
+                "gen_x0y1"                 : "true",
+                "REF_CLK_FREQ"             : "100_MHz",
+                "PL_DISABLE_LANE_REVERSAL" : "TRUE",
+            })
             self.add_pcie(
                 phy              = self.pcie_phy,
                 ndmas            = pcie_ndmas,
