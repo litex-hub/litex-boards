@@ -48,7 +48,7 @@ class _CRG(LiteXModule):
         self.cd_eth    = ClockDomain()
         self.cd_idelay = ClockDomain()
 
-        self.pll = pll = USMMCM(speedgrade=-2)
+        self.pll = pll = USPMMCM(speedgrade=-2)
         self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("clk400", 0), 400e6)
         pll.create_clkout(self.cd_pll4x, sys_clk_freq*4, buf=None, with_reset=False)
@@ -104,7 +104,6 @@ class BaseSoC(SoCCore):
 
         if kwargs.get("uart_name", "serial") == "serial":
             if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
-        kwargs["with_jtagbone"] = True
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alibaba VU13P", **kwargs)
@@ -130,6 +129,16 @@ class BaseSoC(SoCCore):
             self.pcie_phy = USPPCIEPHY(platform, platform.request(f"pcie_x{pcie_lanes}"),
                 data_width = {4: 128, 8: 256, 16: 512}[pcie_lanes],
                 bar0_size  = 0x20000)
+            self.pcie_phy.update_config({
+                "mode_selection"           : "Advanced",
+                "en_gt_selection"          : "true",
+                "select_quad"              : "GTY_Quad_227",
+                "pcie_blk_locn"            : "X0Y1",
+                "gen_x0y0"                 : "false",
+                "gen_x0y1"                 : "true",
+                "REF_CLK_FREQ"             : "100_MHz",
+                "PL_DISABLE_LANE_REVERSAL" : "TRUE",
+            })
             self.add_pcie(
                 phy              = self.pcie_phy,
                 ndmas            = pcie_ndmas,

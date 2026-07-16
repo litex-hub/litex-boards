@@ -206,7 +206,8 @@ _io = [
         Subsignal("act_n", Pins("A22"), IOStandard("SSTL12_DCI")),
         Subsignal("dm", Pins(
             "P13 L13 N17 L17 G14 D13 H19 D19", # 0-7
-            "R21"), # 8
+            # ECC: "R21", # 8
+            ),
             IOStandard("POD12_DCI")),
         Subsignal("dq", Pins(
             "L14 P15 M14 P14 M16 R15 N16 N14",  # 0-7
@@ -217,19 +218,22 @@ _io = [
             "B16 A14 A17 C14 C16 B14 B17 A13",  # 40-47
             "E20 F17 G20 F19 F20 G19 E21 F18",  # 48-55
             "C21 A19 B21 A20 D21 B19 B20 D20",  # 56-63
-            "N22 P23 M22 P25 M24 R25 M25 N23"), # 64-71
+            # ECC: "N22 P23 M22 P25 M24 R25 M25 N23", # 64-71
+            ),
             IOStandard("POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p", Pins(
             "R16 H17 P19 J21 G17 B15 E18 D18", # 0-7
-            "P24"), # 8
+            # ECC: "P24", # 8
+            ),
             IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n", Pins(
             "P16 H16 N19 H21 G16 A15 E17 C18", # 0-7
-            "N24"), # 8
+            # ECC: "N24", # 8
+            ),
             IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
@@ -255,7 +259,8 @@ _io = [
         Subsignal("act_n", Pins("A28"), IOStandard("SSTL12_DCI")),
         Subsignal("dm", Pins(
             "E40 C36 M31 B34 H37 G30 U34 R30", # 0-7
-            "T28"), # 8
+            # ECC: "T28", # 8
+            ),
             IOStandard("POD12_DCI")),
         Subsignal("dq", Pins(
             "D39 C39 B40 A40 E38 D38 E39 C38",  # 0-7
@@ -266,19 +271,22 @@ _io = [
             "H32 E32 G31 F32 H31 E33 G32 F33",  # 40-47
             "V31 U32 U31 T32 T30 T33 U30 R33",  # 48-55
             "R32 N32 N31 N34 R31 P31 N33 P34",  # 56-63
-            "T27 R27 T26 R26 P28 N28 P26 N26"), # 64-71
+            # ECC: "T27 R27 T26 R26 P28 N28 P26 N26", # 64-71
+            ),
             IOStandard("POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p", Pins(
             "B39 B36 K30 A32 H36 J33 V32 M34", # 0-7
-            "P29"), # 8
+            # ECC: "P29", # 8
+            ),
             IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n", Pins(
             "A39 B37 J30 A33 G36 H33 V33 L34", # 0-7
-            "N29"), # 8
+            # ECC: "N29", # 8
+            ),
             IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
@@ -304,7 +312,8 @@ _io = [
         Subsignal("act_n", Pins("Y31"), IOStandard("SSTL12_DCI")),
         Subsignal("dm", Pins(
             "AJ27 AT33 AW29 AP31 BF39 BC34 BA34 BC31", # 0-7
-            "BF32"), # 8
+            # ECC: "BF32", # 8
+            ),
             IOStandard("POD12_DCI")),
         Subsignal("dq", Pins(
             "AK31 AG29 AJ30 AJ31 AJ29 AJ28 AK28 AG30",  # 0-7
@@ -315,19 +324,22 @@ _io = [
             "BE35 BB36 BE36 BA35 BD35 BB35 BD36 BC36",  # 40-47
             "AY35 AW34 AY36 AV34 AY33 AV33 BA33 AW33",  # 48-55
             "BB29 AY31 AY30 BB31 BA29 AY32 BA30 BB30",  # 56-63
-            "BE30 BE31 BF30 BE32 BD29 BD33 BC29 BE33"), # 64-71
+            # ECC: "BE30 BE31 BF30 BE32 BD29 BD33 BC29 BE33", # 64-71
+            ),
             IOStandard("POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p", Pins(
             "AH28 AN32 AU29 AM29 BD40 BB37 AW35 BA32", # 0-7
-            "BD30"), # 8
+            # ECC: "BD30", # 8
+            ),
             IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n", Pins(
             "AH29 AN33 AV29 AM30 BE40 BC37 AW36 BB32", # 0-7
-            "BD31"), # 8
+            # ECC: "BD31", # 8
+            ),
             IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
@@ -353,30 +365,34 @@ _io = [
         Subsignal("act_n", Pins("AR13"), IOStandard("SSTL12_DCI")),
         Subsignal("dm", Pins(
             "BA25 AN18 BF28 AY17 BF14 AV26 AT19 BE17", # 0-7
-            "AP25"), # 8
+            # ECC: "AP25", # 8
+            ),
             IOStandard("POD12_DCI")),
         Subsignal("dq", Pins(
-            "AY26 BB26 BA27 AY28 AW28 BB27 AY27 BA28",  # 0-7
+            "AY26 BB26 AY28 BA27 AW28 BB27 AY27 BA28",  # 0-7
             "AM16 AM19 AP19 AM20 AN16 AL20 AN19 AL19",  # 8-15
             "BE25 BE28 BF25 BF27 BC27 BD28 BC26 BE27",  # 16-23
             "AV18 AW18 AW19 AY18 AW20 BA18 AV19 AY20",  # 24-31
             "BC13 BF15 BD14 BE16 BC14 BD15 BE15 BD16",  # 32-39
             "AR28 AU27 AT27 AV27 AR27 AT28 AU26 AV28",  # 40-47
             "AR18 AT18 AU17 AR20 AP20 AU20 AP18 AT20",  # 48-55
-            "BB19 BE19 BC17 BF18 BB17 BD18 BC18 BF19",  # 56-63
-            "AL25 AP28 AN27 AM27 AM25 AL28 AN28 AL27"), # 64-71
+            "BB19 BE18 BC17 BF18 BB17 BD18 BC18 BF19",  # 56-63
+            # ECC: "AL25 AP28 AN27 AM27 AM25 AL28 AN28 AL27", # 64-71
+            ),
             IOStandard("POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_p", Pins(
             "AW25 AL17 BD26 AV21 BD13 AR25 AR17 BC19", # 0-7
-            "AM26"), # 8
+            # ECC: "AM26", # 8
+            ),
             IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
         Subsignal("dqs_n", Pins(
             "AY25 AM17 BE26 AW21 BE13 AT25 AT17 BD19", # 0-7
-            "AN26"), # 8
+            # ECC: "AN26", # 8
+            ),
             IOStandard("DIFF_POD12_DCI"),
             Misc("PRE_EMPHASIS=RDRV_240"),
             Misc("EQUALIZATION=EQ_LEVEL2")),
