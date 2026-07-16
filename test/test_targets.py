@@ -252,6 +252,30 @@ class TestTargets(unittest.TestCase):
                 if result.returncode != 0:
                     self.fail(result.stdout)
 
+    # Build a framebuffer target with native SDRAM and integrated main RAM.
+    def test_video_framebuffer_memory_backends(self):
+        configurations = {
+            "litedram"       : [],
+            "integrated_ram" : ["--integrated-main-ram-size=0x400000"],
+        }
+        for name, args in configurations.items():
+            with self.subTest(configuration=name):
+                output_dir = os.path.join("build", "test_video_framebuffer_memory_backends", name)
+                shutil.rmtree(output_dir, ignore_errors=True)
+                cmd = [
+                    sys.executable,
+                    "-m", "litex_boards.targets.digilent_nexys_video",
+                    "--cpu-type=vexriscv",
+                    "--cpu-variant=minimal",
+                    "--uart-name=stub",
+                    "--with-video-framebuffer",
+                    "--build",
+                    "--no-compile",
+                    "--output-dir", output_dir,
+                    *args,
+                ]
+                subprocess.check_call(cmd)
+
     # Build simple design for all platforms.
     def test_platforms(self):
         # Collect platforms.
