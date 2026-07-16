@@ -66,6 +66,11 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = sipeed_tang_nano_9k.Platform(toolchain=toolchain)
 
+        # This GW1NR-9 is tight on LUTs, so build Ibex (when selected) with its
+        # distributed-RAM register file instead of the default flip-flop one,
+        # which overflows the part. Ignored by every other CPU.
+        platform.ibex_regfile = "fpga"
+
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
 
