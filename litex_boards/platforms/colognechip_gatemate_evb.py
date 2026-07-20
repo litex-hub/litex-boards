@@ -147,11 +147,11 @@ class Platform(CologneChipPlatform):
     default_clk_name   = "clk10"
     default_clk_period = 1e9/10e6
 
-    def __init__(self, toolchain="colognechip"):
-        CologneChipPlatform.__init__(self, "CCGM1A1", _io, _connectors, toolchain=toolchain)
+    def __init__(self, toolchain="peppercorn", device="A1"):
+        CologneChipPlatform.__init__(self, f"CCGM1{device}", _io, _connectors, toolchain=toolchain)
 
     def create_programmer(self):
-        return OpenFPGALoader("gatemate_evb_jtag")
+        return OpenFPGALoader("gatemate_evb_jtag", index_chain=0)
 
     def do_finalize(self, fragment):
         CologneChipPlatform.do_finalize(self, fragment)
