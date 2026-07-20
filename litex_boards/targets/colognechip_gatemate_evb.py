@@ -51,12 +51,12 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=48e6, toolchain="colognechip",
+    def __init__(self, device="A1", sys_clk_freq=48e6, toolchain="peppercorn",
         with_l2_cache   = False,
         with_led_chaser = True,
         with_spi_flash  = True,
         **kwargs):
-        platform = colognechip_gatemate_evb.Platform(toolchain)
+        platform = colognechip_gatemate_evb.Platform(toolchain, device)
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
         platform.add_extension(colognechip_gatemate_evb.usb_pmod_io("PMODB"))
@@ -120,6 +120,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=colognechip_gatemate_evb.Platform, description="LiteX SoC on Gatemate EVB")
+    parser.add_target_argument("--device",         default="A1",             help="FPGA device (A1, A2).")
     parser.add_target_argument("--sys-clk-freq",   default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
@@ -129,6 +130,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
+        device         = args.device,
         sys_clk_freq   = args.sys_clk_freq,
         toolchain      = args.toolchain,
         with_spi_flash = args.with_spi_flash,
