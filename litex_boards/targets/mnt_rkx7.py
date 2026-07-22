@@ -74,8 +74,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
-        # FIXME: ends up as 0x7f000000 in linux
-        "video_framebuffer": 0x3f000000,
+        "video_framebuffer": 0x7f000000,
         "usb_ohci"         : 0xc0000000,
     }}
 
