@@ -81,7 +81,11 @@ class _CRG(LiteXModule):
         self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
         self.comb += pll.reset.eq(~por_done | self.rst)
         pll.register_clkin(clk50, 50e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=not with_ddr3)
+        if with_ddr3:
+            # Keep sys/sys2x phase-aligned across the PHY stop/reset sequence.
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+        else:
+            pll.create_clkout(self.cd_sys, sys_clk_freq)
         if cpu_clk_freq:
             pll.create_clkout(self.cd_cpu, cpu_clk_freq, with_reset=False)
         platform.toolchain.additional_cst_commands.append("INS_LOC \"PLL\" PLL_R[0]") # Magic incantation for Gowin-AE350 CPU :)
@@ -99,12 +103,18 @@ class _CRG(LiteXModule):
 
         # DDR3 clock
         if with_ddr3:
-            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
             self.specials += [
                 Instance("DHCE",
                     i_CLKIN  = self.cd_sys2x_i.clk,
                     i_CEN    = self.stop,
                     o_CLKOUT = self.cd_sys2x.clk
+                ),
+                Instance("CLKDIV",
+                    p_DIV_MODE = "2",
+                    i_CALIB    = 0,
+                    i_HCLKIN   = self.cd_sys2x.clk,
+                    i_RESETN   = ~self.reset,
+                    o_CLKOUT   = self.cd_sys.clk
                 ),
                 AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
             ]
