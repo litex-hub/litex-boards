@@ -58,6 +58,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `digilent_atlys` | digilent_atlys | ise | `default` | Ethernet, Etherbone | included |
 | `digilent_basys3` | digilent_basys3 | vivado | `75000000.0` | SDCard, SPI SDCard, Video Terminal | included |
 | `digilent_cmod_a7` | digilent_cmod_a7 | vivado | `48000000.0` | SPI Flash | included |
+| `digilent_eclypse_z7` | digilent_eclypse_z7 | vivado | `125000000.0` | - | included |
 | `digilent_genesys2` | digilent_genesys2 | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, Video Terminal, Video Framebuffer | included |
 | `digilent_netfpga_sume` | digilent_netfpga_sume | vivado | `125000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard | included |
 | `digilent_nexys4` | digilent_nexys4 | vivado | `75000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, Video Terminal, Video Framebuffer | included |

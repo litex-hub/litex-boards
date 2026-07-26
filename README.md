@@ -144,6 +144,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── digilent_atlys
     ├── digilent_basys3
     ├── digilent_cmod_a7
+    ├── digilent_eclypse_z7
     ├── digilent_genesys2
     ├── digilent_netfpga_sume
     ├── digilent_nexys4
