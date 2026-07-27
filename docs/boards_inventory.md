@@ -93,7 +93,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `icepi_zero` | icepi_zero | trellis | `50000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
 | `intergalaktik_ulx5m_gs` | intergalaktik_ulx5m_gs | colognechip | `20000000.0` | SDCard, SPI SDCard, SPI Flash | included |
 | `isx_im1283` | isx_im1283 | vivado | `80000000.0` | SDCard, SPI SDCard | included |
-| `jungle_electronics_fireant` | jungle_electronics_fireant | efinity | `33333000.0` | - | toolchain-gated: Require Efinity toolchain. |
+| `jungle_electronics_fireant` | jungle_electronics_fireant | efinity | `33330000.0` | - | toolchain-gated: Require Efinity toolchain. |
 | `kosagi_fomu` | kosagi_fomu_pvt | icestorm | `12000000.0` | - | included |
 | `kosagi_netv2` | kosagi_netv2 | vivado | `100000000.0` | Ethernet, SDCard, SPI SDCard, PCIe | included |
 | `krtkl_snickerdoodle` | krtkl_snickerdoodle | vivado | `100000000.0` | - | included |
