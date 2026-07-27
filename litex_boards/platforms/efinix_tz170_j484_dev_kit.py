@@ -206,6 +206,20 @@ _connectors = [
     ),
 ]
 
+# DDR Configuration --------------------------------------------------------------------------------
+
+ddr_config = {
+    "memory_type"     : "LPDDR4",
+    "memory_density"  : "8G",
+    "clkin_sel"       : "CLKIN 2",
+    "location"        : "DDR_0",
+    "dq_width"        : 32,
+    "physical_rank"   : 1,
+    "data_width"      : 512,
+    "address_width"   : 33,
+    "id_width"        : 8,
+}
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(EfinixPlatform):
@@ -215,6 +229,8 @@ class Platform(EfinixPlatform):
 
     def __init__(self, toolchain="efinity"):
         EfinixPlatform.__init__(self, "Tz170J484I3", _io, _connectors, iobank_info=_bank_info, toolchain=toolchain, spi_width="4")
+        self.ddr_config = ddr_config
+        self.ddr_size   = 0x4000_0000 # 1GB.
 
     def create_programmer(self):
         return EfinixProgrammer(family=self.family)
