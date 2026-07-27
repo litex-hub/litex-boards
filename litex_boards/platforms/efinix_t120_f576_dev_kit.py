@@ -179,6 +179,48 @@ def i2c_pmod_io(pmod):
         ),
     ]
 
+# DDR Configuration --------------------------------------------------------------------------------
+
+ddr_config = {
+    "preset_id"        : 173,
+    "memory_type"      : "LPDDR3",
+    "controller_width" : 32,
+    "dram_width"       : 32,
+    "memory_density"   : "8G",
+    "speedbin"         : 800,
+    "fpga_config"      : {
+        "FPGA_ITERM" : "120",
+        "FPGA_OTERM" : "34",
+    },
+    "memory_config"    : {
+        "RTT_NOM"   : "RZQ/2",
+        "MEM_OTERM" : "40",
+        "CL"        : "RL=6/WL=3",
+    },
+    "memory_timing"    : {
+        "tRAS"  : 42.0,
+        "tRC"   : 60.0,
+        "tRP"   : 18.0,
+        "tRCD"  : 18.0,
+        "tREFI" : 3.9,
+        "tRFC"  : 210.0,
+        "tRTP"  : 10.0,
+        "tWTR"  : 10.0,
+        "tRRD"  : 10.0,
+        "tFAW"  : 50.0,
+    },
+    "control_config"   : {
+        "AMAP"             : "ROW-COL_HIGH-BANK-COL_LOW",
+        "EN_AUTO_PWR_DN"   : "Off",
+        "EN_AUTO_SELF_REF" : "No",
+    },
+    "gate_delay_config" : {
+        "EN_DLY_OVR" : "No",
+        "GATE_C_DLY" : 3,
+        "GATE_F_DLY" : 0,
+    },
+}
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(EfinixPlatform):
@@ -188,6 +230,8 @@ class Platform(EfinixPlatform):
 
     def __init__(self, toolchain="efinity"):
         EfinixPlatform.__init__(self, "T120F576I4", _io, _connectors, iobank_info=_bank_info, toolchain=toolchain)
+        self.ddr_config = ddr_config
+        self.ddr_size   = 0x1000_0000 # 256MB per target port.
 
     def create_programmer(self):
         return EfinixProgrammer()
