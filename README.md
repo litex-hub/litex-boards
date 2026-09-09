@@ -105,10 +105,12 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── alibaba_vu13p
     ├── alibaba_xcku3p
     ├── alientek_davincipro
+    ├── aliexpress_rk_xcku5p
     ├── aliexpress_xc7k420t
     ├── aliexpress_xc7k70t
     ├── alinx_ax7010
     ├── alinx_ax7020
+    ├── alinx_ax7035
     ├── alinx_ax7203
     ├── alinx_axau15
     ├── alinx_axu2cga

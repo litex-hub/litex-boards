@@ -19,6 +19,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `alibaba_vu13p` | alibaba_vu13p | vivado | `125000000.0` | Ethernet, Etherbone, PCIe | included |
 | `alibaba_xcku3p` | alibaba_xcku3p | vivado | `100000000.0` | Ethernet, Etherbone, PCIe | included |
 | `alientek_davincipro` | alientek_davincipro | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, PCIe, Video Terminal, Video Framebuffer, Video Colorbars | included |
+| `aliexpress_rk_xcku5p` | aliexpress_rk_xcku5p | vivado | `100000000.0` | - | included |
 | `aliexpress_xc7k420t` | aliexpress_xc7k420t | vivado | `100000000.0` | SPI Flash | included |
 | `aliexpress_xc7k70t` | aliexpress_xc7k70t | vivado | `90000000.0` | Ethernet, PCIe, Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `alinx_ax7010` | alinx_ax7010 | - | `100000000.0` | - | included |
