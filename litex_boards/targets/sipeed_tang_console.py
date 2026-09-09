@@ -255,7 +255,8 @@ def main():
             "mister"
     ], help="SDRAM module model.")
     parser.add_target_argument("--with-ddr3",           action="store_true", help="Enable optional DDR3 module.")
-    parser.add_target_argument("--ddr3-rate", default="1:2", choices=["1:2", "1:4"], help="DDR3 PHY clock ratio.")
+    parser.add_target_argument("--ddr3-rate", default="1:2", choices=["1:2", "1:4"],
+        help="DDR3 PHY clock ratio. For 1:4, use --sys-clk-freq=25e6 (DLL-off) or 100e6 (DLL-on).")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
     args = parser.parse_args()
 
