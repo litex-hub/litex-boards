@@ -21,7 +21,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
 
-from litedram.modules import AS4C32M16, MT41J128M16, W9825G6KH6
+from litedram.modules import AS4C32M16, MT41J256M16, W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 from litedram.phy import GW5DDRPHY
 from litex.build.io import DDROutput
@@ -71,6 +71,11 @@ class _CRG(LiteXModule):
             self.comb += self.cd_sys.rst.eq(~por_done | rst)
         else:
             self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
+            # Device-specific PLL limits (Gowin UG306, section 2.3).
+            pll.vco_freq_range = {
+                "GW5AT-60B":   (700e6, 1400e6),
+                "GW5AST-138C": (650e6, 1300e6),
+            }[platform.devicename]
             self.comb += pll.reset.eq(~por_done | rst)
             pll.register_clkin(clk50, 50e6)
             if with_ddr3:
@@ -164,14 +169,16 @@ class BaseSoC(SoCCore):
         if with_ddr3 and not self.integrated_main_ram_size:
             self.ddrphy = GW5DDRPHY(
                 pads         = platform.request("ddram"),
-                sys_clk_freq = sys_clk_freq
+                sys_clk_freq = sys_clk_freq,
+                # At CK <= 125 MHz, use DDR3 DLL-off mode (CL6/CWL6, no ODT).
+                dll_off      = (2*sys_clk_freq <= 125e6),
             )
             self.ddrphy.settings.rtt_nom = "disabled"
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41J128M16(sys_clk_freq, "1:2"),
+                module        = MT41J256M16(sys_clk_freq, "1:2"),
                 l2_cache_size = 0#kwargs.get("l2_size", 8192)
             )
 
