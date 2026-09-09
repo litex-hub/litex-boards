@@ -45,38 +45,44 @@ _io = [
         Subsignal("dq",   Pins("P22 R22 P21 R21")),
         IOStandard("LVCMOS33"),
     ),
-
-    # DDR3 SDRAM MT41J128M16JT-125.
-    # FIXME: Tang Mega 60k: One chip, 138k: Two chips.
-    ("ddram", 0,
-        Subsignal("a", Pins(
-            "M1 K2 G2 J4 J2 H2 G3 J1",
-            "J5 H5 L1 H3 K4 K1"), # A14/A15: Unused.
-            IOStandard("SSTL15"),
-            Misc("DRIVE=12"),
-        ),
-        Subsignal("ba",      Pins("P5 P2 M6"), IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("ras_n",   Pins("L5"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("cas_n",   Pins("L4"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("we_n",    Pins("M5"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("cs_n",    Pins("P4"),       IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("dm",      Pins("AA4 V7"),   IOStandard("SSTL15"), Misc("DRIVE=12")),
-        Subsignal("dq",      Pins(
-            " Y4 AB3 AA5 V4 AA1 AB2 AB5 AB1",
-            "AA8  Y8 AB7 Y7 AB8  W9 AB6  Y9"),
-            IOStandard("SSTL15"),
-            Misc("DRIVE=12"),
-        ),
-        Subsignal("dqs_p",   Pins("Y3 V9"),    IOStandard("SSTL15D"), Misc("DRIVE=8")),
-        Subsignal("dqs_n",   Pins("AA3 V8"),   IOStandard("SSTL15D"), Misc("DRIVE=8")),
-        Subsignal("clk_p",   Pins("L3"),       IOStandard("SSTL15D"), Misc("DRIVE=8")),
-        Subsignal("clk_n",   Pins("K3"),       IOStandard("SSTL15D"), Misc("DRIVE=8")),
-        Subsignal("cke",     Pins("K6"),       IOStandard("SSTL15"),  Misc("DRIVE=4")),
-        Subsignal("odt",     Pins("M2"),       IOStandard("SSTL15"),  Misc("DRIVE=12")),
-        Subsignal("reset_n", Pins("L6"),       IOStandard("SSTL15"),  Misc("DRIVE=12")),
-        Misc("PULL_MODE=NONE BANK_VCCIO=1.5"),
-    ),
 ]
+
+
+def _ddram_io(device):
+    suffix = "_I" if device == "GW5AT-60B" else ""
+    return [
+        # DDR3 SDRAM MT41J256M16JT-125.
+        # Tang Mega 60K: One chip. 138K: Only the first of two chips is used.
+        ("ddram", 0,
+            Subsignal("a", Pins(
+                "M1 K2 G2 J4 J2 H2 G3 J1",
+                "J5 H5 L1 H3 K4 K1 D1"), # A15: Unused.
+                IOStandard("SSTL15" + suffix),
+                Misc("DRIVE=12"),
+            ),
+            Subsignal("ba",      Pins("P5 P2 M6"), IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
+            Subsignal("ras_n",   Pins("L5"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
+            Subsignal("cas_n",   Pins("L4"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
+            Subsignal("we_n",    Pins("M5"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
+            Subsignal("cs_n",    Pins("P4"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
+            Subsignal("dm",      Pins("AA4 V7"),   IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
+            Subsignal("dq",      Pins(
+                " Y4 AB3 AA5 V4 AA1 AB2 AB5 AB1",
+                "AA8  Y8 AB7 Y7 AB8  W9 AB6  Y9"),
+                IOStandard("SSTL15" + suffix),
+                Misc("DRIVE=12"),
+            ),
+            Subsignal("dqs_p",   Pins("Y3 V9"),    IOStandard("SSTL15D" + suffix), Misc("DRIVE=8")),
+            Subsignal("dqs_n",   Pins("AA3 V8"),   IOStandard("SSTL15D" + suffix), Misc("DRIVE=8")),
+            Subsignal("clk_p",   Pins("L3"),       IOStandard("SSTL15D" + suffix), Misc("DRIVE=8")),
+            Subsignal("clk_n",   Pins("K3"),       IOStandard("SSTL15D" + suffix), Misc("DRIVE=8")),
+            Subsignal("cke",     Pins("K6"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=4")),
+            Subsignal("odt",     Pins("M2"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
+            Subsignal("reset_n", Pins("L6"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
+            Misc("PULL_MODE=NONE BANK_VCCIO=1.5"),
+        ),
+    ]
+
 
 _io_60k = [
     # Rst.
@@ -410,9 +416,9 @@ class Platform(GowinPlatform):
             "GW5AT-60B":   _connectors_60k,
             "GW5AST-138C": _connectors_138k,
         }[device]
-        # TODO: different (32-bit total) DDR3 on GW5AST-138C
         GowinPlatform.__init__(self, device_map[device], _io, connectors, toolchain=toolchain, devicename=device)
         self.add_extension(io)
+        self.add_extension(_ddram_io(device))
         self.add_extension(_dock_io)
         self.add_connector(_dock_connectors)
 

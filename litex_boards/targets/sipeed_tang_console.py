@@ -21,7 +21,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
 
-from litedram.modules import AS4C32M16, MT41J128M16, W9825G6KH6
+from litedram.modules import AS4C32M16, MT41J256M16, W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 from litedram.phy import GW5DDRPHY
 from litex.build.io import DDROutput
@@ -33,6 +33,7 @@ class _CRG(LiteXModule):
         with_sdram     = False,
         sdram_rate     = "1:2",
         with_ddr3      = False,
+        ddr3_rate      = "1:2",
         with_video_pll = False,
         without_pll    = False):
         self.rst    = Signal()
@@ -46,11 +47,16 @@ class _CRG(LiteXModule):
                 self.cd_sys_ps = ClockDomain()
 
         if with_ddr3:
-            self.cd_init    = ClockDomain()
-            self.cd_sys2x   = ClockDomain()
-            self.cd_sys2x_i = ClockDomain()
-            self.stop       = Signal()
-            self.reset      = Signal()
+            self.cd_init = ClockDomain()
+
+            ddr3_nphases = int(ddr3_rate[-1])
+            cd_ddr       = ClockDomain(f"sys{ddr3_nphases}x")
+            cd_ddr_i     = ClockDomain(f"sys{ddr3_nphases}x_i")
+            setattr(self, f"cd_sys{ddr3_nphases}x",   cd_ddr)
+            setattr(self, f"cd_sys{ddr3_nphases}x_i", cd_ddr_i)
+
+            self.stop  = Signal()
+            self.reset = Signal()
 
         # Clk
         clk50 = platform.request("clk50")
@@ -71,11 +77,16 @@ class _CRG(LiteXModule):
             self.comb += self.cd_sys.rst.eq(~por_done | rst)
         else:
             self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
+            # Device-specific PLL limits (Gowin UG306, section 2.3).
+            pll.vco_freq_range = {
+                "GW5AT-60B":   (700e6, 1400e6),
+                "GW5AST-138C": (650e6, 1300e6),
+            }[platform.devicename]
             self.comb += pll.reset.eq(~por_done | rst)
             pll.register_clkin(clk50, 50e6)
             if with_ddr3:
-                # Keep sys/sys2x phase-aligned across the PHY stop/reset sequence.
-                pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+                # Keep the system and DDR clocks phase-aligned across the PHY stop/reset sequence.
+                pll.create_clkout(cd_ddr_i, ddr3_nphases*sys_clk_freq)
             else:
                 pll.create_clkout(self.cd_sys, sys_clk_freq)
 
@@ -94,14 +105,14 @@ class _CRG(LiteXModule):
         if with_ddr3:
             self.specials += [
                 Instance("DHCE",
-                    i_CLKIN  = self.cd_sys2x_i.clk,
+                    i_CLKIN  = cd_ddr_i.clk,
                     i_CEN    = self.stop,
-                    o_CLKOUT = self.cd_sys2x.clk
+                    o_CLKOUT = cd_ddr.clk
                 ),
                 Instance("CLKDIV",
-                    p_DIV_MODE = "2",
+                    p_DIV_MODE = str(ddr3_nphases),
                     i_CALIB    = 0,
-                    i_HCLKIN   = self.cd_sys2x.clk,
+                    i_HCLKIN   = cd_ddr.clk,
                     i_RESETN   = ~self.reset,
                     o_CLKOUT   = self.cd_sys.clk
                 ),
@@ -129,6 +140,7 @@ class BaseSoC(SoCCore):
     def __init__(self, toolchain="gowin", device="GW5AT-60B", sys_clk_freq=50e6,
         with_video_terminal = False,
         with_ddr3           = False,
+        ddr3_rate           = "1:2",
         with_sdram          = False,
         sdram_model         = "sipeed",
         sdram_rate          = "1:1",
@@ -139,6 +151,9 @@ class BaseSoC(SoCCore):
         with_buttons        = True,
         without_pll         = False,
         **kwargs):
+        assert ddr3_rate in ("1:2", "1:4")
+        ddr3_nphases = int(ddr3_rate[-1])
+
         platform = sipeed_tang_console.Platform(toolchain=toolchain, device=device)
 
         assert not with_sdram or (sdram_model in ["sipeed", "mister"])
@@ -154,6 +169,7 @@ class BaseSoC(SoCCore):
             with_sdram     = with_sdram,
             sdram_rate     = sdram_rate,
             with_ddr3      = with_ddr3,
+            ddr3_rate      = ddr3_rate,
             with_video_pll = with_video_terminal,
             without_pll    = without_pll,
         )
@@ -162,16 +178,19 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if with_ddr3 and not self.integrated_main_ram_size:
+            # At CK <= 125 MHz, use DDR3 DLL-off mode (CL6/CWL6, no ODT).
             self.ddrphy = GW5DDRPHY(
                 pads         = platform.request("ddram"),
-                sys_clk_freq = sys_clk_freq
+                sys_clk_freq = sys_clk_freq,
+                dll_off      = (ddr3_nphases*sys_clk_freq <= 125e6),
+                nphases      = ddr3_nphases,
             )
             self.ddrphy.settings.rtt_nom = "disabled"
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = MT41J128M16(sys_clk_freq, "1:2"),
+                module        = MT41J256M16(sys_clk_freq, ddr3_rate),
                 l2_cache_size = 0#kwargs.get("l2_size", 8192)
             )
 
@@ -240,6 +259,8 @@ def main():
             "mister"
     ], help="SDRAM module model.")
     parser.add_target_argument("--with-ddr3",           action="store_true", help="Enable optional DDR3 module.")
+    parser.add_target_argument("--ddr3-rate",           default="1:2", choices=["1:2", "1:4"],
+        help="DDR3 PHY clock ratio. For 1:4, use --sys-clk-freq=25e6 (DLL-off) or 100e6 (DLL-on).")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
     args = parser.parse_args()
 
@@ -248,6 +269,7 @@ def main():
         device              = args.device,
         with_video_terminal = args.with_video_terminal,
         with_ddr3           = args.with_ddr3,
+        ddr3_rate           = args.ddr3_rate,
         with_sdram          = args.with_sdram,
         sdram_model         = args.sdram_model,
         with_spi_flash      = args.with_spi_flash,
