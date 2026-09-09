@@ -35,7 +35,7 @@ from litex_boards.platforms import sipeed_tang_mega_138k_pro
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, cpu_clk_freq=0,
         with_sdram     = False, sdram_rate="1:2",
-        with_ddr3      = False,
+        with_ddr3      = False, ddr3_rate="1:2",
         with_video_pll = False,
         with_pcie      = False,
         ):
@@ -52,9 +52,12 @@ class _CRG(LiteXModule):
                 self.cd_sys_ps = ClockDomain()
 
         if with_ddr3:
-            self.cd_init    = ClockDomain()
-            self.cd_sys2x   = ClockDomain()
-            self.cd_sys2x_i = ClockDomain()
+            self.cd_init = ClockDomain()
+            ddr3_nphases = int(ddr3_rate[-1])
+            cd_ddr   = ClockDomain(f"sys{ddr3_nphases}x")
+            cd_ddr_i = ClockDomain(f"sys{ddr3_nphases}x_i")
+            setattr(self, f"cd_sys{ddr3_nphases}x",   cd_ddr)
+            setattr(self, f"cd_sys{ddr3_nphases}x_i", cd_ddr_i)
             self.stop       = Signal()
             self.reset      = Signal()
 
@@ -79,8 +82,8 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~por_done | rst)
         pll.register_clkin(clk50, 50e6)
         if with_ddr3:
-            # Keep sys/sys2x phase-aligned across the PHY stop/reset sequence.
-            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            # Keep the system and DDR clocks phase-aligned across the PHY stop/reset sequence.
+            pll.create_clkout(cd_ddr_i, ddr3_nphases*sys_clk_freq)
         else:
             pll.create_clkout(self.cd_sys, sys_clk_freq)
         if cpu_clk_freq:
@@ -102,14 +105,14 @@ class _CRG(LiteXModule):
         if with_ddr3:
             self.specials += [
                 Instance("DHCE",
-                    i_CLKIN  = self.cd_sys2x_i.clk,
+                    i_CLKIN  = cd_ddr_i.clk,
                     i_CEN    = self.stop,
-                    o_CLKOUT = self.cd_sys2x.clk
+                    o_CLKOUT = cd_ddr.clk
                 ),
                 Instance("CLKDIV",
-                    p_DIV_MODE = "2",
+                    p_DIV_MODE = str(ddr3_nphases),
                     i_CALIB    = 0,
-                    i_HCLKIN   = self.cd_sys2x.clk,
+                    i_HCLKIN   = cd_ddr.clk,
                     i_RESETN   = ~self.reset,
                     o_CLKOUT   = self.cd_sys.clk
                 ),
@@ -144,6 +147,7 @@ class BaseSoC(SoCCore):
         eth_dynamic_ip      = False,
         with_video_terminal = False,
         with_ddr3           = False,
+        ddr3_rate           = "1:2",
         with_sdram          = False,
         sdram_model         = "sipeed",
         sdram_rate          = "1:2",
@@ -152,6 +156,8 @@ class BaseSoC(SoCCore):
         with_rgb_led        = False,
         with_buttons        = True,
         **kwargs):
+        assert ddr3_rate in ("1:2", "1:4")
+        ddr3_nphases = int(ddr3_rate[-1])
         platform = sipeed_tang_mega_138k_pro.Platform(toolchain="gowin")
 
         assert not with_sdram or (sdram_model in ["sipeed", "mister"])
@@ -167,6 +173,7 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq,
             with_sdram     = with_sdram,
             with_ddr3      = with_ddr3,
+            ddr3_rate      = ddr3_rate,
             with_video_pll = with_video_terminal,
             with_pcie      = with_pcie,
         )
@@ -181,14 +188,15 @@ class BaseSoC(SoCCore):
                 pads         = platform.request("ddram"),
                 sys_clk_freq = sys_clk_freq,
                 # At CK <= 125 MHz, use DDR3 DLL-off mode (CL6/CWL6, no ODT).
-                dll_off      = (2*sys_clk_freq <= 125e6),
+                dll_off      = (ddr3_nphases*sys_clk_freq <= 125e6),
+                nphases      = ddr3_nphases,
             )
             self.ddrphy.settings.rtt_nom = "disabled"
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = H5TQ4G63EFR(sys_clk_freq, "1:2"),
+                module        = H5TQ4G63EFR(sys_clk_freq, ddr3_rate),
                 l2_cache_size = 0#kwargs.get("l2_size", 8192)
             )
 
@@ -262,6 +270,7 @@ def main():
             "mister"
     ], help="SDRAM module model.")
     parser.add_target_argument("--with-ddr3",           action="store_true",      help="Enable optional DDR3 module.")
+    parser.add_target_argument("--ddr3-rate", default="1:2", choices=["1:2", "1:4"], help="DDR3 PHY clock ratio.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
@@ -278,6 +287,7 @@ def main():
         sys_clk_freq        = args.sys_clk_freq,
         with_video_terminal = args.with_video_terminal,
         with_ddr3           = args.with_ddr3,
+        ddr3_rate           = args.ddr3_rate,
         with_sdram          = args.with_sdram,
         sdram_model         = args.sdram_model,
         with_pcie           = args.with_pcie,
