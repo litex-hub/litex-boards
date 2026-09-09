@@ -74,6 +74,8 @@ class _CRG(LiteXModule):
 
         # PLL
         self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
+        # GW5AST-138 PLL limits (Gowin UG306, section 2.3).
+        pll.vco_freq_range = (650e6, 1300e6)
         self.comb += pll.reset.eq(~por_done | rst)
         pll.register_clkin(clk50, 50e6)
         if with_ddr3:
@@ -177,7 +179,9 @@ class BaseSoC(SoCCore):
         if with_ddr3 and not self.integrated_main_ram_size:
             self.ddrphy = GW5DDRPHY(
                 pads         = platform.request("ddram"),
-                sys_clk_freq = sys_clk_freq
+                sys_clk_freq = sys_clk_freq,
+                # At CK <= 125 MHz, use DDR3 DLL-off mode (CL6/CWL6, no ODT).
+                dll_off      = (2*sys_clk_freq <= 125e6),
             )
             self.ddrphy.settings.rtt_nom = "disabled"
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
