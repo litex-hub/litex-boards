@@ -32,7 +32,8 @@ class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq,
         with_sdram     = False,
         sdram_rate     = "1:2",
-        with_ddr3      = False, ddr3_rate="1:2",
+        with_ddr3      = False,
+        ddr3_rate      = "1:2",
         with_video_pll = False,
         without_pll    = False):
         self.rst    = Signal()
@@ -47,13 +48,15 @@ class _CRG(LiteXModule):
 
         if with_ddr3:
             self.cd_init = ClockDomain()
+
             ddr3_nphases = int(ddr3_rate[-1])
-            cd_ddr   = ClockDomain(f"sys{ddr3_nphases}x")
-            cd_ddr_i = ClockDomain(f"sys{ddr3_nphases}x_i")
+            cd_ddr       = ClockDomain(f"sys{ddr3_nphases}x")
+            cd_ddr_i     = ClockDomain(f"sys{ddr3_nphases}x_i")
             setattr(self, f"cd_sys{ddr3_nphases}x",   cd_ddr)
             setattr(self, f"cd_sys{ddr3_nphases}x_i", cd_ddr_i)
-            self.stop       = Signal()
-            self.reset      = Signal()
+
+            self.stop  = Signal()
+            self.reset = Signal()
 
         # Clk
         clk50 = platform.request("clk50")
@@ -150,6 +153,7 @@ class BaseSoC(SoCCore):
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
         ddr3_nphases = int(ddr3_rate[-1])
+
         platform = sipeed_tang_console.Platform(toolchain=toolchain, device=device)
 
         assert not with_sdram or (sdram_model in ["sipeed", "mister"])
@@ -174,10 +178,10 @@ class BaseSoC(SoCCore):
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if with_ddr3 and not self.integrated_main_ram_size:
+            # At CK <= 125 MHz, use DDR3 DLL-off mode (CL6/CWL6, no ODT).
             self.ddrphy = GW5DDRPHY(
                 pads         = platform.request("ddram"),
                 sys_clk_freq = sys_clk_freq,
-                # At CK <= 125 MHz, use DDR3 DLL-off mode (CL6/CWL6, no ODT).
                 dll_off      = (ddr3_nphases*sys_clk_freq <= 125e6),
                 nphases      = ddr3_nphases,
             )
@@ -255,7 +259,7 @@ def main():
             "mister"
     ], help="SDRAM module model.")
     parser.add_target_argument("--with-ddr3",           action="store_true", help="Enable optional DDR3 module.")
-    parser.add_target_argument("--ddr3-rate", default="1:2", choices=["1:2", "1:4"],
+    parser.add_target_argument("--ddr3-rate",           default="1:2", choices=["1:2", "1:4"],
         help="DDR3 PHY clock ratio. For 1:4, use --sys-clk-freq=25e6 (DLL-off) or 100e6 (DLL-on).")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
     args = parser.parse_args()

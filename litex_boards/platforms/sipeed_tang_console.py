@@ -76,9 +76,9 @@ def _ddram_io(device):
             Subsignal("dqs_n",   Pins("AA3 V8"),   IOStandard("SSTL15D" + suffix), Misc("DRIVE=8")),
             Subsignal("clk_p",   Pins("L3"),       IOStandard("SSTL15D" + suffix), Misc("DRIVE=8")),
             Subsignal("clk_n",   Pins("K3"),       IOStandard("SSTL15D" + suffix), Misc("DRIVE=8")),
-            Subsignal("cke",     Pins("K6"),       IOStandard("SSTL15" + suffix),  Misc("DRIVE=4")),
-            Subsignal("odt",     Pins("M2"),       IOStandard("SSTL15" + suffix),  Misc("DRIVE=12")),
-            Subsignal("reset_n", Pins("L6"),       IOStandard("SSTL15" + suffix),  Misc("DRIVE=12")),
+            Subsignal("cke",     Pins("K6"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=4")),
+            Subsignal("odt",     Pins("M2"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
+            Subsignal("reset_n", Pins("L6"),       IOStandard("SSTL15" + suffix), Misc("DRIVE=12")),
             Misc("PULL_MODE=NONE BANK_VCCIO=1.5"),
         ),
     ]
