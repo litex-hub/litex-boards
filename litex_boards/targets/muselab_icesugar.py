@@ -97,11 +97,20 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(bios_flash_offset):
+def flash(builder, bios_flash_offset):
     from litex.build.lattice.programmer import IceSugarProgrammer
+    bitstream_file = builder.get_bitstream_filename(mode="flash")
+    bios_file      = builder.get_bios_filename()
+    if os.path.getsize(bitstream_file) > bios_flash_offset:
+        raise ValueError("Bitstream overlaps the BIOS flash offset.")
+    bios_size = os.path.getsize(bios_file)
+    if bios_size > builder.soc.bus.regions["rom"].size:
+        raise ValueError("BIOS exceeds the ROM region size.")
+    if bios_flash_offset + bios_size > builder.soc.bus.regions["spiflash"].size:
+        raise ValueError("BIOS exceeds the SPI flash size.")
     prog = IceSugarProgrammer()
-    prog.flash(bios_flash_offset, "build/muselab_icesugar/software/bios/bios.bin")
-    prog.flash(0x00000000,        "build/muselab_icesugar/gateware/muselab_icesugar.bin")
+    prog.flash(bios_flash_offset, bios_file)
+    prog.flash(0x00000000,        bitstream_file)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -127,7 +136,7 @@ def main():
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        flash(int(args.bios_flash_offset, 0))
+        flash(builder, int(args.bios_flash_offset, 0))
 
 if __name__ == "__main__":
     main()

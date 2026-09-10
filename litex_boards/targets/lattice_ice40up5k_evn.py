@@ -91,30 +91,26 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(bios_flash_offset, target="lattice_ice40up5k_evn"):
-    prog = IceStormProgrammer()
-    bitstream  = open("build/"+target+"/gateware/"+target+".bin",  "rb")
-    bios       = open("build/"+target+"/software/bios/bios.bin", "rb")
-    image      = open("build/"+target+"/image.bin", "wb")
-    # Copy bitstream at 0x00000000
-    for i in range(0x00000000, 0x0020000):
-        b = bitstream.read(1)
-        if not b:
-            image.write(0xff.to_bytes(1, "big"))
-        else:
-            image.write(b)
-    # Copy bios at 0x00020000
-    for i in range(0x00000000, 0x00010000):
-        b = bios.read(1)
-        if not b:
-            image.write(0xff.to_bytes(1, "big"))
-        else:
-            image.write(b)
-    bitstream.close()
-    bios.close()
-    image.close()
+def flash(builder, bios_flash_offset):
+    with open(builder.get_bitstream_filename(mode="flash"), "rb") as f:
+        bitstream = f.read()
+    with open(builder.get_bios_filename(), "rb") as f:
+        bios = f.read()
+    bios_size = 0x10000
+    if len(bitstream) > bios_flash_offset:
+        raise ValueError("Bitstream overlaps the BIOS flash offset.")
+    if len(bios) > builder.soc.bus.regions["rom"].size:
+        raise ValueError("BIOS exceeds the ROM region size.")
+    if bios_flash_offset + bios_size > builder.soc.bus.regions["spiflash"].size:
+        raise ValueError("BIOS image exceeds the SPI flash size.")
+    os.makedirs(builder.output_dir, exist_ok=True)
+    image_file = os.path.join(builder.output_dir, "image.bin")
+    with open(image_file, "wb") as f:
+        f.write(bitstream.ljust(bios_flash_offset, b"\xff"))
+        f.write(bios.ljust(bios_size, b"\xff"))
     print("Flashing bitstream (+bios)")
-    prog.flash(0x0, "build/"+target+"/image.bin")
+    prog = IceStormProgrammer()
+    prog.flash(0x0, image_file)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -136,7 +132,7 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.flash:
-        flash(args.bios_flash_offset)
+        flash(builder, int(args.bios_flash_offset, 0))
 
 if __name__ == "__main__":
     main()
