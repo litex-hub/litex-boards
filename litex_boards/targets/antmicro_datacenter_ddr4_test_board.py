@@ -214,6 +214,7 @@ def main():
         eth_ip                 = args.eth_ip,
         remote_ip              = args.remote_ip,
         eth_dynamic_ip         = args.eth_dynamic_ip,
+        eth_reset_time         = args.eth_reset_time,
         with_hyperram          = args.with_hyperram,
         with_sdcard            = args.with_sdcard,
         with_spi_flash         = args.with_spi_flash,

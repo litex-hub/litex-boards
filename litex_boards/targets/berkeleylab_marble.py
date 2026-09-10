@@ -44,7 +44,7 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, resets=[]):
+    def __init__(self, platform, sys_clk_freq):
         self.rst          = Signal()
         self.cd_sys       = ClockDomain()
         self.cd_sys4x     = ClockDomain()
@@ -55,8 +55,7 @@ class _CRG(LiteXModule):
 
         self.pll = pll = S7MMCM(speedgrade=-2)
 
-        resets.append(self.rst)
-        self.comb += pll.reset.eq(reduce(or_, resets))
+        self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         pll.create_clkout(self.cd_sys4x, 4*sys_clk_freq)
@@ -83,14 +82,16 @@ class BaseSoC(SoCCore):
         platform = berkeleylab_marble.Platform()
 
         # CRG, resettable over USB serial RTS signal -----------------------------------------------
-        resets = []
-        if with_rts_reset:
-            ser_pads = platform.lookup_request('serial')
-            resets.append(ser_pads.rts)
-        self.crg = _CRG(platform, sys_clk_freq, resets)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Berkeley-Lab Marble", **kwargs)
+
+        if with_rts_reset:
+            serial_pads = platform.lookup_request("serial", loose=True)
+            if serial_pads is None:
+                serial_pads = platform.request("serial")
+            self.comb += self.crg.rst.eq(serial_pads.rts)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -173,6 +174,7 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         with_etherbone = args.with_etherbone,
+        with_rts_reset = args.with_rts_reset,
         with_bist      = args.with_bist,
         spd_dump       = args.spd_dump,
         **parser.soc_argdict
