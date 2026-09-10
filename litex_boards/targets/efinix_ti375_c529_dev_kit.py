@@ -154,12 +154,7 @@ class BaseSoC(SoCCore):
             ]
             self.platform.add_extension(_jtag_io)
             jtag_pads = platform.request("jtag")
-            self.comb += [
-                self.cpu.jtag_clk.eq(jtag_pads.tck),
-                self.cpu.jtag_tms.eq(jtag_pads.tms),
-                self.cpu.jtag_tdi.eq(jtag_pads.tdi),
-                jtag_pads.tdo.eq(self.cpu.jtag_tdo),
-            ]
+            self.cpu.add_jtag(jtag_pads)
             platform.add_false_path_constraints(self.crg.cd_sys.clk, jtag_pads.tck)
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
