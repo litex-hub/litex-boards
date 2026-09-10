@@ -129,31 +129,30 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(build_dir, build_name, bios_flash_offset):
+DFU_FLASH_OFFSET = 0x40000
+
+def flash(builder, bios_flash_offset):
     from litex.build.dfu import DFUProg
+    with open(builder.get_bitstream_filename(mode="flash"), "rb") as f:
+        bitstream = f.read()
+    with open(builder.get_bios_filename(), "rb") as f:
+        bios = f.read()
+    bios_size = builder.soc.bus.regions["rom"].size
+    if bios_flash_offset < 128 * KILOBYTE:
+        raise ValueError("BIOS offset must leave at least 128 KiB for the bitstream.")
+    if len(bitstream) > bios_flash_offset:
+        raise ValueError("Bitstream overlaps the BIOS flash offset.")
+    if len(bios) > bios_size:
+        raise ValueError("BIOS exceeds the ROM region size.")
+    if DFU_FLASH_OFFSET + bios_flash_offset + bios_size > builder.soc.bus.regions["spiflash"].size:
+        raise ValueError("DFU image exceeds the SPI flash size.")
+    os.makedirs(builder.output_dir, exist_ok=True)
+    image_file = os.path.join(builder.output_dir, "image.bin")
+    with open(image_file, "wb") as f:
+        f.write(bitstream.ljust(bios_flash_offset, b"\xff"))
+        f.write(bios.ljust(bios_size, b"\xff"))
     prog = DFUProg(vid="1209", pid="5bf0")
-    bitstream = open(f"{build_dir}/gateware/{build_name}.bin",  "rb")
-    bios      = open(f"{build_dir}/software/bios/bios.bin", "rb")
-    image     = open(f"{build_dir}/image.bin", "wb")
-    # Copy bitstream at 0.
-    assert bios_flash_offset >= 128 * KILOBYTE
-    for i in range(0, bios_flash_offset):
-        b = bitstream.read(1)
-        if not b:
-            image.write(0xff.to_bytes(1, "big"))
-        else:
-            image.write(b)
-    # Copy bios at bios_flash_offset.
-    for i in range(0, 32 * KILOBYTE):
-        b = bios.read(1)
-        if not b:
-            image.write(0xff.to_bytes(1, "big"))
-        else:
-            image.write(b)
-    bitstream.close()
-    bios.close()
-    image.close()
-    prog.load_bitstream(f"{build_dir}/image.bin")
+    prog.load_bitstream(image_file)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -165,10 +164,8 @@ def main():
     parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream.")
     args = parser.parse_args()
 
-    dfu_flash_offset = 0x40000
-
     soc = BaseSoC(
-        bios_flash_offset = dfu_flash_offset + int(args.bios_flash_offset, 0),
+        bios_flash_offset = DFU_FLASH_OFFSET + int(args.bios_flash_offset, 0),
         sys_clk_freq      = args.sys_clk_freq,
         **parser.soc_argdict
     )
@@ -177,7 +174,7 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.flash:
-        flash(builder.output_dir, soc.build_name, int(args.bios_flash_offset, 0))
+        flash(builder, int(args.bios_flash_offset, 0))
 
 if __name__ == "__main__":
     main()
