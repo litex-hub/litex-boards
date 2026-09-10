@@ -11,6 +11,7 @@ import importlib
 import os
 import shutil
 import sys
+import tempfile
 
 from migen import *
 
@@ -250,6 +251,28 @@ class TestTargets(unittest.TestCase):
                     "--cpu-type=vexriscv_smp",
                     "--integrated-main-ram-size=0x10000",
                     "--uart-name=stub",
+                    *args,
+                ])
+                if result.returncode != 0:
+                    self.fail(result.stdout)
+
+    # Exercise the M64 console, GPIO, PSRAM and video configurations.
+    def test_modretro_m64(self):
+        for args in [
+            [],
+            ["--with-jtagbone"],
+            ["--uart-name=serial", "--with-gpio"],
+            ["--with-psram", "--with-jtagbone", "--with-gpio"],
+            ["--with-psram", "--sys-clk-freq=50e6"],
+            ["--with-video-terminal", "--video-refclk-freq=148.5e6"],
+            ["--with-psram", "--with-video-colorbars", "--video-refclk-freq=148.5e6"],
+        ]:
+            with self.subTest(args=args), tempfile.TemporaryDirectory() as output_dir:
+                result = subprocess_run_quiet([
+                    sys.executable,
+                    "-m", "litex_boards.targets.modretro_m64",
+                    "--build", "--no-compile",
+                    "--output-dir", output_dir,
                     *args,
                 ])
                 if result.returncode != 0:

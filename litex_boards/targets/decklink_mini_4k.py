@@ -154,7 +154,8 @@ class BaseSoC(SoCMini):
         if with_video_terminal or with_video_framebuffer:
             self.videophy = VideoS7GTPHDMIPHY(platform.request("hdmi_out"),
                 sys_clk_freq = sys_clk_freq,
-                clock_domain = "hdmi"
+                clock_domain = "hdmi",
+                tx_polarity  = 1,
             )
             if with_video_terminal:
                 self.add_video_terminal(phy=self.videophy, timings="1920x1080@60Hz", clock_domain="hdmi")

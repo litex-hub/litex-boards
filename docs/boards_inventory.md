@@ -138,6 +138,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `mlk_cu07_ku15p` | mlk_cu07_ku15p | vivado | `75000000.0` | SDCard | included |
 | `mlkpai_fs01_dr1v90m` | mlkpai_fs01_dr1v90m | td | `25000000.0` | - | included |
 | `mnt_rkx7` | mnt_rkx7 | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, USB Host | included |
+| `modretro_m64` | modretro_m64 | vivado | `100000000.0` | Video Terminal, Video Colorbars | included |
 | `muselab_icesugar` | muselab_icesugar | icestorm | `24000000.0` | - | included |
 | `muselab_icesugar_pro` | muselab_icesugar_pro | trellis | `50000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
 | `myir_myc_j7a100t` | myir_myc_j7a100t | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard | included |
