@@ -11,6 +11,7 @@ import importlib
 import os
 import shutil
 import sys
+import tempfile
 
 from migen import *
 
@@ -250,6 +251,20 @@ class TestTargets(unittest.TestCase):
                     "--cpu-type=vexriscv_smp",
                     "--integrated-main-ram-size=0x10000",
                     "--uart-name=stub",
+                    *args,
+                ])
+                if result.returncode != 0:
+                    self.fail(result.stdout)
+
+    # Exercise the M64 console defaults and expansion connector pin resolution.
+    def test_modretro_m64(self):
+        for args in [[], ["--with-jtagbone"], ["--uart-name=serial", "--with-gpio"]]:
+            with self.subTest(args=args), tempfile.TemporaryDirectory() as output_dir:
+                result = subprocess_run_quiet([
+                    sys.executable,
+                    "-m", "litex_boards.targets.modretro_m64",
+                    "--build", "--no-compile",
+                    "--output-dir", output_dir,
                     *args,
                 ])
                 if result.returncode != 0:
