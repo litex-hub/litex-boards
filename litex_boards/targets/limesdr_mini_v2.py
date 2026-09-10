@@ -80,8 +80,9 @@ class BaseSoC(SoCCore):
         platform = limesdr_mini_v2.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
-        if kwargs["uart_name"] != "jtag_uart":
-            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
+        if kwargs.get("uart_name", "serial") != "jtag_uart":
+            if kwargs.get("uart_name", "serial") == "serial":
+                kwargs["uart_name"] = "crossover"
             kwargs["with_jtagbone"] = True
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on LimeSDR-Mini-V2", **kwargs)
 

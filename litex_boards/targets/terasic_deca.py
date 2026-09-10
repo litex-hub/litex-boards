@@ -73,14 +73,8 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         # Defaults to JTAG-UART since no hardware UART.
-        real_uart_name = kwargs["uart_name"]
-        if real_uart_name == "serial":
-            if kwargs["with_jtagbone"]:
-                if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
-            else:
-                if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart"
-        if kwargs["with_uartbone"]:
-            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "crossover" if kwargs.get("with_jtagbone", False) else "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Terasic DECA", **kwargs)
 
         # Ethernet ---------------------------------------------------------------------------------
