@@ -9,7 +9,7 @@
 # Bring-up SoC for the Microsoft/HP "Storey Peak" Catapult v2 card (P/N X930613-001).
 #
 # There is no hardware UART on this board, so as with Catapult v3 the console falls back to
-# jtag_uart, or to crossover when jtagbone/uartbone is enabled.
+# jtag_uart, or to crossover when jtagbone is enabled.
 #
 # The DDR3, PCIe and QSFP+ pins are declared in the platform file but are not driven here. This
 # target is the hardware-verified bring-up SoC only.
@@ -66,14 +66,8 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         # Defaults to JTAG-UART since no hardware UART.
-        real_uart_name = kwargs["uart_name"]
-        if real_uart_name == "serial":
-            if kwargs["with_jtagbone"]:
-                if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
-            else:
-                if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart"
-        if kwargs["with_uartbone"]:
-            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "crossover"
+        if kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "crossover" if kwargs.get("with_jtagbone", False) else "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Microsoft Storey Peak", **kwargs)
 
         # JTAG -------------------------------------------------------------------------------------
@@ -86,7 +80,7 @@ class BaseSoC(SoCCore):
         ]
 
         # JTAGBone ---------------------------------------------------------------------------------
-        if kwargs["with_jtagbone"]:
+        if kwargs.get("with_jtagbone", False):
             platform.add_period_constraint(self.jtagbone_phy.cd_jtag.clk, 1e9/20e6)
             platform.add_false_path_constraints(self.jtagbone_phy.cd_jtag.clk, self.crg.cd_sys.clk)
 
