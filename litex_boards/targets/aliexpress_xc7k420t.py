@@ -53,8 +53,9 @@ class BaseSoC(SoCCore):
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
+            from litespi.modules import W25Q256
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
-            self.add_spi_flash(mode="4x", module=W25Q256(Codes.READ_1_1_4))
+            self.add_spi_flash(mode="4x", module=W25Q256(Codes.READ_1_1_4_4B))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -72,7 +73,8 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
+        sys_clk_freq   = args.sys_clk_freq,
+        with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
@@ -81,7 +83,7 @@ def main():
 
     if args.load:
         prog = soc.platform.create_programmer()
-        prog.load_bitstream(obuilder.get_bitstream_filename(mode="sram"))
+        prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
 if __name__ == "__main__":
     main()
