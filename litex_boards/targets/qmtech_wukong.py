@@ -114,7 +114,7 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"))
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
-            if with_ethernet:
+            elif with_ethernet:
                 self.add_ethernet(phy=self.ethphy, nrxslots=2, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Leds -------------------------------------------------------------------------------------
