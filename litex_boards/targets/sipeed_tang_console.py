@@ -136,6 +136,16 @@ class _CRG(LiteXModule):
                 o_CLKOUT   = self.cd_hdmi.clk
             )
 
+        if with_ddr3:
+            # Preserve the PLL/CLKDIV relationship for timing analysis.
+            config  = pll.compute_config()
+            ddr_clk = pll.clkouts[0].clk
+            platform.add_generated_clock_constraint(ddr_clk, clk50,
+                multiply_by = config["fdiv"]*config["mdiv"],
+                divide_by   = config["idiv"]*config["odiv0"])
+            platform.add_generated_clock_constraint(self.cd_sys.clk, ddr_clk,
+                divide_by = ddr3_nphases)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
