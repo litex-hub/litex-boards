@@ -120,14 +120,14 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(build_dir, build_name, bios_flash_offset):
+def flash(builder):
     print("\033[93m")
     print("-------------------------------------------------------------------------------")
     print("Programming is not supported for this platform.")
     print("Please use the official Signaloid C0-microSD utilities for flashing the device.")
     print("https://github.com/signaloid/C0-microSD-utilities")
-    print(f"Bitstream path: {build_dir}/gateware/{build_name}.bin")
-    print(f"Binary path   : {build_dir}/software/bios/bios.bin")
+    print(f"Bitstream path: {builder.get_bitstream_filename(mode='flash')}")
+    print(f"Binary path   : {builder.get_bios_filename()}")
     print("-------------------------------------------------------------------------------")
     print("\033[0m")
 
@@ -164,7 +164,7 @@ def main():
         print("\033[0m")
 
     if args.flash:
-        flash(builder.output_dir, soc.build_name, args.bios_flash_offset)
+        flash(builder)
 
 if __name__ == "__main__":
     main()
