@@ -238,6 +238,23 @@ class TestTargets(unittest.TestCase):
                 ]
                 subprocess.check_call(cmd)
 
+    def test_efinity_cpu_jtag_interfaces(self):
+        if not efinity_available():
+            self.skipTest("Efinity toolchain not available.")
+
+        for args in [[], ["--jtag-tap"]]:
+            with self.subTest(args=args):
+                result = subprocess_run_quiet([
+                    sys.executable,
+                    "-m", "litex_boards.targets.efinix_ti375_c529_dev_kit",
+                    "--cpu-type=vexriscv_smp",
+                    "--integrated-main-ram-size=0x10000",
+                    "--uart-name=stub",
+                    *args,
+                ])
+                if result.returncode != 0:
+                    self.fail(result.stdout)
+
     # Exercise target imports and parser setup for board targets, including no-compile exclusions.
     def test_target_parsers_smoke(self):
         targets = [name for name in python_module_names("./litex_boards/targets/") if name != "simple"]
