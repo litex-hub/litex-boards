@@ -86,6 +86,8 @@ class BaseSoC(SoCCore):
         with_pmod_gpio  = False,
         with_can        = False,
         **kwargs):
+        if with_etherbone and (eth_dynamic_ip or eth_dhcp):
+            raise ValueError("Etherbone requires a static IP; disable eth_dynamic_ip and eth_dhcp.")
         platform = digilent_arty.Platform(variant=variant, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
@@ -226,7 +228,8 @@ def main():
     parser.add_target_argument("--with-can",       action="store_true", help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'.")
     args = parser.parse_args()
 
-    assert not (args.with_etherbone and (args.eth_dynamic_ip or args.eth_dhcp))
+    if args.with_etherbone and (args.eth_dynamic_ip or args.eth_dhcp):
+        parser.error("--with-etherbone requires a static IP; remove --eth-dynamic-ip and --eth-dhcp.")
 
     soc = BaseSoC(
         variant        = args.variant,

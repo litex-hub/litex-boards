@@ -137,7 +137,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_wukong.Platform, description="LiteX SoC on QMTECH Wukong Board.")
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--revision",     default=1,                 help="Board version (1 , 2 or 3).")
+    parser.add_target_argument("--revision", default=1, type=int, choices=[1, 2, 3], help="Board revision.")
     parser.add_target_argument("--speedgrade",   default=-1, type=int,      help="FPGA speedgrade (-1 or -2).")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
@@ -155,7 +155,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq           = args.sys_clk_freq,
-        revision               = int(args.revision),
+        revision               = args.revision,
         speedgrade             = args.speedgrade,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
@@ -170,7 +170,7 @@ def main():
         soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
         soc.add_spi_sdcard()
     if args.with_sdcard:
-        if int(args.revision) == 1:
+        if args.revision == 1:
             soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
         soc.add_sdcard()
 
