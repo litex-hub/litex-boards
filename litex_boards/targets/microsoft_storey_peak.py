@@ -112,7 +112,9 @@ def main():
     parser = LiteXArgumentParser(platform=microsoft_storey_peak.Platform, description="LiteX SoC on Microsoft Storey Peak.")
     parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float,         help="System clock frequency.")
     parser.add_target_argument("--with-led-chaser", action="store_true", default=True,  help="Enable LED Chaser.")
+    parser.add_target_argument("--no-led-chaser", dest="with_led_chaser", action="store_false", help="Disable LED Chaser.")
     parser.add_target_argument("--with-i2c",        action="store_true", default=True,  help="Enable I2C masters.")
+    parser.add_target_argument("--no-i2c", dest="with_i2c", action="store_false", help="Disable I2C masters.")
     args = parser.parse_args()
 
     soc = BaseSoC(

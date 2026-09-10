@@ -80,6 +80,7 @@ def main():
     parser.add_target_argument("--variant",         default="pcie",                    help="Board variant (pcie or ocp).")
     parser.add_target_argument("--sys-clk-freq",    default=100e6, type=float,         help="System clock frequency.")
     parser.add_target_argument("--with-led-chaser", action="store_true", default=True, help="Enable LED Chaser.")
+    parser.add_target_argument("--no-led-chaser", dest="with_led_chaser", action="store_false", help="Disable LED Chaser.")
     args = parser.parse_args()
 
     soc = BaseSoC(

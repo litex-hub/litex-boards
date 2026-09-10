@@ -88,6 +88,8 @@ class BaseSoC(SoCCore):
         with_usb_host  = True,
         with_analyzer  = False,
         **kwargs):
+        if with_etherbone and eth_dynamic_ip:
+            raise ValueError("Etherbone requires a static IP; disable eth_dynamic_ip.")
         platform = mnt_rkx7.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -125,7 +127,7 @@ class BaseSoC(SoCCore):
             platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets {{soclinux_ethphy_eth_rx_clk_ibuf}}]")
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
-            if with_ethernet:
+            elif with_ethernet:
                 self.add_ethernet(
                     phy=self.ethphy,
                     dynamic_ip=eth_dynamic_ip,
@@ -215,17 +217,28 @@ def main():
     parser = LiteXArgumentParser(platform=mnt_rkx7.Platform, description="LiteX SoC on MNT-RKX7.")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float,         help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true", default=True, help="Enable memory-mapped SPI flash.")
-    parser.add_target_argument("--with-usb-host",  action="store_true", default=True, help="Enable USB host support.")
+    parser.add_target_argument("--no-spi-flash", dest="with_spi_flash", action="store_false", help="Disable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-usb-host", action="store_true", default=True, help="Enable USB host support.")
+    parser.add_target_argument("--no-usb-host", dest="with_usb_host", action="store_false", help="Disable USB host support.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
-    sdopts.add_argument("--with-spi-sdcard", action="store_true",               help="Enable SPI-mode SDCard support.")
-    sdopts.add_argument("--with-sdcard",     action="store_true", default=True, help="Enable SDCard support.")
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard", action="store_true", default=None, help="Enable native SDCard support (default mode).")
+    sdopts.add_argument("--no-sdcard", dest="with_sdcard", action="store_false", help="Disable SDCard support.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
-    ethopts.add_argument("--with-ethernet",  action="store_true", default=True, help="Enable Ethernet support.")
-    ethopts.add_argument("--with-etherbone", action="store_true",               help="Enable Etherbone support.")
+    ethopts.add_argument("--with-ethernet", action="store_true", default=None, help="Enable Ethernet support (default mode).")
+    ethopts.add_argument("--with-etherbone", action="store_true",                     help="Enable Etherbone support.")
+    ethopts.add_argument("--no-ethernet", dest="with_ethernet", action="store_false", help="Disable Ethernet support.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     args = parser.parse_args()
+
+    if args.with_sdcard is None:
+        args.with_sdcard = not args.with_spi_sdcard
+    if args.with_ethernet is None:
+        args.with_ethernet = not args.with_etherbone
+    if args.with_etherbone and args.eth_dynamic_ip:
+        parser.error("--with-etherbone requires a static IP; remove --eth-dynamic-ip.")
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
@@ -242,8 +255,6 @@ def main():
         soc.add_spi_sdcard()
     if args.with_sdcard:
         soc.add_sdcard()
-
-    args.csr_csv="csr.csv"
 
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
