@@ -7,7 +7,13 @@
 # M64 MLB, schematic 100-0610 dated 2026-08-12:
 # https://support.modretro.com/en_us/articles/m64-open-source-files-ByrpukdUGg
 # https://github.com/ModRetro/oss-m64-console
-# See docs/modretro_m64.md for interface and programming notes.
+# https://cdn.shopify.com/s/files/1/0829/2034/1806/files/M64_MLB_SCH.pdf?v=1786637413
+# https://cdn.shopify.com/s/files/1/0829/2034/1806/files/M64_MLB_ASY.pdf?v=1786637413
+#
+# JTAG: J10, TC2050-IDC with TC2050-XILINX adapter, 1.8V (sheet 20).
+# Pin 1: VREF, 2: TMS, 4: TCK, 6: TDO, 8: TDI, 3/5/7/9: GND, 10: NC.
+# The STM32 controls the power rails, SD card and LEDs. The MT25QU256 configuration
+# flash is shared with the MCU; FPGA access needs STARTUPE3 and MCU coordination.
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
@@ -19,7 +25,8 @@ _io = [
     ("clk50",       0, Pins("AB21"), IOStandard("LVCMOS18")),
     ("cpu_reset_n", 0, Pins("AA13"), IOStandard("LVCMOS33")),
 
-    # Programmable clocks from the 8T49N241 (sheets 3, 8, 10).
+    # Programmable clocks from the 8T49N241, I2C address 0x7c (sheets 3, 8, 10).
+    # Their schematic "100_" prefix denotes impedance, not a 100MHz frequency.
     ("clk_ref", 0,
         Subsignal("p", Pins("AD21")),
         Subsignal("n", Pins("AE21")),
@@ -46,7 +53,7 @@ _io = [
         IOStandard("LVCMOS18"),
     ),
 
-    # Serial debug, J18 (unpopulated, sheets 9, 20).
+    # Serial debug, J18 (unpopulated): pin 4 RX, 5 TX, 1 GND, 3.3V (sheets 9, 20).
     ("serial", 0,
         Subsignal("tx", Pins("W15")),
         Subsignal("rx", Pins("W12")),
