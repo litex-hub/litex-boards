@@ -142,7 +142,7 @@ class BaseSoC(SoCCore):
             self.comb += self.cpu.interrupt[16].eq(self.usb_ohci.interrupt)
 
         # JTAG -------------------------------------------------------------------------------------
-        if hasattr(self.cpu, "jtag_clk"):
+        if hasattr(self.cpu, "jtag_tms"):
             _jtag_io = [
                 ("jtag", 0,
                     Subsignal("tck", Pins("pmod0:0")),
