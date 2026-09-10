@@ -256,7 +256,7 @@ class TestTargets(unittest.TestCase):
                 if result.returncode != 0:
                     self.fail(result.stdout)
 
-    # Exercise the M64 console, GPIO and four-device PSRAM configurations.
+    # Exercise the M64 console, GPIO, PSRAM and video configurations.
     def test_modretro_m64(self):
         for args in [
             [],
@@ -264,6 +264,8 @@ class TestTargets(unittest.TestCase):
             ["--uart-name=serial", "--with-gpio"],
             ["--with-psram", "--with-jtagbone", "--with-gpio"],
             ["--with-psram", "--sys-clk-freq=50e6"],
+            ["--with-video-terminal", "--video-refclk-freq=148.5e6"],
+            ["--with-psram", "--with-video-colorbars", "--video-refclk-freq=148.5e6"],
         ]:
             with self.subTest(args=args), tempfile.TemporaryDirectory() as output_dir:
                 result = subprocess_run_quiet([
