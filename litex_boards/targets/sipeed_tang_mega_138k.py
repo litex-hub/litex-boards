@@ -179,7 +179,7 @@ class BaseSoC(SoCCore):
         with_video_colorbars   = False,
         with_video_terminal    = False,
         with_video_framebuffer = False,
-        with_ddr3              = False,
+        with_ddr3              = True,
         ddr3_rate              = "1:2",
         with_sdram             = False,
         sdram_model            = "sipeed",
@@ -198,11 +198,12 @@ class BaseSoC(SoCCore):
 
         if with_sdram:
             platform.add_extension({
-                "sipeed": sipeed_tang_mega_138k_pro.sipeedSDRAM(),
-                "mister": sipeed_tang_mega_138k_pro.misterSDRAM()}[sdram_model]
+                "sipeed": sipeed_tang_mega_138k.sipeedSDRAM(),
+                "mister": sipeed_tang_mega_138k.misterSDRAM()}[sdram_model]
             )
 
         # CRG --------------------------------------------------------------------------------------
+        with_ddr3 = with_ddr3 and not (with_sdram or kwargs.get("integrated_main_ram_size", 0))
         cpu_clk_freq = int(800e6) if kwargs["cpu_type"] == "gowin_ae350" else 0
         self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq,
             with_sdram     = with_sdram,
@@ -304,10 +305,10 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
 
     # Memory.
-    parser.add_target_argument("--with-ddr3",      action="store_true", help="Enable optional DDR3 module.")
+    parser.add_target_argument("--without-ddr3",   action="store_true", help="Disable DDR3 SDRAM.")
     parser.add_target_argument("--ddr3-rate",      default="1:2", choices=["1:2", "1:4"],
         help="DDR3 PHY clock ratio. For 1:4, use --sys-clk-freq=25e6 (DLL-off) or 100e6 (DLL-on).")
-    parser.add_target_argument("--with-sdram",     action="store_true", help="Enable optional SDRAM module.")
+    parser.add_target_argument("--with-sdram",     action="store_true", help="Use the optional SDRAM module instead of DDR3.")
     parser.add_target_argument("--sdram-model",    default="sipeed",
         choices=[
             "sipeed",
@@ -339,7 +340,7 @@ def main():
         with_video_colorbars   = args.with_video_colorbars,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        with_ddr3              = args.with_ddr3,
+        with_ddr3              = not args.without_ddr3,
         ddr3_rate              = args.ddr3_rate,
         with_sdram             = args.with_sdram,
         sdram_model            = args.sdram_model,
