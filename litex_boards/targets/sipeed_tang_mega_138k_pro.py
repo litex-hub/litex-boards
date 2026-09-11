@@ -173,6 +173,10 @@ class BaseSoC(SoCCore):
 
         platform = sipeed_tang_mega_138k_pro.Platform(toolchain="gowin")
 
+        # Memory configuration ---------------------------------------------------------------------
+        with_ddr3  = with_ddr3 and not (with_sdram or kwargs.get("integrated_main_ram_size", 0))
+        with_sdram = with_sdram and not kwargs.get("integrated_main_ram_size", 0)
+
         assert not with_sdram or (sdram_model in ["sipeed", "mister"])
 
         if with_sdram:
@@ -182,7 +186,6 @@ class BaseSoC(SoCCore):
             )
 
         # CRG --------------------------------------------------------------------------------------
-        with_ddr3 = with_ddr3 and not (with_sdram or kwargs.get("integrated_main_ram_size", 0))
         cpu_clk_freq = int(800e6) if kwargs["cpu_type"] == "gowin_ae350" else 0
         self.crg = _CRG(platform, sys_clk_freq, cpu_clk_freq,
             with_sdram     = with_sdram,
@@ -197,7 +200,7 @@ class BaseSoC(SoCCore):
             self.add_config("CPU_CLK_FREQ", cpu_clk_freq)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
-        if with_ddr3 and not self.integrated_main_ram_size:
+        if with_ddr3:
             # At CK <= 125 MHz, use DDR3 DLL-off mode (CL6/CWL6, no ODT).
             self.ddrphy = GW5DDRPHY(
                 pads         = platform.request("ddram"),
@@ -250,7 +253,7 @@ class BaseSoC(SoCCore):
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip, data_width=32, software_debug=True)
 
         # SDR SDRAM --------------------------------------------------------------------------------
-        if with_sdram and not self.integrated_main_ram_size:
+        if with_sdram:
             module_cls = {
                 "sipeed": W9825G6KH6,
                 "mister": AS4C32M16}[sdram_model]
