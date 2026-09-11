@@ -174,8 +174,10 @@ class BaseSoC(SoCCore):
         platform = sipeed_tang_mega_138k_pro.Platform(toolchain="gowin")
 
         # Memory configuration ---------------------------------------------------------------------
-        with_ddr3  = with_ddr3 and not (with_sdram or kwargs.get("integrated_main_ram_size", 0))
-        with_sdram = with_sdram and not kwargs.get("integrated_main_ram_size", 0)
+        integrated_main_ram_size = kwargs.get("integrated_main_ram_size", 0)
+
+        with_ddr3  = with_ddr3 and not (with_sdram or integrated_main_ram_size)
+        with_sdram = with_sdram and not integrated_main_ram_size
 
         assert not with_sdram or (sdram_model in ["sipeed", "mister"])
 
