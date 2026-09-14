@@ -154,6 +154,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
         with_ethernet       = True,
         with_etherbone      = False,
+        eth_phy             = "rgmii",
         eth_ip              = "192.168.1.50",
         remote_ip           = "",
         eth_dynamic_ip      = False,
@@ -236,19 +237,29 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.ethphy = LiteEthPHYRGMII(
-                clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"),
-                tx_delay   = 2e-9,
-                rx_delay   = 2e-9)
-            clk50_half = Signal()
-            self.specials += Instance("CLKDIV",
-                p_DIV_MODE = "2",
-                i_HCLKIN   = platform.lookup_request("clk50"),
-                i_RESETN   = 1,
-                i_CALIB    = 0,
-                o_CLKOUT   = clk50_half)
-            self.specials += DDROutput(1, 0, platform.request("ephy_clk"), clk50_half)
+            if eth_phy == "rgmii":
+                self.ethphy = LiteEthPHYRGMII(
+                    clock_pads = self.platform.request("eth_clocks"),
+                    pads       = self.platform.request("eth"),
+                    tx_delay   = 2e-9,
+                    rx_delay   = 2e-9)
+                clk50_half = Signal()
+                self.specials += Instance("CLKDIV",
+                    p_DIV_MODE = "2",
+                    i_HCLKIN   = platform.lookup_request("clk50"),
+                    i_RESETN   = 1,
+                    i_CALIB    = 0,
+                    o_CLKOUT   = clk50_half)
+                self.specials += DDROutput(1, 0, platform.request("ephy_clk"), clk50_half)
+            elif eth_phy == "1000basex":
+                if with_pcie:
+                    raise ValueError("1000BASE-X and PCIe require a combined SerDes configuration.")
+                from liteeth.phy.gw5_1000basex import GW5_1000BASEX
+                sfp_pads = platform.request("sfp", 0)
+                self.comb += sfp_pads.tx_disable.eq(0)
+                self.ethphy = GW5_1000BASEX(platform)
+            else:
+                raise ValueError(f"Unsupported Ethernet PHY: {eth_phy}")
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet, data_width=32)
             if with_ethernet:
@@ -295,6 +306,8 @@ def main():
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
+    parser.add_target_argument("--eth-phy", default="rgmii", choices=["rgmii", "1000basex"],
+        help="Ethernet PHY: RGMII or 1000BASE-X on SFP-0 (100 MHz reference clock).")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-ip", "--local-ip", dest="eth_ip", default="192.168.1.50", help="Ethernet/Etherbone IP address.")
@@ -313,6 +326,7 @@ def main():
         with_pcie           = args.with_pcie,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
+        eth_phy             = args.eth_phy,
         eth_ip              = args.eth_ip,
         remote_ip           = args.remote_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
