@@ -155,6 +155,7 @@ class BaseSoC(SoCCore):
         with_ethernet       = True,
         with_etherbone      = False,
         eth_phy             = "rgmii",
+        eth_sfp             = 0,
         eth_ip              = "192.168.1.50",
         remote_ip           = "",
         eth_dynamic_ip      = False,
@@ -255,9 +256,9 @@ class BaseSoC(SoCCore):
                 if with_pcie:
                     raise ValueError("1000BASE-X and PCIe require a combined SerDes configuration.")
                 from liteeth.phy.gw5_1000basex import GW5_1000BASEX
-                sfp_pads = platform.request("sfp", 0)
+                sfp_pads = platform.request("sfp", eth_sfp)
                 self.comb += sfp_pads.tx_disable.eq(0)
-                self.ethphy = GW5_1000BASEX(platform)
+                self.ethphy = GW5_1000BASEX(platform, lane=eth_sfp)
             else:
                 raise ValueError(f"Unsupported Ethernet PHY: {eth_phy}")
             if with_etherbone:
@@ -307,7 +308,8 @@ def main():
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
     parser.add_target_argument("--eth-phy", default="rgmii", choices=["rgmii", "1000basex"],
-        help="Ethernet PHY: RGMII or 1000BASE-X on SFP-0 (100 MHz reference clock).")
+        help="Ethernet PHY: RGMII or 1000BASE-X on SFP (100 MHz reference clock).")
+    parser.add_target_argument("--eth-sfp", default=0, type=int, choices=[0, 1], help="Ethernet SFP.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-ip", "--local-ip", dest="eth_ip", default="192.168.1.50", help="Ethernet/Etherbone IP address.")
@@ -327,6 +329,7 @@ def main():
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         eth_phy             = args.eth_phy,
+        eth_sfp             = args.eth_sfp,
         eth_ip              = args.eth_ip,
         remote_ip           = args.remote_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,

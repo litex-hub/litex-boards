@@ -181,10 +181,15 @@ _connectors = [
 #       SOM.J3 -> dock.J8 odd/even revert
 
 _dock_io = [
-    # SFP-0 (SerDes Q1, lane 0; reference clock: Q1 REFCLK1).
+    # SFP-0/1 (SerDes Q1, lanes 0/1; reference clock: Q1 REFCLK1).
     ("sfp", 0,
         Subsignal("tx_disable", Pins("R18")),
         Subsignal("los",        Pins("V18")),
+        IOStandard("LVCMOS33")
+    ),
+    ("sfp", 1,
+        Subsignal("tx_disable", Pins("M20")),
+        Subsignal("los",        Pins("W18")),
         IOStandard("LVCMOS33")
     ),
 
