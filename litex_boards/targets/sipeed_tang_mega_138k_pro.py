@@ -264,7 +264,7 @@ class BaseSoC(SoCCore):
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet, data_width=32)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip, data_width=32, software_debug=True)
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip, data_width=32)
 
         # SDR SDRAM --------------------------------------------------------------------------------
         if with_sdram:
