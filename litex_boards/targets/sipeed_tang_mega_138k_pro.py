@@ -250,7 +250,12 @@ class BaseSoC(SoCCore):
                 o_CLKOUT   = clk50_half)
             self.specials += DDROutput(1, 0, platform.request("ephy_clk"), clk50_half)
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet, data_width=32)
+                self.add_etherbone(phy=self.ethphy,
+                    ip_address   = eth_ip,
+                    with_ethmac  = with_ethernet,
+                    data_width   = 32,
+                    buffer_depth = 256,
+                )
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip, data_width=32, software_debug=True)
 

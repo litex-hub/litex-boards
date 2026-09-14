@@ -268,9 +268,10 @@ class BaseSoC(SoCCore):
                 pads       = self.platform.request("eth"))
             if with_etherbone:
                 self.add_etherbone(phy=self.ethphy,
-                    ip_address  = eth_ip,
-                    with_ethmac = with_ethernet,
-                    data_with   = 32
+                    ip_address   = eth_ip,
+                    with_ethmac  = with_ethernet,
+                    data_width   = 32,
+                    buffer_depth = 256,
                 )
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy,
