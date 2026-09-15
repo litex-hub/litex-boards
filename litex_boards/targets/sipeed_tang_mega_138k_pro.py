@@ -218,7 +218,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = H5TQ4G63EFR(sys_clk_freq, ddr3_rate),
-                l2_cache_size = 0#kwargs.get("l2_size", 8192)
+                l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
         # Video ------------------------------------------------------------------------------------
