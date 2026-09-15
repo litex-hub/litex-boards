@@ -121,9 +121,11 @@ class BaseSoC(SoCCore):
         # DDR3 SDRAM -------------------------------------------------------------------------------
         # if not self.integrated_main_ram_size:
         if with_dram:
+            # At CK <= 125 MHz, use DDR3 DLL-off mode (CL6/CWL6, no ODT).
             self.ddrphy = GW2DDRPHY(
                 pads         = platform.request("ddram"),
-                sys_clk_freq = sys_clk_freq
+                sys_clk_freq = sys_clk_freq,
+                dll_off      = (2*sys_clk_freq <= 125e6),
             )
             self.ddrphy.settings.rtt_nom = "disabled"
             self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
