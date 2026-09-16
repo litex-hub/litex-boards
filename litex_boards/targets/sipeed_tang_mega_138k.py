@@ -19,6 +19,7 @@ from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII
@@ -261,6 +262,10 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq
             )
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("btn_n")))
+
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.ethphy = LiteEthPHYRGMII(
@@ -335,6 +340,7 @@ def main():
 
     # PCIe.
     parser.add_target_argument("--with-pcie",           action="store_true",        help="Enable PCIe support.")
+    parser.add_target_argument("--with-buttons",        action="store_true",        help="Enable Buttons.")
 
     args = parser.parse_args()
 
@@ -350,6 +356,7 @@ def main():
         with_sdram             = args.with_sdram,
         sdram_model            = args.sdram_model,
         with_pcie              = args.with_pcie,
+        with_buttons           = args.with_buttons,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
