@@ -155,6 +155,7 @@ def main():
     parser = LiteXArgumentParser(platform=trenz_tec0117.Platform, description="LiteX SoC on TEC0117.")
     parser.add_target_argument("--bios-flash-offset", default="0x0000",         help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream and BIOS.")
+    parser.add_target_argument("--prog-kit",          default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--sys-clk-freq",      default=25e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
@@ -178,11 +179,11 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         flash(int(args.bios_flash_offset, 0), toolchain=args.toolchain)
         prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs"))
 
