@@ -186,6 +186,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `sipeed_tang_console` | sipeed_tang_console | gowin | `50000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal | included |
 | `sipeed_tang_mega_138k` | sipeed_tang_mega_138k | gowin | `50000000.0` | Ethernet, Etherbone, PCIe, Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `sipeed_tang_mega_138k_pro` | sipeed_tang_mega_138k_pro | gowin | `50000000.0` | Ethernet, Etherbone, PCIe, Video Terminal | included |
+| `sipeed_tang_mega_60k` | sipeed_tang_mega_60k | gowin | `50000000.0` | - | included |
 | `sipeed_tang_nano` | sipeed_tang_nano | gowin | `48000000.0` | - | included |
 | `sipeed_tang_nano_20k` | sipeed_tang_nano_20k | gowin | `48000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Colorbars | included |
 | `sipeed_tang_nano_4k` | sipeed_tang_nano_4k | gowin | `27000000.0` | Video Terminal | included |
