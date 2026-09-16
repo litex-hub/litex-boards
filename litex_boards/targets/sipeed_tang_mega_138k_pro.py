@@ -161,6 +161,8 @@ class BaseSoC(SoCCore):
         remote_ip           = "",
         eth_dynamic_ip      = False,
         with_video_terminal = False,
+        with_hdmi_out_terminal  = False,
+        with_hdmi_out_colorbars = False,
         with_ddr3           = True,
         ddr3_rate           = "1:2",
         with_sdram          = False,
@@ -196,7 +198,7 @@ class BaseSoC(SoCCore):
             with_sdram     = with_sdram,
             with_ddr3      = with_ddr3,
             ddr3_rate      = ddr3_rate,
-            with_video_pll = with_video_terminal,
+            with_video_pll = with_video_terminal or with_hdmi_out_terminal or with_hdmi_out_colorbars,
             with_pcie      = with_pcie,
         )
         # SoCCore ----------------------------------------------------------------------------------
@@ -229,6 +231,16 @@ class BaseSoC(SoCCore):
             self.videophy = VideoGowinHDMIPHY(hdmi_pads, clock_domain="hdmi")
             #self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+
+        # HDMI Out ---------------------------------------------------------------------------------
+        if with_hdmi_out_terminal or with_hdmi_out_colorbars:
+            hdmi_out_pads = platform.request("hdmi_out")
+            self.comb += hdmi_out_pads.hdp.eq(1)
+            self.hdmi_out_phy = VideoGowinHDMIPHY(hdmi_out_pads, clock_domain="hdmi")
+            if with_hdmi_out_terminal:
+                self.add_video_terminal(phy=self.hdmi_out_phy, timings="640x480@60Hz", clock_domain="hdmi")
+            if with_hdmi_out_colorbars:
+                self.add_video_colorbars(phy=self.hdmi_out_phy, timings="640x480@60Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -316,7 +328,9 @@ def main():
     parser.add_target_argument("--without-ddr3",        action="store_true",      help="Disable DDR3 SDRAM.")
     parser.add_target_argument("--ddr3-rate",           default="1:2", choices=["1:2", "1:4"],
         help="DDR3 PHY clock ratio. For 1:4, use --sys-clk-freq=25e6 (DLL-off) or 100e6 (DLL-on).")
-    parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-video-terminal", action="store_true",     help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-hdmi-out-terminal",  action="store_true", help="Enable HDMI Out Video Terminal.")
+    parser.add_target_argument("--with-hdmi-out-colorbars", action="store_true", help="Enable HDMI Out Video Colorbars.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
@@ -335,6 +349,8 @@ def main():
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
         with_video_terminal = args.with_video_terminal,
+        with_hdmi_out_terminal  = args.with_hdmi_out_terminal,
+        with_hdmi_out_colorbars = args.with_hdmi_out_colorbars,
         with_ddr3           = not args.without_ddr3,
         ddr3_rate           = args.ddr3_rate,
         with_sdram          = args.with_sdram,
