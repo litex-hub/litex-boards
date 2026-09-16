@@ -224,6 +224,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── mlk_cu07_ku15p
     ├── mlkpai_fs01_dr1v90m
     ├── mnt_rkx7
+    ├── modretro_chromatic
     ├── modretro_m64
     ├── muselab_icesugar
     ├── muselab_icesugar_pro
