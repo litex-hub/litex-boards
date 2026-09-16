@@ -145,8 +145,13 @@ class Platform(GowinPlatform):
         self.toolchain.options["bit_encrypt"] = 0
         self.toolchain.options["bit_compress"] = 0
 
-    def create_programmer(self):
-        return OpenFPGALoader(cable="ft2232")
+    def create_programmer(self, kit="openfpgaloader"):
+        if kit == "gowin":
+            return GowinProgrammer(self.devicename)
+        elif kit == "openfpgaloader":
+            return OpenFPGALoader(cable="ft2232")
+        else:
+            raise ValueError(f"Unsupported programmer kit: {kit}")
 
     def do_finalize(self, fragment):
         GowinPlatform.do_finalize(self, fragment)
