@@ -152,6 +152,8 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="gowin", device="GW5AT-60B", sys_clk_freq=50e6,
         with_video_terminal = False,
+        with_lcd_terminal   = False,
+        with_lcd_colorbars  = False,
         with_ddr3           = True,
         ddr3_rate           = "1:2",
         with_sdram          = False,
@@ -184,12 +186,13 @@ class BaseSoC(SoCCore):
             )
 
         # CRG --------------------------------------------------------------------------------------
+        with_video_pll = with_video_terminal or with_lcd_terminal or with_lcd_colorbars
         self.crg = _CRG(platform, sys_clk_freq,
             with_sdram     = with_sdram,
             sdram_rate     = sdram_rate,
             with_ddr3      = with_ddr3,
             ddr3_rate      = ddr3_rate,
-            with_video_pll = with_video_terminal,
+            with_video_pll = with_video_pll,
             without_pll    = without_pll,
         )
         # SoCCore ----------------------------------------------------------------------------------
@@ -237,6 +240,25 @@ class BaseSoC(SoCCore):
             self.videophy = VideoGowinHDMIPHY(hdmi_pads, clock_domain="hdmi")
             #self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+
+        # LCD -------------------------------------------------------------------------------------
+        lcd = platform.request("lcd") if (with_lcd_terminal or with_lcd_colorbars) else None
+        if lcd is not None:
+            self.lcdphy = VideoLCDPHY(lcd, clock_domain="hdmi", with_clk_ddr_output=False)
+            if with_lcd_terminal:
+                self.add_video_terminal(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="hdmi")
+            if with_lcd_colorbars:
+                self.add_video_colorbars(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="hdmi")
+
+        # LCD Backlight / Enable -------------------------------------------------------------------
+        if lcd is not None:
+            self.comb += [
+                lcd.bl.eq(1),
+                lcd.en.eq(1),
+            ]
+
+        # Fan --------------------------------------------------------------------------------------
+        self.comb += platform.request("fan_en").eq(1)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -286,12 +308,16 @@ def main():
     parser.add_target_argument("--ddr3-rate",           default="1:2", choices=["1:2", "1:4"],
         help="DDR3 PHY clock ratio. For 1:4, use --sys-clk-freq=25e6 (DLL-off) or 100e6 (DLL-on).")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-lcd-terminal",   action="store_true", help="Enable Video Terminal (LCD).")
+    parser.add_target_argument("--with-lcd-colorbars",  action="store_true", help="Enable Video Colorbars (LCD).")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
         device              = args.device,
         with_video_terminal = args.with_video_terminal,
+        with_lcd_terminal   = args.with_lcd_terminal,
+        with_lcd_colorbars  = args.with_lcd_colorbars,
         with_ddr3           = not args.without_ddr3,
         ddr3_rate           = args.ddr3_rate,
         with_sdram          = args.with_sdram,
