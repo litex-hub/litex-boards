@@ -12,6 +12,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen import *
 
 from litex.build.io import DDROutput
+from litex.build.generic_platform import Pins, IOStandard, Misc, Subsignal
 
 from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc import *
@@ -134,6 +135,7 @@ class BaseSoC(SoCCore):
         sdram_model       = "sipeed",
         sdram_rate        = "1:1",
         with_hdmi         = False,
+        with_spi_sdcard   = False,
         with_led_chaser   = True,
         with_buttons      = True,
         with_ws2812       = False,
@@ -198,6 +200,20 @@ class BaseSoC(SoCCore):
             self.videophy = VideoGowinHDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
             self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
 
+        # SD Card ----------------------------------------------------------------------------------
+        if with_spi_sdcard:
+            platform.add_extension([
+                ("spisdcard", 0,
+                    Subsignal("clk",  Pins("V15"),  Misc("DRIVE=8")),
+                    Subsignal("cs_n", Pins("W15"),  Misc("DRIVE=8")),
+                    Subsignal("mosi", Pins("Y16"),  Misc("DRIVE=8")),
+                    Subsignal("miso", Pins("AA15"), Misc("DRIVE=OFF")),
+                    IOStandard("LVCMOS33"),
+                    Misc("PULL_MODE=NONE")
+                ),
+            ])
+            self.add_spi_sdcard()
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -229,6 +245,7 @@ def main():
     parser.add_target_argument("--sdram-model",   default="sipeed", choices=["sipeed", "mister"], help="SDRAM module model.")
     parser.add_target_argument("--sdram-rate",    default="1:1", choices=["1:1", "1:2"],          help="SDRAM clock ratio.")
     parser.add_target_argument("--with-hdmi",     action="store_true",      help="Enable HDMI Video Terminal.")
+    parser.add_target_argument("--with-spi-sdcard", action="store_true",    help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-ws2812",   action="store_true",      help="Enable WS2812 LED.")
     parser.add_target_argument("--without-ddr3",  action="store_true",      help="Disable DDR3 SDRAM.")
     parser.add_target_argument("--without-buttons", action="store_true",    help="Disable Buttons.")
@@ -244,6 +261,7 @@ def main():
         sdram_model      = args.sdram_model,
         sdram_rate       = args.sdram_rate,
         with_hdmi        = args.with_hdmi,
+        with_spi_sdcard  = args.with_spi_sdcard,
         with_led_chaser  = not args.without_leds,
         with_buttons     = not args.without_buttons,
         with_ws2812      = args.with_ws2812,
