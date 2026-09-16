@@ -227,11 +227,11 @@ def main():
     parser.add_target_argument("--ddr3-rate",     default="1:2", choices=["1:2", "1:4"], help="DDR3 PHY clock ratio.")
     parser.add_target_argument("--with-sdram",    action="store_true",      help="Use SDRAM instead of DDR3.")
     parser.add_target_argument("--sdram-model",   default="sipeed", choices=["sipeed", "mister"], help="SDRAM module model.")
-    parser.add_target_argument("--sdram-rate",    default="1:1", choices=["1:1", "1:2"], help="SDRAM clock ratio.")
+    parser.add_target_argument("--sdram-rate",    default="1:1", choices=["1:1", "1:2"],          help="SDRAM clock ratio.")
     parser.add_target_argument("--with-hdmi",     action="store_true",      help="Enable HDMI Video Terminal.")
     parser.add_target_argument("--with-ws2812",   action="store_true",      help="Enable WS2812 LED.")
     parser.add_target_argument("--without-ddr3",  action="store_true",      help="Disable DDR3 SDRAM.")
-    parser.add_target_argument("--without-buttons", action="store_true",     help="Disable Buttons.")
+    parser.add_target_argument("--without-buttons", action="store_true",    help="Disable Buttons.")
     parser.add_target_argument("--without-leds",  action="store_true",      help="Disable LED Chaser.")
     args = parser.parse_args()
 
