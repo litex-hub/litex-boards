@@ -28,8 +28,23 @@ GOWIN_TARGETS = [
     "trenz_tec0117",
 ]
 
+GOWIN_OPTIONAL_CASES = [
+    ("modretro_chromatic",            ["--with-lcd-colorbars"]),
+    ("sipeed_tang_console",           ["--with-lcd-colorbars"]),
+    ("sipeed_tang_mega_138k",         ["--with-lcd-colorbars", "--with-spi-sdcard"]),
+    ("sipeed_tang_mega_138k_pro",     ["--with-hdmi-out-colorbars", "--with-rgb-led"]),
+    ("sipeed_tang_mega_60k",          ["--with-audio", "--with-camera", "--with-spi-sdcard"]),
+    ("sipeed_tang_nano_20k",          ["--with-video-colorbars"]),
+    ("sipeed_tang_nano_4k",           ["--with-hyperram"]),
+    ("sipeed_tang_nano_9k",           ["--with-video-terminal", "--with-spi-sdcard"]),
+    ("sipeed_tang_primer_20k",        ["--with-etherbone"]),
+    ("sipeed_tang_primer_25k",        ["--with-usb-acm"]),
+]
 
-def run_target(target: str, output_dir: Path) -> subprocess.CompletedProcess:
+
+def run_target(target: str, output_dir: Path, extra_args=None) -> subprocess.CompletedProcess:
+    if extra_args is None:
+        extra_args = []
     cmd = [
         sys.executable,
         "-m",
@@ -41,7 +56,7 @@ def run_target(target: str, output_dir: Path) -> subprocess.CompletedProcess:
         "--cpu-variant=minimal",
         "--output-dir",
         str(output_dir / target),
-    ]
+    ] + extra_args
     return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
 
@@ -62,6 +77,15 @@ def main() -> int:
         else:
             print(f"PASS {target}")
 
+    for target, extra_args in GOWIN_OPTIONAL_CASES:
+        output_dir = args.output_dir / f"{target}-optional"
+        result = run_target(target, output_dir, extra_args=extra_args)
+        if result.returncode:
+            failures.append((f"{target} {extra_args}", result.stdout))
+            print(f"FAIL {target} {extra_args}")
+        else:
+            print(f"PASS {target} {extra_args}")
+
     if failures:
         print("")
         for target, output in failures:
@@ -70,7 +94,7 @@ def main() -> int:
         return 1
 
     print("")
-    print(f"All {len(GOWIN_TARGETS)} Gowin targets built successfully.")
+    print(f"All {len(GOWIN_TARGETS)} Gowin targets and {len(GOWIN_OPTIONAL_CASES)} optional cases built successfully.")
     return 0
 
 
