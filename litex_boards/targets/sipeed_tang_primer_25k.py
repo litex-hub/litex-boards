@@ -26,7 +26,7 @@ from litex_boards.platforms import sipeed_tang_primer_25k
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2"):
+    def __init__(self, platform, sys_clk_freq, with_sdram=False, sdram_rate="1:2", with_usb_acm=False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
         self.cd_por = ClockDomain()
@@ -57,6 +57,13 @@ class _CRG(LiteXModule):
         pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+        # USB ACM clocks.
+        if with_usb_acm:
+            self.cd_usb_48 = ClockDomain()
+            self.cd_usb_12 = ClockDomain()
+            pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
+            pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
+
         # SDRAM clock
         if with_sdram:
             if sdram_rate == "1:2":
@@ -78,6 +85,7 @@ class BaseSoC(SoCCore):
         with_sdram      = False,
         sdram_model     = "sipeed",
         sdram_rate      = "1:2",
+        with_usb_acm    = False,
         **kwargs):
 
         platform = sipeed_tang_primer_25k.Platform(toolchain=toolchain)
@@ -91,9 +99,19 @@ class BaseSoC(SoCCore):
             )
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_sdram, sdram_rate)
+        self.crg = _CRG(platform, sys_clk_freq, with_sdram, sdram_rate, with_usb_acm)
 
         # SoCCore ----------------------------------------------------------------------------------
+        if with_usb_acm:
+            kwargs["uart_name"] = "usb_acm"
+            usb_pads = platform.request("usb")
+            class USBPads:
+                pass
+            usb = USBPads()
+            usb.d_p    = usb_pads.d_p
+            usb.d_n    = usb_pads.d_n
+            usb.pullup = Signal()
+            kwargs["uart_pads"] = usb
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 25K", **kwargs)
 
         # SDR SDRAM --------------------------------------------------------------------------------
@@ -138,6 +156,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",     default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash",   action="store_true",      help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-sdram",       action="store_true",      help="Enable optional SDRAM module.")
+    parser.add_target_argument("--with-usb-acm",     action="store_true",      help="Enable USB CDC-ACM UART.")
     parser.add_target_argument("--sdram-model",      default="sipeed",
         choices=[
             "sipeed",
@@ -151,6 +170,7 @@ def main():
         with_spi_flash = args.with_spi_flash,
         with_sdram     = args.with_sdram,
         sdram_model    = args.sdram_model,
+        with_usb_acm   = args.with_usb_acm,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
