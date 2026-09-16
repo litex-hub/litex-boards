@@ -19,11 +19,12 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
+from litex.soc.cores.ram.gowin_hyperram import GowinHyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_hyperram=False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
 
@@ -40,6 +41,10 @@ class _CRG(LiteXModule):
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+        if with_hyperram:
+            self.cd_sys4x = ClockDomain()
+            pll.create_clkout(self.cd_sys4x, 4*sys_clk_freq)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -50,7 +55,8 @@ class BaseSoC(SoCCore):
         platform = brisbaneSilicon_brs_100_gw1nr9.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        with_hyperram = not kwargs.get("integrated_main_ram_size", 0)
+        self.crg = _CRG(platform, sys_clk_freq, with_hyperram=with_hyperram)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM.
@@ -69,6 +75,20 @@ class BaseSoC(SoCCore):
             linker = True)
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)
+
+        # HyperRAM ---------------------------------------------------------------------------------
+        if with_hyperram:
+            class HyperRAMPads:
+                pass
+            hyperram_pads = HyperRAMPads()
+            hyperram_pads.clk   = platform.request("O_psram_ck")
+            hyperram_pads.clk_n = platform.request("O_psram_ck_n")
+            hyperram_pads.cs_n  = platform.request("O_psram_cs_n")
+            hyperram_pads.rst_n = platform.request("O_psram_reset_n")
+            hyperram_pads.dq    = platform.request("IO_psram_dq")
+            hyperram_pads.rwds  = platform.request("IO_psram_rwds")
+            self.hyperram = GowinHyperRAM(hyperram_pads, sys_clk_freq=sys_clk_freq, clk_ratio="4:1")
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=8 * MEGABYTE))
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
