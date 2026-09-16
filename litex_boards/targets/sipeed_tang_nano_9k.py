@@ -21,12 +21,12 @@ from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import *
 
-from litex.soc.cores.hyperbus import HyperRAM
+from litex.soc.cores.ram.gowin_hyperram import GowinHyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False, with_hyperram=False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
 
@@ -42,6 +42,11 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
+
+        # HyperRAM Clock.
+        if with_hyperram:
+            self.cd_sys4x = ClockDomain()
+            pll.create_clkout(self.cd_sys4x, 4*sys_clk_freq)
 
         # Video PLL
         if with_video_pll:
@@ -75,7 +80,8 @@ class BaseSoC(SoCCore):
         platform.ibex_regfile = "fpga"
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+        with_hyperram = not kwargs.get("integrated_main_ram_size", 0)
+        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal, with_hyperram=with_hyperram)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Keep the BIOS in external SPI Flash by default to save GW1N-9 resources.
@@ -101,37 +107,17 @@ class BaseSoC(SoCCore):
             self.cpu.set_reset_address(self.bus.regions["rom"].origin)
 
         # HyperRAM ---------------------------------------------------------------------------------
-        if not self.integrated_main_ram_size:
-            # TODO: Use second 32Mbit PSRAM chip.
-            dq      = platform.request("IO_psram_dq")
-            rwds    = platform.request("IO_psram_rwds")
-            reset_n = platform.request("O_psram_reset_n")
-            cs_n    = platform.request("O_psram_cs_n")
-            ck      = platform.request("O_psram_ck")
-            ck_n    = platform.request("O_psram_ck_n")
+        if with_hyperram:
             class HyperRAMPads:
-                def __init__(self, n):
-                    self.clk   = Signal()
-                    self.rst_n = reset_n[n]
-                    self.dq    = dq[8*n:8*(n+1)]
-                    self.cs_n  = cs_n[n]
-                    self.rwds  = rwds[n]
-
-            hyperram_pads = HyperRAMPads(0)
-            self.comb += ck[0].eq(hyperram_pads.clk)
-            self.comb += ck_n[0].eq(~hyperram_pads.clk)
-            # FIXME: Issue with upstream HyperRAM core, so use old one when available.
-            HyperRAMCore = HyperRAM
-            if not os.path.exists("hyperbus.py"):
-                os.system("wget https://github.com/litex-hub/litex-boards/files/8831568/hyperbus.py.txt")
-                if os.path.exists("hyperbus.py.txt"):
-                    os.system("mv hyperbus.py.txt hyperbus.py")
-            if os.path.exists("hyperbus.py"):
-                try:
-                    from hyperbus import HyperRAM as HyperRAMCore
-                except ImportError:
-                    pass
-            self.hyperram = HyperRAMCore(hyperram_pads)
+                pass
+            hyperram_pads = HyperRAMPads()
+            hyperram_pads.clk    = platform.request("O_psram_ck")
+            hyperram_pads.clk_n  = platform.request("O_psram_ck_n")
+            hyperram_pads.cs_n   = platform.request("O_psram_cs_n")
+            hyperram_pads.rst_n  = platform.request("O_psram_reset_n")
+            hyperram_pads.dq     = platform.request("IO_psram_dq")
+            hyperram_pads.rwds   = platform.request("IO_psram_rwds")
+            self.hyperram = GowinHyperRAM(hyperram_pads, sys_clk_freq=sys_clk_freq, clk_ratio="4:1")
             self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=self.mem_map["main_ram"], size=4 * MEGABYTE, mode="rwx"))
 
         # Video ------------------------------------------------------------------------------------
