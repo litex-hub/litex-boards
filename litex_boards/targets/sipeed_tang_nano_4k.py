@@ -65,11 +65,15 @@ class BaseSoC(SoCCore):
         with_hyperram       = False,
         with_led_chaser     = True,
         with_video_terminal = True,
+        with_video_framebuffer = False,
         **kwargs):
         platform = sipeed_tang_nano_4k.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal, with_hyperram=with_hyperram)
+        assert not with_video_framebuffer or with_hyperram
+        self.crg = _CRG(platform, sys_clk_freq,
+            with_video_pll = with_video_terminal or with_video_framebuffer,
+            with_hyperram  = with_hyperram)
 
         # SoCCore ----------------------------------------------------------------------------------
         if "cpu_type" in kwargs and kwargs["cpu_type"] == "gowin_emcu":
@@ -132,6 +136,9 @@ class BaseSoC(SoCCore):
             self.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
             self.add_video_colorbars(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Free up BRAMs.
+        if with_video_framebuffer:
+            self.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -148,6 +155,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",        default=27e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-hyperram",       action="store_true",      help="Enable HyperRAM.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-video-framebuffer", action="store_true",   help="Enable Video Framebuffer (HDMI, HyperRAM-backed).")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -155,6 +163,7 @@ def main():
         sys_clk_freq        = args.sys_clk_freq,
         with_hyperram       = args.with_hyperram,
         with_video_terminal = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
     )
 
