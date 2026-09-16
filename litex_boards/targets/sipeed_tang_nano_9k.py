@@ -70,6 +70,7 @@ class BaseSoC(SoCCore):
         with_led_chaser     = True,
         with_buttons        = False,
         with_video_terminal = False,
+        with_video_framebuffer = False,
         with_integrated_rom = False,
         **kwargs):
         platform = sipeed_tang_nano_9k.Platform(toolchain=toolchain)
@@ -81,7 +82,10 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_hyperram = not kwargs.get("integrated_main_ram_size", 0)
-        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal, with_hyperram=with_hyperram)
+        assert not with_video_framebuffer or with_hyperram
+        self.crg = _CRG(platform, sys_clk_freq,
+            with_video_pll = with_video_terminal or with_video_framebuffer,
+            with_hyperram  = with_hyperram)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Keep the BIOS in external SPI Flash by default to save GW1N-9 resources.
@@ -125,6 +129,9 @@ class BaseSoC(SoCCore):
             self.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
             self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             #self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi") # FIXME: Free up BRAMs.
+        if with_video_framebuffer:
+            self.videophy = VideoGowinHDMIPHY(platform.request("hdmi"), clock_domain="hdmi")
+            self.add_video_framebuffer(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -146,6 +153,7 @@ def main():
     parser.add_target_argument("--bios-flash-offset",   default="0x0",            help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--with-spi-sdcard",     action="store_true",      help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-video-framebuffer", action="store_true",   help="Enable Video Framebuffer (HDMI, HyperRAM-backed).")
     parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
     parser.add_target_argument("--with-integrated-rom", action="store_true",      help="Build BIOS into FPGA bitstream for SRAM-only loading/debug.")
     parser.add_target_argument("--prog-kit",            default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
@@ -156,6 +164,7 @@ def main():
         sys_clk_freq        = args.sys_clk_freq,
         bios_flash_offset   = int(args.bios_flash_offset, 0),
         with_video_terminal = args.with_video_terminal,
+        with_video_framebuffer = args.with_video_framebuffer,
         with_buttons        = args.with_buttons,
         with_integrated_rom = args.with_integrated_rom,
         **parser.soc_argdict
