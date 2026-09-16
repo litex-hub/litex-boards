@@ -152,6 +152,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_nano_4k.Platform, description="LiteX SoC on Tang Nano 4K.")
     parser.add_target_argument("--flash",               action="store_true",      help="Flash bitstream and BIOS.")
+    parser.add_target_argument("--prog-kit",            default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--sys-clk-freq",        default=27e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-hyperram",       action="store_true",      help="Enable HyperRAM.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
@@ -172,11 +173,11 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog               = soc.platform.create_programmer()
+        prog               = soc.platform.create_programmer(kit=args.prog_kit)
         bitstream_filename = builder.get_bitstream_filename(mode="flash", ext=".fs") # FIXME
         bios_filename      = builder.get_bios_filename()
         if args.cpu_type != "gowin_emcu":
