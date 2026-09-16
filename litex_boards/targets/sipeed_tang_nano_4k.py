@@ -18,11 +18,12 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import *
+from litex.soc.cores.ram.gowin_hyperram import GowinHyperRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False, with_hyperram=False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
 
@@ -37,6 +38,10 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
+
+        if with_hyperram:
+            self.cd_sys4x = ClockDomain()
+            pll.create_clkout(self.cd_sys4x, 4*sys_clk_freq)
 
         # Video PLL
         if with_video_pll:
@@ -64,7 +69,7 @@ class BaseSoC(SoCCore):
         platform = sipeed_tang_nano_4k.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal)
+        self.crg = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal, with_hyperram=with_hyperram)
 
         # SoCCore ----------------------------------------------------------------------------------
         if "cpu_type" in kwargs and kwargs["cpu_type"] == "gowin_emcu":
@@ -111,22 +116,16 @@ class BaseSoC(SoCCore):
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
             class HyperRAMPads:
-                def __init__(self):
-                    self.clk   = Signal()
-                    self.rst_n = platform.request("O_hpram_reset_n")
-                    self.dq    = platform.request("IO_hpram_dq")
-                    self.cs_n  = platform.request("O_hpram_cs_n")
-                    self.rwds  = platform.request("IO_hpram_rwds")
-
+                pass
             hyperram_pads = HyperRAMPads()
-            self.comb += platform.request("O_hpram_ck").eq(hyperram_pads.clk)
-            self.comb += platform.request("O_hpram_ck_n").eq(~hyperram_pads.clk)
-            self.add_hyperram(
-                pads        = hyperram_pads,
-                region_name = "main_ram",
-                origin      = 0x40000000,
-                size        = 8*MEGABYTE,
-            )
+            hyperram_pads.clk    = platform.request("O_hpram_ck")
+            hyperram_pads.clk_n  = platform.request("O_hpram_ck_n")
+            hyperram_pads.cs_n   = platform.request("O_hpram_cs_n")
+            hyperram_pads.rst_n  = platform.request("O_hpram_reset_n")
+            hyperram_pads.dq     = platform.request("IO_hpram_dq")
+            hyperram_pads.rwds   = platform.request("IO_hpram_rwds")
+            self.hyperram = GowinHyperRAM(hyperram_pads, sys_clk_freq=sys_clk_freq, clk_ratio="4:1")
+            self.bus.add_slave("main_ram", slave=self.hyperram.bus, region=SoCRegion(origin=0x40000000, size=8*MEGABYTE))
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
