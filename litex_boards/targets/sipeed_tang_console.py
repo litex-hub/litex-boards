@@ -19,6 +19,7 @@ from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import *
 
 from litedram.modules import AS4C32M16, MT41J256M16, W9825G6KH6
@@ -257,6 +258,10 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq
             )
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("btn_n")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -269,6 +274,7 @@ def main():
     parser.add_target_argument("--with-spi-flash",  action="store_true",      help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-buttons",    action="store_true",      help="Enable Buttons.")
     parser.add_target_argument("--with-sdram",      action="store_true",      help="Use the optional SDRAM module instead of DDR3.")
     parser.add_target_argument("--without-pll",     action="store_true",      help="Disable use of PLL.")
     parser.add_target_argument("--sdram-model",     default="sipeed",
@@ -293,6 +299,7 @@ def main():
         with_spi_flash      = args.with_spi_flash,
         with_sdcard         = args.with_sdcard,
         with_spi_sdcard     = args.with_spi_sdcard,
+        with_buttons        = args.with_buttons,
         without_pll         = args.without_pll,
         toolchain           = args.toolchain,
         **parser.soc_argdict
