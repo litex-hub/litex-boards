@@ -8,6 +8,7 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
+from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
 
@@ -72,8 +73,13 @@ class Platform(GowinPlatform):
         self.toolchain.options["use_mspi_as_gpio"] = 1
         self.toolchain.options["use_sspi_as_gpio"] = 1
 
-    def create_programmer(self):
-        return OpenFPGALoader("brs-100-gw1nr9")
+    def create_programmer(self, kit="openfpgaloader"):
+        if kit == "gowin":
+            return GowinProgrammer(self.devicename)
+        elif kit == "openfpgaloader":
+            return OpenFPGALoader("brs-100-gw1nr9")
+        else:
+            raise ValueError(f"Unsupported programmer kit: {kit}")
 
     def do_finalize(self, fragment):
         GowinPlatform.do_finalize(self, fragment)

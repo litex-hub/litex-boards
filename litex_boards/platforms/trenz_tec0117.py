@@ -9,6 +9,7 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
+from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -111,8 +112,13 @@ class Platform(GowinPlatform):
     def __init__(self, toolchain="gowin"):
         GowinPlatform.__init__(self, "GW1NR-LV9QN88C6/I5", _io, _connectors, toolchain=toolchain, devicename="GW1NR-9")
 
-    def create_programmer(self):
-        return OpenFPGALoader("littleBee")
+    def create_programmer(self, kit="openfpgaloader"):
+        if kit == "gowin":
+            return GowinProgrammer(self.devicename)
+        elif kit == "openfpgaloader":
+            return OpenFPGALoader("littleBee")
+        else:
+            raise ValueError(f"Unsupported programmer kit: {kit}")
 
     def do_finalize(self, fragment):
         GowinPlatform.do_finalize(self, fragment)
