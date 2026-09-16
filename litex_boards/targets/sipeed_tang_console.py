@@ -8,6 +8,8 @@
 # Copyright (c) 2025 Gwenhael Goavec-Merou <gwenhael@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+import os
+
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -21,6 +23,9 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import *
+
+from litepcie.phy.gw5apciephy import GW5APCIEPHY
+from litepcie.software import *
 
 from litedram.modules import AS4C32M16, MT41J256M16, W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -36,6 +41,7 @@ class _CRG(LiteXModule):
         with_ddr3      = False,
         ddr3_rate      = "1:2",
         with_video_pll = False,
+        with_pcie      = False,
         without_pll    = False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
@@ -58,6 +64,9 @@ class _CRG(LiteXModule):
 
             self.stop  = Signal()
             self.reset = Signal()
+
+        if with_pcie:
+            self.cd_crg_pcie = ClockDomain()
 
         # Clk
         clk50 = platform.request("clk50")
@@ -137,6 +146,9 @@ class _CRG(LiteXModule):
                 o_CLKOUT   = self.cd_hdmi.clk
             )
 
+        if with_pcie:
+            pll.create_clkout(self.cd_crg_pcie, 100e6, with_reset=False)
+
         if with_ddr3:
             # Preserve the PLL/CLKDIV relationship for timing analysis.
             config  = pll.compute_config()
@@ -159,6 +171,7 @@ class BaseSoC(SoCCore):
         with_sdram          = False,
         sdram_model         = "sipeed",
         sdram_rate          = "1:1",
+        with_pcie           = False,
         with_spi_flash      = False,
         with_sdcard         = False,
         with_spi_sdcard     = False,
@@ -170,6 +183,8 @@ class BaseSoC(SoCCore):
         ddr3_nphases = int(ddr3_rate[-1])
 
         platform = sipeed_tang_console.Platform(toolchain=toolchain, device=device)
+
+        assert not with_pcie or device == "GW5AST-138C"
 
         # Memory configuration ---------------------------------------------------------------------
         integrated_main_ram_size = kwargs.get("integrated_main_ram_size", 0)
@@ -193,6 +208,7 @@ class BaseSoC(SoCCore):
             with_ddr3      = with_ddr3,
             ddr3_rate      = ddr3_rate,
             with_video_pll = with_video_pll,
+            with_pcie      = with_pcie,
             without_pll    = without_pll,
         )
         # SoCCore ----------------------------------------------------------------------------------
@@ -273,6 +289,11 @@ class BaseSoC(SoCCore):
         if with_spi_sdcard:
             self.add_spi_sdcard()
 
+        # PCIe -------------------------------------------------------------------------------------
+        if with_pcie:
+            self.pcie_phy = GW5APCIEPHY(platform, platform.request("pcie"), nlanes=4, cd="sys")
+            self.add_pcie(phy=self.pcie_phy, ndmas=1, data_width=256)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -307,6 +328,7 @@ def main():
     parser.add_target_argument("--without-ddr3",        action="store_true", help="Disable DDR3 SDRAM.")
     parser.add_target_argument("--ddr3-rate",           default="1:2", choices=["1:2", "1:4"],
         help="DDR3 PHY clock ratio. For 1:4, use --sys-clk-freq=25e6 (DLL-off) or 100e6 (DLL-on).")
+    parser.add_target_argument("--with-pcie",           action="store_true", help="Enable PCIe support (GW5AST-138C).")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
     parser.add_target_argument("--with-lcd-terminal",   action="store_true", help="Enable Video Terminal (LCD).")
     parser.add_target_argument("--with-lcd-colorbars",  action="store_true", help="Enable Video Colorbars (LCD).")
@@ -322,6 +344,7 @@ def main():
         ddr3_rate           = args.ddr3_rate,
         with_sdram          = args.with_sdram,
         sdram_model         = args.sdram_model,
+        with_pcie           = args.with_pcie,
         with_spi_flash      = args.with_spi_flash,
         with_sdcard         = args.with_sdcard,
         with_spi_sdcard     = args.with_spi_sdcard,
@@ -332,8 +355,16 @@ def main():
     )
 
     builder = Builder(soc, **parser.builder_argdict)
-    if args.build:
+    if args.build or args.with_pcie:
+        if not args.build:
+            builder.compile_software = False
+            builder.compile_gateware = False
         builder.build(**parser.toolchain_argdict)
+
+    if args.with_pcie:
+        driver_dir = os.path.join(builder.output_dir, "driver")
+        os.makedirs(driver_dir, exist_ok=True)
+        generate_litepcie_software_headers(soc, driver_dir)
 
     if args.load:
         prog = soc.platform.create_programmer()

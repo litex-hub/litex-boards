@@ -184,7 +184,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `signaloid_c0_microsd` | signaloid_c0_microsd | icestorm | `24000000.0` | - | included |
 | `simple` | - | - | `default` | - | Generic target. |
 | `sipeed_slogic16u3` | sipeed_slogic16u3 | gowin | `20732000.0` | - | included |
-| `sipeed_tang_console` | sipeed_tang_console | gowin | `50000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal | included |
+| `sipeed_tang_console` | sipeed_tang_console | gowin | `50000000.0` | SDCard, SPI SDCard, SPI Flash, PCIe, Video Terminal | included |
 | `sipeed_tang_mega_138k` | sipeed_tang_mega_138k | gowin | `50000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, PCIe, Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `sipeed_tang_mega_138k_pro` | sipeed_tang_mega_138k_pro | gowin | `50000000.0` | Ethernet, Etherbone, PCIe, Video Terminal | included |
 | `sipeed_tang_mega_60k` | sipeed_tang_mega_60k | gowin | `50000000.0` | SPI SDCard | included |
