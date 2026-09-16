@@ -189,6 +189,8 @@ class BaseSoC(SoCCore):
         with_led_chaser        = True,
         with_rgb_led           = False,
         with_buttons           = True,
+        with_spi_sdcard        = False,
+        with_sdcard            = False,
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
         ddr3_nphases = int(ddr3_rate[-1])
@@ -254,6 +256,12 @@ class BaseSoC(SoCCore):
                 self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+
+        # SD Card ----------------------------------------------------------------------------------
+        if with_spi_sdcard:
+            self.add_spi_sdcard()
+        if with_sdcard:
+            self.add_sdcard()
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -331,6 +339,11 @@ def main():
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
 
+    # SDCard.
+    sdopts = parser.target_group.add_mutually_exclusive_group()
+    sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
+    sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+
     # Ethernet.
     parser.add_target_argument("--with-ethernet",  action="store_true",     help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support.")
@@ -357,6 +370,8 @@ def main():
         sdram_model            = args.sdram_model,
         with_pcie              = args.with_pcie,
         with_buttons           = args.with_buttons,
+        with_spi_sdcard        = args.with_spi_sdcard,
+        with_sdcard            = args.with_sdcard,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
         eth_ip                 = args.eth_ip,
