@@ -14,13 +14,14 @@ from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn
+from litex.soc.cores.video import VideoLCDPHY
 
 from litex_boards.platforms import modretro_chromatic
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_lcd=False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
         self.cd_por = ClockDomain()
@@ -28,7 +29,7 @@ class _CRG(LiteXModule):
         # # #
 
         clk_fpga = platform.request("clk_fpga")
-        platform.request("clk_24")
+        self.clk_24 = platform.request("clk_24")
         platform.request("clk_27")
         buttons  = platform.request("buttons")
         rst_n    = buttons.a
@@ -47,17 +48,24 @@ class _CRG(LiteXModule):
         pll.register_clkin(clk_fpga, 33.55432e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+        if with_lcd:
+            self.cd_lcd = ClockDomain()
+            self.comb += self.cd_lcd.clk.eq(self.clk_24)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="gowin", sys_clk_freq=33.55432e6,
         with_buttons = True,
         with_rgb_led = True,
+        with_lcd_terminal   = False,
+        with_lcd_colorbars  = False,
         **kwargs):
         platform = modretro_chromatic.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        with_lcd = with_lcd_terminal or with_lcd_colorbars
+        self.crg = _CRG(platform, sys_clk_freq, with_lcd=with_lcd)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ModRetro Chromatic", **kwargs)
@@ -83,6 +91,34 @@ class BaseSoC(SoCCore):
             self.rgb_led = CSRStorage(3)
             self.comb += Cat(rgb_led.r, rgb_led.g, rgb_led.b).eq(~self.rgb_led.storage)
 
+        # LCD -------------------------------------------------------------------------------------
+        if with_lcd:
+            lcd = platform.request("lcd")
+            class LCDPads:
+                pass
+            lcd_pads = LCDPads()
+            lcd_pads.clk    = lcd.dotclk
+            lcd_pads.de     = lcd.enable
+            lcd_pads.hsync  = lcd.hsync
+            lcd_pads.vsync  = lcd.vsync
+            lcd_pads.r = Signal(2)
+            lcd_pads.g = Signal(2)
+            lcd_pads.b = Signal(2)
+            self.comb += [
+                lcd_pads.r.eq(Cat(lcd.db[5], lcd.db[4])),
+                lcd_pads.g.eq(Cat(lcd.db[3], lcd.db[2])),
+                lcd_pads.b.eq(Cat(lcd.db[1], lcd.db[0])),
+            ]
+            self.lcdphy = VideoLCDPHY(lcd_pads, clock_domain="lcd", with_clk_ddr_output=False)
+            if with_lcd_terminal:
+                self.add_video_terminal(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="lcd")
+            if with_lcd_colorbars:
+                self.add_video_colorbars(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="lcd")
+            self.comb += [
+                lcd.pwm.eq(1),
+                lcd.reset.eq(0),
+            ]
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -90,8 +126,10 @@ def main():
     parser = LiteXArgumentParser(platform=modretro_chromatic.Platform, description="LiteX SoC on ModRetro Chromatic.")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq", default=33.55432e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-buttons", action="store_true",      help="Enable Buttons.")
-    parser.add_target_argument("--with-rgb-led", action="store_true",      help="Enable RGB Led.")
+    parser.add_target_argument("--with-buttons", action="store_true",       help="Enable Buttons.")
+    parser.add_target_argument("--with-rgb-led", action="store_true",       help="Enable RGB Led.")
+    parser.add_target_argument("--with-lcd-terminal", action="store_true",  help="Enable LCD Video Terminal.")
+    parser.add_target_argument("--with-lcd-colorbars", action="store_true", help="Enable LCD Video Colorbars.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -99,6 +137,8 @@ def main():
         sys_clk_freq = args.sys_clk_freq,
         with_buttons = args.with_buttons,
         with_rgb_led = args.with_rgb_led,
+        with_lcd_terminal  = args.with_lcd_terminal,
+        with_lcd_colorbars = args.with_lcd_colorbars,
         **parser.soc_argdict
     )
 
