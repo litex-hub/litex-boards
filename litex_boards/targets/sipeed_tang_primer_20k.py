@@ -226,6 +226,7 @@ def main():
     parser = LiteXArgumentParser(platform=sipeed_tang_primer_20k.Platform, description="LiteX SoC on Tang Primer 20K.")
     parser.add_target_argument("--dock",         default="standard",       help="Dock version (standard (default) or lite.")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--prog-kit",     default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
@@ -269,11 +270,11 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs"), external=True)
 
 if __name__ == "__main__":
