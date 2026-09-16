@@ -13,7 +13,7 @@ from litex.gen import *
 from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.gpio import GPIOIn
+from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.cores.video import VideoLCDPHY
 
 from litex_boards.platforms import modretro_chromatic
@@ -60,6 +60,9 @@ class BaseSoC(SoCCore):
         with_rgb_led = True,
         with_lcd_terminal   = False,
         with_lcd_colorbars  = False,
+        with_cart_gpio      = False,
+        with_link_gpio      = False,
+        with_ir             = False,
         **kwargs):
         platform = modretro_chromatic.Platform(toolchain=toolchain)
 
@@ -119,6 +122,32 @@ class BaseSoC(SoCCore):
                 lcd.reset.eq(0),
             ]
 
+        # Cartridge GPIO --------------------------------------------------------------------------
+        if with_cart_gpio:
+            cart = platform.request("cart")
+            self.cart_in = GPIOIn(Cat(cart.det, cart.audin))
+            self.cart_out = GPIOOut(Cat(
+                cart.a,
+                cart.clk,
+                cart.cs,
+                cart.rd,
+                cart.wr,
+                cart.rst,
+                cart.data_dir_e,
+            ))
+
+        # Link GPIO -------------------------------------------------------------------------------
+        if with_link_gpio:
+            link = platform.request("link")
+            self.link_in = GPIOIn(getattr(link, "in"))
+            self.link_out = GPIOOut(Cat(link.clk, link.out, link.sd))
+
+        # IR --------------------------------------------------------------------------------------
+        if with_ir:
+            ir = platform.request("ir")
+            self.ir_in = GPIOIn(ir.rx)
+            self.ir_out = GPIOOut(ir.led)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -130,6 +159,9 @@ def main():
     parser.add_target_argument("--with-rgb-led", action="store_true",       help="Enable RGB Led.")
     parser.add_target_argument("--with-lcd-terminal", action="store_true",  help="Enable LCD Video Terminal.")
     parser.add_target_argument("--with-lcd-colorbars", action="store_true", help="Enable LCD Video Colorbars.")
+    parser.add_target_argument("--with-cart-gpio", action="store_true",     help="Enable cartridge GPIO controls.")
+    parser.add_target_argument("--with-link-gpio", action="store_true",     help="Enable link-port GPIO controls.")
+    parser.add_target_argument("--with-ir",        action="store_true",     help="Enable IR receiver/LED.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -139,6 +171,9 @@ def main():
         with_rgb_led = args.with_rgb_led,
         with_lcd_terminal  = args.with_lcd_terminal,
         with_lcd_colorbars = args.with_lcd_colorbars,
+        with_cart_gpio     = args.with_cart_gpio,
+        with_link_gpio     = args.with_link_gpio,
+        with_ir            = args.with_ir,
         **parser.soc_argdict
     )
 
