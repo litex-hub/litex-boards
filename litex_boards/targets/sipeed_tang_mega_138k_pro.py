@@ -18,6 +18,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser, WS2812
 from litex.soc.cores.gpio import GPIOIn
+from litex.soc.cores.pwm import PWM
 from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII
@@ -171,6 +172,7 @@ class BaseSoC(SoCCore):
         with_pcie           = False,
         with_led_chaser     = True,
         with_rgb_led        = False,
+        with_fan_pwm        = True,
         with_buttons        = True,
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
@@ -261,6 +263,16 @@ class BaseSoC(SoCCore):
                 size   = 4,
             ))
 
+        # Fan --------------------------------------------------------------------------------------
+        if with_fan_pwm:
+            self.fan = PWM(
+                pwm            = platform.request("fan").pwm,
+                with_csr       = True,
+                default_enable = 1,
+                default_width  = 1000,
+                default_period = 2000,
+            )
+
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             if eth_phy == "rgmii":
@@ -342,6 +354,7 @@ def main():
     parser.add_target_argument("--eth-ip", "--local-ip", dest="eth_ip", default="192.168.1.50", help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--with-pcie",      action="store_true",     help="Enable PCIe support.")
     parser.add_target_argument("--with-rgb-led",   action="store_true",     help="Enable WS2812 RGB Led.")
+    parser.add_target_argument("--without-fan",    action="store_true",     help="Disable Fan PWM.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -357,6 +370,7 @@ def main():
         sdram_model         = args.sdram_model,
         with_pcie           = args.with_pcie,
         with_rgb_led        = args.with_rgb_led,
+        with_fan_pwm        = not args.without_fan,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         eth_phy             = args.eth_phy,
