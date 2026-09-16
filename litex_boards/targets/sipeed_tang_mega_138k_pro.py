@@ -16,7 +16,7 @@ from litex.gen import *
 from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.led import LedChaser
+from litex.soc.cores.led import LedChaser, WS2812
 from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import *
 
@@ -241,6 +241,14 @@ class BaseSoC(SoCCore):
         if with_buttons:
             self.buttons = GPIOIn(Cat(platform.request_all("btn_n")))
 
+        # WS2812 -----------------------------------------------------------------------------------
+        if with_rgb_led:
+            self.ws2812 = WS2812(platform.request("led_ws2812"), nleds=1, sys_clk_freq=sys_clk_freq)
+            self.bus.add_slave(name="ws2812", slave=self.ws2812.bus, region=SoCRegion(
+                origin = 0x2000_0000,
+                size   = 4,
+            ))
+
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             if eth_phy == "rgmii":
@@ -319,6 +327,7 @@ def main():
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-ip", "--local-ip", dest="eth_ip", default="192.168.1.50", help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--with-pcie",      action="store_true",     help="Enable PCIe support.")
+    parser.add_target_argument("--with-rgb-led",   action="store_true",     help="Enable WS2812 RGB Led.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -331,6 +340,7 @@ def main():
         with_sdram          = args.with_sdram,
         sdram_model         = args.sdram_model,
         with_pcie           = args.with_pcie,
+        with_rgb_led        = args.with_rgb_led,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         eth_phy             = args.eth_phy,
