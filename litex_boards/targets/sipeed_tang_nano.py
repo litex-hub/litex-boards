@@ -40,6 +40,7 @@ from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -53,6 +54,7 @@ class _CRG(LiteXModule):
         # Clk / Rst.
         clk24 = platform.request("clk24")
         rst_n = platform.request("user_btn_n", 0)
+        self.btn_n0 = rst_n
 
         # PLL.
         self.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
@@ -63,7 +65,12 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCMini):
-    def __init__(self, toolchain="gowin", sys_clk_freq=48e6, with_led_chaser=True, **kwargs):
+    def __init__(self, toolchain="gowin", sys_clk_freq=48e6,
+        with_led_chaser     = True,
+        with_buttons        = False,
+        with_rgb_led        = False,
+        with_lcd_backlight  = True,
+        **kwargs):
         platform = sipeed_tang_nano.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
@@ -82,6 +89,20 @@ class BaseSoC(SoCMini):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(self.crg.btn_n0, platform.request("user_btn_n", 1)))
+
+        # RGB Led ---------------------------------------------------------------------------------
+        if with_rgb_led:
+            rgb_led = platform.request("rgb_led")
+            self.rgb_led = CSRStorage(3)
+            self.comb += Cat(rgb_led.r, rgb_led.g, rgb_led.b).eq(~self.rgb_led.storage)
+
+        # LCD Backlight ----------------------------------------------------------------------------
+        if with_lcd_backlight:
+            self.comb += platform.request("lcd_backlight").eq(1)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -89,11 +110,17 @@ def main():
     parser = LiteXArgumentParser(platform=sipeed_tang_nano.Platform, description="LiteX SoC on Tang Nano.")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-buttons",         action="store_true", help="Enable Buttons.")
+    parser.add_target_argument("--with-rgb-led",         action="store_true", help="Enable RGB Led.")
+    parser.add_target_argument("--with-lcd-backlight",   action="store_true", help="Enable LCD Backlight.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        toolchain    = args.toolchain,
-        sys_clk_freq = args.sys_clk_freq,
+        toolchain           = args.toolchain,
+        sys_clk_freq        = args.sys_clk_freq,
+        with_buttons        = args.with_buttons,
+        with_rgb_led        = args.with_rgb_led,
+        with_lcd_backlight   = args.with_lcd_backlight,
         **parser.soc_argdict
     )
 
