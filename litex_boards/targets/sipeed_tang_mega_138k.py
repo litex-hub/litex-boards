@@ -180,6 +180,8 @@ class BaseSoC(SoCCore):
         with_video_colorbars   = False,
         with_video_terminal    = False,
         with_video_framebuffer = False,
+        with_lcd_terminal      = False,
+        with_lcd_colorbars     = False,
         with_ddr3              = True,
         ddr3_rate              = "1:2",
         with_sdram             = False,
@@ -217,7 +219,7 @@ class BaseSoC(SoCCore):
             with_sdram     = with_sdram,
             with_ddr3      = with_ddr3,
             ddr3_rate      = ddr3_rate,
-            with_video_pll = with_video_terminal or with_video_framebuffer or with_video_colorbars,
+            with_video_pll = with_video_terminal or with_video_framebuffer or with_video_colorbars or with_lcd_terminal or with_lcd_colorbars,
             with_pcie      = with_pcie,
             with_ethernet  = with_ethernet or with_etherbone
         )
@@ -256,6 +258,22 @@ class BaseSoC(SoCCore):
                 self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
+
+        # LCD -------------------------------------------------------------------------------------
+        lcd = platform.request("lcd") if (with_lcd_terminal or with_lcd_colorbars) else None
+        if lcd is not None:
+            self.lcdphy = VideoLCDPHY(lcd, clock_domain="hdmi", with_clk_ddr_output=False)
+            if with_lcd_terminal:
+                self.add_video_terminal(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="hdmi")
+            if with_lcd_colorbars:
+                self.add_video_colorbars(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="hdmi")
+
+        # LCD Backlight / Enable -------------------------------------------------------------------
+        if lcd is not None:
+            self.comb += [
+                lcd.bl.eq(1),
+                lcd.en.eq(1),
+            ]
 
         # SD Card ----------------------------------------------------------------------------------
         if with_spi_sdcard:
@@ -338,6 +356,8 @@ def main():
     viopts.add_argument("--with-video-colorbars",   action="store_true", help="Enable Video ColoBars (HDMI).")
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    parser.add_target_argument("--with-lcd-terminal",  action="store_true", help="Enable Video Terminal (LCD).")
+    parser.add_target_argument("--with-lcd-colorbars", action="store_true", help="Enable Video Colorbars (LCD).")
 
     # SDCard.
     sdopts = parser.target_group.add_mutually_exclusive_group()
@@ -364,6 +384,8 @@ def main():
         with_video_colorbars   = args.with_video_colorbars,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+        with_lcd_terminal      = args.with_lcd_terminal,
+        with_lcd_colorbars     = args.with_lcd_colorbars,
         with_ddr3              = not args.without_ddr3,
         ddr3_rate              = args.ddr3_rate,
         with_sdram             = args.with_sdram,
