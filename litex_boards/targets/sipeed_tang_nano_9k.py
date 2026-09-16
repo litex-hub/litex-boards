@@ -18,6 +18,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import *
 
 from litex.soc.cores.hyperbus import HyperRAM
@@ -34,6 +35,7 @@ class _CRG(LiteXModule):
         # Clk / Rst
         clk27 = platform.request("clk27")
         rst_n = platform.request("user_btn_n", 0)
+        self.btn_n0 = rst_n
 
         # PLL
         self.pll = pll = GW1NPLL(devicename=platform.devicename, device=platform.device)
@@ -61,6 +63,7 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, toolchain="gowin", sys_clk_freq=27e6, bios_flash_offset=0x0,
         with_led_chaser     = True,
+        with_buttons        = False,
         with_video_terminal = False,
         with_integrated_rom = False,
         **kwargs):
@@ -143,6 +146,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(self.crg.btn_n0, platform.request("user_btn_n", 1)))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -153,6 +160,7 @@ def main():
     parser.add_target_argument("--bios-flash-offset",   default="0x0",            help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--with-spi-sdcard",     action="store_true",      help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
     parser.add_target_argument("--with-integrated-rom", action="store_true",      help="Build BIOS into FPGA bitstream for SRAM-only loading/debug.")
     parser.add_target_argument("--prog-kit",            default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     args = parser.parse_args()
@@ -162,6 +170,7 @@ def main():
         sys_clk_freq        = args.sys_clk_freq,
         bios_flash_offset   = int(args.bios_flash_offset, 0),
         with_video_terminal = args.with_video_terminal,
+        with_buttons        = args.with_buttons,
         with_integrated_rom = args.with_integrated_rom,
         **parser.soc_argdict
     )

@@ -272,6 +272,7 @@ Some of the supported boards, see yours? Give LiteX-Boards a try!
     ├── sipeed_tang_console
     ├── sipeed_tang_mega_138k
     ├── sipeed_tang_mega_138k_pro
+    ├── sipeed_tang_mega_60k
     ├── sipeed_tang_nano
     ├── sipeed_tang_nano_20k
     ├── sipeed_tang_nano_4k

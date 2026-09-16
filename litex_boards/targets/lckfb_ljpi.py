@@ -102,6 +102,7 @@ class BaseSoC(SoCCore):
         with_spi_flash       = False,
         with_led_chaser      = True,
         with_buttons         = True,
+        with_seven_segment   = False,
         with_video_terminal  = False,
         with_video_colorbars = False,
         **kwargs):
@@ -165,6 +166,11 @@ class BaseSoC(SoCCore):
         if with_buttons:
             self.buttons = GPIOIn(pads=~platform.request_all("btn_n"))
 
+        # Seven Segment ---------------------------------------------------------------------------
+        if with_seven_segment:
+            self.seven_segment = CSRStorage(7)
+            self.comb += platform.request_all("seg8").eq(~self.seven_segment.storage)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -173,6 +179,7 @@ def main():
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-seven-segment", action="store_true",  help="Enable Seven-Segment Display.")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",  action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-colorbars", action="store_true", help="Enable Video Colorbars (HDMI).")
@@ -184,6 +191,7 @@ def main():
         toolchain            = args.toolchain,
         sys_clk_freq         = args.sys_clk_freq,
         with_spi_flash       = args.with_spi_flash,
+        with_seven_segment   = args.with_seven_segment,
         with_video_terminal  = args.with_video_terminal,
         with_video_colorbars = args.with_video_colorbars,
         **parser.soc_argdict

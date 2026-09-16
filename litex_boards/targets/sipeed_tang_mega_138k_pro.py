@@ -17,6 +17,7 @@ from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII
@@ -235,6 +236,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("led_n"),
                 sys_clk_freq = sys_clk_freq
             )
+
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("btn_n")))
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:

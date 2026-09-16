@@ -19,6 +19,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser, WS2812
 from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import *
+from litex.soc.cores.video import VideoLCDPHY
 
 from liteeth.phy.rmii import LiteEthPHYRMII
 
@@ -106,6 +107,9 @@ class BaseSoC(SoCCore):
         with_rgb_led        = False,
         with_buttons        = True,
         with_video_terminal = False,
+        with_lcd_terminal   = False,
+        with_lcd_colorbars  = False,
+        with_lcd_backlight  = True,
         with_ethernet       = False,
         with_etherbone      = False,
         eth_ip              = "192.168.1.50",
@@ -122,9 +126,10 @@ class BaseSoC(SoCCore):
             with_led_chaser = False # No leds on core board nor on dock lite.
 
         # CRG --------------------------------------------------------------------------------------
+        with_video = with_video_terminal or with_lcd_terminal or with_lcd_colorbars
         with_dram = (kwargs.get("integrated_main_ram_size", 0) == 0)
         assert not (toolchain == "apicula" and with_dram)
-        self.crg  = _CRG(platform, sys_clk_freq, with_video_pll=with_video_terminal, with_dram=with_dram)
+        self.crg  = _CRG(platform, sys_clk_freq, with_video_pll=with_video, with_dram=with_dram)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Primer 20K", **kwargs)
@@ -178,6 +183,19 @@ class BaseSoC(SoCCore):
             #self.add_video_colorbars(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
+        # LCD -------------------------------------------------------------------------------------
+        lcd = platform.request("lcd") if (with_lcd_terminal or with_lcd_colorbars or with_lcd_backlight) else None
+        if lcd is not None:
+            self.lcdphy = VideoLCDPHY(lcd, clock_domain="hdmi", with_clk_ddr_output=False)
+            if with_lcd_terminal:
+                self.add_video_terminal(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="hdmi")
+            if with_lcd_colorbars:
+                self.add_video_colorbars(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="hdmi")
+
+        # LCD Backlight ----------------------------------------------------------------------------
+        if with_lcd_backlight and lcd is not None:
+            self.comb += lcd.bl.eq(1)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -214,6 +232,9 @@ def main():
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-flash",      action="store_true", help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-video-terminal", action="store_true", help="Enable Video Terminal (HDMI).")
+    parser.add_target_argument("--with-lcd-terminal",   action="store_true", help="Enable Video Terminal (LCD).")
+    parser.add_target_argument("--with-lcd-colorbars",  action="store_true", help="Enable Video Colorbars (LCD).")
+    parser.add_target_argument("--with-lcd-backlight",  action="store_true", help="Enable LCD Backlight.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
@@ -227,6 +248,9 @@ def main():
         sys_clk_freq        = args.sys_clk_freq,
         with_spi_flash      = args.with_spi_flash,
         with_video_terminal = args.with_video_terminal,
+        with_lcd_terminal   = args.with_lcd_terminal,
+        with_lcd_colorbars  = args.with_lcd_colorbars,
+        with_lcd_backlight  = args.with_lcd_backlight,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         eth_ip              = args.eth_ip,
