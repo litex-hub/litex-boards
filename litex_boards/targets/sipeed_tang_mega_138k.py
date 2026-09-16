@@ -19,7 +19,7 @@ from litex.soc.cores.clock.gowin_gw5a import GW5APLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.gpio import GPIOIn
+from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.cores.video import *
 
 from liteeth.phy.gw5rgmii import LiteEthPHYRGMII
@@ -191,6 +191,7 @@ class BaseSoC(SoCCore):
         with_led_chaser        = True,
         with_rgb_led           = False,
         with_buttons           = True,
+        with_ch569_gpio        = False,
         with_spi_sdcard        = False,
         with_sdcard            = False,
         **kwargs):
@@ -292,6 +293,12 @@ class BaseSoC(SoCCore):
         if with_buttons:
             self.buttons = GPIOIn(Cat(platform.request_all("btn_n")))
 
+        # CH569 GPIO ------------------------------------------------------------------------------
+        if with_ch569_gpio:
+            ch569 = platform.request("ch569")
+            self.ch569_in = GPIOIn(Cat(ch569.htrdy, ch569.htvld))
+            self.ch569_out = GPIOOut(Cat(ch569.htclk, ch569.htreq, ch569.hd))
+
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.ethphy = LiteEthPHYRGMII(
@@ -374,6 +381,7 @@ def main():
     # PCIe.
     parser.add_target_argument("--with-pcie",           action="store_true",        help="Enable PCIe support.")
     parser.add_target_argument("--with-buttons",        action="store_true",        help="Enable Buttons.")
+    parser.add_target_argument("--with-ch569-gpio",     action="store_true",        help="Enable CH569 parallel-bus GPIO.")
 
     args = parser.parse_args()
 
@@ -392,6 +400,7 @@ def main():
         sdram_model            = args.sdram_model,
         with_pcie              = args.with_pcie,
         with_buttons           = args.with_buttons,
+        with_ch569_gpio        = args.with_ch569_gpio,
         with_spi_sdcard        = args.with_spi_sdcard,
         with_sdcard            = args.with_sdcard,
         with_ethernet          = args.with_ethernet,

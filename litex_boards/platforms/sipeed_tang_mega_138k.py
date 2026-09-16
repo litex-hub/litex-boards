@@ -240,7 +240,7 @@ _neo_dock_io = [
         Subsignal("htrdy", Pins("J0:41"), Misc("PULL_MODE=DOWN DRIVE=OFF BANK_VCCIO=3.3")),
         Subsignal("htvld", Pins("J0:59")),
         Subsignal("hd",    Pins(
-            "J0:57 J0:51 J0:24 J0:47 J0:45 J0:48 J0:39 J0:37"
+            "J0:57 J0:51 J0:24 J0:47 J0:45 J0:48 J0:39 J0:37 "
             "J0:33 J0:31 J0:46 J0:44 J0:42 J0:40 J0:34 J0:32"
         )),
         IOStandard("LVCMOS33"), Misc("PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3")
