@@ -20,6 +20,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser, WS2812
 from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import VideoGowinHDMIPHY
+from litex.soc.cores.i2saudio import I2SAudio
 
 from litedram.modules import AS4C32M16, H5TQ4G63EFR, W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -135,6 +136,7 @@ class BaseSoC(SoCCore):
         sdram_model       = "sipeed",
         sdram_rate        = "1:1",
         with_hdmi         = False,
+        with_audio        = False,
         with_spi_sdcard   = False,
         with_led_chaser   = True,
         with_buttons      = True,
@@ -200,6 +202,24 @@ class BaseSoC(SoCCore):
             self.videophy = VideoGowinHDMIPHY(platform.request("hdmi_out"), clock_domain="hdmi")
             self.add_video_terminal(phy=self.videophy, timings="640x480@60Hz", clock_domain="hdmi")
 
+        # Audio -----------------------------------------------------------------------------------
+        if with_audio:
+            audio = platform.request("audio")
+            class AudioPads:
+                pass
+            audio_pads = AudioPads()
+            audio_pads.bclk = audio.bck
+            audio_pads.lrck = audio.ws
+            audio_pads.dout = audio.din
+            self.audio = I2SAudio(audio_pads, sys_clk_freq)
+            self.audio_tone_counter = Signal(32)
+            self.sync += self.audio_tone_counter.eq(self.audio_tone_counter + 1)
+            self.comb += [
+                self.audio.sink.valid.eq(1),
+                self.audio.sink.data.eq(self.audio_tone_counter),
+                audio.pa_en.eq(1),
+            ]
+
         # SD Card ----------------------------------------------------------------------------------
         if with_spi_sdcard:
             platform.add_extension([
@@ -245,6 +265,7 @@ def main():
     parser.add_target_argument("--sdram-model",   default="sipeed", choices=["sipeed", "mister"], help="SDRAM module model.")
     parser.add_target_argument("--sdram-rate",    default="1:1", choices=["1:1", "1:2"],          help="SDRAM clock ratio.")
     parser.add_target_argument("--with-hdmi",     action="store_true",      help="Enable HDMI Video Terminal.")
+    parser.add_target_argument("--with-audio",    action="store_true",      help="Enable I2S audio output.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",    help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-ws2812",   action="store_true",      help="Enable WS2812 LED.")
     parser.add_target_argument("--without-ddr3",  action="store_true",      help="Disable DDR3 SDRAM.")
@@ -261,6 +282,7 @@ def main():
         sdram_model      = args.sdram_model,
         sdram_rate       = args.sdram_rate,
         with_hdmi        = args.with_hdmi,
+        with_audio       = args.with_audio,
         with_spi_sdcard  = args.with_spi_sdcard,
         with_led_chaser  = not args.without_leds,
         with_buttons     = not args.without_buttons,
