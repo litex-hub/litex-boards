@@ -184,14 +184,14 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `signaloid_c0_microsd` | signaloid_c0_microsd | icestorm | `24000000.0` | - | included |
 | `simple` | - | - | `default` | - | Generic target. |
 | `sipeed_slogic16u3` | sipeed_slogic16u3 | gowin | `20732000.0` | - | included |
-| `sipeed_tang_console` | sipeed_tang_console | gowin | `50000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal | included |
+| `sipeed_tang_console` | sipeed_tang_console | gowin | `50000000.0` | SDCard, SPI SDCard, SPI Flash, PCIe, Video Terminal | included |
 | `sipeed_tang_mega_138k` | sipeed_tang_mega_138k | gowin | `50000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, PCIe, Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `sipeed_tang_mega_138k_pro` | sipeed_tang_mega_138k_pro | gowin | `50000000.0` | Ethernet, Etherbone, PCIe, Video Terminal | included |
 | `sipeed_tang_mega_60k` | sipeed_tang_mega_60k | gowin | `50000000.0` | SPI SDCard | included |
 | `sipeed_tang_nano` | sipeed_tang_nano | gowin | `48000000.0` | - | included |
 | `sipeed_tang_nano_20k` | sipeed_tang_nano_20k | gowin | `48000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Colorbars | included |
 | `sipeed_tang_nano_4k` | sipeed_tang_nano_4k | gowin | `27000000.0` | Video Terminal, Video Framebuffer | included |
-| `sipeed_tang_nano_9k` | sipeed_tang_nano_9k | gowin | `27000000.0` | SPI SDCard, Video Terminal | included |
+| `sipeed_tang_nano_9k` | sipeed_tang_nano_9k | gowin | `27000000.0` | SPI SDCard, Video Terminal, Video Framebuffer | included |
 | `sipeed_tang_primer` | sipeed_tang_primer | td | `24000000.0` | - | included |
 | `sipeed_tang_primer_20k` | sipeed_tang_primer_20k | gowin | `48000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal | included |
 | `sipeed_tang_primer_25k` | sipeed_tang_primer_25k | gowin | `50000000.0` | SPI Flash | included |
