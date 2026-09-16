@@ -64,13 +64,13 @@ class Platform(GowinPlatform):
         self.toolchain.options["use_cpu_as_gpio"]   = 1
         self.toolchain.options["use_i2c_as_gpio"]   = 1
 
-    def create_programmer(self, programmer="gowin"):
-        if programmer == "gowin":
+    def create_programmer(self, kit="gowin"):
+        if kit == "gowin":
             return GowinProgrammer(self.devicename, cable=3)
-        elif programmer == "openfpgaloader":
+        elif kit == "openfpgaloader":
             return OpenFPGALoader(cable="ft2232")
         else:
-            raise ValueError(f"Unsupported programmer: {programmer}")
+            raise ValueError(f"Unsupported programmer kit: {kit}")
 
     def do_finalize(self, fragment):
         GowinPlatform.do_finalize(self, fragment)

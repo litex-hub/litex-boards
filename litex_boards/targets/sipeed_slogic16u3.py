@@ -62,6 +62,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=Platform, description="LiteX SoC on Sipeed Slogic16U3.")
     parser.add_target_argument("--flash",        action="store_true",          help="Flash bitstream.")
+    parser.add_target_argument("--prog-kit",     default="gowin",             help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--sys-clk-freq", default=20.732e6, type=float, help="System clock frequency.")
     args = parser.parse_args()
 
@@ -75,11 +76,11 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs"), external=True)
 
 if __name__ == "__main__":
