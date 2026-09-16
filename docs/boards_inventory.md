@@ -138,7 +138,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `mlk_cu07_ku15p` | mlk_cu07_ku15p | vivado | `75000000.0` | SDCard | included |
 | `mlkpai_fs01_dr1v90m` | mlkpai_fs01_dr1v90m | td | `25000000.0` | - | included |
 | `mnt_rkx7` | mnt_rkx7 | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, USB Host | included |
-| `modretro_chromatic` | modretro_chromatic | gowin | `33554320.0` | - | included |
+| `modretro_chromatic` | modretro_chromatic | gowin | `33554320.0` | HDMI Video Terminal, HDMI Video Colorbars, QSPI SPI Master, I2S Audio, ESP32 UART, USB CDC-ACM, Cartridge GPIO, Link GPIO, IR | included |
 | `modretro_m64` | modretro_m64 | vivado | `100000000.0` | Video Terminal, Video Colorbars | included |
 | `muselab_icesugar` | muselab_icesugar | icestorm | `24000000.0` | - | included |
 | `muselab_icesugar_pro` | muselab_icesugar_pro | trellis | `50000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
@@ -194,7 +194,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `sipeed_tang_nano_9k` | sipeed_tang_nano_9k | gowin | `27000000.0` | SPI SDCard, Video Terminal | included |
 | `sipeed_tang_primer` | sipeed_tang_primer | td | `24000000.0` | - | included |
 | `sipeed_tang_primer_20k` | sipeed_tang_primer_20k | gowin | `48000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal | included |
-| `sipeed_tang_primer_25k` | sipeed_tang_primer_25k | gowin | `50000000.0` | SPI Flash | included |
+| `sipeed_tang_primer_25k` | sipeed_tang_primer_25k | gowin | `50000000.0` | SPI Flash, USB CDC-ACM | included |
 | `sitlinv_a_e115fb` | sitlinv_a_e115fb | quartus | `50000000.0` | - | included |
 | `sitlinv_stlv7325_v1` | sitlinv_stlv7325_v1 | - | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, PCIe, SATA, Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `sitlinv_stlv7325_v2` | sitlinv_stlv7325_v2 | - | `100000000.0` | Ethernet, SDCard, SPI SDCard, PCIe, SATA, Video Terminal, Video Framebuffer, Video Colorbars | included |
