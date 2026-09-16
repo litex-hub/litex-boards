@@ -318,6 +318,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_mega_138k_pro.Platform, description="LiteX SoC on Tang Mega 138K Pro.")
     parser.add_target_argument("--flash",               action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--prog-kit",            default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-sdram",          action="store_true",      help="Use the optional SDRAM module instead of DDR3.")
     parser.add_target_argument("--sdram-model",         default="sipeed",
@@ -372,11 +373,11 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs"), external=True)
 
 if __name__ == "__main__":
