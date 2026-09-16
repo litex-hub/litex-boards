@@ -274,6 +274,7 @@ def main():
     parser.add_target_argument("--with-camera",   action="store_true",      help="Enable OV5640 Camera control.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",    help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-ws2812",   action="store_true",      help="Enable WS2812 LED.")
+    parser.add_target_argument("--prog-kit",      default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--without-ddr3",  action="store_true",      help="Disable DDR3 SDRAM.")
     parser.add_target_argument("--without-buttons", action="store_true",    help="Disable Buttons.")
     parser.add_target_argument("--without-leds",  action="store_true",      help="Disable LED Chaser.")
@@ -302,11 +303,11 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs"))
 
 if __name__ == "__main__":
