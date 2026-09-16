@@ -311,6 +311,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_console.Platform, description="LiteX SoC on Tang Console.")
     parser.add_target_argument("--flash",           action="store_true",      help="Flash bitstream.")
+    parser.add_target_argument("--prog-kit",        default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--device",          default="GW5AT-60B",
         choices=["GW5AT-60B", "GW5AST-138C"], help="Device.")
     parser.add_target_argument("--sys-clk-freq",    default=50e6, type=float, help="System clock frequency.")
@@ -367,11 +368,11 @@ def main():
         generate_litepcie_software_headers(soc, driver_dir)
 
     if args.load:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer()
+        prog = soc.platform.create_programmer(kit=args.prog_kit)
         prog.flash(0, builder.get_bitstream_filename(mode="flash", ext=".fs"), external=True)
 
 if __name__ == "__main__":
