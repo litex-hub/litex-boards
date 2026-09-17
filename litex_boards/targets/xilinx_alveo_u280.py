@@ -34,6 +34,7 @@ from litex.soc.cores.ram.xilinx_usp_hbm2 import (
 )
 
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy import usddrphy
 
@@ -112,6 +113,7 @@ class BaseSoC(SoCCore):
         hbm_base              = USPHBM2_DEFAULT_BASE,
         hbm_high_base         = USPHBM2_HIGH_BASE,
         hbm_strip_origin      = False,
+        with_switches         = False,
         **kwargs):
         platform = xilinx_alveo_u280.Platform()
         if ddram_channel not in range(2):
@@ -189,6 +191,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("gpio_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Switches ---------------------------------------------------------------------------------
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("gpio_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -213,6 +219,7 @@ def main():
     parser.add_target_argument("--hbm-strip-origin", action="store_true",       help="Expose each mapped HBM channel with local AXI addresses.")
     parser.add_target_argument("--with-analyzer",   action="store_true",        help="Enable Analyzer.")
     parser.add_target_argument("--with-led-chaser", action="store_true",        help="Enable LED Chaser.")
+    parser.add_target_argument("--with-switches",   action="store_true",        help="Enable Switches.")
     args = parser.parse_args()
     if args.pcie_ndmas < 0:
         parser.error("--pcie-ndmas must be >= 0")
@@ -241,6 +248,7 @@ def main():
         hbm_high_base         = args.hbm_high_base,
         hbm_strip_origin      = args.hbm_strip_origin,
         with_analyzer         = args.with_analyzer,
+        with_switches         = args.with_switches,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
