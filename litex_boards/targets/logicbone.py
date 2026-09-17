@@ -18,6 +18,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT41K512M16
 from litedram.phy import ECP5DDRPHY
@@ -96,6 +97,7 @@ class BaseSoC(SoCCore):
         eth_dynamic_ip  = False,
         with_led_chaser = True,
         toolchain       = "trellis",
+        with_button     = False,
         **kwargs):
         platform = logicbone.Platform(revision=revision, device=device ,toolchain=toolchain)
 
@@ -143,6 +145,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Button ----------------------------------------------------------------------------------
+        if with_button:
+            self.button = GPIOIn(platform.request("user_btn"))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -152,6 +158,7 @@ def main():
     parser.add_target_argument("--device",         default="45F",            help="FPGA device (45F or 85F).")
     parser.add_target_argument("--sdram-device",   default="MT41K512M16",    help="SDRAM device (MT41K512M16).")
     parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")
+    parser.add_target_argument("--with-button",    action="store_true",      help="Enable User Button.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",  help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",      help="Enable dynamic Ethernet IP assignment.")
@@ -164,6 +171,7 @@ def main():
         sys_clk_freq   = args.sys_clk_freq,
         sdram_device   = args.sdram_device,
         with_ethernet  = args.with_ethernet,
+        with_button    = args.with_button,
         eth_ip         = args.eth_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
