@@ -21,6 +21,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litex.gen.genlib.misc import WaitTimer
 
@@ -60,7 +61,8 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=45e6, with_spi_flash=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=45e6, with_spi_flash=False, with_led_chaser=True,
+        with_buttons=False, with_switches=False, **kwargs):
         platform = efinix_t20_f256_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -93,6 +95,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn_n")[1:]))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -101,11 +109,15 @@ def main():
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=45e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-buttons",   action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",  action="store_true",      help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
         with_spi_flash = args.with_spi_flash,
+        with_buttons   = args.with_buttons,
+        with_switches  = args.with_switches,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:

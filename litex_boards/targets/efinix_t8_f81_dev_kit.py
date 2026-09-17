@@ -21,6 +21,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -52,7 +53,8 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, sys_clk_freq=33.333e6, with_led_chaser=True, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=33.333e6, with_led_chaser=True,
+        with_buttons=False, **kwargs):
         platform = efinix_t8_f81_dev_kit.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -88,6 +90,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn_n")[1:]))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -96,12 +102,14 @@ def main():
     parser.add_target_argument("--flash",             action="store_true",          help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",      default=33.333e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x40000",            help="BIOS offset in SPI Flash.")
+    parser.add_target_argument("--with-buttons",      action="store_true",          help="Enable Buttons.")
 
     args = parser.parse_args()
 
     soc = BaseSoC(
         bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = args.sys_clk_freq,
+        with_buttons      = args.with_buttons,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
