@@ -29,6 +29,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -95,7 +96,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, bios_flash_offset, sys_clk_freq=24e6, revision="v1", with_led_chaser=True, **kwargs):
+    def __init__(self, bios_flash_offset, sys_clk_freq=24e6, revision="v1", with_led_chaser=True, with_button=False, **kwargs):
         platform = icebreaker_bitsy.Platform(revision=revision)
 
         # CRG --------------------------------------------------------------------------------------
@@ -133,6 +134,10 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq,
                 polarity     = 1)
 
+        # Button ----------------------------------------------------------------------------------
+        if with_button:
+            self.button = GPIOIn(platform.request("user_btn_n", 1))
+
         # SPI Flash --------------------------------------------------------------------------------
         from litespi.modules import W25Q128JV
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
@@ -155,12 +160,14 @@ def main():
     parser.add_target_argument("--sys-clk-freq",      default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0xa0000",        help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--revision",          default="v1",             help="Board revision (v0 or v1).")
+    parser.add_target_argument("--with-button",       action="store_true",      help="Enable User Button.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         bios_flash_offset = int(args.bios_flash_offset, 0),
         sys_clk_freq      = args.sys_clk_freq,
         revision          = args.revision,
+        with_button       = args.with_button,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
