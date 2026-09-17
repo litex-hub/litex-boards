@@ -19,6 +19,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import IS42S16320
 from litedram.phy import GENSDRPHY
@@ -55,6 +56,8 @@ class BaseSoC(SoCCore):
         sdram_clk_phase     = 90,
         with_led_chaser     = True,
         with_video_terminal = False,
+        with_buttons        = False,
+        with_switches       = False,
         **kwargs):
         platform = terasic_de10lite.Platform()
 
@@ -84,6 +87,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -92,12 +101,16 @@ def main():
     parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-clk-phase",     default=90,   type=float, help="SDRAM clock phase.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (VGA).")
+    parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",       action="store_true",      help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
         sdram_clk_phase     = args.sdram_clk_phase,
         with_video_terminal = args.with_video_terminal,
+        with_buttons        = args.with_buttons,
+        with_switches       = args.with_switches,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
