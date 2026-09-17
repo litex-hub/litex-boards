@@ -21,6 +21,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.pwm import PWM
 from litex.soc.cores.usb_ohci import USBOHCI
 from litex.soc.cores.video import VideoHDMIPHY
 
@@ -103,7 +104,7 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         "usb_ohci":     0xc0000000,
     }}
-    def __init__(self, revision="v0", device="45F", sdram_device="MT41K128M16", sys_clk_freq=int(50e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, with_ethernet=False, **kwargs):
+    def __init__(self, revision="v0", device="45F", sdram_device="MT41K128M16", sys_clk_freq=int(50e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, with_ethernet=False, with_audio_pwm=False, **kwargs):
 
         platform = machdyne_noir.Platform(revision=revision, device=device, toolchain=toolchain)
 
@@ -156,6 +157,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Audio PWM -------------------------------------------------------------------------------
+        if with_audio_pwm:
+            audio = platform.request("audio_pwm")
+            self.audio_left  = PWM(pwm=audio.left,  with_csr=True)
+            self.audio_right = PWM(pwm=audio.right, with_csr=True)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -168,6 +175,7 @@ def main():
     parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
+    parser.add_target_argument("--with-audio-pwm",  action="store_true",      help="Enable Audio PWM output.")
     parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
     parser.add_target_argument("--boot-from-flash", action="store_true",      help="Boot from flash MMOD.")
     parser.add_target_argument("--sdram-device",    default="MT41K128M16",    help="SDRAM device.")
@@ -181,6 +189,7 @@ def main():
         sdram_device  = args.sdram_device,
         with_usb_host = args.with_usb_host,
         with_ethernet = args.with_ethernet,
+        with_audio_pwm = args.with_audio_pwm,
         **parser.soc_argdict)
 
     if args.with_sdcard:
