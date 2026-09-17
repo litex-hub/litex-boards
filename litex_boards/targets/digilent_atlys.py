@@ -22,6 +22,7 @@ from litex_boards.platforms import digilent_atlys
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT47H64M16
 from litedram.phy import s6ddrphy
@@ -156,6 +157,8 @@ class BaseSoC(SoCCore):
         remote_ip      = None,
         eth_dynamic_ip = False,
         eth_phy        = 0,
+        with_buttons   = False,
+        with_switches  = False,
         **kwargs):
         platform = digilent_atlys.Platform()
 
@@ -208,6 +211,12 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -218,6 +227,8 @@ def main():
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",  help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
+    parser.add_target_argument("--with-buttons",   action="store_true",     help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",  action="store_true",     help="Enable Switches.")
 
     args = parser.parse_args()
     if args.with_etherbone and args.eth_dynamic_ip:
@@ -229,6 +240,8 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         with_etherbone = args.with_etherbone,
+        with_buttons   = args.with_buttons,
+        with_switches  = args.with_switches,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
