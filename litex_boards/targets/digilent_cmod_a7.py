@@ -18,6 +18,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.interconnect import wishbone
 
 from litex.soc.integration.soc import colorer
@@ -108,6 +109,7 @@ class BaseSoC(SoCCore):
         sys_clk_freq    = 100e6,
         with_led_chaser = True,
         with_spi_flash  = False,
+        with_buttons    = False,
         **kwargs):
 
         platform = digilent_cmod_a7.Platform(variant=variant, toolchain=toolchain)
@@ -127,6 +129,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ----------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MX25U3235F
@@ -142,6 +148,7 @@ def main():
     parser.add_target_argument("--variant",        default="a7-35",          help="Board variant (a7-35 or a7-100).")
     parser.add_target_argument("--sys-clk-freq",   default=48e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-buttons",   action="store_true",      help="Enable Buttons.")
 
     args = parser.parse_args()
 
@@ -150,6 +157,7 @@ def main():
         toolchain      = args.toolchain,
         sys_clk_freq   = args.sys_clk_freq,
         with_spi_flash = args.with_spi_flash,
+        with_buttons   = args.with_buttons,
         **parser.soc_argdict
     )
 
