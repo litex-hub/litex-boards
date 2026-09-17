@@ -18,6 +18,7 @@ from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -69,6 +70,7 @@ class BaseSoC(SoCCore):
         with_video_terminal    = False,
         with_video_framebuffer = False,
         sdram_rate             = "1:1",
+        with_buttons           = False,
         **kwargs):
         platform = qmtech_10cl006.Platform(with_daughterboard=with_daughterboard)
 
@@ -105,6 +107,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ----------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("key")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -113,6 +119,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",       default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",         default="1:2",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     parser.add_target_argument("--with-daughterboard", action="store_true",      help="Board plugged into the QMTech daughterboard.")
+    parser.add_target_argument("--with-buttons",       action="store_true",      help="Enable Buttons.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
@@ -124,6 +131,7 @@ def main():
         with_daughterboard = args.with_daughterboard,
         with_spi_flash     = args.with_spi_flash,
         sdram_rate         = args.sdram_rate,
+        with_buttons       = args.with_buttons,
         **parser.soc_argdict
     )
 
