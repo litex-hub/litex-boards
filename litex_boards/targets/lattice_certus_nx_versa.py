@@ -17,6 +17,7 @@ from litex_boards.platforms import lattice_certus_nx_versa
 
 from litex.soc.cores.clock import NXPLL
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litex.soc.integration.soc import SoCCore
 from litex.soc.integration.builder import Builder
@@ -90,6 +91,7 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_spi_flash  = False,
         with_ddr3       = False,
+        with_buttons    = False,
         **kwargs):
         platform = lattice_certus_nx_versa.Platform(toolchain=toolchain)
 
@@ -121,6 +123,10 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq,
                 polarity     = 1)
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn_n")[1:]))
+
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MX25L12833F
@@ -142,6 +148,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-ddr3",      action="store_true", help="Enable DDR3 SDRAM.")
+    parser.add_target_argument("--with-buttons",   action="store_true", help="Enable Buttons.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -149,6 +156,7 @@ def main():
         toolchain      = args.toolchain,
         with_spi_flash = args.with_spi_flash,
         with_ddr3      = args.with_ddr3,
+        with_buttons   = args.with_buttons,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
