@@ -20,6 +20,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.interconnect import wishbone
 
 from litex.soc.integration.soc import colorer
@@ -174,6 +175,8 @@ class BaseSoC(SoCCore):
         eth_dynamic_ip         = False,
         with_video_terminal    = False,
         with_video_framebuffer = False,
+        with_buttons           = False,
+        with_switches          = False,
         **kwargs):
         platform = digilent_nexys4.Platform()
 
@@ -210,6 +213,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -228,6 +237,8 @@ def main():
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (VGA).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
+    parser.add_target_argument("--with-buttons",  action="store_true", help="Enable Buttons.")
+    parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -239,6 +250,8 @@ def main():
         with_etherbone         = args.with_etherbone,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+        with_buttons           = args.with_buttons,
+        with_switches          = args.with_switches,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:
