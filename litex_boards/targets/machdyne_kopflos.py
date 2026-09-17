@@ -21,6 +21,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.usb_ohci import USBOHCI
 
 from litex.soc.integration.soc import *
@@ -107,6 +108,7 @@ class BaseSoC(SoCCore):
         eth_ip          = "192.168.1.50",
         remote_ip       = None,
         eth_dynamic_ip  = False,
+        with_button     = False,
         **kwargs):
 
         platform = machdyne_kopflos.Platform(revision=revision, device=device ,toolchain=toolchain)
@@ -163,6 +165,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Button ----------------------------------------------------------------------------------
+        if with_button:
+            self.button = GPIOIn(platform.request("user_btn"))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -174,6 +180,7 @@ def main():
     parser.add_target_argument("--cable",           default="dirtyJtag",      help="Specify an openFPGALoader cable.")
     parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-button",     action="store_true",      help="Enable User Button.")
     parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
     parser.add_target_argument("--with-ethernet",   action="store_true",      help="Enable Ethernet support.")
     parser.add_target_argument("--eth-ip",          default="192.168.1.50",   help="Ethernet/Etherbone IP address.")
@@ -194,6 +201,7 @@ def main():
         eth_ip         = args.eth_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
+        with_button    = args.with_button,
         **parser.soc_argdict)
 
     if args.with_sdcard:
