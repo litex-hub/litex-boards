@@ -29,6 +29,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import AS4C32M16
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -78,6 +79,8 @@ class BaseSoC(SoCCore):
         with_h2f_bridge            = False,
         with_f2h_sdram             = False,
         sdram_rate                 = "1:1",
+        with_buttons               = False,
+        with_switches              = False,
         **kwargs):
         platform = terasic_de10nano.Platform()
 
@@ -140,6 +143,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("key")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -151,6 +160,8 @@ def main():
     parser.add_target_argument("--with-h2f-bridge",            action="store_true",      help="Enable H2F bridge (with cyclonev_hps CPU).")
     parser.add_target_argument("--with-f2h-sdram",             action="store_true",      help="Enable F2SDRAM port (with cyclonev_hps CPU).")
     parser.add_target_argument("--sdram-rate",                 default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-buttons",               action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",              action="store_true",      help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -160,6 +171,8 @@ def main():
         with_h2f_bridge            = args.with_h2f_bridge,
         with_f2h_sdram             = args.with_f2h_sdram,
         sdram_rate                 = args.sdram_rate,
+        with_buttons               = args.with_buttons,
+        with_switches              = args.with_switches,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
