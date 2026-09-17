@@ -151,7 +151,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `numato_tagus` | numato_tagus | vivado | `100000000.0` | PCIe | included |
 | `ocp_tap_timecard` | ocp_tap_timecard | vivado | `100000000.0` | PCIe | included |
 | `olimex_gatemate_a1_evb` | olimex_gatemate_a1_evb | colognechip | `24000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, Video Terminal | included |
-| `opalkelly_xem8320` | opalkelly_xem8320 | vivado | `125000000.0` | Video Terminal, Video Framebuffer | included |
+| `opalkelly_xem8320` | opalkelly_xem8320 | vivado | `None` | Video Terminal, Video Framebuffer | included |
 | `opensourcesdrlab_kintex7` | opensourcesdrlab_kintex7 | vivado | `100000000.0` | SPI SDCard, SPI Flash, PCIe | included |
 | `pano_logic_g2` | pano_logic_g2 | ise | `50000000.0` | Ethernet, Etherbone | included |
 | `puzhi_p7_starlite` | puzhi_p7_starlite | vivado | `100000000.0` | Ethernet, Etherbone | included |
