@@ -20,6 +20,7 @@ from litex.build.io import DDROutput
 from litex.build.generic_platform import Pins
 
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.pwm import PWM
 from litex.soc.cores.video import VideoVGAPHY
 
 from litedram.modules import W989D6DBGX6
@@ -69,6 +70,7 @@ class BaseSoC(SoCCore):
         remote_ip           = None,
         eth_dynamic_ip      = False,
         with_led_chaser     = True,
+        with_audio_pwm      = False,
         **kwargs):
         platform = machdyne_kolsch.Platform(toolchain)
 
@@ -89,6 +91,12 @@ class BaseSoC(SoCCore):
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led_n"),
                 sys_clk_freq = sys_clk_freq)
+
+        # Audio PWM -------------------------------------------------------------------------------
+        if with_audio_pwm:
+            audio = platform.request("audio_pwm")
+            self.audio_left  = PWM(pwm=audio.left,  with_csr=True)
+            self.audio_right = PWM(pwm=audio.right, with_csr=True)
 
         # DRAM -------------------------------------------------------------------------------------
         if not self.integrated_main_ram_size:
@@ -139,6 +147,7 @@ def main():
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (VGA).")
     parser.add_target_argument("--flash",               action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--with-spi-sdcard",     action="store_true",      help="Enable SPI-mode SDCard support.")
+    parser.add_target_argument("--with-audio-pwm",      action="store_true",      help="Enable Audio PWM output.")
     pmodopts = parser.target_group.add_mutually_exclusive_group()
     pmodopts.add_argument("--with-ethernet",            action="store_true",      help="Enable Ethernet support.")
     pmodopts.add_argument("--with-etherbone",           action="store_true",      help="Enable Etherbone support.")
@@ -152,6 +161,7 @@ def main():
         sys_clk_freq        = args.sys_clk_freq,
         toolchain           = args.toolchain,
         with_video_terminal = args.with_video_terminal,
+        with_audio_pwm      = args.with_audio_pwm,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         eth_ip              = args.eth_ip,
