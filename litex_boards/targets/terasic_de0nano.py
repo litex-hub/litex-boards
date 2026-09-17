@@ -22,6 +22,7 @@ from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import IS42S16160
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -61,7 +62,8 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, sdram_rate="1:1", with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=50e6, sdram_rate="1:1", with_led_chaser=True,
+        with_buttons=False, with_switches=False, **kwargs):
         platform = terasic_de0nano.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -86,6 +88,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("key")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -93,11 +101,15 @@ def main():
     parser = LiteXArgumentParser(platform=terasic_de0nano.Platform, description="LiteX SoC on DE0-Nano.")
     parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",   default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-buttons", action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches", action="store_true",     help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
         sdram_rate   = args.sdram_rate,
+        with_buttons  = args.with_buttons,
+        with_switches = args.with_switches,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

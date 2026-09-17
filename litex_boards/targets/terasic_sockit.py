@@ -15,6 +15,7 @@ from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc  import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.video import VideoVGAPHY
 
 from litex.build.io import DDROutput
@@ -68,6 +69,8 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6, revision="revd", sdram_rate="1:2", mister_sdram=None,
         with_led_chaser     = True,
         with_video_terminal = False,
+        with_buttons        = False,
+        with_switches       = False,
         **kwargs):
         platform = terasic_sockit.Platform(revision)
 
@@ -108,6 +111,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -119,6 +128,8 @@ def main():
     parser.add_target_argument("--revision",            default="revd",           help="Board revision (revb, revc or revd).")
     parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (VGA).")
+    parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",       action="store_true",      help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -127,6 +138,8 @@ def main():
         sdram_rate          = "1:1" if args.single_rate_sdram else "1:2",
         mister_sdram        = "xs_v22" if args.mister_sdram_xs_v22 else "xs_v24" if args.mister_sdram_xs_v24 else None,
         with_video_terminal = args.with_video_terminal,
+        with_buttons        = args.with_buttons,
+        with_switches       = args.with_switches,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
