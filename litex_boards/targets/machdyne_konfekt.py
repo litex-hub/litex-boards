@@ -19,6 +19,7 @@ from litex.build.io import DDROutput
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.pwm import PWM
 from litex.soc.cores.usb_ohci import USBOHCI
 from litex.soc.cores.video import VideoHDMIPHY
 
@@ -102,7 +103,7 @@ class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         "usb_ohci":     0xc0000000,
     }}
-    def __init__(self, revision="v0", device="12F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, **kwargs):
+    def __init__(self, revision="v0", device="12F", sdram_device="W9825G6KH6", sdram_rate="1:2", sys_clk_freq=int(40e6), toolchain="trellis", with_led_chaser=True, with_usb_host=False, with_audio_pwm=False, **kwargs):
 
         platform = machdyne_konfekt.Platform(revision=revision, device=device, toolchain=toolchain)
 
@@ -157,6 +158,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Audio PWM -------------------------------------------------------------------------------
+        if with_audio_pwm:
+            audio = platform.request("audio_pwm")
+            self.audio_left  = PWM(pwm=audio.left,  with_csr=True)
+            self.audio_right = PWM(pwm=audio.right, with_csr=True)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -170,6 +177,7 @@ def main():
     parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
     parser.add_target_argument("--sdram-device",    default="W9825G6KH6",     help="SDRAM device (W9825G6KH6 or IS42S16320).")
+    parser.add_target_argument("--with-audio-pwm",  action="store_true",      help="Enable Audio PWM output.")
 
     args = parser.parse_args()
 
@@ -179,6 +187,7 @@ def main():
         device        = args.device,
         sdram_device  = args.sdram_device,
         with_usb_host = args.with_usb_host,
+        with_audio_pwm = args.with_audio_pwm,
         **parser.soc_argdict)
 
     if args.with_sdcard:
