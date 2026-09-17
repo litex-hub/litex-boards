@@ -187,12 +187,16 @@ class BaseSoC(SoCCore):
         overclock              = False,
         usnative_output_dir    = "build/opalkelly_xem8320/native",
         vivado                 = "vivado",
+        usnative_query_cache_dir = None,
+        usnative_query_force_refresh = False,
         with_ethernet          = False,
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
         with_led_chaser        = True,
         with_video_framebuffer = False,
         **kwargs):
+        if not with_usnative and (usnative_query_cache_dir is not None or usnative_query_force_refresh):
+            raise ValueError("Native query cache options require --with-usnative")
         if dma_data_width not in (128, 256):
             raise ValueError("DMA supports 128-bit or 256-bit ports")
         if dma_data_width != 128 and not with_dma:
@@ -262,7 +266,9 @@ class BaseSoC(SoCCore):
                 self.ddrphy = USNativeDDRPHY(platform.request("ddram"), platform,
                     self.crg.native_clock, self.crg.native_locked, self.crg.native_enable,
                     sys_clk_freq=sys_clk_freq, output_dir=usnative_output_dir,
-                    vivado=vivado, with_debug=usnative_debug, overclock=overclock)
+                    vivado=vivado, with_debug=usnative_debug, overclock=overclock,
+                    query_cache_dir=usnative_query_cache_dir,
+                    query_force_refresh=usnative_query_force_refresh)
                 # CL/CWL are selected by the PHY profile; use the module's 2400
                 # timing table at both requested clocks, preserving ns minima.
                 module = _NativeDDR4(sys_clk_freq, "1:4", speedgrade="2400")
@@ -288,7 +294,7 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram", phy=self.ddrphy, module=module, **sdram_kwargs)
             if with_usnative:
                 self.comb += self.ddrphy.software_control.eq(~self.sdram.dfii._control.fields.sel)
-                self.add_config("SDRAM_USNATIVE_XEM8320")
+                self.add_config("SDRAM_USNATIVE")
                 if usnative_debug:
                     self.add_config("SDRAM_USNATIVE_DEBUG")
                 if usnative_dma_calibration:
@@ -426,7 +432,9 @@ def main():
     parser.add_target_argument("--usnative-debug", action="store_true",           help="Include native trace hardware and verbose BIOS calibration.")
     parser.add_target_argument("--usnative-dma-calibration", action="store_true", help="Explicitly request USNative DMA calibration (automatic for native 256-bit DMA builds).")
     parser.add_target_argument("--sdram-debug", action="store_true",              help="Enable component-PHY SDRAM calibration diagnostics.")
-    parser.add_target_argument("--vivado", default="vivado", help="Vivado executable for fresh native device queries.")
+    parser.add_target_argument("--vivado", default="vivado", help="Vivado executable for native device queries.")
+    parser.add_target_argument("--usnative-query-cache-dir", default=None, help="Local native query cache directory; never commit cached device data.")
+    parser.add_target_argument("--usnative-query-force-refresh", action="store_true", help="Refresh native device discovery even when a local cache is available.")
     parser.add_target_argument("--with-dma", action="store_true", help="Include native DMA test engine and BIOS command.")
     parser.add_target_argument("--dma-data-width", type=int, choices=[128, 256], default=128, help="DMA port width; physical DDR remains x16.")
     parser.add_target_argument("--with-dma-bank-group-interleaving", action="store_true", help="Use the experimental paired 256-bit bank-group DMA path.")
@@ -468,6 +476,8 @@ def main():
         overclock              = args.overclock,
         usnative_output_dir    = str(Path(args.output_dir or "build/opalkelly_xem8320") / "native"),
         vivado                 = args.vivado,
+        usnative_query_cache_dir = args.usnative_query_cache_dir,
+        usnative_query_force_refresh = args.usnative_query_force_refresh,
         #with_ethernet         = args.with_ethernet,
         #with_etherbone        = args.with_etherbone,
         #eth_ip                = args.eth_ip,

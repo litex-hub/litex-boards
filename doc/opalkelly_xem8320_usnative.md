@@ -34,9 +34,29 @@ the portable `ULTRASCALE` spelling.
 Requires coordinated experimental LiteDRAM and LiteX BIOS branches. The default
 XEM8320 target continues to use USPDDRPHY. Select `--with-usnative` explicitly;
 this path requires `--toolchain vivado` and queries that installation's device
-connections for every build. Set the Vivado executable in PATH, or pass
+connections freshly by default. Set the Vivado executable in PATH, or pass
 `--vivado /path/to/vivado` for the query runner (implementation still uses PATH).
 Generated Tcl, maps, logs and RTL stay under the build output directory.
+
+The coordinated generic mapping interface selects `CONFIG_SDRAM_USNATIVE` in
+BIOS instead of the former XEM8320-specific hook. Use matching LiteDRAM and
+LiteX revisions: the logical ABI describes lanes and control groups without
+embedding package pins, Vivado site names or physical slice coordinates in
+firmware. Normal builds still omit debug and DMA hardware.
+
+`--usnative-query-cache-dir <directory>` enables optional local reuse of
+validated device discovery. `--usnative-query-force-refresh` forces fresh
+discovery even when that cache is present. Both options require
+`--with-usnative`. Cache files, queried maps and logs are local artifacts:
+never add them to Git commits. Use a directory outside source worktrees or
+inside the ignored build directory. Omitting the cache directory preserves
+fresh-query behavior.
+
+```sh
+python -m litex_boards.targets.opalkelly_xem8320 --toolchain vivado --with-usnative --ddr-rate 2400 --usnative-query-cache-dir build/native-query-cache --build
+python -m litex_boards.targets.opalkelly_xem8320 --toolchain vivado --with-usnative --ddr-rate 2400 --usnative-query-cache-dir build/native-query-cache --usnative-query-force-refresh --build
+```
+
 The XEM8320 path has been exercised with Vivado 2026.1. A successful query or
 implementation does not qualify a different Vivado release or board revision.
 The 2933.333 and 3200 MT/s options are deliberately buildable for laboratory

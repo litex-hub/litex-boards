@@ -75,9 +75,12 @@ class TestXEM8320NativeOptions(unittest.TestCase):
         # Replace the query-dependent PHY with the component PHY's compatible
         # DFI interface. This elaborates the native CPU CDC branch without a
         # Vivado device query or generated native core.
+        query_options = []
+
         class USPDDRPHY(usddrphy.USPDDRPHY):
             def __init__(self, pads, platform, native_clock, native_locked,
                 native_enable, *, sys_clk_freq, **kwargs):
+                query_options.append(kwargs)
                 super().__init__(pads, memtype="DDR4", sys_clk_freq=sys_clk_freq,
                     cl=24 if sys_clk_freq > 333333334 else (19 if sys_clk_freq > 300e6 else None),
                     cwl=16 if sys_clk_freq > 333333334 else (14 if sys_clk_freq > 300e6 else None),
@@ -87,7 +90,13 @@ class TestXEM8320NativeOptions(unittest.TestCase):
 
         with patch("litedram.phy.usnative.USNativeDDRPHY", USPDDRPHY):
             soc = BaseSoC(sys_clk_freq=300e6, with_usnative=True,
-                with_dma=False, with_led_chaser=False)
+                with_dma=False, with_led_chaser=False,
+                usnative_query_cache_dir="build/local-native-query-cache",
+                usnative_query_force_refresh=True)
+        self.assertEqual(query_options[0]["query_cache_dir"], "build/local-native-query-cache")
+        self.assertTrue(query_options[0]["query_force_refresh"])
+        self.assertIn("CONFIG_SDRAM_USNATIVE", soc.constants)
+        self.assertNotIn("CONFIG_SDRAM_USNATIVE_XEM8320", soc.constants)
         self.assertTrue(hasattr(soc, "cpu_cdc0"))
         self.assertFalse(hasattr(soc, "dma_bench"))
         self.assertNotIn("CONFIG_SDRAM_USNATIVE_DMA_CALIBRATION", soc.constants)
@@ -207,7 +216,7 @@ class TestXEM8320NativeOptions(unittest.TestCase):
         # defaults without requiring Vivado or an external DDR build.
         soc = BaseSoC(integrated_main_ram_size=4096, with_led_chaser=False)
         self.assertEqual(soc.clk_freq, 125e6)
-        self.assertNotIn("SDRAM_USNATIVE_XEM8320", soc.constants)
+        self.assertNotIn("CONFIG_SDRAM_USNATIVE", soc.constants)
 
     def test_invalid_options_do_not_query_vivado(self):
         cases = [
@@ -236,7 +245,9 @@ class TestXEM8320NativeOptions(unittest.TestCase):
             query.assert_not_called()
 
     def test_native_only_flags_require_native_phy(self):
-        for options in (dict(usnative_debug=True), dict(usnative_dma_calibration=True)):
+        for options in (dict(usnative_debug=True), dict(usnative_dma_calibration=True),
+                        dict(usnative_query_cache_dir="build/cache"),
+                        dict(usnative_query_force_refresh=True)):
             with self.subTest(options=options), self.assertRaises(ValueError):
                 BaseSoC(**options)
 
@@ -259,4 +270,4 @@ class TestXEM8320NativeOptions(unittest.TestCase):
     def test_component_debug_preserves_non_native_selection(self):
         soc = BaseSoC(integrated_main_ram_size=4096, with_led_chaser=False,
             sdram_debug=True)
-        self.assertNotIn("SDRAM_USNATIVE_XEM8320", soc.constants)
+        self.assertNotIn("CONFIG_SDRAM_USNATIVE", soc.constants)
