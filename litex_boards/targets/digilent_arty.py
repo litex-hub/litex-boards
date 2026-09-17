@@ -83,6 +83,7 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_spi_flash  = False,
         with_buttons    = False,
+        with_switches   = False,
         with_pmod_gpio  = False,
         with_can        = False,
         **kwargs):
@@ -177,12 +178,14 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq,
             )
 
-        # Buttons ----------------------------------------------------------------------------------
+        # Buttons / Switches -----------------------------------------------------------------------
         if with_buttons:
             self.buttons = GPIOIn(
                 pads     = platform.request_all("user_btn"),
                 with_irq = self.irq.enabled
             )
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
@@ -224,6 +227,8 @@ def main():
     parser.add_target_argument("--sdcard-adapter",                      help="SDCard PMOD adapter (digilent or numato).")
 
     parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-buttons",   action="store_true", help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",  action="store_true", help="Enable Switches.")
     parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     parser.add_target_argument("--with-can",       action="store_true", help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'.")
     args = parser.parse_args()
@@ -245,6 +250,8 @@ def main():
         eth_dhcp       = args.eth_dhcp,
         with_usb       = args.with_usb,
         with_spi_flash = args.with_spi_flash,
+        with_buttons   = args.with_buttons,
+        with_switches  = args.with_switches,
         with_pmod_gpio = args.with_pmod_gpio,
         with_can       = args.with_can,
         **parser.soc_argdict
