@@ -19,6 +19,7 @@ from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -66,6 +67,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
         with_led_chaser = True,
         sdram_rate      = "1:1",
+        with_buttons    = False,
         **kwargs):
         platform = qmtech_cyclone10_starterkit.Platform()
 
@@ -97,6 +99,10 @@ class BaseSoC(SoCCore):
                 pads         = seven_seg_display.segments,
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ----------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("key")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -104,6 +110,7 @@ def main():
     parser = LiteXArgumentParser(platform=qmtech_cyclone10_starterkit.Platform, description="LiteX SoC on QMTECH Cyclone10 Starter Kit.")
     parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",   default="1:2",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-buttons", action="store_true",      help="Enable Buttons.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
@@ -112,6 +119,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
         sdram_rate   = args.sdram_rate,
+        with_buttons = args.with_buttons,
         **parser.soc_argdict
     )
 

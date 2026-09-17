@@ -18,6 +18,7 @@ from litex.soc.cores.clock import CycloneIVPLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import W9825G6KH6
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -81,6 +82,7 @@ class BaseSoC(SoCCore):
         with_video_terminal    = False,
         with_video_framebuffer = False,
         sdram_rate             = "1:1",
+        with_buttons           = False,
         **kwargs):
         platform = qmtech_ep4cgx150.Platform(with_daughterboard=with_daughterboard)
 
@@ -131,6 +133,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ----------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("key")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -139,6 +145,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",       default=90e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",         default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     parser.add_target_argument("--with-daughterboard", action="store_true",      help="Board plugged into the QMTech daughterboard.")
+    parser.add_target_argument("--with-buttons",       action="store_true",      help="Enable Buttons.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
@@ -165,6 +172,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         sdram_rate             = args.sdram_rate,
+        with_buttons           = args.with_buttons,
         **parser.soc_argdict
     )
 
