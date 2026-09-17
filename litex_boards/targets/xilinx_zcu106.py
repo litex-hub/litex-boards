@@ -16,6 +16,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT40A256M16
 from litedram.phy import usddrphy
@@ -57,7 +58,8 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, with_pcie=False, **kwargs):
+    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, with_pcie=False,
+        with_buttons=False, **kwargs):
         platform = xilinx_zcu106.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -93,6 +95,16 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ----------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(
+                platform.request("user_btn_c"),
+                platform.request("user_btn_e"),
+                platform.request("user_btn_n"),
+                platform.request("user_btn_s"),
+                platform.request("user_btn_w"),
+            ))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -100,11 +112,13 @@ def main():
     parser = LiteXArgumentParser(platform=xilinx_zcu106.Platform, description="LiteX SoC on ZCU106.")
     parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support")
+    parser.add_target_argument("--with-buttons", action="store_true",       help="Enable Buttons.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
         with_pcie    = args.with_pcie,
+        with_buttons = args.with_buttons,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
