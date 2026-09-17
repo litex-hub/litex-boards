@@ -17,6 +17,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.gpio import GPIOTristate
 from litex.soc.cores.video import VideoDVIPHY
 from litex.soc.cores.bitbang import I2CMaster
@@ -119,6 +120,7 @@ class BaseSoC(SoCCore):
         with_video_framebuffer = False,
         with_led_chaser        = True,
         with_pmod_gpio         = False,
+        with_buttons           = False,
         **kwargs):
         platform = trellisboard.Platform(toolchain=toolchain)
 
@@ -171,6 +173,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")[1:]))
+
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
             platform.add_extension(trellisboard.raw_pmod_io("pmoda"))
@@ -193,6 +199,7 @@ def main():
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     parser.add_target_argument("--with-pmod-gpio",      action="store_true",        help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    parser.add_target_argument("--with-buttons",        action="store_true",        help="Enable Buttons.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -205,6 +212,7 @@ def main():
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
         with_pmod_gpio         = args.with_pmod_gpio,
+        with_buttons           = args.with_buttons,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:
