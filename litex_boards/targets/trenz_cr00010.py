@@ -17,6 +17,7 @@ from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT48LC4M16
 from litedram.phy import GENSDRPHY
@@ -55,6 +56,7 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_sdram      = True,
         with_spi_flash  = False,
+        with_buttons    = False,
         **kwargs):
         platform = trenz_cr00010.Platform(device=device)
 
@@ -105,6 +107,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ----------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request("sw", 0)))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -115,6 +121,7 @@ def main():
     parser.add_target_argument("--no-hyperram",     action="store_true",            help="Disable HyperRAM support.")
     parser.add_target_argument("--no-sdram",        action="store_true",            help="Disable SDRAM support.")
     parser.add_target_argument("--with-spi-flash",  action="store_true",            help="Enable SPI flash support.")
+    parser.add_target_argument("--with-buttons",    action="store_true",            help="Enable Buttons.")
     args = parser.parse_args()
 
     device = {
@@ -128,6 +135,7 @@ def main():
         with_hyperram  = not args.no_hyperram,
         with_sdram     = not args.no_sdram,
         with_spi_flash = args.with_spi_flash,
+        with_buttons   = args.with_buttons,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)

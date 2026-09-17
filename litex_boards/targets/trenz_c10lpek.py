@@ -16,6 +16,7 @@ from litex_boards.platforms import trenz_c10lpek
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -41,6 +42,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
         with_hyperram   = False,
         with_led_chaser = True,
+        with_switches   = False,
         **kwargs):
         platform = trenz_c10lpek.Platform()
 
@@ -63,6 +65,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Switches ---------------------------------------------------------------------------------
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -70,12 +76,14 @@ def main():
     parser = LiteXArgumentParser(platform=trenz_c10lpek.Platform, description="LiteX SoC on C10LP Evaluation Kit.")
     parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-hyperram", action="store_true",    help="Enable HyperRAM support.")
+    parser.add_target_argument("--with-switches", action="store_true",    help="Enable Switches.")
     parser.set_defaults(uart_name="jtag_uart")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq  = args.sys_clk_freq,
         with_hyperram = args.with_hyperram,
+        with_switches = args.with_switches,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
