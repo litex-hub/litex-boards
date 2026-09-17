@@ -72,6 +72,10 @@ jobs:
       - name: Install Project
         run: python3 setup.py develop --user
 
+      # Validate Gowin targets with no-compile builds.
+      - name: Check Gowin Targets
+        run: python3 .github/scripts/check_gowin_targets.py
+
       # Validate README board list is in sync with targets.
       - name: Check README Board List
         run: python3 .github/scripts/sync_readme_boards_list.py --check
