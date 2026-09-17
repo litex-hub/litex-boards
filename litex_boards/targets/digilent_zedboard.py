@@ -17,6 +17,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -45,7 +46,8 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="vivado", sys_clk_freq=100e6, with_led_chaser=True, **kwargs):
+    def __init__(self, toolchain="vivado", sys_clk_freq=100e6, with_led_chaser=True,
+        with_buttons=False, with_switches=False, **kwargs):
         platform = digilent_zedboard.Platform(toolchain)
 
         assert not (toolchain != "vivado" and kwargs.get("cpu_type", None) == "zynq7000")
@@ -94,18 +96,34 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(
+                platform.request("user_btn_c"),
+                platform.request("user_btn_d"),
+                platform.request("user_btn_l"),
+                platform.request("user_btn_r"),
+                platform.request("user_btn_u"),
+            ))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=digilent_zedboard.Platform, description="LiteX SoC on Zedboard.")
     parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-buttons",  action="store_true", help="Enable Buttons.")
+    parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
     parser.set_defaults(cpu_type="zynq7000")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        toolchain    = args.toolchain,
-        sys_clk_freq = args.sys_clk_freq,
+        toolchain     = args.toolchain,
+        sys_clk_freq  = args.sys_clk_freq,
+        with_buttons  = args.with_buttons,
+        with_switches = args.with_switches,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
