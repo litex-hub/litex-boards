@@ -16,6 +16,7 @@ from litex.soc.cores.clock import Cyclone10LPPLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import W9864G6JT
 from litedram.phy import GENSDRPHY
@@ -46,7 +47,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, with_buttons=False, **kwargs):
         platform = trenz_cyc1000.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -70,16 +71,22 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ----------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("key")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=trenz_cyc1000.Platform, description="LiteX SoC on CYC1000.")
     parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq = args.sys_clk_freq,
+        sys_clk_freq  = args.sys_clk_freq,
+        with_buttons  = args.with_buttons,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
