@@ -4,9 +4,11 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 """Actual board geometry with synthetic logical ABI resources, not device qualification."""
-import importlib
-from types import SimpleNamespace
+
 import unittest
+import importlib
+
+from types import SimpleNamespace
 
 from litedram.phy.usnative.mapping import NativeMapping
 from litedram.phy.usnative.pins import extract_ddr_pins

@@ -7,31 +7,35 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 
-from pathlib import Path
-from copy import copy
 import re
 import shutil
 import subprocess
 
+from copy import copy
+from pathlib import Path
+
 from migen import *
 from migen.genlib.cdc import MultiReg, PulseSynchronizer
 from migen.genlib.resetsync import AsyncResetSynchronizer
-from litex.soc.interconnect import wishbone
-from litex.soc.interconnect.csr import CSRStorage
 
 from litex.gen import *
 
-from litex_boards.platforms import opalkelly_xem8320
+from litex.soc.interconnect import wishbone
+from litex.soc.interconnect.csr import CSRStorage
 
 from litex.soc.cores.clock import *
-from litex.soc.integration.soc import *
-from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import VideoDVIPHY
+from litex.soc.integration.soc import *
+from litex.soc.integration.builder import *
 
 from litedram.modules import MT40A512M16
 from litedram.phy import usddrphy
 
+from litex_boards.platforms import opalkelly_xem8320
+
+
+# Vivado compatibility -----------------------------------------------------------------------------
 
 def _component_idelay_sim_device():
     """Select an IDELAYCTRL enum accepted by the implementation Vivado.
@@ -251,7 +255,8 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if kwargs.get("uart_name", "serial") == "serial":
-            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_uart"
+            if kwargs.get("uart_name", "serial") == "serial":
+                kwargs["uart_name"] = "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on XEM8320", **kwargs)
         if not with_usnative:
             tool = self.crg.idelay_vivado_executable or "not found"
@@ -428,18 +433,27 @@ def main():
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
-    parser.add_target_argument("--with-usnative", action="store_true",            help="Use experimental USNativeDDRPHY (Vivado only).")
-    parser.add_target_argument("--usnative-debug", action="store_true",           help="Include native trace hardware and verbose BIOS calibration.")
-    parser.add_target_argument("--usnative-dma-calibration", action="store_true", help="Explicitly request USNative DMA calibration (automatic for native 256-bit DMA builds).")
-    parser.add_target_argument("--sdram-debug", action="store_true",              help="Enable component-PHY SDRAM calibration diagnostics.")
-    parser.add_target_argument("--vivado", default="vivado", help="Vivado executable for native device queries.")
-    parser.add_target_argument("--usnative-query-cache-dir", default=None, help="Local native query cache directory; never commit cached device data.")
+
+    # PHY and calibration options.
+    parser.add_target_argument("--with-usnative",            action="store_true",              help="Use experimental USNativeDDRPHY (Vivado only).")
+    parser.add_target_argument("--usnative-debug",           action="store_true",              help="Include native trace hardware and verbose BIOS calibration.")
+    parser.add_target_argument("--usnative-dma-calibration", action="store_true",              help="Explicitly request USNative DMA calibration (automatic for native 256-bit DMA builds).")
+    parser.add_target_argument("--sdram-debug",              action="store_true",              help="Enable component-PHY SDRAM calibration diagnostics.")
+
+    # Local Vivado device discovery.
+    parser.add_target_argument("--vivado",                       default="vivado",    help="Vivado executable for native device queries.")
+    parser.add_target_argument("--usnative-query-cache-dir",     default=None,        help="Local native query cache directory; never commit cached device data.")
     parser.add_target_argument("--usnative-query-force-refresh", action="store_true", help="Refresh native device discovery even when a local cache is available.")
-    parser.add_target_argument("--with-dma", action="store_true", help="Include native DMA test engine and BIOS command.")
-    parser.add_target_argument("--dma-data-width", type=int, choices=[128, 256], default=128, help="DMA port width; physical DDR remains x16.")
-    parser.add_target_argument("--with-dma-bank-group-interleaving", action="store_true", help="Use the experimental paired 256-bit bank-group DMA path.")
-    parser.add_target_argument("--overclock", action="store_true",                        help="Allow experimental component 2000 or native 2933.333/3200 MT/s profiles.")
-    parser.add_target_argument("--ddr-rate", choices=["1000", "2000", "2400", "2666.667", "2933.333", "3200"], help="DDR data rate in MT/s; determines controller clock.")
+
+    # Optional DMA traffic testing.
+    parser.add_target_argument("--with-dma",                         action="store_true",                       help="Include native DMA test engine and BIOS command.")
+    parser.add_target_argument("--dma-data-width",                   type=int, choices=[128, 256], default=128, help="DMA port width; physical DDR remains x16.")
+    parser.add_target_argument("--with-dma-bank-group-interleaving", action="store_true",                       help="Use the experimental paired 256-bit bank-group DMA path.")
+
+    # Memory operating rate.
+    parser.add_target_argument("--overclock", action="store_true",                                              help="Allow experimental component 2000 or native 2933.333/3200 MT/s profiles.")
+    parser.add_target_argument("--ddr-rate",  choices=["1000", "2000", "2400", "2666.667", "2933.333", "3200"], help="DDR data rate in MT/s; determines controller clock.")
+
     args = parser.parse_args()
     if args.ddr_rate:
         native_rates = {"2400": 300e6, "2666.667": 1e9/3,
@@ -464,26 +478,26 @@ def main():
     #assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     soc = BaseSoC(
-        sys_clk_freq           = args.sys_clk_freq,
-        toolchain              = args.toolchain,
-        with_usnative          = args.with_usnative,
-        usnative_debug         = args.usnative_debug,
-        usnative_dma_calibration = args.usnative_dma_calibration,
-        sdram_debug            = args.sdram_debug,
-        with_dma               = args.with_dma,
-        dma_data_width         = args.dma_data_width,
+        sys_clk_freq                     = args.sys_clk_freq,
+        toolchain                        = args.toolchain,
+        with_usnative                    = args.with_usnative,
+        usnative_debug                   = args.usnative_debug,
+        usnative_dma_calibration         = args.usnative_dma_calibration,
+        sdram_debug                      = args.sdram_debug,
+        with_dma                         = args.with_dma,
+        dma_data_width                   = args.dma_data_width,
         with_dma_bank_group_interleaving = args.with_dma_bank_group_interleaving,
-        overclock              = args.overclock,
-        usnative_output_dir    = str(Path(args.output_dir or "build/opalkelly_xem8320") / "native"),
-        vivado                 = args.vivado,
-        usnative_query_cache_dir = args.usnative_query_cache_dir,
-        usnative_query_force_refresh = args.usnative_query_force_refresh,
+        overclock                        = args.overclock,
+        usnative_output_dir              = str(Path(args.output_dir or "build/opalkelly_xem8320") / "native"),
+        vivado                           = args.vivado,
+        usnative_query_cache_dir         = args.usnative_query_cache_dir,
+        usnative_query_force_refresh     = args.usnative_query_force_refresh,
         #with_ethernet         = args.with_ethernet,
         #with_etherbone        = args.with_etherbone,
         #eth_ip                = args.eth_ip,
         #eth_dynamic_ip        = args.eth_dynamic_ip,
-        with_video_terminal    = args.with_video_terminal,
-        with_video_framebuffer = args.with_video_framebuffer,
+        with_video_terminal              = args.with_video_terminal,
+        with_video_framebuffer           = args.with_video_framebuffer,
         **parser.soc_argdict
     )
 

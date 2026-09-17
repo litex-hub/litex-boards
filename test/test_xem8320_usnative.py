@@ -4,11 +4,13 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 """Validate component/native DDR options before any Vivado device query."""
+
+import re
 import unittest
 import subprocess
-import re
-from unittest.mock import patch
+
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from migen import Signal
 from litedram.phy import usddrphy
