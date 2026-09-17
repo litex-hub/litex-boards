@@ -31,6 +31,7 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoDVIPHY
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -67,6 +68,7 @@ class BaseSoC(SoCCore):
     def __init__(self, bios_flash_offset, sys_clk_freq=24e6,
         with_led_chaser     = True,
         with_video_terminal = False,
+        with_buttons        = False,
         **kwargs):
         platform = icebreaker.Platform()
         platform.add_extension(icebreaker.break_off_pmod)
@@ -120,6 +122,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+
 # Flash --------------------------------------------------------------------------------------------
 
 def flash(builder, bios_flash_offset):
@@ -146,12 +152,14 @@ def main():
     parser.add_target_argument("--sys-clk-freq",        default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset",   default="0x40000",        help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (with DVI PMOD).")
+    parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable break-off buttons.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         bios_flash_offset   = int(args.bios_flash_offset, 0),
         sys_clk_freq        = args.sys_clk_freq,
         with_video_terminal = args.with_video_terminal,
+        with_buttons        = args.with_buttons,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
