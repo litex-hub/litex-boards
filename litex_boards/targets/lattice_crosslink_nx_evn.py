@@ -23,6 +23,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -66,6 +67,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=75e6, device="LIFCL-40-9BG400C", toolchain="radiant",
         with_led_chaser = True,
         with_spi_flash  = False,
+        with_buttons    = False,
         **kwargs):
         platform = lattice_crosslink_nx_evn.Platform(device=device, toolchain=toolchain)
 
@@ -92,6 +94,10 @@ class BaseSoC(SoCCore):
                 pads         = Cat(*[platform.request("user_led", i) for i in range(14)]),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
             from litespi.modules import MX25L12833F
@@ -110,6 +116,7 @@ def main():
     parser.add_target_argument("--address", default=0x0, type=lambda x: int(x, 0), help="Flash address to program bitstream at.")
     parser.add_target_argument("--prog-target",    default="direct",           help="Programming Target (direct or flash).")
     parser.add_target_argument("--with-spi-flash", action="store_true",        help="Enable memory-mapped SPI flash.")
+    parser.add_target_argument("--with-buttons",   action="store_true",        help="Enable Buttons.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -117,6 +124,7 @@ def main():
         device         = args.device,
         toolchain      = args.toolchain,
         with_spi_flash = args.with_spi_flash,
+        with_buttons   = args.with_buttons,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
