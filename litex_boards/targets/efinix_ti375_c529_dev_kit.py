@@ -20,6 +20,7 @@ from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock.efinix import *
 from litex.soc.cores.bitbang import I2CMaster
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.pwm import PWM
 from litex.soc.cores.ram.efinix_ddr import EfinixDDR, add_efinix_ddr
 
@@ -103,6 +104,7 @@ class BaseSoC(SoCCore):
             ptp_p2p          = False,
             ptp_debug        = False,
             with_ohci        = False,
+            with_buttons     = False,
             **kwargs):
         platform = efinix_ti375_c529_dev_kit.Platform()
 
@@ -125,6 +127,10 @@ class BaseSoC(SoCCore):
             default_width  = 0x800,
             default_period = 0xfff,
         )
+
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn_n")[1:]))
 
         # USB OHCI ---------------------------------------------------------------------------------
         if with_ohci:
@@ -456,6 +462,7 @@ def main():
     parser.add_target_argument("--spi-flash-number", default=0, type=int, choices=[0, 1],             help="SPI Flash number.")
     parser.add_target_argument("--spi-flash-rate",   default="1:2", type=str, choices=["1:1", "1:2"], help="SPI Flash rate.")
     parser.add_target_argument("--with-ohci",        action="store_true",                             help="Enable USB OHCI.")
+    parser.add_target_argument("--with-buttons",     action="store_true",                             help="Enable Buttons.")
     parser.add_target_argument("--with-emmc",        action="store_true",                             help="Enable SDCard support (use eMMC).")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
@@ -480,6 +487,7 @@ def main():
         spi_flash_number = args.spi_flash_number,
         spi_flash_rate   = args.spi_flash_rate,
         with_ohci        = args.with_ohci,
+        with_buttons     = args.with_buttons,
         with_ethernet    = args.with_ethernet,
         with_etherbone   = args.with_etherbone,
         with_ptp         = args.with_ptp,

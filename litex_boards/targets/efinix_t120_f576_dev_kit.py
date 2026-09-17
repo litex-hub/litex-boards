@@ -18,6 +18,7 @@ from litex.build.generic_platform import Pins, Subsignal, IOStandard
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.ram.efinix_ddr import EfinixTrionDDR, add_efinix_trion_ddr
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
@@ -77,6 +78,8 @@ class BaseSoC(SoCCore):
         eth_dynamic_ip  = False,
         with_led_chaser = True,
         with_i2c        = False,
+        with_buttons    = False,
+        with_switches   = False,
         **kwargs):
         platform = efinix_t120_f576_dev_kit.Platform()
 
@@ -108,6 +111,12 @@ class BaseSoC(SoCCore):
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
+
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn_n")[1:]))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
 
         # I2C --------------------------------------------------------------------------------------
         if with_i2c:
@@ -170,6 +179,8 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-i2c",       action="store_true",      help="Enable I2C on PMOD A.")
+    parser.add_target_argument("--with-buttons",   action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",  action="store_true",      help="Enable Switches.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
@@ -184,6 +195,8 @@ def main():
         sys_clk_freq   = args.sys_clk_freq,
         with_spi_flash = args.with_spi_flash,
         with_i2c       = args.with_i2c,
+        with_buttons   = args.with_buttons,
+        with_switches  = args.with_switches,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,
