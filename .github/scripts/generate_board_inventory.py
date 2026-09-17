@@ -28,6 +28,15 @@ FEATURE_OPTIONS = {
     "--with-video-colorbars": "Video Colorbars",
     "--with-usb": "USB",
     "--with-usb-host": "USB Host",
+    "--with-hdmi-terminal": "HDMI Video Terminal",
+    "--with-hdmi-colorbars": "HDMI Video Colorbars",
+    "--with-qspi": "QSPI SPI Master",
+    "--with-i2s-audio": "I2S Audio",
+    "--with-esp32-uart": "ESP32 UART",
+    "--with-usb-acm": "USB CDC-ACM",
+    "--with-cart-gpio": "Cartridge GPIO",
+    "--with-link-gpio": "Link GPIO",
+    "--with-ir": "IR",
 }
 
 
