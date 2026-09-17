@@ -19,6 +19,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT41J256M16
 from litedram.phy import s7ddrphy
@@ -77,6 +78,8 @@ class BaseSoC(SoCCore):
         with_can               = False,
         with_video_terminal    = False,
         with_video_framebuffer = False,
+        with_buttons           = False,
+        with_switches          = False,
         **kwargs):
         platform = digilent_genesys2.Platform(toolchain=toolchain)
 
@@ -123,6 +126,18 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq,
             )
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(
+                platform.request("user_btn_c"),
+                platform.request("user_btn_d"),
+                platform.request("user_btn_l"),
+                platform.request("user_btn_r"),
+                platform.request("user_btn_u"),
+            ))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
         # CAN --------------------------------------------------------------------------------------
         if with_can:
             from litex.soc.cores.can.ctu_can_fd import CTUCANFD
@@ -150,6 +165,8 @@ def main():
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    parser.add_target_argument("--with-buttons",  action="store_true", help="Enable Buttons.")
+    parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -163,6 +180,8 @@ def main():
         with_can               = args.with_can,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+        with_buttons           = args.with_buttons,
+        with_switches          = args.with_switches,
         **parser.soc_argdict
     )
 
