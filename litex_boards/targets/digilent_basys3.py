@@ -17,6 +17,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -38,7 +39,8 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=75e6, with_led_chaser=True, with_video_terminal=False, **kwargs):
+    def __init__(self, sys_clk_freq=75e6, with_led_chaser=True, with_video_terminal=False,
+        with_buttons=False, with_switches=False, **kwargs):
         platform = digilent_basys3.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -59,6 +61,17 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(
+                platform.request("user_btnu"),
+                platform.request("user_btnd"),
+                platform.request("user_btnl"),
+                platform.request("user_btnr"),
+            ))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -71,11 +84,15 @@ def main():
     parser.add_target_argument("--sdcard-adapter",      help="SDCard PMOD adapter (digilent or numato).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal", action="store_true",        help="Enable Video Terminal (VGA).")
+    parser.add_target_argument("--with-buttons",  action="store_true", help="Enable Buttons.")
+    parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
         with_video_terminal = args.with_video_terminal,
+        with_buttons        = args.with_buttons,
+        with_switches       = args.with_switches,
         **parser.soc_argdict
     )
     soc.platform.add_extension(digilent_basys3._sdcard_pmod_io)
