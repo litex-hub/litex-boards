@@ -17,6 +17,7 @@ from litex.soc.integration.builder import *
 
 from litex.soc.cores.clock.efinix import *
 from litex.soc.cores.ram.efinix_ddr import EfinixDDR, add_efinix_ddr
+from litex.soc.cores.gpio import GPIOIn
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -81,6 +82,7 @@ class BaseSoC(SoCCore):
         spi_flash_number = 0,
         spi_flash_rate   = "1:2",
         with_led_chaser  = False,
+        with_buttons     = False,
         **kwargs):
         platform = efinix_tz170_j484_dev_kit.Platform()
 
@@ -127,6 +129,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn_n")[1:]))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -143,6 +149,7 @@ def main():
     parser.add_target_argument("--spi-flash-number", default=0, type=int, choices=[0, 1],             help="SPI Flash number.")
     parser.add_target_argument("--spi-flash-rate",   default="1:2", type=str, choices=["1:1", "1:2"], help="SPI Flash rate.")
     parser.add_target_argument("--with-led-chaser",  action="store_true",                             help="Enable LED Chaser.")
+    parser.add_target_argument("--with-buttons",     action="store_true",                             help="Enable Buttons.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -152,6 +159,7 @@ def main():
         spi_flash_number = args.spi_flash_number,
         spi_flash_rate   = args.spi_flash_rate,
         with_led_chaser  = args.with_led_chaser,
+        with_buttons     = args.with_buttons,
         **parser.soc_argdict)
 
     if args.with_spi_sdcard:
