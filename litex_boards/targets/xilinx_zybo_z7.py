@@ -18,6 +18,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.integration.soc import SoCRegion
 
 from litex.soc.cores import cpu
@@ -42,7 +43,8 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=100e6, variant="z7-10", with_ps7=False, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=100e6, variant="z7-10", with_ps7=False, with_led_chaser=True,
+        with_buttons=False, with_switches=False, **kwargs):
         platform = digilent_zybo_z7.Platform(variant=variant)
         self.builder    = None
         # CRG --------------------------------------------------------------------------------------
@@ -117,6 +119,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -125,12 +133,16 @@ def main():
     parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--variant",      default="z7-10",           help="Board variant (z7-10, z7-20 or original).")
     parser.add_target_argument("--with-ps7",     action="store_true",       help="Add the PS7 as slave for soft CPUs.")
+    parser.add_target_argument("--with-buttons", action="store_true",       help="Enable Buttons.")
+    parser.add_target_argument("--with-switches", action="store_true",      help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
         variant      = args.variant,
         with_ps7     = args.with_ps7,
+        with_buttons  = args.with_buttons,
+        with_switches = args.with_switches,
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
