@@ -17,6 +17,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn
+from litex.soc.cores.led import LedChaser
 
 from liteeth.phy.titaniumrgmii import LiteEthPHYRGMII
 
@@ -67,8 +68,10 @@ class BaseSoC(SoCCore):
         eth_ip         = "192.168.1.50",
         remote_ip      = None,
         eth_dynamic_ip = False,
+        with_led_chaser = True,
         with_buttons   = False,
         with_switches  = False,
+        with_cam_i2c   = False,
         **kwargs):
         platform = efinix_ti60_f225_dev_kit.Platform()
 
@@ -84,11 +87,24 @@ class BaseSoC(SoCCore):
             from litespi.opcodes import SpiNorFlashOpCodes as Codes
             self.add_spi_flash(mode="1x", module=W25Q64JW(Codes.READ_1_1_1), with_master=True)
 
-        # Buttons / Switches -----------------------------------------------------------------------
+        # Leds / Buttons / Switches ---------------------------------------------------------------
+        if with_led_chaser:
+            leds = platform.request_all("user_led")
+            self.leds = LedChaser(
+                pads         = [led.r for led in leds],
+                sys_clk_freq = sys_clk_freq,
+            )
         if with_buttons:
             self.buttons = GPIOIn(Cat(platform.request_all("user_btn_n")[1:]))
         if with_switches:
             self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
+        # Camera I2C ------------------------------------------------------------------------------
+        if with_cam_i2c:
+            from litex.soc.cores.bitbang import I2CMaster
+            cam_i2c = platform.request("cam_i2c")
+            self.cam_i2c = I2CMaster(pads=cam_i2c)
+            self.comb += cam_i2c.reset.eq(1)
 
         # HyperRAM ---------------------------------------------------------------------------------
         if with_hyperram:
@@ -126,6 +142,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=200e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-hyperram",  action="store_true",       help="Enable HyperRAM.")
+    parser.add_target_argument("--with-cam-i2c",   action="store_true",       help="Enable Camera I2C.")
     parser.add_target_argument("--with-buttons",   action="store_true",       help="Enable Buttons.")
     parser.add_target_argument("--with-switches",  action="store_true",       help="Enable Switches.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
@@ -150,8 +167,10 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         eth_phy        = args.eth_phy,
+        with_led_chaser = args.with_led_chaser,
         with_buttons   = args.with_buttons,
         with_switches  = args.with_switches,
+        with_cam_i2c   = args.with_cam_i2c,
          **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
