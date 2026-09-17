@@ -17,6 +17,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT40A256M16
 from litedram.phy import usddrphy
@@ -53,7 +54,8 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, **kwargs):
+    def __init__(self, sys_clk_freq=125e6, with_led_chaser=True,
+        with_buttons=False, with_switches=False, **kwargs):
         platform = xilinx_zcu102.Platform()
 
         # CRG --------------------------------------------------------------------------------------
@@ -82,15 +84,28 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq
             )
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_dip")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=xilinx_zcu102.Platform, description="LiteX SoC on ZCU102.")
     parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock generator.")
+    parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",       action="store_true",      help="Enable Switches.")
     args = parser.parse_args()
 
-    soc = BaseSoC(sys_clk_freq=args.sys_clk_freq, **parser.soc_argdict)
+    soc = BaseSoC(
+        sys_clk_freq  = args.sys_clk_freq,
+        with_buttons  = args.with_buttons,
+        with_switches = args.with_switches,
+        **parser.soc_argdict
+    )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

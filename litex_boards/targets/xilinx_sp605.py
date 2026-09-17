@@ -19,6 +19,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.video import *
 from litex.soc.cores.clock import S6PLL
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 
 from litedram.modules import MT41K64M16
 from litedram.phy import s6ddrphy
@@ -165,6 +166,8 @@ class BaseSoC(SoCCore):
         with_video_colorbars   = False,
         with_video_framebuffer = False,
         with_video_terminal    = False,
+        with_buttons           = False,
+        with_switches          = False,
         **kwargs):
         platform = xilinx_sp605.Platform()
 
@@ -197,6 +200,12 @@ class BaseSoC(SoCCore):
         self.leds = LedChaser(
             pads         = platform.request_all("user_led"),
             sys_clk_freq = sys_clk_freq)
+
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
 
         # Video Terminal ---------------------------------------------------------------------------
         if with_video_colorbars or with_video_framebuffer or with_video_terminal:
@@ -234,6 +243,8 @@ def main():
     parser.add_target_argument("--with-video-terminal",    action="store_true",      help="Enable Video Terminal (DVI).")
     parser.add_target_argument("--with-video-framebuffer", action="store_true",      help="Enable Video Framebuffer (DVI).")
     parser.add_target_argument("--with-video-colorbars",   action="store_true",      help="Enable Video Colorbars (DVI).")
+    parser.add_target_argument("--with-buttons",           action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",          action="store_true",      help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -241,6 +252,8 @@ def main():
         with_video_colorbars   = args.with_video_colorbars,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
+        with_buttons           = args.with_buttons,
+        with_switches          = args.with_switches,
         **parser.soc_argdict
     )
 

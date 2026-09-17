@@ -22,6 +22,7 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litedram.modules import MTA18ASF2G72PZ
 from litedram.phy import usddrphy
 
@@ -67,6 +68,7 @@ class BaseSoC(SoCCore):
         pcie_address_width    = 32,
         with_pcie_dma_status  = False,
         with_pcie_dma_monitor = False,
+        with_switches         = False,
         **kwargs):
         platform = xilinx_alveo_u200.Platform()
 
@@ -112,6 +114,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Switches ---------------------------------------------------------------------------------
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -125,6 +131,7 @@ def main():
     parser.add_target_argument("--pcie-with-dma-status",  action="store_true",        help="Enable PCIe DMA status CSRs.")
     parser.add_target_argument("--pcie-with-dma-monitor", action="store_true",        help="Enable PCIe DMA monitor CSRs.")
     parser.add_target_argument("--driver",                action="store_true",        help="Generate PCIe driver.")
+    parser.add_target_argument("--with-switches",         action="store_true",        help="Enable Switches.")
     args = parser.parse_args()
     if args.pcie_ndmas < 0:
         parser.error("--pcie-ndmas must be >= 0")
@@ -137,6 +144,7 @@ def main():
         pcie_address_width    = args.pcie_address_width,
         with_pcie_dma_status  = args.pcie_with_dma_status,
         with_pcie_dma_monitor = args.pcie_with_dma_monitor,
+        with_switches         = args.with_switches,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
