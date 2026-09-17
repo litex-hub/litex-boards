@@ -21,7 +21,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.spi import SPIMaster
-from litex.soc.cores.gpio import GPIOOut
+from litex.soc.cores.gpio import GPIOIn, GPIOOut
 
 from litedram import modules as litedram_modules
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
@@ -101,6 +101,8 @@ class BaseSoC(SoCCore):
         with_video_framebuffer = False,
         with_spi_flash         = False,
         sdcard_mux             = "esp32",
+        with_buttons           = False,
+        with_switches          = False,
         **kwargs):
         platform = radiona_ulx3s.Platform(device=device, revision=revision, toolchain=toolchain)
 
@@ -149,6 +151,12 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons / Switches -----------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn")))
+        if with_switches:
+            self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
+
     def add_oled(self):
         pads = self.platform.request("oled_spi")
         pads.miso = Signal()
@@ -172,7 +180,9 @@ def main():
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     parser.add_target_argument("--sdcard-mux", default="auto", choices=["auto", "fpga", "esp32", "none"],
         help="Select SDCard connection.")
-    parser.add_target_argument("--with-oled",  action="store_true", help="Enable SDD1331 OLED support.")
+    parser.add_target_argument("--with-oled",     action="store_true", help="Enable SDD1331 OLED support.")
+    parser.add_target_argument("--with-buttons",  action="store_true", help="Enable Buttons.")
+    parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
     parser.add_target_argument("--sdram-rate", default="1:1",       help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
@@ -196,6 +206,8 @@ def main():
         with_video_framebuffer = args.with_video_framebuffer,
         with_spi_flash         = args.with_spi_flash,
         sdcard_mux             = sdcard_mux,
+        with_buttons           = args.with_buttons,
+        with_switches          = args.with_switches,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

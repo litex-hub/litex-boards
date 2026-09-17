@@ -23,6 +23,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
+from litex.soc.cores.gpio import GPIOIn
 from litex.soc.cores.gpio import GPIOTristate
 
 from litedram.modules import MT41K64M16,MT41K128M16,MT41K256M16,MT41K512M16
@@ -90,6 +91,7 @@ class BaseSoC(SoCCore):
         with_spi_flash   = False,
         with_led_chaser  = True,
         with_syzygy_gpio = True,
+        with_buttons     = False,
         **kwargs)       :
         platform = gsd_butterstick.Platform(revision=revision, device=device ,toolchain=toolchain)
 
@@ -147,6 +149,10 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
+        # Buttons ---------------------------------------------------------------------------------
+        if with_buttons:
+            self.buttons = GPIOIn(Cat(platform.request_all("user_btn_n")[1:]))
+
         # GPIOs ------------------------------------------------------------------------------------
         if with_syzygy_gpio:
             platform.add_extension(gsd_butterstick.raw_syzygy_io("SYZYGY0"))
@@ -173,6 +179,7 @@ def main():
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     parser.add_target_argument("--with-syzygy-gpio",    action="store_true",        help="Enable GPIOs through SYZYGY Breakout on Port-A.")
+    parser.add_target_argument("--with-buttons",        action="store_true",        help="Enable Buttons.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -190,6 +197,7 @@ def main():
         eth_dynamic_ip   = args.eth_dynamic_ip,
         with_spi_flash   = args.with_spi_flash,
         with_syzygy_gpio = args.with_syzygy_gpio,
+        with_buttons     = args.with_buttons,
         **parser.soc_argdict)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
