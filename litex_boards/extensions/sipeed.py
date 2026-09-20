@@ -731,6 +731,16 @@ _tang_mega_138k_pro_dock_io = [
         IOStandard("LVCMOS33"),
     ),
     ("ephy_clk", 0, Pins("E18"), IOStandard("LVCMOS33")),
+
+    # AE350 JTAG (J23, same pins as the Gowin ae350_demo reference design).
+    ("ae350_jtag", 0,
+        Subsignal("tms",  Pins("J2:32")),
+        Subsignal("tck",  Pins("J2:30")),
+        Subsignal("trst", Pins("J2:26")),
+        Subsignal("tdo",  Pins("J2:33")),
+        Subsignal("tdi",  Pins("J2:24")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 _tang_mega_138k_pro_dock_connectors = [

@@ -190,6 +190,7 @@ class BaseSoC(SoCCore):
         with_fan_pwm        = True,
         with_buttons        = True,
         dock                = "standard",
+        with_ae350_jtag     = False,
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
         ddr3_nphases = int(ddr3_rate[-1])
@@ -350,6 +351,12 @@ class BaseSoC(SoCCore):
             self.pcie_phy = GW5APCIEPHY(platform, platform.request("pcie"), nlanes=4, cd="sys")
             self.add_pcie(phy=self.pcie_phy, ndmas=1, data_width=256)
 
+        # AE350 JTAG -------------------------------------------------------------------------------
+        if with_ae350_jtag:
+            if with_sdram:
+                raise ValueError("AE350 JTAG and SDR SDRAM share pins on J23 and cannot be enabled together.")
+            self.cpu.connect_jtag(platform.request("ae350_jtag"))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -385,6 +392,7 @@ def main():
     parser.add_target_argument("--without-fan",    action="store_true",     help="Disable Fan PWM.")
     parser.add_target_argument("--without-leds",   action="store_true",     help="Disable LED Chaser.")
     parser.add_target_argument("--without-buttons", action="store_true",    help="Disable Buttons.")
+    parser.add_target_argument("--with-ae350-jtag", action="store_true",    help="Enable AE350 JTAG.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -411,6 +419,7 @@ def main():
         eth_ip              = args.eth_ip,
         remote_ip           = args.remote_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
+        with_ae350_jtag     = args.with_ae350_jtag,
         **parser.soc_argdict
     )
 
