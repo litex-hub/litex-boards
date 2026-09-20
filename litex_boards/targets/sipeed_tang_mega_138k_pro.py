@@ -193,6 +193,7 @@ class BaseSoC(SoCCore):
         with_ae350_jtag     = False,
         with_ae350_leds     = False,
         with_ae350_buttons  = False,
+        with_ae350_uart2    = False,
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
         ddr3_nphases = int(ddr3_rate[-1])
@@ -228,6 +229,8 @@ class BaseSoC(SoCCore):
             with_pcie      = with_pcie,
         )
         # SoCCore ----------------------------------------------------------------------------------
+        if with_ae350_uart2 and kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "stub" # LiteX UART stays, but the serial pads go to the AE350 UART2.
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K Pro", **kwargs)
         if cpu_clk_freq:
             self.add_config("CPU_CLK_FREQ", cpu_clk_freq)
@@ -371,6 +374,10 @@ class BaseSoC(SoCCore):
                 raise ValueError("AE350 JTAG and SDR SDRAM share pins on J23 and cannot be enabled together.")
             self.cpu.connect_jtag(platform.request("ae350_jtag"))
 
+        # AE350 UART2
+        if with_ae350_uart2:
+            self.cpu.connect_uart(2, platform.request("serial"))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -409,6 +416,7 @@ def main():
     parser.add_target_argument("--with-ae350-jtag", action="store_true",    help="Enable AE350 JTAG.")
     parser.add_target_argument("--with-ae350-leds", action="store_true",    help="Use LED1..3 by AE350 GPIO[2:0]).")
     parser.add_target_argument("--with-ae350-buttons", action="store_true", help="Use Button S0..S2 by AE350 GPIO[5:3]).")
+    parser.add_target_argument("--with-ae350-uart2",  action="store_true",  help="Use serial pads by AE350 UART2.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -438,6 +446,7 @@ def main():
         with_ae350_jtag     = args.with_ae350_jtag,
         with_ae350_leds     = args.with_ae350_leds,
         with_ae350_buttons  = args.with_ae350_buttons,
+        with_ae350_uart2    = args.with_ae350_uart2,
         **parser.soc_argdict
     )
 
