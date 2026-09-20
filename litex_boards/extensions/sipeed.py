@@ -658,6 +658,11 @@ _tang_mega_138k_pro_dock_io = [
     ("btn_n", 2,  Pins( "J3:64"), IOStandard("LVCMOS33")),
     ("btn_n", 3,  Pins( "J3:66"), IOStandard("LVCMOS33")),
 
+    # On-board keys
+    ("key", 0, Pins("K16"), IOStandard("LVCMOS33")),
+    ("key", 1, Pins("F15"), IOStandard("LVCMOS33")),
+    ("key", 2, Pins("G15"), IOStandard("LVCMOS33")),
+
     # FAN
     ("fan", 0,
         Subsignal("pwm", Pins("T18")),
