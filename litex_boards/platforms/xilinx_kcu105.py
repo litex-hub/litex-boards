@@ -217,13 +217,7 @@ _io = [
         Subsignal("tx_n",  Pins("AC3 AE3 AG3 AH5 AK5 AL3 AM5 AN3"))
     ),
 
-    # SGMII Clk
-    ("sgmii_clock", 0,
-        Subsignal("p", Pins("P26"), IOStandard("LVDS_25")),
-        Subsignal("n", Pins("N26"), IOStandard("LVDS_25"))
-    ),
-
-    # SGMII Ethernet
+    # SGMII Ethernet (RJ45, over LVDS SelectIO, 625MHz reference clock from the PHY)
     ("eth_clocks", 0,
         Subsignal("p", Pins("P26"), IOStandard("LVDS_25")),
         Subsignal("n", Pins("N26"), IOStandard("LVDS_25"))
@@ -232,10 +226,10 @@ _io = [
         Subsignal("rst_n", Pins("J23"), IOStandard("LVCMOS18")),
         Subsignal("mdio",  Pins("H26"), IOStandard("LVCMOS18")),
         Subsignal("mdc",   Pins("L25"), IOStandard("LVCMOS18")),
-        Subsignal("rx_p",  Pins("P24")),
-        Subsignal("rx_n",  Pins("P25")),
-        Subsignal("tx_p",  Pins("N24")),
-        Subsignal("tx_n",  Pins("M24")),
+        Subsignal("rx_p",  Pins("P24"), IOStandard("DIFF_HSTL_I_18")),
+        Subsignal("rx_n",  Pins("P25"), IOStandard("DIFF_HSTL_I_18")),
+        Subsignal("tx_p",  Pins("N24"), IOStandard("DIFF_HSTL_I_18")),
+        Subsignal("tx_n",  Pins("M24"), IOStandard("DIFF_HSTL_I_18")),
     ),
 
     # SI570
@@ -559,6 +553,7 @@ class Platform(XilinxUSPlatform):
         XilinxUSPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("clk300", loose=True), 1e9/300e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks", loose=True), 1e9/625e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 44]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 45]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 46]")
