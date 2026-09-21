@@ -79,6 +79,7 @@ class BaseSoC(SoCCore):
         with_pcie       = False,
         pcie_lanes      = 4,
         with_sata       = False,
+        with_sdcard     = False,
         with_buttons    = False,
         with_switches   = False,
         **kwargs):
@@ -182,6 +183,10 @@ class BaseSoC(SoCCore):
             # Core
             self.add_sata(phy=self.sata_phy, mode="read+write")
 
+        # SD Card ----------------------------------------------------------------------------------
+        if with_sdcard:
+            self.add_sdcard()
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -218,6 +223,7 @@ def main():
     parser.add_target_argument("--pcie-lanes",     default=4, type=int,     choices=[4, 8], help="PCIe lane count.")
     parser.add_target_argument("--driver",         action="store_true",     help="Generate PCIe driver.")
     parser.add_target_argument("--with-sata",      action="store_true",     help="Enable SATA support (over SFP2SATA).")
+    parser.add_target_argument("--with-sdcard",    action="store_true",     help="Enable SDCard support.")
     parser.add_target_argument("--with-buttons",   action="store_true",     help="Enable Buttons.")
     parser.add_target_argument("--with-switches",  action="store_true",     help="Enable Switches.")
     args = parser.parse_args()
@@ -233,6 +239,7 @@ def main():
         with_pcie      = args.with_pcie,
         pcie_lanes     = args.pcie_lanes,
         with_sata      = args.with_sata,
+        with_sdcard    = args.with_sdcard,
         with_buttons   = args.with_buttons,
         with_switches  = args.with_switches,
         **parser.soc_argdict
