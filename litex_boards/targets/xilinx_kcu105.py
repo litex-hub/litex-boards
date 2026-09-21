@@ -135,7 +135,10 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet,
                     with_timing_constraints = eth_timing_constraints)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip,
+                self.add_ethernet(phy=self.ethphy,
+                    dynamic_ip              = eth_dynamic_ip,
+                    local_ip                = None if eth_dynamic_ip else eth_ip,
+                    remote_ip               = remote_ip,
                     with_timing_constraints = eth_timing_constraints)
 
         # PCIe -------------------------------------------------------------------------------------
