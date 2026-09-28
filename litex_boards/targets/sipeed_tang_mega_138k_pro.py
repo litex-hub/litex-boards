@@ -356,6 +356,8 @@ def main():
     parser.add_target_argument("--with-pcie",      action="store_true",     help="Enable PCIe support.")
     parser.add_target_argument("--with-rgb-led",   action="store_true",     help="Enable WS2812 RGB Led.")
     parser.add_target_argument("--without-fan",    action="store_true",     help="Disable Fan PWM.")
+    parser.add_target_argument("--without-leds",   action="store_true",     help="Disable LED Chaser.")
+    parser.add_target_argument("--without-buttons", action="store_true",    help="Disable Buttons.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -372,6 +374,8 @@ def main():
         with_pcie           = args.with_pcie,
         with_rgb_led        = args.with_rgb_led,
         with_fan_pwm        = not args.without_fan,
+        with_led_chaser     = not args.without_leds,
+        with_buttons        = not args.without_buttons,
         with_ethernet       = args.with_ethernet,
         with_etherbone      = args.with_etherbone,
         eth_phy             = args.eth_phy,
