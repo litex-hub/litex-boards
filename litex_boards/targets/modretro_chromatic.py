@@ -16,6 +16,8 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.cores.video import VideoGowinHDMIPHY, VideoLCDPHY
 from litex.soc.cores.i2saudio import I2SAudio
+from litex.soc.cores.usb2_phy.phy        import USB2PHY
+from litex.soc.cores.usb2_phy.gowin_gw5a import GW5AUSB2PHYCRG
 
 from litex_boards.platforms import modretro_chromatic
 
@@ -35,9 +37,7 @@ class _CRG(LiteXModule):
         clk_fpga = platform.request("clk_fpga")
         self.clk_24 = platform.request("clk_24")
         self.clk_27 = platform.request("clk_27")
-        buttons  = platform.request("buttons")
-        rst_n    = buttons.a
-        self.buttons = buttons
+        self.buttons = platform.request("buttons")
 
         por_count = Signal(16, reset=2**16-1)
         por_done  = Signal()
@@ -48,7 +48,7 @@ class _CRG(LiteXModule):
         self.sync.por += If(~por_done, por_count.eq(por_count - 1))
 
         self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
-        self.comb += pll.reset.eq(~por_done | ~rst_n)
+        self.comb += pll.reset.eq(~por_done | self.rst)
         pll.register_clkin(clk_fpga, 33.55432e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
@@ -72,15 +72,26 @@ class _CRG(LiteXModule):
                 o_CLKOUT   = self.cd_hdmi.clk,
             )
 
-        # USB full-speed clocking: 48MHz I/O and 12MHz protocol from the 24MHz reference.
+        # USB 2.0 clocking: 60MHz UTMI and 960MHz (PHY SerDes) from the 24MHz reference, USB held in
+        # reset (disconnected) for 100ms after the PLL lock.
         if with_usb_acm:
-            self.cd_usb_48 = ClockDomain()
-            self.cd_usb_12 = ClockDomain()
-            self.usb_pll = usb_pll = GW5APLL(devicename=platform.devicename, device=platform.device)
+            self.cd_usb     = ClockDomain()
+            self.cd_usb_960 = ClockDomain(reset_less=True)
+            self.usb_pll = usb_pll = GW5APLL(devicename=platform.devicename, device=platform.device, name="usb_pll")
             self.comb += usb_pll.reset.eq(pll.reset)
             usb_pll.register_clkin(self.clk_24, 24e6)
-            usb_pll.create_clkout(self.cd_usb_48, 48e6, margin=0)
-            usb_pll.create_clkout(self.cd_usb_12, 12e6, margin=0)
+            usb_pll.create_clkout(self.cd_usb_960, 960e6, with_reset=False)
+            usb_pll.create_clkout(self.cd_usb,     60e6,  with_reset=False)
+            usb_pll.add_generated_clock_constraints(platform)
+            self.usb_rst = Signal()
+            usb_startup  = Signal(max=int(0.1*60e6) + 1, reset_less=True)
+            self.sync.usb += If(~usb_pll.locked, usb_startup.eq(0)).Elif(self.usb_rst, usb_startup.eq(usb_startup + 1))
+            self.comb += [
+                self.usb_rst.eq(usb_startup != int(0.1*60e6)),
+                self.cd_usb.rst.eq(self.usb_rst),
+            ]
+            self.usb_phy_crg = usb_phy_crg = GW5AUSB2PHYCRG(cd_utmi="usb", cd_960="usb_960")
+            usb_phy_crg.add_timing_constraints(platform, self.cd_usb, self.cd_usb_960)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -111,7 +122,17 @@ class BaseSoC(SoCCore):
         )
 
         # SoCCore ----------------------------------------------------------------------------------
+        if with_usb_acm:
+            kwargs["with_uart"] = False # UART on USB CDC-ACM.
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ModRetro Chromatic", **kwargs)
+
+        # ESP32 ------------------------------------------------------------------------------------
+        # Normal boot/run (EN/IO0 high): the ESP32 is the system controller of the handheld.
+        esp32_ctrl = platform.request("esp32_ctrl")
+        self.comb += [
+            esp32_ctrl.en.eq(1),
+            esp32_ctrl.io0.eq(1),
+        ]
 
         # Buttons ----------------------------------------------------------------------------------
         if with_buttons:
@@ -236,16 +257,14 @@ class BaseSoC(SoCCore):
         if with_esp32_uart:
             self.add_uart("esp32_uart", uart_name="serial", uart_pads=platform.request("esp32_uart0"))
 
-        # USB CDC-ACM -----------------------------------------------------------------------------
+        # USB CDC-ACM (USB 2.0 soft PHY, High-Speed) ----------------------------------------------
         if with_usb_acm:
-            usb_pads = platform.request("usb")
-            class USBPads:
-                pass
-            usb = USBPads()
-            usb.d_p    = usb_pads.dxp
-            usb.d_n    = usb_pads.dxn
-            usb.pullup = usb_pads.pullup
-            self.add_uart("usb", uart_name="usb_acm", uart_pads=usb)
+            self.usb_phy = usb_phy = USB2PHY(platform.request("usb"),
+                cd_utmi    = "usb",
+                serdes_rst = self.crg.usb_phy_crg.serdes_rst,
+            )
+            self.comb += usb_phy.reset.eq(self.crg.usb_rst)
+            self.add_uart("uart", uart_name="usb_acm", uart_pads=usb_phy)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -266,7 +285,7 @@ def main():
     parser.add_target_argument("--with-qspi",            action="store_true", help="Enable QSPI SPI Master.")
     parser.add_target_argument("--with-i2s-audio",       action="store_true", help="Enable I2S Audio.")
     parser.add_target_argument("--with-esp32-uart",      action="store_true", help="Enable ESP32 UART.")
-    parser.add_target_argument("--with-usb-acm",         action="store_true", help="Enable USB CDC-ACM UART.")
+    parser.add_target_argument("--with-usb-acm",         action="store_true", help="Enable USB CDC-ACM UART (High-Speed, SoC UART).")
     args = parser.parse_args()
 
     soc = BaseSoC(

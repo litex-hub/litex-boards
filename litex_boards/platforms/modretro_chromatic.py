@@ -11,7 +11,7 @@
 # - FPGA (Gowin GW5A-25 family), clocks: 33.55432MHz (CLK_FPGA), 24MHz, 27MHz.
 # - Display interface: 6-bit parallel (DB[5:0]) + DOTCLK/HSYNC/VSYNC/ENABLE + SPI control + TE + PWM backlight.
 # - External memory buses: QSPI + PS_* (CE_N/CLK/DQ[7:0]/DQS).
-# - I/O: Game Boy cartridge bus, link port, IR, USB FS PHY pins, I2C, audio codec pins, ESP32 control/UART pins.
+# - I/O: Game Boy cartridge bus, link port, IR, USB 2.0 soft PHY pins, I2C, audio codec pins, ESP32 control/UART pins.
 #
 
 from migen import *
@@ -169,13 +169,15 @@ _io = [
 
     # USB FS PHY pins.
     ("usb", 0,
-        Subsignal("dxp",     Pins("B11"), IOStandard("LVCMOS33D"), Misc("PULL_MODE=NONE"), Misc("DRIVE=2")),
-        Subsignal("dxn",     Pins("A11"), IOStandard("LVCMOS33D"), Misc("PULL_MODE=NONE"), Misc("DRIVE=2")),
-        Subsignal("rxdp",    Pins("B12"), IOStandard("LVDS25"),    Misc("PULL_MODE=NONE"), Misc("DRIVE=OFF")),
-        Subsignal("rxdn",    Pins("B10"), IOStandard("LVDS25"),    Misc("PULL_MODE=NONE"), Misc("DRIVE=OFF")),
-        Subsignal("pullup",  Pins("B13"), IOStandard("LVCMOS33"),  Misc("PULL_MODE=NONE"), Misc("DRIVE=4")),
-        Subsignal("term_dp", Pins("A13"), IOStandard("LVCMOS33"),  Misc("PULL_MODE=NONE"), Misc("DRIVE=4")),
-        Subsignal("term_dn", Pins("A9"),  IOStandard("LVCMOS33"),  Misc("PULL_MODE=NONE"), Misc("DRIVE=4")),
+        # USB 2.0 soft PHY circuit (see litex.soc.cores.usb2_phy): HS driver/receiver pair, HS level
+        # inputs, FS transceiver (HS terminations) and 1.5K pull-up.
+        Subsignal("d_p",    Pins("B11"), IOStandard("LVCMOS33D"), Misc("PULL_MODE=NONE"), Misc("DRIVE=2")),
+        Subsignal("d_n",    Pins("A11"), IOStandard("LVCMOS33D"), Misc("PULL_MODE=NONE"), Misc("DRIVE=2")),
+        Subsignal("se_dp",  Pins("B12"), IOStandard("LVDS25"),    Misc("PULL_MODE=NONE"), Misc("DRIVE=OFF")),
+        Subsignal("se_dn",  Pins("B10"), IOStandard("LVDS25"),    Misc("PULL_MODE=NONE"), Misc("DRIVE=OFF")),
+        Subsignal("fs_dp",  Pins("A13"), IOStandard("LVCMOS33"),  Misc("PULL_MODE=NONE"), Misc("DRIVE=4")),
+        Subsignal("fs_dn",  Pins("A9"),  IOStandard("LVCMOS33"),  Misc("PULL_MODE=NONE"), Misc("DRIVE=4")),
+        Subsignal("pullup", Pins("B13"), IOStandard("LVCMOS33"),  Misc("PULL_MODE=NONE"), Misc("DRIVE=4")),
     ),
 
     # HDMI pins.
@@ -189,10 +191,13 @@ _io = [
     ),
 
     # Battery ADC pins.
-    ("vbat_adc", 0,
-        Subsignal("p", Pins("P14"), IOStandard("LVCMOS33")),
-        Subsignal("n", Pins("L11"), IOStandard("LVCMOS33")),
+    ("vbat_adc", 0, # Analog (ADC) inputs: no IO standard.
+        Subsignal("p", Pins("P14")),
+        Subsignal("n", Pins("L11")),
     ),
+
+    # SDIO level-shifter enable.
+    ("sdio_ls", 0, Pins("N5"), IOStandard("LVCMOS33")),
 ]
 
 _connectors = []
@@ -203,14 +208,14 @@ class Platform(GowinPlatform):
     default_clk_name   = "clk_fpga"
     default_clk_period = 1e9/33.55432e6  # ns
 
-    def __init__(self, toolchain="gowin", device="GW5A-LV25PG256C1/I0"):
+    def __init__(self, toolchain="gowin", device="GW5A-EV25UG256CC1/I0"):
         GowinPlatform.__init__(
             self,
             device     = device,
             io         = _io,
             connectors = _connectors,
             toolchain  = toolchain,
-            devicename = "GW5A-25",
+            devicename = "GW5A-25A",
         )
 
         # Bitstream generation options.
