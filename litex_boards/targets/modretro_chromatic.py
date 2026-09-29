@@ -17,6 +17,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.cores.video import VideoGowinHDMIPHY, VideoLCDPHY
 from litex.soc.cores.i2saudio import I2SAudio
+from litex.soc.cores.ram.opi_psram import OPIPSRAM
 from litex.soc.cores.usb2_phy.phy        import USB2PHY
 from litex.soc.cores.usb2_phy.gowin_gw5a import GW5AUSB2PHYCRG
 
@@ -24,10 +25,13 @@ from litex_boards.platforms import modretro_chromatic
 
 # CRG ----------------------------------------------------------------------------------------------
 
+PSRAM_CLK_FREQ = 33.55432e6*2
+
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq,
         with_lcd     = False,
         with_hdmi    = False,
+        with_psram   = False,
         with_usb_acm = False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
@@ -66,6 +70,13 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~por_done)
         pll.register_clkin(clk_fpga, 33.55432e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
+
+        # PSRAM clocking: memory clock and 2x SerDes clock.
+        if with_psram:
+            self.cd_psram   = ClockDomain()
+            self.cd_psram2x = ClockDomain()
+            pll.create_clkout(self.cd_psram,   PSRAM_CLK_FREQ)
+            pll.create_clkout(self.cd_psram2x, 2*PSRAM_CLK_FREQ, with_reset=False)
 
         if with_lcd:
             self.cd_lcd = ClockDomain()
@@ -125,6 +136,7 @@ class BaseSoC(SoCCore):
         with_i2s_audio      = False,
         with_esp32_uart     = False,
         with_usb_acm        = False,
+        with_psram          = False,
         **kwargs):
         platform = modretro_chromatic.Platform(toolchain=toolchain)
 
@@ -133,6 +145,7 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq,
             with_lcd     = with_lcd,
             with_hdmi    = with_hdmi_terminal or with_hdmi_colorbars,
+            with_psram   = with_psram,
             with_usb_acm = with_usb_acm,
         )
 
@@ -281,6 +294,35 @@ class BaseSoC(SoCCore):
             self.comb += usb_phy.reset.eq(self.crg.usb_rst)
             self.add_uart("uart", uart_name="usb_acm", uart_pads=usb_phy)
 
+        # PSRAM (APS6408L, 8MB) as main RAM ---------------------------------------------------------
+        if with_psram:
+            self.psram = psram = ClockDomainsRenamer({"sys": "psram", "sys2x": "psram2x"})(OPIPSRAM(
+                pads       = platform.request("ps"),
+                clk_freq   = PSRAM_CLK_FREQ,
+                size       = 8*MEGABYTE,
+                data_width = 32,
+                with_csr   = False,
+            ))
+            self.bus.add_slave("main_ram", psram.bus,
+                region       = SoCRegion(origin=self.mem_map["main_ram"], size=8*MEGABYTE),
+                clock_domain = "psram",
+            )
+            # Status (ready, errors, calibrated read offset, vendor ID/density).
+            core = psram.core
+            self.psram_status = CSRStatus(fields=[
+                CSRField("ready",      size=1, offset= 0),
+                CSRField("init_error", size=1, offset= 1),
+                CSRField("timeout",    size=1, offset= 2),
+                CSRField("underrun",   size=1, offset= 3),
+                CSRField("rx_offset",  size=4, offset= 8),
+                CSRField("vendor_id",  size=5, offset=16),
+                CSRField("density",    size=3, offset=24),
+            ])
+            status = Cat(core.ready, core.init_error, core.timeout, core.underrun,
+                Constant(0, 4), core.rx_offset, Constant(0, 8 - len(core.rx_offset)),
+                core.vendor_id, Constant(0, 3), core.density)
+            self.specials += MultiReg(status, self.psram_status.status)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -301,6 +343,7 @@ def main():
     parser.add_target_argument("--with-i2s-audio",       action="store_true", help="Enable I2S Audio.")
     parser.add_target_argument("--with-esp32-uart",      action="store_true", help="Enable ESP32 UART.")
     parser.add_target_argument("--with-usb-acm",         action="store_true", help="Enable USB CDC-ACM UART (High-Speed, SoC UART).")
+    parser.add_target_argument("--with-psram",           action="store_true", help="Enable PSRAM (8MB) as main RAM.")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -319,6 +362,7 @@ def main():
         with_i2s_audio     = args.with_i2s_audio,
         with_esp32_uart    = args.with_esp32_uart,
         with_usb_acm       = args.with_usb_acm,
+        with_psram         = args.with_psram,
         **parser.soc_argdict
     )
 
