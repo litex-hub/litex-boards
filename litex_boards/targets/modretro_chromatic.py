@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
+from migen.genlib.cdc import MultiReg
 
 from litex.gen import *
 
@@ -39,16 +40,30 @@ class _CRG(LiteXModule):
         self.clk_27 = platform.request("clk_27")
         self.buttons = platform.request("buttons")
 
-        por_count = Signal(16, reset=2**16-1)
-        por_done  = Signal()
+        # Power-on reset, also restarted by a SoC reset request (rst: sys pulse, toggle to por): the
+        # PLLs are held in reset as after power-up.
+        por_count  = Signal(16, reset=2**16-1)
+        por_done   = Signal()
+        rst_toggle = Signal(reset_less=True)
+        rst_por    = Signal()
+        rst_por_d  = Signal()
         self.comb += [
             self.cd_por.clk.eq(clk_fpga),
             por_done.eq(por_count == 0),
         ]
-        self.sync.por += If(~por_done, por_count.eq(por_count - 1))
+        self.sync += If(self.rst, rst_toggle.eq(~rst_toggle))
+        self.specials += MultiReg(rst_toggle, rst_por, "por")
+        self.sync.por += [
+            rst_por_d.eq(rst_por),
+            If(rst_por != rst_por_d,
+                por_count.eq(2**16-1),
+            ).Elif(~por_done,
+                por_count.eq(por_count - 1),
+            ),
+        ]
 
         self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
-        self.comb += pll.reset.eq(~por_done | self.rst)
+        self.comb += pll.reset.eq(~por_done)
         pll.register_clkin(clk_fpga, 33.55432e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
