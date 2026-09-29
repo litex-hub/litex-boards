@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
+from migen.genlib.cdc import MultiReg
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import *
@@ -70,7 +71,21 @@ class _CRG(LiteXModule):
         por_done  = Signal()
         self.comb += self.cd_por.clk.eq(clk50)
         self.comb += por_done.eq(por_count == 0)
-        self.sync.por += If(~por_done, por_count.eq(por_count - 1))
+        # SoC reset request (rst: sys pulse, toggle to por): restart the power-on reset, the PLLs are
+        # held in reset as after power-up (a sys pulse is too short for the GW5A PLLs).
+        rst_toggle = Signal(reset_less=True)
+        rst_por    = Signal()
+        rst_por_d  = Signal()
+        self.sync += If(self.rst, rst_toggle.eq(~rst_toggle))
+        self.specials += MultiReg(rst_toggle, rst_por, "por")
+        self.sync.por += [
+            rst_por_d.eq(rst_por),
+            If(rst_por != rst_por_d,
+                por_count.eq(2**16-1),
+            ).Elif(~por_done,
+                por_count.eq(por_count - 1),
+            ),
+        ]
 
         # PLL.
         self.pll = pll = GW5APLL(devicename=platform.devicename, device=platform.device)
