@@ -39,7 +39,7 @@ _io_vx = [
     # I2C
     ("i2c", 0,
         Subsignal("sda", Pins("A13")),
-        Subsignal("scl", Pins("A11")),
+        Subsignal("scl", Pins("B13")),
         IOStandard("LVCMOS33")
     ),
 
@@ -59,22 +59,14 @@ _io_vx = [
         Subsignal("rst_n", Pins("B5")),
         IOStandard("LVCMOS33")
     ),
-    ("eth", 1,
-        Subsignal("rx_data", Pins("B3 A2"), Misc("PULLMODE=UP")),
-        Subsignal("tx_data", Pins("A4 A3")),
-        Subsignal("tx_en", Pins("R12")),
-        Subsignal("crs_dv", Pins("T13"), Misc("PULLMODE=UP")),
-        Subsignal("rst_n", Pins("T14")),
-        IOStandard("LVCMOS33")
-    ),
 
     # SD card w/ SD-mode interface
     ("sdcard", 0,
-        Subsignal("cd", Pins("A6")),
-        Subsignal("clk", Pins("L3")),
-        Subsignal("cmd", Pins("M1")),
-        Subsignal("data", Pins("L1 M2 M3 L2")),
-        Misc("SLEWRATE=FAST"),
+        Subsignal("cd", Pins("A6"), Misc("PULLMODE=NONE")),
+        Subsignal("clk", Pins("L3"), Misc("PULLMODE=NONE")),
+        Subsignal("cmd", Pins("M1"), Misc("PULLMODE=NONE")),
+        Subsignal("data", Pins("L1 M2 M3 L2"), Misc("PULLMODE=NONE")),
+        #Misc("SLEWRATE=FAST"),
         IOStandard("LVCMOS33")
     ),
 
@@ -106,6 +98,16 @@ _io_v2 = [
     ("serial", 0,
         Subsignal("tx", Pins("B4")),
         Subsignal("rx", Pins("C4")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # ETHERNET (2nd port, on module XA-XD signals only available on ML1 v2).
+    ("eth", 1,
+        Subsignal("rx_data", Pins("B3 A2"), Misc("PULLMODE=UP")),
+        Subsignal("tx_data", Pins("A4 A3")),
+        Subsignal("tx_en", Pins("R12")),
+        Subsignal("crs_dv", Pins("T13"), Misc("PULLMODE=UP")),
+        Subsignal("rst_n", Pins("T14")),
         IOStandard("LVCMOS33")
     ),
 
