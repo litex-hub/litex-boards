@@ -77,7 +77,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `efinix_xyloni_dev_kit` | efinix_xyloni_dev_kit | efinity | `33333000.0` | - | toolchain-gated: Require Efinity toolchain. |
 | `ego1` | ego1 | vivado | `100000000.0` | Video Terminal | included |
 | `embedfire_rise_pro` | embedfire_rise_pro | vivado | `50000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard | included |
-| `enclustra_mercury_kx2` | enclustra_mercury_kx2, enclustra_st1 | vivado | `100000000.0` | - | included |
+| `enclustra_mercury_kx2` | enclustra_mercury_kx2 | vivado | `100000000.0` | - | included |
 | `enclustra_mercury_xu5` | enclustra_mercury_xu5 | vivado | `125000000.0` | - | included |
 | `enclustra_mercury_xu8_pe3` | enclustra_mercury_xu8_pe3 | vivado | `125000000.0` | PCIe | included |
 | `fairwaves_xtrx` | fairwaves_xtrx | vivado | `125000000.0` | PCIe | included |
@@ -169,7 +169,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `qmtech_kintex7_devboard` | qmtech_kintex7_devboard | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `qmtech_wukong` | qmtech_wukong | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, Video Terminal, Video Framebuffer | included |
 | `qmtech_xc7a35t` | qmtech_xc7a35t | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
-| `qmtech_xc7k325t` | qmtech_daughterboard, qmtech_xc7k325t | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer, Video Colorbars | included |
+| `qmtech_xc7k325t` | qmtech_xc7k325t | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `quicklogic_quickfeather` | quicklogic_quickfeather | f4pga | `default` | - | No default clock. |
 | `qwertyembedded_beaglewire` | qwertyembedded_beaglewire | icestorm | `50000000.0` | - | included |
 | `radiona_ulx3s` | radiona_ulx3s | trellis | `50000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |

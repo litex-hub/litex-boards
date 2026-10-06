@@ -11,7 +11,8 @@ from migen import *
 
 from litex.gen import *
 
-from litex_boards.platforms import enclustra_mercury_kx2, enclustra_st1
+from litex_boards.platforms import enclustra_mercury_kx2
+from litex_boards.extensions.enclustra import EnclustraST1
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
@@ -48,8 +49,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=125e6, with_led_chaser=True, with_st1_baseboard=False, **kwargs):
         platform = enclustra_mercury_kx2.Platform()
         if with_st1_baseboard:
-            baseboard = enclustra_st1.EnclustraST1()
-            platform.add_baseboard(baseboard)
+            platform.add_extension(EnclustraST1())
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)

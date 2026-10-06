@@ -6,6 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
+from litex.build.pmod import PmodCAN
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -475,14 +476,7 @@ _connectors = [
 # PMODS --------------------------------------------------------------------------------------------
 
 def can_pmod_io(pmod, n):
-    return [
-        # SN65HVD230 based transceiver on PMOD, https://www.waveshare.com/sn65hvd230-can-board.htm.
-        ("can", n,
-            Subsignal("tx", Pins(f"{pmod}:2")),
-            Subsignal("rx", Pins(f"{pmod}:3")),
-            IOStandard("LVCMOS33"),
-        ),
-    ]
+    return PmodCAN(pmod, number=n).get_io(Xilinx7SeriesPlatform)
 
 # Platform -----------------------------------------------------------------------------------------
 
