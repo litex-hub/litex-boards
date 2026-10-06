@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.pmod import PmodGPIO, PmodUSBUART
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -335,14 +334,6 @@ _connectors = [
     )
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def raw_pmod_io(pmod):
-    return PmodGPIO(pmod).get_io(Xilinx7SeriesPlatform)
-
-def usb_pmod_io(pmod):
-    return PmodUSBUART(pmod).get_io(Xilinx7SeriesPlatform)
-_usb_uart_pmod_io = usb_pmod_io("pmodb") # USB-UART PMOD on JB.
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -361,13 +352,6 @@ class Platform(Xilinx7SeriesPlatform):
 
     def create_programmer(self):
         return OpenOCD("openocd_nexys_video.cfg", "bscan_spi_xc7a200t.bit")
-
-    def do_finalize(self, fragment):
-        Xilinx7SeriesPlatform.do_finalize(self, fragment)
-        try:
-            self.add_period_constraint(self.lookup_request("eth_clocks").rx, 1e9/125e6)
-        except ConstraintError:
-            pass
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
