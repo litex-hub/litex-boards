@@ -11,6 +11,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeiCE40Platform
+from litex.build.pmod import PmodDVI, PmodUSBDevice, Pmod1BitSquaredBreakOff
 from litex.build.lattice.programmer import IceStormProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -64,82 +65,19 @@ _connectors = [
 # Attach to platform using:
 # plat.add_extension(break_off_pmod)
 # pmod_btn = plat.request("user_btn")
-break_off_pmod = [
-     ("user_btn", 0, Pins("PMOD2:6"), IOStandard("LVCMOS33")),
-     ("user_btn", 1, Pins("PMOD2:3"), IOStandard("LVCMOS33")),
-     ("user_btn", 2, Pins("PMOD2:7"), IOStandard("LVCMOS33")),
+break_off_pmod = Pmod1BitSquaredBreakOff("PMOD2").get_io(LatticeiCE40Platform)
 
-     ("user_led", 0, Pins("PMOD2:4"), IOStandard("LVCMOS33")),
-     ("user_led", 1, Pins("PMOD2:0"), IOStandard("LVCMOS33")),
-     ("user_led", 2, Pins("PMOD2:1"), IOStandard("LVCMOS33")),
-     ("user_led", 3, Pins("PMOD2:5"), IOStandard("LVCMOS33")),
-     ("user_led", 4, Pins("PMOD2:2"), IOStandard("LVCMOS33")),
+dvi_pmod = PmodDVI(a="PMOD1A", b="PMOD1B").get_io(LatticeiCE40Platform)
 
-     # Color-specific aliases
-     ("user_ledr", 0, Pins("PMOD2:4"), IOStandard("LVCMOS33")),
-     ("user_ledg", 0, Pins("PMOD2:0"), IOStandard("LVCMOS33")),
-     ("user_ledg", 1, Pins("PMOD2:1"), IOStandard("LVCMOS33")),
-     ("user_ledg", 2, Pins("PMOD2:5"), IOStandard("LVCMOS33")),
-     ("user_ledg", 3, Pins("PMOD2:2"), IOStandard("LVCMOS33"))
-]
+usb_pmod_1a = PmodUSBDevice("PMOD1A").get_io(LatticeiCE40Platform)
 
-dvi_pmod = [
-    ("dvi", 0,
-        Subsignal("clk",   Pins("PMOD1B:1")),
-        Subsignal("de",    Pins("PMOD1B:6")),
-        Subsignal("hsync", Pins("PMOD1B:3")),
-        Subsignal("vsync", Pins("PMOD1B:7")),
-        Subsignal("r",     Pins("PMOD1A:5 PMOD1A:1 PMOD1A:4 PMOD1A:0")),
-        Subsignal("g",     Pins("PMOD1A:7 PMOD1A:3 PMOD1A:6 PMOD1A:2")),
-        Subsignal("b",     Pins("PMOD1B:2 PMOD1B:5 PMOD1B:4 PMOD1B:0")),
-        IOStandard("LVCMOS33"),
-    )
-]
+usb_pmod_1b = PmodUSBDevice("PMOD1B").get_io(LatticeiCE40Platform)
 
-usb_pmod_1a = [
-    ("usb", 0,
-        Subsignal("d_p",    Pins("PMOD1A:2")),
-        Subsignal("d_n",    Pins("PMOD1A:3")),
-        Subsignal("pullup", Pins("PMOD1A:0")),
-        IOStandard("LVCMOS33"),
-    )
-]
+usb_pmod_2 = PmodUSBDevice("PMOD2").get_io(LatticeiCE40Platform)
 
-usb_pmod_1b = [
-    ("usb", 0,
-        Subsignal("d_p",    Pins("PMOD1B:2")),
-        Subsignal("d_n",    Pins("PMOD1B:3")),
-        Subsignal("pullup", Pins("PMOD1B:0")),
-        IOStandard("LVCMOS33"),
-    )
-]
+usb_tnt = PmodUSBDevice("PMOD1B", pins=(3, 2, 1)).get_io(LatticeiCE40Platform)
 
-usb_pmod_2 = [
-    ("usb", 0,
-        Subsignal("d_p",    Pins("PMOD2:2")),
-        Subsignal("d_n",    Pins("PMOD2:3")),
-        Subsignal("pullup", Pins("PMOD2:0")),
-        IOStandard("LVCMOS33"),
-    )
-]
-
-usb_tnt = [
-    ("usb", 0,
-        Subsignal("d_p",    Pins("PMOD1B:3")),
-        Subsignal("d_n",    Pins("PMOD1B:2")),
-        Subsignal("pullup", Pins("PMOD1B:1")),
-        IOStandard("LVCMOS33"),
-    )
-]
-
-usb_kbeckmann = [
-    ("usb", 0,
-        Subsignal("d_p",    Pins("PMOD1B:0")),
-        Subsignal("d_n",    Pins("PMOD1B:1")),
-        Subsignal("pullup", Pins("PMOD1B:2")),
-        IOStandard("LVCMOS33"),
-    )
-]
+usb_kbeckmann = PmodUSBDevice("PMOD1B", pins=(0, 1, 2)).get_io(LatticeiCE40Platform)
 
 # Platform -----------------------------------------------------------------------------------------
 
