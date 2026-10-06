@@ -207,6 +207,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
+    from litex.build.pmod   import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_arty.Platform, description="LiteX SoC on Arty A7.")
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="a7-35",           help="Board variant (a7-35 or a7-100).")
@@ -231,6 +232,7 @@ def main():
     parser.add_target_argument("--with-switches",  action="store_true", help="Enable Switches.")
     parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     parser.add_target_argument("--with-can",       action="store_true", help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     if args.with_etherbone and (args.eth_dynamic_ip or args.eth_dhcp):
@@ -261,6 +263,7 @@ def main():
         soc.platform.add_extension(digilent_arty._numato_sdcard_pmod_io)
     else:
         soc.platform.add_extension(digilent_arty._sdcard_pmod_io)
+    add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
