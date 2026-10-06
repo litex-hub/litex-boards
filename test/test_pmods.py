@@ -75,7 +75,11 @@ class TestPmods(unittest.TestCase):
         for host, conn in _hosts:
             for module, cls in pmod.pmods.items():
                 with self.subTest(host=host, module=module):
-                    platform  = _platform(host)
+                    try:
+                        platform = _platform(host)
+                    except OSError as e:
+                        # Some vendor platforms (ex: Efinix) require their toolchain to be created.
+                        self.skipTest(f"{host}: {e}".splitlines()[0])
                     extension = cls(conn)
                     platform.add_extension(extension)
                     for name, number, *_ in extension.get_io(platform):
