@@ -147,8 +147,8 @@ class Platform(Xilinx7SeriesPlatform):
 
     def __init__(self, toolchain="vivado"):
         device = "xc7k325tffg676-1"
-        io = _io
-        connectors = _connectors
+        io = list(_io)
+        connectors = list(_connectors)
 
         Xilinx7SeriesPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
 

@@ -344,8 +344,11 @@ class Platform(GowinPlatform):
 
     def __init__(self, dock="neo", toolchain="gowin"):
         GowinPlatform.__init__(self, "GW5AST-LV138PG484AC1/I0", _io, _connectors, toolchain=toolchain, devicename="GW5AST-138B")
-        self.add_extension(_neo_dock_io)
-        self.add_connector(_neo_dock_connectors)
+        if dock == "neo":
+            self.add_extension(_neo_dock_io)
+            self.add_connector(_neo_dock_connectors)
+        elif dock is not None:
+            raise ValueError(f"Unsupported dock {dock}, supported: neo or None (SoM only).")
 
         self.toolchain.options["use_ready_as_gpio"] = 1
         self.toolchain.options["use_done_as_gpio"]  = 1

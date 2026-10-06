@@ -228,7 +228,7 @@ class Platform(Xilinx7SeriesPlatform):
         if speedgrade not in [-1,-2]:
             raise ValueError(f"Speedgrade {speedgrade} unsupported.")
         # Create IOs and extend to with board's revision specific IOs.
-        io = _io_common
+        io = list(_io_common)
         io.extend({
             1 : _io_v1,
             2 : _io_v2,

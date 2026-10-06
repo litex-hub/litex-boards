@@ -27,7 +27,6 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.gpio import GPIOTristate
 from litex.soc.cores.video import VideoHDMIPHY
 
 from litedram.common import PHYPadsReducer
@@ -125,7 +124,6 @@ class BaseSoC(SoCCore):
         eth_dynamic_ip         = False,
         with_spi_flash         = False,
         with_led_chaser        = True,
-        with_syzygy_gpio       = False,
         **kwargs)       :
         platform = radiona_ulx4m_ld_v2.Platform(revision=revision, device=device, toolchain=toolchain)
 
@@ -198,11 +196,6 @@ class BaseSoC(SoCCore):
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
 
-        # GPIOs ------------------------------------------------------------------------------------
-        if with_syzygy_gpio:
-            platform.add_extension(ulx4m_ld_v2.raw_syzygy_io("SYZYGY0"))
-            self.submodules.gpio = GPIOTristate(platform.request("SYZYGY0"))
-
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -229,10 +222,6 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-
-    # Connectors.
-    parser.add_target_argument("--with-syzygy-gpio", action="store_true",
-        help="Enable GPIOs through the SYZYGY breakout on Port A.")
 
     # Video.
     viopts = parser.target_group.add_mutually_exclusive_group()
@@ -261,7 +250,6 @@ def main():
         with_video_colorbars   = args.with_video_colorbars,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,
-        with_syzygy_gpio       = args.with_syzygy_gpio,
         **parser.soc_argdict)
 
     if args.with_spi_sdcard:

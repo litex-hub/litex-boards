@@ -147,8 +147,8 @@ class Platform(Xilinx7SeriesPlatform):
 
     def __init__(self, toolchain="vivado", with_daughterboard=False, with_core_resources=True):
         device = "xc7a35tftg256-1"
-        io = _io
-        connectors = _connectors
+        io = list(_io)
+        connectors = list(_connectors)
 
         if with_daughterboard:
             from litex_boards.platforms.qmtech_daughterboard import QMTechDaughterboard
