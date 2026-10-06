@@ -72,13 +72,23 @@ class TestExtensions(unittest.TestCase):
 
     def test_sipeed_docks(self):
         for board in ["sipeed_tang_primer_20k", "sipeed_tang_primer_25k", "sipeed_tang_mega_138k",
-                      "sipeed_tang_mega_138k_pro"]:
+                      "sipeed_tang_mega_138k_pro", "sipeed_tang_mega_60k"]:
             docks = importlib.import_module(f"litex_boards.platforms.{board}").docks
             for dock in [None, *docks]:
                 with self.subTest(board=board, dock=dock):
                     _request_all(_platform(board, dock=dock))
             with self.assertRaises(ValueError):
                 _platform(board, dock="unknown")
+
+    def test_enclustra_xu8_module_connectors(self):
+        # XU8 module connectors are described as Mercury+ A/B/C connectors, so baseboard extensions
+        # written against them (ex: ST1) can be plugged (ST1's I2C uses A:115, not defined on XU8).
+        from litex_boards.extensions.enclustra import EnclustraST1
+        platform = _platform("enclustra_mercury_xu8_pe3")
+        platform.add_extension(EnclustraST1(), prepend=True)
+        for name, number in [("user_led", 0), ("hdmi", 0), ("sfp_tx", 0)]:
+            platform.request(name, number)
+        platform.constraint_manager.get_sig_constraints()
 
     def test_sipeed_sdram_modules(self):
         from litex_boards.platforms import sipeed_tang_primer_25k

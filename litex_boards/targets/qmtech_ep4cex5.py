@@ -95,7 +95,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = "LiteX SoC on QMTECH EP4CE15" + (" + Daughterboard" if with_daughterboard else ""),
+            ident = f"LiteX SoC on QMTECH {variant.upper()}" + (" + Daughterboard" if with_daughterboard else ""),
             **kwargs
         )
 

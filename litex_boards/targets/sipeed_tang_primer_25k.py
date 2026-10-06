@@ -101,9 +101,13 @@ class BaseSoC(SoCCore):
         sdram_model     = "sipeed",
         sdram_rate      = "1:2",
         with_usb_acm    = False,
+        dock            = "standard",
         **kwargs):
 
-        platform = sipeed_tang_primer_25k.Platform(toolchain=toolchain)
+        platform = sipeed_tang_primer_25k.Platform(dock=dock, toolchain=toolchain)
+        if dock is None:
+            with_led_chaser = False # LEDs/Buttons/Serial/USB are on the dock.
+            with_buttons    = False
 
         assert not with_sdram or (sdram_model in ["sipeed", "mister"])
 
@@ -170,6 +174,7 @@ def main():
     parser.add_target_argument("--flash",            action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--prog-kit",         default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--sys-clk-freq",     default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--dock",             default="standard",       choices=[*sipeed_tang_primer_25k.docks, "none"], help="Dock (standard or none for SoM only).")
     parser.add_target_argument("--with-spi-flash",   action="store_true",      help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-sdram",       action="store_true",      help="Enable optional SDRAM module.")
     parser.add_target_argument("--with-usb-acm",     action="store_true",      help="Enable USB CDC-ACM UART.")
@@ -183,6 +188,7 @@ def main():
     soc = BaseSoC(
         toolchain      = args.toolchain,
         sys_clk_freq   = args.sys_clk_freq,
+        dock           = None if args.dock == "none" else args.dock,
         with_spi_flash = args.with_spi_flash,
         with_sdram     = args.with_sdram,
         sdram_model    = args.sdram_model,

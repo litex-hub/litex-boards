@@ -209,11 +209,14 @@ class BaseSoC(SoCCore):
         with_ch569_gpio        = False,
         with_spi_sdcard        = False,
         with_sdcard            = False,
+        dock                   = "neo",
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
         ddr3_nphases = int(ddr3_rate[-1])
 
-        platform = sipeed_tang_mega_138k.Platform(toolchain="gowin")
+        platform = sipeed_tang_mega_138k.Platform(dock=dock, toolchain="gowin")
+        if dock is None:
+            with_buttons = False # Buttons are on the dock.
 
         # Memory configuration ---------------------------------------------------------------------
         integrated_main_ram_size = kwargs.get("integrated_main_ram_size", 0)
@@ -362,6 +365,7 @@ def main():
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--prog-kit",       default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--dock",           default="neo",            choices=[*sipeed_tang_mega_138k.docks, "none"], help="Dock (neo or none for SoM only).")
 
     # Memory.
     parser.add_target_argument("--without-ddr3",   action="store_true", help="Disable DDR3 SDRAM.")
@@ -405,6 +409,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq           = args.sys_clk_freq,
+        dock                   = None if args.dock == "none" else args.dock,
         with_video_colorbars   = args.with_video_colorbars,
         with_video_terminal    = args.with_video_terminal,
         with_video_framebuffer = args.with_video_framebuffer,

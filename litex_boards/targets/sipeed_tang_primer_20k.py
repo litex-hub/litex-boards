@@ -118,12 +118,12 @@ class BaseSoC(SoCCore):
         dock                = "standard",
         **kwargs):
 
-        assert dock in ["standard", "lite"]
-
         platform = sipeed_tang_primer_20k.Platform(dock, toolchain=toolchain)
 
-        if dock == "lite":
+        if dock != "standard":
             with_led_chaser = False # No leds on core board nor on dock lite.
+        if dock is None:
+            with_buttons    = False # No buttons on core board.
 
         # CRG --------------------------------------------------------------------------------------
         with_video = with_video_terminal or with_lcd_terminal or with_lcd_colorbars
@@ -224,7 +224,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=sipeed_tang_primer_20k.Platform, description="LiteX SoC on Tang Primer 20K.")
-    parser.add_target_argument("--dock",         default="standard",       help="Dock version (standard (default) or lite.")
+    parser.add_target_argument("--dock",         default="standard",       choices=[*sipeed_tang_primer_20k.docks, "none"], help="Dock (standard, lite or none for SoM only).")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--prog-kit",     default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--sys-clk-freq", default=48e6, type=float, help="System clock frequency.")
@@ -257,7 +257,7 @@ def main():
         eth_ip              = args.eth_ip,
         remote_ip           = args.remote_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
-        dock                = args.dock,
+        dock                = None if args.dock == "none" else args.dock,
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:

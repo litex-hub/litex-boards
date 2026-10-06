@@ -5,10 +5,11 @@
 
 """SDRAM modules plugged on 40-pin headers (as on Sipeed Tang boards/docks).
 
-IOs use Gowin specific Misc constraints (these modules are currently only used on Gowin boards).
+IOStandard is the platform's 3.3V default; Misc constraints are Gowin specific (these modules are
+currently only used on Gowin boards).
 """
 
-from litex.build.generic_platform import Subsignal, Pins, IOStandard, Misc
+from litex.build.generic_platform import Subsignal, Pins, Misc
 from litex.build.extension import Extension
 
 # MiSTer SDRAM -------------------------------------------------------------------------------------
@@ -20,7 +21,7 @@ class MiSTerSDRAM(Extension):
     def define_io(self, platform):
         return [
             ("sdram_clock", 0, Pins("conn:20"),
-                IOStandard("LVCMOS33"),
+                *self.iostandard(platform),
                 Misc("PULL_MODE=NONE DRIVE=16"),
             ),
             ("sdram", 0,
@@ -37,7 +38,7 @@ class MiSTerSDRAM(Extension):
                 Subsignal("cs_n",  Pins("conn:33")),
                 Subsignal("ras_n", Pins("conn:32")),
                 Subsignal("we_n",  Pins("conn:27")),
-                IOStandard("LVCMOS33"),
+                *self.iostandard(platform),
             ),
         ]
 
@@ -50,7 +51,7 @@ class SipeedSDRAM(Extension):
     def define_io(self, platform):
         return [
             ("sdram_clock", 0, Pins("conn:20"),
-                IOStandard("LVCMOS33"),
+                *self.iostandard(platform),
                 Misc("PULL_MODE=NONE DRIVE=16"),
             ),
             ("sdram", 0,
@@ -68,6 +69,6 @@ class SipeedSDRAM(Extension):
                 Subsignal("ras_n", Pins("conn:32")),
                 Subsignal("we_n",  Pins("conn:27")),
                 Subsignal("dm",    Pins("conn:29 conn:30")),
-                IOStandard("LVCMOS33"),
+                *self.iostandard(platform),
             ),
         ]
