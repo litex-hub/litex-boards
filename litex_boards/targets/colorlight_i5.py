@@ -172,6 +172,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
+    from litex.build.pmod   import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=colorlight_i5.Platform, description="LiteX SoC on Colorlight I5.")
     parser.add_target_argument("--board",        default="i5",             help="Board type (i5).")
     parser.add_target_argument("--revision",     default="7.0",            help="Board revision (7.0).")
@@ -191,6 +192,7 @@ def main():
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(board=args.board, revision=args.revision,
@@ -209,6 +211,7 @@ def main():
         **parser.soc_argdict
     )
     soc.platform.add_extension(colorlight_i5._sdcard_pmod_io)
+    add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

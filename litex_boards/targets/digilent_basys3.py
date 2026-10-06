@@ -76,6 +76,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
+    from litex.build.pmod   import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_basys3.Platform, description="LiteX SoC on Basys3.")
     parser.add_target_argument("--sys-clk-freq",        default=75e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
@@ -86,6 +87,7 @@ def main():
     viopts.add_argument("--with-video-terminal", action="store_true",        help="Enable Video Terminal (VGA).")
     parser.add_target_argument("--with-buttons",  action="store_true", help="Enable Buttons.")
     parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -95,7 +97,12 @@ def main():
         with_switches       = args.with_switches,
         **parser.soc_argdict
     )
-    soc.platform.add_extension(digilent_basys3._sdcard_pmod_io)
+    if args.sdcard_adapter == "numato":
+        from litex.build.pmod import PmodNumatoSDCard
+        soc.platform.add_extension(PmodNumatoSDCard("pmoda"))
+    else:
+        soc.platform.add_extension(digilent_basys3._sdcard_pmod_io)
+    add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:
