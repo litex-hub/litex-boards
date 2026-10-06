@@ -146,6 +146,7 @@ _connectors = [
         "R16",   # 40 RASP_IO21
     ),
 
+    # PMOD with physical pin numbering (legacy), see pmoda for canonical Pmod numbering.
     ("PMOD",
         "None",  # (no pin 0)
         "C6",    #  1
@@ -161,6 +162,8 @@ _connectors = [
         "None",  # 11 GND
         "None",  # 12 VCCIO0
     ),
+    # PMOD with canonical numbering (0-3: pins 1-4, 4-7: pins 7-10), compatible with litex.build.pmod.
+    ("pmoda", "PMOD:1 PMOD:2 PMOD:3 PMOD:4 PMOD:7 PMOD:8 PMOD:9 PMOD:10"),
 ]
 
 # Platform -----------------------------------------------------------------------------------------

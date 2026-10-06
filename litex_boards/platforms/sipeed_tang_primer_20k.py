@@ -9,6 +9,7 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
+from litex.build.extension import IOExtension
 from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
@@ -268,6 +269,13 @@ _dock_lite_connectors = [
     })
 ]
 
+# Docks --------------------------------------------------------------------------------------------
+
+docks = {
+    "standard" : IOExtension(io=_dock_io, slots={}),
+    "lite"     : IOExtension(io=_dock_lite_io, connectors=_dock_lite_connectors, slots={}),
+}
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(GowinPlatform):
@@ -277,9 +285,10 @@ class Platform(GowinPlatform):
     def __init__(self, dock="standard", toolchain="gowin"):
 
         GowinPlatform.__init__(self, "GW2A-LV18PG256C8/I7", _io, _connectors, toolchain=toolchain, devicename="GW2A-18C")
-        self.add_extension(_dock_io if dock == "standard" else _dock_lite_io)
-        if dock == "lite":
-            self.add_connector(_dock_lite_connectors)
+        if dock is not None:
+            if dock not in docks:
+                raise ValueError(f"Unsupported dock {dock}, supported: {', '.join(docks)} or None (SoM only).")
+            self.add_extension(docks[dock])
 
         self.toolchain.options["use_mspi_as_gpio"]  = 1
         self.toolchain.options["use_sspi_as_gpio"]  = 1
