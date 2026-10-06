@@ -66,7 +66,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, toolchain="vivado", kgates=100, sys_clk_freq=100e6, with_daughterboard=False,
+    def __init__(self, toolchain="vivado", kgates=100, sys_clk_freq=100e6, with_daughterboard=False, with_rp2040_daughterboard=False,
         with_ethernet          = False,
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
@@ -77,7 +77,11 @@ class BaseSoC(SoCCore):
         with_video_framebuffer = False,
         with_spi_flash         = False,
         **kwargs):
-        platform = qmtech_artix7_fgg676.Platform(kgates=kgates, toolchain=toolchain, with_daughterboard=with_daughterboard)
+        assert not (with_daughterboard and with_rp2040_daughterboard)
+        platform = qmtech_artix7_fgg676.Platform(kgates=kgates, toolchain=toolchain,
+            with_daughterboard        = with_daughterboard,
+            with_rp2040_daughterboard = with_rp2040_daughterboard,
+        )
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq,
@@ -89,7 +93,7 @@ class BaseSoC(SoCCore):
         if (kwargs["uart_name"] == "serial") and (not with_daughterboard):
             if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "gpio_serial"
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident = f"LiteX SoC on QMTech XC7A{kgates}T" + (" + Daughterboard" if with_daughterboard else ""),
+            ident = f"LiteX SoC on QMTech XC7A{kgates}T" + (" + Daughterboard" if with_daughterboard else "") + (" + RP2040 Daughterboard" if with_rp2040_daughterboard else ""),
             **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
@@ -144,9 +148,10 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=qmtech_artix7_fgg676.Platform, description="LiteX SoC on QMTech XC7AXXXT.")
-    parser.add_target_argument("--kgates",             default=100, type=int,     help="Number of kgates. Allowed values: 75, 100, 200, representing XC7A75T, XC7A100T and XC7A200T")
-    parser.add_target_argument("--sys-clk-freq",       default=100e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-daughterboard", action="store_true",       help="Board plugged into the QMTech daughterboard.")
+    parser.add_target_argument("--kgates",                    default=100, type=int,     help="Number of kgates. Allowed values: 75, 100, 200, representing XC7A75T, XC7A100T and XC7A200T")
+    parser.add_target_argument("--sys-clk-freq",              default=100e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-daughterboard",        action="store_true",       help="Board plugged into the QMTech daughterboard.")
+    parser.add_target_argument("--with-rp2040-daughterboard", action="store_true",       help="Board plugged into the QMTech RP2040 daughterboard.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
@@ -163,18 +168,19 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(
-        toolchain              = args.toolchain,
-        kgates                 = args.kgates,
-        sys_clk_freq           = args.sys_clk_freq,
-        with_daughterboard     = args.with_daughterboard,
-        with_ethernet          = args.with_ethernet,
-        with_etherbone         = args.with_etherbone,
-        eth_ip                 = args.eth_ip,
-        remote_ip              = args.remote_ip,
-        eth_dynamic_ip         = args.eth_dynamic_ip,
-        with_spi_flash         = args.with_spi_flash,
-        with_video_terminal    = args.with_video_terminal,
-        with_video_framebuffer = args.with_video_framebuffer,
+        toolchain                 = args.toolchain,
+        kgates                    = args.kgates,
+        sys_clk_freq              = args.sys_clk_freq,
+        with_daughterboard        = args.with_daughterboard,
+        with_rp2040_daughterboard = args.with_rp2040_daughterboard,
+        with_ethernet             = args.with_ethernet,
+        with_etherbone            = args.with_etherbone,
+        eth_ip                    = args.eth_ip,
+        remote_ip                 = args.remote_ip,
+        eth_dynamic_ip            = args.eth_dynamic_ip,
+        with_spi_flash            = args.with_spi_flash,
+        with_video_terminal       = args.with_video_terminal,
+        with_video_framebuffer    = args.with_video_framebuffer,
         **parser.soc_argdict
     )
 

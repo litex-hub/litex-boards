@@ -189,11 +189,15 @@ class BaseSoC(SoCCore):
         with_rgb_led        = False,
         with_fan_pwm        = True,
         with_buttons        = True,
+        dock                = "standard",
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
         ddr3_nphases = int(ddr3_rate[-1])
 
-        platform = sipeed_tang_mega_138k_pro.Platform(toolchain="gowin")
+        platform = sipeed_tang_mega_138k_pro.Platform(dock=dock, toolchain="gowin")
+        if dock is None:
+            with_buttons = False # Buttons/Fan are on the dock.
+            with_fan_pwm = False
 
         # Memory configuration ---------------------------------------------------------------------
         integrated_main_ram_size = kwargs.get("integrated_main_ram_size", 0)
@@ -347,6 +351,7 @@ def main():
     parser.add_target_argument("--flash",               action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--prog-kit",            default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
     parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--dock",                default="standard",       choices=[*sipeed_tang_mega_138k_pro.docks, "none"], help="Dock (standard or none for SoM only).")
     parser.add_target_argument("--with-sdram",          action="store_true",      help="Use the optional SDRAM module instead of DDR3.")
     parser.add_target_argument("--sdram-model",         default="sipeed",
         choices=[
@@ -379,6 +384,7 @@ def main():
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
+        dock                = None if args.dock == "none" else args.dock,
         with_video_terminal = args.with_video_terminal,
         with_hdmi_out_terminal  = args.with_hdmi_out_terminal,
         with_hdmi_out_colorbars = args.with_hdmi_out_colorbars,
