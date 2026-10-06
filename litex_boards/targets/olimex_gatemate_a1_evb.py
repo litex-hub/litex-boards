@@ -17,7 +17,6 @@ from litex.soc.cores.clock.colognechip import GateMatePLL
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 
-from litex.build.generic_platform import Pins
 
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.video import VideoVGAPHY
@@ -89,21 +88,8 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            from litex.build.generic_platform import Subsignal
-            def eth_lan8720_rmii_pmod_io(pmod):
-                # Lan8720 RMII PHY "PMOD": To be used as a PMOD, MDIO should be disconnected and TX1 connected to PMOD8 IO.
-                return [
-                    ("eth_rmii_clocks", 0,
-                        Subsignal("ref_clk", Pins(f"{pmod}:6")),
-                    ),
-                    ("eth_rmii", 0,
-                        Subsignal("rx_data", Pins(f"{pmod}:5 {pmod}:1")),
-                        Subsignal("crs_dv",  Pins(f"{pmod}:2")),
-                        Subsignal("tx_en",   Pins(f"{pmod}:4")),
-                        Subsignal("tx_data", Pins(f"{pmod}:0 {pmod}:7")),
-                    ),
-                ]
-            platform.add_extension(eth_lan8720_rmii_pmod_io("PMOD"))
+            from litex.build.pmod import PmodLAN8720
+            platform.add_extension(PmodLAN8720("PMOD"))
 
             from liteeth.phy.rmii import LiteEthPHYRMII
             self.ethphy = LiteEthPHYRMII(

@@ -7,6 +7,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.efinix.platform import EfinixPlatform
+from litex.build.pmod import PmodGPIO, PmodI2C, PmodUSBUART
 from litex.build.efinix import EfinixProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -158,26 +159,13 @@ _connectors = [
 # PMODS --------------------------------------------------------------------------------------------
 
 def raw_pmod_io(pmod):
-    return [(pmod, 0, Pins(" ".join([f"{pmod}:{i:d}" for i in range(8)])), IOStandard("3.3_V_LVTTL_/_LVCMOS"))]
+    return PmodGPIO(pmod).get_io(EfinixPlatform)
 
 def usb_pmod_io(pmod):
-    return [
-        # USB-UART PMOD: https://store.digilentinc.com/pmod-usbuart-usb-to-uart-interface/
-        ("usb_uart", 0,
-            Subsignal("tx", Pins(f"{pmod}:1")),
-            Subsignal("rx", Pins(f"{pmod}:2")),
-            IOStandard("3.3_V_LVTTL_/_LVCMOS")
-        ),
-    ]
+    return PmodUSBUART(pmod).get_io(EfinixPlatform)
 
 def i2c_pmod_io(pmod):
-    return [
-        ("i2c", 0,
-            Subsignal("sda", Pins(f"{pmod}:0")),
-            Subsignal("scl", Pins(f"{pmod}:1")),
-            IOStandard("3.3_V_LVTTL_/_LVCMOS"),
-        ),
-    ]
+    return PmodI2C(pmod).get_io(EfinixPlatform)
 
 # DDR Configuration --------------------------------------------------------------------------------
 
