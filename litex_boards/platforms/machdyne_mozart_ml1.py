@@ -133,8 +133,8 @@ class Platform(LatticeECP5Platform):
         assert device in ["12F", "25F", "45F", "85F"]
         self.revision = revision
 
-        io = _io_vx
-        connectors = _connectors_vx
+        io = list(_io_vx)
+        connectors = list(_connectors_vx)
 
         if revision == "v0": io += _io_v0
         if revision == "v1": io += _io_v0
