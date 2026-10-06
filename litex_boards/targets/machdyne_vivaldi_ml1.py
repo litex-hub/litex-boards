@@ -169,16 +169,18 @@ class BaseSoC(SoCCore):
                 local_ip   = None if eth_dynamic_ip else eth_ip,
                 remote_ip  = remote_ip)
 
-            self.ethphy1 = LiteEthPHYRMII(
-                clock_pads=None,
-                pads = platform.request("eth", 1),
-                with_hw_init_reset=True,
-                refclk_cd="eth")
-            self.csr.add("ethphy1")
-            self.add_ethernet(
-                name   = "ethmac1",
-                phy    = self.ethphy1,
-                phy_cd = "ethphy1_eth")
+            # 2nd Ethernet port only available with ML1 v2.
+            if platform.revision == "v2":
+                self.ethphy1 = LiteEthPHYRMII(
+                    clock_pads=None,
+                    pads = platform.request("eth", 1),
+                    with_hw_init_reset=True,
+                    refclk_cd="eth")
+                self.csr.add("ethphy1")
+                self.add_ethernet(
+                    name   = "ethmac1",
+                    phy    = self.ethphy1,
+                    phy_cd = "ethphy1_eth")
 
 # Build --------------------------------------------------------------------------------------------
 
