@@ -153,8 +153,8 @@ class Platform(Xilinx7SeriesPlatform):
 
     def __init__(self, toolchain="vivado", with_daughterboard=False, with_core_resources=True):
         device = "xc7k325tffg676-1"
-        io = _io
-        connectors = _connectors
+        io = list(_io)
+        connectors = list(_connectors)
 
         if with_daughterboard:
             io += self.core_resources_daughterboard

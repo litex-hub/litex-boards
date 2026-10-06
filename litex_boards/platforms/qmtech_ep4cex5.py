@@ -140,8 +140,8 @@ class Platform(AlteraPlatform):
             "ep4ce15": "EP4CE15F23C8",
             "ep4ce55": "EP4CE55F23C8"
         }[variant]
-        io = _io
-        connectors = _connectors
+        io = list(_io)
+        connectors = list(_connectors)
 
         if with_daughterboard:
             from litex_boards.platforms.qmtech_daughterboard import QMTechDaughterboard

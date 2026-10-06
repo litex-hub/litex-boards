@@ -116,14 +116,14 @@ _usb_uart_pmod_io = usb_pmod_io("pmod0") # USB-UART PMOD on JB.
 def i2s_pmod_io(pmod):
     return [
         # I2S PMOD: https://store.digilentinc.com/pmod-i2s2-stereo-audio-input-and-output/
-        ("i2s_rx_mclk", 0, Pins(f"{pmod}:4"), IOStandard("LVCMOS33")),
+        ("i2s_rx_mclk", 0, Pins(f"{pmod}:4"), IOStandard("LVCMOS18")),
         ("i2s_rx", 0,
             Subsignal("clk", Pins(f"{pmod}:6")),
             Subsignal("sync", Pins(f"{pmod}:5")),
             Subsignal("rx", Pins(f"{pmod}:7")),
             IOStandard("LVCMOS18"),
         ),
-        ("i2s_tx_mclk", 0, Pins(f"{pmod}:0"), IOStandard("LVCMOS33")),
+        ("i2s_tx_mclk", 0, Pins(f"{pmod}:0"), IOStandard("LVCMOS18")),
         ("i2s_tx", 0,
             Subsignal("clk",Pins(f"{pmod}:2")),
             Subsignal("sync", Pins(f"{pmod}:1")),

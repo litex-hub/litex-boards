@@ -264,7 +264,7 @@ def raw_pmod_io(pmod):
 
 def jtag_pmod_io(pmod):
     return [
-        ("usb_uart", 0,
+        ("jtag", 0,
             Subsignal("tck", Pins(f"{pmod}:0")),
             Subsignal("tdi", Pins(f"{pmod}:1")),
             Subsignal("tdo", Pins(f"{pmod}:2")),

@@ -145,8 +145,8 @@ class Platform(Xilinx7SeriesPlatform):
         assert kgates in [100, 200], "kgates can only be 100 or 200, representing a XC7A100T or XC7A200T"
         self.kgates = kgates
         device = f"xc7a{kgates}tfbg484-1"
-        io = _io
-        connectors = _connectors
+        io = list(_io)
+        connectors = list(_connectors)
 
         core_leds_name = "onboard_led" if with_daughterboard else "user_led"
         io += [

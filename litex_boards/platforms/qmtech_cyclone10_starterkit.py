@@ -216,8 +216,8 @@ class Platform(AlteraPlatform):
 
     def __init__(self, toolchain="quartus", with_core_resources=True):
         device = "10CL080YU484C8G"
-        io = _io
-        connectors = _connectors
+        io = list(_io)
+        connectors = list(_connectors)
 
         AlteraPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
 

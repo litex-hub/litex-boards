@@ -110,7 +110,7 @@ class BaseSoC(SoCCore):
         if with_sdram:
             platform.add_extension({
                 "sipeed": sipeed_tang_primer_25k.sipeedSDRAM(),
-                "mister": sipeed_tang_primer_25k.misterSDRAM}[sdram_model]
+                "mister": sipeed_tang_primer_25k.misterSDRAM()}[sdram_model]
             )
 
         # CRG --------------------------------------------------------------------------------------

@@ -137,8 +137,8 @@ class Platform(AlteraPlatform):
 
     def __init__(self, toolchain="quartus", with_daughterboard=False, with_core_resources=True):
         device = "10CL006YU256C8G"
-        io = _io
-        connectors = _connectors
+        io = list(_io)
+        connectors = list(_connectors)
 
         if with_daughterboard:
             from litex_boards.platforms.qmtech_daughterboard import QMTechDaughterboard
