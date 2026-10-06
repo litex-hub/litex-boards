@@ -71,8 +71,8 @@ class BaseSoC(SoCCore):
         platform = qmtech_kintex7_devboard.Platform(toolchain=toolchain)
 
         # SoCCore ----------------------------------------------------------------------------------
-        if (kwargs["uart_name"] == "serial"):
-            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "JP5_serial"
+        if kwargs["uart_name"] == "serial":
+            kwargs["uart_name"] = "JP5_serial"
 
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTech Kintex 7 Development board",
@@ -133,9 +133,6 @@ class BaseSoC(SoCCore):
         # Switches ---------------------------------------------------------------------------------
         if with_switches:
             self.switches = GPIOIn(Cat(platform.request("sw3")))
-
-        if kwargs["uart_name"] == "serial":
-            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_serial"
 
 # Build --------------------------------------------------------------------------------------------
 

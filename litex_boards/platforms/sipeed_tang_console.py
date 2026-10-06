@@ -191,9 +191,9 @@ from litex_boards.platforms.sipeed_tang_mega_138k import _connectors as _connect
 # Dock IOs -----------------------------------------------------------------------------------------
 
 _dock_io = [
-    ("btn_n", 0,  Pins( "J3:60"), IOStandard("LVCMOS33")),
-    ("btn_n", 1,  Pins( "J3:62"), IOStandard("LVCMOS33")),
-    ("btn_n", 2,  Pins( "J3:64"), IOStandard("LVCMOS33")),
+    # J2:60 (EX_KEY.0) is used as rst.
+    ("btn_n", 0,  Pins( "J2:62"), IOStandard("LVCMOS33")),
+    ("btn_n", 1,  Pins( "J2:64"), IOStandard("LVCMOS33")),
 
     # FAN
     ("fan_en", 0, Pins("J2:66"), IOStandard("LVCMOS15")), # 3.3 with 138K

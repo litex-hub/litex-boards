@@ -87,7 +87,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         if (kwargs["uart_name"] == "serial") and (not with_daughterboard):
-            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "gpio_serial"
+            kwargs["uart_name"] = "gpio_serial"
         SoCCore.__init__(self, platform, sys_clk_freq,
             ident = "LiteX SoC on QMTech XC7A35T" + (" + Daughterboard" if with_daughterboard else ""),
             **kwargs)
@@ -135,9 +135,6 @@ class BaseSoC(SoCCore):
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
                 sys_clk_freq = sys_clk_freq)
-
-        if not with_daughterboard and kwargs["uart_name"] == "serial":
-            if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "jtag_serial"
 
 # Build --------------------------------------------------------------------------------------------
 

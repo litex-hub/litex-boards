@@ -366,28 +366,6 @@ _connectors_r0_2 = [
 ]
 
 # Standard Feather Pins
-feather_serial = [
-    ("serial", 0,
-        Subsignal("tx", Pins("GPIO:1"), IOStandard("LVCMOS33")),
-        Subsignal("rx", Pins("GPIO:0"), IOStandard("LVCMOS33"))
-    )
-]
-
-feather_i2c = [
-    ("i2c", 0,
-        Subsignal("sda", Pins("GPIO:2"), IOStandard("LVCMOS33")),
-        Subsignal("scl", Pins("GPIO:3"), IOStandard("LVCMOS33"))
-    )
-]
-
-feather_spi = [
-    ("spi",0,
-        Subsignal("miso", Pins("GPIO:14"), IOStandard("LVCMOS33")),
-        Subsignal("mosi", Pins("GPIO:16"), IOStandard("LVCMOS33")),
-        Subsignal("sck",  Pins("GPIO:15"), IOStandard("LVCMOS33"))
-    )
-]
-
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticeECP5Platform):

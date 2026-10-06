@@ -89,9 +89,10 @@ class BaseSoC(SoCCore):
 
         # Leds / Buttons / Switches ---------------------------------------------------------------
         if with_led_chaser:
-            leds = platform.request_all("user_led")
+            # RGB LEDs: request_all can't Cat Records, use the red channel of each LED.
+            leds = [platform.request("user_led", i) for i in range(2)]
             self.leds = LedChaser(
-                pads         = [led.r for led in leds],
+                pads         = Cat(*[led.r for led in leds]),
                 sys_clk_freq = sys_clk_freq,
             )
         if with_buttons:
@@ -167,7 +168,6 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         eth_phy        = args.eth_phy,
-        with_led_chaser = args.with_led_chaser,
         with_buttons   = args.with_buttons,
         with_switches  = args.with_switches,
         with_cam_i2c   = args.with_cam_i2c,
