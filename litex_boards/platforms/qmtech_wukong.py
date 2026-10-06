@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.pmod import PmodPS2, PmodSDCard
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -188,14 +187,6 @@ _connectors = [
             "AD12 AC12"),
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)
-_sdcard_pmod_io = sdcard_pmod_io("j10") # SDCARD PMOD on J10.
-def ps2_pmod_io(pmod):
-    return PmodPS2(pmod).get_io(Xilinx7SeriesPlatform)
-_ps2_pmod_io = ps2_pmod_io("j11") # PS2 PMOD on top line of J11
 
 # Platform -----------------------------------------------------------------------------------------
 

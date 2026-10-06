@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.pmod import PmodCAN
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -473,10 +472,6 @@ _connectors = [
     }),
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def can_pmod_io(pmod, n):
-    return PmodCAN(pmod, number=n).get_io(Xilinx7SeriesPlatform)
 
 # Platform -----------------------------------------------------------------------------------------
 

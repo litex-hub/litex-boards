@@ -24,6 +24,8 @@ from litex.gen import *
 
 from litex_boards.platforms import icebreaker
 
+from litex.build.pmod import Pmod1BitSquaredBreakOff, PmodDVI
+
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.integration.soc import *
@@ -71,7 +73,7 @@ class BaseSoC(SoCCore):
         with_buttons        = False,
         **kwargs):
         platform = icebreaker.Platform()
-        platform.add_extension(icebreaker.break_off_pmod)
+        platform.add_extension(Pmod1BitSquaredBreakOff("PMOD2"))
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
@@ -112,7 +114,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
-            platform.add_extension(icebreaker.dvi_pmod)
+            platform.add_extension(PmodDVI(a="PMOD1A", b="PMOD1B"))
             self.videophy = VideoDVIPHY(platform.request("dvi"), clock_domain="sys")
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="sys")
 

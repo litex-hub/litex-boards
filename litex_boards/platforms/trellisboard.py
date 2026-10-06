@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeECP5Platform
-from litex.build.pmod import PmodGPIO, PmodSDCard
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -226,15 +225,6 @@ _connectors = [
     ("ext2", "K6 K7 J7 J6 H6 H5 F4 F5 F3 E3 C4 C3 C5 D5 D3 D2 H2 H3 J3 K3 B1 C2 F1 H1")
 ]
 
-
-# PMODS --------------------------------------------------------------------------------------------
-
-def raw_pmod_io(pmod):
-    return PmodGPIO(pmod).get_io(LatticeECP5Platform)
-
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod).get_io(LatticeECP5Platform)
-_sdcard_pmod_io = sdcard_pmod_io("pmoda") # SDCARD PMOD on PMODA.
 
 # Platform -----------------------------------------------------------------------------------------
 

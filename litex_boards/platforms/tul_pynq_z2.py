@@ -65,7 +65,6 @@ _ps7_io = [
     ),
 ]
 
-_usb_uart_pmod_io = PmodUSBUART("pmodb").get_io(Xilinx7SeriesPlatform) # USB-UART Pmod on JB.
 
 # Connectors ---------------------------------------------------------------------------------------
 
@@ -83,7 +82,7 @@ class Platform(Xilinx7SeriesPlatform):
     def __init__(self, toolchain="vivado"):
         Xilinx7SeriesPlatform.__init__(self, "xc7z020clg400-1", _io,  _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
-        self.add_extension(_usb_uart_pmod_io)
+        self.add_extension(PmodUSBUART("pmodb")) # USB-UART Pmod on JB.
 
     def create_programmer(self):
         return VivadoProgrammer()

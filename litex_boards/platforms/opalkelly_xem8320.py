@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
-from litex.build.pmod import PmodDVI, PmodSDCard
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -329,16 +328,6 @@ _connectors = [
     ("pmod4", "AD14 AD13 W16  AD15 AB14 AA14 Y16  AA15"),
 ]
 
-def dvi_pmod_io(pmoda, pmodb):
-    # 1BitSquared DVI Pmod (r/b were swapped compared to the official pinout).
-    return PmodDVI(a=pmoda, b=pmodb).get_io(XilinxUSPPlatform)
-
-_dvi_pmod_io = dvi_pmod_io("pmod2", "pmod1") # DVI Pmod on PMOD2/PMOD1.
-
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod).get_io(XilinxUSPPlatform)
-
-_sdcard_pmod_io = sdcard_pmod_io("pmod3") # SDCARD PMOD on JD.
 
 # Platform -----------------------------------------------------------------------------------------
 

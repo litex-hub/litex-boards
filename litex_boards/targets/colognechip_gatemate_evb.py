@@ -12,6 +12,8 @@ from litex.gen import *
 
 from litex_boards.platforms import colognechip_gatemate_evb
 
+from litex.build.pmod import PmodSDCard, PmodUSBUART
+
 
 from litex.soc.cores.clock.colognechip import GateMatePLL
 from litex.soc.cores.hyperbus import HyperRAM
@@ -59,7 +61,7 @@ class BaseSoC(SoCCore):
         platform = colognechip_gatemate_evb.Platform(toolchain, device)
 
         # USBUART PMOD as Serial--------------------------------------------------------------------
-        platform.add_extension(colognechip_gatemate_evb.usb_pmod_io("PMODB"))
+        platform.add_extension(PmodUSBUART("PMODB"))
         if kwargs.get("uart_name", "serial") == "serial":
             if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart"
 
@@ -136,7 +138,7 @@ def main():
         with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict)
 
-    soc.platform.add_extension(colognechip_gatemate_evb.pmods_sdcard_io("PMODA"))
+    soc.platform.add_extension(PmodSDCard("PMODA"))
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

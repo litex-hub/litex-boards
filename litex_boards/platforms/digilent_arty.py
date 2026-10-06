@@ -7,7 +7,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.pmod import PmodCAN, PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -251,30 +250,6 @@ _connectors = [
         } ),
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def raw_pmod_io(pmod):
-    return PmodGPIO(pmod).get_io(Xilinx7SeriesPlatform)
-
-def usb_pmod_io(pmod):
-    return PmodUSBUART(pmod).get_io(Xilinx7SeriesPlatform)
-_usb_uart_pmod_io = usb_pmod_io("pmodb") # USB-UART PMOD on JB.
-
-
-def i2s_pmod_io(pmod):
-    return PmodI2S2(pmod).get_io(Xilinx7SeriesPlatform)
-_i2s_pmod_io = i2s_pmod_io("pmoda") # I2S PMOD on JA.
-
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)
-_sdcard_pmod_io = sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
-
-def numato_sdcard_pmod_io(pmod):
-    return PmodNumatoSDCard(pmod).get_io(Xilinx7SeriesPlatform)
-_numato_sdcard_pmod_io = numato_sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
-
-def can_pmod_io(pmod, n):
-    return PmodCAN(pmod, number=n).get_io(Xilinx7SeriesPlatform)
 
 # Platform -----------------------------------------------------------------------------------------
 

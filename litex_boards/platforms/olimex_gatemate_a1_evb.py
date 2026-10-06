@@ -9,7 +9,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.colognechip.platform import CologneChipPlatform
-from litex.build.pmod import PmodSDCard
 from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -111,9 +110,6 @@ _connectors = [
 
 # PMODs --------------------------------------------------------------------------------------------
 
-def pmods_io(pmod):
-    return PmodSDCard(pmod).get_io(CologneChipPlatform)
-_pmods_io = pmods_io("PMOD")
 
 # Platform -----------------------------------------------------------------------------------------
 

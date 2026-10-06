@@ -12,6 +12,8 @@ from litex.gen import *
 
 from litex_boards.platforms import qmtech_wukong
 
+from litex.build.pmod import PmodSDCard
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
@@ -175,11 +177,11 @@ def main():
         **parser.soc_argdict
     )
     if args.with_spi_sdcard:
-        soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
+        soc.platform.add_extension(PmodSDCard("j10"))
         soc.add_spi_sdcard()
     if args.with_sdcard:
         if args.revision == 1:
-            soc.platform.add_extension(qmtech_wukong._sdcard_pmod_io)
+            soc.platform.add_extension(PmodSDCard("j10"))
         soc.add_sdcard()
 
     builder = Builder(soc, **parser.builder_argdict)

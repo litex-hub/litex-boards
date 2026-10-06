@@ -10,7 +10,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.pmod import PmodGPIO
 from litex.build.openocd import OpenOCD
 
 # TODO:
@@ -238,10 +237,6 @@ _connectors = [
     })
 ]
 
-break_off_pmod = [
-    *PmodGPIO("PMOD0", name="pmod0").get_io(Xilinx7SeriesPlatform),
-    *PmodGPIO("PMOD1", name="pmod1").get_io(Xilinx7SeriesPlatform),
-]
 
 # Platform -----------------------------------------------------------------------------------------
 

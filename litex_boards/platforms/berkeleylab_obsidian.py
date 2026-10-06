@@ -13,7 +13,6 @@
 
 from litex.build.generic_platform import Subsignal, Pins, IOStandard, Misc
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.pmod import PmodGPIO
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -201,10 +200,6 @@ _connectors = [
     # the order is: A0_P, A0_N, A2_P, A2_N, A1_P, A1_N, A3_P, A3_N
     ("arduino_a", r"C8 D8 A9 B9 C9 D9 A10 B10"),
 ]
-
-
-def raw_pmod_io(pmod="pmoda", iostd="LVCMOS33"):
-    return PmodGPIO(pmod, iostandard=iostd).get_io(Xilinx7SeriesPlatform)
 
 
 # Platform -----------------------------------------------------------------------------------------

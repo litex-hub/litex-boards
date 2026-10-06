@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxUSPlatform, VivadoProgrammer
-from litex.build.pmod import PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -97,27 +96,6 @@ _connectors = [
     ("pmod1", "F9  F8  E8  D8  E10 D10 G12 F12"),
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def raw_pmod_io(pmod):
-    return PmodGPIO(pmod).get_io(XilinxUSPlatform)
-
-def usb_pmod_io(pmod):
-    return PmodUSBUART(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)
-_usb_uart_pmod_io = usb_pmod_io("pmod0") # USB-UART PMOD on JB.
-
-
-def i2s_pmod_io(pmod):
-    return PmodI2S2(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)
-_i2s_pmod_io = i2s_pmod_io("pmod0") # I2S PMOD on JA.
-
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)
-_sdcard_pmod_io = sdcard_pmod_io("pmod0") # SDCARD PMOD on JD.
-
-def numato_sdcard_pmod_io(pmod):
-    return PmodNumatoSDCard(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)
-_numato_sdcard_pmod_io = numato_sdcard_pmod_io("pmod0") # SDCARD PMOD on JD.
 
 # Platform -----------------------------------------------------------------------------------------
 

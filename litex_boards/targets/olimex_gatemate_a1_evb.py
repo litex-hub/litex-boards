@@ -12,6 +12,8 @@ from litex.gen import *
 
 from litex_boards.platforms import olimex_gatemate_a1_evb
 
+from litex.build.pmod import PmodSDCard
+
 
 from litex.soc.cores.clock.colognechip import GateMatePLL
 from litex.soc.integration.soc import *
@@ -133,7 +135,7 @@ def main():
         remote_ip           = args.remote_ip,
         **parser.soc_argdict)
 
-    soc.platform.add_extension(olimex_gatemate_a1_evb._pmods_io)
+    soc.platform.add_extension(PmodSDCard("PMOD"))
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

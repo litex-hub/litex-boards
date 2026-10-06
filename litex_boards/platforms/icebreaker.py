@@ -11,7 +11,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeiCE40Platform
-from litex.build.pmod import PmodDVI, PmodUSBDevice, Pmod1BitSquaredBreakOff
 from litex.build.lattice.programmer import IceStormProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -61,23 +60,6 @@ _connectors = [
     ("PMOD2",  "27 25 21 19 26 23 20 18")
 ]
 
-# The attached LED/button section can be either used standalone or as a PMOD.
-# Attach to platform using:
-# plat.add_extension(break_off_pmod)
-# pmod_btn = plat.request("user_btn")
-break_off_pmod = Pmod1BitSquaredBreakOff("PMOD2").get_io(LatticeiCE40Platform)
-
-dvi_pmod = PmodDVI(a="PMOD1A", b="PMOD1B").get_io(LatticeiCE40Platform)
-
-usb_pmod_1a = PmodUSBDevice("PMOD1A").get_io(LatticeiCE40Platform)
-
-usb_pmod_1b = PmodUSBDevice("PMOD1B").get_io(LatticeiCE40Platform)
-
-usb_pmod_2 = PmodUSBDevice("PMOD2").get_io(LatticeiCE40Platform)
-
-usb_tnt = PmodUSBDevice("PMOD1B", pins=(3, 2, 1)).get_io(LatticeiCE40Platform)
-
-usb_kbeckmann = PmodUSBDevice("PMOD1B", pins=(0, 1, 2)).get_io(LatticeiCE40Platform)
 
 # Platform -----------------------------------------------------------------------------------------
 

@@ -8,7 +8,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeiCE40Platform
-from litex.build.pmod import PmodLED
 from litex.build.lattice.programmer import IceSugarProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -78,12 +77,6 @@ _connectors = [
     ("J7",    "48 - 3 47 - 2"), # Numbering similar to PMODS: 0: Marked pin.
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def led_pmod_io_v11(pmod, offset=0):
-    # LED PMOD: https://www.aliexpress.com/item/1005001504777342.html
-    # Contrary to the supplied schematic, the two nibbles seem to be swapped on the board.
-    return PmodLED(pmod, order=[4, 5, 6, 7, 0, 1, 2, 3], name="user_led_n", number=offset).get_io(LatticeiCE40Platform)
 
 # Platform -----------------------------------------------------------------------------------------
 

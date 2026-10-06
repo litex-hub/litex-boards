@@ -18,6 +18,8 @@ from litex.gen import *
 
 from litex_boards.platforms import digilent_arty
 
+from litex.build.pmod import PmodCAN, PmodGPIO, PmodNumatoSDCard, PmodSDCard
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc import *
@@ -180,7 +182,7 @@ class BaseSoC(SoCCore):
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
-            platform.add_extension(digilent_arty.raw_pmod_io("pmoda"))
+            platform.add_extension(PmodGPIO("pmoda"))
             self.gpio = GPIOTristate(
                 pads     = platform.request("pmoda"),
                 with_irq = self.irq.enabled
@@ -189,7 +191,7 @@ class BaseSoC(SoCCore):
         # CAN --------------------------------------------------------------------------------------
         if with_can:
             from litex.soc.cores.can.ctu_can_fd import CTUCANFD
-            self.platform.add_extension(digilent_arty.can_pmod_io("pmodc", 0))
+            self.platform.add_extension(PmodCAN("pmodc"))
             self.can0 = CTUCANFD(platform, platform.request("can", 0))
             self.bus.add_slave("can0", self.can0.bus, SoCRegion(origin=0xb0010000, size=0x10000, mode="rw", cached=False))
             self.irq.add("can0")
@@ -251,9 +253,9 @@ def main():
     )
 
     if args.sdcard_adapter == "numato":
-        soc.platform.add_extension(digilent_arty._numato_sdcard_pmod_io)
+        soc.platform.add_extension(PmodNumatoSDCard("pmodd"))
     else:
-        soc.platform.add_extension(digilent_arty._sdcard_pmod_io)
+        soc.platform.add_extension(PmodSDCard("pmodd"))
     add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

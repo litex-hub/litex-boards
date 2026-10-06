@@ -7,7 +7,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.efinix.platform import EfinixPlatform
-from litex.build.pmod import PmodGPIO, PmodI2C, PmodUSBUART
 from litex.build.efinix import EfinixProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -156,16 +155,6 @@ _connectors = [
     ],
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def raw_pmod_io(pmod):
-    return PmodGPIO(pmod).get_io(EfinixPlatform)
-
-def usb_pmod_io(pmod):
-    return PmodUSBUART(pmod).get_io(EfinixPlatform)
-
-def i2c_pmod_io(pmod):
-    return PmodI2C(pmod).get_io(EfinixPlatform)
 
 # DDR Configuration --------------------------------------------------------------------------------
 

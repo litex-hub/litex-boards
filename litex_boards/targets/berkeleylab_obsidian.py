@@ -35,7 +35,8 @@ from litedram.phy.s7ddrphy import A7DDRPHY
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteiclink.serdes.gtp_7series import GTPQuadPLL, GTP
 from litex_boards.platforms import berkeleylab_obsidian
-from litex_boards.platforms.berkeleylab_obsidian import raw_pmod_io
+
+from litex.build.pmod import PmodGPIO
 
 # ---------------------------
 
@@ -169,7 +170,7 @@ class BaseSoC(SoCCore):
 
         # Led chaser on PMODF (add LED extension board)
         if with_led_chaser:
-            self.platform.add_extension(raw_pmod_io("pmodf"))
+            self.platform.add_extension(PmodGPIO("pmodf"))
             self.leds = LedChaser(
                 pads=platform.request("pmodf"),
                 sys_clk_freq=sys_clk_freq,

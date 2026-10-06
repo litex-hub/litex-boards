@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.pmod import PmodSDCard
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -134,9 +133,6 @@ _connectors = [
 
 # PMODS --------------------------------------------------------------------------------------------
 
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)
-_sdcard_pmod_io = sdcard_pmod_io("pmoda") # SDCARD PMOD on JA.
 
 class Platform(Xilinx7SeriesPlatform):
     default_clk_name   = "clk100"

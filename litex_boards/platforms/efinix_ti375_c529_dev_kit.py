@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.efinix.platform import EfinixPlatform
-from litex.build.pmod import PmodGPIO, PmodJTAG
 from litex.build.efinix import EfinixProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -116,7 +115,6 @@ _io = [
     ("user_led", 3, Pins("L18")),
     ("user_led", 4, Pins("E19")),
 ]
-
 
 
 # Bank voltage ---------------------------------------------------------------------------------------
@@ -260,11 +258,6 @@ ddr_config = {
 
 # PMODS --------------------------------------------------------------------------------------------
 
-def raw_pmod_io(pmod):
-    return PmodGPIO(pmod).get_io(EfinixPlatform)
-
-def jtag_pmod_io(pmod):
-    return PmodJTAG(pmod, iostandard="3.3_V_LVCMOS").get_io(EfinixPlatform)
 
 def hdmi_px(px):
     return [

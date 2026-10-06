@@ -7,7 +7,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeNexusPlatform
-from litex.build.pmod import PmodUART
 from litex.build.lattice.programmer import LatticeProgrammer
 from litex.build.lattice.programmer import EcpprogProgrammer
 from litex.build.lattice.programmer import OpenOCDJTAGProgrammer
@@ -260,14 +259,6 @@ _connectors = [
     ("PMOD0", "D10 D9 D7 D8 D6 D5 D4  D3"),
     ("PMOD1", "E10 E9 E7 E8 E4 E3 E2  F1"),
     ("PMOD2", "J2  J1 K2 K1 K3 K4 D17 E18"),
-]
-
-# Test and Demo ------------------------------------------------------------------------------------
-
-serial_pmods = [
-    *PmodUART("PMOD0", tx=1, rx=0, name="serial_pmod0").get_io(LatticeNexusPlatform),
-    *PmodUART("PMOD1", tx=1, rx=0, name="serial_pmod1").get_io(LatticeNexusPlatform),
-    *PmodUART("PMOD2", tx=1, rx=0, name="serial_pmod2").get_io(LatticeNexusPlatform),
 ]
 
 

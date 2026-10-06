@@ -9,7 +9,6 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
-from litex.build.pmod import PmodSDCard
 from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
@@ -82,9 +81,6 @@ _connectors = [
 
 # PMODs --------------------------------------------------------------------------------------------
 
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod).get_io(GowinPlatform)
-_sdcard_pmod_io = sdcard_pmod_io("pmod")
 
 # Platform -----------------------------------------------------------------------------------------
 
