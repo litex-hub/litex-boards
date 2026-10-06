@@ -15,16 +15,16 @@ _io = [
 
     # DDR3
     ("ddram", 0,
-        Subsignal("a", Pins("R1 D1 K1 K4 H3 L1 H5 J5 J1 G3 H2 J2 J4 G2 K2 M1")),
-        Subsignal("ba", Pins("M6 P2 P5")),
+        Subsignal("a", Pins("M1 K2 G2 J4 J2 H2 G3 J1 J5 H5 L1 H3 K4 K1 D1 R1")),
+        Subsignal("ba", Pins("P5 P2 M6")),
         Subsignal("ras_n", Pins("L5")),
         Subsignal("cas_n", Pins("L4")),
         Subsignal("we_n", Pins("M5")),
         Subsignal("cs_n", Pins("P4")),
-        Subsignal("dm", Pins("V7 AA4")),
-        Subsignal("dq", Pins("Y9 AB6 W9 AB8 Y7 AB7 Y8 AA8 AB1 AB5 AB2 AA1 V4 AA5 AB3 Y4")),
-        Subsignal("dqs_p", Pins("V9 Y3")),
-        Subsignal("dqs_n", Pins("V8 AA3")),
+        Subsignal("dm", Pins("AA4 V7")),
+        Subsignal("dq", Pins("Y4 AB3 AA5 V4 AA1 AB2 AB5 AB1 AA8 Y8 AB7 Y7 AB8 W9 AB6 Y9")),
+        Subsignal("dqs_p", Pins("Y3 V9")),
+        Subsignal("dqs_n", Pins("AA3 V8")),
         Subsignal("clk_p", Pins("L3")),
         Subsignal("clk_n", Pins("K3")),
         Subsignal("cke", Pins("K6")),
@@ -53,7 +53,7 @@ _neo_dock_io = [
         Subsignal("xclk", Pins("J2:11"), Misc("DRIVE=4")),
         Subsignal("sda", Pins("J2:56"), IOStandard("LVCMOS15"), Misc("PULL_MODE=UP DRIVE=8")),
         Subsignal("scl", Pins("J2:58"), IOStandard("LVCMOS33"), Misc("PULL_MODE=UP DRIVE=8")),
-        Subsignal("data", Pins("J2:13 J2:17 J0:19 J2:20 J2:55 J2:49 J2:51 J2:57")),
+        Subsignal("data", Pins("J2:57 J2:51 J2:49 J2:55 J2:20 J0:19 J2:17 J2:13")),
         Subsignal("pclk", Pins("J2:15")),
         Subsignal("href", Pins("J2:9")),
         Subsignal("vsync", Pins("J2:5")),
@@ -63,8 +63,8 @@ _neo_dock_io = [
 
     # HDMI Output
     ("hdmi_out", 0,
-        Subsignal("clk_p", Pins("J1:62")),
-        Subsignal("clk_n", Pins("J1:64")),
+        Subsignal("clk_p", Pins("J1:64")),
+        Subsignal("clk_n", Pins("J1:62")),
         Subsignal("data0_p", Pins("J1:60")),
         Subsignal("data0_n", Pins("J1:58")),
         Subsignal("data1_p", Pins("J1:56")),
@@ -125,10 +125,10 @@ _neo_dock_io = [
 
     # SDRAM
     ("sdram", 0,
-        Subsignal("a", Pins("J1:23 J1:31 J1:6 J1:29 J1:19 J1:17 J1:36 J1:34 J1:30 J1:18 J1:16 J1:12 J1:10")),
-        Subsignal("ba", Pins("J1:4 J1:40")),
-        Subsignal("dq", Pins("J1:41 J1:43 J1:35 J1:37 J1:11 J1:13 J1:5 J1:7 J1:49 J1:47 J1:55 J1:53 J1:61 J1:59 J1:67 J1:65")),
-        Subsignal("dm", Pins("J1:44 J1:42")),
+        Subsignal("a", Pins("J1:10 J1:12 J1:16 J1:18 J1:30 J1:34 J1:36 J1:17 J1:19 J1:29 J1:6 J1:31 J1:23")),
+        Subsignal("ba", Pins("J1:40 J1:4")),
+        Subsignal("dq", Pins("J1:65 J1:67 J1:59 J1:61 J1:53 J1:55 J1:47 J1:49 J1:7 J1:5 J1:13 J1:11 J1:37 J1:35 J1:43 J1:41")),
+        Subsignal("dm", Pins("J1:42 J1:44")),
         Subsignal("clk", Pins("J1:25")),
         Subsignal("cas", Pins("J1:22")),
         Subsignal("ras", Pins("J1:24")),
@@ -152,7 +152,7 @@ class Platform(GowinPlatform):
     default_clk_period = 1e9/50e6  # Assuming 50MHz clock
 
     def __init__(self, dock="neo", toolchain="gowin"):
-        GowinPlatform.__init__(self, "GW5A-LV60MG121C1/IrES", _io, _connectors, toolchain=toolchain, devicename="GW5A-60")
+        GowinPlatform.__init__(self, "GW5AT-LV60PG484AC1/I0", _io, _connectors, toolchain=toolchain, devicename="GW5AT-60B")
         if dock is not None:
             if dock not in docks:
                 raise ValueError(f"Unsupported dock {dock}, supported: {', '.join(docks)} or None (SoM only).")
