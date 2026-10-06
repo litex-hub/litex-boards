@@ -31,7 +31,7 @@ def _resolve(platform, extension, resource):
 
 # Connectors named pmod* that are not canonical 8-pin Pmods (index 0-3: pins 1-4, 4-7: pins 7-10).
 _non_canonical_pmods = {
-    "alinx_ax7010"       : ["pmodb", "pmodhdmi", "pmodj10", "pmodj11"], # Headers named pmod.
+    "alinx_ax7010"       : ["pmodj10", "pmodj11"],                     # Headers named pmod.
     "kosagi_fomu_evt"    : ["pmoda_n", "pmodb_n"],                      # 4-pin.
     "lattice_ecp5_evn"   : ["PMOD"],                                    # Physical numbering, see pmoda.
     "machdyne_krote"     : ["PMODC", "PMODD"],                          # 7-pin.
