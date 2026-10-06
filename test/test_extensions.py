@@ -80,6 +80,25 @@ class TestExtensions(unittest.TestCase):
             with self.assertRaises(ValueError):
                 _platform(board, dock="unknown")
 
+    def test_enclustra_st1_on_kx2(self):
+        # All ST1 IOs resolve on KX2 except the ones not connected on KX2 (C pins below 69).
+        from litex_boards.extensions.enclustra import EnclustraST1
+        not_connected = {"clk_ref", "clk_ref1", "hdmi", "sfp_tx", "sfp_rx"}
+        for name, number, *_ in EnclustraST1().get_io(_platform("enclustra_mercury_kx2")):
+            if name in not_connected:
+                continue
+            with self.subTest(resource=name):
+                platform = _platform("enclustra_mercury_kx2")
+                platform.add_extension(EnclustraST1(), prepend=True)
+                platform.request(name, number)
+                platform.constraint_manager.get_sig_constraints()
+        # clk_ref0 is on MGTREFCLK0_116 (D6/D5).
+        platform = _platform("enclustra_mercury_kx2")
+        platform.add_extension(EnclustraST1(), prepend=True)
+        platform.request("clk_ref0")
+        pins = {res[2]: p for s, p, o, res in platform.constraint_manager.get_sig_constraints()}
+        self.assertEqual(pins, {"p": ["D6"], "n": ["D5"]})
+
     def test_enclustra_xu8_module_connectors(self):
         # XU8 module connectors are described as Mercury+ A/B/C connectors, so baseboard extensions
         # written against them (ex: ST1) can be plugged (ST1's I2C uses A:115, not defined on XU8).

@@ -34,21 +34,24 @@ class EnclustraST1(Extension):
         vccio_c = strip_v(vccio_c) # Bank 13
 
         self._st1_io = [
+            # Clock generator outputs, routed to MGT reference clock inputs of the modules (no
+            # IOStandard). clk_ref/clk_ref1 are not connected on KX2. clk_ref2 is a MGT reference
+            # clock on XU8 but two single-ended IOs on KX2 (N16/U16, LVCMOS33).
             ("clk_ref", 0,
-                Subsignal("p", Pins("C:7"), IOStandard("LVDS")),
-                Subsignal("n", Pins("C:9"), IOStandard("LVDS"))
+                Subsignal("p", Pins("C:7")),
+                Subsignal("n", Pins("C:9"))
             ),
             ("clk_ref0", 0,
-                Subsignal("p", Pins("B:3"), IOStandard("LVDS")),
-                Subsignal("n", Pins("B:5"), IOStandard("LVDS"))
+                Subsignal("p", Pins("B:3")),
+                Subsignal("n", Pins("B:5"))
             ),
             ("clk_ref1", 0,
-                Subsignal("p", Pins("C:10"), IOStandard("LVDS")),
-                Subsignal("n", Pins("C:12"), IOStandard("LVDS"))
+                Subsignal("p", Pins("C:10")),
+                Subsignal("n", Pins("C:12"))
             ),
             ("clk_ref2", 0,
-                Subsignal("p", Pins("C:3"), IOStandard("LVDS")),
-                Subsignal("n", Pins("C:5"), IOStandard("LVDS"))
+                Subsignal("p", Pins("C:3")),
+                Subsignal("n", Pins("C:5"))
             ),
             # daughterboard LEDs
             ("user_led", 4, Pins("C:142"), IOStandard("LVCMOS" + vccio_c), Misc("SLEW=SLOW")),
