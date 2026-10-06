@@ -10,8 +10,11 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
+from litex.build.extension import IOExtension
 from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
+
+from litex_boards.extensions.sdram_modules import MiSTerSDRAM, SipeedSDRAM
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -288,53 +291,16 @@ _neo_dock_connectors = [
 # SDRAMs -------------------------------------------------------------------------------------------
 
 def misterSDRAM(conn="sdram0_connector"):
-    return [
-        ("sdram_clock", 0, Pins(f"{conn}:20"),
-            IOStandard("LVCMOS33"),
-            Misc("PULL_MODE=NONE DRIVE=16"),
-        ),
-        ("sdram", 0,
-            Subsignal("a",   Pins(
-                f"{conn}:37 {conn}:38 {conn}:39 {conn}:40 {conn}:28 {conn}:25 {conn}:26 {conn}:23",
-                f"{conn}:24 {conn}:21 {conn}:36 {conn}:22 {conn}:19"),
-            ),
-            Subsignal("dq",  Pins(
-                f"{conn}:1  {conn}:2  {conn}:3  {conn}:4  {conn}:5  {conn}:6  {conn}:7  {conn}:8",
-                f"{conn}:18 {conn}:17 {conn}:16 {conn}:15 {conn}:14 {conn}:13 {conn}:10 {conn}:9"),
-            ),
-            Subsignal("ba",    Pins(f"{conn}:34 {conn}:35")),
-            Subsignal("cas_n", Pins(f"{conn}:31")),
-            Subsignal("cs_n",  Pins(f"{conn}:33")),
-            Subsignal("ras_n", Pins(f"{conn}:32")),
-            Subsignal("we_n",  Pins(f"{conn}:27")),
-            IOStandard("LVCMOS33"),
-        ),
-    ]
+    return MiSTerSDRAM(conn).get_io(GowinPlatform)
 
 def sipeedSDRAM(conn="sdram0_connector"):
-    return [
-        ("sdram_clock", 0, Pins(f"{conn}:20"),
-            IOStandard("LVCMOS33"),
-            Misc("PULL_MODE=NONE DRIVE=16"),
-        ),
-        ("sdram", 0,
-            Subsignal("a",   Pins(
-                f"{conn}:37 {conn}:38 {conn}:39 {conn}:40 {conn}:28 {conn}:25 {conn}:26 {conn}:23",
-                f"{conn}:24 {conn}:21 {conn}:36 {conn}:22 {conn}:19")
-            ),
-            Subsignal("dq",  Pins(
-                f"{conn}:1  {conn}:2  {conn}:3  {conn}:4  {conn}:5  {conn}:6  {conn}:7  {conn}:8",
-                f"{conn}:18 {conn}:17 {conn}:16 {conn}:15 {conn}:14 {conn}:13 {conn}:10 {conn}:9"),
-            ),
-            Subsignal("ba",    Pins(f"{conn}:34 {conn}:35")),
-            Subsignal("cas_n", Pins(f"{conn}:31")),
-            Subsignal("cs_n",  Pins(f"{conn}:33")),
-            Subsignal("ras_n", Pins(f"{conn}:32")),
-            Subsignal("we_n",  Pins(f"{conn}:27")),
-            Subsignal("dm",    Pins(f"{conn}:29 {conn}:30")),
-            IOStandard("LVCMOS33"),
-        ),
-    ]
+    return SipeedSDRAM(conn).get_io(GowinPlatform)
+
+# Docks --------------------------------------------------------------------------------------------
+
+docks = {
+    "neo" : IOExtension(io=_neo_dock_io, connectors=_neo_dock_connectors, slots={}),
+}
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -344,11 +310,10 @@ class Platform(GowinPlatform):
 
     def __init__(self, dock="neo", toolchain="gowin"):
         GowinPlatform.__init__(self, "GW5AST-LV138PG484AC1/I0", _io, _connectors, toolchain=toolchain, devicename="GW5AST-138B")
-        if dock == "neo":
-            self.add_extension(_neo_dock_io)
-            self.add_connector(_neo_dock_connectors)
-        elif dock is not None:
-            raise ValueError(f"Unsupported dock {dock}, supported: neo or None (SoM only).")
+        if dock is not None:
+            if dock not in docks:
+                raise ValueError(f"Unsupported dock {dock}, supported: {', '.join(docks)} or None (SoM only).")
+            self.add_extension(docks[dock])
 
         self.toolchain.options["use_ready_as_gpio"] = 1
         self.toolchain.options["use_done_as_gpio"]  = 1

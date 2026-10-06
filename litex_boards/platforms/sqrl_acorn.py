@@ -15,6 +15,7 @@ import subprocess
 
 from litex.build.generic_platform import *
 from litex.build.xilinx           import Xilinx7SeriesPlatform
+from litex.build.extension        import IOExtension
 from litex.build.openocd          import OpenOCD
 from litex.build.openfpgaloader   import OpenFPGALoader
 
@@ -156,6 +157,11 @@ _litex_acorn_baseboard_mini_io = [
     ("debug", 0, Pins("H5 J5 J2 K2"), IOStandard("LVCMOS33")),
 
 ]
+# Baseboards ---------------------------------------------------------------------------------------
+
+# LiteX Acorn Baseboard Mini (IOs directly on FPGA pins, no connectors).
+litex_acorn_baseboard_mini = IOExtension(io=_litex_acorn_baseboard_mini_io, slots={})
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):

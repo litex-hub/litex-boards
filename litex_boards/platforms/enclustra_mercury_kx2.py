@@ -297,8 +297,8 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN PULLNONE [current_design]")
 
     def add_baseboard(self, bb):
-        self.add_connector(bb.connectors)
-        self.add_extension(bb.io)
+        # Kept for compatibility, equivalent to add_extension(bb).
+        self.add_extension(bb)
 
     def create_programmer(self):
         return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7k160t.bit")
