@@ -6,6 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
+from litex.build.pmod import PmodSDCard
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -345,27 +346,7 @@ def dvi_pmod_io(pmoda,pmodb):
 _dvi_pmod_io = dvi_pmod_io("pmod2","pmod1") # SDCARD PMOD on JD.
 
 def sdcard_pmod_io(pmod):
-    return [
-        # SDCard PMOD:
-        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
-        # - https://github.com/antmicro/arty-expansion-board
-        ("spisdcard", 0,
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULLUP True")),
-            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP True")),
-            Misc("SLEW=FAST"),
-            IOStandard("LVCMOS33"),
-        ),
-        ("sdcard", 0,
-            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("PULLUP True")),
-            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("cd",   Pins(f"{pmod}:6")),
-            Misc("SLEW=FAST"),
-            IOStandard("LVCMOS33"),
-        ),
-]
+    return PmodSDCard(pmod).get_io(XilinxUSPPlatform)
 
 _sdcard_pmod_io = sdcard_pmod_io("pmod3") # SDCARD PMOD on JD.
 

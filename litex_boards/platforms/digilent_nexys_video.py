@@ -6,6 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
+from litex.build.pmod import PmodGPIO, PmodUSBUART
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -337,17 +338,10 @@ _connectors = [
 # PMODS --------------------------------------------------------------------------------------------
 
 def raw_pmod_io(pmod):
-    return [(pmod, 0, Pins(" ".join([f"{pmod}:{i:d}" for i in range(8)])), IOStandard("LVCMOS33"))]
+    return PmodGPIO(pmod).get_io(Xilinx7SeriesPlatform)
 
 def usb_pmod_io(pmod):
-    return [
-        # USB-UART PMOD: https://store.digilentinc.com/pmod-usbuart-usb-to-uart-interface/
-        ("usb_uart", 0,
-            Subsignal("tx", Pins(f"{pmod}:1")),
-            Subsignal("rx", Pins(f"{pmod}:2")),
-            IOStandard("LVCMOS33")
-        ),
-    ]
+    return PmodUSBUART(pmod).get_io(Xilinx7SeriesPlatform)
 _usb_uart_pmod_io = usb_pmod_io("pmodb") # USB-UART PMOD on JB.
 
 # Platform -----------------------------------------------------------------------------------------

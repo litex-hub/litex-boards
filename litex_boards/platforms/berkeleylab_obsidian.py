@@ -13,6 +13,7 @@
 
 from litex.build.generic_platform import Subsignal, Pins, IOStandard, Misc
 from litex.build.xilinx import Xilinx7SeriesPlatform
+from litex.build.pmod import PmodGPIO
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -203,15 +204,7 @@ _connectors = [
 
 
 def raw_pmod_io(pmod="pmoda", iostd="LVCMOS33"):
-    """use with platform.add_extension() to expose a PMOD as GPIO pins"""
-    return [
-        (
-            pmod,
-            0,
-            Pins(" ".join([f"{pmod}:{i:d}" for i in range(8)])),
-            IOStandard(iostd),
-        )
-    ]
+    return PmodGPIO(pmod, iostandard=iostd).get_io(Xilinx7SeriesPlatform)
 
 
 # Platform -----------------------------------------------------------------------------------------

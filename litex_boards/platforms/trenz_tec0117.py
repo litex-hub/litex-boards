@@ -9,6 +9,7 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
+from litex.build.pmod import PmodSDCard
 from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
@@ -82,25 +83,7 @@ _connectors = [
 # PMODs --------------------------------------------------------------------------------------------
 
 def sdcard_pmod_io(pmod):
-    return [
-        # SDCard PMOD:
-        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
-        # - https://github.com/antmicro/arty-expansion-board
-        ("spisdcard", 0,
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULL_MODE=UP")),
-            Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULL_MODE=UP")),
-            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULL_MODE=UP")),
-            IOStandard("LVCMOS33"),
-        ),
-        ("sdcard", 0,
-            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("PULL_MODE=UP")),
-            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULL_MODE=UP")),
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("cd",   Pins(f"{pmod}:6")),
-            IOStandard("LVCMOS33"),
-        ),
-]
+    return PmodSDCard(pmod).get_io(GowinPlatform)
 _sdcard_pmod_io = sdcard_pmod_io("pmod")
 
 # Platform -----------------------------------------------------------------------------------------

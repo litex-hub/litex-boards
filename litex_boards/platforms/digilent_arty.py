@@ -7,6 +7,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
+from litex.build.pmod import PmodCAN, PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -253,95 +254,27 @@ _connectors = [
 # PMODS --------------------------------------------------------------------------------------------
 
 def raw_pmod_io(pmod):
-    return [(pmod, 0, Pins(" ".join([f"{pmod}:{i:d}" for i in range(8)])), IOStandard("LVCMOS33"))]
+    return PmodGPIO(pmod).get_io(Xilinx7SeriesPlatform)
 
 def usb_pmod_io(pmod):
-    return [
-        # USB-UART PMOD: https://store.digilentinc.com/pmod-usbuart-usb-to-uart-interface/
-        ("usb_uart", 0,
-            Subsignal("tx", Pins(f"{pmod}:1")),
-            Subsignal("rx", Pins(f"{pmod}:2")),
-            IOStandard("LVCMOS33")
-        ),
-    ]
+    return PmodUSBUART(pmod).get_io(Xilinx7SeriesPlatform)
 _usb_uart_pmod_io = usb_pmod_io("pmodb") # USB-UART PMOD on JB.
 
 
 def i2s_pmod_io(pmod):
-    return [
-        # I2S PMOD: https://store.digilentinc.com/pmod-i2s2-stereo-audio-input-and-output/
-        ("i2s_rx_mclk", 0, Pins(f"{pmod}:4"), IOStandard("LVCMOS33")),
-        ("i2s_rx", 0,
-            Subsignal("clk", Pins(f"{pmod}:6")),
-            Subsignal("sync", Pins(f"{pmod}:5")),
-            Subsignal("rx", Pins(f"{pmod}:7")),
-            IOStandard("LVCMOS33"),
-        ),
-        ("i2s_tx_mclk", 0, Pins(f"{pmod}:0"), IOStandard("LVCMOS33")),
-        ("i2s_tx", 0,
-            Subsignal("clk",Pins(f"{pmod}:2")),
-            Subsignal("sync", Pins(f"{pmod}:1")),
-            Subsignal("tx", Pins(f"{pmod}:3")),
-            IOStandard("LVCMOS33"),
-        ),
-    ]
+    return PmodI2S2(pmod).get_io(Xilinx7SeriesPlatform)
 _i2s_pmod_io = i2s_pmod_io("pmoda") # I2S PMOD on JA.
 
 def sdcard_pmod_io(pmod):
-    return [
-        # SDCard PMOD:
-        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
-        # - https://github.com/antmicro/arty-expansion-board
-        ("spisdcard", 0,
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULLUP True")),
-            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP True")),
-            Misc("SLEW=FAST"), #NOTE: this is not supported by yosys+nextprn toolchain
-            IOStandard("LVCMOS33"),
-        ),
-        ("sdcard", 0,
-            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("SLEW=FAST"), Misc("PULLUP True")),
-            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("SLEW=FAST"), Misc("PULLUP True")),
-            Subsignal("clk",  Pins(f"{pmod}:3"), Misc("SLEW=FAST")),
-            Subsignal("cd",   Pins(f"{pmod}:6")),
-            IOStandard("LVCMOS33"),
-        ),
-]
+    return PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)
 _sdcard_pmod_io = sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
 
 def numato_sdcard_pmod_io(pmod):
-    return [
-        # SDCard PMOD:
-        # https://numato.com/product/micro-sd-expansion-module/
-        # This adaptor does not have the card detect (CD) pin connected
-        ("spisdcard", 0,
-            Subsignal("clk",  Pins(f"{pmod}:5")),
-            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("cs_n", Pins(f"{pmod}:4"), Misc("PULLUP True")),
-            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP True")),
-            Misc("SLEW=FAST"),
-            IOStandard("LVCMOS33"),
-        ),
-        ("sdcard", 0,
-            Subsignal("data", Pins(f"{pmod}:2 {pmod}:6 {pmod}:0 {pmod}:4"), Misc("PULLUP True")),
-            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("clk",  Pins(f"{pmod}:5")),
-            Misc("SLEW=FAST"),
-            IOStandard("LVCMOS33"),
-        ),
-]
+    return PmodNumatoSDCard(pmod).get_io(Xilinx7SeriesPlatform)
 _numato_sdcard_pmod_io = numato_sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
 
 def can_pmod_io(pmod, n):
-    return [
-        # SN65HVD230 based transceiver on PMOD, https://www.waveshare.com/sn65hvd230-can-board.htm.
-        ("can", n,
-            Subsignal("tx",  Pins(f"{pmod}:2")),
-            Subsignal("rx",  Pins(f"{pmod}:3")),
-            IOStandard("LVCMOS33"),
-        ),
-    ]
+    return PmodCAN(pmod, number=n).get_io(Xilinx7SeriesPlatform)
 
 # Platform -----------------------------------------------------------------------------------------
 

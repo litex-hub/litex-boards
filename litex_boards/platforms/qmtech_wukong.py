@@ -6,6 +6,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
+from litex.build.pmod import PmodPS2, PmodSDCard
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -190,31 +191,10 @@ _connectors = [
 # PMODS --------------------------------------------------------------------------------------------
 
 def sdcard_pmod_io(pmod):
-    return [
-        # SDCard PMOD:
-        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
-        ("spisdcard", 0,
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULLUP True")),
-            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLUP True")),
-            Misc("SLEW=FAST"),
-            IOStandard("LVCMOS33"),
-        ),
-        ("sdcard", 0,
-            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("PULLUP True")),
-            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLUP True")),
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("cd",   Pins(f"{pmod}:6")),
-            Misc("SLEW=FAST"),
-            IOStandard("LVCMOS33"),
-        ),
-]
+    return PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)
 _sdcard_pmod_io = sdcard_pmod_io("j10") # SDCARD PMOD on J10.
 def ps2_pmod_io(pmod):
-    return [
-        ("ps2kbd", 0, Pins(f"{pmod}:0 {pmod}:2"), IOStandard("LVCMOS33")), # data, clk
-]
+    return PmodPS2(pmod).get_io(Xilinx7SeriesPlatform)
 _ps2_pmod_io = ps2_pmod_io("j11") # PS2 PMOD on top line of J11
 
 # Platform -----------------------------------------------------------------------------------------
