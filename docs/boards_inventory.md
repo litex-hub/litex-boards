@@ -65,7 +65,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `digilent_nexys4ddr` | digilent_nexys4ddr | vivado | `75000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
 | `digilent_nexys_video` | digilent_nexys_video | vivado | `100000000.0` | Ethernet, SDCard, SPI SDCard, SATA, Video Terminal, Video Framebuffer, USB | included |
 | `digilent_pynq_z1` | digilent_pynq_z1 | vivado | `125000000.0` | Video Terminal | included |
-| `digilent_zedboard` | digilent_arty, digilent_zedboard | vivado | `100000000.0` | - | included |
+| `digilent_zedboard` | digilent_zedboard | vivado | `100000000.0` | - | included |
 | `ebaz4205` | ebaz4205 | vivado | `100000000.0` | - | included |
 | `efinix_t120_f576_dev_kit` | efinix_t120_f576_dev_kit | efinity | `75000000.0` | Ethernet, Etherbone, SPI Flash | toolchain-gated: Require Efinity toolchain. |
 | `efinix_t20_f256_dev_kit` | efinix_t20_f256_dev_kit | efinity | `45000000.0` | SPI Flash | toolchain-gated: Require Efinity toolchain. |

@@ -150,6 +150,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
+    from litex.build.pmod   import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_genesys2.Platform, description="LiteX SoC on Genesys2.")
     parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
@@ -167,6 +168,7 @@ def main():
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
     parser.add_target_argument("--with-buttons",  action="store_true", help="Enable Buttons.")
     parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -185,6 +187,7 @@ def main():
         **parser.soc_argdict
     )
 
+    add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

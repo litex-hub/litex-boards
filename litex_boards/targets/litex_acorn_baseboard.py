@@ -109,10 +109,10 @@ class BaseSoC(SoCCore):
 
         # WS2812 ----------------------------------------------------------------------------------
         if with_ws2812:
-            from litex.build.generic_platform import Pins, IOStandard
             from litex.soc.integration.soc import SoCRegion
             from litex.soc.cores.led import WS2812
-            platform.add_extension([("ws2812", 0, Pins("pmod1:0"), IOStandard("LVCMOS33"))])
+            from litex.build.pmod import PmodWS2812
+            platform.add_extension(PmodWS2812("pmod1"))
             self.ws2812 = WS2812(platform.request("ws2812"), nleds=64, sys_clk_freq=sys_clk_freq)
             self.bus.add_slave(name="ws2812", slave=self.ws2812.bus, region=SoCRegion(
                 origin = 0x2000_0000,

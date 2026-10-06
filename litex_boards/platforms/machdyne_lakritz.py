@@ -7,6 +7,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeECP5Platform
+from litex.build.pmod import PmodUART
 from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -104,11 +105,7 @@ _io_v0 = [
     ),
 
     # UART PMOD
-    ("serial", 0,
-        Subsignal("tx", Pins("PMODA:1")),
-        Subsignal("rx", Pins("PMODA:2")),
-        IOStandard("LVCMOS33")
-    ),
+    *PmodUART("PMODA").get_io(LatticeECP5Platform),
 
 ]
 

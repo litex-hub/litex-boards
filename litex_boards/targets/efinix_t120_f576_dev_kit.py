@@ -159,6 +159,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
+    from litex.build.pmod   import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=efinix_t120_f576_dev_kit.Platform, description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
@@ -174,6 +175,7 @@ def main():
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-rgmii-phy",  action="store_true",     help="Uses onboard RGMII Phy instead of RMII PMOD.")
     parser.add_target_argument("--eth-phy",        default=0, type=int, choices=[0, 1], help="Ethernet PHY (only available with --eth-rgmii-phy).")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -190,6 +192,7 @@ def main():
         eth_phy        = args.eth_phy,
         eth_rgmii_phy  = args.eth_rgmii_phy,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

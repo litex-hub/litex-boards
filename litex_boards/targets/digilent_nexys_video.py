@@ -161,7 +161,7 @@ class BaseSoC(SoCCore):
 
         # USB-OHCI ---------------------------------------------------------------------------------
         if with_usb:
-            from litex.build.generic_platform import Subsignal, Pins, IOStandard
+            from litex.build.generic_platform import Subsignal, Pins
             from litex.soc.cores.usb_ohci import USBOHCI
 
             # Use the Video PLL if available
@@ -169,14 +169,10 @@ class BaseSoC(SoCCore):
             self.crg.pll.create_clkout(self.crg.cd_usb, 48e6, margin=0)
 
             # Machdyne PMOD (https://github.com/machdyne/usb_host_dual_socket_pmod) on JB
-            _usb_pmodb_dual_ios = [
-                ("usb_pmodb_dual", 0,
-                    Subsignal("dp", Pins("pmodb:0 pmodb:2")),
-                    Subsignal("dm", Pins("pmodb:1 pmodb:3")),
-                    IOStandard("LVCMOS33"),
-                ),
-            ]
-            self.platform.add_extension(_usb_pmodb_dual_ios)
+
+            from litex.build.pmod import PmodUSBHostDual
+
+            self.platform.add_extension(PmodUSBHostDual("pmodb", bundled=True, name="usb_pmodb_dual"))
 
             self.submodules.usb_ohci = USBOHCI(self.platform, self.platform.request("usb_pmodb_dual"), usb_clk_freq=int(48e6))
             self.mem_map["usb_ohci"] = 0x90000000

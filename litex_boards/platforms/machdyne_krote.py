@@ -11,6 +11,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeiCE40Platform
+from litex.build.pmod import PmodUART
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -44,13 +45,7 @@ _connectors = [
 ]
 
 # Default peripherals
-serial = [
-    ("serial", 0,
-        Subsignal("tx", Pins("PMODE:1")),
-        Subsignal("rx", Pins("PMODE:2")),
-        IOStandard("LVCMOS33")
-    )
-]
+serial = PmodUART("PMODE").get_io(LatticeiCE40Platform)
 
 # Platform -----------------------------------------------------------------------------------------
 

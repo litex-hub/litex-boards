@@ -134,14 +134,8 @@ class BaseSoC(SoCCore):
 
         # USB OHCI ---------------------------------------------------------------------------------
         if with_ohci:
-            _usb_pmod_ios = [
-               ("usb_pmod1", 0,
-                   Subsignal("dp", Pins("pmod1:0", "pmod1:1", "pmod1:2", "pmod1:3")),
-                   Subsignal("dm", Pins("pmod1:4", "pmod1:5", "pmod1:6", "pmod1:7")),
-                   IOStandard("3.3_V_LVCMOS"), Misc("DRIVE_STRENGTH=8"),
-               )
-            ]
-            platform.add_extension(_usb_pmod_ios)
+            from litex.build.pmod import PmodUSBHostQuad
+            platform.add_extension(PmodUSBHostQuad("pmod1", name="usb_pmod1", iostandard="3.3_V_LVCMOS", misc=Misc("DRIVE_STRENGTH=8")))
             self.submodules.usb_ohci = USBOHCI(platform, platform.request("usb_pmod1"), usb_clk_freq=int(60e6))
             self.bus.add_slave("usb_ohci_ctrl", self.usb_ohci.wb_ctrl, region=SoCRegion(origin=self.mem_map["usb_ohci"], size=0x100000, cached=False))
             self.dma_bus.add_master("usb_ohci_dma", master=self.usb_ohci.wb_dma)
@@ -149,16 +143,8 @@ class BaseSoC(SoCCore):
 
         # JTAG -------------------------------------------------------------------------------------
         if hasattr(self.cpu, "jtag_tms"):
-            _jtag_io = [
-                ("jtag", 0,
-                    Subsignal("tck", Pins("pmod0:0")),
-                    Subsignal("tdi", Pins("pmod0:1")),
-                    Subsignal("tdo", Pins("pmod0:2")),
-                    Subsignal("tms", Pins("pmod0:3")),
-                    IOStandard("3.3_V_LVCMOS"),
-                )
-            ]
-            self.platform.add_extension(_jtag_io)
+            from litex.build.pmod import PmodJTAG
+            self.platform.add_extension(PmodJTAG("pmod0", iostandard="3.3_V_LVCMOS"))
             jtag_pads = platform.request("jtag")
             self.cpu.add_jtag(jtag_pads)
             platform.add_false_path_constraints(self.crg.cd_sys.clk, jtag_pads.tck)

@@ -8,6 +8,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeiCE40Platform
+from litex.build.pmod import PmodLED
 from litex.build.lattice.programmer import IceSugarProgrammer
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -80,18 +81,9 @@ _connectors = [
 # PMODS --------------------------------------------------------------------------------------------
 
 def led_pmod_io_v11(pmod, offset=0):
-    return [
-        # LED PMOD: https://www.aliexpress.com/item/1005001504777342.html
-        # Contrary to the supplied schematic, the two nibbles seem to be swapped on the board.
-        ("user_led_n", offset + 0,  Pins(f"{pmod}:4"), IOStandard("LVCMOS33")),
-        ("user_led_n", offset + 1,  Pins(f"{pmod}:5"), IOStandard("LVCMOS33")),
-        ("user_led_n", offset + 2,  Pins(f"{pmod}:6"), IOStandard("LVCMOS33")),
-        ("user_led_n", offset + 3,  Pins(f"{pmod}:7"), IOStandard("LVCMOS33")),
-        ("user_led_n", offset + 4,  Pins(f"{pmod}:0"), IOStandard("LVCMOS33")),
-        ("user_led_n", offset + 5,  Pins(f"{pmod}:1"), IOStandard("LVCMOS33")),
-        ("user_led_n", offset + 6,  Pins(f"{pmod}:2"), IOStandard("LVCMOS33")),
-        ("user_led_n", offset + 7,  Pins(f"{pmod}:3"), IOStandard("LVCMOS33")),
-    ]
+    # LED PMOD: https://www.aliexpress.com/item/1005001504777342.html
+    # Contrary to the supplied schematic, the two nibbles seem to be swapped on the board.
+    return PmodLED(pmod, order=[4, 5, 6, 7, 0, 1, 2, 3], name="user_led_n", number=offset).get_io(LatticeiCE40Platform)
 
 # Platform -----------------------------------------------------------------------------------------
 

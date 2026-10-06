@@ -7,6 +7,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform, VivadoProgrammer
+from litex.build.pmod import PmodUSBUART
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -225,15 +226,7 @@ _ps7_io = [
     ),
 ]
 
-_usb_uart_pmod_io = [
-    # USB-UART PMOD on JB:
-    # - https://store.digilentinc.com/pmod-usbuart-usb-to-uart-interface/
-    ("usb_uart", 0,
-        Subsignal("tx", Pins("pmodb:1")),
-        Subsignal("rx", Pins("pmodb:2")),
-        IOStandard("LVCMOS33")
-    ),
-]
+_usb_uart_pmod_io = PmodUSBUART("pmodb").get_io(Xilinx7SeriesPlatform) # USB-UART Pmod on JB.
 
 # Connectors ---------------------------------------------------------------------------------------
 

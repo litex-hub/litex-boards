@@ -186,6 +186,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
+    from litex.build.pmod   import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=trellisboard.Platform, description="LiteX SoC on Trellis Board.")
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")
@@ -200,6 +201,7 @@ def main():
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
     parser.add_target_argument("--with-pmod-gpio",      action="store_true",        help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     parser.add_target_argument("--with-buttons",        action="store_true",        help="Enable Buttons.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -215,6 +217,7 @@ def main():
         with_buttons           = args.with_buttons,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

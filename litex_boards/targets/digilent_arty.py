@@ -144,25 +144,15 @@ class BaseSoC(SoCCore):
         # USB-OHCI ---------------------------------------------------------------------------------
         if with_usb:
             from litex.soc.cores.usb_ohci import USBOHCI
-            from litex.build.generic_platform import Subsignal, Pins, IOStandard
 
             self.crg.cd_usb = ClockDomain()
             self.crg.pll.create_clkout(self.crg.cd_usb, 48e6, margin=0)
 
             # Machdyne PMOD (https://github.com/machdyne/usb_host_dual_socket_pmod)
-            _usb_pmod_ios = [
-                ("usb_pmoda", 0, # USB1 (top socket)
-                    Subsignal("dp", Pins("pmoda:2")),
-                    Subsignal("dm", Pins("pmoda:3")),
-                    IOStandard("LVCMOS33"),
-                ),
-                ("usb_pmoda", 1, # USB2 (bottom socket)
-                    Subsignal("dp", Pins("pmoda:0")),
-                    Subsignal("dm", Pins("pmoda:1")),
-                    IOStandard("LVCMOS33"),
-                )
-            ]
-            self.platform.add_extension(_usb_pmod_ios)
+
+            from litex.build.pmod import PmodUSBHostDual
+
+            self.platform.add_extension(PmodUSBHostDual("pmoda", name="usb_pmoda"))
 
             self.submodules.usb_ohci = USBOHCI(self.platform, self.platform.request("usb_pmoda", 0), usb_clk_freq=int(48e6))
             self.mem_map["usb_ohci"] = 0xc0000000
