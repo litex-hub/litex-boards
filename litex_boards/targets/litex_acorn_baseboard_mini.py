@@ -100,7 +100,7 @@ class BaseSoC(SoCCore):
         with_sata       = False, sata_gen="gen2",
         **kwargs):
         platform = sqrl_acorn.Platform(variant=variant)
-        platform.add_extension(sqrl_acorn._litex_acorn_baseboard_mini_io, prepend=True)
+        platform.add_extension(sqrl_acorn.litex_acorn_baseboard_mini, prepend=True)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Acorn CLE-101/215(+)", **kwargs)

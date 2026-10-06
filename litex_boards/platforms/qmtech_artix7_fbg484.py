@@ -154,13 +154,12 @@ class Platform(Xilinx7SeriesPlatform):
             (core_leds_name, 1, Pins("E3"),  IOStandard("LVCMOS33")),
         ]
 
-        if with_daughterboard:
-            from litex_boards.platforms.qmtech_daughterboard import QMTechDaughterboard
-            daughterboard = QMTechDaughterboard(IOStandard("LVCMOS33"))
-            io += daughterboard.io
-            connectors += daughterboard.connectors
 
         Xilinx7SeriesPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
+
+        if with_daughterboard:
+            from litex_boards.extensions.qmtech import QMTechDaughterboard
+            self.add_extension(QMTechDaughterboard())
 
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",

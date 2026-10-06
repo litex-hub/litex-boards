@@ -134,7 +134,7 @@ class BaseSoC(SoCCore):
             self.buttons = GPIOIn(Cat(platform.request("user_btn_n", 1)))
 
         if (with_daughterboard):
-            from litex_boards.platforms.qmtech_daughterboard import SevenSeg
+            from litex_boards.extensions.qmtech import SevenSeg
             self.submodules.sevenseg = SevenSeg(
                     segs         = platform.request_all("seven_seg"),
                     sels         = platform.request_all("seven_seg_ctl"),

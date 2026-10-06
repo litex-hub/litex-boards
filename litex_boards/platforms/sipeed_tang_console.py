@@ -10,8 +10,11 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
+from litex.build.extension import IOExtension
 from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
+
+from litex_boards.extensions.sdram_modules import MiSTerSDRAM, SipeedSDRAM
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -182,76 +185,8 @@ _connectors_60k = [
     ],
 ]
 
-_connectors_138k = [
-    ["J0", # BTB9900.
-        # -------------------------------------------------------------
-        "---", # 0
-        #  GND  GND  TMS       TDO       TCK  GND  TDI  PUDC  (   1-10).
-        " ---- ---- ----  V19 ----  V18 ---- ---- ----  U22",
-        #  GND                      GND  GND                  (  11-20).
-        " ----  T18  U21  R18  T21 ---- ----  R17  T20  P16",
-        #  GND  GND                      GND      VCCO        (  21-30).
-        " ---- ----  R19  L14  P19  L15 ----  N20 ----  M20",
-        #                      GND            GND             (  31-40).
-        "  N22  L16  M22  K16 ----  P20  M21 ----  L21  N18",
-        #                                                     (  41-50).
-        "  L19  N19  L20  M18  K21  L18  K22  K18  J22  K19",
-        #                                               GND   (  51-60).
-        "  H22  H17  J20  H18  J21  J19  G17  H19  G18 ----",
-        # RCFG       GND            GND                       (  61-70).
-        "  N12  H20 ----  G20  G21 ----  G22  F19  F18  F20",
-        #                               DONE       RDY        (  71-80).
-        "  E18  F21  C22  E22  B22  D22  G11  E21  U12  D21",
-    ],
-    ["J1", # C2399.
-        # -------------------------------------------------------------
-        "---", # 0
-        # VCCO  GND  GND                      GND  GND        (   1-10).
-        " ---- ---- ----  C20  A21  D20  B21  ---  ---  D19",
-        #                 GND  GND                      GND   (  11-20).
-        "  A20  E19  B20 ---- ----  C19  A19  C18  A18 ----",
-        #  GND                      GND  GND                  (  21-30).
-        " ----  E17  B18  F16  B17 ---- ----  D16  C17  E16",
-        #       GND  GND                      GND  GND        (  31-40).
-        "  D17 ---- ----  D15  A16  D14  A15 ---- ----  F15",
-        #                      GND  GND                       (  41-50).
-        "  B16  F14  B15  F13 ---- ----  A14  J16  A13  J17",
-        #  GND                           GND       GND  GND   (  51-60).
-        " ----  K17  B13  H15  C13  J15 ----  H14  C15  J14",
-        #            GND                           GND  GND   (  61-70).
-        "  C14 G16  ----  G15  E14  G13  E13  H13 ---- ----",
-        # PCIe PCIe PCIe PCIe  GND  GND PCIe PCIe PCIe PCIe   (  71-80).
-        "  E10  C11  F10  D11 ---- ----   C7   A6   D7   D6",
-        #  GND  GND PCIe PCIe PCIe PCIe  GND  GND PCIe PCIe   (  81-90).
-        " ---- ----   A6   C9   B6   D9 ---- ----   C5   A8",
-        # PCIe PCIe  GND  GND PCIe PCIe PCIe PCIe  GND  GND   ( 91-100).
-        "   D5   B8 ---- ----   B4   E6   A4   F6 ---- ----",
-    ],
-    ["J2", # C2400.
-        # -------------------------------------------------------------
-        "---", # 0
-        #  VCC                                                (   1-10).
-        " ----  W22  Y22  W21  Y21  V20 AB22  U20 AB21  M17",
-        #                                                     (  11-20).
-        " AA21  P17 AA20  N17 AB20  M16 AA19  M15  W20  N15",
-        #                                                     (  21-30).
-        "  W19  N13 AB18  N14 AA18  Y17  Y19 AB17  Y18 AA16",
-        #                                                     (  31-40).
-        "  W17  M13  V17  L13  U18 AB16  U17 AA15  W16 AB15",
-        #                                GND                  (  41-50).
-        "  U16  Y16  T16  W15  T15  V15 ----  W14  R16  U15",
-        #            GND                           GND        (  51-60).
-        "  P15  Y14 ----  V14  R14  Y13  P14 AA14 ---- AA13",
-        #                      GND       VIO      MODE        (  61-70).
-        "  K14 AB13  K13  Y12 ---- AB12 ----  V10   U9  W11",
-        # MODE      MODE      CFG        GND       GND        (  71-80).
-        "  U10  Y11  U11  W10   U8 AB11 ---- AA11 ---- AB10",
-        #  GND       GND       GND       GND      VBUS        (  81-90).
-        " ---- AA10 ----  AA9 ----  W12 ----  V13 ----  T14",
-        # VBUS  ADC VBUS  ADC VBUS  ADC VBUS  ADC VBUS  GND   ( 91-100).
-        " ----   N9 ----  N10 ----   M9 ----  L10 ---- ----",
-    ],
-]
+# Same SoM as the Tang Mega 138K.
+from litex_boards.platforms.sipeed_tang_mega_138k import _connectors as _connectors_138k
 
 # Dock IOs -----------------------------------------------------------------------------------------
 
@@ -349,53 +284,16 @@ _dock_connectors = [
 # SDRAMs -------------------------------------------------------------------------------------------
 
 def misterSDRAM(conn="sdram0_connector"):
-    return [
-        ("sdram_clock", 0, Pins(f"{conn}:20"),
-            IOStandard("LVCMOS33"),
-            Misc("PULL_MODE=NONE DRIVE=16"),
-        ),
-        ("sdram", 0,
-            Subsignal("a",   Pins(
-                f"{conn}:37 {conn}:38 {conn}:39 {conn}:40 {conn}:28 {conn}:25 {conn}:26 {conn}:23",
-                f"{conn}:24 {conn}:21 {conn}:36 {conn}:22 {conn}:19"),
-            ),
-            Subsignal("dq",  Pins(
-                f"{conn}:1  {conn}:2  {conn}:3  {conn}:4  {conn}:5  {conn}:6  {conn}:7  {conn}:8",
-                f"{conn}:18 {conn}:17 {conn}:16 {conn}:15 {conn}:14 {conn}:13 {conn}:10 {conn}:9"),
-            ),
-            Subsignal("ba",    Pins(f"{conn}:34 {conn}:35")),
-            Subsignal("cas_n", Pins(f"{conn}:31")),
-            Subsignal("cs_n",  Pins(f"{conn}:33")),
-            Subsignal("ras_n", Pins(f"{conn}:32")),
-            Subsignal("we_n",  Pins(f"{conn}:27")),
-            IOStandard("LVCMOS33"),
-        ),
-    ]
+    return MiSTerSDRAM(conn).get_io(GowinPlatform)
 
 def sipeedSDRAM(conn="sdram0_connector"):
-    return [
-        ("sdram_clock", 0, Pins(f"{conn}:20"),
-            IOStandard("LVCMOS33"),
-            Misc("PULL_MODE=NONE DRIVE=16"),
-        ),
-        ("sdram", 0,
-            Subsignal("a",   Pins(
-                f"{conn}:37 {conn}:38 {conn}:39 {conn}:40 {conn}:28 {conn}:25 {conn}:26 {conn}:23",
-                f"{conn}:24 {conn}:21 {conn}:36 {conn}:22 {conn}:19")
-            ),
-            Subsignal("dq",  Pins(
-                f"{conn}:1  {conn}:2  {conn}:3  {conn}:4  {conn}:5  {conn}:6  {conn}:7  {conn}:8",
-                f"{conn}:18 {conn}:17 {conn}:16 {conn}:15 {conn}:14 {conn}:13 {conn}:10 {conn}:9"),
-            ),
-            Subsignal("ba",    Pins(f"{conn}:34 {conn}:35")),
-            Subsignal("cas_n", Pins(f"{conn}:31")),
-            Subsignal("cs_n",  Pins(f"{conn}:33")),
-            Subsignal("ras_n", Pins(f"{conn}:32")),
-            Subsignal("we_n",  Pins(f"{conn}:27")),
-            Subsignal("dm",    Pins(f"{conn}:29 {conn}:30")),
-            IOStandard("LVCMOS33"),
-        ),
-    ]
+    return SipeedSDRAM(conn).get_io(GowinPlatform)
+
+# Docks --------------------------------------------------------------------------------------------
+
+docks = {
+    "standard" : IOExtension(io=_dock_io, connectors=_dock_connectors, slots={}),
+}
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -420,8 +318,10 @@ class Platform(GowinPlatform):
         GowinPlatform.__init__(self, device_map[device], _io, connectors, toolchain=toolchain, devicename=device)
         self.add_extension(io)
         self.add_extension(_ddram_io(device))
-        self.add_extension(_dock_io)
-        self.add_connector(_dock_connectors)
+        if dock is not None:
+            if dock not in docks:
+                raise ValueError(f"Unsupported dock {dock}, supported: {', '.join(docks)} or None (SoM only).")
+            self.add_extension(docks[dock])
 
         self.toolchain.options["use_ready_as_gpio"] = 1
         self.toolchain.options["use_done_as_gpio"]  = 1

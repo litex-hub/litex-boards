@@ -158,14 +158,14 @@ class Platform(Xilinx7SeriesPlatform):
 
         if with_daughterboard:
             io += self.core_resources_daughterboard
-            from litex_boards.platforms.qmtech_daughterboard import QMTechDaughterboard
-            daughterboard = QMTechDaughterboard(IOStandard("LVCMOS33"))
-            io += daughterboard.io
-            connectors += daughterboard.connectors
         elif with_core_resources:
             io += self.core_resources_standalone
 
         Xilinx7SeriesPlatform.__init__(self, device, io, connectors, toolchain=toolchain)
+
+        if with_daughterboard:
+            from litex_boards.extensions.qmtech import QMTechDaughterboard
+            self.add_extension(QMTechDaughterboard())
 
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
