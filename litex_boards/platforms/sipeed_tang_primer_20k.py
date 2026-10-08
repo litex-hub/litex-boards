@@ -9,9 +9,10 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
-from litex.build.extension import IOExtension
 from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
+
+from litex_boards.extensions.sipeed import TangPrimer20KDock, TangPrimer20KDockLite
 
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -132,148 +133,11 @@ _connectors = [
     ],
 ]
 
-# Dock IOs -----------------------------------------------------------------------------------------
-
-_dock_io = [
-    # Leds
-    ("led", 0,  Pins( "CARD1:44"), IOStandard("LVCMOS33")),
-    ("led", 1,  Pins( "CARD1:46"), IOStandard("LVCMOS33")),
-    ("led", 3,  Pins( "CARD1:40"), IOStandard("LVCMOS33")),
-    ("led", 2,  Pins( "CARD1:42"), IOStandard("LVCMOS33")),
-    ("led", 4,  Pins( "CARD1:98"), IOStandard("LVCMOS33")),
-    ("led", 5,  Pins("CARD1:136"), IOStandard("LVCMOS33")),
-
-    # RGB Led.
-    ("rgb_led", 0, Pins("CARD1:45"), IOStandard("LVCMOS33")),
-
-    # Buttons.
-    ("btn_n", 0,  Pins( "CARD1:15"), IOStandard("LVCMOS33")),
-    ("btn_n", 1,  Pins("CARD1:165"), IOStandard("LVCMOS15")),
-    ("btn_n", 2,  Pins("CARD1:163"), IOStandard("LVCMOS15")),
-    ("btn_n", 3,  Pins("CARD1:159"), IOStandard("LVCMOS15")),
-    ("btn_n", 4,  Pins("CARD1:157"), IOStandard("LVCMOS15")),
-
-    # HDMI.
-    ("hdmi", 0,
-        Subsignal("clk_p",   Pins("CARD1:68"), IOStandard("LVCMOS33")),
-        Subsignal("clk_n",   Pins("CARD1:70"), IOStandard("LVCMOS33")),
-        Subsignal("data0_p", Pins("CARD1:64"), IOStandard("LVCMOS33")),
-        Subsignal("data0_n", Pins("CARD1:62"), IOStandard("LVCMOS33")),
-        Subsignal("data1_p", Pins("CARD1:58"), IOStandard("LVCMOS33")),
-        Subsignal("data1_n", Pins("CARD1:56"), IOStandard("LVCMOS33")),
-        Subsignal("data2_p", Pins("CARD1:52"), IOStandard("LVCMOS33")),
-        Subsignal("data2_n", Pins("CARD1:50"), IOStandard("LVCMOS33")),
-        Subsignal("hdp", Pins("CARD1:154"), IOStandard("LVCMOS33")),
-        Subsignal("cec", Pins("CARD1:152"), IOStandard("LVCMOS33")),
-        #Subsignal("sda", Pins("CARD1:95")), # Conflict with eth mdc
-        #Subsignal("scl", Pins("CARD1:97")), # Conflict with eth mdio
-        Misc("PULL_MODE=NONE"),
-    ),
-
-    # LCD.
-    ("lcd", 0,
-        # Control.
-        Subsignal("rst",   Pins("CARD1:123")),
-        Subsignal("bl",    Pins("CARD1:186")),
-        #Subsignal("sda",   Pins("CARD1: 95")), # Conflict with eth mdc
-        #Subsignal("scl",   Pins("CARD1: 97")), # Conflict with eth mdio
-        Subsignal("int",   Pins("CARD1:125")),
-
-        # Video.
-        Subsignal("clk",   Pins("CARD1:183")),
-        Subsignal("de",    Pins("CARD1:101")),
-        Subsignal("hsync", Pins("CARD1:107")),
-        Subsignal("vsync", Pins("CARD1:103")),
-        Subsignal("r",     Pins("CARD1:193 CARD1:191 CARD1:181 CARD1:177 CARD1:175")),
-        Subsignal("g",     Pins("CARD1:180 CARD1:131 CARD1:129 CARD1:194 CARD1:192 CARD1:182")),
-        Subsignal("b",     Pins("CARD1:121 CARD1:119 CARD1:115 CARD1:113 CARD1:109")),
-        IOStandard("LVCMOS33")
-    ),
-
-    # RMII Ethernet
-    ("eth_clocks", 0,
-        Subsignal("ref_clk", Pins("CARD1:148")),
-        IOStandard("LVCMOS33"),
-    ),
-    ("eth", 0,
-        Subsignal("rst_n",   Pins("CARD1:176")),
-        Subsignal("rx_data", Pins("CARD1:132 CARD1:146")),
-        Subsignal("crs_dv",  Pins("CARD1:198")),
-        Subsignal("tx_en",   Pins("CARD1:130")),
-        Subsignal("tx_data", Pins("CARD1:140 CARD1:142")),
-        Subsignal("mdc",     Pins("CARD1:95")),
-        Subsignal("mdio",    Pins("CARD1:97")),
-        Subsignal("rx_er",   Pins("CARD1:200")),
-        #Subsignal("int_n",   Pins("CARD1:")),
-        IOStandard("LVCMOS33")
-     ),
-]
-
-# Dock Lite IOs ------------------------------------------------------------------------------------
-
-_dock_lite_io = [
-    # Buttons.
-    ("btn_n",   0, Pins("CARD1:15"),  IOStandard("LVCMOS33")),
-    ("btn_n",   1, Pins("CARD1:163"), IOStandard("LVCMOS15")),
-
-    # Switches
-    ("user_sw", 0, Pins("CARD1:159"), IOStandard("LVCMOS15")),
-    ("user_sw", 1, Pins("CARD1:157"), IOStandard("LVCMOS15")),
-]
-
-_dock_lite_connectors = [
-    # Pmod
-    ("j2", "F15 D16 C9  L12 E15 E14 A9  J11"),
-    ("j6", "L8  P7  E10 D11 M6  R7  D10 F10"),
-    ("j7", "T6  T7  T8  T9  P6  R8  M6  P9"),
-    ("j8", "R16 P16 N16 L16 P15 N15 N14 L14"),
-
-    ("j1", {
-         7: "T5",
-         9: "T3",  10: "T5",
-        13: "E9",  14: "E8",
-        15: "T15", 16: "C13",
-        17: "T13", 18: "M11",
-        19: "B10", 20: "A13",
-        21: "H12", 22: "G11",
-        23: "H13", 24: "J12",
-        25: "K12", 26: "K13",
-        27: "L13", 28: "K11",
-        29: "R11", 30: "T12",
-        31: "P11", 32: "T11",
-        33: "G16", 34: "H15",
-        35: "H16", 36: "H14",
-        37: "K16", 38: "J15",
-        39: "K15", 40: "K14",
-    }),
-    ("j3", {
-         3: "N6",   4: "N7",
-         5: "B11",  6: "A12",
-         7: "L9",   8: "N8",
-         9: "R9",  10: "N9",
-        11: "A6",  12: "A7",
-        13: "C6",  14: "B8",
-        15: "C10",
-        17: "A11", 18: "C11",
-        19: "B12", 20: "C12",
-        21: "B13", 22: "A14",
-        23: "B14", 24: "A15",
-        25: "D15", 26: "E15",
-        27: "F16", 28: "F14",
-        29: "G15", 30: "G14",
-        31: "J14", 32: "J16",
-        33: "G12", 34: "F13",
-        35: "M14", 36: "M15",
-        37: "T14", 38: "R13",
-        39: "P13", 40: "R12",
-    })
-]
-
 # Docks --------------------------------------------------------------------------------------------
 
 docks = {
-    "standard" : IOExtension(io=_dock_io, slots={}),
-    "lite"     : IOExtension(io=_dock_lite_io, connectors=_dock_lite_connectors, slots={}),
+    "standard" : TangPrimer20KDock(),
+    "lite"     : TangPrimer20KDockLite(),
 }
 
 # Platform -----------------------------------------------------------------------------------------

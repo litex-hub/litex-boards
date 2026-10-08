@@ -10,11 +10,11 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
-from litex.build.extension import IOExtension
 from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
 from litex_boards.extensions.sdram_modules import MiSTerSDRAM, SipeedSDRAM
+from litex_boards.extensions.sipeed        import TangMega138KProDock
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -178,120 +178,6 @@ _connectors = [
     ],
 ]
 
-# Dock IOs -----------------------------------------------------------------------------------------
-
-# Note: SOM.J1 -> dock.J6 odd/even revert
-#       SOM.J2 -> dock.J7 odd/even revert
-#       SOM.J3 -> dock.J8 odd/even revert
-
-_dock_io = [
-    # SFP-0/1 (SerDes Q1, lanes 0/1; reference clock: Q1 REFCLK1).
-    ("sfp", 0,
-        Subsignal("tx_disable", Pins("R18")),
-        Subsignal("los",        Pins("V18")),
-        IOStandard("LVCMOS33")
-    ),
-    ("sfp", 1,
-        Subsignal("tx_disable", Pins("M20")),
-        Subsignal("los",        Pins("W18")),
-        IOStandard("LVCMOS33")
-    ),
-
-    ("btn_n", 0,  Pins( "J3:60"), IOStandard("LVCMOS33")),
-    ("btn_n", 1,  Pins( "J3:62"), IOStandard("LVCMOS33")),
-    ("btn_n", 2,  Pins( "J3:64"), IOStandard("LVCMOS33")),
-    ("btn_n", 3,  Pins( "J3:66"), IOStandard("LVCMOS33")),
-
-    # FAN
-    ("fan", 0,
-        Subsignal("pwm", Pins("T18")),
-        Subsignal("tac", Pins("T17")),
-        IOStandard("LVCMOS33")
-    ),
-
-    ("led_ws2812", 0, Pins("H16"), IOStandard("LVCMOS33")),
-
-    # LCD
-    ("lcd", 0,
-        Subsignal("r", Pins("H19 J19 G25 H18 J18 K17")),
-        Subsignal("g", Pins("J16 K15 F22 G22 G21 G20")),
-        Subsignal("b", Pins("F20 G19 F19 F18 M17 M16")),
-        Subsignal("en", Pins("A24")),
-        Subsignal("clk", Pins("H21")),
-        IOStandard("LVCMOS33"),
-        Misc("PULL_MODE=NONE DRIVE=24 BANK_VCCIO=3.3")
-    ),
-
-    # HDMI In
-    ("hdmi_in", 0,
-        Subsignal("clk_p",   Pins("J1:107")),
-        Subsignal("clk_n",   Pins("J1:109")),
-        Subsignal("data0_p", Pins("J1:87")),
-        Subsignal("data0_n", Pins("J1:85")),
-        Subsignal("data1_p", Pins("J1:103")),
-        Subsignal("data1_n", Pins("J1:105")),
-        Subsignal("data2_p", Pins("J1:93")),
-        Subsignal("data2_n", Pins("J1:95")),
-        Subsignal("hdp",     Pins("J1:99")),
-        #Subsignal("scl",     Pins("J1:89")),
-        #Subsignal("sda",     Pins("J1:91")),
-        #Subsignal("cec",     Pins("J1:97")),
-        IOStandard("LVCMOS33D"),
-        Misc("PULL_MODE=NONE DRIVE=8")
-    ),
-
-    # HDMI Out
-    ("hdmi_out", 0,
-        Subsignal("clk_p",   Pins("J1:14")),
-        Subsignal("clk_n",   Pins("J1:12")),
-        Subsignal("data0_p", Pins("J1:6")),
-        Subsignal("data0_n", Pins("J1:4")),
-        Subsignal("data1_p", Pins("J1:18")),
-        Subsignal("data1_n", Pins("J1:16")),
-        Subsignal("data2_p", Pins("J1:10")),
-        Subsignal("data2_n", Pins("J1:8")),
-        Subsignal("hdp",     Pins("J2:39")),
-        #Subsignal("scl",     Pins("J1:89")),
-        #Subsignal("sda",     Pins("J1:91")),
-        #Subsignal("cec",     Pins("J2:41")),
-        IOStandard("LVCMOS33D"),
-        Misc("PULL_MODE=NONE DRIVE=8")
-    ),
-
-    # RGMII Ethernet
-    ("eth_clocks", 0,
-        Subsignal("tx", Pins("H24")),
-        Subsignal("rx", Pins("C23")),
-        IOStandard("LVCMOS33")
-    ),
-    ("eth", 0,
-        Subsignal("rst_n",   Pins("E17")),
-        Subsignal("mdio",    Pins("K22")),
-        Subsignal("mdc",     Pins("K23")),
-        Subsignal("rx_ctl",  Pins("C22")),
-        Subsignal("rx_data", Pins("B26 C26 D26 E26")),
-        Subsignal("tx_ctl",  Pins("J24")),
-        Subsignal("tx_data", Pins("K21 J21 L19 K18")),
-        IOStandard("LVCMOS33"),
-    ),
-    ("ephy_clk", 0, Pins("E18"), IOStandard("LVCMOS33")),
-]
-
-_dock_connectors = [
-    ["sdram_connector",
-        # -------------------------------------------------------------
-        "---", # 0
-        #                                                     ( 1-10).
-        "  U16 V16  U15  V17  W21  Y21  P21  U17  P23  P24",
-        #  5V  GND                                            (11-20).
-        "  --- ---  T23  R23  R25  T25  W23  P25  U24  V23",
-        #                                                     (21-30).
-        " AC26 U25 AB25 AB26 AA25 AA24  Y26  Y25  L22  M24",
-        #                                                     (31-40).
-        "  W26 W25  U26  V26  W20  Y20  V19  W19  U22  V22",
-    ],
-]
-
 # SDRAMs -------------------------------------------------------------------------------------------
 
 def misterSDRAM(conn="sdram_connector"):
@@ -303,7 +189,7 @@ def sipeedSDRAM(conn="sdram_connector"):
 # Docks --------------------------------------------------------------------------------------------
 
 docks = {
-    "standard" : IOExtension(io=_dock_io, connectors=_dock_connectors, slots={}),
+    "standard" : TangMega138KProDock(),
 }
 
 # Platform -----------------------------------------------------------------------------------------

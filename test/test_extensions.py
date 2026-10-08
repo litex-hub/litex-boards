@@ -83,6 +83,21 @@ class TestExtensions(unittest.TestCase):
             with self.assertRaises(ValueError):
                 _platform(board, dock="unknown")
 
+    def test_sipeed_tang_mega_docks(self):
+        # Neo Dock and Tang Console dock plugged on the 60K/138K SoMs (SoM-only platforms).
+        from litex_boards.extensions.sipeed import TangMegaNeoDock, TangConsoleDock
+        for board, som in [("sipeed_tang_mega_60k", "60k"), ("sipeed_tang_mega_138k", "138k")]:
+            for dock in [TangMegaNeoDock(som=som), TangConsoleDock()]:
+                with self.subTest(board=board, dock=type(dock).__name__):
+                    platform = _platform(board, dock=None)
+                    platform.add_extension(dock)
+                    _request_all(platform)
+        for device in ["GW5AT-60B", "GW5AST-138C"]:
+            with self.subTest(board="sipeed_tang_console", device=device):
+                _request_all(_platform("sipeed_tang_console", device=device))
+        with self.assertRaises(ValueError):
+            TangMegaNeoDock(som="20k")
+
     def test_enclustra_st1_on_kx2(self):
         # All ST1 IOs resolve on KX2 except the ones not connected on KX2 (C pins below 69).
         from litex_boards.extensions.enclustra import EnclustraST1
