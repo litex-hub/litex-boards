@@ -136,5 +136,20 @@ class TestExtensions(unittest.TestCase):
                 platform.request("sdram")
                 platform.constraint_manager.get_sig_constraints()
 
+    def test_machdyne_ml1_carriers(self):
+        # Mozart and Vivaldi share the ML1 module IOs, only carrier IOs differ.
+        from litex_boards.extensions.machdyne import MachdyneML1
+        for revision in MachdyneML1.revisions:
+            module = [r[0:2] for r in MachdyneML1(revision=revision).get_io(None)]
+            for board in ["machdyne_mozart_ml1", "machdyne_vivaldi_ml1"]:
+                with self.subTest(board=board, revision=revision):
+                    platform = _platform(board, revision=revision)
+                    available = [r[0:2] for r in platform.constraint_manager.available]
+                    for r in module:
+                        self.assertIn(r, available)
+                    _request_all(platform)
+        self.assertIn(("eth", 1), [r[0:2] for r in _platform("machdyne_vivaldi_ml1", revision="v2").constraint_manager.available])
+        self.assertNotIn(("eth", 1), [r[0:2] for r in _platform("machdyne_vivaldi_ml1", revision="v1").constraint_manager.available])
+
 if __name__ == "__main__":
     unittest.main()
