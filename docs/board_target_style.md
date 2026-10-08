@@ -17,6 +17,10 @@ these patterns.
   board unless the same behavior is already repeated across several boards.
 - Refactors should be small enough that `--help` output and no-compile builds
   can be compared before and after.
+- When replacing a public helper, keep it as a deprecated alias using
+  `litex_boards.compat` (`warn_deprecated()`): it emits a `FutureWarning`
+  pointing to the replacement and is removed after
+  `litex_boards.compat.DEPRECATION_RELEASE`.
 
 ## Target Layout
 
@@ -38,6 +42,10 @@ these patterns.
   `--eth-dynamic-ip` enables DHCP or dynamic assignment,
   `--with-sdcard` is native SDCard mode, and
   `--with-spi-sdcard` is SPI-mode SDCard.
+- Targets of boards with Pmod connectors support `--pmod CONNECTOR=MODULE`:
+  `add_pmod_args(parser)` before `parser.parse_args()` and
+  `add_pmods(soc, args.pmod)` right after the `BaseSoC` construction (both from
+  `litex_boards.extensions.pmod`). Prefer it over board-specific Pmod options.
 
 ## Platform Layout
 
@@ -49,6 +57,14 @@ these patterns.
   the board needs a more precise name.
 - Keep connector names stable once published. Add aliases only when needed for
   compatibility.
+- Declare Pmod connectors with 8 entries (index 0-3 = pins 1-4, index 4-7 =
+  pins 7-10), or add such a canonical alias. Use the specification's signal
+  names as keys for SYZYGY and FMC connectors.
+- Describe hardware plugged on a connector (Pmod modules, daughterboards,
+  carriers, docks, FMC/SYZYGY cards) as an Extension in
+  `litex_boards/extensions/` instead of IO lists or helpers in the platform, see
+  the [extensions guide](extensions.md). SoM platforms describe the module only
+  and add their carrier/dock as an Extension.
 - Keep `create_programmer()` signatures compatible with existing target calls.
 - Put final timing, voltage and bitstream commands in `do_finalize()` unless
   they are required earlier by the platform/toolchain setup.

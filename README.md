@@ -52,6 +52,7 @@ But this is just the starting point to create your own hardware! You can then:
 - Change the CPU: add `--cpu-type=lm32, microwatt, serv, rocket, etc... `
 - Change the Bus standard: add `--bus-standard=wishbone, axi-lite`
 - Enable components: add `--with-ethernet --with-etherbone --with-sdcard etc...`
+- Plug Pmod modules: add `--pmod pmoda=gpio --pmod pmodb=i2c`, see the [extensions guide](docs/extensions.md) for Pmods, daughterboards, carriers and docks.
 - [Load application code to the CPU](https://github.com/enjoy-digital/litex/wiki/Load-Application-Code-To-CPU) over UART/Ethernet/SDCard, etc...
 - Create a bridge with your computer to easily [access the main bus of your SoC](https://github.com/enjoy-digital/litex/wiki/Use-Host-Bridge-to-control-debug-a-SoC).
 - Add a Logic Analyzer to your SoC to easily [observe/debug your design](https://github.com/enjoy-digital/litex/wiki/Use-LiteScope-To-Debug-A-SoC).
@@ -61,8 +62,8 @@ But this is just the starting point to create your own hardware! You can then:
 
 Please use `python3 -m litex_boards.targets.<board> --help` to see the various pre-built possibilities.
 
-For contributions and cleanup work, see the [target/platform style guide](docs/board_target_style.md)
-and the generated [board inventory](docs/boards_inventory.md).
+For contributions and cleanup work, see the [target/platform style guide](docs/board_target_style.md),
+the [extensions guide](docs/extensions.md) and the generated [board inventory](docs/boards_inventory.md).
 
 Hoping you will find this useful and enjoy it, please contribute back if you make improvements that could be useful to others or find issues!
 
