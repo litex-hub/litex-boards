@@ -11,6 +11,7 @@ from migen import *
 from litex.gen import *
 
 from litex_boards.platforms import digilent_nexys_video
+from litex_boards.extensions.fmc import FMCRAID
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -117,22 +118,10 @@ class BaseSoC(SoCCore):
 
         # SATA -------------------------------------------------------------------------------------
         if with_sata:
-            from litex.build.generic_platform import Subsignal, Pins
             from litesata.phy import LiteSATAPHY
 
-            # IOs
-            _sata_io = [
-                # AB09-FMCRAID / https://www.dgway.com/AB09-FMCRAID_E.html
-                ("fmc2sata", 0,
-                    Subsignal("clk_p", Pins("LPC:GBTCLK0_M2C_P")),
-                    Subsignal("clk_n", Pins("LPC:GBTCLK0_M2C_N")),
-                    Subsignal("tx_p",  Pins("LPC:DP0_C2M_P")),
-                    Subsignal("tx_n",  Pins("LPC:DP0_C2M_N")),
-                    Subsignal("rx_p",  Pins("LPC:DP0_M2C_P")),
-                    Subsignal("rx_n",  Pins("LPC:DP0_M2C_N"))
-                ),
-            ]
-            platform.add_extension(_sata_io)
+            # IOs (AB09-FMCRAID on LPC).
+            platform.add_extension(FMCRAID("LPC"))
 
             # RefClk, generate 150MHz from PLL.
             self.cd_sata_refclk = ClockDomain()
