@@ -109,7 +109,7 @@ class BaseSoC(SoCCore):
         with_video_terminal = False,
         with_lcd_terminal   = False,
         with_lcd_colorbars  = False,
-        with_lcd_backlight  = True,
+        with_lcd_backlight  = False,
         with_ethernet       = False,
         with_etherbone      = False,
         eth_ip              = "192.168.1.50",
@@ -184,8 +184,9 @@ class BaseSoC(SoCCore):
             self.add_video_terminal(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
         # LCD -------------------------------------------------------------------------------------
-        lcd = platform.request("lcd") if (with_lcd_terminal or with_lcd_colorbars or with_lcd_backlight) else None
-        if lcd is not None:
+        with_lcd_video = with_lcd_terminal or with_lcd_colorbars
+        lcd = platform.request("lcd") if (with_lcd_video or with_lcd_backlight) else None
+        if with_lcd_video:
             self.lcdphy = VideoLCDPHY(lcd, clock_domain="hdmi", with_clk_ddr_output=False)
             if with_lcd_terminal:
                 self.add_video_terminal(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="hdmi")
@@ -193,7 +194,7 @@ class BaseSoC(SoCCore):
                 self.add_video_colorbars(phy=self.lcdphy, timings="640x480@60Hz", clock_domain="hdmi")
 
         # LCD Backlight ----------------------------------------------------------------------------
-        if with_lcd_backlight and lcd is not None:
+        if with_lcd_backlight:
             self.comb += lcd.bl.eq(1)
 
         # Leds -------------------------------------------------------------------------------------
