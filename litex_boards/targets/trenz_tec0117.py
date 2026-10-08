@@ -15,7 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import trenz_tec0117
 
 from litex.build.io import DDROutput
-from litex.build.pmod import PmodSDCard
+from litex_boards.extensions.pmod import PmodSDCard
 
 from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
 from litex.soc.integration.soc import *

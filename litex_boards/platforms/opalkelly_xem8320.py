@@ -348,9 +348,9 @@ class Platform(XilinxUSPPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
 
 # Deprecated Pmod Helpers --------------------------------------------------------------------------
-# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+# Kept for compatibility (emit a FutureWarning), use litex_boards.extensions.pmod modules directly instead.
 
-from litex.build.pmod import PmodDVI, PmodSDCard
+from litex_boards.extensions.pmod import PmodDVI, PmodSDCard
 from litex_boards.compat import deprecated_pmod_helpers
 
 __getattr__ = deprecated_pmod_helpers(__name__, {

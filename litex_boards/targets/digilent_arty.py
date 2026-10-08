@@ -18,7 +18,7 @@ from litex.gen import *
 
 from litex_boards.platforms import digilent_arty
 
-from litex.build.pmod import PmodCAN, PmodGPIO, PmodNumatoSDCard, PmodSDCard
+from litex_boards.extensions.pmod import PmodCAN, PmodGPIO, PmodNumatoSDCard, PmodSDCard
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
@@ -152,7 +152,7 @@ class BaseSoC(SoCCore):
 
             # Machdyne PMOD (https://github.com/machdyne/usb_host_dual_socket_pmod)
 
-            from litex.build.pmod import PmodUSBHostDual
+            from litex_boards.extensions.pmod import PmodUSBHostDual
 
             self.platform.add_extension(PmodUSBHostDual("pmoda", name="usb_pmoda"))
 
@@ -199,8 +199,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
-    from litex.build.pmod   import add_pmod_args, add_pmods
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_arty.Platform, description="LiteX SoC on Arty A7.")
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="a7-35",           help="Board variant (a7-35 or a7-100).")

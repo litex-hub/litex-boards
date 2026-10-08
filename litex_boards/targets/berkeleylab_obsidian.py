@@ -36,7 +36,7 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteiclink.serdes.gtp_7series import GTPQuadPLL, GTP
 from litex_boards.platforms import berkeleylab_obsidian
 
-from litex.build.pmod import PmodGPIO
+from litex_boards.extensions.pmod import PmodGPIO
 
 # ---------------------------
 

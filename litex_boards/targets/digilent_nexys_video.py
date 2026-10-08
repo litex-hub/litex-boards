@@ -170,7 +170,7 @@ class BaseSoC(SoCCore):
 
             # Machdyne PMOD (https://github.com/machdyne/usb_host_dual_socket_pmod) on JB
 
-            from litex.build.pmod import PmodUSBHostDual
+            from litex_boards.extensions.pmod import PmodUSBHostDual
 
             self.platform.add_extension(PmodUSBHostDual("pmodb", bundled=True, name="usb_pmodb_dual"))
 

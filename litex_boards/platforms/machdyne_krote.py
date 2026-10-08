@@ -11,7 +11,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeiCE40Platform
-from litex.build.pmod import PmodUART
+from litex_boards.extensions.pmod import PmodUART
 
 # IOs ----------------------------------------------------------------------------------------------
 

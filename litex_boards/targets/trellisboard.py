@@ -13,7 +13,7 @@ from litex.gen import *
 
 from litex_boards.platforms import trellisboard
 
-from litex.build.pmod import PmodGPIO
+from litex_boards.extensions.pmod import PmodGPIO
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
@@ -187,8 +187,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
-    from litex.build.pmod   import add_pmod_args, add_pmods
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=trellisboard.Platform, description="LiteX SoC on Trellis Board.")
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")

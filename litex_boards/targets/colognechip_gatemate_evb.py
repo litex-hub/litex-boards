@@ -12,7 +12,7 @@ from litex.gen import *
 
 from litex_boards.platforms import colognechip_gatemate_evb
 
-from litex.build.pmod import PmodSDCard, PmodUSBUART
+from litex_boards.extensions.pmod import PmodSDCard, PmodUSBUART
 
 
 from litex.soc.cores.clock.colognechip import GateMatePLL

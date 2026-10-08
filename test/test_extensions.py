@@ -50,7 +50,7 @@ class TestExtensions(unittest.TestCase):
 
     def test_qmtech_pmod_on_daughterboard(self):
         # Pmod plugged on a connector exposed by the daughterboard (stacking).
-        from litex.build.pmod import PmodSDCard
+        from litex_boards.extensions.pmod import PmodSDCard
         platform = _platform("qmtech_xc7a35t", with_daughterboard=True)
         platform.add_extension(PmodSDCard("pmoda"), prepend=True)
         platform.request("spisdcard")

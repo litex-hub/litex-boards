@@ -67,7 +67,7 @@ _io = [
 _connectors = [
     # PMOD with GND/VCC placeholders (legacy), see pmoda for canonical Pmod numbering.
     ("pmod",  "J20 K20 L16 L15 - - J17 F20 G19 H16"),
-    # PMOD with canonical numbering (0-3: pins 1-4, 4-7: pins 7-10), compatible with litex.build.pmod.
+    # PMOD with canonical numbering (0-3: pins 1-4, 4-7: pins 7-10), compatible with litex_boards.extensions.pmod.
     ("pmoda", "pmod:0 pmod:1 pmod:2 pmod:3 pmod:6 pmod:7 pmod:8 pmod:9"),
 ]
 

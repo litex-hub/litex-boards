@@ -279,9 +279,9 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
 
 # Deprecated Pmod Helpers --------------------------------------------------------------------------
-# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+# Kept for compatibility (emit a FutureWarning), use litex_boards.extensions.pmod modules directly instead.
 
-from litex.build.pmod import PmodCAN, PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
+from litex_boards.extensions.pmod import PmodCAN, PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
 from litex_boards.compat import deprecated_pmod_helpers
 
 __getattr__ = deprecated_pmod_helpers(__name__, {

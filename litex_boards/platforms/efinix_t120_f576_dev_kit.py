@@ -220,9 +220,9 @@ class Platform(EfinixPlatform):
             self.default_clk_period)
 
 # Deprecated Pmod Helpers --------------------------------------------------------------------------
-# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+# Kept for compatibility (emit a FutureWarning), use litex_boards.extensions.pmod modules directly instead.
 
-from litex.build.pmod import PmodGPIO, PmodI2C, PmodUSBUART
+from litex_boards.extensions.pmod import PmodGPIO, PmodI2C, PmodUSBUART
 from litex_boards.compat import deprecated_pmod_helpers
 
 __getattr__ = deprecated_pmod_helpers(__name__, {

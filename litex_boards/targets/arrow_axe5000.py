@@ -113,7 +113,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone (Requires ziggybridge-mkr) ------------------------------------------
         if with_ethernet or with_etherbone:
-            from litex.build.pmod import PmodLAN8720
+            from litex_boards.extensions.pmod import PmodLAN8720
             platform.add_extension(PmodLAN8720("j7_8", iostandard="3.3-V LVCMOS"))
 
             from liteeth.phy.rmii import LiteEthPHYRMII

@@ -162,7 +162,7 @@ _connectors = [
         "None",  # 11 GND
         "None",  # 12 VCCIO0
     ),
-    # PMOD with canonical numbering (0-3: pins 1-4, 4-7: pins 7-10), compatible with litex.build.pmod.
+    # PMOD with canonical numbering (0-3: pins 1-4, 4-7: pins 7-10), compatible with litex_boards.extensions.pmod.
     ("pmoda", "PMOD:1 PMOD:2 PMOD:3 PMOD:4 PMOD:7 PMOD:8 PMOD:9 PMOD:10"),
 ]
 
