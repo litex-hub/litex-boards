@@ -171,7 +171,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=machdyne_lakritz.Platform, description="LiteX SoC on Lakritz")
     parser.add_target_argument("--sys-clk-freq",           default=48e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--revision",               default="v0",             help="Board Revision (v0).")
@@ -184,6 +185,7 @@ def main():
     parser.add_target_argument("--with-audio-pwm",         action="store_true",      help="Enable Audio PWM output.")
     parser.add_target_argument("--sdram-device",           default="W9825G6KH6",     help="SDRAM device (W9825G6KH6 or IS42S16320).")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -194,6 +196,7 @@ def main():
         with_usb_host = args.with_usb_host,
         with_audio_pwm = args.with_audio_pwm,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
 
     if args.with_sdcard:
         soc.add_sdcard()

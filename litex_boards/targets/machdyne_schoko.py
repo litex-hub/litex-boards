@@ -171,7 +171,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=machdyne_schoko.Platform, description="LiteX SoC on Schoko.")
     parser.add_target_argument("--flash",           action="store_true",      help="Flash bitstream to MMOD.")
     parser.add_target_argument("--sys-clk-freq",    default=40e6, type=float, help="System clock frequency.")
@@ -181,6 +182,7 @@ def main():
     parser.add_target_argument("--with-sdcard",     action="store_true",      help="Enable SDCard support.")
     parser.add_target_argument("--with-spi-sdcard", action="store_true",      help="Enable SPI-mode SDCard support.")
     parser.add_target_argument("--with-usb-host",   action="store_true",      help="Enable USB host support.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -189,6 +191,7 @@ def main():
         device       = args.device,
         sys_clk_freq = args.sys_clk_freq,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
 
     if args.with_sdcard:
         soc.add_sdcard()

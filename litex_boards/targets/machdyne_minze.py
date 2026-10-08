@@ -153,7 +153,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=machdyne_minze.Platform, description="LiteX SoC on Minze")
     parser.add_target_argument("--sys-clk-freq",    default=48e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--revision",        default="v0",             help="Board Revision (v0).")
@@ -165,6 +166,7 @@ def main():
     parser.add_target_argument("--boot-from-flash", action="store_true",      help="Boot from flash MMOD.")
     parser.add_target_argument("--sdram-device",    default="W9825G6KH6",     help="SDRAM device (W9825G6KH6 or IS42S16320).")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -175,6 +177,7 @@ def main():
         sdram_device  = args.sdram_device,
         with_usb_host = args.with_usb_host,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
 
     if args.with_sdcard:
         soc.add_sdcard()

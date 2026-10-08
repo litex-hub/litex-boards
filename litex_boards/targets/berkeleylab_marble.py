@@ -151,7 +151,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=berkeleylab_marble.Platform, description="LiteX SoC on BerkeleyLab Marble.")
     parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true",       help="Enable Ethernet support.")
@@ -163,6 +164,7 @@ def main():
     parser.add_target_argument("--with-bist",      action="store_true",       help="Add DDR3 BIST Generator/Checker.")
 
     parser.add_target_argument("--spd-dump",                                  help="DDR3 configuration file, dumped using the `spdread` command in LiteX BIOS.")
+    add_pmod_args(parser)
     args = parser.parse_args()
     if args.with_etherbone and args.eth_dynamic_ip:
         parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
@@ -179,6 +181,7 @@ def main():
         spd_dump       = args.spd_dump,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

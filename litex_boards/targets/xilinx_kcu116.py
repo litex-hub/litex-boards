@@ -171,7 +171,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=xilinx_kcu116.Platform, description="LiteX SoC on KCU116.")
     parser.add_target_argument("--sys-clk-freq",        default=125e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
@@ -186,6 +187,7 @@ def main():
     parser.add_target_argument("--with-sata",      action="store_true",     help="Enable SATA support (over SFP2SATA).")
     parser.add_target_argument("--with-buttons",   action="store_true",     help="Enable Buttons.")
     parser.add_target_argument("--with-switches",  action="store_true",     help="Enable Switches.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -202,6 +204,7 @@ def main():
         with_switches  = args.with_switches,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build or args.driver:
         if not args.build:

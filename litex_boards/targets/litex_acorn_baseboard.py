@@ -122,7 +122,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=litex_acorn_baseboard.Platform, description="LiteX SoC on LiteX Acorn Baseboard.")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream to SPI Flash.")
     parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
@@ -141,6 +142,7 @@ def main():
     parser.add_target_argument("--with-lcd",       action="store_true", help="Enable OLED LCD support.")
     parser.add_target_argument("--with-ws2812",    action="store_true", help="Enable WS2812 on PMOD1:0.")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -157,6 +159,7 @@ def main():
         with_ws2812         = args.with_ws2812,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

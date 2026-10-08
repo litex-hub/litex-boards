@@ -102,11 +102,13 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=machdyne_krote.Platform, description="LiteX SoC on Kr\xf6te.")
     parser.add_target_argument("--bios-flash-offset", default="0x021000",       help="BIOS offset in SPI Flash (default: 0x21000)")
     parser.add_target_argument("--sys-clk-freq",      default=50e6, type=float, help="System clock frequency (default: 50MHz)")
     parser.add_target_argument("--with-led-chaser",   action="store_true",      help="Enable LED Chaser.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -114,6 +116,7 @@ def main():
          sys_clk_freq      = args.sys_clk_freq,
          **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

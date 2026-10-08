@@ -127,7 +127,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=machdyne_kolsch.Platform, description="LiteX SoC on Kolsch")
     parser.add_target_argument("--sys-clk-freq",        default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (VGA).")
@@ -141,6 +142,7 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -154,6 +156,7 @@ def main():
         eth_dynamic_ip      = args.eth_dynamic_ip,
         remote_ip           = args.remote_ip,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
 
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

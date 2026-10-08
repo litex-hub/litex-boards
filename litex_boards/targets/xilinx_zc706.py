@@ -160,7 +160,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=xilinx_zc706.Platform, description="LiteX SoC on ZC706.")
     parser.add_target_argument("--sys-clk-freq",   default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--programmer",     default="vivado",          help="Programmer select from Vivado/openFPGALoader.")
@@ -173,6 +174,7 @@ def main():
     parser.add_target_argument("--driver",         action="store_true",       help="Generate PCIe driver.")
     parser.add_target_argument("--with-buttons",   action="store_true",       help="Enable Buttons.")
     parser.add_target_argument("--with-switches",  action="store_true",       help="Enable Switches.")
+    add_pmod_args(parser)
     args = parser.parse_args()
     if args.with_etherbone and args.eth_dynamic_ip:
         parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
@@ -189,6 +191,7 @@ def main():
         with_switches  = args.with_switches,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build or args.driver:
         if not args.build:

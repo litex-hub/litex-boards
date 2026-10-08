@@ -222,7 +222,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_nexys4.Platform, description="LiteX SoC on Nexys4.")
     parser.add_target_argument("--sys-clk-freq",        default=75e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
@@ -239,6 +240,7 @@ def main():
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (VGA).")
     parser.add_target_argument("--with-buttons",  action="store_true", help="Enable Buttons.")
     parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -254,6 +256,7 @@ def main():
         with_switches          = args.with_switches,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

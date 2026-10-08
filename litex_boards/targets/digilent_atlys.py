@@ -220,7 +220,8 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_atlys.Platform, description="LiteX SoC on Atlys.")
     parser.add_target_argument("--with-ethernet",  action="store_true",     help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",     help="Enable Etherbone support.")
@@ -230,6 +231,7 @@ def main():
     parser.add_target_argument("--with-buttons",   action="store_true",     help="Enable Buttons.")
     parser.add_target_argument("--with-switches",  action="store_true",     help="Enable Switches.")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
     if args.with_etherbone and args.eth_dynamic_ip:
         parser.error("--eth-dynamic-ip cannot be used with Etherbone.")
@@ -243,6 +245,7 @@ def main():
         with_buttons   = args.with_buttons,
         with_switches  = args.with_switches,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

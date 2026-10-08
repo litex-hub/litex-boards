@@ -128,13 +128,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_zybo_z7.Platform, description="LiteX SoC on Zybo Z7/original Zybo")
     parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--variant",      default="z7-10",           help="Board variant (z7-10, z7-20 or original).")
     parser.add_target_argument("--with-ps7",     action="store_true",       help="Add the PS7 as slave for soft CPUs.")
     parser.add_target_argument("--with-buttons", action="store_true",       help="Enable Buttons.")
     parser.add_target_argument("--with-switches", action="store_true",      help="Enable Switches.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -145,6 +147,7 @@ def main():
         with_switches = args.with_switches,
         **soc_core_argdict(args)
     )
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **builder_argdict(args))
     if args.build:
         builder.build(**parser.toolchain_argdict)

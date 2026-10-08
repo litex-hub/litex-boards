@@ -142,7 +142,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_cmod_a7.Platform, description="LiteX SoC on CMOD A7.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="a7-35",          help="Board variant (a7-35 or a7-100).")
@@ -150,6 +151,7 @@ def main():
     parser.add_target_argument("--with-spi-flash", action="store_true",      help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-buttons",   action="store_true",      help="Enable Buttons.")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -160,6 +162,7 @@ def main():
         with_buttons   = args.with_buttons,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
 
     builder_argd = parser.builder_argdict
 

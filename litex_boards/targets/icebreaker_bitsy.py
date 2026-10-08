@@ -154,13 +154,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=icebreaker_bitsy.Platform, description="LiteX SoC on iCEBreaker.")
     parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream and BIOS.")
     parser.add_target_argument("--sys-clk-freq",      default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0xa0000",        help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--revision",          default="v1",             help="Board revision (v0 or v1).")
     parser.add_target_argument("--with-button",       action="store_true",      help="Enable User Button.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -170,6 +172,7 @@ def main():
         with_button       = args.with_button,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

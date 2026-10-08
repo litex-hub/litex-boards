@@ -360,7 +360,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=sipeed_tang_mega_138k.Platform, description="LiteX SoC on Tang Mega 138K.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--prog-kit",       default="openfpgaloader", help="Programmer select from Gowin/openFPGALoader.")
@@ -403,6 +404,7 @@ def main():
     parser.add_target_argument("--with-buttons",        action="store_true",        help="Enable Buttons.")
     parser.add_target_argument("--with-ch569-gpio",     action="store_true",        help="Enable CH569 parallel-bus GPIO.")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -431,6 +433,7 @@ def main():
         eth_dynamic_ip         = args.eth_dynamic_ip,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
 
     builder = Builder(soc, **parser.builder_argdict)
     if args.build or args.with_pcie:

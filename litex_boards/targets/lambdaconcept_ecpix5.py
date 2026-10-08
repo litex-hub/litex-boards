@@ -253,7 +253,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=lambdaconcept_ecpix5.Platform, description="LiteX SoC on ECPIX-5.")
     parser.add_target_argument("--version",      default="r02",            help="board version r0X (0 < X <= 3).")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream to SPI Flash.")
@@ -271,6 +272,7 @@ def main():
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -287,6 +289,7 @@ def main():
         with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     if args.with_sdcard:
         soc.add_sdcard()
     builder = Builder(soc, **parser.builder_argdict)
