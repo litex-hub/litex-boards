@@ -382,6 +382,18 @@ def _check_pmod_connector(platform, connector):
 # Pmods that can be plugged from the command line with the cores attached by add_pmods().
 _cli_pmods = ["gpio", "sdcard", "numato_sdcard", "i2c", "can", "dvi"]
 
+# Pmods only providing IOs, used by the target's own options (ex: --with-sdcard).
+_io_only_pmods = ["sdcard", "numato_sdcard", "dvi"]
+
+def _check_not_requested(platform, extension, conn, module):
+    # An IOs-only Pmod takes precedence over board's resources only if they are not requested yet.
+    requested = {(resource[0], resource[1]) for resource, obj in platform.constraint_manager.matched}
+    for name, number, *_ in extension.get_io(platform):
+        if (name, number) in requested:
+            arg = "+".join(conn) if isinstance(conn, tuple) else conn
+            raise ValueError(f"--pmod {arg}={module}: '{name}' is already used by the target (requested before "
+                f"the Pmods are plugged, ex: in BaseSoC), the Pmod would be ignored.")
+
 def _pmod_arg(arg):
     import argparse
     try:
@@ -429,6 +441,10 @@ def add_pmods(soc, pmod_args):
     - i2c                  : I2CMaster core (named <connector>_i2c).
     - can                  : CTU-CAN-FD core (named <connector>_can).
     - dvi                  : IOs only (taking precedence over board's ones), on two Pmods.
+
+    IOs-only modules must be plugged before the target requests the corresponding resources: an error
+    is raised if the target already requested them (ex: SD Card added in BaseSoC), since the Pmod would
+    otherwise be silently ignored.
     """
     platform = soc.platform
     numbers  = {}
@@ -439,11 +455,13 @@ def add_pmods(soc, pmod_args):
             raise ValueError("Only one SDCard Pmod is supported.")
         for c in (conn if isinstance(conn, tuple) else (conn,)):
             _check_pmod_connector(platform, c)
+        extension = multi_pmods[module](*conn, number=number) if module in multi_pmods else pmods[module](conn, number=number)
+        if module in _io_only_pmods:
+            _check_not_requested(platform, extension, conn, module)
         # Prepend so that explicitly plugged Pmods take precedence over board's default resources.
+        platform.add_extension(extension, prepend=True)
         if module in multi_pmods:
-            platform.add_extension(multi_pmods[module](*conn, number=number), prepend=True)
             continue
-        platform.add_extension(pmods[module](conn, number=number), prepend=True)
         if module == "gpio":
             from litex.soc.cores.gpio import GPIOTristate
             soc.add_module(name=f"{conn}_gpio", module=GPIOTristate(

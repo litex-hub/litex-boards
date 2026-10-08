@@ -238,6 +238,22 @@ class TestPmodCLI(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, error):
                     pmod.add_pmods(soc, [arg])
 
+    def test_add_pmods_already_requested(self):
+        # IOs-only Pmods can't replace resources already requested by the target.
+        from litex.soc.integration.soc_core import SoCCore
+        for arg, resource in [("pmoda=sdcard", "spisdcard"), ("pmoda+pmodb=dvi", "dvi")]:
+            with self.subTest(arg=arg):
+                platform = xilinx_platform()
+                platform.add_extension(pmod.PmodSDCard("pmodb"))       # "On-board" resources.
+                platform.add_extension(pmod.PmodDVI(a="pmoda", b="pmodb"))
+                soc = SoCCore(platform, clk_freq=100e6, cpu_type=None, uart_name="stub", integrated_rom_size=0)
+                platform.request(resource)
+                with self.assertRaisesRegex(ValueError, re.escape(f"--pmod {arg}: '{resource}' is already used")):
+                    pmod.add_pmods(soc, [arg])
+                # Not requested yet: the Pmod takes precedence.
+                soc = SoCCore(xilinx_platform(), clk_freq=100e6, cpu_type=None, uart_name="stub", integrated_rom_size=0)
+                pmod.add_pmods(soc, [arg])
+
 # Tests (boards) -----------------------------------------------------------------------------------
 
 class TestPmodBoards(unittest.TestCase):
