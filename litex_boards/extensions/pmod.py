@@ -15,6 +15,10 @@ Usage:
     from litex_boards.extensions.pmod import PmodSDCard
     platform.add_extension(PmodSDCard("pmodd"))
     sdcard_pads = platform.request("sdcard")
+
+Modules can also be plugged from a target's command line (--pmod CONNECTOR=MODULE, see add_pmods()).
+A module is available there when it implements add_cores(soc, name): called once its IOs have been
+added to the platform, it adds the cores driving them to the SoC (no-op for IOs-only modules).
 """
 
 from litex.build.generic_platform import Pins, Subsignal
@@ -26,6 +30,11 @@ class PmodExtension(Extension):
     slots          = {"pmod": None}
     connector_type = "pmod"
 
+    # Optional, makes the module available from the command line (see add_pmods()):
+    #
+    # def add_cores(self, soc, name):
+    #     """Add the cores driving the module's IOs to the SoC (name: unique name/prefix for them)."""
+
 # GPIO ---------------------------------------------------------------------------------------------
 
 class PmodGPIO(PmodExtension):
@@ -34,6 +43,13 @@ class PmodGPIO(PmodExtension):
         return [
             (self.bindings["pmod"], 0, Pins(" ".join(f"pmod:{i}" for i in range(8))), *self.iostandard(platform)),
         ]
+
+    def add_cores(self, soc, name):
+        from litex.soc.cores.gpio import GPIOTristate
+        soc.add_module(name=name, module=GPIOTristate(
+            pads     = soc.platform.request(self.bindings["pmod"]),
+            with_irq = soc.irq.enabled,
+        ))
 
 # USB-UART -----------------------------------------------------------------------------------------
 
@@ -58,6 +74,10 @@ class PmodUART(PmodExtension):
 class PmodUSBUART(PmodUART):
     """Digilent PmodUSBUART: https://digilent.com/reference/pmod/pmodusbuart/start"""
     resource = "usb_uart"
+
+    def add_cores(self, soc, name):
+        # Additional UART, the SoC's console UART is unchanged.
+        soc.add_uart(name=name, uart_pads=soc.platform.request(self.resource, self.number or 0))
 
 # SDCard -------------------------------------------------------------------------------------------
 
@@ -88,6 +108,9 @@ class PmodSDCard(PmodExtension):
             ),
         ]
 
+    def add_cores(self, soc, name):
+        pass # IOs only (taking precedence over board's ones), to be used with --with-(spi-)sdcard.
+
 class PmodNumatoSDCard(PmodExtension):
     """Numato Micro SD expansion module (no card detect).
 
@@ -113,6 +136,9 @@ class PmodNumatoSDCard(PmodExtension):
                 *self.iostandard(platform),
             ),
         ]
+
+    def add_cores(self, soc, name):
+        pass # IOs only (taking precedence over board's ones), to be used with --with-(spi-)sdcard.
 
 # Audio --------------------------------------------------------------------------------------------
 
@@ -150,6 +176,14 @@ class PmodCAN(PmodExtension):
             ),
         ]
 
+    def add_cores(self, soc, name):
+        from litex.soc.integration.soc import SoCRegion
+        from litex.soc.cores.can.ctu_can_fd import CTUCANFD
+        soc.add_module(name=name, module=CTUCANFD(soc.platform, soc.platform.request("can", self.number or 0)))
+        soc.bus.add_slave(name, getattr(soc, name).bus, SoCRegion(size=0x10000, mode="rw", cached=False))
+        if soc.irq.enabled:
+            soc.irq.add(name, use_loc_if_exists=True)
+
 class PmodI2C(PmodExtension):
     """Generic I2C on Pmod pins 1 (SDA) and 2 (SCL)."""
     def define_io(self, platform):
@@ -160,6 +194,10 @@ class PmodI2C(PmodExtension):
                 *self.iostandard(platform),
             ),
         ]
+
+    def add_cores(self, soc, name):
+        from litex.soc.cores.bitbang import I2CMaster
+        soc.add_module(name=name, module=I2CMaster(soc.platform.request("i2c", self.number or 0)))
 
 class PmodJTAG(PmodExtension):
     """Generic JTAG on Pmod pins 1-4 (TCK, TDI, TDO, TMS)."""
@@ -336,6 +374,9 @@ class PmodDVI(Extension):
             ),
         ]
 
+    def add_cores(self, soc, name):
+        pass # IOs only (taking precedence over board's ones), to be used by the target's video options.
+
 # Registry -----------------------------------------------------------------------------------------
 
 pmods = {
@@ -363,10 +404,41 @@ multi_pmods = {
     "dvi" : PmodDVI,
 }
 
+# Platform Pmod connectors -------------------------------------------------------------------------
+
+def _is_pmod_connector(pins):
+    # Canonical Pmod connector: 8 entries (as a list, or as a dict indexed 0-7).
+    if isinstance(pins, dict):
+        return {str(k) for k in pins.keys()} == {str(i) for i in range(8)}
+    return len(pins) == 8
+
+def get_pmod_connectors(platform):
+    """Return the names of the Pmod connectors of a platform.
+
+    Platforms can list them explicitly with a `pmods` attribute, otherwise the canonical (8 entries)
+    connectors with a name starting with "pmod" (case-insensitive) are returned.
+    """
+    pmods = getattr(platform, "pmods", None)
+    if pmods is not None:
+        return list(pmods)
+    connectors = platform.constraint_manager.connector_manager.connector_table
+    return [name for name, pins in connectors.items()
+        if name.lower().startswith("pmod") and _is_pmod_connector(pins)]
+
+def check_pmod_connector(platform, connector):
+    """Check that connector exists on the platform and is a canonical (8 entries) Pmod connector."""
+    connectors = platform.constraint_manager.connector_manager.connector_table
+    available  = ", ".join(get_pmod_connectors(platform)) or "none"
+    if connector not in connectors:
+        raise ValueError(f"Unknown connector '{connector}', Pmod connectors: {available}.")
+    if not _is_pmod_connector(connectors[connector]):
+        raise ValueError(f"Connector '{connector}' is not a canonical Pmod connector (8 entries, got "
+            f"{len(connectors[connector])}), Pmod connectors: {available}.")
+
 # Command line -------------------------------------------------------------------------------------
 
-# Pmods that can be plugged from the command line with the cores attached by add_pmods().
-_cli_pmods = ["gpio", "sdcard", "numato_sdcard", "i2c", "can", "dvi"]
+# Pmods that can be plugged from the command line: the ones adding their cores to the SoC.
+_cli_pmods = [name for name, cls in {**pmods, **multi_pmods}.items() if hasattr(cls, "add_cores")]
 
 def _pmod_arg(arg):
     import argparse
@@ -409,39 +481,28 @@ def parse_pmod_args(pmod_args):
 def add_pmods(soc, pmod_args):
     """Plug Pmods described by --pmod arguments and add the corresponding cores to the SoC.
 
-    - gpio                 : GPIOTristate core (named <connector>_gpio).
-    - sdcard/numato_sdcard : IOs only (taking precedence over board's ones), to be used with
-                             --with-sdcard/--with-spi-sdcard.
-    - i2c                  : I2CMaster core (named <connector>_i2c).
-    - can                  : CTU-CAN-FD core (named <connector>_can).
-    - dvi                  : IOs only (taking precedence over board's ones), on two Pmods.
+    Modules' IOs are added to the platform (taking precedence over board's ones), then the module's
+    add_cores() adds the cores driving them, named <connector(s)>_<module> (ex: pmoda_gpio):
+    - gpio                 : GPIOTristate core.
+    - usb_uart             : Additional UART core.
+    - sdcard/numato_sdcard : IOs only, to be used with --with-sdcard/--with-spi-sdcard.
+    - i2c                  : I2CMaster core.
+    - can                  : CTU-CAN-FD core.
+    - dvi                  : IOs only, on two Pmods.
     """
     platform = soc.platform
     numbers  = {}
     for conn, module in parse_pmod_args(pmod_args):
+        conns  = conn if isinstance(conn, tuple) else (conn,)
+        cls    = multi_pmods[module] if module in multi_pmods else pmods[module]
         number = numbers.get(module, 0)
         numbers[module] = number + 1
         if module in ["sdcard", "numato_sdcard"] and number:
             raise ValueError("Only one SDCard Pmod is supported.")
+        if cls.connector_type == "pmod":
+            for c in conns:
+                check_pmod_connector(platform, c)
+        extension = cls(*conns, number=number)
         # Prepend so that explicitly plugged Pmods take precedence over board's default resources.
-        if module in multi_pmods:
-            platform.add_extension(multi_pmods[module](*conn, number=number), prepend=True)
-            continue
-        platform.add_extension(pmods[module](conn, number=number), prepend=True)
-        if module == "gpio":
-            from litex.soc.cores.gpio import GPIOTristate
-            soc.add_module(name=f"{conn}_gpio", module=GPIOTristate(
-                pads     = platform.request(conn),
-                with_irq = soc.irq.enabled,
-            ))
-        if module == "i2c":
-            from litex.soc.cores.bitbang import I2CMaster
-            soc.add_module(name=f"{conn}_i2c", module=I2CMaster(platform.request("i2c", number)))
-        if module == "can":
-            from litex.soc.integration.soc import SoCRegion
-            from litex.soc.cores.can.ctu_can_fd import CTUCANFD
-            name = f"{conn}_can"
-            soc.add_module(name=name, module=CTUCANFD(platform, platform.request("can", number)))
-            soc.bus.add_slave(name, getattr(soc, name).bus, SoCRegion(size=0x10000, mode="rw", cached=False))
-            if soc.irq.enabled:
-                soc.irq.add(name, use_loc_if_exists=True)
+        platform.add_extension(extension, prepend=True)
+        extension.add_cores(soc, name="_".join(conns) + f"_{module}")
