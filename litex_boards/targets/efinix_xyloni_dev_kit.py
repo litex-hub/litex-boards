@@ -93,13 +93,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=efinix_xyloni_dev_kit.Platform, description="LiteX SoC on Efinix Xyloni Dev Kit.")
     parser.add_target_argument("--flash",             action="store_true",          help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",      default=33.333e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x40000",            help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--with-buttons",      action="store_true",          help="Enable Buttons.")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
     bios_flash_offset = int(args.bios_flash_offset, 0)
 
@@ -108,6 +110,7 @@ def main():
         sys_clk_freq      = args.sys_clk_freq,
         with_buttons      = args.with_buttons,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

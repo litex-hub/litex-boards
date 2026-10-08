@@ -152,7 +152,8 @@ def flash(bios_flash_offset, toolchain="gowin"):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=trenz_tec0117.Platform, description="LiteX SoC on TEC0117.")
     parser.add_target_argument("--bios-flash-offset", default="0x0000",         help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--flash",             action="store_true",      help="Flash bitstream and BIOS.")
@@ -161,6 +162,7 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -169,6 +171,7 @@ def main():
         toolchain         = args.toolchain,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     soc.platform.add_extension(PmodSDCard("pmod"))
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

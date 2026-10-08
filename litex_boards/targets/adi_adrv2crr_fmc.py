@@ -134,7 +134,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=adi_adrv2crr_fmc.Platform, description="LiteX SoC on ADI ADRV2CRR-FMC.")
     parser.add_target_argument("--sys-clk-freq", default=150e6, type=float,  help="System clock frequency.")
     parser.add_target_argument("--ddram-channel", default=0, type=lambda x: int(x, 0), choices=range(2), help="DDRAM channel (0 or 1).")
@@ -145,6 +146,7 @@ def main():
     parser.add_target_argument("--pcie-with-dma-status",  action="store_true",        help="Enable PCIe DMA status CSRs.")
     parser.add_target_argument("--pcie-with-dma-monitor", action="store_true",        help="Enable PCIe DMA monitor CSRs.")
     parser.add_target_argument("--driver",                action="store_true",        help="Generate PCIe driver.")
+    add_pmod_args(parser)
     args = parser.parse_args()
     if args.pcie_ndmas < 0:
         parser.error("--pcie-ndmas must be >= 0")
@@ -160,6 +162,7 @@ def main():
         with_pcie_dma_monitor = args.pcie_with_dma_monitor,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
 
     builder  = Builder(soc, **parser.builder_argdict)
     if args.build or args.driver:

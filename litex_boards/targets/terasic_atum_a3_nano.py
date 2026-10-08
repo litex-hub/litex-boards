@@ -177,7 +177,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=terasic_atum_a3_nano.Platform, description="LiteX SoC on Terasic Atum A3-NANO.")
     parser.add_target_argument("--sys-clk-freq", default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-rate",   default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
@@ -206,6 +207,7 @@ def main():
     parser.set_defaults(synth_tool="quartus_syn")
     parser.set_defaults(conv_tool="quartus_pfg")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -223,6 +225,7 @@ def main():
         with_switches          = args.with_switches,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
 
     if args.with_sdcard:
         soc.add_sdcard()

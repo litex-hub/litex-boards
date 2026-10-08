@@ -109,7 +109,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=lattice_crosslink_nx_evn.Platform, description="LiteX SoC on Crosslink-NX Eval Board.")
     parser.add_target_argument("--device",         default="LIFCL-40-9BG400C", help="FPGA device (LIFCL-40-9BG400C, LIFCL-40-8BG400CES, or LIFCL-40-8BG400CES2).")
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float,   help="System clock frequency.")
@@ -119,6 +120,7 @@ def main():
     parser.add_target_argument("--prog-target",    default="direct",           help="Programming Target (direct or flash).")
     parser.add_target_argument("--with-spi-flash", action="store_true",        help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-buttons",   action="store_true",        help="Enable Buttons.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -129,6 +131,7 @@ def main():
         with_buttons   = args.with_buttons,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

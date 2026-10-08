@@ -95,13 +95,15 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=lattice_certuspro_nx_versa.Platform, description="LiteX SoC on CertusPro-NX Versa Board.")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream to SPI Flash.")
     parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-pcie",    action="store_true",      help="Enable PCIe support.")
     parser.add_target_argument("--with-buttons", action="store_true",      help="Enable Buttons.")
     parser.add_target_argument("--driver",       action="store_true",      help="Generate PCIe driver from LitePCIe (override local version).")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -110,6 +112,7 @@ def main():
         with_buttons = args.with_buttons,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
 
     builder = Builder(soc, **parser.builder_argdict)
     if args.build or args.with_pcie:

@@ -440,7 +440,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=efinix_ti375_c529_dev_kit.Platform, description="LiteX SoC on Efinix Ti375 C529 Dev Kit.")
     parser.add_target_argument("--flash",            action="store_true",                             help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",     default=100e6, type=float,                       help="System clock frequency.")
@@ -463,6 +464,7 @@ def main():
     parser.add_target_argument("--ptp-p2p",        action="store_true",                                          help="Enable PTP P2P mode.")
     parser.add_target_argument("--ptp-debug",      action="store_true",                                          help="Enable PTP debug monitor CSRs.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",                                      help="Remote IP address of TFTP server.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     eth_phy = args.eth_phy if args.eth_phy is not None else "rgmii"
@@ -485,6 +487,7 @@ def main():
         ptp_debug        = args.ptp_debug,
         remote_ip        = args.remote_ip,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

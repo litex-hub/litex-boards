@@ -102,12 +102,14 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=lattice_crosslink_nx_vip.Platform, description="LiteX SoC on Crosslink-NX VIP Board.")
     parser.add_target_argument("--sys-clk-freq",  default=75e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-hyperram", default="none",           help="Enable use of HyperRAM chip (none, 0 or 1).")
     parser.add_target_argument("--with-buttons",  action="store_true",      help="Enable Buttons.")
     parser.add_target_argument("--prog-target",   default="direct",         help="Programming Target (direct or flash).")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -117,6 +119,7 @@ def main():
         with_buttons = args.with_buttons,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

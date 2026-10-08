@@ -120,7 +120,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=colognechip_gatemate_evb.Platform, description="LiteX SoC on Gatemate EVB")
     parser.add_target_argument("--device",         default="A1",             help="FPGA device (A1, A2).")
     parser.add_target_argument("--sys-clk-freq",   default=24e6, type=float, help="System clock frequency.")
@@ -129,6 +130,7 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -137,6 +139,7 @@ def main():
         toolchain      = args.toolchain,
         with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
 
     soc.platform.add_extension(PmodSDCard("PMODA"))
     if args.with_spi_sdcard:

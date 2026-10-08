@@ -148,13 +148,15 @@ def flash(builder, bios_flash_offset):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=icebreaker.Platform, description="LiteX SoC on iCEBreaker.")
     parser.add_target_argument("--flash",               action="store_true",      help="Flash bitstream and BIOS.")
     parser.add_target_argument("--sys-clk-freq",        default=24e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset",   default="0x40000",        help="BIOS offset in SPI Flash.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (with DVI PMOD).")
     parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable break-off buttons.")
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -164,6 +166,7 @@ def main():
         with_buttons        = args.with_buttons,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)

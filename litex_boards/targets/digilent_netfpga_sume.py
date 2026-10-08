@@ -116,7 +116,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_netfpga_sume.Platform, description="LiteX SoC on NetFPGA-Sume.")
     parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-i2c",     action="store_true",       help="Enable I2C support.")
@@ -131,6 +132,7 @@ def main():
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -144,6 +146,7 @@ def main():
         with_buttons   = args.with_buttons,
         **parser.soc_argdict
     )
+    add_pmods(soc, args.pmod)
 
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

@@ -173,7 +173,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=machdyne_kopflos.Platform, description="LiteX SoC on Schoko")
     parser.add_target_argument("--sys-clk-freq",    default=40e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--revision",        default="v0",             help="Board Revision (v0).")
@@ -189,6 +190,7 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--sdram-device",    default="MT41K128M16",    help="SDRAM device.")
 
+    add_pmod_args(parser)
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -204,6 +206,7 @@ def main():
         remote_ip      = args.remote_ip,
         with_button    = args.with_button,
         **parser.soc_argdict)
+    add_pmods(soc, args.pmod)
 
     if args.with_sdcard:
         soc.add_sdcard()
