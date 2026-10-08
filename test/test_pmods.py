@@ -24,6 +24,7 @@ _io = [("clk", 0, Pins("A1"), IOStandard("LVCMOS33"))]
 _connectors = [
     ("pmoda", "B1 B2 B3 B4 B5 B6 B7 B8"),
     ("pmodb", "C1 C2 C3 C4 C5 C6 C7 C8"),
+    ("pmodr", "E1 E2 E3 E4"), # Single-row.
     ("J1",    {1: "D1", 2: "D2", 3: "D3", 4: "D4", 5: "D5", 6: "D6", 7: "D7", 8: "D8", 9: "D9"}),
 ]
 
@@ -72,15 +73,13 @@ def _resolve(platform, extension, resource):
     return r
 
 # Connectors named pmod* that are not canonical 8-pin Pmods (index 0-3: pins 1-4, 4-7: pins 7-10).
+# Single-row (6-pin) Pmods (4 entries) are accepted.
 _non_canonical_pmods = {
-    "alinx_ax7010"       : ["pmodj10", "pmodj11"],                     # Headers named pmod.
-    "kosagi_fomu_evt"    : ["pmoda_n", "pmodb_n"],                      # 4-pin.
-    "lattice_ecp5_evn"   : ["PMOD"],                                    # Physical numbering, see pmoda.
-    "machdyne_krote"     : ["PMODC", "PMODD"],                          # 7-pin.
-    "microphase_a7_lite" : ["pmoda", "pmodb", "pmodc", "pmodd"],        # Headers named pmod.
-    "trellisboard"       : ["pmodx"],                                   # 6-pin.
-    "trenz_smf2000"      : ["pmod"],                                    # GND/VCC placeholders, see pmoda.
-    "xilinx_ac701"       : ["pmod"],                                    # 4-pin.
+    "alinx_ax7010"       : ["pmodj10", "pmodj11"],                # 2x20 J10/J11 headers (aliases of j10/j11), not Pmods.
+    "lattice_ecp5_evn"   : ["PMOD"],                              # Physical numbering, see pmoda.
+    "microphase_a7_lite" : ["pmoda", "pmodb", "pmodc", "pmodd"],  # 2x20 headers, not Pmods.
+    "trellisboard"       : ["pmodx"],                             # Extra middle pins of the dual Pmod connector.
+    "trenz_smf2000"      : ["pmod"],                              # GND/VCC placeholders, see pmoda.
 }
 
 # Hosts from different vendors, with a Pmod connector.
@@ -229,8 +228,9 @@ class TestPmodCLI(unittest.TestCase):
     def test_add_pmods_connector_check(self):
         from litex.soc.integration.soc_core import SoCCore
         for arg, error in [
-            ("pmodz=gpio",      "Unknown connector 'pmodz', Pmod connectors: pmoda, pmodb."),
-            ("J1=gpio",         "Connector 'J1' is not a canonical Pmod connector \\(8 entries, got 9\\)"),
+            ("pmodz=gpio",      "Unknown connector 'pmodz', Pmod connectors: pmoda, pmodb, pmodr."),
+            ("J1=gpio",         "Connector 'J1' is not a Pmod connector \\(8 entries, or 4 for single-row Pmods, got 9\\)"),
+            ("pmodr=gpio",      "PmodGPIO requires a dual-row \\(12-pin\\) Pmod, 'pmodr' is a single-row"),
             ("pmoda+pmodz=dvi", "Unknown connector 'pmodz'"),
         ]:
             with self.subTest(arg=arg):
@@ -254,6 +254,15 @@ class TestPmodCLI(unittest.TestCase):
                 soc = SoCCore(xilinx_platform(), clk_freq=100e6, cpu_type=None, uart_name="stub", integrated_rom_size=0)
                 pmod.add_pmods(soc, [arg])
 
+    def test_add_pmods_single_row(self):
+        # Modules only using indexes 0-3 can be plugged on single-row (6-pin) Pmods.
+        from litex.soc.integration.soc_core import SoCCore
+        platform = xilinx_platform()
+        soc = SoCCore(platform, clk_freq=100e6, cpu_type=None, uart_name="stub", integrated_rom_size=0)
+        pmod.add_pmods(soc, ["pmodr=i2c"])
+        self.assertTrue(hasattr(soc, "pmodr_i2c"))
+        self.assertEqual(resolved(platform)[("i2c", 0, "scl")][0], ["E2"])
+
 # Tests (boards) -----------------------------------------------------------------------------------
 
 class TestPmodBoards(unittest.TestCase):
@@ -272,7 +281,7 @@ class TestPmodBoards(unittest.TestCase):
                 if conn in _non_canonical_pmods.get(name, []):
                     continue
                 with self.subTest(platform=name, connector=conn):
-                    self.assertEqual(len(pins), 8)
+                    self.assertIn(len(pins), [4, 8])
 
     def test_pmods_on_hosts(self):
         for host, conn in _hosts:

@@ -7,7 +7,8 @@
 """Pmod modules, described once as Extensions and usable on any board exposing Pmod connectors.
 
 Canonical Pmod connector: 8 entries, index 0-3 = physical pins 1-4 (top row), index 4-7 = physical
-pins 7-10 (bottom row). GND/VCC pins are not part of the connector. Boards declaring their Pmods
+pins 7-10 (bottom row). GND/VCC pins are not part of the connector. Single-row (6-pin) Pmods have 4
+entries (physical pins 1-4) and accept modules only using indexes 0-3. Boards declaring their Pmods
 differently should expose a canonical alias connector.
 
 Usage:
@@ -366,18 +367,36 @@ multi_pmods = {
 # Command line -------------------------------------------------------------------------------------
 
 def _pmod_connectors(platform):
-    # Canonical Pmod connectors (8 entries) of the platform, named pmod* (case-insensitive).
+    # Pmod connectors of the platform, named pmod* (case-insensitive): canonical (8 entries) or
+    # single-row (6-pin Pmod, 4 entries).
     connectors = platform.constraint_manager.connector_manager.connector_table
-    return [name for name, pins in connectors.items() if name.lower().startswith("pmod") and len(pins) == 8]
+    return [name for name, pins in connectors.items() if name.lower().startswith("pmod") and len(pins) in [4, 8]]
 
-def _check_pmod_connector(platform, connector):
+def _pmod_indexes(extension, platform, slot):
+    # Pmod indexes used by the extension on a slot.
+    def indexes(constraints):
+        for c in constraints:
+            if isinstance(c, Pins):
+                for identifier in c.identifiers:
+                    conn, _, pin = identifier.partition(":")
+                    if conn == slot:
+                        yield int(pin)
+            elif isinstance(c, Subsignal):
+                yield from indexes(c.constraints)
+    return {i for name, number, *constraints in extension.define_io(platform) for i in indexes(constraints)}
+
+def _check_pmod_connector(platform, connector, extension, slot):
     connectors = platform.constraint_manager.connector_manager.connector_table
     available  = ", ".join(_pmod_connectors(platform)) or "none"
     if connector not in connectors:
         raise ValueError(f"Unknown connector '{connector}', Pmod connectors: {available}.")
-    if len(connectors[connector]) != 8:
-        raise ValueError(f"Connector '{connector}' is not a canonical Pmod connector (8 entries, got "
-            f"{len(connectors[connector])}), Pmod connectors: {available}.")
+    n = len(connectors[connector])
+    if n not in [4, 8]:
+        raise ValueError(f"Connector '{connector}' is not a Pmod connector (8 entries, or 4 for single-row "
+            f"Pmods, got {n}), Pmod connectors: {available}.")
+    if max(_pmod_indexes(extension, platform, slot), default=0) >= n:
+        raise ValueError(f"{type(extension).__name__} requires a dual-row (12-pin) Pmod, '{connector}' is a "
+            f"single-row (6-pin) Pmod, Pmod connectors: {available}.")
 
 # Pmods that can be plugged from the command line with the cores attached by add_pmods().
 _cli_pmods = ["gpio", "sdcard", "numato_sdcard", "i2c", "can", "dvi"]
@@ -453,9 +472,9 @@ def add_pmods(soc, pmod_args):
         numbers[module] = number + 1
         if module in ["sdcard", "numato_sdcard"] and number:
             raise ValueError("Only one SDCard Pmod is supported.")
-        for c in (conn if isinstance(conn, tuple) else (conn,)):
-            _check_pmod_connector(platform, c)
         extension = multi_pmods[module](*conn, number=number) if module in multi_pmods else pmods[module](conn, number=number)
+        for slot, c in extension.bindings.items():
+            _check_pmod_connector(platform, c, extension, slot)
         if module in _io_only_pmods:
             _check_not_requested(platform, extension, conn, module)
         # Prepend so that explicitly plugged Pmods take precedence over board's default resources.
