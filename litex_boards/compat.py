@@ -5,6 +5,19 @@
 
 import warnings
 
+# Deprecation --------------------------------------------------------------------------------------
+
+# Deprecated APIs are kept up to this LiteX-Boards release and removed after it.
+DEPRECATION_RELEASE = "2026.12"
+
+def warn_deprecated(old, new, stacklevel=3):
+    """Emit a FutureWarning (visible by default) for a deprecated API.
+
+    stacklevel defaults to 3 to point to the caller of the function calling warn_deprecated.
+    """
+    warnings.warn(f"{old} is deprecated and will be removed after the LiteX-Boards {DEPRECATION_RELEASE} "
+        f"release, use {new} instead.", FutureWarning, stacklevel=stacklevel)
+
 # Deprecated Pmod Helpers --------------------------------------------------------------------------
 
 def deprecated_pmod_helpers(module, helpers):
@@ -16,8 +29,7 @@ def deprecated_pmod_helpers(module, helpers):
     def __getattr__(name):
         if name in helpers:
             replacement, value = helpers[name]
-            warnings.warn(f"{module}.{name} is deprecated and will be removed, use litex_boards.extensions.pmod "
-                f"instead: {replacement}.", FutureWarning, stacklevel=2)
+            warn_deprecated(f"{module}.{name}", f"{replacement} (from litex_boards.extensions.pmod)")
             return value
         raise AttributeError(f"module {module!r} has no attribute {name!r}")
     return __getattr__

@@ -59,13 +59,16 @@ class TestExtensions(unittest.TestCase):
     def test_qmtech_compat(self):
         from litex_boards.platforms.qmtech_daughterboard import QMTechDaughterboard
         db = QMTechDaughterboard(IOStandard("LVCMOS33"))
-        self.assertEqual(db.io[0][0], "serial")
-        self.assertEqual([c[0] for c in db.connectors], ["pmoda", "pmodb", "J1"])
+        with self.assertWarns(FutureWarning):
+            self.assertEqual(db.io[0][0], "serial")
+        with self.assertWarns(FutureWarning):
+            self.assertEqual([c[0] for c in db.connectors], ["pmoda", "pmodb", "J1"])
 
     def test_enclustra_st1(self):
         from litex_boards.extensions.enclustra import EnclustraST1
         a = _platform("enclustra_mercury_kx2")
-        a.add_baseboard(EnclustraST1())
+        with self.assertWarns(FutureWarning):
+            a.add_baseboard(EnclustraST1())
         b = _platform("enclustra_mercury_kx2")
         b.add_extension(EnclustraST1())
         self.assertEqual(repr(a.constraint_manager.available), repr(b.constraint_manager.available))

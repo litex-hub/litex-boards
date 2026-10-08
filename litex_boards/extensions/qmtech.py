@@ -16,6 +16,8 @@ from litex.build.extension import Extension
 
 from litex.soc.interconnect.csr import AutoCSR, CSRStorage
 
+from litex_boards.compat import warn_deprecated
+
 # SevenSeg -----------------------------------------------------------------------------------------
 
 class SevenSeg(Module, AutoCSR):
@@ -100,15 +102,17 @@ class _QMTechDaughterboardBase(Extension):
             }),
         ]
 
-    # Compatibility with the previous io/connectors attributes (IOs with explicit io_standard).
+    # Deprecated io/connectors attributes (IOs with explicit io_standard).
     @property
     def io(self):
         from litex.build.generic_platform import GenericPlatform
+        warn_deprecated(f"{type(self).__name__}.io", f"platform.add_extension({type(self).__name__}())")
         return self.get_io(GenericPlatform)
 
     @property
     def connectors(self):
         from litex.build.generic_platform import GenericPlatform
+        warn_deprecated(f"{type(self).__name__}.connectors", f"platform.add_extension({type(self).__name__}())")
         return self.get_connectors(GenericPlatform)
 
 # QMTech Daughterboard -----------------------------------------------------------------------------
