@@ -12,7 +12,7 @@ from litex.gen import *
 
 from litex_boards.platforms import digilent_basys3
 
-from litex.build.pmod import PmodSDCard
+from litex_boards.extensions.pmod import PmodSDCard
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
@@ -77,8 +77,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
-    from litex.build.pmod   import add_pmod_args, add_pmods
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_basys3.Platform, description="LiteX SoC on Basys3.")
     parser.add_target_argument("--sys-clk-freq",        default=75e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
@@ -100,7 +100,7 @@ def main():
         **parser.soc_argdict
     )
     if args.sdcard_adapter == "numato":
-        from litex.build.pmod import PmodNumatoSDCard
+        from litex_boards.extensions.pmod import PmodNumatoSDCard
         soc.platform.add_extension(PmodNumatoSDCard("pmoda"))
     else:
         soc.platform.add_extension(PmodSDCard("pmoda"))

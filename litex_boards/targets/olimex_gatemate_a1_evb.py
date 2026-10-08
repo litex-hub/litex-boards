@@ -12,7 +12,7 @@ from litex.gen import *
 
 from litex_boards.platforms import olimex_gatemate_a1_evb
 
-from litex.build.pmod import PmodSDCard
+from litex_boards.extensions.pmod import PmodSDCard
 
 
 from litex.soc.cores.clock.colognechip import GateMatePLL
@@ -90,7 +90,7 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            from litex.build.pmod import PmodLAN8720
+            from litex_boards.extensions.pmod import PmodLAN8720
             platform.add_extension(PmodLAN8720("PMOD"))
 
             from liteeth.phy.rmii import LiteEthPHYRMII

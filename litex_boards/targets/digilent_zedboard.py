@@ -53,7 +53,7 @@ class BaseSoC(SoCCore):
         assert not (toolchain != "vivado" and kwargs.get("cpu_type", None) == "zynq7000")
 
         if kwargs.get("cpu_type", None) != "zynq7000":
-            from litex.build.pmod import PmodUSBUART
+            from litex_boards.extensions.pmod import PmodUSBUART
             platform.add_extension(PmodUSBUART("pmodb"))
             if kwargs.get("uart_name", "serial") == "serial": kwargs["uart_name"] = "usb_uart"
         else:

@@ -13,7 +13,7 @@ from litex.gen import *
 
 from litex_boards.platforms import opalkelly_xem8320
 
-from litex.build.pmod import PmodDVI, PmodSDCard
+from litex_boards.extensions.pmod import PmodDVI, PmodSDCard
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *

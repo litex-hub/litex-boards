@@ -134,7 +134,7 @@ class BaseSoC(SoCCore):
 
         # USB OHCI ---------------------------------------------------------------------------------
         if with_ohci:
-            from litex.build.pmod import PmodUSBHostQuad
+            from litex_boards.extensions.pmod import PmodUSBHostQuad
             platform.add_extension(PmodUSBHostQuad("pmod1", name="usb_pmod1", iostandard="3.3_V_LVCMOS", misc=Misc("DRIVE_STRENGTH=8")))
             self.submodules.usb_ohci = USBOHCI(platform, platform.request("usb_pmod1"), usb_clk_freq=int(60e6))
             self.bus.add_slave("usb_ohci_ctrl", self.usb_ohci.wb_ctrl, region=SoCRegion(origin=self.mem_map["usb_ohci"], size=0x100000, cached=False))
@@ -144,7 +144,7 @@ class BaseSoC(SoCCore):
 
         # JTAG -------------------------------------------------------------------------------------
         if hasattr(self.cpu, "jtag_tms"):
-            from litex.build.pmod import PmodJTAG
+            from litex_boards.extensions.pmod import PmodJTAG
             self.platform.add_extension(PmodJTAG("pmod0", iostandard="3.3_V_LVCMOS"))
             jtag_pads = platform.request("jtag")
             self.cpu.add_jtag(jtag_pads)

@@ -105,9 +105,9 @@ class Platform(GowinPlatform):
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
 
 # Deprecated Pmod Helpers --------------------------------------------------------------------------
-# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+# Kept for compatibility (emit a FutureWarning), use litex_boards.extensions.pmod modules directly instead.
 
-from litex.build.pmod import PmodSDCard
+from litex_boards.extensions.pmod import PmodSDCard
 from litex_boards.compat import deprecated_pmod_helpers
 
 __getattr__ = deprecated_pmod_helpers(__name__, {

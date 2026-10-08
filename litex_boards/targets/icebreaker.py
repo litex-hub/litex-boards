@@ -24,7 +24,7 @@ from litex.gen import *
 
 from litex_boards.platforms import icebreaker
 
-from litex.build.pmod import Pmod1BitSquaredBreakOff, PmodDVI
+from litex_boards.extensions.pmod import Pmod1BitSquaredBreakOff, PmodDVI
 
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL

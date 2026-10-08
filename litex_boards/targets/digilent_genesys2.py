@@ -13,7 +13,7 @@ from litex.gen import *
 from litex_boards.platforms import digilent_genesys2
 
 from litex.build.io import DifferentialInput
-from litex.build.pmod import PmodCAN
+from litex_boards.extensions.pmod import PmodCAN
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc import *
@@ -150,8 +150,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
-    from litex.build.pmod   import add_pmod_args, add_pmods
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=digilent_genesys2.Platform, description="LiteX SoC on Genesys2.")
     parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()

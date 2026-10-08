@@ -11,7 +11,7 @@ import importlib
 import contextlib
 
 from litex.build.generic_platform import Misc, IOStandard
-from litex.build import pmod
+from litex_boards.extensions import pmod
 
 # Helpers ------------------------------------------------------------------------------------------
 

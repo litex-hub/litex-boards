@@ -12,7 +12,7 @@ from litex.gen import *
 
 from litex_boards.platforms import qmtech_wukong
 
-from litex.build.pmod import PmodSDCard
+from litex_boards.extensions.pmod import PmodSDCard
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *

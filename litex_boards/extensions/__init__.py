@@ -1,1 +1,1 @@
-# Board extensions (carriers, daughterboards, docks) built on litex.build.extension.Extension.
+# Board extensions (carriers, daughterboards, docks, Pmods) built on litex.build.extension.Extension.

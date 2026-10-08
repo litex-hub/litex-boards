@@ -7,7 +7,7 @@
 
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticeECP5Platform
-from litex.build.pmod import PmodUART, PmodUSBHostDual
+from litex_boards.extensions.pmod import PmodUART, PmodUSBHostDual
 from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------

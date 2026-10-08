@@ -131,9 +131,9 @@ class Platform(CologneChipPlatform):
         self.add_period_constraint(self.lookup_request("clk10", loose=True), 1e9/10e6)
 
 # Deprecated Pmod Helpers --------------------------------------------------------------------------
-# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+# Kept for compatibility (emit a FutureWarning), use litex_boards.extensions.pmod modules directly instead.
 
-from litex.build.pmod import PmodSDCard, PmodUSBUART
+from litex_boards.extensions.pmod import PmodSDCard, PmodUSBUART
 from litex_boards.compat import deprecated_pmod_helpers
 
 __getattr__ = deprecated_pmod_helpers(__name__, {

@@ -14,7 +14,7 @@ from litex.gen.genlib.misc import WaitTimer
 
 from litex_boards.platforms import efinix_t120_f576_dev_kit
 
-from litex.build.pmod import PmodI2C, PmodUSBUART
+from litex_boards.extensions.pmod import PmodI2C, PmodUSBUART
 
 
 from litex.soc.cores.clock import *
@@ -142,7 +142,7 @@ class BaseSoC(SoCCore):
                     with_hw_init_reset = False)
             # Use Ethernet RMII PMOD.
             else:
-                from litex.build.pmod import PmodLAN8720
+                from litex_boards.extensions.pmod import PmodLAN8720
                 platform.add_extension(PmodLAN8720("pmod_d"))
 
                 from liteeth.phy.rmii import LiteEthPHYRMII
@@ -160,8 +160,8 @@ class BaseSoC(SoCCore):
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    from litex.build.parser import LiteXArgumentParser
-    from litex.build.pmod   import add_pmod_args, add_pmods
+    from litex.build.parser           import LiteXArgumentParser
+    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=efinix_t120_f576_dev_kit.Platform, description="LiteX SoC on Efinix Trion T120 BGA576 Dev Kit.")
     parser.add_target_argument("--flash",          action="store_true",      help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
