@@ -215,11 +215,6 @@ _connectors_r1_0 = [
     ),
 ]
 
-# SYZYGY -------------------------------------------------------------------------------------------
-
-def raw_syzygy_io(syzygy, iostandard="LVCMOS33"):
-    return [(syzygy, 0, Pins(" ".join([f"{syzygy}:S{i:d}" for i in range(32)])), IOStandard(iostandard))]
-
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticeECP5Platform):
@@ -245,3 +240,16 @@ class Platform(LatticeECP5Platform):
     def do_finalize(self, fragment):
         LatticeECP5Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk30", loose=True), 1e9/30e6)
+
+# Deprecated SYZYGY Helpers ------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex_boards.extensions.syzygy modules directly instead.
+
+from litex_boards.extensions.syzygy import SyzygyGPIO
+
+def __getattr__(name):
+    if name == "raw_syzygy_io":
+        import warnings
+        warnings.warn(f"{__name__}.raw_syzygy_io is deprecated and will be removed, use litex_boards.extensions.syzygy "
+            "instead: platform.add_extension(SyzygyGPIO(syzygy, signals=32)).", FutureWarning, stacklevel=2)
+        return lambda syzygy, iostandard="LVCMOS33": SyzygyGPIO(syzygy, signals=32, iostandard=iostandard).get_io(LatticeECP5Platform)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

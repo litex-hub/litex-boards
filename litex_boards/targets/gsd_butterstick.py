@@ -18,6 +18,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen import *
 
 from litex_boards.platforms import gsd_butterstick
+from litex_boards.extensions.syzygy import SyzygyGPIO
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
@@ -155,7 +156,7 @@ class BaseSoC(SoCCore):
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_syzygy_gpio:
-            platform.add_extension(gsd_butterstick.raw_syzygy_io("SYZYGY0"))
+            platform.add_extension(SyzygyGPIO("SYZYGY0", signals=32))
             self.gpio = GPIOTristate(platform.request("SYZYGY0"))
 
 # Build --------------------------------------------------------------------------------------------
