@@ -14,6 +14,8 @@ from litex.gen.genlib.misc import WaitTimer
 
 from litex_boards.platforms import efinix_t120_f576_dev_kit
 
+from litex.build.pmod import PmodI2C, PmodUSBUART
+
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.led import LedChaser
@@ -83,7 +85,7 @@ class BaseSoC(SoCCore):
         platform = efinix_t120_f576_dev_kit.Platform()
 
         # USB-UART PMOD as Serial ------------------------------------------------------------------
-        platform.add_extension(efinix_t120_f576_dev_kit.usb_pmod_io("pmod_e"))
+        platform.add_extension(PmodUSBUART("pmod_e"))
         if kwargs.get("uart_name", "serial") == "serial":
             kwargs["uart_name"] = "usb_uart"
 
@@ -120,7 +122,7 @@ class BaseSoC(SoCCore):
         # I2C --------------------------------------------------------------------------------------
         if with_i2c:
             from litex.soc.cores.bitbang import I2CMaster
-            platform.add_extension(efinix_t120_f576_dev_kit.i2c_pmod_io("pmod_a"))
+            platform.add_extension(PmodI2C("pmod_a"))
             self.i2c = I2CMaster(pads=platform.request("i2c"))
 
         # Ethernet / Etherbone ---------------------------------------------------------------------

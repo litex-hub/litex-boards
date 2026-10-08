@@ -102,13 +102,18 @@ class TestPmods(unittest.TestCase):
                 r = _resolve(_platform(host), pmod.PmodSDCard(conn), "spisdcard")
                 self.assertIn(expected[host], [c.misc for c in r["mosi"][1] if isinstance(c, Misc)])
 
-    def test_board_helpers_use_library(self):
-        # Board helpers are kept for compatibility and generate the same IOs as the library.
-        from litex_boards.platforms import digilent_arty
-        platform = _platform("digilent_arty")
-        self.assertEqual(
-            repr(digilent_arty.sdcard_pmod_io("pmodd")),
-            repr(pmod.PmodSDCard("pmodd").get_io(platform)))
+    def test_deprecated_board_helpers(self):
+        # Deprecated board helpers warn and still generate the same IOs as the library.
+        from litex_boards.platforms import digilent_arty, icebreaker
+        from litex.build.lattice import LatticeiCE40Platform
+        with self.assertWarns(FutureWarning):
+            io = digilent_arty.sdcard_pmod_io("pmodd")
+        self.assertEqual(repr(io), repr(pmod.PmodSDCard("pmodd").get_io(_platform("digilent_arty"))))
+        with self.assertWarns(FutureWarning):
+            io = icebreaker.break_off_pmod
+        self.assertEqual(repr(io), repr(pmod.Pmod1BitSquaredBreakOff("PMOD2").get_io(LatticeiCE40Platform)))
+        with self.assertRaises(AttributeError):
+            digilent_arty.does_not_exist
 
 if __name__ == "__main__":
     unittest.main()

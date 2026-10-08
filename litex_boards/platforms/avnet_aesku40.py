@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxUSPlatform, VivadoProgrammer
-from litex.build.pmod import PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -97,27 +96,6 @@ _connectors = [
     ("pmod1", "F9  F8  E8  D8  E10 D10 G12 F12"),
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def raw_pmod_io(pmod):
-    return PmodGPIO(pmod).get_io(XilinxUSPlatform)
-
-def usb_pmod_io(pmod):
-    return PmodUSBUART(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)
-_usb_uart_pmod_io = usb_pmod_io("pmod0") # USB-UART PMOD on JB.
-
-
-def i2s_pmod_io(pmod):
-    return PmodI2S2(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)
-_i2s_pmod_io = i2s_pmod_io("pmod0") # I2S PMOD on JA.
-
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)
-_sdcard_pmod_io = sdcard_pmod_io("pmod0") # SDCARD PMOD on JD.
-
-def numato_sdcard_pmod_io(pmod):
-    return PmodNumatoSDCard(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)
-_numato_sdcard_pmod_io = numato_sdcard_pmod_io("pmod0") # SDCARD PMOD on JD.
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -136,3 +114,30 @@ class Platform(XilinxUSPlatform):
         self.add_period_constraint(self.lookup_request("clk250", loose=True), 1e9/250e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 44]")
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 45]")
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "raw_pmod_io"            : ('platform.add_extension(PmodGPIO(pmod))',
+        lambda pmod: PmodGPIO(pmod).get_io(XilinxUSPlatform)),
+    "usb_pmod_io"            : ('platform.add_extension(PmodUSBUART(pmod, iostandard="LVCMOS18"))',
+        lambda pmod: PmodUSBUART(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)),
+    "_usb_uart_pmod_io"      : ('platform.add_extension(PmodUSBUART("pmod0", iostandard="LVCMOS18"))',
+        PmodUSBUART("pmod0", iostandard="LVCMOS18").get_io(XilinxUSPlatform)),
+    "i2s_pmod_io"            : ('platform.add_extension(PmodI2S2(pmod, iostandard="LVCMOS18"))',
+        lambda pmod: PmodI2S2(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)),
+    "_i2s_pmod_io"           : ('platform.add_extension(PmodI2S2("pmod0", iostandard="LVCMOS18"))',
+        PmodI2S2("pmod0", iostandard="LVCMOS18").get_io(XilinxUSPlatform)),
+    "sdcard_pmod_io"         : ('platform.add_extension(PmodSDCard(pmod, iostandard="LVCMOS18"))',
+        lambda pmod: PmodSDCard(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)),
+    "_sdcard_pmod_io"        : ('platform.add_extension(PmodSDCard("pmod0", iostandard="LVCMOS18"))',
+        PmodSDCard("pmod0", iostandard="LVCMOS18").get_io(XilinxUSPlatform)),
+    "numato_sdcard_pmod_io"  : ('platform.add_extension(PmodNumatoSDCard(pmod, iostandard="LVCMOS18"))',
+        lambda pmod: PmodNumatoSDCard(pmod, iostandard="LVCMOS18").get_io(XilinxUSPlatform)),
+    "_numato_sdcard_pmod_io" : ('platform.add_extension(PmodNumatoSDCard("pmod0", iostandard="LVCMOS18"))',
+        PmodNumatoSDCard("pmod0", iostandard="LVCMOS18").get_io(XilinxUSPlatform)),
+})

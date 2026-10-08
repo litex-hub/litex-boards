@@ -9,7 +9,6 @@ from migen import *
 
 from litex.build.generic_platform import *
 from litex.build.gowin.platform import GowinPlatform
-from litex.build.pmod import PmodSDCard
 from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
@@ -82,9 +81,6 @@ _connectors = [
 
 # PMODs --------------------------------------------------------------------------------------------
 
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod).get_io(GowinPlatform)
-_sdcard_pmod_io = sdcard_pmod_io("pmod")
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -107,3 +103,16 @@ class Platform(GowinPlatform):
         GowinPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk12",  loose=True), 1e9/12e6)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodSDCard
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "sdcard_pmod_io"  : ('platform.add_extension(PmodSDCard(pmod))',
+        lambda pmod: PmodSDCard(pmod).get_io(GowinPlatform)),
+    "_sdcard_pmod_io" : ('platform.add_extension(PmodSDCard("pmod"))',
+        PmodSDCard("pmod").get_io(GowinPlatform)),
+})

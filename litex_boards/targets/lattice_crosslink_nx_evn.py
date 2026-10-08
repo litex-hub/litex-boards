@@ -17,6 +17,7 @@ from litex_boards.platforms import lattice_crosslink_nx_evn
 from litex.soc.cores.ram import NXLRAM
 from litex.soc.cores.clock import NXPLL
 from litex.build.generic_platform import *
+from litex.build.pmod import PmodUART
 
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
@@ -78,7 +79,8 @@ class BaseSoC(SoCCore):
         # Disable Integrated SRAM since we want to instantiate LRAM specifically for it
         kwargs["integrated_sram_size"] = 0
         # Make serial_pmods available
-        platform.add_extension(lattice_crosslink_nx_evn.serial_pmods)
+        for n in range(3): # Serial Pmods (rx on pin 1, tx on pin 2).
+            platform.add_extension(PmodUART(f"PMOD{n}", tx=1, rx=0, name=f"serial_pmod{n}"))
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Crosslink-NX Evaluation Board", **kwargs)
 
         # 128KB LRAM (used as SRAM) ---------------------------------------------------------------

@@ -13,6 +13,8 @@ from litex.gen import *
 
 from litex_boards.platforms import opalkelly_xem8320
 
+from litex.build.pmod import PmodDVI, PmodSDCard
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
@@ -106,7 +108,7 @@ class BaseSoC(SoCCore):
 
         # Video ------------------------------------------------------------------------------------
         if with_video_framebuffer:
-            platform.add_extension(opalkelly_xem8320._dvi_pmod_io)
+            platform.add_extension(PmodDVI(a="pmod2", b="pmod1"))
             self.videophy = VideoDVIPHY(platform.request("dvi"), clock_domain="hdmi")
             self.add_video_framebuffer(phy=self.videophy, timings="640x480@75Hz", clock_domain="hdmi")
 
@@ -145,7 +147,7 @@ def main():
         **parser.soc_argdict
     )
 
-    soc.platform.add_extension(opalkelly_xem8320._sdcard_pmod_io)
+    soc.platform.add_extension(PmodSDCard("pmod3"))
     soc.add_spi_sdcard()
 
     builder = Builder(soc, **parser.builder_argdict)

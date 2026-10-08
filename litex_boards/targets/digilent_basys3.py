@@ -12,6 +12,8 @@ from litex.gen import *
 
 from litex_boards.platforms import digilent_basys3
 
+from litex.build.pmod import PmodSDCard
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
@@ -101,7 +103,7 @@ def main():
         from litex.build.pmod import PmodNumatoSDCard
         soc.platform.add_extension(PmodNumatoSDCard("pmoda"))
     else:
-        soc.platform.add_extension(digilent_basys3._sdcard_pmod_io)
+        soc.platform.add_extension(PmodSDCard("pmoda"))
     add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()

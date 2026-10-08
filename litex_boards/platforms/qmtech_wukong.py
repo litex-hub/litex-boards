@@ -6,7 +6,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.pmod import PmodPS2, PmodSDCard
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -188,14 +187,6 @@ _connectors = [
             "AD12 AC12"),
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)
-_sdcard_pmod_io = sdcard_pmod_io("j10") # SDCARD PMOD on J10.
-def ps2_pmod_io(pmod):
-    return PmodPS2(pmod).get_io(Xilinx7SeriesPlatform)
-_ps2_pmod_io = ps2_pmod_io("j11") # PS2 PMOD on top line of J11
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -235,3 +226,20 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodPS2, PmodSDCard
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "sdcard_pmod_io"  : ('platform.add_extension(PmodSDCard(pmod))',
+        lambda pmod: PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_sdcard_pmod_io" : ('platform.add_extension(PmodSDCard("j10"))',
+        PmodSDCard("j10").get_io(Xilinx7SeriesPlatform)),
+    "ps2_pmod_io"     : ('platform.add_extension(PmodPS2(pmod))',
+        lambda pmod: PmodPS2(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_ps2_pmod_io"    : ('platform.add_extension(PmodPS2("j11"))',
+        PmodPS2("j11").get_io(Xilinx7SeriesPlatform)),
+})

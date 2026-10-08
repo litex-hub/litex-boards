@@ -226,7 +226,6 @@ _ps7_io = [
     ),
 ]
 
-_usb_uart_pmod_io = PmodUSBUART("pmodb").get_io(Xilinx7SeriesPlatform) # USB-UART Pmod on JB.
 
 # Connectors ---------------------------------------------------------------------------------------
 
@@ -288,7 +287,7 @@ class Platform(Xilinx7SeriesPlatform):
 
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.add_extension(_ps7_io)
-        self.add_extension(_usb_uart_pmod_io)
+        self.add_extension(PmodUSBUART("pmodb")) # USB-UART Pmod on JB.
         self.add_extension(_io_original if variant == "original" else _io_z7)
         if variant == "z7-20":
             self.add_extension(_io_z7_20)
@@ -301,3 +300,14 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk125", loose=True), 1e9/125e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodUSBUART
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "_usb_uart_pmod_io" : ('platform.add_extension(PmodUSBUART("pmodb"))',
+        PmodUSBUART("pmodb").get_io(Xilinx7SeriesPlatform)),
+})

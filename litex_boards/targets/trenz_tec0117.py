@@ -15,6 +15,7 @@ from litex.gen import *
 from litex_boards.platforms import trenz_tec0117
 
 from litex.build.io import DDROutput
+from litex.build.pmod import PmodSDCard
 
 from litex.soc.cores.clock.gowin_gw1n import  GW1NPLL
 from litex.soc.integration.soc import *
@@ -168,7 +169,7 @@ def main():
         toolchain         = args.toolchain,
         **parser.soc_argdict
     )
-    soc.platform.add_extension(trenz_tec0117._sdcard_pmod_io)
+    soc.platform.add_extension(PmodSDCard("pmod"))
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
     if args.with_sdcard:

@@ -7,7 +7,6 @@
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.pmod import PmodCAN, PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
 from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -251,30 +250,6 @@ _connectors = [
         } ),
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def raw_pmod_io(pmod):
-    return PmodGPIO(pmod).get_io(Xilinx7SeriesPlatform)
-
-def usb_pmod_io(pmod):
-    return PmodUSBUART(pmod).get_io(Xilinx7SeriesPlatform)
-_usb_uart_pmod_io = usb_pmod_io("pmodb") # USB-UART PMOD on JB.
-
-
-def i2s_pmod_io(pmod):
-    return PmodI2S2(pmod).get_io(Xilinx7SeriesPlatform)
-_i2s_pmod_io = i2s_pmod_io("pmoda") # I2S PMOD on JA.
-
-def sdcard_pmod_io(pmod):
-    return PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)
-_sdcard_pmod_io = sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
-
-def numato_sdcard_pmod_io(pmod):
-    return PmodNumatoSDCard(pmod).get_io(Xilinx7SeriesPlatform)
-_numato_sdcard_pmod_io = numato_sdcard_pmod_io("pmodd") # SDCARD PMOD on JD.
-
-def can_pmod_io(pmod, n):
-    return PmodCAN(pmod, number=n).get_io(Xilinx7SeriesPlatform)
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -302,3 +277,32 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodCAN, PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "raw_pmod_io"            : ('platform.add_extension(PmodGPIO(pmod))',
+        lambda pmod: PmodGPIO(pmod).get_io(Xilinx7SeriesPlatform)),
+    "usb_pmod_io"            : ('platform.add_extension(PmodUSBUART(pmod))',
+        lambda pmod: PmodUSBUART(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_usb_uart_pmod_io"      : ('platform.add_extension(PmodUSBUART("pmodb"))',
+        PmodUSBUART("pmodb").get_io(Xilinx7SeriesPlatform)),
+    "i2s_pmod_io"            : ('platform.add_extension(PmodI2S2(pmod))',
+        lambda pmod: PmodI2S2(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_i2s_pmod_io"           : ('platform.add_extension(PmodI2S2("pmoda"))',
+        PmodI2S2("pmoda").get_io(Xilinx7SeriesPlatform)),
+    "sdcard_pmod_io"         : ('platform.add_extension(PmodSDCard(pmod))',
+        lambda pmod: PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_sdcard_pmod_io"        : ('platform.add_extension(PmodSDCard("pmodd"))',
+        PmodSDCard("pmodd").get_io(Xilinx7SeriesPlatform)),
+    "numato_sdcard_pmod_io"  : ('platform.add_extension(PmodNumatoSDCard(pmod))',
+        lambda pmod: PmodNumatoSDCard(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_numato_sdcard_pmod_io" : ('platform.add_extension(PmodNumatoSDCard("pmodd"))',
+        PmodNumatoSDCard("pmodd").get_io(Xilinx7SeriesPlatform)),
+    "can_pmod_io"            : ('platform.add_extension(PmodCAN(pmod, number=n))',
+        lambda pmod, n: PmodCAN(pmod, number=n).get_io(Xilinx7SeriesPlatform)),
+})

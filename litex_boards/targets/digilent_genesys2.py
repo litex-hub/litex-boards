@@ -13,6 +13,7 @@ from litex.gen import *
 from litex_boards.platforms import digilent_genesys2
 
 from litex.build.io import DifferentialInput
+from litex.build.pmod import PmodCAN
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc import *
@@ -141,7 +142,7 @@ class BaseSoC(SoCCore):
         # CAN --------------------------------------------------------------------------------------
         if with_can:
             from litex.soc.cores.can.ctu_can_fd import CTUCANFD
-            self.platform.add_extension(digilent_genesys2.can_pmod_io("pmodc", 0))
+            self.platform.add_extension(PmodCAN("pmodc"))
             self.can0 = CTUCANFD(platform, platform.request("can", 0))
             self.bus.add_slave("can0", self.can0.bus, SoCRegion(origin=0xb0010000, size=0x10000, mode="rw", cached=False))
             self.irq.add("can0")

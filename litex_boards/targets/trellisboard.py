@@ -13,6 +13,8 @@ from litex.gen import *
 
 from litex_boards.platforms import trellisboard
 
+from litex.build.pmod import PmodGPIO
+
 from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
@@ -179,7 +181,7 @@ class BaseSoC(SoCCore):
 
         # GPIOs ------------------------------------------------------------------------------------
         if with_pmod_gpio:
-            platform.add_extension(trellisboard.raw_pmod_io("pmoda"))
+            platform.add_extension(PmodGPIO("pmoda"))
             self.gpio = GPIOTristate(platform.request("pmoda"))
 
 # Build --------------------------------------------------------------------------------------------
