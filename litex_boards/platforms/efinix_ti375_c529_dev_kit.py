@@ -301,3 +301,16 @@ class Platform(EfinixPlatform):
         self.add_period_constraint(
             self.lookup_request(self.default_clk_name, loose=True),
             self.default_clk_period)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodGPIO, PmodJTAG
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "raw_pmod_io"  : ('platform.add_extension(PmodGPIO(pmod))',
+        lambda pmod: PmodGPIO(pmod).get_io(EfinixPlatform)),
+    "jtag_pmod_io" : ('platform.add_extension(PmodJTAG(pmod, iostandard="3.3_V_LVCMOS"))',
+        lambda pmod: PmodJTAG(pmod, iostandard="3.3_V_LVCMOS").get_io(EfinixPlatform)),
+})

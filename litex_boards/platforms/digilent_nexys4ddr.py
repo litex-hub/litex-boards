@@ -248,3 +248,16 @@ class Platform(Xilinx7SeriesPlatform):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100",             loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:ref_clk", loose=True), 1e9/50e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodSDCard
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "sdcard_pmod_io"  : ('platform.add_extension(PmodSDCard(pmod))',
+        lambda pmod: PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_sdcard_pmod_io" : ('platform.add_extension(PmodSDCard("pmodd"))',
+        PmodSDCard("pmodd").get_io(Xilinx7SeriesPlatform)),
+})

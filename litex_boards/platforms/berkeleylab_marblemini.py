@@ -265,3 +265,17 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_period_constraint(self.lookup_request("mgt_clk", 0,  loose=True),   1e9/125e6)
         self.add_period_constraint(self.lookup_request("mgt_clk", 1,  loose=True),   1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", loose=True), 1e9/125e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodGPIO
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "break_off_pmod" : ('platform.add_extension(PmodGPIO("PMOD0", name="pmod0")) and platform.add_extension(PmodGPIO("PMOD1", name="pmod1"))',
+        [
+            *PmodGPIO("PMOD0", name="pmod0").get_io(Xilinx7SeriesPlatform),
+            *PmodGPIO("PMOD1", name="pmod1").get_io(Xilinx7SeriesPlatform),
+        ]),
+})

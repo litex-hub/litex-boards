@@ -76,3 +76,26 @@ class Platform(LatticeiCE40Platform):
     def do_finalize(self, fragment):
         LatticeiCE40Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk12", loose=True), 1e9/12e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import Pmod1BitSquaredBreakOff, PmodDVI, PmodUSBDevice
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "break_off_pmod" : ('platform.add_extension(Pmod1BitSquaredBreakOff("PMOD2"))',
+        Pmod1BitSquaredBreakOff("PMOD2").get_io(LatticeiCE40Platform)),
+    "dvi_pmod"       : ('platform.add_extension(PmodDVI(a="PMOD1A", b="PMOD1B"))',
+        PmodDVI(a="PMOD1A", b="PMOD1B").get_io(LatticeiCE40Platform)),
+    "usb_pmod_1a"    : ('platform.add_extension(PmodUSBDevice("PMOD1A"))',
+        PmodUSBDevice("PMOD1A").get_io(LatticeiCE40Platform)),
+    "usb_pmod_1b"    : ('platform.add_extension(PmodUSBDevice("PMOD1B"))',
+        PmodUSBDevice("PMOD1B").get_io(LatticeiCE40Platform)),
+    "usb_pmod_2"     : ('platform.add_extension(PmodUSBDevice("PMOD2"))',
+        PmodUSBDevice("PMOD2").get_io(LatticeiCE40Platform)),
+    "usb_tnt"        : ('platform.add_extension(PmodUSBDevice("PMOD1B", pins=(3, 2, 1)))',
+        PmodUSBDevice("PMOD1B", pins=(3, 2, 1)).get_io(LatticeiCE40Platform)),
+    "usb_kbeckmann"  : ('platform.add_extension(PmodUSBDevice("PMOD1B", pins=(0, 1, 2)))',
+        PmodUSBDevice("PMOD1B", pins=(0, 1, 2)).get_io(LatticeiCE40Platform)),
+})

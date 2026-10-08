@@ -218,3 +218,18 @@ class Platform(EfinixPlatform):
         self.add_period_constraint(
             self.lookup_request(self.default_clk_name, loose=True),
             self.default_clk_period)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodGPIO, PmodI2C, PmodUSBUART
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "raw_pmod_io" : ('platform.add_extension(PmodGPIO(pmod))',
+        lambda pmod: PmodGPIO(pmod).get_io(EfinixPlatform)),
+    "usb_pmod_io" : ('platform.add_extension(PmodUSBUART(pmod))',
+        lambda pmod: PmodUSBUART(pmod).get_io(EfinixPlatform)),
+    "i2c_pmod_io" : ('platform.add_extension(PmodI2C(pmod))',
+        lambda pmod: PmodI2C(pmod).get_io(EfinixPlatform)),
+})

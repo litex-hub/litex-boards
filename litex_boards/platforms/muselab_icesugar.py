@@ -93,3 +93,14 @@ class Platform(LatticeiCE40Platform):
     def do_finalize(self, fragment):
         LatticeiCE40Platform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk12", loose=True), 1e9/12e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodLED
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "led_pmod_io_v11" : ('platform.add_extension(PmodLED(pmod, order=[4, 5, 6, 7, 0, 1, 2, 3], name="user_led_n", number=offset))',
+        lambda pmod, offset=0: PmodLED(pmod, order=[4, 5, 6, 7, 0, 1, 2, 3], name="user_led_n", number=offset).get_io(LatticeiCE40Platform)),
+})

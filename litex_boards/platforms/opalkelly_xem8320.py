@@ -346,3 +346,20 @@ class Platform(XilinxUSPPlatform):
         self.add_period_constraint(self.lookup_request("sys_clk100", loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("ddr_clk100", loose=True), 1e9/100e6)
         self.add_platform_command("set_property INTERNAL_VREF 0.84 [get_iobanks 64]")
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodDVI, PmodSDCard
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "dvi_pmod_io"     : ('platform.add_extension(PmodDVI(a=pmoda, b=pmodb))',
+        lambda pmoda, pmodb: PmodDVI(a=pmoda, b=pmodb).get_io(XilinxUSPPlatform)),
+    "_dvi_pmod_io"    : ('platform.add_extension(PmodDVI(a="pmod2", b="pmod1"))',
+        PmodDVI(a="pmod2", b="pmod1").get_io(XilinxUSPPlatform)),
+    "sdcard_pmod_io"  : ('platform.add_extension(PmodSDCard(pmod))',
+        lambda pmod: PmodSDCard(pmod).get_io(XilinxUSPPlatform)),
+    "_sdcard_pmod_io" : ('platform.add_extension(PmodSDCard("pmod3"))',
+        PmodSDCard("pmod3").get_io(XilinxUSPPlatform)),
+})

@@ -277,3 +277,32 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100", loose=True), 1e9/100e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodCAN, PmodGPIO, PmodI2S2, PmodNumatoSDCard, PmodSDCard, PmodUSBUART
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "raw_pmod_io"            : ('platform.add_extension(PmodGPIO(pmod))',
+        lambda pmod: PmodGPIO(pmod).get_io(Xilinx7SeriesPlatform)),
+    "usb_pmod_io"            : ('platform.add_extension(PmodUSBUART(pmod))',
+        lambda pmod: PmodUSBUART(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_usb_uart_pmod_io"      : ('platform.add_extension(PmodUSBUART("pmodb"))',
+        PmodUSBUART("pmodb").get_io(Xilinx7SeriesPlatform)),
+    "i2s_pmod_io"            : ('platform.add_extension(PmodI2S2(pmod))',
+        lambda pmod: PmodI2S2(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_i2s_pmod_io"           : ('platform.add_extension(PmodI2S2("pmoda"))',
+        PmodI2S2("pmoda").get_io(Xilinx7SeriesPlatform)),
+    "sdcard_pmod_io"         : ('platform.add_extension(PmodSDCard(pmod))',
+        lambda pmod: PmodSDCard(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_sdcard_pmod_io"        : ('platform.add_extension(PmodSDCard("pmodd"))',
+        PmodSDCard("pmodd").get_io(Xilinx7SeriesPlatform)),
+    "numato_sdcard_pmod_io"  : ('platform.add_extension(PmodNumatoSDCard(pmod))',
+        lambda pmod: PmodNumatoSDCard(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_numato_sdcard_pmod_io" : ('platform.add_extension(PmodNumatoSDCard("pmodd"))',
+        PmodNumatoSDCard("pmodd").get_io(Xilinx7SeriesPlatform)),
+    "can_pmod_io"            : ('platform.add_extension(PmodCAN(pmod, number=n))',
+        lambda pmod, n: PmodCAN(pmod, number=n).get_io(Xilinx7SeriesPlatform)),
+})

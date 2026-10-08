@@ -357,3 +357,18 @@ class Platform(Xilinx7SeriesPlatform):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk100",        loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", loose=True), 1e9/125e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodGPIO, PmodUSBUART
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "raw_pmod_io"       : ('platform.add_extension(PmodGPIO(pmod))',
+        lambda pmod: PmodGPIO(pmod).get_io(Xilinx7SeriesPlatform)),
+    "usb_pmod_io"       : ('platform.add_extension(PmodUSBUART(pmod))',
+        lambda pmod: PmodUSBUART(pmod).get_io(Xilinx7SeriesPlatform)),
+    "_usb_uart_pmod_io" : ('platform.add_extension(PmodUSBUART("pmodb"))',
+        PmodUSBUART("pmodb").get_io(Xilinx7SeriesPlatform)),
+})

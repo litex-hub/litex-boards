@@ -129,3 +129,16 @@ class Platform(CologneChipPlatform):
     def do_finalize(self, fragment):
         CologneChipPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk10", loose=True), 1e9/10e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodSDCard, PmodUSBUART
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "usb_pmod_io"     : ('platform.add_extension(PmodUSBUART(pmod))',
+        lambda pmod: PmodUSBUART(pmod).get_io(CologneChipPlatform)),
+    "pmods_sdcard_io" : ('platform.add_extension(PmodSDCard(pmod))',
+        lambda pmod: PmodSDCard(pmod).get_io(CologneChipPlatform)),
+})

@@ -243,3 +243,18 @@ class Platform(LatticeECP5Platform):
         self.add_period_constraint(self.lookup_request("clk100",        loose=True), 1e9/100e6)
         self.add_period_constraint(self.lookup_request("clk12",         loose=True), 1e9/12e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", loose=True), 1e9/125e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex.build.pmod modules directly instead.
+
+from litex.build.pmod import PmodGPIO, PmodSDCard
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "raw_pmod_io"     : ('platform.add_extension(PmodGPIO(pmod))',
+        lambda pmod: PmodGPIO(pmod).get_io(LatticeECP5Platform)),
+    "sdcard_pmod_io"  : ('platform.add_extension(PmodSDCard(pmod))',
+        lambda pmod: PmodSDCard(pmod).get_io(LatticeECP5Platform)),
+    "_sdcard_pmod_io" : ('platform.add_extension(PmodSDCard("pmoda"))',
+        PmodSDCard("pmoda").get_io(LatticeECP5Platform)),
+})
