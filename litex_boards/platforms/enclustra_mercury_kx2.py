@@ -9,6 +9,8 @@ from litex.build.generic_platform import *
 from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openocd import OpenOCD
 
+from litex_boards.compat import warn_deprecated
+
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
@@ -304,7 +306,8 @@ class Platform(Xilinx7SeriesPlatform):
         self.add_platform_command("set_property BITSTREAM.CONFIG.UNUSEDPIN PULLNONE [current_design]")
 
     def add_baseboard(self, bb):
-        # Kept for compatibility, equivalent to add_extension(bb).
+        # Deprecated, equivalent to add_extension(bb).
+        warn_deprecated("Platform.add_baseboard(bb)", "platform.add_extension(bb)")
         self.add_extension(bb)
 
     def create_programmer(self):

@@ -6,5 +6,8 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
-# Compatibility: moved to litex_boards.extensions.qmtech.
+# Deprecated: moved to litex_boards.extensions.qmtech.
+from litex_boards.compat import warn_deprecated
 from litex_boards.extensions.qmtech import SevenSeg, QMTechDaughterboard
+
+warn_deprecated("litex_boards.platforms.qmtech_daughterboard", "litex_boards.extensions.qmtech", stacklevel=2)

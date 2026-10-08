@@ -7,6 +7,8 @@
 from litex.build.generic_platform import GenericPlatform, Subsignal, Pins, IOStandard, Misc
 from litex.build.extension import Extension
 
+from litex_boards.compat import warn_deprecated
+
 class EnclustraST1(Extension):
     """
         the ST1 baseboard contains standard peripherals
@@ -313,11 +315,13 @@ class EnclustraST1(Extension):
     def define_connectors(self, platform):
         return self._st1_connectors
 
-    # Compatibility with the previous io/connectors attributes.
+    # Deprecated io/connectors attributes.
     @property
     def io(self):
+        warn_deprecated("EnclustraST1.io", "platform.add_extension(EnclustraST1())")
         return self.get_io(GenericPlatform)
 
     @property
     def connectors(self):
+        warn_deprecated("EnclustraST1.connectors", "platform.add_extension(EnclustraST1())")
         return self.get_connectors(GenericPlatform)
