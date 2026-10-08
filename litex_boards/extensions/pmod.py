@@ -365,6 +365,20 @@ multi_pmods = {
 
 # Command line -------------------------------------------------------------------------------------
 
+def _pmod_connectors(platform):
+    # Canonical Pmod connectors (8 entries) of the platform, named pmod* (case-insensitive).
+    connectors = platform.constraint_manager.connector_manager.connector_table
+    return [name for name, pins in connectors.items() if name.lower().startswith("pmod") and len(pins) == 8]
+
+def _check_pmod_connector(platform, connector):
+    connectors = platform.constraint_manager.connector_manager.connector_table
+    available  = ", ".join(_pmod_connectors(platform)) or "none"
+    if connector not in connectors:
+        raise ValueError(f"Unknown connector '{connector}', Pmod connectors: {available}.")
+    if len(connectors[connector]) != 8:
+        raise ValueError(f"Connector '{connector}' is not a canonical Pmod connector (8 entries, got "
+            f"{len(connectors[connector])}), Pmod connectors: {available}.")
+
 # Pmods that can be plugged from the command line with the cores attached by add_pmods().
 _cli_pmods = ["gpio", "sdcard", "numato_sdcard", "i2c", "can", "dvi"]
 
@@ -423,6 +437,8 @@ def add_pmods(soc, pmod_args):
         numbers[module] = number + 1
         if module in ["sdcard", "numato_sdcard"] and number:
             raise ValueError("Only one SDCard Pmod is supported.")
+        for c in (conn if isinstance(conn, tuple) else (conn,)):
+            _check_pmod_connector(platform, c)
         # Prepend so that explicitly plugged Pmods take precedence over board's default resources.
         if module in multi_pmods:
             platform.add_extension(multi_pmods[module](*conn, number=number), prepend=True)

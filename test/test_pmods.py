@@ -226,6 +226,18 @@ class TestPmodCLI(unittest.TestCase):
         self.assertTrue(hasattr(soc, "pmoda_gpio"))
         self.assertTrue(hasattr(soc, "pmodb_i2c"))
 
+    def test_add_pmods_connector_check(self):
+        from litex.soc.integration.soc_core import SoCCore
+        for arg, error in [
+            ("pmodz=gpio",      "Unknown connector 'pmodz', Pmod connectors: pmoda, pmodb."),
+            ("J1=gpio",         "Connector 'J1' is not a canonical Pmod connector \\(8 entries, got 9\\)"),
+            ("pmoda+pmodz=dvi", "Unknown connector 'pmodz'"),
+        ]:
+            with self.subTest(arg=arg):
+                soc = SoCCore(xilinx_platform(), clk_freq=100e6, cpu_type=None, uart_name="stub", integrated_rom_size=0)
+                with self.assertRaisesRegex(ValueError, error):
+                    pmod.add_pmods(soc, [arg])
+
 # Tests (boards) -----------------------------------------------------------------------------------
 
 class TestPmodBoards(unittest.TestCase):
