@@ -115,6 +115,16 @@ class TestPmodExtension(unittest.TestCase):
         self.assertEqual(iostd(others), ["LVCMOS33"])
         self.assertEqual(r[("sdcard", 0, "cd")][0], ["B7"])
 
+    def test_pmod_sdcard_slew(self):
+        # sdcard_slew_fast=False only removes the fast slew rate on the native SDCard resource.
+        platform = xilinx_platform()
+        platform.add_extension(pmod.PmodSDCard("pmoda", sdcard_slew_fast=False))
+        platform.request("sdcard")
+        platform.request("spisdcard")
+        r = resolved(platform)
+        self.assertEqual(misc(r[("sdcard",    0, "data")][1]), ["PULLUP True"])
+        self.assertEqual(misc(r[("spisdcard", 0, "mosi")][1]), ["PULLUP True", "SLEW=FAST"])
+
     def test_pmod_options(self):
         platform = xilinx_platform()
         platform.add_extension(pmod.PmodCAN("pmoda", number=1, iostandard="LVCMOS18"))
@@ -324,6 +334,11 @@ class TestPmodBoards(unittest.TestCase):
         with self.assertWarns(FutureWarning):
             io = icebreaker.break_off_pmod
         self.assertEqual(repr(io), repr(pmod.Pmod1BitSquaredBreakOff("PMOD2").get_io(LatticeiCE40Platform)))
+        from litex_boards.platforms import colorlight_i5
+        from litex.build.lattice import LatticeECP5Platform
+        with self.assertWarns(FutureWarning):
+            io = colorlight_i5._sdcard_pmod_io
+        self.assertEqual(repr(io), repr(pmod.PmodSDCard("pmode", sdcard_slew_fast=False).get_io(LatticeECP5Platform)))
         with self.assertRaises(AttributeError):
             digilent_arty.does_not_exist
 

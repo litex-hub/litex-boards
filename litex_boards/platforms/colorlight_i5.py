@@ -159,31 +159,6 @@ _connectors_v7_2 = [
     for name, pins in _connectors_v7_0
 ]
 
-# PMODS --------------------------------------------------------------------------------------------
-
-def sdcard_pmod_io(pmod):
-    return [
-        # SDCard PMOD:
-        # - https://store.digilentinc.com/pmod-microsd-microsd-card-slot/
-        ("spisdcard", 0,
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("mosi", Pins(f"{pmod}:1"), Misc("PULLMODE=UP")),
-            Subsignal("cs_n", Pins(f"{pmod}:0"), Misc("PULLMODE=UP")),
-            Subsignal("miso", Pins(f"{pmod}:2"), Misc("PULLMODE=UP")),
-            Misc("SLEWRATE=FAST"),
-            IOStandard("LVCMOS33"),
-        ),
-        ("sdcard", 0,
-            Subsignal("data", Pins(f"{pmod}:2 {pmod}:4 {pmod}:5 {pmod}:0"), Misc("PULLMODE=UP")),
-            Subsignal("cmd",  Pins(f"{pmod}:1"), Misc("PULLMODE=UP")),
-            Subsignal("clk",  Pins(f"{pmod}:3")),
-            Subsignal("cd",   Pins(f"{pmod}:6")),
-            #Misc("SLEWRATE=FAST"),
-            IOStandard("LVCMOS33"),
-        ),
-]
-_sdcard_pmod_io = sdcard_pmod_io("pmode") # SDCARD PMOD on P3.
-
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(LatticeECP5Platform):
@@ -214,3 +189,16 @@ class Platform(LatticeECP5Platform):
         self.add_period_constraint(self.lookup_request("clk25",            loose=True), 1e9/25e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 1, loose=True), 1e9/125e6)
+
+# Deprecated Pmod Helpers --------------------------------------------------------------------------
+# Kept for compatibility (emit a FutureWarning), use litex_boards.extensions.pmod modules directly instead.
+
+from litex_boards.extensions.pmod import PmodSDCard
+from litex_boards.compat import deprecated_pmod_helpers
+
+__getattr__ = deprecated_pmod_helpers(__name__, {
+    "sdcard_pmod_io"  : ('platform.add_extension(PmodSDCard(pmod, sdcard_slew_fast=False))',
+        lambda pmod: PmodSDCard(pmod, sdcard_slew_fast=False).get_io(LatticeECP5Platform)),
+    "_sdcard_pmod_io" : ('platform.add_extension(PmodSDCard("pmode", sdcard_slew_fast=False))',
+        PmodSDCard("pmode", sdcard_slew_fast=False).get_io(LatticeECP5Platform)),
+})

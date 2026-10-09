@@ -172,7 +172,7 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser           import LiteXArgumentParser
-    from litex_boards.extensions.pmod import add_pmod_args, add_pmods
+    from litex_boards.extensions.pmod import PmodSDCard, add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=colorlight_i5.Platform, description="LiteX SoC on Colorlight I5.")
     parser.add_target_argument("--board",        default="i5",             help="Board type (i5).")
     parser.add_target_argument("--revision",     default="7.0",            help="Board revision (7.0).")
@@ -210,7 +210,7 @@ def main():
         with_video_framebuffer = args.with_video_framebuffer,
         **parser.soc_argdict
     )
-    soc.platform.add_extension(colorlight_i5._sdcard_pmod_io)
+    soc.platform.add_extension(PmodSDCard("pmode", sdcard_slew_fast=False)) # SDCard Pmod on P3.
     add_pmods(soc, args.pmod)
     if args.with_spi_sdcard:
         soc.add_spi_sdcard()
