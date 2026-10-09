@@ -93,7 +93,7 @@ _connectors = [
         # GND GND                 GND GND           (31-40).
         " --- ---  T7 P16  R8 N15 --- ---  T8  N16",
         #         GND                 GND GND       (41-50).
-        "  M6 N14 --- L16  T9 L14  P9 --- --- K15",
+        "  P8 N14 --- L16  T9 L14  P9 --- --- K15",
         #             GND GND                 GND   (51-60).
         " P11 K14 T11 --- --- K16 R11 J15 T12 ---",
         # GND                 GND                   (61-70).
@@ -109,7 +109,7 @@ _connectors = [
         #  NC  NC                  NC  NC      NC  (93-102).
         " --- --- F14 B10 F16 A13 --- --- E15 ---",
         #      NC  NC  NC      NC      NC  NC  NC  (103-112).
-        " D15 --- --- --- A15 --- B14 --- --- ---",
+        " D14 --- --- --- A15 --- B14 --- --- ---",
         #      NC      NC  NC  NC      NC      NC  (113-122).
         " A14 --- B13 --- --- --- C12 --- B12 ---",
         #      NC      NC GND GND                  (123-132).
