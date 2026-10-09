@@ -164,7 +164,8 @@ class BaseSoC(SoCCore):
             self.add_ethernet(
                 name       = "ethmac",
                 phy        = self.ethphy,
-                phy_cd     = "ethphy_eth",
+                # PHY clock domains are prefixed only when several PHYs are present (ML1 v2).
+                phy_cd     = "ethphy_eth" if platform.revision == "v2" else "eth",
                 dynamic_ip = eth_dynamic_ip,
                 local_ip   = None if eth_dynamic_ip else eth_ip,
                 remote_ip  = remote_ip)
