@@ -189,6 +189,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser           import LiteXArgumentParser
     from litex_boards.extensions.pmod import add_pmod_args, add_pmods
+    from litex_boards.compat          import warn_deprecated_arg
     parser = LiteXArgumentParser(platform=trellisboard.Platform, description="LiteX SoC on Trellis Board.")
     parser.add_target_argument("--sys-clk-freq",   default=75e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-ethernet",  action="store_true",      help="Enable Ethernet support.")
@@ -201,10 +202,14 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-pmod-gpio",      action="store_true",        help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    parser.add_target_argument("--with-pmod-gpio",      action="store_true",        help="Enable GPIOs through PMOD. Deprecated, use --pmod pmoda=gpio.")
     parser.add_target_argument("--with-buttons",        action="store_true",        help="Enable Buttons.")
     add_pmod_args(parser)
     args = parser.parse_args()
+
+    # Deprecated arguments (still functional).
+    if args.with_pmod_gpio:
+        warn_deprecated_arg("--with-pmod-gpio", "--pmod pmoda=gpio (GPIOs CSRs: pmoda_gpio instead of gpio)")
 
     soc = BaseSoC(
         sys_clk_freq           = args.sys_clk_freq,

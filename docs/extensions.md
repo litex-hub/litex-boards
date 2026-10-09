@@ -145,3 +145,14 @@ Public helpers replaced by Extensions are kept as deprecated aliases emitting a 
 points to the replacement, using `litex_boards.compat` (`warn_deprecated()`, or
 `deprecated_pmod_helpers()` for module-level Pmod helpers). Deprecated APIs are removed after the
 release set in `litex_boards.compat.DEPRECATION_RELEASE`.
+
+Board-specific Pmod arguments of targets are deprecated in favor of `--pmod` (still functional, they
+emit a `FutureWarning` with `warn_deprecated_arg()`):
+
+| Target              | Deprecated argument        | Replacement                                         |
+|---------------------|----------------------------|-----------------------------------------------------|
+| `digilent_arty`     | `--with-pmod-gpio`         | `--pmod pmoda=gpio` (CSRs: `pmoda_gpio` instead of `gpio`) |
+| `trellisboard`      | `--with-pmod-gpio`         | `--pmod pmoda=gpio` (CSRs: `pmoda_gpio` instead of `gpio`) |
+| `digilent_arty`     | `--sdcard-adapter numato`  | `--pmod pmodd=numato_sdcard` (Digilent adapter is the default) |
+| `digilent_basys3`   | `--sdcard-adapter numato`  | `--pmod pmoda=numato_sdcard` (Digilent adapter is the default) |
+| `colorlight_i9plus` | `--with-pmod-uart`         | Nothing: no effect, the default `serial` is already on Ext-Board conn. P2 |

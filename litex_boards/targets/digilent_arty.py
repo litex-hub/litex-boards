@@ -201,6 +201,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser           import LiteXArgumentParser
     from litex_boards.extensions.pmod import add_pmod_args, add_pmods
+    from litex_boards.compat          import warn_deprecated_arg
     parser = LiteXArgumentParser(platform=digilent_arty.Platform, description="LiteX SoC on Arty A7.")
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="a7-35",           help="Board variant (a7-35 or a7-100).")
@@ -218,15 +219,21 @@ def main():
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
 
-    parser.add_target_argument("--sdcard-adapter",                      help="SDCard PMOD adapter (digilent or numato).")
+    parser.add_target_argument("--sdcard-adapter",                      help="SDCard PMOD adapter (digilent or numato). Deprecated, use --pmod pmodd=numato_sdcard.")
 
     parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable memory-mapped SPI flash.")
     parser.add_target_argument("--with-buttons",   action="store_true", help="Enable Buttons.")
     parser.add_target_argument("--with-switches",  action="store_true", help="Enable Switches.")
-    parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD. Deprecated, use --pmod pmoda=gpio.")
     parser.add_target_argument("--with-can",       action="store_true", help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'.")
     add_pmod_args(parser)
     args = parser.parse_args()
+
+    # Deprecated arguments (still functional).
+    if args.with_pmod_gpio:
+        warn_deprecated_arg("--with-pmod-gpio", "--pmod pmoda=gpio (GPIOs CSRs: pmoda_gpio instead of gpio)")
+    if args.sdcard_adapter is not None:
+        warn_deprecated_arg("--sdcard-adapter", "--pmod pmodd=numato_sdcard for the Numato adapter (Digilent one is the default)")
 
     if args.with_etherbone and (args.eth_dynamic_ip or args.eth_dhcp):
         parser.error("--with-etherbone requires a static IP; remove --eth-dynamic-ip and --eth-dhcp.")

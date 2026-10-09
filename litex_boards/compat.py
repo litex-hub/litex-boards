@@ -18,6 +18,10 @@ def warn_deprecated(old, new, stacklevel=3):
     warnings.warn(f"{old} is deprecated and will be removed after the LiteX-Boards {DEPRECATION_RELEASE} "
         f"release, use {new} instead.", FutureWarning, stacklevel=stacklevel)
 
+def warn_deprecated_arg(arg, replacement):
+    """Emit a FutureWarning for a deprecated target command line argument (still functional)."""
+    warn_deprecated(f"Argument {arg}", replacement)
+
 # Deprecated Pmod Helpers --------------------------------------------------------------------------
 
 def deprecated_pmod_helpers(module, helpers):

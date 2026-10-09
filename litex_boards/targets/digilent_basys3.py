@@ -79,18 +79,23 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser           import LiteXArgumentParser
     from litex_boards.extensions.pmod import add_pmod_args, add_pmods
+    from litex_boards.compat          import warn_deprecated_arg
     parser = LiteXArgumentParser(platform=digilent_basys3.Platform, description="LiteX SoC on Basys3.")
     parser.add_target_argument("--sys-clk-freq",        default=75e6, type=float, help="System clock frequency.")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--sdcard-adapter",      help="SDCard PMOD adapter (digilent or numato).")
+    parser.add_target_argument("--sdcard-adapter",      help="SDCard PMOD adapter (digilent or numato). Deprecated, use --pmod pmoda=numato_sdcard.")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal", action="store_true",        help="Enable Video Terminal (VGA).")
     parser.add_target_argument("--with-buttons",  action="store_true", help="Enable Buttons.")
     parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
     add_pmod_args(parser)
     args = parser.parse_args()
+
+    # Deprecated arguments (still functional).
+    if args.sdcard_adapter is not None:
+        warn_deprecated_arg("--sdcard-adapter", "--pmod pmoda=numato_sdcard for the Numato adapter (Digilent one is the default)")
 
     soc = BaseSoC(
         sys_clk_freq        = args.sys_clk_freq,
