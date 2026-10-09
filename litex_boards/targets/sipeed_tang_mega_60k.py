@@ -29,6 +29,7 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 from litedram.phy import GW5DDRPHY
 
 from litex_boards.platforms import sipeed_tang_mega_60k
+from litex_boards.extensions.sdram_modules import MiSTerSDRAM, SipeedSDRAM
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -105,7 +106,7 @@ class _CRG(LiteXModule):
             else:
                 pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=90)
                 sdram_clk = ClockSignal("sys_ps")
-            self.specials += DDROutput(1, 0, platform.request("sdram").clk, sdram_clk)
+            self.specials += DDROutput(1, 0, platform.request("sdram_clock"), sdram_clk)
 
         # DDR3 clock.
         if with_ddr3:
@@ -166,6 +167,14 @@ class BaseSoC(SoCCore):
 
         with_ddr3 = with_ddr3 and not (with_sdram or kwargs.get("integrated_main_ram_size", 0))
         with_sdram = with_sdram and not kwargs.get("integrated_main_ram_size", 0)
+
+        if with_sdram:
+            # SDRAM module plugged on the dock's SDRAM connector.
+            platform.add_extension({
+                "sipeed": SipeedSDRAM("sdram0_connector"),
+                "mister": MiSTerSDRAM("sdram0_connector")}[sdram_model],
+                prepend = True,
+            )
 
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq,
