@@ -152,6 +152,7 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser           import LiteXArgumentParser
     from litex_boards.extensions.pmod import add_pmod_args, add_pmods
+    from litex_boards.compat          import warn_deprecated_arg
     parser = LiteXArgumentParser(platform=digilent_genesys2.Platform, description="LiteX SoC on Genesys2.")
     parser.add_target_argument("--sys-clk-freq",        default=100e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
@@ -163,7 +164,7 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
-    parser.add_target_argument("--with-can",            action="store_true",        help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'.")
+    parser.add_target_argument("--with-can",            action="store_true",        help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'. Deprecated, use --pmod pmodc=can.")
     viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true", help="Enable Video Terminal (HDMI).")
     viopts.add_argument("--with-video-framebuffer", action="store_true", help="Enable Video Framebuffer (HDMI).")
@@ -171,6 +172,10 @@ def main():
     parser.add_target_argument("--with-switches", action="store_true", help="Enable Switches.")
     add_pmod_args(parser)
     args = parser.parse_args()
+
+    # Deprecated arguments (still functional).
+    if args.with_can:
+        warn_deprecated_arg("--with-can", "--pmod pmodc=can (CTU-CAN-FD core: pmodc_can instead of can0, bus region allocated automatically instead of 0xb0010000)")
 
     soc = BaseSoC(
         sys_clk_freq           = args.sys_clk_freq,
