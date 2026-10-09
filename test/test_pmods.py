@@ -235,6 +235,17 @@ class TestPmodCLI(unittest.TestCase):
         self.assertTrue(hasattr(soc, "pmoda_gpio"))
         self.assertTrue(hasattr(soc, "pmodb_i2c"))
 
+    def test_add_pmods_uart(self):
+        from litex.soc.integration.soc_core import SoCCore
+        platform = xilinx_platform()
+        soc = SoCCore(platform, clk_freq=100e6, cpu_type=None, uart_name="stub", integrated_rom_size=0)
+        pmod.add_pmods(soc, ["pmoda=uart", "pmodb=usb_uart"])
+        self.assertTrue(hasattr(soc, "pmoda_uart"))
+        self.assertTrue(hasattr(soc, "pmodb_uart"))
+        r = resolved(platform)
+        self.assertEqual(r[("pmoda_serial", 0, "tx")][0], ["B2"]) # Digilent UART Pmod pinout (tx: pin 2).
+        self.assertEqual(r[("pmodb_serial", 0, "rx")][0], ["C3"]) # rx: pin 3.
+
     def test_add_pmods_connector_check(self):
         from litex.soc.integration.soc_core import SoCCore
         for arg, error in [

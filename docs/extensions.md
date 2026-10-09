@@ -26,6 +26,8 @@ $ python3 -m litex_boards.targets.icebreaker --pmod PMOD1A+PMOD1B=dvi --build
 | Module          | Hardware                                        | Added to the SoC                         |
 |-----------------|-------------------------------------------------|------------------------------------------|
 | `gpio`          | Raw 8-bit GPIO                                  | `GPIOTristate` core (`<connector>_gpio`) |
+| `uart`          | UART, Digilent UART Pmod pinout (tx: pin 2, rx: pin 3) | Additional UART core (`<connector>_uart`) |
+| `usb_uart`      | Digilent PmodUSBUART                            | Additional UART core (`<connector>_uart`) |
 | `i2c`           | I2C on pins 1 (SDA) and 2 (SCL)                 | `I2CMaster` core (`<connector>_i2c`)     |
 | `can`           | SN65HVD230 CAN transceiver                      | CTU-CAN-FD core (`<connector>_can`)      |
 | `sdcard`        | Digilent MicroSD Pmod                           | IOs only, use with `--with-(spi-)sdcard` |
