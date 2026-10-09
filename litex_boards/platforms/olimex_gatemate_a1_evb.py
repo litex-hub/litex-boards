@@ -100,9 +100,9 @@ _connectors = [
         #      2V5       1V8                                                                            ( 1-10)
         " -------- --------- IO_WA_B5 IO_WC_B3 IO_EA_A8 IO_WC_A3 IO_EA_B8 IO_WC_B2 IO_WB_A8  IO_WC_A2",
         #                                                                                   SER_CLK_N   (11-20)
-        " IO_WB_B8  IO_WC_B1 IO_SB_B3 IO_WC_A1 IO_SB_A3 IO_WC_B0 IO_SB_A2 IO_WC_A0 IO_SB_A2 ---------",
-        #          SER_CLK_P          SER_TX_P          SER_TX_N          SER_RX_N           SER_RX_P   (21-30)
-        " IO_SB_B1 --------- IO_SB_A1 -------- IO_SB_B0 -------- IO_SB_A0 -------- IO_SB_A2 ---------",
+        " IO_WB_B8  IO_WC_B1 IO_SB_B3 IO_WC_A1 IO_SB_A3 IO_WC_B0 IO_SB_B2 IO_WC_A0 IO_SB_A2 ---------",
+        #          SER_CLK_P          SER_TX_P          SER_TX_N          SER_RX_N    RST_N  SER_RX_P   (21-30)
+        " IO_SB_B1 --------- IO_SB_A1 -------- IO_SB_B0 -------- IO_SB_A0 -------- -------- ---------",
         #                         GND      GND                                                          (31-34)
         " IO_SB_A8  IO_SB_A5 -------- --------",
     ],
