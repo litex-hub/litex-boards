@@ -188,7 +188,7 @@ _connectors = [
         "GPIO23"            : "N4",  # 47
         "GPIO27"            : "R17", # 48
         "GPIO18"            : "N5",  # 49
-        "GPIO17"            : "---", # 50
+        "GPIO17"            : "H3",  # 50
         "GPIO15"            : "N16", # 51
         "GND"               : "---", # 52
         "GND"               : "---", # 53
@@ -319,13 +319,13 @@ _connectors = [
         "GND"               : "---", # 74
         "DSI1_D0_N"         : "E13", # 75 (shared with DSI0_D0_N)
         "HDMI0_TX1_P"       : "D18", # 76
-        "DSI1_D0_P"         : "D13", # 77 (shared with DSI1_D0_P)
+        "DSI1_D0_P"         : "D13", # 77 (shared with DSI0_D0_P)
         "HDMI0_TX1_N"       : "E17", # 78
         "GND"               : "---", # 79
         "GND"               : "---", # 80
         "DSI1_D1_N"         : "C14", # 81 (shared with DSI0_D1_N)
         "HDMI0_TX0_P"       : "F17", # 82
-        "DSI1_D1_P"         : "C14", # 83 (shared with DSI1_D1_P)
+        "DSI1_D1_P"         : "A14", # 83 (shared with DSI0_D1_P)
         "HDMI0_TX0_N"       : "G18", # 84
         "GND"               : "---", # 85
         "GND"               : "---", # 86
