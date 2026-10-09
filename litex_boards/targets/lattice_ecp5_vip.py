@@ -27,13 +27,16 @@ from litex.soc.cores.bitbang import I2CMaster
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, sdram_rate="1:2"):
         self.rst        = Signal()
         self.cd_init    = ClockDomain()
         self.cd_por     = ClockDomain()
         self.cd_sys     = ClockDomain()
         self.cd_sys2x   = ClockDomain()
         self.cd_sys2x_i = ClockDomain()
+        if sdram_rate == "1:4":
+            self.cd_sys4x   = ClockDomain()
+            self.cd_sys4x_i = ClockDomain()
 
         # # #
         self.stop  = Signal()
@@ -54,33 +57,83 @@ class _CRG(LiteXModule):
         self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | ~rst_n | self.rst)
         pll.register_clkin(clk100, 100e6)
-        pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
-        pll.create_clkout(self.cd_init, 25e6)
-        self.specials += [
-            Instance("ECLKSYNCB",
-                i_ECLKI = self.cd_sys2x_i.clk,
-                i_STOP  = self.stop,
-                o_ECLKO = self.cd_sys2x.clk),
-            Instance("CLKDIVF",
-                p_DIV     = "2.0",
-                i_ALIGNWD = 0,
-                i_CLKI    = self.cd_sys2x.clk,
-                i_RST     = self.reset,
-                o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
-        ]
+        if sdram_rate == "1:2":
+            # sys2x: DDR edge clock (ECLKSYNCB), sys = sys2x/2 (CLKDIVF).
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            pll.create_clkout(self.cd_init, 25e6)
+            self.specials += [
+                Instance("ECLKSYNCB",
+                    i_ECLKI = self.cd_sys2x_i.clk,
+                    i_STOP  = self.stop,
+                    o_ECLKO = self.cd_sys2x.clk),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = self.cd_sys2x.clk,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys.clk),
+                AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
+            ]
+        else:
+            # sys4x: DDR edge clock (ECLKSYNCB), sys2x = sys4x/2 (CLKDIVF, PHY clock). sys
+            # (controller clock) must be phase aligned with sys2x (DFI rate converter): generated
+            # through the second edge clock synchronizer/divider of the DDR bank (bank 6) from a 2x sys
+            # PLL output (same structural path as sys2x, both realigned by the PHY init stop/reset
+            # sequence).
+            eclksync1_bel, clkdiv1_bel = ("X0/Y47/ECLKSYNC1_BK6", "X0/Y46/CLKDIV1")
+            pll.create_clkout(self.cd_sys4x_i, 4*sys_clk_freq)
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            pll.create_clkout(self.cd_init, 25e6)
+            sys2x_e = Signal()
+            self.specials += [
+                Instance("ECLKSYNCB",
+                    i_ECLKI = self.cd_sys4x_i.clk,
+                    i_STOP  = self.stop,
+                    o_ECLKO = self.cd_sys4x.clk),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = self.cd_sys4x.clk,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys2x.clk),
+                Instance("ECLKSYNCB",
+                    i_ECLKI = self.cd_sys2x_i.clk,
+                    i_STOP  = self.stop,
+                    o_ECLKO = sys2x_e,
+                    attr    = {("BEL", eclksync1_bel)}),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = sys2x_e,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys.clk,
+                    attr      = {("BEL", clkdiv1_bel)}),
+                AsyncResetSynchronizer(self.cd_sys4x, ~pll.locked | self.reset),
+                AsyncResetSynchronizer(self.cd_sys,   ~pll.locked | self.reset),
+            ]
+            # sys2x reset released from sys (deterministic phase of the DFI rate converter).
+            sys2x_rst = Signal(reset=1, reset_less=True)
+            self.sync.sys2x += sys2x_rst.eq(ResetSignal("sys"))
+            self.comb += self.cd_sys2x.rst.eq(sys2x_rst)
 
-        # HDMI
+        # HDMI (1:4: from a second PLL, the DRAM PLL outputs are used and its internal feedback
+        # must be kept on a dedicated output).
         self.cd_hdmi   = ClockDomain()
-        #pll.create_clkout(self.cd_hdmi, 148.5e6) # for terminal "1920x1080@60Hz"
-        #pll.create_clkout(self.cd_hdmi, 160e6) # for terminal "1920x1080@60Hz"
-        #pll.create_clkout(self.cd_hdmi, 80e6) # for terminal "1920x1080@30Hz"
-        pll.create_clkout(self.cd_hdmi, 40e6) # for terminal "800x600@60Hz"
+        hdmi_pll = pll
+        if sdram_rate == "1:4":
+            self.hdmi_pll = hdmi_pll = ECP5PLL()
+            self.comb += hdmi_pll.reset.eq(~por_done | ~rst_n | self.rst)
+            hdmi_pll.register_clkin(clk100, 100e6)
+        #hdmi_pll.create_clkout(self.cd_hdmi, 148.5e6) # for terminal "1920x1080@60Hz"
+        #hdmi_pll.create_clkout(self.cd_hdmi, 160e6) # for terminal "1920x1080@60Hz"
+        #hdmi_pll.create_clkout(self.cd_hdmi, 80e6) # for terminal "1920x1080@30Hz"
+        hdmi_pll.create_clkout(self.cd_hdmi, 40e6) # for terminal "800x600@60Hz"
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6, toolchain="trellis",
+        sdram_rate             = "1:2",
         with_led_chaser        = True,
         with_video_terminal    = True,
         with_video_framebuffer = False,
@@ -88,20 +141,26 @@ class BaseSoC(SoCCore):
         platform = lattice_ecp5_vip.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ECP5 Evaluation Board", **kwargs)
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
-        self.ddrphy = ECP5DDRPHY(
+        # 1:2: DDR3 at 2x sys. 1:4: DDR3 at 4x sys.
+        if sdram_rate == "1:2":
+            phy_cls = ECP5DDRPHY
+        else:
+            from litedram.phy.ecp5ddrphy import ecp5ddrphy_with_ratio
+            phy_cls = ecp5ddrphy_with_ratio(2)
+        self.ddrphy = phy_cls(
             platform.request("ddram"),
             sys_clk_freq=sys_clk_freq)
         self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
         self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
         self.add_sdram("sdram",
             phy           = self.ddrphy,
-            module        = MT41K64M16(sys_clk_freq, "1:2"), # Not entirely MT41J64M16 but similar and works(c)
+            module        = MT41K64M16(sys_clk_freq, sdram_rate), # Not entirely MT41J64M16 but similar and works(c)
             l2_cache_size = kwargs.get("l2_size", 8192),
         )
 
@@ -186,11 +245,13 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=lattice_ecp5_vip.Platform, description="LiteX SoC on ECP5 Evaluation Board.")
     parser.add_target_argument("--sys-clk-freq",        default=60e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sdram-rate",          default="1:2", choices=["1:2", "1:4"], help="SDRAM controller:DRAM clock ratio.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         toolchain    = args.toolchain,
         sys_clk_freq = args.sys_clk_freq,
+        sdram_rate   = args.sdram_rate,
         **parser.soc_argdict)
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
