@@ -406,7 +406,7 @@ def _check_pmod_connector(platform, connector, extension, slot):
             f"single-row (6-pin) Pmod, Pmod connectors: {available}.")
 
 # Pmods that can be plugged from the command line with the cores attached by add_pmods().
-_cli_pmods = ["gpio", "sdcard", "numato_sdcard", "i2c", "can", "dvi"]
+_cli_pmods = ["gpio", "uart", "usb_uart", "sdcard", "numato_sdcard", "i2c", "can", "dvi"]
 
 # Pmods only providing IOs, used by the target's own options (ex: --with-sdcard).
 _io_only_pmods = ["sdcard", "numato_sdcard", "dvi"]
@@ -462,6 +462,7 @@ def add_pmods(soc, pmod_args):
     """Plug Pmods described by --pmod arguments and add the corresponding cores to the SoC.
 
     - gpio                 : GPIOTristate core (named <connector>_gpio).
+    - uart/usb_uart        : Additional UART core (named <connector>_uart, IOs: <connector>_serial).
     - sdcard/numato_sdcard : IOs only (taking precedence over board's ones), to be used with
                              --with-sdcard/--with-spi-sdcard.
     - i2c                  : I2CMaster core (named <connector>_i2c).
@@ -479,7 +480,13 @@ def add_pmods(soc, pmod_args):
         numbers[module] = number + 1
         if module in ["sdcard", "numato_sdcard"] and number:
             raise ValueError("Only one SDCard Pmod is supported.")
-        extension = multi_pmods[module](*conn, number=number) if module in multi_pmods else pmods[module](conn, number=number)
+        if module in multi_pmods:
+            extension = multi_pmods[module](*conn, number=number)
+        elif module in ["uart", "usb_uart"]:
+            # Named after the connector to not conflict with board's serial/usb_uart resources.
+            extension = pmods[module](conn, name=f"{conn}_serial")
+        else:
+            extension = pmods[module](conn, number=number)
         for slot, c in extension.bindings.items():
             _check_pmod_connector(platform, c, extension, slot)
         if module in _io_only_pmods:
@@ -494,6 +501,8 @@ def add_pmods(soc, pmod_args):
                 pads     = platform.request(conn),
                 with_irq = soc.irq.enabled,
             ))
+        if module in ["uart", "usb_uart"]:
+            soc.add_uart(name=f"{conn}_uart", uart_pads=platform.request(f"{conn}_serial"))
         if module == "i2c":
             from litex.soc.cores.bitbang import I2CMaster
             soc.add_module(name=f"{conn}_i2c", module=I2CMaster(platform.request("i2c", number)))
