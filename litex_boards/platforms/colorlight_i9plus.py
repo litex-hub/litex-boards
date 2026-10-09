@@ -126,6 +126,9 @@ _connectors = [
 ]
 
 def pmod_uart(port="P2"):
+    # Deprecated: same pins as the default serial resource.
+    from litex_boards.compat import warn_deprecated
+    warn_deprecated(f"{__name__}.pmod_uart", 'platform.request("serial") (same pins)')
     if port == "P2":
         return [
         ("serial", 0,

@@ -327,5 +327,11 @@ class TestPmodBoards(unittest.TestCase):
         with self.assertRaises(AttributeError):
             digilent_arty.does_not_exist
 
+    def test_deprecated_target_args(self):
+        from litex_boards.compat import DEPRECATION_RELEASE, warn_deprecated_arg
+        with self.assertWarnsRegex(FutureWarning, f"--with-pmod-gpio .* {DEPRECATION_RELEASE} .* --pmod pmoda=gpio") as cm:
+            warn_deprecated_arg("--with-pmod-gpio", "--pmod pmoda=gpio")
+        self.assertEqual(cm.filename, __file__) # Warning points to the target.
+
 if __name__ == "__main__":
     unittest.main()

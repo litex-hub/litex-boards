@@ -92,9 +92,8 @@ class BaseSoC(SoCCore):
         **kwargs):
         platform = colorlight_i9plus.Platform(toolchain=toolchain)
 
-        # PMOD: uart on P2 (top) -------------------------------------------------------------------
-        if with_pmod_uart or kwargs.get("uart_name", "") == "serial":
-            platform.add_extension(colorlight_i9plus.pmod_uart())
+        # with_pmod_uart is deprecated and has no effect: the default serial resource is already the
+        # UART on Ext-Board conn. P2 (pins 23=RX, 25=TX).
 
         # CRG --------------------------------------------------------------------------------------
         with_dram = (kwargs.get("integrated_main_ram_size", 0) == 0)
@@ -166,13 +165,14 @@ class BaseSoC(SoCCore):
 
 def main():
     from litex.build.parser import LiteXArgumentParser
+    from litex_boards.compat import warn_deprecated_arg
     parser = LiteXArgumentParser(platform=colorlight_i9plus.Platform, description="LiteX SoC on ColorLight-i9+.")
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--sys-clk-freq",   default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-dna",       action="store_true",       help="Enable 7-Series DNA.")
     parser.add_target_argument("--with-xadc",      action="store_true",       help="Enable 7-Series XADC.")
     parser.add_target_argument("--with-rgb-led",   action="store_true",       help="Enable WS2812 RGB LED on Ext-Board conn. P2, pin 26.")
-    parser.add_target_argument("--with-pmod-uart", action="store_true",       help="Enable UART on Ext-Board conn. P2, pins 23=RX, 25=TX.")
+    parser.add_target_argument("--with-pmod-uart", action="store_true",       help="Deprecated, no effect: the default serial is on Ext-Board conn. P2, pins 23=RX, 25=TX.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",        action="store_true",       help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone",       action="store_true",       help="Enable Etherbone support.")
@@ -182,6 +182,10 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",       help="Enable dynamic Ethernet IP address assignment.")
     parser.add_target_argument("--with-spi-flash", action="store_true",       help="Enable memory-mapped SPI Flash.")
     args = parser.parse_args()
+
+    # Deprecated arguments.
+    if args.with_pmod_uart:
+        warn_deprecated_arg("--with-pmod-uart (no effect)", "the default serial (--uart-name=serial), already on Ext-Board conn. P2, pins 23=RX, 25=TX")
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
 
