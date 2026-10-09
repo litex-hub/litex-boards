@@ -27,7 +27,7 @@ from litex.soc.cores.video import VideoGenericPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, sdram_rate="1:2"):
         self.rst         = Signal()
         self.cd_init     = ClockDomain()
         self.cd_por      = ClockDomain()
@@ -36,6 +36,9 @@ class _CRG(LiteXModule):
         self.cd_sys2x_i  = ClockDomain()
         self.cd_sys2x_eb = ClockDomain()
         self.cd_dvo      = ClockDomain()
+        if sdram_rate == "1:4":
+            self.cd_sys4x   = ClockDomain()
+            self.cd_sys4x_i = ClockDomain()
 
         # # #
         self.stop  = Signal()
@@ -60,38 +63,96 @@ class _CRG(LiteXModule):
         self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | ~rst_n | self.rst)
         pll.register_clkin(clk125, 125e6)
-        pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
-        pll.create_clkout(self.cd_init, 24e6)
-        self.specials += [
-            Instance("OSCG",
-                p_DIV = 128,                # 2.4MHz
-                o_OSC = self.cd_por.clk),
-            Instance("ECLKBRIDGECS",
-                i_CLK0   = self.cd_sys2x_i.clk,
-                i_SEL    = 0,
-                o_ECSOUT = sys2x_clk_ecsout),
-            Instance("ECLKSYNCB",
-                i_ECLKI = sys2x_clk_ecsout,
-                i_STOP  = self.stop,
-                o_ECLKO = self.cd_sys2x.clk),
-            Instance("CLKDIVF",
-                p_DIV     = "2.0",
-                i_ALIGNWD = 0,
-                i_CLKI    = self.cd_sys2x.clk,
-                i_RST     = self.reset,
-                o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
-        ]
+        self.specials += Instance("OSCG",
+            p_DIV = 128,                # 2.4MHz
+            o_OSC = self.cd_por.clk)
+        if sdram_rate == "1:2":
+            # sys2x: DDR edge clock (ECLKBRIDGECS + ECLKSYNCB), sys = sys2x/2 (CLKDIVF).
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            pll.create_clkout(self.cd_init, 24e6)
+            self.specials += [
+                Instance("ECLKBRIDGECS",
+                    i_CLK0   = self.cd_sys2x_i.clk,
+                    i_SEL    = 0,
+                    o_ECSOUT = sys2x_clk_ecsout),
+                Instance("ECLKSYNCB",
+                    i_ECLKI = sys2x_clk_ecsout,
+                    i_STOP  = self.stop,
+                    o_ECLKO = self.cd_sys2x.clk),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = self.cd_sys2x.clk,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys.clk),
+                AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
+            ]
+        else:
+            # sys4x: DDR edge clock (ECLKSYNCB), sys2x = sys4x/2 (CLKDIVF, PHY clock). sys
+            # (controller clock) must be phase aligned with sys2x (DFI rate converter): generated
+            # through the second edge clock synchronizer/divider of the DDR bank (bank 3) from a 2x sys
+            # PLL output (same structural path as sys2x, both realigned by the PHY init stop/reset
+            # sequence).
+            # The bridge-driven sys4x edge clock packs on index 1: the sys path uses index 0.
+            eclksync1_bel, clkdiv1_bel = ("X126/Y47/ECLKSYNC0_BK3", "X126/Y46/CLKDIV0")
+            pll.create_clkout(self.cd_sys4x_i, 4*sys_clk_freq)
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            pll.create_clkout(self.cd_init, 24e6)
+            sys4x_clk_ecsout = Signal()
+            sys2x_e = Signal()
+            self.specials += [
+                # The DDR3 pads span both device sides (DQ/DQS right, commands left): the edge
+                # clock crosses through the bridge as at 1:2.
+                Instance("ECLKBRIDGECS",
+                    i_CLK0   = self.cd_sys4x_i.clk,
+                    i_SEL    = 0,
+                    o_ECSOUT = sys4x_clk_ecsout),
+                Instance("ECLKSYNCB",
+                    i_ECLKI = sys4x_clk_ecsout,
+                    i_STOP  = self.stop,
+                    o_ECLKO = self.cd_sys4x.clk),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = self.cd_sys4x.clk,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys2x.clk),
+                Instance("ECLKSYNCB",
+                    i_ECLKI = self.cd_sys2x_i.clk,
+                    i_STOP  = self.stop,
+                    o_ECLKO = sys2x_e,
+                    attr    = {("BEL", eclksync1_bel)}),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = sys2x_e,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys.clk,
+                    attr      = {("BEL", clkdiv1_bel)}),
+                AsyncResetSynchronizer(self.cd_sys4x, ~pll.locked | self.reset),
+                AsyncResetSynchronizer(self.cd_sys,   ~pll.locked | self.reset),
+            ]
+            # sys2x reset released from sys (deterministic phase of the DFI rate converter).
+            sys2x_rst = Signal(reset=1, reset_less=True)
+            self.sync.sys2x += sys2x_rst.eq(ResetSignal("sys"))
+            self.comb += self.cd_sys2x.rst.eq(sys2x_rst)
 
-        # Generate DVO clock
-        pll.create_clkout(self.cd_dvo, 40e6)            # 800x600@60
-        #pll.create_clkout(self.cd_dvo, 148.35e6)       # 1920x1080@60
-        #pll.create_clkout(self.cd_dvo, 148.2e6)        # 1920x1200@60
+        # Generate DVO clock (1:4: from a second PLL, the DRAM PLL outputs are used and its
+        # internal feedback must be kept on a dedicated output).
+        dvo_pll = pll
+        if sdram_rate == "1:4":
+            self.dvo_pll = dvo_pll = ECP5PLL()
+            self.comb += dvo_pll.reset.eq(~por_done | ~rst_n | self.rst)
+            dvo_pll.register_clkin(clk125, 125e6)
+        dvo_pll.create_clkout(self.cd_dvo, 40e6)            # 800x600@60
+        #dvo_pll.create_clkout(self.cd_dvo, 148.35e6)       # 1920x1080@60
+        #dvo_pll.create_clkout(self.cd_dvo, 148.2e6)        # 1920x1200@60
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6, toolchain="trellis",
+        sdram_rate             = "1:2",
         with_video_colorbars   = False,
         with_video_terminal    = True,
         with_video_framebuffer = False,
@@ -104,7 +165,7 @@ class BaseSoC(SoCCore):
         platform = rcs_arctic_tern_bmc_card.Platform(toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, irq_n_irqs=16, clk_freq=sys_clk_freq,
@@ -113,14 +174,20 @@ class BaseSoC(SoCCore):
         )
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
-        self.ddrphy = ECP5DDRPHY(
+        # 1:2: DDR3 at 2x sys. 1:4: DDR3 at 4x sys.
+        if sdram_rate == "1:2":
+            phy_cls = ECP5DDRPHY
+        else:
+            from litedram.phy.ecp5ddrphy import ecp5ddrphy_with_ratio
+            phy_cls = ecp5ddrphy_with_ratio(2)
+        self.ddrphy = phy_cls(
             platform.request("ddram"),
             sys_clk_freq=sys_clk_freq)
         self.comb += self.crg.stop.eq(self.ddrphy.init.stop)
         self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
         self.add_sdram("sdram",
             phy           = self.ddrphy,
-            module        = AS4C256M16D3C(sys_clk_freq, "1:2"),
+            module        = AS4C256M16D3C(sys_clk_freq, sdram_rate),
             l2_cache_size = kwargs.get("l2_size", 8192),
         )
 
@@ -157,6 +224,7 @@ def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=rcs_arctic_tern_bmc_card.Platform, description="LiteX SoC on Arctic Tern (BMC card carrier).")
     parser.add_target_argument("--sys-clk-freq",        default=60e6, type=float, help="System clock frequency (default: 60MHz).")
+    parser.add_target_argument("--sdram-rate",          default="1:2", choices=["1:2", "1:4"], help="SDRAM controller:DRAM clock ratio.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
@@ -168,6 +236,7 @@ def main():
     soc = BaseSoC(
         toolchain      = args.toolchain,
         sys_clk_freq   = args.sys_clk_freq,
+        sdram_rate     = args.sdram_rate,
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_ip         = args.eth_ip,

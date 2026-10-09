@@ -44,6 +44,9 @@ class _CRG(LiteXModule):
         self.cd_init    = ClockDomain()
         self.cd_video   = ClockDomain()
         self.cd_video5x = ClockDomain()
+        if sdram_rate == "1:4":
+            self.cd_sys4x   = ClockDomain()
+            self.cd_sys4x_i = ClockDomain()
 
         self.stop  = Signal()
         self.reset = Signal()
@@ -63,25 +66,68 @@ class _CRG(LiteXModule):
         self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | self.rst)
         pll.register_clkin(clk48, 48e6)
-        pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
-        pll.create_clkout(self.cd_init, 24e6)
-        self.specials += [
-            Instance("ECLKBRIDGECS",
-                i_CLK0   = self.cd_sys2x_i.clk,
-                i_SEL    = 0,
-                o_ECSOUT = sys2x_clk_ecsout),
-            Instance("ECLKSYNCB",
-                i_ECLKI = sys2x_clk_ecsout,
-                i_STOP  = self.stop,
-                o_ECLKO = self.cd_sys2x.clk),
-            Instance("CLKDIVF",
-                p_DIV     = "2.0",
-                i_ALIGNWD = 0,
-                i_CLKI    = self.cd_sys2x.clk,
-                i_RST     = self.reset,
-                o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
-        ]
+        if sdram_rate == "1:2":
+            # sys2x: DDR edge clock (ECLKBRIDGECS + ECLKSYNCB), sys = sys2x/2 (CLKDIVF).
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            pll.create_clkout(self.cd_init, 24e6)
+            self.specials += [
+                Instance("ECLKBRIDGECS",
+                    i_CLK0   = self.cd_sys2x_i.clk,
+                    i_SEL    = 0,
+                    o_ECSOUT = sys2x_clk_ecsout),
+                Instance("ECLKSYNCB",
+                    i_ECLKI = sys2x_clk_ecsout,
+                    i_STOP  = self.stop,
+                    o_ECLKO = self.cd_sys2x.clk),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = self.cd_sys2x.clk,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys.clk),
+                AsyncResetSynchronizer(self.cd_sys, ~pll.locked | self.reset),
+            ]
+        else:
+            # sys4x: DDR edge clock (ECLKSYNCB), sys2x = sys4x/2 (CLKDIVF, PHY clock). sys
+            # (controller clock) must be phase aligned with sys2x (DFI rate converter): generated
+            # through the second edge clock synchronizer/divider of the DDR side (bank 2) from a 2x sys
+            # PLL output (same structural path as sys2x, both realigned by the PHY init stop/reset
+            # sequence).
+            eclksync1_bel, clkdiv1_bel = ("X90/Y34/ECLKSYNC1_BK2", "X90/Y34/CLKDIV1")
+            pll.create_clkout(self.cd_sys4x_i, 4*sys_clk_freq)
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            pll.create_clkout(self.cd_init, 24e6)
+            sys2x_e = Signal()
+            self.specials += [
+                Instance("ECLKSYNCB",
+                    i_ECLKI = self.cd_sys4x_i.clk,
+                    i_STOP  = self.stop,
+                    o_ECLKO = self.cd_sys4x.clk),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = self.cd_sys4x.clk,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys2x.clk),
+                Instance("ECLKSYNCB",
+                    i_ECLKI = self.cd_sys2x_i.clk,
+                    i_STOP  = self.stop,
+                    o_ECLKO = sys2x_e,
+                    attr    = {("BEL", eclksync1_bel)}),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = sys2x_e,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys.clk,
+                    attr      = {("BEL", clkdiv1_bel)}),
+                AsyncResetSynchronizer(self.cd_sys4x, ~pll.locked | self.reset),
+                AsyncResetSynchronizer(self.cd_sys,   ~pll.locked | self.reset),
+            ]
+            # sys2x reset released from sys (deterministic phase of the DFI rate converter).
+            sys2x_rst = Signal(reset=1, reset_less=True)
+            self.sync.sys2x += sys2x_rst.eq(ResetSignal("sys"))
+            self.comb += self.cd_sys2x.rst.eq(sys2x_rst)
 
         pll2 = ECP5PLL()
         self.pll2 = pll2
@@ -140,7 +186,13 @@ class BaseSoC(SoCCore):
             sdram_module = available_sdram_modules.get(sdram_device)
 
             ddram_pads = platform.request("ddram")
-            self.ddrphy = ECP5DDRPHY(
+            # 1:2: DDR3 at 2x sys. 1:4: DDR3 at 4x sys.
+            if sdram_rate == "1:2":
+                phy_cls = ECP5DDRPHY
+            else:
+                from litedram.phy.ecp5ddrphy import ecp5ddrphy_with_ratio
+                phy_cls = ecp5ddrphy_with_ratio(2)
+            self.ddrphy = phy_cls(
                 pads         = ddram_pads,
                 sys_clk_freq = sys_clk_freq,
                 cmd_delay    = 0 if sys_clk_freq > 64e6 else 100)
@@ -149,7 +201,7 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = sdram_module(sys_clk_freq, "1:2"),
+                module        = sdram_module(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
 
@@ -195,6 +247,7 @@ def main():
     parser.add_target_argument("--eth-dynamic-ip",  action="store_true",      help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--boot-from-flash", action="store_true",      help="Boot from flash MMOD.")
     parser.add_target_argument("--sdram-device",    default="MT41K256M16",    help="SDRAM device.")
+    parser.add_target_argument("--sdram-rate",      default="1:2", choices=["1:2", "1:4"], help="SDRAM controller:DRAM clock ratio.")
 
     args = parser.parse_args()
 
@@ -209,6 +262,7 @@ def main():
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         sdram_device   = args.sdram_device,
+        sdram_rate     = args.sdram_rate,
         **parser.soc_argdict)
 
     if args.with_sdcard:

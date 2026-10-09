@@ -38,13 +38,16 @@ from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_video_pll=True, with_usb_pll=False):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=True, with_usb_pll=False, sdram_rate="1:2"):
         self.rst        = Signal()
         self.cd_init    = ClockDomain()
         self.cd_por     = ClockDomain(reset_less=True)
         self.cd_sys     = ClockDomain()
         self.cd_sys2x   = ClockDomain()
         self.cd_sys2x_i = ClockDomain(reset_less=True)
+        if sdram_rate == "1:4":
+            self.cd_sys4x   = ClockDomain()
+            self.cd_sys4x_i = ClockDomain(reset_less=True)
 
         # # #
 
@@ -76,22 +79,69 @@ class _CRG(LiteXModule):
         self.pll = pll = ECP5PLL()
         self.comb += pll.reset.eq(~por_done | rst_n | self.rst)
         pll.register_clkin(clk25, 25e6)
-        pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
-        pll.create_clkout(self.cd_init,   25e6)
-        self.specials += [
-            Instance("ECLKSYNCB",
-                i_ECLKI = self.cd_sys2x_i.clk,
-                i_STOP  = self.stop,
-                o_ECLKO = self.cd_sys2x.clk),
-            Instance("CLKDIVF",
-                p_DIV     = "2.0",
-                i_ALIGNWD = 0,
-                i_CLKI    = self.cd_sys2x.clk,
-                i_RST     = self.reset,
-                o_CDIVX   = self.cd_sys.clk),
-            AsyncResetSynchronizer(self.cd_sys,    ~pll.locked | self.reset),
-            AsyncResetSynchronizer(self.cd_sys2x,  ~pll.locked | self.reset),
-        ]
+        if sdram_rate == "1:2":
+            # sys2x: DDR edge clock (ECLKSYNCB), sys = sys2x/2 (CLKDIVF).
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            pll.create_clkout(self.cd_init,   25e6)
+            self.specials += [
+                Instance("ECLKSYNCB",
+                    i_ECLKI = self.cd_sys2x_i.clk,
+                    i_STOP  = self.stop,
+                    o_ECLKO = self.cd_sys2x.clk),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = self.cd_sys2x.clk,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys.clk),
+                AsyncResetSynchronizer(self.cd_sys,    ~pll.locked | self.reset),
+                AsyncResetSynchronizer(self.cd_sys2x,  ~pll.locked | self.reset),
+            ]
+        else:
+            # sys4x: DDR edge clock (ECLKSYNCB), sys2x = sys4x/2 (CLKDIVF, PHY clock). sys
+            # (controller clock) must be phase aligned with sys2x (DFI rate converter): generated
+            # through the second edge clock synchronizer/divider of the DDR bank (bank 3) from a 2x sys
+            # PLL output (same structural path as sys2x, both realigned by the PHY init stop/reset
+            # sequence).
+            eclksync1_bel, clkdiv1_bel = {
+                "25F": ("X72/Y26/ECLKSYNC1_BK3", "X72/Y25/CLKDIV1"),
+                "45F": ("X90/Y35/ECLKSYNC1_BK3", "X90/Y34/CLKDIV1"),
+                "85F": ("X126/Y47/ECLKSYNC1_BK3", "X126/Y46/CLKDIV1"),
+            }[platform.device.split("-")[1][:2] + "F"]
+            pll.create_clkout(self.cd_sys4x_i, 4*sys_clk_freq)
+            pll.create_clkout(self.cd_sys2x_i, 2*sys_clk_freq)
+            pll.create_clkout(self.cd_init, 25e6)
+            sys2x_e = Signal()
+            self.specials += [
+                Instance("ECLKSYNCB",
+                    i_ECLKI = self.cd_sys4x_i.clk,
+                    i_STOP  = self.stop,
+                    o_ECLKO = self.cd_sys4x.clk),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = self.cd_sys4x.clk,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys2x.clk),
+                Instance("ECLKSYNCB",
+                    i_ECLKI = self.cd_sys2x_i.clk,
+                    i_STOP  = self.stop,
+                    o_ECLKO = sys2x_e,
+                    attr    = {("BEL", eclksync1_bel)}),
+                Instance("CLKDIVF",
+                    p_DIV     = "2.0",
+                    i_ALIGNWD = 0,
+                    i_CLKI    = sys2x_e,
+                    i_RST     = self.reset,
+                    o_CDIVX   = self.cd_sys.clk,
+                    attr      = {("BEL", clkdiv1_bel)}),
+                AsyncResetSynchronizer(self.cd_sys4x, ~pll.locked | self.reset),
+                AsyncResetSynchronizer(self.cd_sys,   ~pll.locked | self.reset),
+            ]
+            # sys2x reset released from sys (deterministic phase of the DFI rate converter).
+            sys2x_rst = Signal(reset=1, reset_less=True)
+            self.sync.sys2x += sys2x_rst.eq(ResetSignal("sys"))
+            self.comb += self.cd_sys2x.rst.eq(sys2x_rst)
 
         if with_usb_pll:
             self.cd_usb_12 = ClockDomain()
@@ -114,6 +164,7 @@ class _CRG(LiteXModule):
 class BaseSoC(SoCCore):
     def __init__(self, revision="0.3", device="85F", toolchain="trellis", sys_clk_freq=int(75e6),
         sdram_device           = "MT41K512M16",
+        sdram_rate             = "1:2",
         with_ethernet          = False,
         with_etherbone         = False,
         with_video_colorbars   = False,
@@ -131,7 +182,7 @@ class BaseSoC(SoCCore):
         uart_name      = kwargs.get("uart_name", "serial")
         with_video_pll = with_video_terminal or with_video_framebuffer or with_video_colorbars
         with_usb_pll   = uart_name == "usb_acm"
-        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll, with_usb_pll)
+        self.submodules.crg = _CRG(platform, sys_clk_freq, with_video_pll, with_usb_pll, sdram_rate=sdram_rate)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on ULX4M-LD-V2", **kwargs)
@@ -149,7 +200,13 @@ class BaseSoC(SoCCore):
             if not l2_cache_size:
                 raise ValueError("ULX4M-LD DDR3 requires an L2 cache when DM is disabled.")
 
-            self.submodules.ddrphy = ECP5DDRPHY(
+            # 1:2: DDR3 at 2x sys. 1:4: DDR3 at 4x sys (DDR3-600 at 75MHz).
+            if sdram_rate == "1:2":
+                phy_cls = ECP5DDRPHY
+            else:
+                from litedram.phy.ecp5ddrphy import ecp5ddrphy_with_ratio
+                phy_cls = ecp5ddrphy_with_ratio(2)
+            self.submodules.ddrphy = phy_cls(
                 pads         = PHYPadsReducer(platform.request("ddram"), [0, 1]),
                 sys_clk_freq = sys_clk_freq,
                 with_dm      = False,
@@ -158,7 +215,7 @@ class BaseSoC(SoCCore):
             self.comb += self.crg.reset.eq(self.ddrphy.init.reset)
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
-                module        = sdram_module(sys_clk_freq, "1:4"),
+                module        = sdram_module(sys_clk_freq, sdram_rate),
                 l2_cache_size = l2_cache_size,
             )
 
@@ -208,6 +265,7 @@ def main():
     # RAM.
     parser.add_target_argument("--sdram-device", default="MT41K512M16",
         help="SDRAM device (MT41K64M16, MT41K128M16, MT41K256M16, or MT41K512M16).")
+    parser.add_target_argument("--sdram-rate",   default="1:2", choices=["1:2", "1:4"], help="SDRAM controller:DRAM clock ratio.")
 
     # Ethernet.
     ethopts = parser.target_group.add_mutually_exclusive_group()
@@ -240,6 +298,7 @@ def main():
         revision               = args.revision,
         device                 = args.device,
         sdram_device           = args.sdram_device,
+        sdram_rate             = args.sdram_rate,
         sys_clk_freq           = args.sys_clk_freq,
         with_ethernet          = args.with_ethernet,
         with_etherbone         = args.with_etherbone,
