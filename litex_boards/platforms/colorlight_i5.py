@@ -165,16 +165,22 @@ class Platform(LatticeECP5Platform):
     default_clk_name   = "clk25"
     default_clk_period = 1e9/25e6
 
-    def __init__(self, board="i5", revision="7.0", toolchain="trellis"):
+    # Supported revisions per board (first one is the default).
+    revisions = {"i5": ["7.0"], "i9": ["7.2"]}
+
+    def __init__(self, board="i5", revision=None, toolchain="trellis"):
+        if board not in self.revisions:
+            raise ValueError(f"Unsupported board {board}, supported: {', '.join(self.revisions)}.")
+        if revision is None:
+            revision = self.revisions[board][0]
+        if revision not in self.revisions[board]:
+            raise ValueError(f"Unsupported revision {revision} for {board}, supported: {', '.join(self.revisions[board])}.")
+        self.revision = revision
         if board == "i5":
-            assert revision in ["7.0"]
-            self.revision = revision
             device     = {"7.0": "LFE5U-25F-6BG381C"}[revision]
             io         = {"7.0": _io_v7_0}[revision]
             connectors = {"7.0": _connectors_v7_0}[revision]
         if board == "i9":
-            assert revision in ["7.2"]
-            self.revision = revision
             device     = {"7.2": "LFE5U-45F-6BG381C"}[revision]
             io         = {"7.2": _io_v7_2}[revision]
             connectors = {"7.2": _connectors_v7_2}[revision]
