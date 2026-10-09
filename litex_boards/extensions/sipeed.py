@@ -280,11 +280,11 @@ tang_mega_138k_som_connectors = [
         #            GND                           GND  GND   (  61-70).
         "  C14 G16  ----  G15  E14  G13  E13  H13 ---- ----",
         # PCIe PCIe PCIe PCIe  GND  GND PCIe PCIe PCIe PCIe   (  71-80).
-        "  E10  C11  F10  D11 ---- ----   C7   A6   D7   D6",
+        "  E10  C11  F10  D11 ---- ----   C7  A10   D7  B10",
         #  GND  GND PCIe PCIe PCIe PCIe  GND  GND PCIe PCIe   (  81-90).
         " ---- ----   A6   C9   B6   D9 ---- ----   C5   A8",
         # PCIe PCIe  GND  GND PCIe PCIe PCIe PCIe  GND  GND   ( 91-100).
-        "   D5   B8 ---- ----   B4   E6   A4   F6 ---- ----",
+        "   D5   B8 ---- ----   A4   E6   B4   F6 ---- ----",
     ],
     ["J2", # C2400
         # -------------------------------------------------------------
@@ -352,21 +352,21 @@ tang_mega_60k_som_connectors = [
         #            GND                           GND  GND   (  61-70).
         "  C14 G16  ----  G15  E14  G13  E13  H13 ---- ----",
         # PCIe PCIe PCIe PCIe  GND  GND PCIe PCIe PCIe PCIe   (  71-80).
-        "  E10  C11  F10  D11 ---- ----   C7   A6   D7   D6",
+        "  E10  C11  F10  D11 ---- ----   C7  A10   D7  B10",
         #  GND  GND PCIe PCIe PCIe PCIe  GND  GND PCIe PCIe   (  81-90).
         " ---- ----   A6   C9   B6   D9 ---- ----   C5   A8",
         # PCIe PCIe  GND  GND PCIe PCIe PCIe PCIe  GND  GND   ( 91-100).
-        "   D5   B8 ---- ----   B4   E6   A4   F6 ---- ----",
+        "   D5   B8 ---- ----   A4   E6   B4   F6 ---- ----",
     ],
     ["J2",
         # -------------------------------------------------------------
         "---", # 0
         #  VCC                                                (   1-10).
-        " ----  V22  Y22  W21  Y21  V20 AB22  U20 AB21  M17",
+        " ----  W22  Y22  W21  Y21  V20 AB22  U20 AB21  M17",
         #                                                     (  11-20).
         " AA21  P17 AA20  N17 AB20  M16 AA19  M15  W20  N15",
         #                                                     (  21-30).
-        "  W11  N13 AB18  N14 AA18  Y17  Y19 AB17  Y18 AA16",
+        "  W19  N13 AB18  N14 AA18  Y17  Y19 AB17  Y18 AA16",
         #                                                     (  31-40).
         "  W17  M13  V17  L13  U18 AB16  U17 AA15  W16 AB15",
         #                                GND                  (  41-50).

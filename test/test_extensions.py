@@ -99,11 +99,14 @@ class TestExtensions(unittest.TestCase):
             TangMegaNeoDock(som="20k")
 
     def test_sipeed_tang_mega_som_balls(self):
-        # 60K/138K SoMs are both PG484 (22x22): all connector pins must be valid balls.
+        # 60K/138K SoMs are both PG484 (22x22): all connector pins must be valid and distinct balls.
         import re
         from litex_boards.extensions.sipeed import tang_mega_60k_som_connectors, tang_mega_138k_som_connectors
         rows = "A B C D E F G H J K L M N P R T U V W Y AA AB".split()
         for som, connectors in [("60k", tang_mega_60k_som_connectors), ("138k", tang_mega_138k_som_connectors)]:
+            balls = [b for name, *pins in connectors for b in " ".join(pins).split() if not b.startswith("-")]
+            with self.subTest(som=som, check="duplicates"):
+                self.assertEqual(sorted({b for b in balls if balls.count(b) > 1}), [])
             for name, *pins in connectors:
                 for i, ball in enumerate(" ".join(pins).split()):
                     if ball.startswith("-"):
