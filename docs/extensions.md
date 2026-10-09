@@ -157,4 +157,6 @@ emit a `FutureWarning` with `warn_deprecated_arg()`):
 | `trellisboard`      | `--with-pmod-gpio`         | `--pmod pmoda=gpio` (CSRs: `pmoda_gpio` instead of `gpio`) |
 | `digilent_arty`     | `--sdcard-adapter numato`  | `--pmod pmodd=numato_sdcard` (Digilent adapter is the default) |
 | `digilent_basys3`   | `--sdcard-adapter numato`  | `--pmod pmoda=numato_sdcard` (Digilent adapter is the default) |
+| `digilent_arty`     | `--with-can`               | `--pmod pmodc=can` (core: `pmodc_can` instead of `can0`, bus region allocated automatically) |
+| `digilent_genesys2` | `--with-can`               | `--pmod pmodc=can` (core: `pmodc_can` instead of `can0`, bus region allocated automatically) |
 | `colorlight_i9plus` | `--with-pmod-uart`         | Nothing: no effect, the default `serial` is already on Ext-Board conn. P2 |

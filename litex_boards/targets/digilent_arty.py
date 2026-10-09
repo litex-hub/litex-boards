@@ -225,7 +225,7 @@ def main():
     parser.add_target_argument("--with-buttons",   action="store_true", help="Enable Buttons.")
     parser.add_target_argument("--with-switches",  action="store_true", help="Enable Switches.")
     parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD. Deprecated, use --pmod pmoda=gpio.")
-    parser.add_target_argument("--with-can",       action="store_true", help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'.")
+    parser.add_target_argument("--with-can",       action="store_true", help="Enable CAN support (Through CTU-CAN-FD Core and SN65HVD230 'PMOD'. Deprecated, use --pmod pmodc=can.")
     add_pmod_args(parser)
     args = parser.parse_args()
 
@@ -234,6 +234,8 @@ def main():
         warn_deprecated_arg("--with-pmod-gpio", "--pmod pmoda=gpio (GPIOs CSRs: pmoda_gpio instead of gpio)")
     if args.sdcard_adapter is not None:
         warn_deprecated_arg("--sdcard-adapter", "--pmod pmodd=numato_sdcard for the Numato adapter (Digilent one is the default)")
+    if args.with_can:
+        warn_deprecated_arg("--with-can", "--pmod pmodc=can (CTU-CAN-FD core: pmodc_can instead of can0, bus region allocated automatically instead of 0xb0010000)")
 
     if args.with_etherbone and (args.eth_dynamic_ip or args.eth_dhcp):
         parser.error("--with-etherbone requires a static IP; remove --eth-dynamic-ip and --eth-dhcp.")
