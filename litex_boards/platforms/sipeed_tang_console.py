@@ -14,7 +14,7 @@ from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
 from litex_boards.extensions.sdram_modules import MiSTerSDRAM, SipeedSDRAM
-from litex_boards.extensions.sipeed        import tang_mega_60k_som_connectors, tang_mega_138k_som_connectors, TangConsoleDock
+from litex_boards.extensions.sipeed        import tang_mega_som_connectors, TangConsoleDock
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -114,8 +114,8 @@ _io_138k = [
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors_60k  = tang_mega_60k_som_connectors
-_connectors_138k = tang_mega_138k_som_connectors
+# Same SoM connectors pinout for the 60K and 138K.
+_connectors = tang_mega_som_connectors
 
 # SDRAMs -------------------------------------------------------------------------------------------
 
@@ -147,11 +147,7 @@ class Platform(GowinPlatform):
             "GW5AT-60B":   _io_60k,
             "GW5AST-138C": _io_138k,
         }[device]
-        connectors = {
-            "GW5AT-60B":   _connectors_60k,
-            "GW5AST-138C": _connectors_138k,
-        }[device]
-        GowinPlatform.__init__(self, device_map[device], _io, connectors, toolchain=toolchain, devicename=device)
+        GowinPlatform.__init__(self, device_map[device], _io, _connectors, toolchain=toolchain, devicename=device)
         self.add_extension(io)
         self.add_extension(_ddram_io(device))
         if dock is not None:
