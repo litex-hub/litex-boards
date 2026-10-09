@@ -66,7 +66,14 @@ class PmodSDCard(PmodExtension):
     """Digilent PmodMicroSD (and compatible, ex antmicro arty-expansion-board).
 
     https://digilent.com/reference/pmod/pmodmicrosd/start
+
+    sdcard_slew_fast=False disables the fast slew rate on the native SDCard resource (spisdcard
+    keeps it).
     """
+    def __init__(self, *args, sdcard_slew_fast=True, **kwargs):
+        self.sdcard_slew_fast = sdcard_slew_fast
+        PmodExtension.__init__(self, *args, **kwargs)
+
     def define_io(self, platform):
         pullup    = self.pullup(platform)
         slew_fast = self.slew_fast(platform)
@@ -84,7 +91,7 @@ class PmodSDCard(PmodExtension):
                 Subsignal("cmd",  Pins("pmod:1"), *pullup),
                 Subsignal("clk",  Pins("pmod:3")),
                 Subsignal("cd",   Pins("pmod:6")),
-                *slew_fast,
+                *(slew_fast if self.sdcard_slew_fast else []),
                 *self.iostandard(platform),
             ),
         ]
