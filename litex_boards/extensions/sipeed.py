@@ -122,7 +122,7 @@ _tang_primer_20k_dock_lite_connectors = [
     # Pmod
     ("j2", "F15 D16 C9  L12 E15 E14 A9  J11"),
     ("j6", "L8  P7  E10 D11 M6  R7  D10 F10"),
-    ("j7", "T6  T7  T8  T9  P6  R8  M6  P9"),
+    ("j7", "T6  T7  T8  T9  P6  R8  P8  P9"),
     ("j8", "R16 P16 N16 L16 P15 N15 N14 L14"),
 
     ("j1", {
