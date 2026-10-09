@@ -4,7 +4,7 @@ from litex.build.gowin.platform import GowinPlatform
 from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
-from litex_boards.extensions.sipeed import tang_mega_60k_som_connectors, TangMegaNeoDock
+from litex_boards.extensions.sipeed import tang_mega_som_connectors, TangMegaNeoDock
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ _io = [
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = tang_mega_60k_som_connectors
+_connectors = tang_mega_som_connectors
 
 # Docks --------------------------------------------------------------------------------------------
 

@@ -14,7 +14,7 @@ from litex.build.gowin.programmer import GowinProgrammer
 from litex.build.openfpgaloader import OpenFPGALoader
 
 from litex_boards.extensions.sdram_modules import MiSTerSDRAM, SipeedSDRAM
-from litex_boards.extensions.sipeed        import tang_mega_138k_som_connectors, TangMegaNeoDock
+from litex_boards.extensions.sipeed        import tang_mega_som_connectors, TangMegaNeoDock
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ _io = [
 
 # Connectors ---------------------------------------------------------------------------------------
 
-_connectors = tang_mega_138k_som_connectors
+_connectors = tang_mega_som_connectors
 
 # SDRAMs -------------------------------------------------------------------------------------------
 
