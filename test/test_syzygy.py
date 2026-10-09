@@ -51,8 +51,10 @@ class TestSyzygy(unittest.TestCase):
 
     def test_deprecated_butterstick_helper(self):
         from litex_boards.platforms import gsd_butterstick
-        with self.assertWarns(FutureWarning):
+        from litex_boards.compat import DEPRECATION_RELEASE
+        with self.assertWarnsRegex(FutureWarning, DEPRECATION_RELEASE) as cm:
             io = gsd_butterstick.raw_syzygy_io("SYZYGY1")
+        self.assertEqual(cm.filename, __file__) # Warning points to the caller.
         self.assertEqual(io[0][0], "SYZYGY1")
         self.assertEqual(len(io[0][2].identifiers), 32)
 

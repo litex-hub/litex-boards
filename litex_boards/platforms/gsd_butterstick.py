@@ -245,11 +245,11 @@ class Platform(LatticeECP5Platform):
 # Kept for compatibility (emit a FutureWarning), use litex_boards.extensions.syzygy modules directly instead.
 
 from litex_boards.extensions.syzygy import SyzygyGPIO
+from litex_boards.compat import warn_deprecated
 
 def __getattr__(name):
     if name == "raw_syzygy_io":
-        import warnings
-        warnings.warn(f"{__name__}.raw_syzygy_io is deprecated and will be removed, use litex_boards.extensions.syzygy "
-            "instead: platform.add_extension(SyzygyGPIO(syzygy, signals=32)).", FutureWarning, stacklevel=2)
+        warn_deprecated(f"{__name__}.raw_syzygy_io",
+            "platform.add_extension(SyzygyGPIO(syzygy, signals=32)) (from litex_boards.extensions.syzygy)")
         return lambda syzygy, iostandard="LVCMOS33": SyzygyGPIO(syzygy, signals=32, iostandard=iostandard).get_io(LatticeECP5Platform)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
