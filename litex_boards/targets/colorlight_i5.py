@@ -94,7 +94,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board="i5", revision="7.0", toolchain="trellis", sys_clk_freq=60e6,
+    def __init__(self, board="i5", revision=None, toolchain="trellis", sys_clk_freq=60e6,
         with_ethernet          = False,
         with_etherbone         = False,
         eth_ip                 = "192.168.1.50",
@@ -108,7 +108,6 @@ class BaseSoC(SoCCore):
         with_video_framebuffer = False,
         **kwargs):
         board = board.lower()
-        assert board in ["i5", "i9"]
         platform = colorlight_i5.Platform(board=board, revision=revision, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
@@ -174,8 +173,8 @@ def main():
     from litex.build.parser           import LiteXArgumentParser
     from litex_boards.extensions.pmod import PmodSDCard, add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=colorlight_i5.Platform, description="LiteX SoC on Colorlight I5.")
-    parser.add_target_argument("--board",        default="i5",             help="Board type (i5).")
-    parser.add_target_argument("--revision",     default="7.0",            help="Board revision (7.0).")
+    parser.add_target_argument("--board",        default="i5", type=str.lower, choices=["i5", "i9"], help="Board type.")
+    parser.add_target_argument("--revision",     default=None,             help="Board revision (i5: 7.0, i9: 7.2, default: board's one).")
     parser.add_target_argument("--sys-clk-freq", default=60e6, type=float, help="System clock frequency.")
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
