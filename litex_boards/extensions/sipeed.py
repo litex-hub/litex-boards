@@ -587,20 +587,7 @@ _tang_mega_neo_dock_60k_io = [
     ("led", 6, Pins("J0:23"), IOStandard("LVCMOS33")),
     ("led", 7, Pins("J0:25"), IOStandard("LVCMOS33")),
 
-    # SDRAM
-    ("sdram", 0,
-        Subsignal("a", Pins("J1:10 J1:12 J1:16 J1:18 J1:30 J1:34 J1:36 J1:17 J1:19 J1:29 J1:6 J1:31 J1:23")),
-        Subsignal("ba", Pins("J1:40 J1:4")),
-        Subsignal("dq", Pins("J1:65 J1:67 J1:59 J1:61 J1:53 J1:55 J1:47 J1:49 J1:7 J1:5 J1:13 J1:11 J1:37 J1:35 J1:43 J1:41")),
-        Subsignal("dm", Pins("J1:42 J1:44")),
-        Subsignal("clk", Pins("J1:25")),
-        Subsignal("cas", Pins("J1:22")),
-        Subsignal("ras", Pins("J1:24")),
-        Subsignal("we", Pins("J1:28")),
-        Subsignal("cs", Pins("J0:68")),
-        IOStandard("LVCMOS33"),
-        Misc("DRIVE=8")
-    ),
+    # SDRAM: plug the module on sdram0_connector (extensions/sdram_modules.py: SipeedSDRAM, MiSTerSDRAM).
 ]
 
 _tang_mega_neo_dock_connectors = [
