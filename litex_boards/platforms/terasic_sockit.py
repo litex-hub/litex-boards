@@ -169,9 +169,9 @@ _connectors_hsmc_gpio_daughterboard = [
     ("J3p", "- C9 C10 H12 H13"), # Top to bottom, starting with 117.
 
     ("J4", "- - - AD3 AE1 AD4 AE2 - - AB3 AC1 - - " +
-           "AB4 AC2 - - Y3 AA1 Y4 AA2 - - V3 W1 V4 W2 - - - -" +
+           "AB4 AC2 - - Y3 AA1 Y4 AA2 - - V3 W1 V4 W2 - - - - " +
            "T3 U1 T4 R1 - R2 P3 U2 P4 -"),
-    ("J4p", "- M3 M4 - H3 H4 J14 AD29 - N1 N2 - J1 J2") # Top to bottom, starting with 169.
+    ("J4p", "- - M3 M4 - H3 H4 J14 AD29 - N1 N2 - J1 J2") # Top to bottom, starting with 169.
 ]
 
 # Platform -----------------------------------------------------------------------------------------
