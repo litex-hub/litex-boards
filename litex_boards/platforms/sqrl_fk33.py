@@ -8,7 +8,8 @@
 # as a generic FPGA PCIe development board: http://www.squirrelsresearch.com/forest-kitten-33
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
+from litex.build.xilinx  import XilinxUSPPlatform, VivadoProgrammer
+from litex.build.openocd import OpenOCD
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -97,8 +98,15 @@ class Platform(XilinxUSPPlatform):
     def __init__(self, toolchain="vivado"):
         XilinxUSPPlatform.__init__(self, "xcvu33p-fsvh2104-2L-e", _io, toolchain=toolchain)
 
-    def create_programmer(self):
-        return VivadoProgrammer()
+    def create_programmer(self, name="openocd"):
+        # Note: Use OpenOCD by default: openFPGALoader reports DONE on this board while the
+        # bitstream is not configured (JPROGRAM restarts the master-SPI boot from flash).
+        if name == "openocd":
+            return OpenOCD("openocd_xcvu33p_ft2232.cfg")
+        elif name == "vivado":
+            return VivadoProgrammer()
+        else:
+            raise ValueError(f"Unsupported programmer: {name}.")
 
     def do_finalize(self, fragment):
         XilinxUSPPlatform.do_finalize(self, fragment)
