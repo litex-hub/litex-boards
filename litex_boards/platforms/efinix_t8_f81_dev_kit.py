@@ -42,9 +42,9 @@ _io = [
 
 _connectors = [
     # use "j3:1" reference for pin 1 of J3. This makes it a 1:1 translation with connector numbering
-    ("j3", "ZERO #N/A #N/A G5 F1 G4 E1 J3 C2 G3 D2 J2 E3 H2 D3 F3 C3 G1 B3 #N/A #N/A A2 A2"),
-    ("j4", "ZERO #N/A #N/A A5 B8 B5 C8 C5 D6 A6 B9 B6 C9 C6 D7 C7 D8 A8 D9 A9 E8 A2 A2"),
-    ("j5", "ZERO #N/A #N/A F8 J9 E7 J8 F7 G8 E6 H8 F6 J7 F5 G6 G9 H6 H9 J6 #N/A #N/A A2 A2"),
+    ("j3", "ZERO #N/A #N/A G5 F1 G4 E1 J3 C2 G3 D2 J2 E3 H2 D3 F3 C3 G1 B3 #N/A #N/A #N/A #N/A"),
+    ("j4", "ZERO #N/A #N/A A5 B8 B5 C8 C5 D6 A6 B9 B6 C9 C6 D7 C7 D8 A8 D9 A9 E8 #N/A #N/A"),
+    ("j5", "ZERO #N/A #N/A F8 J9 E7 J8 F7 G8 E6 H8 F6 J7 F5 G6 G9 H6 H9 J6 #N/A #N/A #N/A #N/A"),
 ]
 
 # Platform -----------------------------------------------------------------------------------------
