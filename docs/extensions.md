@@ -32,8 +32,11 @@ $ python3 -m litex_boards.targets.icebreaker --pmod PMOD1A+PMOD1B=dvi --build
 | `numato_sdcard` | Numato MicroSD module                           | IOs only, use with `--with-(spi-)sdcard` |
 | `dvi`           | 1BitSquared DVI Pmod (two connectors: `a+b=dvi`)| IOs only, used by the target's video options |
 
-IOs-only modules take precedence over the board's own resources of the same name. A wrong connector
-name is reported with the list of the board's Pmod connectors.
+IOs-only modules take precedence over the board's own resources of the same name. If the target
+already requested that resource before the Pmods are plugged (ex: SD Card added in `BaseSoC`), the
+Pmod would be ignored, so an error is raised instead. A wrong connector name is reported with the list
+of the board's Pmod connectors, and so is a module plugged on a single-row (6-pin) Pmod while it needs
+a dual-row (12-pin) one: `i2c` and `can` only use pins 1-4 and work on both.
 
 ## Available Extensions
 
@@ -46,6 +49,7 @@ name is reported with the list of the board's Pmod connectors.
 | `litex_boards.extensions.enclustra` | Enclustra Mercury+ ST1 baseboard: `EnclustraST1`.                       |
 | `litex_boards.extensions.sipeed`    | Sipeed SoM connectors and docks: `TangPrimer20KDock(Lite)`, `TangPrimer25KDock`, `TangMegaNeoDock`, `TangMega138KProDock`, `TangConsoleDock`. |
 | `litex_boards.extensions.sdram_modules` | SDRAM modules plugged on a connector: `MiSTerSDRAM`, `SipeedSDRAM`. |
+| `litex_boards.extensions.machdyne` | Machdyne FPGA modules shared by their carriers: `MachdyneML1` (Mozart ML1, Vivaldi ML1). |
 
 ## Options Common To All Extensions
 
@@ -64,8 +68,9 @@ the board's resources of the same name) and resources are then requested as usua
 ## Connector Conventions
 
 - **Pmod**: 8 entries, index 0-3 = physical pins 1-4 (top row), index 4-7 = physical pins 7-10
-  (bottom row); GND/VCC are not part of the connector. Boards declaring a Pmod differently (physical
-  numbering, placeholders) should also expose a canonical alias connector.
+  (bottom row); GND/VCC are not part of the connector. Single-row (6-pin) Pmods have 4 entries (pins
+  1-4). Boards declaring a Pmod differently (physical numbering, placeholders) should also expose a
+  canonical alias connector.
 - **SYZYGY**: dict connector using the specification's signal names (`S0`-`S27`, `D0P`/`D0N`...,
   `P2C_CLKP`...), see `litex_boards/extensions/syzygy.py`.
 - **FMC**: dict connector using the VITA 57.1/57.4 signal names (`LA00_CC_P`, `HA00_P`, `CLK0_M2C_P`,

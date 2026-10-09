@@ -58,8 +58,9 @@ these patterns.
 - Keep connector names stable once published. Add aliases only when needed for
   compatibility.
 - Declare Pmod connectors with 8 entries (index 0-3 = pins 1-4, index 4-7 =
-  pins 7-10), or add such a canonical alias. Use the specification's signal
-  names as keys for SYZYGY and FMC connectors.
+  pins 7-10), 4 entries for single-row (6-pin) Pmods, or add such a canonical
+  alias. Use the specification's signal names as keys for SYZYGY and FMC
+  connectors.
 - Describe hardware plugged on a connector (Pmod modules, daughterboards,
   carriers, docks, FMC/SYZYGY cards) as an Extension in
   `litex_boards/extensions/` instead of IO lists or helpers in the platform, see
