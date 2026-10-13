@@ -8,6 +8,11 @@
 # Build/Use:
 # ./ypcb_00338_1p1.py --uart-name=jtag_uart --with-pcie --build --load
 # litex_term jtag --jtag-config=openocd_xc7_ft232.cfg
+#
+# DDR3: both 72-bit channels at full 64-bit width (ECC lane unused) with the K7DDRPHY on HR banks
+# (no ODELAYE2) and its CK phase shift (write leveling by CK phase). The BIOS calibrates channel 0
+# (main_ram) at boot, channel 1 with "sdram_cal 1" (it is exposed through its LiteDRAM BIST, for
+# user logic on its crossbar).
 
 import os
 
@@ -21,35 +26,30 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.builder  import *
 from litex.soc.cores.led            import LedChaser
 
-from litedram.modules import MT41J256M16
-from litedram.phy     import s7ddrphy
-from litedram.common import PHYPadsReducer
+from litedram.modules        import MT41K256M8
+from litedram.phy.s7ddrphy   import K7DDRPHY
+from litedram.common         import PHYPadsReducer
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.software import generate_litepcie_software
 
-# CRG -------------------------------------------------------------------------------------------
+# CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         self.rst       = Signal()
         self.cd_sys    = ClockDomain()
-        self.cd_sys4x  = ClockDomain()
-        self.cd_sys4x_dqs = ClockDomain()
         self.cd_idelay = ClockDomain()
 
-        # Clk/Rst.
+        # Clk (the board reset pin is not wired: reset from the MMCM's lock).
         clk200 = platform.request("clk200")
-        rst_n = platform.request("rst_n")
 
         # PLL.
         self.pll = pll = S7MMCM(speedgrade=-2)
-        self.comb += pll.reset.eq(~rst_n | self.rst)
+        self.comb += pll.reset.eq(self.rst)
         pll.register_clkin(clk200, 200e6)
-        pll.create_clkout(self.cd_sys,       sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
-        pll.create_clkout(self.cd_sys4x_dqs, 4*sys_clk_freq, phase=135)
-        pll.create_clkout(self.cd_idelay,    200e6)
+        pll.create_clkout(self.cd_sys,    sys_clk_freq, margin=1e-4)
+        pll.create_clkout(self.cd_idelay, 200e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
 
         # IDelayCtrl.
@@ -58,8 +58,12 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=125e6,
-        dram_channel    = 0,
+    # MMCM of each channel's PHY in the channel's clock region (channel 0: banks 11-13, channel 1:
+    # banks 16-18).
+    ddram_mmcm_locs = ["MMCME2_ADV_X0Y2", "MMCME2_ADV_X0Y6"]
+
+    def __init__(self, sys_clk_freq=400e6/3,
+        ddram_channels  = 2,
         with_led_chaser = True,
         with_pcie       = False,
         **kwargs):
@@ -76,19 +80,40 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on YPCB-00338-1P1", **kwargs)
 
         # DDR3 SDRAM ------------------------------------------------------------------------------
+        # One K7DDRPHY (HR banks, CK phase shift) + LiteDRAM core per channel, each with a BIST
+        # (the calibration's traffic test). Each channel's sdram/ddrphy/sdram_generator/
+        # sdram_checker CSRs are kept at a fixed stride, so the BIOS calibrates channel k at
+        # channel 0's CSRs + k*stride.
         if not self.integrated_main_ram_size:
-            assert dram_channel in (0, 1), "dram_channel must be 0 or 1"
-            self.ddrphy = s7ddrphy.A7DDRPHY( # FIXME: DDR3 on HR Bank so no ODELAY, use A7DDRPHY as workaround for now.
-                pads         = PHYPadsReducer(platform.request("ddram", dram_channel), [0, 1, 2, 3]), # FIXME: Get all modules working.
-                memtype      = "DDR3",
-                nphases      = 4,
-                sys_clk_freq = sys_clk_freq)
-            self.add_sdram("sdram",
-                phy           = self.ddrphy,
-                module        = MT41J256M16(sys_clk_freq, "1:4"),
-                size          = 0x20000000,
-                l2_cache_size = kwargs.get("l2_size", 8192)
-            )
+            assert ddram_channels in (1, 2)
+            csr_groups = ["sdram", "ddrphy", "sdram_generator", "sdram_checker"]
+            csr_first  = 16
+            for k in range(ddram_channels):
+                suffix = "" if k == 0 else str(k)
+                for i, group in enumerate(csr_groups):
+                    name = group.replace("sdram", "sdram" + suffix)
+                    name = name.replace("ddrphy", "ddrphy" + suffix)
+                    self.csr.add(name, n=csr_first + len(csr_groups)*k + i)
+                pads = PHYPadsReducer(platform.request("ddram", k), list(range(8))) # No ECC lane.
+                phy  = K7DDRPHY(
+                    pads                = pads,
+                    memtype             = "DDR3",
+                    sys_clk_freq        = sys_clk_freq,
+                    with_odelay         = False, # HR banks.
+                    with_ck_phase_shift = True,
+                    name                = f"ddrphy{suffix}",
+                    mmcm_loc            = self.ddram_mmcm_locs[k])
+                phy.add_constraints(platform)
+                setattr(self, f"ddrphy{suffix}", phy)
+                self.add_sdram(f"sdram{suffix}",
+                    phy                   = phy,
+                    module                = MT41K256M8(sys_clk_freq, "1:4"),
+                    with_bist             = True,
+                    with_soc_interconnect = (k == 0),
+                    size                  = 0x40000000,
+                    l2_cache_size         = kwargs.get("l2_size", 8192),
+                )
+            self.add_constant("SDRAM_CSR_STRIDE", len(csr_groups)*self.csr.paging)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -118,13 +143,15 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=ypcb_00338_1p1.Platform, description="LiteX SoC on YPCB-00338-1P1.")
-    parser.add_target_argument("--sys-clk-freq", default=125e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--sys-clk-freq",   default=400e6/3, type=float, help="System clock frequency (DDR3 rate / 8).")
+    parser.add_target_argument("--ddram-channels", default=2,       type=int,   help="DDR3 channels (1 or 2).")
+    parser.add_target_argument("--with-pcie",      action="store_true",         help="Enable PCIe support.")
+    parser.add_target_argument("--driver",         action="store_true",         help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq   = args.sys_clk_freq,
+        ddram_channels = args.ddram_channels,
         with_pcie      = args.with_pcie,
         **parser.soc_argdict
     )

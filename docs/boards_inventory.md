@@ -251,5 +251,5 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `xilinx_zcu106` | xilinx_zcu106 | vivado | `125000000.0` | PCIe | included |
 | `xilinx_zcu216` | xilinx_zcu216 | vivado | `100000000.0` | - | included |
 | `xilinx_zybo_z7` | digilent_zybo_z7 | vivado | `125000000.0` | - | included |
-| `ypcb_00338_1p1` | ypcb_00338_1p1 | vivado | `125000000.0` | PCIe | included |
+| `ypcb_00338_1p1` | ypcb_00338_1p1 | vivado | `400000000.0 / 3` | PCIe | included |
 | `ztex213` | ztex213 | vivado | `100000000.0` | SDCard, SPI SDCard | included |
