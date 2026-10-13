@@ -9,8 +9,8 @@
 # ./ypcb_00338_1p1.py --uart-name=jtag_uart --with-pcie --build --load
 # litex_term jtag --jtag-config=openocd_xc7_ft232.cfg
 #
-# DDR3: both 72-bit channels at full 64-bit width (ECC lane unused) with the S7HRDDRPHY (HR banks:
-# write leveling by CK phase). The BIOS calibrates channel 0 (main_ram) at boot, channel 1 with
+# DDR3: both 72-bit channels at full 64-bit width (ECC lane unused) with the A7DDRPHY's CK phase
+# shift (HR banks: write leveling by CK phase). The BIOS calibrates channel 0 (main_ram) at boot, channel 1 with
 # "sdram_s7hr_init 1" (it is exposed through its LiteDRAM BIST, for user logic on its crossbar).
 
 import os
@@ -26,7 +26,7 @@ from litex.soc.integration.builder  import *
 from litex.soc.cores.led            import LedChaser
 
 from litedram.modules        import MT41K256M8
-from litedram.phy.s7hrddrphy import S7HRDDRPHY
+from litedram.phy.s7ddrphy   import A7DDRPHY
 from litedram.common         import PHYPadsReducer
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
@@ -79,7 +79,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on YPCB-00338-1P1", **kwargs)
 
         # DDR3 SDRAM ------------------------------------------------------------------------------
-        # One S7HRDDRPHY + LiteDRAM core per channel, each with a BIST (the calibration's traffic
+        # One A7DDRPHY (CK phase shift) + LiteDRAM core per channel, each with a BIST (the calibration's traffic
         # test). Each channel's sdram/ddrphy/sdram_generator/sdram_checker CSRs are kept at a fixed
         # stride, so the BIOS calibrates channel k at channel 0's CSRs + k*stride.
         if not self.integrated_main_ram_size:
@@ -91,11 +91,13 @@ class BaseSoC(SoCCore):
                 for i, group in enumerate(csr_groups):
                     name = group.replace("sdram", f"sdram{suffix}").replace("ddrphy", f"ddrphy{suffix}")
                     self.csr.add(name, n=csr_first + len(csr_groups)*k + i)
-                phy = S7HRDDRPHY(
-                    pads         = PHYPadsReducer(platform.request("ddram", k), list(range(8))),
-                    sys_clk_freq = sys_clk_freq,
-                    name         = f"ddrphy{suffix}",
-                    mmcm_loc     = self.ddram_mmcm_locs[k])
+                phy = A7DDRPHY(
+                    pads                = PHYPadsReducer(platform.request("ddram", k), list(range(8))),
+                    memtype             = "DDR3",
+                    sys_clk_freq        = sys_clk_freq,
+                    with_ck_phase_shift = True,
+                    name                = f"ddrphy{suffix}",
+                    mmcm_loc            = self.ddram_mmcm_locs[k])
                 phy.add_constraints(platform)
                 setattr(self, f"ddrphy{suffix}", phy)
                 self.add_sdram(f"sdram{suffix}",
