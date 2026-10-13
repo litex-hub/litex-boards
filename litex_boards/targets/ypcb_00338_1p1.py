@@ -10,8 +10,9 @@
 # litex_term jtag --jtag-config=openocd_xc7_ft232.cfg
 #
 # DDR3: both 72-bit channels at full 64-bit width (ECC lane unused) with the K7DDRPHY on HR banks
-# (no ODELAYE2) and its CK phase shift (write leveling by CK phase). The BIOS calibrates channel 0 (main_ram) at boot, channel 1 with
-# "sdram_s7hr_init 1" (it is exposed through its LiteDRAM BIST, for user logic on its crossbar).
+# (no ODELAYE2) and its CK phase shift (write leveling by CK phase). The BIOS calibrates channel 0
+# (main_ram) at boot, channel 1 with "sdram_s7hr_init 1" (it is exposed through its LiteDRAM BIST,
+# for user logic on its crossbar).
 
 import os
 
@@ -79,9 +80,10 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on YPCB-00338-1P1", **kwargs)
 
         # DDR3 SDRAM ------------------------------------------------------------------------------
-        # One K7DDRPHY (HR banks, CK phase shift) + LiteDRAM core per channel, each with a BIST (the calibration's traffic
-        # test). Each channel's sdram/ddrphy/sdram_generator/sdram_checker CSRs are kept at a fixed
-        # stride, so the BIOS calibrates channel k at channel 0's CSRs + k*stride.
+        # One K7DDRPHY (HR banks, CK phase shift) + LiteDRAM core per channel, each with a BIST
+        # (the calibration's traffic test). Each channel's sdram/ddrphy/sdram_generator/
+        # sdram_checker CSRs are kept at a fixed stride, so the BIOS calibrates channel k at
+        # channel 0's CSRs + k*stride.
         if not self.integrated_main_ram_size:
             assert ddram_channels in (1, 2)
             csr_groups = ["sdram", "ddrphy", "sdram_generator", "sdram_checker"]
@@ -89,10 +91,12 @@ class BaseSoC(SoCCore):
             for k in range(ddram_channels):
                 suffix = "" if k == 0 else str(k)
                 for i, group in enumerate(csr_groups):
-                    name = group.replace("sdram", f"sdram{suffix}").replace("ddrphy", f"ddrphy{suffix}")
+                    name = group.replace("sdram", "sdram" + suffix)
+                    name = name.replace("ddrphy", "ddrphy" + suffix)
                     self.csr.add(name, n=csr_first + len(csr_groups)*k + i)
-                phy = K7DDRPHY(
-                    pads                = PHYPadsReducer(platform.request("ddram", k), list(range(8))),
+                pads = PHYPadsReducer(platform.request("ddram", k), list(range(8))) # No ECC lane.
+                phy  = K7DDRPHY(
+                    pads                = pads,
                     memtype             = "DDR3",
                     sys_clk_freq        = sys_clk_freq,
                     with_odelay         = False, # HR banks.
@@ -141,8 +145,8 @@ def main():
     parser = LiteXArgumentParser(platform=ypcb_00338_1p1.Platform, description="LiteX SoC on YPCB-00338-1P1.")
     parser.add_target_argument("--sys-clk-freq",   default=400e6/3, type=float, help="System clock frequency (DDR3 rate / 8).")
     parser.add_target_argument("--ddram-channels", default=2,       type=int,   help="DDR3 channels (1 or 2).")
-    parser.add_target_argument("--with-pcie",    action="store_true",       help="Enable PCIe support.")
-    parser.add_target_argument("--driver",       action="store_true",       help="Generate PCIe driver.")
+    parser.add_target_argument("--with-pcie",      action="store_true",         help="Enable PCIe support.")
+    parser.add_target_argument("--driver",         action="store_true",         help="Generate PCIe driver.")
     args = parser.parse_args()
 
     soc = BaseSoC(
