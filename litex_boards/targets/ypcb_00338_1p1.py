@@ -10,9 +10,9 @@
 # litex_term jtag --jtag-config=openocd_xc7_ft232.cfg
 #
 # DDR3: both 72-bit channels at full 64-bit width (ECC lane unused) with the K7DDRPHY on HR banks
-# (no ODELAYE2) and its CK phase shift (write leveling by CK phase). The BIOS calibrates channel 0
-# (main_ram) at boot, channel 1 with "sdram_cal 1" (it is exposed through its LiteDRAM BIST, for
-# user logic on its crossbar).
+# (no ODELAYE2) and its CK phase shift (write leveling by CK phase). The BIOS calibrates both at
+# boot: channel 0 (main_ram), then channel 1 (exposed through its LiteDRAM BIST, for user logic on
+# its crossbar; "sdram_cal 1" re-calibrates it).
 
 import os
 
@@ -113,7 +113,8 @@ class BaseSoC(SoCCore):
                     size                  = 0x40000000,
                     l2_cache_size         = kwargs.get("l2_size", 8192),
                 )
-            self.add_constant("SDRAM_CSR_STRIDE", len(csr_groups)*self.csr.paging)
+            self.add_constant("SDRAM_CSR_STRIDE",  len(csr_groups)*self.csr.paging)
+            self.add_constant("SDRAM_CONTROLLERS", ddram_channels)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
