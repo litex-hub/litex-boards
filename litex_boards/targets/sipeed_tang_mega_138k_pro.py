@@ -315,6 +315,13 @@ class BaseSoC(SoCCore):
                 sfp_pads = platform.request("sfp", eth_sfp)
                 self.comb += sfp_pads.tx_disable.eq(0)
                 self.ethphy = GW5_1000BASEX(platform, lane=eth_sfp)
+            elif eth_phy == "10gbaser":
+                if with_pcie:
+                    raise ValueError("10GBASE-R and PCIe require a combined SerDes configuration.")
+                from liteeth.phy import GW5_10G_BASER
+                sfp_pads = platform.request("sfp", eth_sfp)
+                self.comb += sfp_pads.tx_disable.eq(0)
+                self.ethphy = GW5_10G_BASER(platform, lane=eth_sfp)
             else:
                 raise ValueError(f"Unsupported Ethernet PHY: {eth_phy}")
             if with_etherbone:
@@ -367,8 +374,8 @@ def main():
     ethopts = parser.target_group.add_mutually_exclusive_group()
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
-    parser.add_target_argument("--eth-phy", default="rgmii", choices=["rgmii", "1000basex"],
-        help="Ethernet PHY: RGMII or 1000BASE-X on SFP (100 MHz reference clock).")
+    parser.add_target_argument("--eth-phy", default="rgmii", choices=["rgmii", "1000basex", "10gbaser"],
+        help="Ethernet PHY: RGMII, 1000BASE-X on SFP (100 MHz REFCLK1) or 10GBASE-R on SFP (125 MHz REFCLK0).")
     parser.add_target_argument("--eth-sfp", default=0, type=int, choices=[0, 1], help="Ethernet SFP.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",     help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100", help="Remote IP address of TFTP server.")
