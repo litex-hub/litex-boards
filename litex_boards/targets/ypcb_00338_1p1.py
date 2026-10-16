@@ -108,14 +108,15 @@ class BaseSoC(SoCCore):
                     mmcm_loc            = self.ddram_mmcm_locs[k])
                 phy.add_constraints(platform)
                 setattr(self, f"ddrphy{suffix}", phy)
+                # with_ecc only when enabled: LiteDRAM releases without DFI ECC don't know it.
                 self.add_sdram(f"sdram{suffix}",
                     phy                   = phy,
                     module                = MT41K256M8(sys_clk_freq, "1:4"),
                     with_bist             = True,
-                    with_ecc              = with_ecc,
                     with_soc_interconnect = (k == 0),
                     size                  = 0x40000000,
                     l2_cache_size         = kwargs.get("l2_size", 8192),
+                    **({"with_ecc": True} if with_ecc else {}),
                 )
             self.add_constant("SDRAM_CSR_STRIDE",  len(csr_groups)*self.csr.paging)
             self.add_constant("SDRAM_CONTROLLERS", ddram_channels)
