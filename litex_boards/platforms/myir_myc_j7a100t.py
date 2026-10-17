@@ -232,7 +232,7 @@ _io = [
         Subsignal("clk",     Pins("C19")),
         Subsignal("de",      Pins("C18")),
         Subsignal("hsync",   Pins("C17")),
-        Subsignal("vsync",   Pins("D12")),
+        Subsignal("vsync",   Pins("D17")),  # was D12: schematic HDMI_VSYNC = IO_B16_LP_12 = D17
         Subsignal("scl",     Pins("E22"), Misc("PULLUP true")),
         Subsignal("sda",     Pins("D22"), Misc("PULLUP true")),
         Subsignal("rst_n",   Pins("F15")),
