@@ -9,7 +9,7 @@
 # ./ypcb_00338_1p1.py --uart-name=jtag_uart --with-pcie --build --load
 # litex_term jtag --jtag-config=openocd_xc7_ft232.cfg
 #
-# DDR3: both 72-bit channels at full 64-bit width (ECC lane unused) with the K7DDRPHY on HR banks
+# DDR3: both 72-bit channels at full 64-bit width (ECC lane unused, or SECDED with --with-ecc) with the K7DDRPHY on HR banks
 # (no ODELAYE2) and its CK phase shift (write leveling by CK phase). The BIOS calibrates both at
 # boot: channel 0 (main_ram), then channel 1 (exposed through its LiteDRAM BIST, for user logic on
 # its crossbar; "sdram_cal 1" re-calibrates it).
@@ -66,6 +66,7 @@ class BaseSoC(SoCCore):
         ddram_channels  = 2,
         with_led_chaser = True,
         with_pcie       = False,
+        with_ecc        = False,
         **kwargs):
 
         # Platform ---------------------------------------------------------------------------------
@@ -94,7 +95,9 @@ class BaseSoC(SoCCore):
                     name = group.replace("sdram", "sdram" + suffix)
                     name = name.replace("ddrphy", "ddrphy" + suffix)
                     self.csr.add(name, n=csr_first + len(csr_groups)*k + i)
-                pads = PHYPadsReducer(platform.request("ddram", k), list(range(8))) # No ECC lane.
+                # ECC: all nine byte lanes (SECDED on the ninth, LiteDRAM's DFI ECC); without, the
+                # ECC lane unused.
+                pads = PHYPadsReducer(platform.request("ddram", k), list(range(9 if with_ecc else 8)))
                 phy  = K7DDRPHY(
                     pads                = pads,
                     memtype             = "DDR3",
@@ -105,6 +108,7 @@ class BaseSoC(SoCCore):
                     mmcm_loc            = self.ddram_mmcm_locs[k])
                 phy.add_constraints(platform)
                 setattr(self, f"ddrphy{suffix}", phy)
+                # with_ecc only when enabled: LiteDRAM releases without DFI ECC don't know it.
                 self.add_sdram(f"sdram{suffix}",
                     phy                   = phy,
                     module                = MT41K256M8(sys_clk_freq, "1:4"),
@@ -112,6 +116,7 @@ class BaseSoC(SoCCore):
                     with_soc_interconnect = (k == 0),
                     size                  = 0x40000000,
                     l2_cache_size         = kwargs.get("l2_size", 8192),
+                    **({"with_ecc": True} if with_ecc else {}),
                 )
             self.add_constant("SDRAM_CSR_STRIDE",  len(csr_groups)*self.csr.paging)
             self.add_constant("SDRAM_CONTROLLERS", ddram_channels)
@@ -147,6 +152,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",   default=400e6/3, type=float, help="System clock frequency (DDR3 rate / 8).")
     parser.add_target_argument("--ddram-channels", default=2,       type=int,   help="DDR3 channels (1 or 2).")
     parser.add_target_argument("--with-pcie",      action="store_true",         help="Enable PCIe support.")
+    parser.add_target_argument("--with-ecc",       action="store_true",         help="DDR3 ECC (SECDED on the ECC byte lane).")
     parser.add_target_argument("--driver",         action="store_true",         help="Generate PCIe driver.")
     args = parser.parse_args()
 
@@ -154,6 +160,7 @@ def main():
         sys_clk_freq   = args.sys_clk_freq,
         ddram_channels = args.ddram_channels,
         with_pcie      = args.with_pcie,
+        with_ecc       = args.with_ecc,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
