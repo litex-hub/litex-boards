@@ -169,7 +169,11 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # PCIe.
+    # PCIe
+    ("gtp_refclk", 0,
+        Subsignal("p", Pins("F6")),
+        Subsignal("n", Pins("E6"))
+    ),
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("R16"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
@@ -189,11 +193,7 @@ _io = [
         Subsignal("tx_n",  Pins("A4 C5"))
     ),
 
-    # SFP+
-    ("gtp_refclk", 0,
-        Subsignal("p", Pins("F6")),
-        Subsignal("n", Pins("E6"))
-    ),
+    # SFP+ (the first port is the closest to the pcie connector)
     ("gtp_refclk", 1,
         Subsignal("p", Pins("F10")),
         Subsignal("n", Pins("E10"))
