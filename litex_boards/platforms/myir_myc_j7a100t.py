@@ -1,7 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2025 Samuele Baisi <samuele.baisi@gmail.com>
+# Copyright (c) 2025-2026 Samuele Baisi <samuele.baisi@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
