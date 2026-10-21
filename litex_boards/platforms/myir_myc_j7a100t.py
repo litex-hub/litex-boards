@@ -1,7 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2025 Samuele Baisi <samuele.baisi@gmail.com>
+# Copyright (c) 2025-2026 Samuele Baisi <samuele.baisi@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.generic_platform import *
@@ -169,7 +169,11 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # PCIe.
+    # PCIe
+    ("gtp_refclk", 0,
+        Subsignal("p", Pins("F6")),
+        Subsignal("n", Pins("E6"))
+    ),
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("R16"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
@@ -189,11 +193,7 @@ _io = [
         Subsignal("tx_n",  Pins("A4 C5"))
     ),
 
-    # SFP+
-    ("gtp_refclk", 0,
-        Subsignal("p", Pins("F6")),
-        Subsignal("n", Pins("E6"))
-    ),
+    # SFP+ (the first port is the closest to the pcie connector)
     ("gtp_refclk", 1,
         Subsignal("p", Pins("F10")),
         Subsignal("n", Pins("E10"))
@@ -232,7 +232,7 @@ _io = [
         Subsignal("clk",     Pins("C19")),
         Subsignal("de",      Pins("C18")),
         Subsignal("hsync",   Pins("C17")),
-        Subsignal("vsync",   Pins("D12")),
+        Subsignal("vsync",   Pins("D17")),  # was D12: schematic HDMI_VSYNC = IO_B16_LP_12 = D17
         Subsignal("scl",     Pins("E22"), Misc("PULLUP true")),
         Subsignal("sda",     Pins("D22"), Misc("PULLUP true")),
         Subsignal("rst_n",   Pins("F15")),
