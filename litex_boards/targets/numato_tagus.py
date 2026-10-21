@@ -85,6 +85,10 @@ class BaseSoC(SoCCore):
                 data_width = 64,
                 bar0_size  = 0x20000)
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
+            # Force the GTP channel of the PCIe x1 pins (Vivado would otherwise use GTPE2_CHANNEL_X0Y7).
+            self.pcie_phy.add_gt_loc_constraints([
+                "GTPE2_CHANNEL_X0Y4",
+            ], by_pipe_lane=False)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
