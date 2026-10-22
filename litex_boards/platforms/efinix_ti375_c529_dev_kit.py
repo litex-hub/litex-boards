@@ -246,7 +246,6 @@ ddr_config = {
     "physical_rank"   : 1,
     "data_width"      : 512,
     "address_width"   : 33,
-    "id_width"        : 8,
     "pin_swizzle"      : {
         "CA"   : "CA[0],CA[1],CA[2],CA[3],CA[4],CA[5]",
         "DQM0" : "DQ[3],DQ[6],DQ[4],DQ[5],DQ[0],DQ[1],DQ[7],DQ[2],DM[0]",
