@@ -451,10 +451,10 @@ def main():
     parser.add_target_argument("--spi-flash-rate",   default="1:2", type=str, choices=["1:1", "1:2"], help="SPI Flash rate.")
     parser.add_target_argument("--with-ohci",        action="store_true",                             help="Enable USB OHCI.")
     parser.add_target_argument("--with-buttons",     action="store_true",                             help="Enable Buttons.")
-    parser.add_target_argument("--with-emmc",        action="store_true",                             help="Enable SDCard support (use eMMC).")
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",     action="store_true", help="Enable SDCard support.")
+    sdopts.add_argument("--with-emmc",       action="store_true", help="Enable eMMC support (8-bit, as the SoC's SDCard).")
     parser.add_target_argument("--with-ethernet",  action="store_true",                                          help="Enable Ethernet support.")
     parser.add_target_argument("--with-etherbone", action="store_true",                                          help="Enable Etherbone support.")
     parser.add_target_argument("--with-ptp",       action="store_true",                                          help="Enable PTP support over Etherbone.")
@@ -493,7 +493,8 @@ def main():
     if args.with_sdcard:
         soc.add_sdcard()
     if args.with_emmc:
-        soc.add_sdcard(name="mmc", sdcard_name="emmc")
+        # Named sdcard: the BIOS (sdcard_*, sdcardboot) and the Linux DT generator use that name.
+        soc.add_sdcard(sdcard_name="emmc")
 
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
