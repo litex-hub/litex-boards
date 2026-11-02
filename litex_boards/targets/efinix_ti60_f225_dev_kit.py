@@ -65,14 +65,18 @@ class _CRG(LiteXModule):
             pll.create_clkout(self.cd_sys_cap, sys_clk_freq,           with_reset=True, nclkout=2, dyn_phase=True)
             pll.create_clkout(None, 25e6, nclkout=3, is_feedback=True)
             self.shift_sel = 1 << 2
-            # Force VCO=3.2GHz/O=4: 45° dynamic phase steps at 200MHz, so the read calibration sweeps
-            # the full capture clock period (Efinity's auto-config gives smaller steps).
-            div = 800e6/sys_clk_freq
-            if div == int(div) and int(div) % 2 == 0:
-                div = int(div)
-                pll.set_config(M=1, N=1, O=4,
-                    dividers       = {0: div, 1: div, 2: div, 3: 32},
-                    phase_settings = {0: 0, 1: div//2, 2: 0},
+            # Force the post-divider clock (VCO/O) to 4x sys_clk_freq: the dynamic phase step (half
+            # a post-divider period) is then 45°, so the read calibration sweeps the full capture
+            # clock period in 8 steps (Efinity's auto-config gives smaller steps). Ex: 200MHz: VCO
+            # 3.2GHz/O=4, 250MHz: VCO 4GHz/O=4 (Titanium VCO: 2.2GHz-5.5GHz).
+            fpost = 4*sys_clk_freq
+            fb    = fpost/25e6
+            vco_o = [o for o in [4, 2, 1] if 2.2e9 <= fpost*o <= 5.5e9]
+            if fb == int(fb) and vco_o:
+                o = vco_o[0]
+                pll.set_config(M=1, N=1, O=o,
+                    dividers       = {0: 4, 1: 4, 2: 4, 3: int(fb)},
+                    phase_settings = {0: 0, 1: 2, 2: 0},
                 )
         else:
             # You can use CLKOUT0 only for clocks with a maximum frequency of 4x
