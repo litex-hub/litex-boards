@@ -190,6 +190,10 @@ class BaseSoC(SoCCore):
         with_fan_pwm        = True,
         with_buttons        = True,
         dock                = "standard",
+        with_ae350_jtag     = False,
+        with_ae350_leds     = False,
+        with_ae350_buttons  = False,
+        with_ae350_uart2    = False,
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
         ddr3_nphases = int(ddr3_rate[-1])
@@ -198,6 +202,8 @@ class BaseSoC(SoCCore):
         if dock is None:
             with_buttons = False # Buttons/Fan are on the dock.
             with_fan_pwm = False
+
+        ae350_gpio_pads = {}
 
         # Memory configuration ---------------------------------------------------------------------
         integrated_main_ram_size = kwargs.get("integrated_main_ram_size", 0)
@@ -223,6 +229,8 @@ class BaseSoC(SoCCore):
             with_pcie      = with_pcie,
         )
         # SoCCore ----------------------------------------------------------------------------------
+        if with_ae350_uart2 and kwargs.get("uart_name", "serial") == "serial":
+            kwargs["uart_name"] = "stub" # LiteX UART stays, but the serial pads go to the AE350 UART2.
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K Pro", **kwargs)
         if cpu_clk_freq:
             self.add_config("CPU_CLK_FREQ", cpu_clk_freq)
@@ -263,16 +271,26 @@ class BaseSoC(SoCCore):
             if with_hdmi_out_colorbars:
                 self.add_video_colorbars(phy=self.hdmi_out_phy, timings="640x480@60Hz", clock_domain="hdmi")
 
+        # Same mapping as the Gowin ae350_demo reference design: GPIO[2:0] = LED1..3, GPIO[5:3] = S0..S2.
+        if with_ae350_leds:
+            ae350_gpio_pads.update({i: platform.request("led_n", i + 1) for i in range(0, 3)})
+
+        if with_ae350_buttons:
+            ae350_gpio_pads.update({3 + i: platform.request("btn_n", i) for i in range(0, 3)})
+
+        if ae350_gpio_pads:
+            self.cpu.connect_gpio(ae350_gpio_pads)
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
-                pads         = platform.request_all("led_n"),
+                pads         = platform.request_remaining("led_n"), # Whatever the AE350 GPIO did not take.
                 sys_clk_freq = sys_clk_freq
             )
 
         # Buttons ---------------------------------------------------------------------------------
         if with_buttons:
-            self.buttons = GPIOIn(Cat(platform.request_all("btn_n")))
+            self.buttons = GPIOIn(Cat(platform.request_remaining("btn_n"))) # Whatever the AE350 GPIO did not take.
 
         # WS2812 -----------------------------------------------------------------------------------
         if with_rgb_led:
@@ -350,6 +368,16 @@ class BaseSoC(SoCCore):
             self.pcie_phy = GW5APCIEPHY(platform, platform.request("pcie"), nlanes=4, cd="sys")
             self.add_pcie(phy=self.pcie_phy, ndmas=1, data_width=256)
 
+        # AE350 JTAG -------------------------------------------------------------------------------
+        if with_ae350_jtag:
+            if with_sdram:
+                raise ValueError("AE350 JTAG and SDR SDRAM share pins on J23 and cannot be enabled together.")
+            self.cpu.connect_jtag(platform.request("ae350_jtag"))
+
+        # AE350 UART2
+        if with_ae350_uart2:
+            self.cpu.connect_uart(2, platform.request("serial"))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -385,6 +413,10 @@ def main():
     parser.add_target_argument("--without-fan",    action="store_true",     help="Disable Fan PWM.")
     parser.add_target_argument("--without-leds",   action="store_true",     help="Disable LED Chaser.")
     parser.add_target_argument("--without-buttons", action="store_true",    help="Disable Buttons.")
+    parser.add_target_argument("--with-ae350-jtag", action="store_true",    help="Enable AE350 JTAG.")
+    parser.add_target_argument("--with-ae350-leds", action="store_true",    help="Use LED1..3 by AE350 GPIO[2:0]).")
+    parser.add_target_argument("--with-ae350-buttons", action="store_true", help="Use Button S0..S2 by AE350 GPIO[5:3]).")
+    parser.add_target_argument("--with-ae350-uart2",  action="store_true",  help="Use serial pads by AE350 UART2.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -411,6 +443,10 @@ def main():
         eth_ip              = args.eth_ip,
         remote_ip           = args.remote_ip,
         eth_dynamic_ip      = args.eth_dynamic_ip,
+        with_ae350_jtag     = args.with_ae350_jtag,
+        with_ae350_leds     = args.with_ae350_leds,
+        with_ae350_buttons  = args.with_ae350_buttons,
+        with_ae350_uart2    = args.with_ae350_uart2,
         **parser.soc_argdict
     )
 
