@@ -14,7 +14,7 @@ from litex.build.io import DDROutput
 
 from litex_boards.platforms import terasic_de10lite
 
-from litex.soc.cores.clock import Max10PLL
+from litex.soc.cores.clock import Max10PLL, IntelPLLPhaseStepper
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoVGAPHY
@@ -27,7 +27,7 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, sdram_clk_phase, sdram_rate="1:1"):
+    def __init__(self, platform, sys_clk_freq, sdram_clk_phase, sdram_rate="1:1", with_sdram_clk_leveling=False):
         self.rst       = Signal()
         self.cd_sys    = ClockDomain()
         if sdram_rate == "1:2":
@@ -52,6 +52,9 @@ class _CRG(LiteXModule):
             pll.create_clkout(self.cd_sys2x_ps, 2*sys_clk_freq, phase=sdram_clk_phase)
         else:
             pll.create_clkout(self.cd_sys_ps, sys_clk_freq, phase=sdram_clk_phase)
+        if with_sdram_clk_leveling:
+            # SDRAM clock phase stepped at run time, leveled by the BIOS (sdram_clk_phase).
+            pll.expose_dpa(clkout=pll.nclkouts - 1)
         pll.create_clkout(self.cd_vga,    40e6)
         # The SoC reset (sys) only drives the PLL reset synchronizer (clk50): asynchronous.
         platform.toolchain.additional_sdc_commands.append(
@@ -67,6 +70,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=50e6,
         sdram_clk_phase     = 90,
         sdram_rate          = "1:1",
+        with_sdram_clk_leveling = False,
         with_led_chaser     = True,
         with_video_terminal = False,
         with_buttons        = False,
@@ -75,7 +79,7 @@ class BaseSoC(SoCCore):
         platform = terasic_de10lite.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, sdram_clk_phase, sdram_rate)
+        self.crg = _CRG(platform, sys_clk_freq, sdram_clk_phase, sdram_rate, with_sdram_clk_leveling)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on DE10-Lite", **kwargs)
@@ -92,6 +96,9 @@ class BaseSoC(SoCCore):
                 module        = IS42S16320(sys_clk_freq, sdram_rate),
                 l2_cache_size = kwargs.get("l2_size", 8192)
             )
+            if with_sdram_clk_leveling:
+                # BIOS SDRAM clock phase leveling at boot (liblitedram sdram_clk_phase_leveling).
+                self.sdram_clk_phase = IntelPLLPhaseStepper(self.crg.pll)
 
         # Video Terminal ---------------------------------------------------------------------------
         if with_video_terminal:
@@ -118,6 +125,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--sdram-clk-phase",     default=None, type=float, help="SDRAM clock phase (default: 90 at 1:1, 180 at 1:2).")
     parser.add_target_argument("--sdram-rate",          default="1:1",            help="SDRAM Rate (1:1 Full Rate or 1:2 Half Rate).")
+    parser.add_target_argument("--with-sdram-clk-leveling", action="store_true",  help="Level the SDRAM clock phase at boot (BIOS), from --sdram-clk-phase.")
     parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (VGA).")
     parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
     parser.add_target_argument("--with-switches",       action="store_true",      help="Enable Switches.")
@@ -127,6 +135,7 @@ def main():
         sys_clk_freq        = args.sys_clk_freq,
         sdram_clk_phase     = args.sdram_clk_phase if args.sdram_clk_phase is not None else {"1:1": 90, "1:2": 180}[args.sdram_rate],
         sdram_rate          = args.sdram_rate,
+        with_sdram_clk_leveling = args.with_sdram_clk_leveling,
         with_video_terminal = args.with_video_terminal,
         with_buttons        = args.with_buttons,
         with_switches       = args.with_switches,
