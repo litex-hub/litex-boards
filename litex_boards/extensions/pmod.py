@@ -182,6 +182,25 @@ class PmodJTAG(PmodExtension):
             ),
         ]
 
+class PmodSWD(PmodExtension):
+    """Generic SWD on a Pmod (swclk/swdio: Pmod indexes, default: pins 3 (SWCLK) and 7 (SWDIO)).
+
+    SWDIO is a single bidirectional pin with a pull-up (ex: for SoC.add_cpu_swd_debug).
+    """
+    def __init__(self, *args, swclk=2, swdio=4, **kwargs):
+        self.swclk = swclk
+        self.swdio = swdio
+        PmodExtension.__init__(self, *args, **kwargs)
+
+    def define_io(self, platform):
+        return [
+            ("swd", 0,
+                Subsignal("swclk", Pins(f"pmod:{self.swclk}")),
+                Subsignal("swdio", Pins(f"pmod:{self.swdio}"), *self.pullup(platform)),
+                *self.iostandard(platform),
+            ),
+        ]
+
 class PmodPS2(PmodExtension):
     """PS/2 keyboard on Pmod pins 1 (data) and 3 (clk)."""
     def define_io(self, platform):
@@ -356,6 +375,7 @@ pmods = {
     "can"           : PmodCAN,
     "i2c"           : PmodI2C,
     "jtag"          : PmodJTAG,
+    "swd"           : PmodSWD,
     "ps2"           : PmodPS2,
     "lan8720"       : PmodLAN8720,
     "usb_host_dual" : PmodUSBHostDual,

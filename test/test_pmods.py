@@ -181,6 +181,16 @@ class TestPmodModules(unittest.TestCase):
         self.assertEqual((r[("serial", 0, "tx")][0], r[("serial", 0, "rx")][0]), (["B2"], ["B1"]))
         self.assertEqual(pmod.PmodUSBUART("pmoda").get_io(platform)[0][0], "usb_uart")
 
+    def test_swd(self):
+        platform = xilinx_platform()
+        platform.add_extension(pmod.PmodSWD("pmodb"))
+        platform.request("swd")
+        r = resolved(platform)
+        self.assertEqual(r[("swd", 0, "swclk")][0], ["C3"])
+        pins, others = r[("swd", 0, "swdio")]
+        self.assertEqual(pins, ["C5"])
+        self.assertEqual(misc(others), ["PULLUP True"])
+
     def test_usb_host(self):
         platform = xilinx_platform()
         platform.add_extension(pmod.PmodUSBHostDual("pmoda", bundled=True))
