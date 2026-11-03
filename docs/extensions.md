@@ -44,7 +44,7 @@ a dual-row (12-pin) one: `i2c` and `can` only use pins 1-4 and work on both.
 
 | Module                              | Content                                                                 |
 |-------------------------------------|-------------------------------------------------------------------------|
-| `litex_boards.extensions.pmod`      | Pmod modules: `PmodGPIO`, `PmodUART`, `PmodUSBUART`, `PmodSDCard`, `PmodNumatoSDCard`, `PmodI2S2`, `PmodCAN`, `PmodI2C`, `PmodJTAG`, `PmodPS2`, `PmodLAN8720`, `PmodUSBHostDual`, `PmodUSBHostQuad`, `PmodUSBDevice`, `PmodLED`, `Pmod1BitSquaredBreakOff`, `PmodWS2812`, `PmodDVI`, and the `--pmod` helpers. |
+| `litex_boards.extensions.pmod`      | Pmod modules: `PmodGPIO`, `PmodUART`, `PmodUSBUART`, `PmodSDCard`, `PmodNumatoSDCard`, `PmodI2S2`, `PmodCAN`, `PmodI2C`, `PmodJTAG`, `PmodSWD`, `PmodPS2`, `PmodLAN8720`, `PmodUSBHostDual`, `PmodUSBHostQuad`, `PmodUSBDevice`, `PmodLED`, `Pmod1BitSquaredBreakOff`, `PmodWS2812`, `PmodDVI`, and the `--pmod` helpers. |
 | `litex_boards.extensions.syzygy`    | SYZYGY pods: `SyzygyGPIO`.                                              |
 | `litex_boards.extensions.fmc`       | FMC cards: `FMCRAID` (AB09-FMCRAID SATA).                               |
 | `litex_boards.extensions.qmtech`    | QMTech core-board daughterboards: `QMTechDaughterboard`, `QMTechRP2040Daughterboard`. |
