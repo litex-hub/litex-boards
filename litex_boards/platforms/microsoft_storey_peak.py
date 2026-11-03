@@ -25,6 +25,10 @@
 # 0x029070dd identifies the die as 5SGSMD5; the reference design builds and runs as
 # 5SGSMD5K1F40C1, which is what is used here.
 
+import os
+import shutil
+import subprocess
+
 from litex.build.generic_platform import *
 from litex.build.altera import AlteraPlatform
 from litex.build.openfpgaloader import OpenFPGALoader
@@ -80,7 +84,7 @@ _io = [
     # database, so a fit on the `pcie_x8` 0 pins fails with "Error (175020): The Fitter cannot place
     # logic Receiver channel ... PIN_AV2". Connector 0 is still the half to use: a x16 card in an
     # x8-wired slot only has edge lanes 0-7 connected, so a design on connector 1 trains at Width x0.
-    # Un-hiding the second block needs https://github.com/ruurdk/sv_second_pcie_hip.
+    # Platform.build() makes Quartus place it, see _PCIE_HIP0_ENABLE below.
     #
     # The reference QSF assigns differential negatives as an attribute of the positive signal
     # (`-to "PCIE1_SERIAL_RX[0](n)"`), which LiteX cannot emit. Only the positives are given here,
@@ -185,6 +189,73 @@ _io += [
     _ddram_io("ddram_ecc", 9),  # 72-bit, 64 data + 8 ECC.
 ]
 
+# PCIe Hard IP on Connector 0 ----------------------------------------------------------------------
+
+# Quartus asks its device database (libddb_dev.so) whether each hard block of the device is enabled.
+# Preloaded into Quartus, this reports the PCIe hard IP block wired to `pcie_x8` 0 as enabled and
+# forwards every other query unchanged. Nothing on disk is modified and the bitstream is an ordinary
+# one. Altera does not list this block for the part, so it is used as found on these cards. The
+# global id and the symbol were identified by Ruurd Keizer: https://github.com/ruurdk/sv_second_pcie_hip.
+
+_PCIE_HIP0_GLOBAL_ID = 1174964
+
+_PCIE_HIP0_ENABLE = r"""
+#define _GNU_SOURCE
+#include <dlfcn.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define SYMBOL "_ZNK12DEV_DIE_INFO20is_global_id_enabledEj"
+
+typedef bool (*is_enabled_fn)(const void *self, unsigned id);
+
+static is_enabled_fn real_is_enabled;
+
+/* Resolved on first use: every process Quartus starts inherits the preload, most never load the database. */
+static bool resolve(void)
+{
+    void *lib;
+    if (real_is_enabled != NULL)
+        return true;
+    lib = dlopen("libddb_dev.so", RTLD_LAZY | RTLD_LOCAL | RTLD_NOLOAD);
+    if (lib == NULL)
+        lib = dlopen("libddb_dev.so", RTLD_LAZY | RTLD_LOCAL);
+    if (lib == NULL) {
+        fprintf(stderr, "pcie_hip0_enable: %s\n", dlerror());
+        return false;
+    }
+    real_is_enabled = (is_enabled_fn)dlsym(lib, SYMBOL);
+    if (real_is_enabled == NULL) {
+        fprintf(stderr, "pcie_hip0_enable: %s not found in this Quartus version.\n", SYMBOL);
+        return false;
+    }
+    return true;
+}
+
+bool _ZNK12DEV_DIE_INFO20is_global_id_enabledEj(const void *self, unsigned id)
+{
+    if (id == GLOBAL_ID)
+        return true;
+    /* Answering for blocks it cannot ask about would corrupt placement: stop instead. */
+    if (!resolve())
+        abort();
+    return real_is_enabled(self, id);
+}
+"""
+
+def _build_pcie_hip0_enable(build_dir):
+    src = os.path.abspath(os.path.join(build_dir, "pcie_hip0_enable.c"))
+    so  = os.path.abspath(os.path.join(build_dir, "pcie_hip0_enable.so"))
+    os.makedirs(build_dir, exist_ok=True)
+    with open(src, "w") as f:
+        f.write(_PCIE_HIP0_ENABLE)
+    cc  = os.environ.get("CC", "cc")
+    cmd = [cc, "-shared", "-fPIC", "-O2", f"-DGLOBAL_ID={_PCIE_HIP0_GLOBAL_ID}u", "-o", so, src, "-ldl"]
+    if shutil.which(cc) is None or subprocess.call(cmd) != 0:
+        raise OSError("pcie_x8 0 needs a C compiler to build " + so + ": " + " ".join(cmd))
+    return so
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(AlteraPlatform):
@@ -209,6 +280,27 @@ class Platform(AlteraPlatform):
         # https://github.com/j-marjanovic/jtag-quartus-ft232h. Untested via openFPGALoader; the
         # documented path is OpenOCD-init followed by quartus_pgm.
         return OpenFPGALoader(cable="ft232")
+
+    def build(self, *args, **kwargs):
+        # A design on `pcie_x8` 0 runs Quartus with _PCIE_HIP0_ENABLE preloaded. The environment is
+        # restored afterwards, so later tools (programmer, flash) do not inherit it.
+        uses_hip0 = any(r[0] == "pcie_x8" and r[1] == 0 for r, _ in self.constraint_manager.matched)
+        if not (uses_hip0 and kwargs.get("run", True)):
+            return AlteraPlatform.build(self, *args, **kwargs)
+        so      = _build_pcie_hip0_enable(kwargs.get("build_dir", "build"))
+        quartus = shutil.which("quartus_map")
+        libdir  = os.path.join(os.path.dirname(os.path.dirname(quartus)), "linux64") if quartus else None
+        saved   = {k: os.environ.get(k) for k in ["LD_PRELOAD", "LD_LIBRARY_PATH"]}
+        os.environ["LD_PRELOAD"]      = ":".join(p for p in [so, saved["LD_PRELOAD"]] if p)
+        os.environ["LD_LIBRARY_PATH"] = ":".join(p for p in [libdir, saved["LD_LIBRARY_PATH"]] if p)
+        try:
+            return AlteraPlatform.build(self, *args, **kwargs)
+        finally:
+            for k, v in saved.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
 
     def do_finalize(self, fragment):
         AlteraPlatform.do_finalize(self, fragment)
