@@ -154,7 +154,7 @@ _io = [
         Subsignal("en_n", Pins("F24")),
         IOStandard("LVCMOS33"),
     ),
-    ("usbc_cfg", 0,
+    ("usbc_cfg", 0, # TI TUSB322 CC controller (I2C address 0x47, cable direction in register 0x09).
         Subsignal("scl",   Pins("D24")),
         Subsignal("sda",   Pins("C24")),
         Subsignal("dir",   Pins("B23")),
@@ -163,7 +163,7 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
     ("usbc_mux", 0,
-        Subsignal("en_n",  Pins("C23"), IOStandard("LVCMOS33")),
+        Subsignal("en_n",  Pins("C23"), IOStandard("LVCMOS33")), # Active high (mux enabled when 1).
         Subsignal("amsel", Pins("B26"), IOStandard("LVCMOS33")),
         Subsignal("pol",   Pins("D26"), IOStandard("LVCMOS33")),
         Subsignal("lna_p", Pins("AD10"), IOStandard("LVCMOS18D")),
