@@ -128,7 +128,7 @@ _connectors = [
 
 class Platform(LatticeECP5Platform):
     default_clk_name   = "clk50"
-    default_clk_period = 1e9/506
+    default_clk_period = 1e9/50e6
 
     def __init__(self, toolchain="trellis", **kwargs):
         LatticeECP5Platform.__init__(self, "LFE5UM5G-45F-8BG381I", _io, _connectors, toolchain=toolchain, **kwargs)
