@@ -296,7 +296,30 @@ _io_carrier = [
         IOStandard("LVCMOS33")
     ),
 
-    # SFP+ cage I2C.
+    # SFP+ cage: GTH quad 224 lane 2, 156.25 MHz reference clock on MGTREFCLK0_224 (from the
+    # carrier), status/control and I2C on the 3.3V HD banks 43/45.
+    ("sfp", 0,
+        Subsignal("txp", Pins("som240_2:b5")), # MGTHTXP2_224.
+        Subsignal("txn", Pins("som240_2:b6")), # MGTHTXN2_224.
+        Subsignal("rxp", Pins("som240_2:b1")), # MGTHRXP2_224.
+        Subsignal("rxn", Pins("som240_2:b2")), # MGTHRXN2_224.
+    ),
+    ("sfp_tx", 0,
+        Subsignal("p", Pins("som240_2:b5")),
+        Subsignal("n", Pins("som240_2:b6")),
+    ),
+    ("sfp_rx", 0,
+        Subsignal("p", Pins("som240_2:b1")),
+        Subsignal("n", Pins("som240_2:b2")),
+    ),
+    ("sfp_refclk", 0,
+        Subsignal("p", Pins("som240_2:c3")), # MGTREFCLK0P_224.
+        Subsignal("n", Pins("som240_2:c4")), # MGTREFCLK0N_224.
+    ),
+    ("sfp_tx_fault",   0, Pins("som240_1:c23"), IOStandard("LVCMOS33")),
+    ("sfp_tx_disable", 0, Pins("som240_2:a47"), IOStandard("LVCMOS33")),
+    ("sfp_mod_abs",    0, Pins("som240_2:a46"), IOStandard("LVCMOS33")),
+    ("sfp_los",        0, Pins("som240_1:a16"), IOStandard("LVCMOS33")),
     ("sfp_i2c", 0,
         Subsignal("sda", Pins("som240_2:b50")),
         Subsignal("scl", Pins("som240_2:b49")),
@@ -309,6 +332,50 @@ _connectors_carrier = [
     ("pmod2", "som240_1:d18 som240_1:b16 som240_1:b17 som240_1:b18 som240_1:c18 som240_1:c19 som240_1:c20 som240_1:a15"),
     ("pmod3", "som240_2:d44 som240_2:d45 som240_2:d46 som240_2:d48 som240_2:d49 som240_2:d50 som240_2:c46 som240_2:c47"),
     ("pmod4", "som240_2:c48 som240_2:c50 som240_2:c51 som240_2:c52 som240_2:b44 som240_2:b45 som240_2:b46 som240_2:b48"),
+
+    # Raspberry Pi header (J21, 40 pins, 3.3V: HD banks 43/44), by header pin number.
+    ("RASP", {
+         1: "--",           # 3V3
+         2: "--",           # 5V0
+         3: "som240_2:d54", # GPIO2  (SDA)
+         4: "--",           # 5V0
+         5: "som240_2:d56", # GPIO3  (SCL)
+         6: "--",           # GND
+         7: "som240_2:d57", # GPIO4  (GPCLK0)
+         8: "som240_2:b54", # GPIO14 (TXD)
+         9: "--",           # GND
+        10: "som240_2:b56", # GPIO15 (RXD)
+        11: "som240_2:b58", # GPIO17
+        12: "som240_2:a54", # GPIO18 (PCM_CLK)
+        13: "som240_2:a52", # GPIO27
+        14: "--",           # GND
+        15: "som240_2:a59", # GPIO22
+        16: "som240_2:a60", # GPIO23
+        17: "--",           # 3V3
+        18: "som240_2:a48", # GPIO24
+        19: "som240_2:c59", # GPIO10 (MOSI)
+        20: "--",           # GND
+        21: "som240_2:c58", # GPIO9  (MISO)
+        22: "som240_2:a50", # GPIO25
+        23: "som240_2:c60", # GPIO11 (SCLK)
+        24: "som240_2:c56", # GPIO8  (CE0)
+        25: "--",           # GND
+        26: "som240_2:c55", # GPIO7  (CE1)
+        27: "som240_2:d52", # GPIO0  (ID_SD)
+        28: "som240_2:d53", # GPIO1  (ID_SC)
+        29: "som240_2:d58", # GPIO5
+        30: "--",           # GND
+        31: "som240_2:c54", # GPIO6
+        32: "som240_2:b52", # GPIO12 (PWM0)
+        33: "som240_2:b53", # GPIO13 (PWM1)
+        34: "--",           # GND
+        35: "som240_2:a55", # GPIO19 (PCM_FS)
+        36: "som240_2:b57", # GPIO16
+        37: "som240_2:a51", # GPIO26
+        38: "som240_2:a56", # GPIO20 (PCM_DIN)
+        39: "--",           # GND
+        40: "som240_2:a58", # GPIO21 (PCM_DOUT)
+    }),
 ]
 
 # PSU config ---------------------------------------------------------------------------------------
@@ -692,3 +759,4 @@ class Platform(XilinxUSPPlatform):
         self.add_period_constraint(self.lookup_request("clk25", 1, loose=True), 1e9/25e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_period_constraint(self.lookup_request("eth_clocks:rx", 1, loose=True), 1e9/125e6)
+        self.add_period_constraint(self.lookup_request("sfp_refclk", 0, loose=True), 1e9/156.25e6)
