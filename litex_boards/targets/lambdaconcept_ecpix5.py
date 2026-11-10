@@ -17,7 +17,10 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.video import VideoDVIPHY
+from litex.build.io import SDROutput, DDROutput
+
+from litex.soc.interconnect import stream
+from litex.soc.cores.video import VideoDVIPHY, video_data_layout
 from litex.soc.cores.bitbang import I2CMaster
 
 from litedram.modules import MT41K256M16
@@ -130,6 +133,40 @@ class _CRG(LiteXModule):
             self.sync.sys2x += sys2x_rst.eq(ResetSignal("sys"))
             self.comb += self.cd_sys2x.rst.eq(sys2x_rst)
 
+# IT6613 Video PHY (85F) ---------------------------------------------------------------------------
+
+class _IT6613VideoPHY(LiteXModule):
+    """IT6613 parallel RGB PHY on the 85F 12-bit hdmi buses: the IT6613 color inputs do not follow
+    the platform r/g/b groups (measured on an ECPIX-5 85F with an HDMI capture card, single pin
+    tests): R[7:4] on r[8:12] and b[8:12], R[3:0] on r[4:8] and b[4:8], G[7:0] on g[4:12], B[7:4]
+    on r[0:4] and b[0:4], B[3:0] on g[0:4] (pins of a pair driven with the same value). With
+    VideoDVIPHY (r/g/b groups), red and blue are mixed.
+    """
+    def __init__(self, pads, clock_domain="sys"):
+        assert len(pads.r) == 12
+        self.sink = sink = stream.Endpoint(video_data_layout)
+
+        # # #
+
+        cd = ClockSignal(clock_domain)
+        self.comb += sink.ready.eq(1)
+        self.specials += DDROutput(i1=1, i2=0, o=pads.clk, clk=cd)
+        self.specials += SDROutput(i=sink.de,    o=pads.de,    clk=cd)
+        self.specials += SDROutput(i=sink.hsync, o=pads.hsync, clk=cd)
+        self.specials += SDROutput(i=sink.vsync, o=pads.vsync, clk=cd)
+        # (pads, nibble): (color, first bit).
+        mapping = {
+            ("r", 0): ("b", 4), ("r", 1): ("r", 0), ("r", 2): ("r", 4),
+            ("g", 0): ("b", 0), ("g", 1): ("g", 0), ("g", 2): ("g", 4),
+            ("b", 0): ("b", 4), ("b", 1): ("r", 0), ("b", 2): ("r", 4),
+        }
+        for c in "rgb":
+            for i in range(12):
+                color, bit = mapping[(c, i//4)]
+                # Data at 0 during blanking.
+                d = getattr(sink, color)[bit + i%4] & sink.de
+                self.specials += SDROutput(i=d, o=getattr(pads, c)[i], clk=cd)
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -206,7 +243,10 @@ class BaseSoC(SoCCore):
         if with_video_terminal or with_video_framebuffer:
             # PHY + IT6613 I2C initialization.
             hdmi_pads = platform.request("hdmi")
-            self.videophy = VideoDVIPHY(hdmi_pads, clock_domain="init")
+            if device == "85F":
+                self.videophy = _IT6613VideoPHY(hdmi_pads, clock_domain="init")
+            else:
+                self.videophy = VideoDVIPHY(hdmi_pads, clock_domain="init")
             self.videoi2c = I2CMaster(hdmi_pads)
 
             # I2C initialization adapted from https://github.com/ultraembedded/ecpix-5
