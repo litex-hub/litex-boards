@@ -102,7 +102,6 @@ class BaseSoC(SoCCore):
             remote_ip        = None,
             eth_dynamic_ip   = False,
             ptp_p2p          = False,
-            ptp_debug        = False,
             with_ohci        = False,
             with_buttons     = False,
             **kwargs):
@@ -244,7 +243,6 @@ class BaseSoC(SoCCore):
                         self.ptp_event_port,
                         self.ptp_general_port,
                         sys_clk_freq,
-                        monitor_debug = ptp_debug,
                     ))
 
                     self.comb += [
@@ -462,7 +460,6 @@ def main():
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",                                       help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",                                          help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--ptp-p2p",        action="store_true",                                          help="Enable PTP P2P mode.")
-    parser.add_target_argument("--ptp-debug",      action="store_true",                                          help="Enable PTP debug monitor CSRs.")
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",                                      help="Remote IP address of TFTP server.")
     add_pmod_args(parser)
     args = parser.parse_args()
@@ -484,7 +481,6 @@ def main():
         eth_ip           = args.eth_ip,
         eth_dynamic_ip   = args.eth_dynamic_ip,
         ptp_p2p          = args.ptp_p2p,
-        ptp_debug        = args.ptp_debug,
         remote_ip        = args.remote_ip,
         **parser.soc_argdict)
     add_pmods(soc, args.pmod)
