@@ -1,8 +1,16 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2026
+# Copyright (c) 2026 Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
+# Copyright (c) 2026 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
+
+# AMD/Xilinx Kria KR260 Robotics Starter Kit (K26 SOM, XCK26).
+#
+# The SOM240_1/SOM240_2 connectors map the K26 SOM's pins to the XCK26's balls (AMD's board files:
+# XilinxBoardStore kr260_som/1.1 part0_pins); the carrier's IOs are described on these connectors
+# (kr260_carrier/1.0 board.xml, cross-checked with AMD's KR260 platforms' XDCs). The SFP+ cage's
+# data lanes are not described there and are not included.
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxUSPPlatform, VivadoProgrammer
@@ -232,6 +240,9 @@ _io_carrier = [
     ("clk25", 0, Pins("som240_1:a6"),  IOStandard("LVCMOS18")),
     ("clk25", 1, Pins("som240_2:d18"), IOStandard("LVCMOS18")),
 
+    # Fan (active low enable).
+    ("fan_en_b", 0, Pins("som240_1:c24"), IOStandard("LVCMOS33")),
+
     # Board LEDs.
     ("gem2_led", 0, Pins("som240_1:b4"),  IOStandard("LVCMOS18")),
     ("gem2_led", 1, Pins("som240_1:b5"),  IOStandard("LVCMOS18")),
@@ -282,6 +293,13 @@ _io_carrier = [
     ("i2c_main", 0,
         Subsignal("sda", Pins("som240_1:d16")),
         Subsignal("scl", Pins("som240_1:d17")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # SFP+ cage I2C.
+    ("sfp_i2c", 0,
+        Subsignal("sda", Pins("som240_2:b50")),
+        Subsignal("scl", Pins("som240_2:b49")),
         IOStandard("LVCMOS33")
     ),
 ]
@@ -672,3 +690,5 @@ class Platform(XilinxUSPPlatform):
         XilinxUSPPlatform.do_finalize(self, fragment, *args, **kwargs)
         self.add_period_constraint(self.lookup_request("clk25", 0, loose=True), 1e9/25e6)
         self.add_period_constraint(self.lookup_request("clk25", 1, loose=True), 1e9/25e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks:rx", 1, loose=True), 1e9/125e6)
