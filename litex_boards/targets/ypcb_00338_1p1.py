@@ -33,6 +33,18 @@ from litedram.common         import PHYPadsReducer
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.software import generate_litepcie_software
 
+# DDR3 ---------------------------------------------------------------------------------------------
+
+def ddr3_cl_cwl(sys_clk_freq):
+    """(CL, CWL) of the card's DDR3 (MT41K256M8, DDR3-1600 parts) at a sys_clk (DDR3 rate =
+    8 x sys_clk): the DDR3-1066 bin's 7/6 up to 133.33 MHz, the DDR3-1333 bin's 9/7 up to
+    166.67 MHz (the latencies TriXium runs on the card; LiteDRAM's default picks the next bin at
+    the exact JEDEC rates, CL 10/CWL 7 at DDR3-1066)."""
+    if sys_clk_freq <= 400e6/3 + 1e3:
+        return 7, 6
+    assert sys_clk_freq <= 500e6/3 + 1e3, "past the DDR3-1333 bin"
+    return 9, 7
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
@@ -67,6 +79,7 @@ class BaseSoC(SoCCore):
         with_led_chaser = True,
         with_pcie       = False,
         with_ecc        = False,
+        ddr_ibuf_low_power = False,
         **kwargs):
 
         # Platform ---------------------------------------------------------------------------------
@@ -97,16 +110,23 @@ class BaseSoC(SoCCore):
                     self.csr.add(name, n=csr_first + len(csr_groups)*k + i)
                 # ECC: all nine byte lanes (SECDED on the ninth, LiteDRAM's DFI ECC); without, the
                 # ECC lane unused.
-                pads = PHYPadsReducer(platform.request("ddram", k), list(range(9 if with_ecc else 8)))
-                phy  = K7DDRPHY(
+                pads    = PHYPadsReducer(platform.request("ddram", k), list(range(9 if with_ecc else 8)))
+                cl, cwl = ddr3_cl_cwl(sys_clk_freq)
+                phy     = K7DDRPHY(
                     pads                = pads,
                     memtype             = "DDR3",
                     sys_clk_freq        = sys_clk_freq,
+                    cl                  = cl,
+                    cwl                 = cwl,
                     with_odelay         = False, # HR banks.
                     with_ck_phase_shift = True,
                     name                = f"ddrphy{suffix}",
                     mmcm_loc            = self.ddram_mmcm_locs[k])
                 phy.add_constraints(platform)
+                if not ddr_ibuf_low_power:
+                    # Full-performance input buffers on DQ/DQS (as Xilinx's MIG; Vivado's default
+                    # low-power mode is meant for low-speed inputs).
+                    platform.add_platform_command(f"set_property IBUF_LOW_PWR FALSE [get_ports ddram{k}_dq*]")
                 setattr(self, f"ddrphy{suffix}", phy)
                 # with_ecc only when enabled: LiteDRAM releases without DFI ECC don't know it.
                 self.add_sdram(f"sdram{suffix}",
@@ -153,6 +173,7 @@ def main():
     parser.add_target_argument("--ddram-channels", default=2,       type=int,   help="DDR3 channels (1 or 2).")
     parser.add_target_argument("--with-pcie",      action="store_true",         help="Enable PCIe support.")
     parser.add_target_argument("--with-ecc",       action="store_true",         help="DDR3 ECC (SECDED on the ECC byte lane).")
+    parser.add_target_argument("--ddr-ibuf-low-power", action="store_true",     help="DDR3 DQ/DQS input buffers in Vivado's low-power mode.")
     parser.add_target_argument("--driver",         action="store_true",         help="Generate PCIe driver.")
     args = parser.parse_args()
 
@@ -161,6 +182,7 @@ def main():
         ddram_channels = args.ddram_channels,
         with_pcie      = args.with_pcie,
         with_ecc       = args.with_ecc,
+        ddr_ibuf_low_power = args.ddr_ibuf_low_power,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
