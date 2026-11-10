@@ -17,6 +17,7 @@
 # - lspci -> board should be seen as Memory controller: Xilinx Corporation Device 9034
 
 import os
+import math
 
 from migen import *
 
@@ -31,6 +32,11 @@ from litex.soc.cores.clock import *
 from litex.soc.cores.led   import LedChaser
 
 from liteeth.phy.usp_gty_1000basex import USP_GTY_1000BASEX
+from liteeth.phy.serial.baser.wrappers.usp_gt import USP_GTY_10G_BASER
+
+from litespi.modules     import MT25QU256
+from litespi.opcodes     import SpiNorFlashOpCodes as Codes
+from litespi.phy.generic import LiteSPIXilinxUSPHY
 
 from litepcie.phy.usppciephy import USPPCIEPHY
 from litepcie.software       import generate_litepcie_software
@@ -61,12 +67,14 @@ class BaseSoC(SoCCore):
         with_ethernet   = False,
         with_etherbone  = False,
         eth_sfp         = 0,
+        eth_phy         = "1000basex",
         eth_ip          = "192.168.1.50",
         remote_ip       = None,
         eth_dynamic_ip  = False,
         with_led_chaser = True,
         with_pcie       = False,
         pcie_lanes      = 4,
+        with_spi_flash  = False,
         **kwargs):
         platform = alibaba_xcku3p.Platform()
 
@@ -80,15 +88,30 @@ class BaseSoC(SoCCore):
 
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
-            self.ethphy = USP_GTY_1000BASEX(self.crg.cd_eth.clk,
-                data_pads    = self.platform.request("sfp", eth_sfp),
-                sys_clk_freq = self.clk_freq,
-                refclk_from_fabric = True)
-            platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-1753]")
+            eth_data_width = 8
+            if eth_phy == "1000basex":
+                self.ethphy = USP_GTY_1000BASEX(self.crg.cd_eth.clk,
+                    data_pads    = self.platform.request("sfp", eth_sfp),
+                    sys_clk_freq = self.clk_freq,
+                    refclk_from_fabric = True)
+                platform.add_platform_command("set_property SEVERITY {{Warning}} [get_drc_checks REQP-1753]")
+            elif eth_phy == "10gbase-r":
+                # SFP MGT RefClk (K7/K6, MGTREFCLK0_227): 156.25 MHz (as in the taxi AS02MC04 design).
+                eth_refclk = platform.request("sfp_mgt_clk", 0)
+                platform.add_period_constraint(eth_refclk.p, 1e9/156.25e6)
+                self.ethphy = USP_GTY_10G_BASER(eth_refclk,
+                    data_pads    = self.platform.request("sfp", eth_sfp),
+                    sys_clk_freq = self.clk_freq,
+                    refclk_freq  = 156.25e6)
+                eth_data_width = 32
+            else:
+                raise ValueError(f"Unsupported Ethernet PHY: {eth_phy}")
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet,
+                    data_width=eth_data_width)
             if with_ethernet:
-                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip,
+                    data_width=eth_data_width)
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
@@ -109,6 +132,18 @@ class BaseSoC(SoCCore):
             })
             self.add_pcie(phy=self.pcie_phy, ndmas=1)
 
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            # Configuration flash (MT25QU256), clock/data through STARTUPE3. 1x: the LiteSPI module
+            # only describes the 1-1-1 read/program opcodes.
+            spiflash_module  = MT25QU256(Codes.READ_1_1_1_FAST_4B, program_cmd=Codes.PP_1_1_1_4B)
+            spiflash_divisor = math.ceil(sys_clk_freq/20e6)
+            spiflash_divisor += spiflash_divisor % 2
+            self.add_spi_flash(mode="1x",
+                module      = spiflash_module,
+                phy         = LiteSPIXilinxUSPHY(spiflash_module, default_divisor=spiflash_divisor),
+                with_master = True)
+
         # LEDs -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -125,12 +160,14 @@ def main():
     ethopts.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support.")
     ethopts.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support.")
     parser.add_target_argument("--eth-sfp",        default=0, type=int, choices=[0, 1], help="Ethernet SFP.")
+    parser.add_target_argument("--eth-phy",        default="1000basex", choices=["1000basex", "10gbase-r"], help="Ethernet PHY.")
     parser.add_target_argument("--eth-ip",         default="192.168.1.50",              help="Ethernet/Etherbone IP address.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",                 help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--remote-ip",      default=None,                        help="Remote IP address of TFTP server.")
     parser.add_target_argument("--with-pcie",      action="store_true",                 help="Enable PCIe support.")
     parser.add_target_argument("--pcie-lanes",     default=4, type=int,                 choices=[4, 8], help="PCIe lane count.")
     parser.add_target_argument("--driver",         action="store_true",                 help="Generate PCIe driver.")
+    parser.add_target_argument("--with-spi-flash", action="store_true",                 help="Enable SPI Flash (MMAPed).")
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -138,11 +175,13 @@ def main():
         with_ethernet  = args.with_ethernet,
         with_etherbone = args.with_etherbone,
         eth_sfp        = args.eth_sfp,
+        eth_phy        = args.eth_phy,
         eth_ip         = args.eth_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         remote_ip      = args.remote_ip,
         with_pcie      = args.with_pcie,
         pcie_lanes     = args.pcie_lanes,
+        with_spi_flash = args.with_spi_flash,
         **parser.soc_argdict
     )
 
