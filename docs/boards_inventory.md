@@ -240,6 +240,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `xilinx_kc705` | xilinx_kc705 | vivado | `125000000.0` | Ethernet, SPI Flash, PCIe, SATA | included |
 | `xilinx_kcu105` | xilinx_kcu105 | vivado | `125000000.0` | Ethernet, Etherbone, SDCard, PCIe, SATA | included |
 | `xilinx_kcu116` | xilinx_kcu116 | vivado | `125000000.0` | Ethernet, Etherbone, PCIe, SATA | included |
+| `xilinx_kr260` | xilinx_kr260 | vivado | `100000000.0` | Ethernet, Etherbone | included |
 | `xilinx_kv260` | xilinx_kv260 | vivado | `100000000.0` | - | included |
 | `xilinx_sp605` | xilinx_sp605 | ise | `54000000.0` | Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `xilinx_vc707` | xilinx_vc707 | vivado | `125000000.0` | PCIe | included |
