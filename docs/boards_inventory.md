@@ -17,7 +17,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `alchitry_mojo` | alchitry_mojo | ise | `62500000.0` | Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `alchitry_pt_v2` | alchitry_pt_v2 | vivado | `100000000.0` | SPI Flash | included |
 | `alibaba_vu13p` | alibaba_vu13p | vivado | `125000000.0` | Ethernet, Etherbone, PCIe | included |
-| `alibaba_xcku3p` | alibaba_xcku3p | vivado | `100000000.0` | Ethernet, Etherbone, PCIe | included |
+| `alibaba_xcku3p` | alibaba_xcku3p | vivado | `100000000.0` | Ethernet, Etherbone, SPI Flash, PCIe | included |
 | `alientek_davincipro` | alientek_davincipro | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, PCIe, Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `aliexpress_rk_xcku5p` | aliexpress_rk_xcku5p | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, SPI Flash, PCIe | included |
 | `aliexpress_xc7k420t` | aliexpress_xc7k420t | vivado | `100000000.0` | SPI Flash | included |
