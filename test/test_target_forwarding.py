@@ -1,3 +1,4 @@
+import inspect
 import sys
 from unittest.mock import Mock
 
@@ -5,8 +6,11 @@ import pytest
 
 from migen import Module, run_simulation
 
+from litex.build.parser import LiteXArgumentParser
+
 from litex_boards.targets import (
     antmicro_datacenter_ddr4_test_board, berkeleylab_marble, lattice_crosslink_nx_evn,
+    xilinx_alveo_u280,
 )
 
 
@@ -38,6 +42,26 @@ def test_target_option_forwarding(monkeypatch, target, args, keyword, value):
     monkeypatch.setattr(sys, "argv", [target.__name__, *args])
     target.main()
     assert soc.call_args.kwargs[keyword] == value
+
+
+def test_alveo_u280_forwards_no_unknown_argument(monkeypatch):
+    # Every target keyword main() gives to BaseSoC is a parameter of BaseSoC: SoCCore only logs
+    # and ignores the others (an option that builds nothing).
+    soc_keys = set()
+    soc_argdict = LiteXArgumentParser.soc_argdict
+    def get_soc_argdict(parser):
+        r = soc_argdict.fget(parser)
+        soc_keys.update(r)
+        return r
+    monkeypatch.setattr(LiteXArgumentParser, "soc_argdict", property(get_soc_argdict))
+    parameters = set(inspect.signature(xilinx_alveo_u280.BaseSoC.__init__).parameters)
+    soc = Mock()
+    monkeypatch.setattr(xilinx_alveo_u280, "BaseSoC", soc)
+    monkeypatch.setattr(xilinx_alveo_u280, "Builder", Mock())
+    monkeypatch.setattr(sys, "argv", ["xilinx_alveo_u280"])
+    xilinx_alveo_u280.main()
+    assert soc_keys
+    assert set(soc.call_args.kwargs) - soc_keys - parameters == set()
 
 
 @pytest.mark.parametrize("uart_name", ["serial", "crossover"])

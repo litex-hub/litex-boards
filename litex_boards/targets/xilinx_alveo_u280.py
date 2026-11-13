@@ -217,7 +217,6 @@ def main():
     parser.add_target_argument("--hbm-high-base",   default=USPHBM2_HIGH_BASE,
         type=lambda x: int(x, 0), help="HBM bus base for channels above the low 32-bit cached window.")
     parser.add_target_argument("--hbm-strip-origin", action="store_true",       help="Expose each mapped HBM channel with local AXI addresses.")
-    parser.add_target_argument("--with-analyzer",   action="store_true",        help="Enable Analyzer.")
     parser.add_target_argument("--with-led-chaser", action="store_true",        help="Enable LED Chaser.")
     parser.add_target_argument("--with-switches",   action="store_true",        help="Enable Switches.")
     args = parser.parse_args()
@@ -247,7 +246,6 @@ def main():
         hbm_base              = args.hbm_base,
         hbm_high_base         = args.hbm_high_base,
         hbm_strip_origin      = args.hbm_strip_origin,
-        with_analyzer         = args.with_analyzer,
         with_switches         = args.with_switches,
         **parser.soc_argdict
     )
