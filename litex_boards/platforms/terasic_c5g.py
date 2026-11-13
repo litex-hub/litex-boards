@@ -83,6 +83,17 @@ _io = [
     ),
     ("lpddr2_rzq", 0, Pins("AE11"), IOStandard("1.2 V")),
 
+    # Analog Devices SSM2603 audio codec.
+    ("audio", 0,
+        Subsignal("adclrck", Pins("C7")),
+        Subsignal("adcdat", Pins("D7")),
+        Subsignal("daclrck", Pins("G10")),
+        Subsignal("dacdat", Pins("H10")),
+        Subsignal("xck", Pins("D6")),
+        Subsignal("bclk", Pins("E6")),
+        IOStandard("2.5 V"),
+    ),
+
     # Shared I²C control bus.
     ("i2c", 0,
         Subsignal("scl", Pins("B7")),
