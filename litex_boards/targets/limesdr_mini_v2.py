@@ -36,6 +36,8 @@ from litescope import LiteScopeAnalyzer
 
 # CRG ----------------------------------------------------------------------------------------------
 
+usb_clk_freq = 100e6 # FT601 FIFO clock (usb_fifo_clk, 100MHz in the FT601 default configuration).
+
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq):
         self.rst    = Signal()
@@ -121,7 +123,7 @@ class BaseSoC(SoCCore):
             self.analyzer = LiteScopeAnalyzer(analyzer_probes,
                 depth        = 512,
                 clock_domain = "usb",
-                samplerate   = sys_clk_freq,
+                samplerate   = usb_clk_freq,
                 csr_csv      = "analyzer.csv"
             )
 
