@@ -204,6 +204,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `sqrl_fk33` | sqrl_fk33 | vivado | `125000000.0` | PCIe | included |
 | `sqrl_xcu1525` | sqrl_xcu1525 | vivado | `125000000.0` | Ethernet, Etherbone, PCIe, SATA | included |
 | `terasic_atum_a3_nano` | terasic_atum_a3_nano | quartus | `50000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, Video Terminal, Video Framebuffer, Video Colorbars | included |
+| `terasic_c5g` | terasic_c5g | quartus | `50000000.0` | - | included |
 | `terasic_de0nano` | terasic_de0nano | quartus | `50000000.0` | - | included |
 | `terasic_de10lite` | terasic_de10lite | quartus | `50000000.0` | Video Terminal | included |
 | `terasic_de10nano` | terasic_de10nano | quartus | `50000000.0` | - | included |
