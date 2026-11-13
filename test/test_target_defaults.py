@@ -41,6 +41,13 @@ def test_limesdr_jtag_uart_disables_default_jtagbone(tmp_path, monkeypatch):
     assert not hasattr(soc, "jtagbone")
 
 
+def test_limesdr_analyzer_samplerate_is_usb_clock(tmp_path, monkeypatch):
+    # The analyzer samples in the usb domain (FT601 FIFO clock), not in the sys domain.
+    monkeypatch.chdir(tmp_path)
+    soc = limesdr_mini_v2.BaseSoC(sys_clk_freq=80e6)
+    assert soc.analyzer.samplerate == limesdr_mini_v2.usb_clk_freq == 100e6
+
+
 def test_zc706_etherbone_disables_default_jtagbone(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     soc = xilinx_zc706.BaseSoC(with_etherbone=True)
