@@ -95,7 +95,6 @@ class BaseSoC(SoCCore):
         remote_ip       = None,
         eth_dynamic_ip  = False,
         ptp_p2p         = False,
-        ptp_debug       = False,
         with_led_chaser = True,
         with_sata       = False, sata_gen="gen2",
         **kwargs):
@@ -230,7 +229,6 @@ class BaseSoC(SoCCore):
                         self.ptp_event_port,
                         self.ptp_general_port,
                         sys_clk_freq,
-                        monitor_debug = ptp_debug,
                     ))
 
                     self.comb += [
@@ -284,7 +282,6 @@ def main():
     parser.add_target_argument("--remote-ip",      default="192.168.1.100",      help="Remote IP address of TFTP server.")
     parser.add_target_argument("--eth-dynamic-ip", action="store_true",          help="Enable dynamic Ethernet IP assignment.")
     parser.add_target_argument("--ptp-p2p",        action="store_true",          help="Enable PTP P2P mode.")
-    parser.add_target_argument("--ptp-debug",      action="store_true",          help="Enable PTP debug monitor CSRs.")
     parser.add_target_argument("--with-sata",      action="store_true",          help="Enable SATA support (over FMCRAID).")
     parser.add_target_argument("--sata-gen",       default="2",                  choices=["1", "2"],
         help="SATA Gen.")
@@ -303,7 +300,6 @@ def main():
         remote_ip      = args.remote_ip,
         eth_dynamic_ip = args.eth_dynamic_ip,
         ptp_p2p        = args.ptp_p2p,
-        ptp_debug      = args.ptp_debug,
         with_sata      = args.with_sata,
         sata_gen       = "gen" + args.sata_gen,
         **parser.soc_argdict
