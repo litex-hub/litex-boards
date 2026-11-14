@@ -29,6 +29,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `alinx_axau15` | alinx_axau15 | vivado | `125000000.0` | Ethernet, Etherbone, SDCard, PCIe | included |
 | `alinx_axu2cga` | alinx_axu2cga | vivado | `25000000.0` | - | included |
 | `altera_agilex5e_065b_premium_devkit` | altera_agilex5e_065b_premium_devkit | quartus | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard | included |
+| `altera_cyclonev_gt_devkit` | altera_cyclonev_gt_devkit | quartus | `None` | Ethernet, Etherbone, PCIe | included |
 | `analog_pocket` | analog_pocket | quartus | `50000000.0` | Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `antmicro_artix_dc_scm` | antmicro_artix_dc_scm | vivado | `100000000.0` | Ethernet, Etherbone, PCIe | included |
 | `antmicro_datacenter_ddr4_test_board` | antmicro_datacenter_ddr4_test_board | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
