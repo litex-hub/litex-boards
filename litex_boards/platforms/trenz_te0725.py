@@ -49,8 +49,8 @@ _io = [
         Subsignal("rwds", Pins("E18"), IOStandard("SSTL18_II")),
         Subsignal("cs_n", Pins("D17"), IOStandard("SSTL18_II")),
         Subsignal("rst_n", Pins("J17"), IOStandard("SSTL18_II")),
-        Subsignal("clk_p", Pins("A13"), IOStandard("DIFF_SSTL18_II")),
-        Subsignal("clk_n", Pins("A14"), IOStandard("DIFF_SSTL18_II")),
+        Subsignal("clk_p", Pins("A13"), IOStandard("SSTL18_II")),
+        Subsignal("clk_n", Pins("A14"), IOStandard("SSTL18_II")),
         Misc("SLEW=FAST"),
     ),
 ]
