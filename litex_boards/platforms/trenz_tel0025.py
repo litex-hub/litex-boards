@@ -146,7 +146,7 @@ class Platform(LatticeNexusPlatform):
         if hasattr(self.toolchain, "set_prj_strategy_opts"):
             self.toolchain.set_prj_strategy_opts({"bit_ip_eval": "true"})
 
-    def create_programmer(self, cable="ft2232"):
+    def create_programmer(self, cable="ft2232_b"): # FT2232H channel B (channel A is the serial).
         return OpenFPGALoader(cable=cable)
 
     def do_finalize(self, fragment):
