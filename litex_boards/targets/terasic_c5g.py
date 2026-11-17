@@ -3,38 +3,48 @@
 #
 # This file is part of LiteX-Boards.
 #
+# Copyright (c) 2026 Matt Thompson <matt@boondocker.io>
 # SPDX-License-Identifier: BSD-2-Clause
 
-from pathlib import Path
+# Build/Use:
+# ./terasic_c5g.py --build --load
+# ./terasic_c5g.py --with-sram --with-lpddr2 --build --load
+# The LPDDR2 UniPHY IP is generated with Quartus (ip-generate) during the build.
 
-from migen import Cat, ClockDomain, Signal
+import os
 
-from litex.gen import LiteXModule
+from migen import *
+
+from litex.gen import *
 
 from litex_boards.platforms import terasic_c5g
 
 from litex.soc.cores.clock import CycloneVPLL
-from litex.soc.cores.gpio import GPIOIn
+from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
+from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.integration.builder import Builder
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import SoCCore
+from litex.soc.cores.gpio import GPIOIn
 
-from litex_boards.targets.terasic_c5g_memory import C5GLPDDR2, C5GSRAM, generate_lpddr2_ip
+from litex_boards.targets.terasic_c5g_memory import C5GSRAM, C5GLPDDR2, generate_lpddr2_ip
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_lpddr2, with_audio):
+    def __init__(self, platform, sys_clk_freq, with_lpddr2=False, with_audio=False):
         self.rst    = Signal()
-        self.cd_sys = ClockDomain("sys")
+        self.cd_sys = ClockDomain()
 
+        # # #
+
+        # Clk / Rst.
+        self.rst_n = rst_n = platform.request("cpu_reset_n")
+        self.clk50 = clk50 = platform.request("clk50")
+
+        # PLL (On clk50 1 with LPDDR2: clk50 0 and its PLL are kept for the Hard Memory Controller).
         self.pll = pll = CycloneVPLL(speedgrade="-C7")
-        self.reset_n = platform.request("cpu_reset_n")
-        self.ref_clk = platform.request("clk50")
-        self.comb += pll.reset.eq(self.rst | ~self.reset_n)
-        # Keep the PLL at R20 available for the LPDDR2 hard controller.
-        pll.register_clkin(platform.request("clk50", 1) if with_lpddr2 else self.ref_clk, 50e6)
+        self.comb += pll.reset.eq(self.rst | ~rst_n)
+        pll.register_clkin(platform.request("clk50", 1) if with_lpddr2 else clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         if with_audio:
             self.cd_audio = ClockDomain("audio")
@@ -48,24 +58,42 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, with_buttons=False, with_switches=False,
-        with_sram=False, with_lpddr2=False, with_audio=False, with_audio_dma=False, **kwargs):
+    def __init__(self, sys_clk_freq=50e6,
+        with_led_chaser     = True,
+        with_sram           = False,
+        with_lpddr2         = False,
+        with_audio          = False,
+        with_audio_dma      = False,
+        with_buttons        = False,
+        with_switches       = False,
+        **kwargs):
         if with_audio_dma and not with_audio:
             raise ValueError("Audio DMA requires audio to be enabled.")
         platform = terasic_c5g.Platform()
 
-        self.crg = _CRG(platform, sys_clk_freq, with_lpddr2, with_audio)
+        # CRG --------------------------------------------------------------------------------------
+        self.crg = _CRG(platform, sys_clk_freq, with_lpddr2=with_lpddr2, with_audio=with_audio)
 
+        # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Terasic C5G", **kwargs)
 
+        # SRAM -------------------------------------------------------------------------------------
         if with_sram:
             self.ext_sram = C5GSRAM(platform.request("sram"), sys_clk_freq)
-            self.bus.add_slave("ext_sram", self.ext_sram.bus,
-                SoCRegion(origin=0x80000000, size=self.ext_sram.size, cached=False), strip_origin=True)
+            self.bus.add_slave("ext_sram", self.ext_sram.bus, strip_origin=True, region=SoCRegion(
+                origin = 0x8000_0000,
+                size   = self.ext_sram.size,
+                cached = False,
+            ))
+
+        # LPDDR2 -----------------------------------------------------------------------------------
         if with_lpddr2:
-            self.lpddr2 = C5GLPDDR2(platform, self.crg.ref_clk, self.crg.reset_n)
-            self.bus.add_slave("lpddr2", self.lpddr2.bus,
-                SoCRegion(origin=0xa0000000, size=self.lpddr2.size, cached=False), strip_origin=True)
+            self.lpddr2 = C5GLPDDR2(platform, ref_clk=self.crg.clk50, reset_n=self.crg.rst_n)
+            self.bus.add_slave("lpddr2", self.lpddr2.bus, strip_origin=True, region=SoCRegion(
+                origin = 0xa000_0000,
+                size   = self.lpddr2.size,
+                cached = False,
+            ))
 
         if with_audio:
             from litex.soc.cores.audio.ssm2603 import SSM2603, SSM2603PCM
@@ -85,11 +113,13 @@ class BaseSoC(SoCCore):
                 sample_width=sample_width, playback_bus=playback_bus, capture_bus=capture_bus)
             self.add_config("AUDIO_PCM_RATE", self.audio.sample_rate)
 
+        # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
-                sys_clk_freq = sys_clk_freq,
-            )
+                sys_clk_freq = sys_clk_freq)
+
+        # Buttons / Switches -----------------------------------------------------------------------
         if with_buttons:
             self.buttons = GPIOIn(~Cat(platform.request_all("user_btn")))
         if with_switches:
@@ -100,32 +130,33 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=terasic_c5g.Platform, description="LiteX SoC on Terasic C5G.")
-    parser.add_target_argument("--sys-clk-freq",  default=50e6, type=float,      help="System clock frequency.")
-    parser.add_target_argument("--with-buttons",  action="store_true",           help="Enable buttons.")
-    parser.add_target_argument("--with-switches", action="store_true",           help="Enable switches.")
-    parser.add_target_argument("--with-sram",     action="store_true",           help="Enable the onboard asynchronous SRAM.")
-    parser.add_target_argument("--with-lpddr2",   action="store_true",           help="Enable the onboard LPDDR2 using the Quartus hard memory controller.")
-    parser.add_target_argument("--with-audio",     action="store_true",          help="Enable SSM2603 stereo playback and capture.")
-    parser.add_target_argument("--with-audio-dma", action="store_true",          help="Enable Wishbone DMA for audio playback and capture.")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-sram",           action="store_true",      help="Enable SRAM (IS61WV25616, 512KiB).")
+    parser.add_target_argument("--with-lpddr2",         action="store_true",      help="Enable LPDDR2 (512MiB, Cyclone V Hard Memory Controller).")
+    parser.add_target_argument("--with-audio",          action="store_true",      help="Enable SSM2603 stereo playback and capture.")
+    parser.add_target_argument("--with-audio-dma",      action="store_true",      help="Enable Wishbone DMA for audio playback and capture.")
+    parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",       action="store_true",      help="Enable Switches.")
     args = parser.parse_args()
     if args.with_audio_dma and not args.with_audio:
         parser.error("--with-audio-dma requires --with-audio")
 
     soc = BaseSoC(
-        sys_clk_freq   = args.sys_clk_freq,
-        with_buttons   = args.with_buttons,
-        with_switches  = args.with_switches,
-        with_sram      = args.with_sram,
-        with_lpddr2    = args.with_lpddr2,
-        with_audio     = args.with_audio,
-        with_audio_dma = args.with_audio_dma,
-        **parser.soc_argdict,
+        sys_clk_freq        = args.sys_clk_freq,
+        with_sram           = args.with_sram,
+        with_lpddr2         = args.with_lpddr2,
+        with_audio          = args.with_audio,
+        with_audio_dma      = args.with_audio_dma,
+        with_buttons        = args.with_buttons,
+        with_switches       = args.with_switches,
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
+        # Generate the LPDDR2 UniPHY IP with Quartus.
         if args.with_lpddr2 and builder.compile_gateware:
-            ip = generate_lpddr2_ip(soc.platform, Path(builder.gateware_dir) / "lpddr2")
-            soc.platform.add_ip(str(ip))
+            ip = generate_lpddr2_ip(soc.platform, os.path.join(builder.gateware_dir, "lpddr2"))
+            soc.platform.add_ip(ip)
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
