@@ -34,6 +34,18 @@ from litex.soc.cores.clock   import CycloneVPLL
 from litex.soc.cores.led     import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
 
+from litedram.common            import LiteDRAMNativePort
+from litedram.modules           import MT41K64M16
+from litedram.frontend.bist     import LiteDRAMBISTGenerator, LiteDRAMBISTChecker
+from litedram.frontend.wishbone import LiteDRAMWishbone2Native
+
+from liteeth.common     import eth_phy_description
+from liteeth.phy.common import LiteEthPHYHWReset, LiteEthPHYMDIO
+
+from litepcie.core              import LitePCIeEndpoint, LitePCIeMSI
+from litepcie.frontend.dma      import LitePCIeDMA
+from litepcie.frontend.wishbone import LitePCIeWishboneMaster
+
 # Native DDR3B -------------------------------------------------------------------------------------
 
 _IP_PREFIX   = "q_sys_smc_0_mem_if_ddr3_emif_0"
@@ -274,15 +286,11 @@ class _WriteBurstPacker(LiteXModule):
 
 class DDR3AHardController(LiteXModule):
     """Board reference DDR3A HMC with a Wishbone window and optional native BIST."""
-    size            = 256 * 1024 * 1024
+    size            = 256*MEGABYTE
     clock_frequency = 100_000_000
     def __init__(self, pads, ref_clk, rzq, oct_series, oct_parallel, origin,
         with_bist       = False,
         bank_interleave = False):
-        from litedram.common import LiteDRAMNativePort
-        from litedram.frontend.bist import LiteDRAMBISTChecker, LiteDRAMBISTGenerator
-        from litedram.frontend.wishbone import LiteDRAMWishbone2Native
-
         # Parameters.
         width         = 256
         address_width = 24  # Vendor Avalon address is in 32-byte words.
@@ -638,10 +646,6 @@ class CycloneVGTGigabitPHY(LiteXModule):
     tx_clk_freq = 125e6
     rx_clk_freq = 125e6
     def __init__(self, platform, sys_clk_freq):
-        from liteeth.common import eth_phy_description
-        from liteeth.phy.common import LiteEthPHYHWReset, LiteEthPHYMDIO
-        from litex.soc.interconnect.stream import Endpoint
-
         # Clocking.
         pads       = platform.request("eth")
         clocks     = platform.request("eth_clocks")
@@ -667,8 +671,8 @@ class CycloneVGTGigabitPHY(LiteXModule):
 
         # MDIO / Streams.
         self.mdio   = LiteEthPHYMDIO(pads)
-        self.sink   = sink   = Endpoint(eth_phy_description(8))
-        self.source = source = Endpoint(eth_phy_description(8))
+        self.sink   = sink   = stream.Endpoint(eth_phy_description(8))
+        self.source = source = stream.Endpoint(eth_phy_description(8))
 
         # TX.
         tx_clock = ClockSignal("eth_tx")
@@ -758,7 +762,6 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=None,
-        with_led_chaser = True,
         with_ddr3a      = False,
         with_ddr3b      = False,
         with_ethernet   = False,
@@ -767,6 +770,7 @@ class BaseSoC(SoCCore):
         remote_ip       = "192.168.1.100",
         etherbone_ip    = "192.168.1.51",
         with_pcie       = False,
+        with_led_chaser = True,
         **kwargs):
         platform = altera_cyclonev_gt_devkit.Platform()
         if sys_clk_freq is None:
@@ -776,9 +780,7 @@ class BaseSoC(SoCCore):
         # The native DDR3B PHY provides the sys clock domain: the CRG is only used without it.
         oct_series, oct_parallel = Signal(16), Signal(16)
         if with_ddr3b:
-            from litedram.frontend.bist import LiteDRAMBISTChecker, LiteDRAMBISTGenerator
-            from litedram.modules import MT41K64M16
-            from litedram.phy.c5ddrphy import CycloneVDDRPHY
+            from litedram.phy.c5ddrphy        import CycloneVDDRPHY
             from litedram.phy.c5ddrphy_native import CycloneVDDR3Lane
 
             if sys_clk_freq != 75e6:
@@ -827,7 +829,7 @@ class BaseSoC(SoCCore):
             self.sdram_generator = LiteDRAMBISTGenerator(self.sdram.crossbar.get_port())
             # Cover the fixed PHY return latency plus controller and DMA latency.
             self.sdram_checker   = LiteDRAMBISTChecker(self.sdram.crossbar.get_port(), fifo_depth=64)
-            self.add_constant("MEMTEST_DATA_SIZE", 64*1024)
+            self.add_constant("MEMTEST_DATA_SIZE", 64*KILOBYTE)
         else:
             # DDR3B is soldered down. The stock BIOS probes for SPD if I2C is present.
             self.i2c = I2CMaster(platform.request("lcd"))
@@ -870,9 +872,6 @@ class BaseSoC(SoCCore):
 
         # PCIe -------------------------------------------------------------------------------------
         if with_pcie:
-            from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
-            from litepcie.frontend.dma import LitePCIeDMA
-            from litepcie.frontend.wishbone import LitePCIeWishboneMaster
             from litepcie.phy.c5pciephy import C5PCIEPHY
 
             # PHY.
