@@ -1,7 +1,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2014-2019 Florent Kermarrec <florent@enjoy-digital.fr>
+# Copyright (c) 2026 Matt Thompson <matt@boondocker.io>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from litex.build.altera            import AlteraPlatform

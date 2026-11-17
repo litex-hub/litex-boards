@@ -3,7 +3,7 @@
 #
 # This file is part of LiteX-Boards.
 #
-# Copyright (c) 2019 msloniewski <marcin.sloniewski@gmail.com>
+# Copyright (c) 2026 Matt Thompson <matt@boondocker.io>
 # SPDX-License-Identifier: BSD-2-Clause
 
 import os
