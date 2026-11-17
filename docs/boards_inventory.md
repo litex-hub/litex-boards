@@ -29,6 +29,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `alinx_axau15` | alinx_axau15 | vivado | `125000000.0` | Ethernet, Etherbone, SDCard, PCIe | included |
 | `alinx_axu2cga` | alinx_axu2cga | vivado | `25000000.0` | - | included |
 | `altera_agilex5e_065b_premium_devkit` | altera_agilex5e_065b_premium_devkit | quartus | `100000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard | included |
+| `altera_cyclonev_gt_devkit` | altera_cyclonev_gt_devkit | quartus | `None` | Ethernet, Etherbone, PCIe | included |
 | `analog_pocket` | analog_pocket | quartus | `50000000.0` | Video Terminal, Video Framebuffer, Video Colorbars | included |
 | `antmicro_artix_dc_scm` | antmicro_artix_dc_scm | vivado | `100000000.0` | Ethernet, Etherbone, PCIe | included |
 | `antmicro_datacenter_ddr4_test_board` | antmicro_datacenter_ddr4_test_board | vivado | `100000000.0` | Ethernet, Etherbone, SDCard, SPI Flash, Video Terminal, Video Framebuffer | included |
@@ -187,7 +188,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `sipeed_slogic16u3` | sipeed_slogic16u3 | gowin | `OSCA_FREQ / 4` | - | included |
 | `sipeed_tang_console` | sipeed_tang_console | gowin | `50000000.0` | SDCard, SPI SDCard, SPI Flash, PCIe, Video Terminal | included |
 | `sipeed_tang_mega_138k` | sipeed_tang_mega_138k | gowin | `50000000.0` | Ethernet, Etherbone, SDCard, SPI SDCard, PCIe, Video Terminal, Video Framebuffer, Video Colorbars | included |
-| `sipeed_tang_mega_138k_pro` | sipeed_tang_mega_138k_pro | gowin | `50000000.0` | Ethernet, Etherbone, PCIe, Video Terminal | included |
+| `sipeed_tang_mega_138k_pro` | sipeed_tang_mega_138k_pro | gowin | `50000000.0` | Ethernet, Etherbone, SPI Flash, PCIe, Video Terminal | included |
 | `sipeed_tang_mega_60k` | sipeed_tang_mega_60k | gowin | `50000000.0` | SPI SDCard | included |
 | `sipeed_tang_nano` | sipeed_tang_nano | gowin | `48000000.0` | - | included |
 | `sipeed_tang_nano_20k` | sipeed_tang_nano_20k | gowin | `48000000.0` | SDCard, SPI SDCard, SPI Flash, Video Terminal, Video Colorbars | included |

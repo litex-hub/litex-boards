@@ -194,6 +194,9 @@ class BaseSoC(SoCCore):
         with_ae350_leds     = False,
         with_ae350_buttons  = False,
         with_ae350_uart2    = False,
+        with_spi_flash      = False,
+        spi_flash_offset    = 0x000000,
+        spi_flash_size      = 0xa00000,
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
         ddr3_nphases = int(ddr3_rate[-1])
@@ -234,6 +237,31 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K Pro", **kwargs)
         if cpu_clk_freq:
             self.add_config("CPU_CLK_FREQ", cpu_clk_freq)
+
+        # SPI Flash --------------------------------------------------------------------------------
+        if with_spi_flash:
+            from litespi import LiteSPI, LiteSPIPHY
+            from litespi.opcodes import SpiNorFlashOpCodes as Codes
+            from litespi.modules import W25Q128JV
+
+            pads = platform.request("spiflash")
+            self.comb += [pads.wp_n.eq(1), pads.hold_n.eq(1)]
+            phy = LiteSPIPHY(pads, W25Q128JV(Codes.READ_1_1_1), device=platform.device, default_divisor=2, rate="1:1")
+            self.spiflash = LiteSPI(phy, mmap_endianness=self.cpu.endianness, with_master=False)
+            self.spiflash.add_module(name="phy", module=phy)
+            self.add_constant("SPIFLASH_MODULE_NAME", "W25Q128JV")
+            # XIP: map the CPU ROM window to the firmware offset in flash.
+            self.bus.add_slave(name="spiflash", slave=self.spiflash.bus,
+                region=SoCRegion(origin=self.cpu.mem_map["rom"], size=spi_flash_size, mode="rx", cached=True),
+                dst_region=SoCRegion(origin=spi_flash_offset, size=spi_flash_size))
+            # Add ROM linker region over the mapped flash window.
+            if not self.integrated_rom_size:
+                self.bus.add_region("rom", SoCRegion(
+                    origin = self.bus.regions["spiflash"].origin,
+                    size   = spi_flash_size,
+                    mode   = "rx",
+                    linker = True)
+                )
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if with_ddr3:
@@ -417,6 +445,9 @@ def main():
     parser.add_target_argument("--with-ae350-leds", action="store_true",    help="Use LED1..3 by AE350 GPIO[2:0]).")
     parser.add_target_argument("--with-ae350-buttons", action="store_true", help="Use Button S0..S2 by AE350 GPIO[5:3]).")
     parser.add_target_argument("--with-ae350-uart2",  action="store_true",  help="Use serial pads by AE350 UART2.")
+    parser.add_target_argument("--with-spi-flash",  action="store_true",    help="Enable SPI flash.")
+    parser.add_target_argument("--spi-flash-offset", default=0x000000, type=lambda x: int(x, 0), help="Flash offset mapped at 0x80000000.")
+    parser.add_target_argument("--spi-flash-size",   default=0xa00000, type=lambda x: int(x, 0), help="Size of the SPI flash window.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -447,6 +478,9 @@ def main():
         with_ae350_leds     = args.with_ae350_leds,
         with_ae350_buttons  = args.with_ae350_buttons,
         with_ae350_uart2    = args.with_ae350_uart2,
+        with_spi_flash      = args.with_spi_flash,
+        spi_flash_offset    = args.spi_flash_offset,
+        spi_flash_size      = args.spi_flash_size,
         **parser.soc_argdict
     )
 

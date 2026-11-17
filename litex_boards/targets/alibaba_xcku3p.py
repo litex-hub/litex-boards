@@ -13,6 +13,9 @@
 #
 # LiteX/LitePCIe SoC:
 # - python3 -m litex_boards.targets.alibaba_xcku3p --with-pcie --build --load
+# - Gen3 x8: python3 -m litex_boards.targets.alibaba_xcku3p --with-pcie --pcie-lanes 8 --sys-clk-freq 200e6 --build --load
+#   (the 256-bit DMA at the default 100 MHz sys clock limits the DMA to about 10 Gb/s; 200 MHz meets timing
+#   and gives about 32 Gb/s with litepcie_util dma_test).
 # - reboot computer
 # - lspci -> board should be seen as Memory controller: Xilinx Corporation Device 9034
 
