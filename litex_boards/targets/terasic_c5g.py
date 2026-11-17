@@ -9,6 +9,7 @@
 # Build/Use:
 # ./terasic_c5g.py --build --load
 # ./terasic_c5g.py --with-sram --with-lpddr2 --build --load
+# ./terasic_c5g.py --with-video-terminal --build --load
 # The LPDDR2 UniPHY IP is generated with Quartus (ip-generate) during the build.
 
 import os
@@ -30,18 +31,14 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
-from litex.soc.cores.video import VideoDVIPHY, video_timings
+from litex.soc.cores.video import VideoDVIPHY
 
 from litex_boards.targets.terasic_c5g_memory import C5GSRAM, C5GLPDDR2, generate_lpddr2_ip
-
-# Constants ----------------------------------------------------------------------------------------
-
-_hdmi_timing = "1280x720@60Hz"
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_lpddr2=False, with_video_terminal=False):
+    def __init__(self, platform, sys_clk_freq, with_lpddr2=False, with_video_pll=False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
 
@@ -57,8 +54,8 @@ class _CRG(LiteXModule):
         pll.register_clkin(platform.request("clk50", 1) if with_lpddr2 else clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
-        # Video PLL (On clk50 2).
-        if with_video_terminal:
+        # Video PLL (On clk50 2, 74.25MHz for 1280x720@60Hz).
+        if with_video_pll:
             # sys <-> hdmi through an asynchronous FIFO (UART mirror of the Video Terminal).
             sys_clk50 = "clk501" if with_lpddr2 else "clk50"
             platform.toolchain.additional_sdc_commands.append(
@@ -70,7 +67,7 @@ class _CRG(LiteXModule):
             self.hdmi_pll = hdmi_pll = CycloneVPLL(speedgrade="-C7")
             self.comb += hdmi_pll.reset.eq(self.rst | ~rst_n)
             hdmi_pll.register_clkin(platform.request("clk50", 2), 50e6)
-            hdmi_pll.create_clkout(self.cd_hdmi, video_timings[_hdmi_timing]["pix_clk"], margin=0)
+            hdmi_pll.create_clkout(self.cd_hdmi, 74.25e6, margin=0)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -86,7 +83,7 @@ class BaseSoC(SoCCore):
         platform = terasic_c5g.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_lpddr2=with_lpddr2, with_video_terminal=with_video_terminal)
+        self.crg = _CRG(platform, sys_clk_freq, with_lpddr2=with_lpddr2, with_video_pll=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Terasic C5G", **kwargs)
@@ -147,9 +144,9 @@ class BaseSoC(SoCCore):
             # registered data/syncs at mid-cycle).
             hdmi_pads  = platform.request("hdmi")
             video_pads = SimpleNamespace(
-                r     = hdmi_pads.d[16:24],
-                g     = hdmi_pads.d[8:16],
-                b     = hdmi_pads.d[:8],
+                r     = hdmi_pads.r,
+                g     = hdmi_pads.g,
+                b     = hdmi_pads.b,
                 de    = hdmi_pads.de,
                 hsync = hdmi_pads.hsync,
                 vsync = hdmi_pads.vsync,
@@ -158,7 +155,7 @@ class BaseSoC(SoCCore):
             self.specials += DDROutput(i1=0, i2=1, o=hdmi_pads.clk, clk=ClockSignal("hdmi"))
 
             # Terminal.
-            self.add_video_terminal(phy=self.videophy, timings=_hdmi_timing, clock_domain="hdmi")
+            self.add_video_terminal(phy=self.videophy, timings="1280x720@60Hz", clock_domain="hdmi")
 
 # Build --------------------------------------------------------------------------------------------
 

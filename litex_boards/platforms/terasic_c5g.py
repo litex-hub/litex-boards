@@ -123,16 +123,14 @@ _io = [
 
     # HDMI (ADV7513, parallel RGB).
     ("hdmi", 0,
-        Subsignal("d", Pins(
-            "V23 AA26 W25 W26 V24 V25 U24 T23",
-            "T24 T26 R23 R25 P22 P23 N25 P26",
-            "P21 R24 R26 AB26 AA24 AB25 AC25 AD25"),
-            IOStandard("3.3-V LVTTL")),
-        Subsignal("clk",   Pins("Y25"), IOStandard("3.3-V LVTTL")),
-        Subsignal("de",    Pins("Y26"), IOStandard("3.3-V LVTTL")),
-        Subsignal("hsync", Pins("U26"), IOStandard("3.3-V LVTTL")),
-        Subsignal("vsync", Pins("U25"), IOStandard("3.3-V LVTTL")),
-        Subsignal("int",   Pins("T12"), IOStandard("1.2 V")),
+        Subsignal("r",     Pins("P21 R24 R26 AB26 AA24 AB25 AC25 AD25"), IOStandard("3.3-V LVTTL")),
+        Subsignal("g",     Pins("T24 T26 R23 R25 P22 P23 N25 P26"),      IOStandard("3.3-V LVTTL")),
+        Subsignal("b",     Pins("V23 AA26 W25 W26 V24 V25 U24 T23"),     IOStandard("3.3-V LVTTL")),
+        Subsignal("clk",   Pins("Y25"),                                  IOStandard("3.3-V LVTTL")),
+        Subsignal("de",    Pins("Y26"),                                  IOStandard("3.3-V LVTTL")),
+        Subsignal("hsync", Pins("U26"),                                  IOStandard("3.3-V LVTTL")),
+        Subsignal("vsync", Pins("U25"),                                  IOStandard("3.3-V LVTTL")),
+        Subsignal("int",   Pins("T12"),                                  IOStandard("1.2 V")),
     ),
 
     # SDCard (SD and SPI modes of the same microSD socket).
