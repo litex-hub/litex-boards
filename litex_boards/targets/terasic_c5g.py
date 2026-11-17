@@ -3,37 +3,42 @@
 #
 # This file is part of LiteX-Boards.
 #
+# Copyright (c) 2026 Matt Thompson <matt@boondocker.io>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from pathlib import Path
 
-from migen import Cat, ClockDomain, Signal
+from migen import *
 
-from litex.gen import LiteXModule
+from litex.gen import *
 
 from litex_boards.platforms import terasic_c5g
 
 from litex.soc.cores.clock import CycloneVPLL
-from litex.soc.cores.gpio import GPIOIn
+from litex.soc.integration.soc_core import *
+from litex.soc.integration.soc import *
+from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.integration.builder import Builder
-from litex.soc.integration.soc import SoCRegion
-from litex.soc.integration.soc_core import SoCCore
+from litex.soc.cores.gpio import GPIOIn
 
-from litex_boards.targets.terasic_c5g_memory import C5GLPDDR2, C5GSRAM, generate_lpddr2_ip
+from litex_boards.targets.terasic_c5g_memory import C5GSRAM, C5GLPDDR2, generate_lpddr2_ip
 
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_lpddr2):
         self.rst    = Signal()
-        self.cd_sys = ClockDomain("sys")
+        self.cd_sys = ClockDomain()
 
-        self.pll = pll = CycloneVPLL(speedgrade="-C7")
+        # # #
+
+        # Clk / Rst.
         self.reset_n = platform.request("cpu_reset_n")
         self.ref_clk = platform.request("clk50")
+
+        # PLL (On clk50 1 with LPDDR2: clk50 0 and its PLL are kept for the Hard Memory Controller).
+        self.pll = pll = CycloneVPLL(speedgrade="-C7")
         self.comb += pll.reset.eq(self.rst | ~self.reset_n)
-        # Keep the PLL at R20 available for the LPDDR2 hard controller.
         pll.register_clkin(platform.request("clk50", 1) if with_lpddr2 else self.ref_clk, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
@@ -44,24 +49,37 @@ class BaseSoC(SoCCore):
         with_sram=False, with_lpddr2=False, **kwargs):
         platform = terasic_c5g.Platform()
 
+        # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq, with_lpddr2)
 
+        # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Terasic C5G", **kwargs)
 
+        # SRAM -------------------------------------------------------------------------------------
         if with_sram:
             self.ext_sram = C5GSRAM(platform.request("sram"), sys_clk_freq)
-            self.bus.add_slave("ext_sram", self.ext_sram.bus,
-                SoCRegion(origin=0x80000000, size=self.ext_sram.size, cached=False), strip_origin=True)
+            self.bus.add_slave("ext_sram", self.ext_sram.bus, strip_origin=True, region=SoCRegion(
+                origin = 0x8000_0000,
+                size   = self.ext_sram.size,
+                cached = False,
+            ))
+
+        # LPDDR2 -----------------------------------------------------------------------------------
         if with_lpddr2:
             self.lpddr2 = C5GLPDDR2(platform, self.crg.ref_clk, self.crg.reset_n)
-            self.bus.add_slave("lpddr2", self.lpddr2.bus,
-                SoCRegion(origin=0xa0000000, size=self.lpddr2.size, cached=False), strip_origin=True)
+            self.bus.add_slave("lpddr2", self.lpddr2.bus, strip_origin=True, region=SoCRegion(
+                origin = 0xa000_0000,
+                size   = self.lpddr2.size,
+                cached = False,
+            ))
 
+        # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
                 pads         = platform.request_all("user_led"),
-                sys_clk_freq = sys_clk_freq,
-            )
+                sys_clk_freq = sys_clk_freq)
+
+        # Buttons / Switches -----------------------------------------------------------------------
         if with_buttons:
             self.buttons = GPIOIn(~Cat(platform.request_all("user_btn")))
         if with_switches:
@@ -85,10 +103,11 @@ def main():
         with_switches = args.with_switches,
         with_sram     = args.with_sram,
         with_lpddr2   = args.with_lpddr2,
-        **parser.soc_argdict,
+        **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
+        # Generate the LPDDR2 UniPHY IP with Quartus.
         if args.with_lpddr2 and builder.compile_gateware:
             ip = generate_lpddr2_ip(soc.platform, Path(builder.gateware_dir) / "lpddr2")
             soc.platform.add_ip(str(ip))
