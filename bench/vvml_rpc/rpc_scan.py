@@ -41,12 +41,18 @@ class RPC:
         for p in range(4):
             data |= getattr(self.r, f"sdram_dfii_pi{p}_rddata").read() << (64*p)
         return self.r.ddrphy_burstdet_seen.read(), data
-    def shifts(self, stb=None, dqs=None, db=None, rd_en=None, rd=None):
+    def rdly(self, n):
+        self.r.ddrphy_dly_sel.write(0b11)
+        self.r.ddrphy_rdly_dq_rst.write(1)
+        for _ in range(n):
+            self.r.ddrphy_rdly_dq_inc.write(1)
+        self.r.ddrphy_dly_sel.write(0)
+    def shifts(self, stb=None, dqs=None, db=None, rd_en=None, rd_ph=None):
         if stb   is not None: self.r.ddrphy_stb_shift.write(stb)
         if dqs   is not None: self.r.ddrphy_dqs_shift.write(dqs)
         if db    is not None: self.r.ddrphy_db_shift.write(db)
         if rd_en is not None: self.r.ddrphy_rd_en_sel.write(rd_en)
-        if rd    is not None: self.r.ddrphy_rd_shift.write(rd)
+        if rd_ph is not None: self.r.ddrphy_rd_en_phase.write(rd_ph)
 
 def words(data):
     return " ".join("%04x" % ((data >> (16*n)) & 0xffff) for n in range(16))
@@ -57,9 +63,11 @@ def main():
     parser.add_argument("--port",    default=1234, type=int)
     parser.add_argument("test", choices=["ident", "idle", "utr-scan", "utr", "utr-scan2", "utr-scan3"])
     parser.add_argument("--stb", default=4, type=int)
-    parser.add_argument("--dqs", default=0, type=int)
-    parser.add_argument("--db",  default=0, type=int)
-    parser.add_argument("--rd-en", default=5, type=int)
+    parser.add_argument("--dqs", default=4, type=int)
+    parser.add_argument("--db",  default=1, type=int)
+    parser.add_argument("--rd-en", default=4, type=int)
+    parser.add_argument("--rd-ph", default=0, type=int)
+    parser.add_argument("--rdly",  default=5, type=int)
     args = parser.parse_args()
     bus = RemoteClient(csr_csv=args.csr_csv, port=args.port)
     bus.open()
@@ -82,7 +90,8 @@ def main():
             rpc.cmd(3, RDDATA)
             print(f"rd_en {rd_en:2d}: burstdet {rpc.r.ddrphy_burstdet_seen.read():02b}")
     if args.test == "utr":
-        rpc.shifts(stb=args.stb, dqs=args.dqs, db=args.db, rd_en=args.rd_en, rd=0)
+        rpc.shifts(stb=args.stb, dqs=args.dqs, db=args.db, rd_en=args.rd_en, rd_ph=args.rd_ph)
+        rpc.rdly(args.rdly)
         print("init:", rpc.init())
         for op in range(4):
             rpc.utr(1, op)
