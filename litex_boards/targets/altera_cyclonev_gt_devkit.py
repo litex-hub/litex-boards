@@ -6,6 +6,7 @@
 # Copyright (c) 2026 Matt Thompson <matt@boondocker.io>
 # SPDX-License-Identifier: BSD-2-Clause
 
+import inspect
 import os
 import re
 import shutil
@@ -48,8 +49,13 @@ from litepcie.frontend.wishbone import LitePCIeWishboneMaster
 
 # Native DDR3B -------------------------------------------------------------------------------------
 
-_IP_PREFIX   = "q_sys_smc_0_mem_if_ddr3_emif_0"
-_IO_WRAPPERS = (
+# Quartus DDR3 IP name, byte lane instance name, DRAM clock and lane timing of the DDR3B bank,
+# shared by the IP generation, the PHY and the constraints.
+_IP_PREFIX        = "q_sys_smc_0_mem_if_ddr3_emif_0"
+_LANE_NAME        = "ddr3b_lane"
+_MEM_CLK_FREQ     = 300e6
+_DEFAULT_SETTINGS = 0x080d6731
+_IO_WRAPPERS      = (
     "altdq_dqs2_acv_cyclonev.sv",
     "altera_mem_if_dll_cyclonev.sv",
     "altera_mem_if_oct_cyclonev.sv",
@@ -81,7 +87,7 @@ def generate_native_lane_sources(output_dir):
             f"--output-directory={temp}",
             "--preset=MICRON MT41J128M16HA-125",
             "--component-parameter=SPEED_GRADE=7",
-            "--component-parameter=MEM_CLK_FREQ=300.0",
+            f"--component-parameter=MEM_CLK_FREQ={_MEM_CLK_FREQ/1e6}",
             "--component-parameter=REF_CLK_FREQ=100.0",
             "--component-parameter=MEM_DQ_WIDTH=64",
             "--component-parameter=MEM_TCL=6",
@@ -130,10 +136,12 @@ def add_native_lane_sources(platform, ip_dir, gateware_dir, *, with_ddr3a):
     platform.add_platform_command(
         f"set_instance_assignment -name PLL_COMPENSATION_MODE DIRECT -to {_IP_PREFIX}_pll0|fbout")
     phy_prefix = "basesoc_" if with_ddr3a else ""
+    lane       = f"{phy_prefix}cyclonevddrphy_io_backend_cyclonevddr3lane"
+    lane_io    = f"altdq_dqs2_acv_cyclonev:{_LANE_NAME}*"
     # Place the northmost LFIFO capture beside its I/O lane, and center each reset release flop
     # within its four-byte FIFO group.
     platform.toolchain.additional_qsf_commands += [
-        f'set_location_assignment FF_X120_Y89_N4 -to "{phy_prefix}cyclonevddrphy_cyclonevddr3lane_captured_valid[7]"',
+        f'set_location_assignment FF_X120_Y89_N4 -to "{lane}_captured_valid[7]"',
         "set_location_assignment FF_X120_Y48_N13 -to ars_cd_lfifo_reset0_ff1",
         "set_location_assignment FF_X120_Y48_N46 -to ars_cd_vfifo_reset0_ff1",
         "set_location_assignment FF_X120_Y77_N17 -to ars_cd_lfifo_reset1_ff1",
@@ -153,13 +161,13 @@ def add_native_lane_sources(platform, ip_dir, gateware_dir, *, with_ddr3a):
         # hard postamble arc from generic STA and checks its margin separately against the SDRAM
         # round-trip timing.
         "set_false_path "
-        "-from [get_registers {altdq_dqs2_acv_cyclonev:ddr3b_lane*|dqs_enable_ctrl~DQSENABLEOUT_DFF}] "
-        "-to [get_registers {altdq_dqs2_acv_cyclonev:ddr3b_lane*|dqs_delay_chain~POSTAMBLE_DFF}]",
+        f"-from [get_registers {{{lane_io}|dqs_enable_ctrl~DQSENABLEOUT_DFF}}] "
+        f"-to [get_registers {{{lane_io}|dqs_delay_chain~POSTAMBLE_DFF}}]",
         # The FIFO write clock is a returning burst strobe. The startup sequencer releases reset
         # while DQS is idle, before enabling reads. The lock synchronizer clears before the release
         # register can rise.
         "set_false_path -from [get_registers {*cyclonevddr3lane_rfifo_release* ars_cd_dll_init_ff1}] "
-        "-to [get_registers {altdq_dqs2_acv_cyclonev:ddr3b_lane*|input_path_gen*.read_fifo~WRITE_ADDRESS_DFF}]",
+        f"-to [get_registers {{{lane_io}|input_path_gen*.read_fifo~WRITE_ADDRESS_DFF}}]",
         "create_generated_clock -name ddr_sys -divide_by 2 "
         "-source [get_pins {sys_clk|clk}] [get_registers {sys_clk}]",
         "set_multicycle_path -setup -end 2 -from [get_clocks ddr_sys] -to [get_registers {*afi_frame_*}]",
@@ -172,23 +180,23 @@ def add_native_lane_sources(platform, ip_dir, gateware_dir, *, with_ddr3a):
         "set_multicycle_path -hold -start 1 -from $cal_launch -to $cal_capture",
         # Match UniPHY's half-rate to full-rate LFIFO configuration timing.
         "set lfifo_cfg [get_registers {*cyclonevddr3lane_settings_cdc_o*}]",
-        "set lfifo_latency [get_registers {altdq_dqs2_acv_cyclonev:ddr3b_lane*|lfifo~RD_LATENCY_DFF*}]",
+        f"set lfifo_latency [get_registers {{{lane_io}|lfifo~RD_LATENCY_DFF*}}]",
         "set_multicycle_path -setup -end 2 -from $lfifo_cfg -to $lfifo_latency",
         "set_multicycle_path -hold -end 1 -from $lfifo_cfg -to $lfifo_latency",
         # The reference EMIF excludes hard phase-mux select arcs. Match the PLL output pin
         # specifically so AFI fabric data remains timed.
         "set phy_mux_clk [get_pins -compatibility_mode {*pll1_phy~PLL_OUTPUT_COUNTER|divclk}]",
         "set phy_mux_out [get_registers {"
-        "altdq_dqs2_acv_cyclonev:ddr3b_lane*|os_oe_reg "
-        "altdq_dqs2_acv_cyclonev:ddr3b_lane*|phase_align_os~DFF* "
-        "altdq_dqs2_acv_cyclonev:ddr3b_lane*|os_oct_ddio_oe~DFF "
-        "altdq_dqs2_acv_cyclonev:ddr3b_lane*|lfifo~LFIFO_IN_READ_EN_DFF "
-        "altdq_dqs2_acv_cyclonev:ddr3b_lane*|vfifo~QVLD_IN_DFF}]",
+        f"{lane_io}|os_oe_reg "
+        f"{lane_io}|phase_align_os~DFF* "
+        f"{lane_io}|os_oct_ddio_oe~DFF "
+        f"{lane_io}|lfifo~LFIFO_IN_READ_EN_DFF "
+        f"{lane_io}|vfifo~QVLD_IN_DFF}}]",
         "set_false_path -from $phy_mux_clk -to $phy_mux_out",
         # Same dedicated hard FIFO arc excluded by the reference EMIF.
-        "set lfifo_read_en [get_registers {altdq_dqs2_acv_cyclonev:ddr3b_lane*|lfifo~LFIFO_OUT_RDEN_DFF}]",
+        f"set lfifo_read_en [get_registers {{{lane_io}|lfifo~LFIFO_OUT_RDEN_DFF}}]",
         "set rfifo_read_addr [get_registers "
-        "{altdq_dqs2_acv_cyclonev:ddr3b_lane*|input_path_gen*.read_fifo~READ_ADDRESS_DFF}]",
+        f"{{{lane_io}|input_path_gen*.read_fifo~READ_ADDRESS_DFF}}]",
         "set_false_path -from $lfifo_read_en -to $rfifo_read_addr",
         # Toggle-based CDC terminates at stage zero of the Migen MultiReg. Leave subsequent stages
         # and the bundled data bus timed.
@@ -802,11 +810,22 @@ class BaseSoC(SoCCore):
                 ]
                 return lane
 
+            # Board arguments of the PHY (the LiteDRAM versions without them hold the same values).
+            ddrphy_kwargs = {}
+            if "ip_name" in inspect.signature(CycloneVDDRPHY).parameters:
+                ddrphy_kwargs = dict(
+                    ip_name          = _IP_PREFIX,
+                    lane_name        = _LANE_NAME,
+                    mem_clk_freq     = _MEM_CLK_FREQ,
+                    default_settings = _DEFAULT_SETTINGS,
+                )
+
             ddrphy = CycloneVDDRPHY(ddr3b_pads, ref_clk, ResetSignal("por"),
                 cl         = 6,
                 cwl        = 5,
                 on_the_fly = True,
-                io_backend = shared_oct_lane if with_ddr3a else CycloneVDDR3Lane)
+                io_backend = shared_oct_lane if with_ddr3a else CycloneVDDR3Lane,
+                **ddrphy_kwargs)
         else:
             self.crg = _CRG(platform, sys_clk_freq)
 
