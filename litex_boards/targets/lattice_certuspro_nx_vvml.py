@@ -105,12 +105,12 @@ def main():
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
-        prog = soc.platform.create_programmer(args.prog_target)
+        prog = soc.platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
     if args.flash:
-        prog = soc.platform.create_programmer(args.prog_target)
-        prog.load_bitstream(0, builder.get_bitstream_filename(mode="flash"))
+        prog = soc.platform.create_programmer()
+        prog.flash(0, builder.get_bitstream_filename(mode="flash"))
 
 if __name__ == "__main__":
     main()

@@ -117,7 +117,7 @@ class Platform(LatticeNexusPlatform):
         self.toolchain.set_prj_strategy_opts({"bit_ip_eval": "true"})
 
     def create_programmer(self):
-        return OpenFPGALoader()
+        return OpenFPGALoader(cable="ft2232")
 
     def do_finalize(self, fragment):
         LatticeNexusPlatform.do_finalize(self, fragment)
