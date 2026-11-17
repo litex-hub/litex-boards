@@ -12,6 +12,7 @@
 # The LPDDR2 UniPHY IP is generated with Quartus (ip-generate) during the build.
 
 import os
+import math
 
 from migen import *
 
@@ -25,8 +26,8 @@ from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
-
-from litex_boards.targets.terasic_c5g_memory import C5GSRAM, C5GLPDDR2, generate_lpddr2_ip
+from litex.soc.cores.ram.async_sram import AsyncSRAM
+from litex.soc.cores.ram.intel_cyclone5_lpddr2 import CycloneVLPDDR2
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -67,16 +68,46 @@ class BaseSoC(SoCCore):
 
         # SRAM -------------------------------------------------------------------------------------
         if with_sram:
-            self.ext_sram = C5GSRAM(platform.request("sram"), sys_clk_freq)
+            # IS61WV25616 (512KiB, 16-bit): a 32-bit access is done as two 16-bit accesses, each
+            # with a setup, an access and a hold phase of at least 20ns.
+            sram_cycles   = math.ceil(20e-9*sys_clk_freq)
+            self.ext_sram = AsyncSRAM(platform.request("sram"),
+                read_cycles  = sram_cycles,
+                write_cycles = sram_cycles,
+                setup_cycles = sram_cycles,
+                hold_cycles  = sram_cycles,
+            )
             self.bus.add_slave("ext_sram", self.ext_sram.bus, strip_origin=True, region=SoCRegion(
                 origin = 0x8000_0000,
-                size   = self.ext_sram.size,
+                size   = 512*1024,
                 cached = False,
             ))
 
         # LPDDR2 -----------------------------------------------------------------------------------
         if with_lpddr2:
-            self.lpddr2 = C5GLPDDR2(platform, ref_clk=self.crg.clk50, reset_n=self.crg.rst_n)
+            # 512MiB (32-bit, 1 rank) at 300MHz from the 50MHz reference, parameters from the
+            # Terasic C5G System CD reference design.
+            self.lpddr2 = CycloneVLPDDR2(platform,
+                pads          = platform.request("lpddr2"),
+                rzq           = platform.request("lpddr2_rzq"),
+                ref_clk       = self.crg.clk50,
+                ref_clk_freq  = 50e6,
+                mem_clk_freq  = 300e6,
+                speedgrade    = 7,
+                row_bits      = 14,
+                col_bits      = 10,
+                bank_bits     = 3,
+                reset_n       = self.crg.rst_n,
+                ip_name       = "c5g_lpddr2",
+                ip_parameters = {
+                    "MEM_TCL"      : 7,
+                    "MEM_TRFC_NS"  : 130.0,
+                    "MEM_TREFI_US" : 3.9,
+                },
+            )
+            # The Wishbone bus is crossed to the Hard Memory Controller clock with asynchronous FIFOs.
+            platform.toolchain.additional_sdc_commands.append(
+                "set_clock_groups -asynchronous -group [get_clocks {clk501 *ALTPLL*}]")
             self.bus.add_slave("lpddr2", self.lpddr2.bus, strip_origin=True, region=SoCRegion(
                 origin = 0xa000_0000,
                 size   = self.lpddr2.size,
@@ -119,8 +150,7 @@ def main():
     if args.build:
         # Generate the LPDDR2 UniPHY IP with Quartus.
         if args.with_lpddr2 and builder.compile_gateware:
-            ip = generate_lpddr2_ip(soc.platform, os.path.join(builder.gateware_dir, "lpddr2"))
-            soc.platform.add_ip(ip)
+            soc.lpddr2.generate_ip(os.path.join(builder.gateware_dir, "lpddr2"))
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
