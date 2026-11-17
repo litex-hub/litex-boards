@@ -34,6 +34,8 @@ from litex.soc.cores.video import VideoDVIPHY, video_timings
 
 from litex_boards.targets.terasic_c5g_memory import C5GSRAM, C5GLPDDR2, generate_lpddr2_ip
 
+# Constants ----------------------------------------------------------------------------------------
+
 _hdmi_timing = "1280x720@60Hz"
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -55,15 +57,16 @@ class _CRG(LiteXModule):
         pll.register_clkin(platform.request("clk50", 1) if with_lpddr2 else clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
+        # Video PLL (On clk50 2).
         if with_video_terminal:
-            # The UART mirror crosses into the independent pixel domain through an async FIFO.
-            sys_ref = "clk501" if with_lpddr2 else "clk50"
+            # sys <-> hdmi through an asynchronous FIFO (UART mirror of the Video Terminal).
+            sys_clk50 = "clk501" if with_lpddr2 else "clk50"
             platform.toolchain.additional_sdc_commands.append(
                 "set_clock_groups -asynchronous "
-                f"-group [get_clocks {{{sys_ref} altpll:ALTPLL|*}}] "
+                f"-group [get_clocks {{{sys_clk50} altpll:ALTPLL|*}}] "
                 "-group [get_clocks {clk502 altpll:ALTPLL_1|*}]"
             )
-            self.cd_hdmi = ClockDomain("hdmi")
+            self.cd_hdmi  = ClockDomain()
             self.hdmi_pll = hdmi_pll = CycloneVPLL(speedgrade="-C7")
             self.comb += hdmi_pll.reset.eq(self.rst | ~rst_n)
             hdmi_pll.register_clkin(platform.request("clk50", 2), 50e6)
@@ -118,26 +121,43 @@ class BaseSoC(SoCCore):
         if with_switches:
             self.switches = GPIOIn(Cat(platform.request_all("user_sw")))
 
+        # Video Terminal (HDMI, ADV7513) -----------------------------------------------------------
         if with_video_terminal:
+            # ADV7513 I2C initialization (by the BIOS): RGB888 input (ID 0) with separate syncs and
+            # data enable, fixed video mode to start the transmitter before a sink is plugged in.
             self.i2c = I2CMaster(platform.request("i2c"))
-            # ADV7513, RGB888 input ID 0 with separate sync and data enable.
-            # Use a fixed video mode so the transmitter can start before a sink is plugged in.
-            self.i2c.add_init(0x39, [
+            self.i2c.add_init(addr=0x39, init=[
                 (0xd6, 0xc0), # Keep configuration across hot-plug events.
                 (0x41, 0x10), # Power up.
-                (0x98, 0x03), (0x9a, 0xe0), (0x9c, 0x30), (0x9d, 0x61),
-                (0xa2, 0xa4), (0xa3, 0xa4), (0xe0, 0xd0), (0xf9, 0x00), # Required fixed settings.
-                (0x15, 0x00), (0x16, 0x30), # RGB, 8 bits per component.
+                (0x98, 0x03), # Required fixed settings.
+                (0x9a, 0xe0),
+                (0x9c, 0x30),
+                (0x9d, 0x61),
+                (0xa2, 0xa4),
+                (0xa3, 0xa4),
+                (0xe0, 0xd0),
+                (0xf9, 0x00),
+                (0x15, 0x00), # RGB, 8 bits per component.
+                (0x16, 0x30),
                 (0x18, 0x46), # Disable color-space conversion.
                 (0xaf, 0x16), # HDMI mode, HDCP disabled.
             ])
-            pads = platform.request("hdmi")
-            rgb = SimpleNamespace(r=pads.d[16:24], g=pads.d[8:16], b=pads.d[:8],
-                de=pads.de, hsync=pads.hsync, vsync=pads.vsync)
-            self.videophy = VideoDVIPHY(rgb, clock_domain="hdmi")
-            # Forward the inverted pixel clock so the transmitter samples
-            # midway through the cycle after the registered data changes.
-            self.specials += DDROutput(i1=0, i2=1, o=pads.clk, clk=ClockSignal("hdmi"))
+
+            # PHY (Without the clk pad: forwarded inverted for the transmitter to sample the
+            # registered data/syncs at mid-cycle).
+            hdmi_pads  = platform.request("hdmi")
+            video_pads = SimpleNamespace(
+                r     = hdmi_pads.d[16:24],
+                g     = hdmi_pads.d[8:16],
+                b     = hdmi_pads.d[:8],
+                de    = hdmi_pads.de,
+                hsync = hdmi_pads.hsync,
+                vsync = hdmi_pads.vsync,
+            )
+            self.videophy = VideoDVIPHY(video_pads, clock_domain="hdmi")
+            self.specials += DDROutput(i1=0, i2=1, o=hdmi_pads.clk, clk=ClockSignal("hdmi"))
+
+            # Terminal.
             self.add_video_terminal(phy=self.videophy, timings=_hdmi_timing, clock_domain="hdmi")
 
 # Build --------------------------------------------------------------------------------------------
@@ -150,7 +170,7 @@ def main():
     parser.add_target_argument("--with-lpddr2",         action="store_true",      help="Enable LPDDR2 (512MiB, Cyclone V Hard Memory Controller).")
     parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
     parser.add_target_argument("--with-switches",       action="store_true",      help="Enable Switches.")
-    parser.add_target_argument("--with-video-terminal", action="store_true",      help="Mirror the BIOS UART output on HDMI at 720p60.")
+    parser.add_target_argument("--with-video-terminal", action="store_true",      help="Enable Video Terminal (HDMI, 1280x720@60Hz).")
     args = parser.parse_args()
 
     soc = BaseSoC(
