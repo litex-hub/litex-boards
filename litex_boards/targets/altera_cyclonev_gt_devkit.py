@@ -136,13 +136,18 @@ def add_native_lane_sources(platform, ip_dir, gateware_dir, *, with_ddr3a):
     # Match the reference PLL feedback assignment.
     platform.add_platform_command(
         f"set_instance_assignment -name PLL_COMPENSATION_MODE DIRECT -to {_IP_PREFIX}_pll0|fbout")
-    phy_prefix = "basesoc_" if with_ddr3a else ""
-    lane       = f"{phy_prefix}cyclonevddrphy_io_backend_cyclonevddr3lane"
-    lane_io    = f"altdq_dqs2_acv_cyclonev:{_LANE_NAME}*"
+    from litedram.phy.c5ddrphy import CycloneVDDRPHY
+    # The PHY names its LFIFO capture register after the byte lanes. The LiteDRAM versions with the
+    # clocking in the PHY leave it to the automatic naming.
+    captured_valid = f"{_LANE_NAME}_captured_valid"
+    if "ref_clk" in inspect.signature(CycloneVDDRPHY).parameters:
+        phy_prefix     = "basesoc_" if with_ddr3a else ""
+        captured_valid = f"{phy_prefix}cyclonevddrphy_io_backend_cyclonevddr3lane_captured_valid"
+    lane_io = f"altdq_dqs2_acv_cyclonev:{_LANE_NAME}*"
     # Place the northmost LFIFO capture beside its I/O lane, and center each reset release flop
     # within its four-byte FIFO group.
     platform.toolchain.additional_qsf_commands += [
-        f'set_location_assignment FF_X120_Y89_N4 -to "{lane}_captured_valid[7]"',
+        f'set_location_assignment FF_X120_Y89_N4 -to "{captured_valid}[7]"',
         "set_location_assignment FF_X120_Y48_N13 -to ars_cd_lfifo_reset0_ff1",
         "set_location_assignment FF_X120_Y48_N46 -to ars_cd_vfifo_reset0_ff1",
         "set_location_assignment FF_X120_Y77_N17 -to ars_cd_lfifo_reset1_ff1",
@@ -757,15 +762,64 @@ def add_rgmii_constraints(platform):
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq):
+    def __init__(self, platform, sys_clk_freq, with_ddr3b=False):
         self.cd_sys = ClockDomain()
+        if with_ddr3b:
+            self.ddr_locked           = Signal() # o: Lock of the DDR3B PLL (to the PHY).
+            self.ddr_ready            = Signal() # i: Startup of the DDR3B PHY done.
+            self.cd_por               = ClockDomain()
+            self.cd_afi               = ClockDomain()
+            self.cd_afi_phy           = ClockDomain(reset_less=True)
+            self.cd_pll_mem           = ClockDomain(reset_less=True)
+            self.cd_pll_mem_phy       = ClockDomain(reset_less=True)
+            self.cd_pll_write         = ClockDomain(reset_less=True)
+            self.cd_pll_write_pre_phy = ClockDomain(reset_less=True)
+            self.cd_pll_addr_cmd      = ClockDomain(reset_less=True)
+            self.cd_pll_config        = ClockDomain(reset_less=True)
 
         # # #
 
-        # PLL.
-        self.pll = pll = CycloneVPLL(speedgrade="-I7")
-        pll.register_clkin(platform.request("clk50"), 50e6)
-        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        # PLL (50MHz oscillator).
+        if not with_ddr3b:
+            self.pll = pll = CycloneVPLL(speedgrade="-I7")
+            pll.register_clkin(platform.request("clk50"), 50e6)
+            pll.create_clkout(self.cd_sys, sys_clk_freq)
+
+        # DDR3B Clocking (sys and the clocks of the native PHY from the PLL wrapper of the DDR3 IP).
+        else:
+            ref_clk = platform.request("ddr_refclk")
+            platform.add_period_constraint(ref_clk, 10)
+
+            # Power on Reset.
+            por = Signal(4, reset_less=True)
+            self.comb += [
+                self.cd_por.clk.eq(ref_clk),
+                self.cd_por.rst.eq(por != 15),
+            ]
+            self.sync.por += If(por != 15, por.eq(por + 1))
+
+            # PLL.
+            self.specials += Instance(f"{_IP_PREFIX}_pll0",
+                i_global_reset_n            = ~ResetSignal("por"),
+                i_pll_ref_clk               = ref_clk,
+                o_afi_clk                   = self.cd_afi.clk,
+                o_pll_locked                = self.ddr_locked,
+                o_pll_mem_clk               = self.cd_pll_mem.clk,
+                o_pll_mem_phy_clk           = self.cd_pll_mem_phy.clk,
+                o_pll_write_clk             = self.cd_pll_write.clk,
+                o_pll_write_clk_pre_phy_clk = self.cd_pll_write_pre_phy.clk,
+                o_pll_addr_cmd_clk          = self.cd_pll_addr_cmd.clk,
+                o_afi_phy_clk               = self.cd_afi_phy.clk,
+                o_pll_config_clk            = self.cd_pll_config.clk,
+            )
+
+            # sys is afi divided by two (the PHY uses the level of sys to select the AFI word);
+            # both are released when the startup of the PHY is done.
+            self.sync.afi += self.cd_sys.clk.eq(~self.cd_sys.clk)
+            self.specials += [
+                AsyncResetSynchronizer(self.cd_afi, ~self.ddr_ready),
+                AsyncResetSynchronizer(self.cd_sys, ~self.ddr_ready),
+            ]
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
@@ -785,17 +839,26 @@ class BaseSoC(SoCCore):
         if sys_clk_freq is None:
             sys_clk_freq = 75e6 if with_ddr3b else 50e6
 
-        # CRG / DDR3B PHY --------------------------------------------------------------------------
-        # The native DDR3B PHY provides the sys clock domain: the CRG is only used without it.
-        oct_series, oct_parallel = Signal(16), Signal(16)
+        # CRG --------------------------------------------------------------------------------------
+        # The LiteDRAM versions whose native DDR3B PHY takes the reference clock create the sys
+        # clock domain in the PHY: the CRG is not used with them.
+        ddr3b_phy_clocking = False
         if with_ddr3b:
             from litedram.phy.c5ddrphy        import CycloneVDDRPHY
             from litedram.phy.c5ddrphy_native import CycloneVDDR3Lane
 
             if sys_clk_freq != 75e6:
                 raise ValueError("The native DDR3B PHY requires a 75 MHz system clock")
-            ref_clk = platform.request("ddr_refclk")
-            platform.add_period_constraint(ref_clk, 10)
+            ddr3b_phy_clocking = "ref_clk" in inspect.signature(CycloneVDDRPHY).parameters
+        if not ddr3b_phy_clocking:
+            self.crg = _CRG(platform, sys_clk_freq, with_ddr3b=with_ddr3b)
+
+        # DDR3B PHY --------------------------------------------------------------------------------
+        oct_series, oct_parallel = Signal(16), Signal(16)
+        if with_ddr3b:
+            if ddr3b_phy_clocking:
+                ref_clk = platform.request("ddr_refclk")
+                platform.add_period_constraint(ref_clk, 10)
             ddr3b_pads = platform.request("ddram")
 
             def shared_oct_lane(**ports):
@@ -812,36 +875,42 @@ class BaseSoC(SoCCore):
                 return lane
 
             # Board arguments of the PHY (the LiteDRAM versions without them hold the same values).
-            ddrphy_kwargs = {}
+            ddrphy_kwargs = dict(
+                cl         = 6,
+                cwl        = 5,
+                on_the_fly = True,
+                io_backend = shared_oct_lane if with_ddr3a else CycloneVDDR3Lane,
+            )
             if "ip_name" in inspect.signature(CycloneVDDRPHY).parameters:
-                ddrphy_kwargs = dict(
+                ddrphy_kwargs.update(
                     ip_name          = _IP_PREFIX,
                     lane_name        = _LANE_NAME,
                     mem_clk_freq     = _MEM_CLK_FREQ,
                     default_settings = _DEFAULT_SETTINGS,
                 )
-
-            ddrphy = CycloneVDDRPHY(ddr3b_pads, ref_clk, ResetSignal("por"),
-                cl         = 6,
-                cwl        = 5,
-                on_the_fly = True,
-                io_backend = shared_oct_lane if with_ddr3a else CycloneVDDR3Lane,
-                **ddrphy_kwargs)
-        else:
-            self.crg = _CRG(platform, sys_clk_freq)
+            if ddr3b_phy_clocking:
+                ddrphy = CycloneVDDRPHY(ddr3b_pads, ref_clk, ResetSignal("por"), **ddrphy_kwargs)
+            else:
+                ddrphy = CycloneVDDRPHY(ddr3b_pads, sys_clk_freq=sys_clk_freq, **ddrphy_kwargs)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Cyclone V GT", **kwargs)
 
         # DDR3B SDRAM (Native PHY) -----------------------------------------------------------------
         if with_ddr3b:
-            self.cd_por = ClockDomain()
-            por = Signal(4, reset_less=True)
-            self.comb += [
-                self.cd_por.clk.eq(ref_clk),
-                self.cd_por.rst.eq(por != 15),
-            ]
-            self.sync.por += If(por != 15, por.eq(por + 1))
+            if ddr3b_phy_clocking:
+                self.cd_por = ClockDomain()
+                por = Signal(4, reset_less=True)
+                self.comb += [
+                    self.cd_por.clk.eq(ref_clk),
+                    self.cd_por.rst.eq(por != 15),
+                ]
+                self.sync.por += If(por != 15, por.eq(por + 1))
+            else:
+                self.comb += [
+                    ddrphy.pll_locked.eq(self.crg.ddr_locked),
+                    self.crg.ddr_ready.eq(ddrphy.ready),
+                ]
             self.ddrphy = ddrphy
             self.add_sdram("sdram",
                 phy    = self.ddrphy,
