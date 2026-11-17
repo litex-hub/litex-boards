@@ -30,7 +30,8 @@ from litedram.phy.rpc.nxphy import NXRPCPHY
 
 class _CRG(LiteXModule):
     def __init__(self, platform, sys_clk_freq, with_rpcdram=False):
-        self.rst    = Signal()
+        self.platform = platform
+        self.rst      = Signal()
         self.cd_sys = ClockDomain()
         self.cd_por = ClockDomain()
         if with_rpcdram:
@@ -66,7 +67,7 @@ class _CRG(LiteXModule):
         if with_rpcdram:
             # Edge clock (sys4x) for the RPC DRAM PHY, sys from the edge clock divider.
             sys_pll.create_clkout(self.cd_sys4x_i, 4*sys_clk_freq)
-            self.comb += self.cd_init.clk.eq(self.clk24)
+            sys_pll.create_clkout(self.cd_init,    24e6)
             self.specials += [
                 Instance("ECLKSYNC",
                     p_STOP_EN = "ENABLE",
@@ -82,10 +83,19 @@ class _CRG(LiteXModule):
                 AsyncResetSynchronizer(self.cd_init, ~sys_pll.locked),
                 AsyncResetSynchronizer(self.cd_sys,  ~sys_pll.locked | self.reset),
             ]
-            platform.add_period_constraint(self.cd_sys.clk, 1e9/sys_clk_freq)
         else:
             sys_pll.create_clkout(self.cd_sys, sys_clk_freq)
             self.specials += AsyncResetSynchronizer(self.cd_sys, ~self.sys_pll.locked)
+
+    def do_finalize(self):
+        if hasattr(self, "cd_init"):
+            # The init domain only sequences the edge clock start-up (stop/reset) and the DQSBUFs:
+            # asynchronous to the edge clock (stopped during the sequence) and to sys. Added here
+            # to be after the clocks of the PLL in the constraints.
+            self.platform.add_platform_command(
+                "set_clock_groups -asynchronous "
+                f"-group [get_clocks {{{{{self.sys_pll.name}_S}}}}] "
+                f"-group [get_clocks {{{{{self.sys_pll.name}_P sys_clk[0]}}}}]")
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
