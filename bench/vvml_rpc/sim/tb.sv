@@ -14,7 +14,7 @@ module arst_sync(input clk, input arst, output rst);
 endmodule
 
 module tb;
-    integer STB = 4, DQS = 4, DB = 1, RD_EN = 4, RDLY = 5, RD_PH = 0, MON = 0, RE_START = 0, RE_LEN = 0, TCK4X = 5000, PADS = 1;
+    integer STB = 5, DQS = 4, DB = 1, RD_EN = 4, RDLY = 5, RD_PH = 0, MON = 0, RE_START = 0, RE_LEN = 0, TCK4X = 5000, PADS = 1;
 
     reg clk4x = 0, clk_init = 0, rst = 1;
     always #(TCK4X/2) clk4x = ~clk4x;
