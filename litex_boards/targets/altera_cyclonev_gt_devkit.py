@@ -36,7 +36,7 @@ from litex.soc.cores.led     import LedChaser
 from litex.soc.cores.bitbang import I2CMaster
 
 from litedram.common            import LiteDRAMNativePort
-from litedram.modules           import MT41K64M16
+from litedram.modules           import MT41K128M16
 from litedram.frontend.bist     import LiteDRAMBISTGenerator, LiteDRAMBISTChecker
 from litedram.frontend.wishbone import LiteDRAMWishbone2Native
 
@@ -77,7 +77,8 @@ def generate_native_lane_sources(output_dir):
     output_dir = Path(output_dir).resolve()
     with TemporaryDirectory(prefix="cyclonev-ddr3b-") as temp:
         # Quartus emits the wrappers as part of its DDR3 IP generation: keep the I/O wrappers used
-        # by the native PHY.
+        # by the native PHY. The preset has the geometry of the MT41K128M16JT of the board (128M x
+        # 16: 14 row, 10 column and 3 bank address bits).
         subprocess.run([
             str(generator),
             "--component-name=altera_mem_if_ddr3_emif",
@@ -844,7 +845,7 @@ class BaseSoC(SoCCore):
             self.ddrphy = ddrphy
             self.add_sdram("sdram",
                 phy    = self.ddrphy,
-                module = MT41K64M16(sys_clk_freq, "1:4"))
+                module = MT41K128M16(sys_clk_freq, "1:4"))
             self.sdram_generator = LiteDRAMBISTGenerator(self.sdram.crossbar.get_port())
             # Cover the fixed PHY return latency plus controller and DMA latency.
             self.sdram_checker   = LiteDRAMBISTChecker(self.sdram.crossbar.get_port(), fifo_depth=64)
