@@ -9,6 +9,7 @@
 # Build/Use:
 # ./terasic_c5g.py --build --load
 # ./terasic_c5g.py --with-sram --with-lpddr2 --build --load
+# ./terasic_c5g.py --with-audio --with-audio-dma --integrated-sram-size=65536 --build --load
 # The LPDDR2 UniPHY IP is generated with Quartus (ip-generate) during the build.
 
 import os
@@ -19,10 +20,12 @@ from litex.gen import *
 
 from litex_boards.platforms import terasic_c5g
 
+from litex.soc.cores.bitbang import I2CMaster
 from litex.soc.cores.clock import CycloneVPLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import *
 from litex.soc.integration.builder import *
+from litex.soc.interconnect import wishbone
 from litex.soc.cores.led import LedChaser
 from litex.soc.cores.gpio import GPIOIn
 
@@ -99,9 +102,7 @@ class BaseSoC(SoCCore):
 
         # Audio (SSM2603) --------------------------------------------------------------------------
         if with_audio:
-            from litex.soc.cores.audio.ssm2603 import SSM2603, SSM2603PCM
-            from litex.soc.cores.bitbang import I2CMaster
-            from litex.soc.interconnect import wishbone
+            from litex.soc.cores.audio import SSM2603, SSM2603PCM # LiteX #2801.
 
             sample_width = 32
 
