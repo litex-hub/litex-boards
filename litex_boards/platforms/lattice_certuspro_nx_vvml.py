@@ -88,6 +88,22 @@ _io = [
         # Subsignal("clk_n", Pins("W21"), IOStandard("LVDS")),
         Misc("SLEWRATE=FAST")
     ),
+
+    # RPC DRAM (2 x EM6GA16LBXA-12H: shared CLK/DQS/DB, one STB/CS# per DRAM), Bank 4 (1.5V).
+    ("rpcdram", 0,
+        Subsignal("clk_p", Pins("AA14"),    IOStandard("SSTL15D_I")), # clk_n: Y14.
+        Subsignal("stb",   Pins("AA10 Y10"), IOStandard("SSTL15_I")),
+        Subsignal("cs_n",  Pins("V10 W10"),  IOStandard("SSTL15_I")),
+        Subsignal("dqs_p", Pins("AB11 AB14"), IOStandard("SSTL15D_I"), # dqs_n: AB12 AB15.
+            Misc("TERMINATION=OFF")),
+        Subsignal("db", Pins(
+            "AB13 Y11 AA13 AA12 U11 AA11 V11 W11",
+            "V13  W14 U12  V14  U14 T12  U13 T14"),
+            IOStandard("SSTL15_I"),
+            Misc("TERMINATION=75"),
+            Misc("VREF=VREF1_LOAD")),
+        Misc("SLEWRATE=FAST"),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
