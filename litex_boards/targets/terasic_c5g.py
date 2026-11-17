@@ -6,7 +6,12 @@
 # Copyright (c) 2026 Matt Thompson <matt@boondocker.io>
 # SPDX-License-Identifier: BSD-2-Clause
 
-from pathlib import Path
+# Build/Use:
+# ./terasic_c5g.py --build --load
+# ./terasic_c5g.py --with-sram --with-lpddr2 --build --load
+# The LPDDR2 UniPHY IP is generated with Quartus (ip-generate) during the build.
+
+import os
 
 from migen import *
 
@@ -26,31 +31,36 @@ from litex_boards.targets.terasic_c5g_memory import C5GSRAM, C5GLPDDR2, generate
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_lpddr2):
+    def __init__(self, platform, sys_clk_freq, with_lpddr2=False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
 
         # # #
 
         # Clk / Rst.
-        self.reset_n = platform.request("cpu_reset_n")
-        self.ref_clk = platform.request("clk50")
+        self.rst_n = rst_n = platform.request("cpu_reset_n")
+        self.clk50 = clk50 = platform.request("clk50")
 
         # PLL (On clk50 1 with LPDDR2: clk50 0 and its PLL are kept for the Hard Memory Controller).
         self.pll = pll = CycloneVPLL(speedgrade="-C7")
-        self.comb += pll.reset.eq(self.rst | ~self.reset_n)
-        pll.register_clkin(platform.request("clk50", 1) if with_lpddr2 else self.ref_clk, 50e6)
+        self.comb += pll.reset.eq(self.rst | ~rst_n)
+        pll.register_clkin(platform.request("clk50", 1) if with_lpddr2 else clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=50e6, with_led_chaser=True, with_buttons=False, with_switches=False,
-        with_sram=False, with_lpddr2=False, **kwargs):
+    def __init__(self, sys_clk_freq=50e6,
+        with_led_chaser     = True,
+        with_sram           = False,
+        with_lpddr2         = False,
+        with_buttons        = False,
+        with_switches       = False,
+        **kwargs):
         platform = terasic_c5g.Platform()
 
         # CRG --------------------------------------------------------------------------------------
-        self.crg = _CRG(platform, sys_clk_freq, with_lpddr2)
+        self.crg = _CRG(platform, sys_clk_freq, with_lpddr2=with_lpddr2)
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Terasic C5G", **kwargs)
@@ -66,7 +76,7 @@ class BaseSoC(SoCCore):
 
         # LPDDR2 -----------------------------------------------------------------------------------
         if with_lpddr2:
-            self.lpddr2 = C5GLPDDR2(platform, self.crg.ref_clk, self.crg.reset_n)
+            self.lpddr2 = C5GLPDDR2(platform, ref_clk=self.crg.clk50, reset_n=self.crg.rst_n)
             self.bus.add_slave("lpddr2", self.lpddr2.bus, strip_origin=True, region=SoCRegion(
                 origin = 0xa000_0000,
                 size   = self.lpddr2.size,
@@ -90,27 +100,27 @@ class BaseSoC(SoCCore):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(platform=terasic_c5g.Platform, description="LiteX SoC on Terasic C5G.")
-    parser.add_target_argument("--sys-clk-freq",  default=50e6, type=float, help="System clock frequency.")
-    parser.add_target_argument("--with-buttons",  action="store_true",      help="Enable buttons.")
-    parser.add_target_argument("--with-switches", action="store_true",      help="Enable switches.")
-    parser.add_target_argument("--with-sram",     action="store_true",      help="Enable the onboard asynchronous SRAM.")
-    parser.add_target_argument("--with-lpddr2",   action="store_true",      help="Enable the onboard LPDDR2 using the Quartus hard memory controller.")
+    parser.add_target_argument("--sys-clk-freq",        default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--with-sram",           action="store_true",      help="Enable SRAM (IS61WV25616, 512KiB).")
+    parser.add_target_argument("--with-lpddr2",         action="store_true",      help="Enable LPDDR2 (512MiB, Cyclone V Hard Memory Controller).")
+    parser.add_target_argument("--with-buttons",        action="store_true",      help="Enable Buttons.")
+    parser.add_target_argument("--with-switches",       action="store_true",      help="Enable Switches.")
     args = parser.parse_args()
 
     soc = BaseSoC(
-        sys_clk_freq  = args.sys_clk_freq,
-        with_buttons  = args.with_buttons,
-        with_switches = args.with_switches,
-        with_sram     = args.with_sram,
-        with_lpddr2   = args.with_lpddr2,
+        sys_clk_freq        = args.sys_clk_freq,
+        with_sram           = args.with_sram,
+        with_lpddr2         = args.with_lpddr2,
+        with_buttons        = args.with_buttons,
+        with_switches       = args.with_switches,
         **parser.soc_argdict
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         # Generate the LPDDR2 UniPHY IP with Quartus.
         if args.with_lpddr2 and builder.compile_gateware:
-            ip = generate_lpddr2_ip(soc.platform, Path(builder.gateware_dir) / "lpddr2")
-            soc.platform.add_ip(str(ip))
+            ip = generate_lpddr2_ip(soc.platform, os.path.join(builder.gateware_dir, "lpddr2"))
+            soc.platform.add_ip(ip)
         builder.build(**parser.toolchain_argdict)
 
     if args.load:
