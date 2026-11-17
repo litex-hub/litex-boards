@@ -9,8 +9,6 @@ import math
 import shutil
 import subprocess
 
-from pathlib import Path
-
 from migen import *
 from migen.fhdl.specials import Tristate
 from migen.genlib.cdc import MultiReg
@@ -64,15 +62,6 @@ class C5GSRAM(LiteXModule):
                 NextState("SETUP")
             )
         )
-        self.comb += [
-            pads.ce_n.eq(~(fsm.ongoing("SETUP") | fsm.ongoing("ACCESS") | fsm.ongoing("HOLD"))),
-            pads.oe_n.eq(~(fsm.ongoing("ACCESS") & ~bus.we)),
-            pads.we_n.eq(~(fsm.ongoing("ACCESS") & bus.we & (select != 0))),
-            pads.lb_n.eq(pads.ce_n | (bus.we & ~select[0])),
-            pads.ub_n.eq(pads.ce_n | (bus.we & ~select[1])),
-            drive.eq(~pads.ce_n & bus.we),
-            bus.dat_r.eq(read_data),
-        ]
         fsm.act("SETUP",
             If(done,
                 NextValue(elapsed, 0),
@@ -114,6 +103,17 @@ class C5GSRAM(LiteXModule):
             NextState("IDLE")
         )
 
+        # Controls / Read data.
+        self.comb += [
+            pads.ce_n.eq(~(fsm.ongoing("SETUP") | fsm.ongoing("ACCESS") | fsm.ongoing("HOLD"))),
+            pads.oe_n.eq(~(fsm.ongoing("ACCESS") & ~bus.we)),
+            pads.we_n.eq(~(fsm.ongoing("ACCESS") & bus.we & (select != 0))),
+            pads.lb_n.eq(pads.ce_n | (bus.we & ~select[0])),
+            pads.ub_n.eq(pads.ce_n | (bus.we & ~select[1])),
+            drive.eq(~pads.ce_n & bus.we),
+            bus.dat_r.eq(read_data),
+        ]
+
 # C5G LPDDR2 ---------------------------------------------------------------------------------------
 
 class C5GLPDDR2(LiteXModule):
@@ -126,6 +126,12 @@ class C5GLPDDR2(LiteXModule):
     size = 512*1024*1024
 
     def __init__(self, platform, ref_clk, reset_n):
+        self.bus         = wishbone.Interface(data_width=32, address_width=32)
+        self.calibration = CSRStatus(3,
+            description = "HMC init done, calibration success, calibration failure.")
+
+        # # #
+
         # Pads.
         pads = platform.request("lpddr2")
         rzq  = platform.request("lpddr2_rzq")
@@ -144,21 +150,18 @@ class C5GLPDDR2(LiteXModule):
         self.specials += AsyncResetSynchronizer(self.cd_lpddr2, ~afi_reset_n)
 
         # Wishbone Clock Domain Crossing (sys -> lpddr2).
-        self.bus  = wishbone.Interface(data_width=32, address_width=32)
         local_bus = wishbone.Interface(data_width=32, address_width=32)
         self.cdc  = wishbone.ClockDomainCrossing(self.bus, local_bus, cd_to="lpddr2")
 
         # Calibration Status (lpddr2 -> sys).
         init, success, fail = Signal(), Signal(), Signal()
-        status      = Signal(3)
-        status_meta = Signal(3, name="lpddr2_status_meta", attr={"no_retiming"})
+        cal_status = Signal(3)
+        cal_meta   = Signal(3, name="lpddr2_status_meta", attr={"no_retiming"})
         self.sync.lpddr2 += [
-            status_meta.eq(Cat(init, success, fail)),
-            status.eq(status_meta),
+            cal_meta.eq(Cat(init, success, fail)),
+            cal_status.eq(cal_meta),
         ]
-        self.calibration = CSRStatus(3,
-            description = "HMC init done, calibration success, calibration failure.")
-        self.specials += MultiReg(status, self.calibration.status)
+        self.specials += MultiReg(cal_status, self.calibration.status)
 
         # Wishbone -> Avalon-MM FSM.
         ready, valid, read, write, begin = (Signal() for _ in range(5))
@@ -167,9 +170,9 @@ class C5GLPDDR2(LiteXModule):
         fsm.act("IDLE",
             If(local_bus.cyc & local_bus.stb,
                 # Error when the calibration failed, wait while it is not done.
-                If(status[2],
+                If(cal_status[2],
                     local_bus.err.eq(1)
-                ).Elif(status == 0b011,
+                ).Elif(cal_status == 0b011,
                     NextState("ISSUE")
                 )
             )
@@ -287,12 +290,12 @@ def generate_lpddr2_ip(platform, output_dir):
         quartus_map = shutil.which("quartus_map")
         if quartus_map is None:
             raise OSError("Put Quartus on PATH or set QUARTUS_ROOTDIR to generate C5G LPDDR2 IP")
-        quartus_root = Path(quartus_map).resolve().parent.parent
-    generator = Path(quartus_root).resolve() / "sopc_builder/bin/ip-generate"
+        quartus_root = os.path.dirname(os.path.dirname(os.path.realpath(quartus_map)))
+    ip_generate = os.path.join(os.path.realpath(quartus_root), "sopc_builder", "bin", "ip-generate")
 
     # Output directory.
-    output = Path(output_dir).resolve()
-    output.mkdir(parents=True, exist_ok=True)
+    output_dir = os.path.realpath(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
 
     # Parameters (From the Terasic C5G System CD reference design: 32-bit, 1 rank, 50MHz reference).
     parameters = {
@@ -316,15 +319,15 @@ def generate_lpddr2_ip(platform, output_dir):
 
     # Generate.
     cmd = [
-        str(generator),
+        ip_generate,
         "--component-name=altera_mem_if_lpddr2_emif",
         "--file-set=QUARTUS_SYNTH",
         "--standard-reports",
         f"--part={platform.device}",
         "--output-name=c5g_lpddr2",
-        f"--output-directory={output}",
+        f"--output-directory={output_dir}",
     ]
     cmd += [f"--component-parameter={name}={value}" for name, value in parameters.items()]
-    subprocess.run(cmd, cwd=output, check=True)
+    subprocess.run(cmd, cwd=output_dir, check=True)
 
-    return output / "c5g_lpddr2.qip"
+    return os.path.join(output_dir, "c5g_lpddr2.qip")
