@@ -102,7 +102,7 @@ _io = [
     # DDR3 RZQ (Shared termination reference, for DDR3A-only builds).
     ("ddr_rzq", 0, Pins("AP19"), IOStandard("SSTL-15")),
 
-    # DDR3B SDRAM (Four x16 devices on a shared address and command bus).
+    # DDR3B SDRAM (Four MT41K128M16JT x16 devices on a shared address and command bus, 1GB).
     ("ddram", 0,
         Subsignal("a", Pins(
             "H29 K28 K34 L32 R32 R33 N32 G33 "
