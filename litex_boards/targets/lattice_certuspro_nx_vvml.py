@@ -103,6 +103,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6, toolchain="radiant",
         with_led_chaser = True,
         with_rpcdram    = False,
+        with_bist       = False,
         with_buttons    = False,
         **kwargs):
         platform = lattice_certuspro_nx_vvml.Platform(toolchain=toolchain)
@@ -126,7 +127,8 @@ class BaseSoC(SoCCore):
             self.add_sdram("sdram",
                 phy           = self.ddrphy,
                 module        = EM6GA16L(sys_clk_freq, "1:4"),
-                l2_cache_size = kwargs.get("l2_size", 8192))
+                l2_cache_size = kwargs.get("l2_size", 8192),
+                with_bist     = with_bist)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -147,6 +149,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream to SPI Flash.")
     parser.add_target_argument("--with-rpcdram", action="store_true",      help="Enable RPC DRAM.")
+    parser.add_target_argument("--with-bist",    action="store_true",      help="Add RPC DRAM BIST Generator/Checker.")
     parser.add_target_argument("--with-buttons", action="store_true",      help="Enable Buttons.")
     add_pmod_args(parser)
     args = parser.parse_args()
@@ -154,6 +157,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
         with_rpcdram = args.with_rpcdram,
+        with_bist    = args.with_bist,
         with_buttons = args.with_buttons,
         **parser.soc_argdict
     )
