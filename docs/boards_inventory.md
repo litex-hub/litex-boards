@@ -105,7 +105,7 @@ python3 .github/scripts/generate_board_inventory.py --write
 | `lattice_certus_nx_versa` | lattice_certus_nx_versa | radiant | `75000000.0` | SPI Flash | included |
 | `lattice_certuspro_nx_evn` | lattice_certuspro_nx_evn | radiant | `75000000.0` | - | included |
 | `lattice_certuspro_nx_versa` | lattice_certuspro_nx_versa | radiant | `75000000.0` | PCIe | included |
-| `lattice_certuspro_nx_vvml` | lattice_certuspro_nx_vvml | radiant | `75000000.0` | - | included |
+| `lattice_certuspro_nx_vvml` | lattice_certuspro_nx_vvml | radiant | `100000000.0` | - | included |
 | `lattice_crosslink_nx_evn` | lattice_crosslink_nx_evn | radiant | `75000000.0` | SPI Flash | included |
 | `lattice_crosslink_nx_vip` | lattice_crosslink_nx_vip | radiant | `75000000.0` | - | included |
 | `lattice_ecp5_evn` | lattice_ecp5_evn | trellis | `60000000.0` | - | included |
