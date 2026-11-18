@@ -100,7 +100,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=75e6, toolchain="radiant",
+    def __init__(self, sys_clk_freq=100e6, toolchain="radiant",
         with_led_chaser = True,
         with_rpcdram    = False,
         with_buttons    = False,
@@ -144,7 +144,7 @@ def main():
     from litex.build.parser           import LiteXArgumentParser
     from litex_boards.extensions.pmod import add_pmod_args, add_pmods
     parser = LiteXArgumentParser(platform=lattice_certuspro_nx_vvml.Platform, description="LiteX SoC on CertusPro-NX VVML EVN Board.")
-    parser.add_target_argument("--sys-clk-freq", default=75e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream to SPI Flash.")
     parser.add_target_argument("--with-rpcdram", action="store_true",      help="Enable RPC DRAM.")
     parser.add_target_argument("--with-buttons", action="store_true",      help="Enable Buttons.")
