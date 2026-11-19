@@ -24,7 +24,7 @@ from litex.soc.cores.ram.gowin_hyperram import GowinHyperRAM
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_hyperram=False):
+    def __init__(self, platform, sys_clk_freq):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
 
@@ -41,10 +41,6 @@ class _CRG(LiteXModule):
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
 
-        if with_hyperram:
-            self.cd_sys4x = ClockDomain()
-            pll.create_clkout(self.cd_sys4x, 4*sys_clk_freq)
-
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -56,7 +52,7 @@ class BaseSoC(SoCCore):
 
         # CRG --------------------------------------------------------------------------------------
         with_hyperram = not kwargs.get("integrated_main_ram_size", 0)
-        self.crg = _CRG(platform, sys_clk_freq, with_hyperram=with_hyperram)
+        self.crg = _CRG(platform, sys_clk_freq)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Disable Integrated ROM.
