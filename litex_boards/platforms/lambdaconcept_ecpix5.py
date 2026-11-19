@@ -115,6 +115,9 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # Clock returned from the microSD level shifter (r02 schematic).
+    ("sdcard_clk_fb", 0, Pins("J26"), IOStandard("LVCMOS33")),
+
     # SATA (DCU1/CH0).
     ("sata", 0,
         Subsignal("rx_p",  Pins("AF15")),
@@ -145,7 +148,7 @@ _io = [
         Subsignal("dir",  Pins("F22")),
         Subsignal("nxt",  Pins("F23")),
         Subsignal("stp",  Pins("H23")),
-        Subsignal("data", Pins("M26 L25 L26 K25 K26 J23 J26 H25")),
+        Subsignal("data", Pins("M26 L25 L26 K25 K26 J23 P25 H25")),
         IOStandard("LVCMOS33")
     ),
 
