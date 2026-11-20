@@ -117,8 +117,9 @@ class BaseSoC(SoCCore):
                 self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             if with_ethernet:
                 self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
-            # The daughterboard has the tx clock wired to a non-clock pin, so we can't help it
+            # The daughterboard has the tx and rx clocks wired to non-clock pins, so we can't help it
             self.platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets eth_clocks_tx_IBUF]")
+            self.platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets eth_clocks_rx_IBUF]")
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
