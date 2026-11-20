@@ -152,9 +152,8 @@ class QMTechDaughterboard(_QMTechDaughterboardBase):
                 io_standard
             ),
             ("eth", 0,
-                # rst is hardwired on the board
-                #Subsignal("rst_n",   Pins("-")),
-                Subsignal("int_n",   Pins("J3:26")),
+                # J3:26 is PHYRSTB (RTL8211EG reset) on the DB_FPGA schematic
+                Subsignal("rst_n",   Pins("J3:26")),
                 Subsignal("mdio",    Pins("J3:15")),
                 Subsignal("mdc",     Pins("J3:16")),
                 Subsignal("rx_dv",   Pins("J3:42")),
