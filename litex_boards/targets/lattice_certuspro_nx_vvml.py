@@ -103,6 +103,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6, toolchain="radiant",
         with_led_chaser = True,
         with_rpcdram    = False,
+        rpc_ranks       = 1,
         with_bist       = False,
         with_buttons    = False,
         **kwargs):
@@ -116,10 +117,12 @@ class BaseSoC(SoCCore):
 
         # RPC DRAM ---------------------------------------------------------------------------------
         if with_rpcdram and not self.integrated_main_ram_size:
-            # First DRAM only for now (STB/CS# of the second one are held high by the PHY).
+            # The two DRAMs share CLK/DQS/DB (1 rank: first DRAM, 32MiB, the second one is only reset
+            # by the PHY; 2 ranks: 64MiB).
             self.ddrphy = NXRPCPHY(
                 pads         = platform.request("rpcdram"),
-                sys_clk_freq = sys_clk_freq)
+                sys_clk_freq = sys_clk_freq,
+                nranks       = rpc_ranks)
             self.comb += [
                 self.crg.stop.eq(self.ddrphy.init.stop),
                 self.crg.reset.eq(self.ddrphy.init.reset),
@@ -149,6 +152,7 @@ def main():
     parser.add_target_argument("--sys-clk-freq", default=100e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--flash",        action="store_true",      help="Flash bitstream to SPI Flash.")
     parser.add_target_argument("--with-rpcdram", action="store_true",      help="Enable RPC DRAM.")
+    parser.add_target_argument("--rpc-ranks",    default=1, type=int,      help="Number of RPC DRAMs used (1: 32MiB, 2: 64MiB).")
     parser.add_target_argument("--with-bist",    action="store_true",      help="Add RPC DRAM BIST Generator/Checker.")
     parser.add_target_argument("--with-buttons", action="store_true",      help="Enable Buttons.")
     add_pmod_args(parser)
@@ -157,6 +161,7 @@ def main():
     soc = BaseSoC(
         sys_clk_freq = args.sys_clk_freq,
         with_rpcdram = args.with_rpcdram,
+        rpc_ranks    = args.rpc_ranks,
         with_bist    = args.with_bist,
         with_buttons = args.with_buttons,
         **parser.soc_argdict
