@@ -26,7 +26,7 @@ from litex.soc.cores.ram.gowin_hyperram import GowinHyperRAM
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    def __init__(self, platform, sys_clk_freq, with_video_pll=False, with_hyperram=False):
+    def __init__(self, platform, sys_clk_freq, with_video_pll=False):
         self.rst    = Signal()
         self.cd_sys = ClockDomain()
 
@@ -42,11 +42,6 @@ class _CRG(LiteXModule):
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clk27, 27e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
-
-        # HyperRAM Clock.
-        if with_hyperram:
-            self.cd_sys4x = ClockDomain()
-            pll.create_clkout(self.cd_sys4x, 4*sys_clk_freq)
 
         # Video PLL
         if with_video_pll:
@@ -84,8 +79,7 @@ class BaseSoC(SoCCore):
         with_hyperram = not kwargs.get("integrated_main_ram_size", 0)
         assert not with_video_framebuffer or with_hyperram
         self.crg = _CRG(platform, sys_clk_freq,
-            with_video_pll = with_video_terminal or with_video_framebuffer,
-            with_hyperram  = with_hyperram)
+            with_video_pll = with_video_terminal or with_video_framebuffer)
 
         # SoCCore ----------------------------------------------------------------------------------
         # Keep the BIOS in external SPI Flash by default to save GW1N-9 resources.
