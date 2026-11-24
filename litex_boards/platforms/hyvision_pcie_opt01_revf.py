@@ -18,7 +18,9 @@ _io = [
         Subsignal("n", Pins("AB10"), IOStandard("DIFF_SSTL18_II")),
     ),
 
-    # fitted LEDs, active high
+    # Fitted LEDs. The vendor pin table gives them as active high, but
+    # litex_wr_nic drives user_led 0..2 inverted; check the polarity on
+    # hardware before relying on it.
     ("user_led",  0, Pins("D26"), IOStandard("LVCMOS33")), # D5
     ("user_led",  1, Pins("D25"), IOStandard("LVCMOS33")), # D3
     ("user_led",  2, Pins("C26"), IOStandard("LVCMOS33")), # D6
@@ -162,7 +164,10 @@ _io = [
     ("sfp_los",        1, Pins("C14"), IOStandard("LVCMOS33")),
     ("sfp_rs1",        1, Pins("D14"), IOStandard("LVCMOS33")),
 
-    # DVP
+    # DVP camera group on J7, a 2x20 2.54 mm header on the top edge of the
+    # card. Every signal is named on the silkscreen. dtx/drx double as the
+    # shared White Rabbit console in litex_wr_nic (J7 pins 37/38, 115200
+    # 8N1, 3.3 V); see that repository's doc/hyvision_pcie_opt01_revf.md.
     ("dvp", 0,
         Subsignal("r",    Pins("H22 G22 F22 E21 D21 N19 P20 P21")),
         Subsignal("g",    Pins("M19 C24 C22 N21 M21 L22 K22 J21")),
