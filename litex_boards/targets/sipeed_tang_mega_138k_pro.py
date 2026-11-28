@@ -197,6 +197,7 @@ class BaseSoC(SoCCore):
         with_spi_flash      = False,
         spi_flash_offset    = 0x000000,
         spi_flash_size      = 0xa00000,
+        rom_boot_address    = None,
         **kwargs):
         assert ddr3_rate in ("1:2", "1:4")
         ddr3_nphases = int(ddr3_rate[-1])
@@ -237,6 +238,8 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Tang Mega 138K Pro", **kwargs)
         if cpu_clk_freq:
             self.add_config("CPU_CLK_FREQ", cpu_clk_freq)
+        if rom_boot_address is not None:
+            self.add_constant("ROM_BOOT_ADDRESS", rom_boot_address)
 
         # SPI Flash --------------------------------------------------------------------------------
         if with_spi_flash:
@@ -250,9 +253,15 @@ class BaseSoC(SoCCore):
             self.spiflash = LiteSPI(phy, mmap_endianness=self.cpu.endianness, with_master=False)
             self.spiflash.add_module(name="phy", module=phy)
             self.add_constant("SPIFLASH_MODULE_NAME", "W25Q128JV")
-            # XIP: map the CPU ROM window to the firmware offset in flash.
+            # XIP: map the CPU ROM window to the firmware offset in flash. With an integrated ROM
+            # (BIOS) at the CPU reset address, the flash window follows it, on the next boundary
+            # its size allows (bus regions are aligned on their size).
+            spi_flash_origin = self.cpu.mem_map["rom"]
+            if self.integrated_rom_size:
+                align = 1 << (spi_flash_size - 1).bit_length()
+                spi_flash_origin = (self.bus.regions["rom"].origin + self.bus.regions["rom"].size_pow2 + align - 1) // align * align
             self.bus.add_slave(name="spiflash", slave=self.spiflash.bus,
-                region=SoCRegion(origin=self.cpu.mem_map["rom"], size=spi_flash_size, mode="rx", cached=True),
+                region=SoCRegion(origin=spi_flash_origin, size=spi_flash_size, mode="rx", cached=True),
                 dst_region=SoCRegion(origin=spi_flash_offset, size=spi_flash_size))
             # Add ROM linker region over the mapped flash window.
             if not self.integrated_rom_size:
@@ -446,8 +455,11 @@ def main():
     parser.add_target_argument("--with-ae350-buttons", action="store_true", help="Use Button S0..S2 by AE350 GPIO[5:3]).")
     parser.add_target_argument("--with-ae350-uart2",  action="store_true",  help="Use serial pads by AE350 UART2.")
     parser.add_target_argument("--with-spi-flash",  action="store_true",    help="Enable SPI flash.")
-    parser.add_target_argument("--spi-flash-offset", default=0x000000, type=lambda x: int(x, 0), help="Flash offset mapped at 0x80000000.")
+    parser.add_target_argument("--spi-flash-offset", default=0x000000, type=lambda x: int(x, 0),
+        help="Flash offset mapped at 0x80000000 (after the integrated ROM when there is one).")
     parser.add_target_argument("--spi-flash-size",   default=0xa00000, type=lambda x: int(x, 0), help="Size of the SPI flash window.")
+    parser.add_target_argument("--rom-boot-address", default=None, type=lambda x: int(x, 0),
+        help="Application CPU address for the BIOS ROM boot method.")
     args = parser.parse_args()
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
@@ -481,6 +493,7 @@ def main():
         with_spi_flash      = args.with_spi_flash,
         spi_flash_offset    = args.spi_flash_offset,
         spi_flash_size      = args.spi_flash_size,
+        rom_boot_address    = args.rom_boot_address,
         **parser.soc_argdict
     )
 
